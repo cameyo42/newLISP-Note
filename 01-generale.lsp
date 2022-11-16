@@ -3591,6 +3591,10 @@ Un metodo di calcolo può essere stabile (nel senso che tende a ridurre gli erro
 newLISP non definisce alcun valore costante per pi greco.
 Comunque possiamo trovarlo utilizzando le funzioni trigonometriche inverse:
 
+(setq pi (acos -1))
+(setq pi (mul 2 (asin 1)))
+(setq pi (mul 4 (atan 1)))
+
 (setq pi1 (mul 2.0 (acos 0.0)))
 ;-> 3.141592653589793
 (format {%1.20f} pi1)

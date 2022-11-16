@@ -1491,6 +1491,7 @@ NOTE LIBERE 12
   La funzione for-all
   La funzione random
   Freccette
+  Lights Out Game
 
 APPENDICI
 =========

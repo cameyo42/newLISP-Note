@@ -4133,6 +4133,120 @@ Verifichiamo i risultati matematici:
 
 I risultati della simulazione sono congruenti con i risultati matematici.
 
+
+---------------
+Lights Out Game
+---------------
+
+Lights Out è un gioco elettronico pubblicato da Tiger Electronics nel 1995.
+Il gioco consiste in una griglia di pulsanti luminosi 5x5. 
+All'inizio del gioco, si accendono un numero casuale di pulsanti.
+Ogni volta che viene premuto un pulsante, lo stato di quel pulsante e di tutti i pulsanti che condividono un bordo con esso cambia (le spie accese si spengono e viceversa). 
+L'obiettivo del gioco è spegnere tutte le luci.
+
+Scriviamo una versione minimale del gioco (40 linee di codice).
+
+; on
+(print "■ ")
+; off
+(print "∙ ")
+
+; on
+(print "* ")
+; off
+(print ". ")
+
+Funzione che stampa la griglia di gioco:
+
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (cond ((= (grid i j) 1) (print "■ ")) ; on
+              ((= (grid i j) 0) (print "∙ ")) ; off
+              (true (println "ERROR"))
+        )
+      )
+      (println))))
+
+(setq test (array 3 3 (rand 2 9)))
+(print-grid test)
+
+Funzione che crea una lista di "vicini" della cella (row col):
+
+(define (vicini row col max-row max-col)
+  (local (out up down sx dx)
+    (setq out '())
+    ; UP (cella sopra)
+    (setq up (- row 1))
+    (if (>= up 0) (push (list up col) out -1))
+    ; DOWN (cella sotto)
+    (setq down (+ row 1))
+    (if (< down max-row) (push (list down col) out -1))
+    ; SX (cella a sinistra)
+    (setq sx (- col 1))
+    (if (>= sx 0) (push (list row sx) out -1))
+    ; DX (cella a destra)
+    (setq dx (+ col 1))
+    (if (< dx max-col) (push (list row dx) out -1))
+    out))
+
+(vicini 2 3 5 5)
+;-> ((1 3) (3 3) (2 2) (2 4))
+
+Funzione che verifica se il gioco è finito:
+
+(define (endgame? grid) (for-all (fn(x) (= x 1)) (flat (array-list grid))))
+
+Funzione che gestisce il gioco:
+
+(define (lights-out size)
+  (local (board mosse rr cc celle)
+    ; crea griglia di gioco casuale
+    (setq board (array size size (rand 2 (* size size))))
+    (setq mosse 0)
+    ; ciclo del gioco
+    (until (endgame? board)
+      ; stampa griglia di gioco
+      (print-grid board)
+      ; Input utente
+      (print "row: " ) (setq rr (int (read-line)))
+      (print "col: " ) (setq cc (int (read-line)))
+      ;(println rr { } cc)
+      ; calcola le celle vicine alla cella (rr cc)
+      (setq celle (vicini rr cc size size))
+      ; aggiorna la cella corrente
+      (setf (board rr cc) (- 1 (board rr cc)))
+      ; aggiorna le celle vicine
+      (dolist (c celle)
+        (setf (board (c 0) (c 1)) (- 1 (board (c 0) (c 1))))
+      )
+      (++ mosse)
+    )
+    ; fine del gioco
+    (println "Risolto in " mosse " mosse.")
+    (print-grid board)
+  ) 'game-over
+)
+
+Facciamo una prova:
+
+(lights-out 2)
+;-> ■ ∙
+;-> ∙ ■
+;-> row: 0
+;-> col: 0
+;-> ∙ ■
+;-> ■ ■
+;-> row: 1
+;-> col: 1
+;-> Risolto in 2 mosse.
+;-> ∙ ∙
+;-> ∙ ∙
+;-> game-over
+
 =============================================================================
 
 
