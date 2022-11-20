@@ -4144,7 +4144,7 @@ All'inizio del gioco, si accendono un numero casuale di pulsanti.
 Ogni volta che viene premuto un pulsante, lo stato di quel pulsante e di tutti i pulsanti che condividono un bordo con esso cambia (le spie accese si spengono e viceversa). 
 L'obiettivo del gioco è spegnere tutte le luci.
 
-Scriviamo una versione minimale del gioco (40 linee di codice).
+Scriviamo una versione minimale del gioco (circa 50 linee di codice).
 
 ; on
 (print "■ ")
@@ -4172,7 +4172,11 @@ Funzione che stampa la griglia di gioco:
       (println))))
 
 (setq test (array 3 3 (rand 2 9)))
+;-> ((0 1 0) (1 1 0) (0 1 1))
 (print-grid test)
+;-> ∙ ■ ∙
+;-> ■ ■ ∙
+;-> ∙ ■ ■
 
 Funzione che crea una lista di "vicini" della cella (row col):
 
@@ -4196,9 +4200,24 @@ Funzione che crea una lista di "vicini" della cella (row col):
 (vicini 2 3 5 5)
 ;-> ((1 3) (3 3) (2 2) (2 4))
 
-Funzione che verifica se il gioco è finito:
+Funzione che verifica se il gioco è finito (tutte le luci spente = tutti i valori uguali a 0):
 
-(define (endgame? grid) (for-all (fn(x) (= x 1)) (flat (array-list grid))))
+(define (endgame? grid) (for-all (fn(x) (= x 0)) (flat (array-list grid))))
+
+Funzione che gestisce l'input utente di una cifra intera:
+
+(define (read-int msg val-min val-max)
+  (local (done k)
+    (setq done nil)
+    (print msg)
+    (until done
+      (setq k (- (read-key) 48))
+      (if (and (>= k val-min) (<= k val-max))
+        (setq done true)
+      )
+    )
+    (println k)
+    k))
 
 Funzione che gestisce il gioco:
 
@@ -4212,8 +4231,10 @@ Funzione che gestisce il gioco:
       ; stampa griglia di gioco
       (print-grid board)
       ; Input utente
-      (print "row: " ) (setq rr (int (read-line)))
-      (print "col: " ) (setq cc (int (read-line)))
+      (setq rr (read-int (string "row (0.." (- size 1) "): ") 0 (- size 1)))
+      (setq cc (read-int (string "col (0.." (- size 1) "): ") 0 (- size 1)))
+      ;(print "row: " ) (setq rr (int (read-line)))
+      ;(print "col: " ) (setq cc (int (read-line)))
       ;(println rr { } cc)
       ; calcola le celle vicine alla cella (rr cc)
       (setq celle (vicini rr cc size size))
@@ -4234,15 +4255,23 @@ Funzione che gestisce il gioco:
 Facciamo una prova:
 
 (lights-out 2)
+;-> ■ ■
+;-> ∙ ∙
+;-> row (0..1): 0
+;-> col (0..1): 0
+;-> ∙ ∙
+;-> ■ ∙
+;-> row (0..1): 1
+;-> col (0..1): 0
 ;-> ■ ∙
 ;-> ∙ ■
-;-> row: 0
-;-> col: 0
+;-> row (0..1): 0
+;-> col (0..1): 0
 ;-> ∙ ■
 ;-> ■ ■
-;-> row: 1
-;-> col: 1
-;-> Risolto in 2 mosse.
+;-> row (0..1): 1
+;-> col (0..1): 1
+;-> Risolto in 4 mosse.
 ;-> ∙ ∙
 ;-> ∙ ∙
 ;-> game-over
