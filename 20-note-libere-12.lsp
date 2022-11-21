@@ -4276,6 +4276,335 @@ Facciamo una prova:
 ;-> ∙ ∙
 ;-> game-over
 
+
+-------
+Risiko!
+-------
+
+Dal Regolamento del Risiko!:
+l’attaccante comunica ad alta voce il nome del territorio attaccato e quello da cui parte l’attacco.
+Se omette di fare questo annuncio prima di aver lanciato i dadi, il difensore può chiedere la ripetizione del lancio.
+L’attaccante tira tanti dadi quante sono le armate con cui ha deciso di attaccare (massimo 3).
+Esempio: un attaccante possiede 10 armate su un territorio e attacca con 3 armate, lanciando 3 dadi, ma se lo avesse desiderato, avrebbe potuto anche attaccare solo con una o due, lanciando un corrispondente numero di dadi.
+Il difensore, a sua volta, può lanciare un massimo di 3 dadi, anche se possiede più di 3 armate in difesa del territorio attaccato. Il difensore deve tuttavia dichiarare con quante armate intende combattere prima che l’attaccante abbia lanciato i dadi.
+Quando i due giocatori hanno lanciato i dadi, si confrontano i punteggi ottenuti in base al seguente criterio:
+a) Il dado con il punteggio più alto ottenuto dall’attaccante si confronta con il punteggio più alto del difensore: se è maggiore il punteggio dell’attaccante, il difensore dovrà togliere dal territorio attaccato una delle sue armate (riponendola fra quelle in dotazione). In caso contrario, sarà l’attaccante a dover ritirare una delle sue armate dal territorio dal quale ha sferrato l’attacco.
+b) In caso di pareggio vince sempre il difensore.
+c) Se entrambi hanno lanciato più di un dado si confronta il secondo punteggio più alto dell’attaccante con il secondo punteggio più alto del difensore seguendo la stessa procedura.
+d) Se entrambi hanno lanciato 3 dadi, si confronta anche il terzo punteggio più alto dell’attaccante con il terzo punteggio più alto del difensore seguendo la stessa procedura.
+I punteggi non si sommano mai, si confrontano in ordine di grandezza.
+
+Vediamo alcune funzioni di simulazione.
+
+Funzione che simula un singolo scontro tra N attaccanti (1..3) contro M difensori (1..3).
+Il risultato è una lista con due numeri, le armate perse dell'attaccante e le armate perse dal difensore:
+
+(define (boom attacker defender)
+  (local (res lstA lstD)
+    (setq res '(0 0))
+    (setq lstA (sort (rand 6 attacker) >))
+    (setq lstD (sort (rand 6 defender) >))
+    (if (>= attacker defender)
+      (dolist (d lstD)
+        (if (>= d (lstA $idx))
+            (-- (res 0))
+            (-- (res 1))
+        )
+      )
+      ;else (< attacker defender)
+      (dolist (a lstA)
+        (if (> a (lstD $idx))
+            (-- (res 1))
+            (-- (res 0))
+        )
+      )
+    )
+    ;(println lstA { } lstD)
+    res))
+
+Facciamo alcune prove:
+
+(boom 3 3)
+;-> (-3 0)
+(boom 3 2)
+;-> (0 -2)
+(boom 3 1)
+;-> (0 -1)
+
+(boom 2 3)
+;-> (-2 0)
+(boom 1 3)
+;-> (0 -1)
+
+Adesso scriviamo una funzione che calcola le probabilità di tutte le possibili situazioni tra attacco e difesa.
+
+(define (risiko iter)
+  (local (out modi a d tmp)
+    (setq out '())
+    (setq modi '((3 3) (3 2) (3 1) (2 3) (2 2) (2 1) (1 3) (1 2) (1 1)))
+    (dolist (m modi)
+      (setq a (m 0))
+      (setq d (m 1))
+      (setq tmp '(0 0))
+      (for (i 1 iter)
+        (setq tmp (map + tmp (boom a d)))
+      )
+      (println "attackers: " a ", defenders: " d)
+      (println tmp { } (list (div (tmp 0) iter) (div (tmp 1) iter)))
+      (println "(dead attackers)/(dead defender) = "
+        (round (div (div (tmp 0) iter) (div (tmp 1) iter)) -2))
+      (println "---------------------------------------")
+    )
+  )
+)
+
+Calcoliamo le probabilità simulate:
+
+(risiko 1e6)
+;-> attackers: 3, defenders: 3
+;-> (-1892259 -1107741) (-1.892259 -1.107741)
+;-> (dead attackers)/(dead defender) = 1.71
+;-> ---------------------------------------
+;-> attackers: 3, defenders: 2
+;-> (-920313 -1079687) (-0.9203130000000001 -1.079687)
+;-> (dead attackers)/(dead defender) = 0.85
+;-> ---------------------------------------
+;-> attackers: 3, defenders: 1
+;-> (-340694 -659306) (-0.340694 -0.659306)
+;-> (dead attackers)/(dead defender) = 0.52
+;-> ---------------------------------------
+;-> attackers: 2, defenders: 3
+;-> (-1493481 -506519) (-1.493481 -0.5065190000000001)
+;-> (dead attackers)/(dead defender) = 2.95
+;-> ---------------------------------------
+;-> attackers: 2, defenders: 2
+;-> (-1219808 -780192) (-1.219808 -0.780192)
+;-> (dead attackers)/(dead defender) = 1.56
+;-> ---------------------------------------
+;-> attackers: 2, defenders: 1
+;-> (-421330 -578670) (-0.42133 -0.57867)
+;-> (dead attackers)/(dead defender) = 0.73
+;-> ---------------------------------------
+;-> attackers: 1, defenders: 3
+;-> (-826799 -173201) (-0.826799 -0.173201)
+;-> (dead attackers)/(dead defender) = 4.77
+;-> ---------------------------------------
+;-> attackers: 1, defenders: 2
+;-> (-744480 -255520) (-0.74448 -0.25552)
+;-> (dead attackers)/(dead defender) = 2.91
+;-> ---------------------------------------
+;-> attackers: 1, defenders: 1
+;-> (-582816 -417184) (-0.582816 -0.417184)
+;-> (dead attackers)/(dead defender) = 1.4
+;-> ---------------------------------------
+
+Cosa significa?
+  attackers: 3, defenders: 3
+  (-1892259 -1107741) (-1.892259 -1.107741)
+  (dead attackers)/(dead defender) = 1.71
+Per distruggere una armata del difensore, occorrono 1.71 armate dell'attaccante.
+
+Adesso scriviamo una funzione che effettua uno scontro completo tra attaccante e difensore, cioè calcola il risultato finale dello scontro. Restituisce 1 se vince l'attaccante, 0 se vince il difensore.
+
+(define (boom-boom attacker defender)
+  (local (res lstA lstD end out)
+    (setq out nil)
+    (setq end nil)
+    (until end
+      (setq res (boom attacker defender))
+      (setq attacker (+ attacker (res 0)))
+      (setq defender (+ defender (res 1)))
+      ;(println attacker { } defender)
+      ;(read-line)
+      ; vince il difensore
+      (if (<= attacker 0) (set 'out 0 'end true))
+      ; vince l'attaccante
+      (if (<= defender 0) (set 'out 1 'end true))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(boom-boom 3 3)
+;-> 0
+(boom-boom 3 1)
+;-> 1
+
+Calcoliamo le probabilitá di vittoria nel caso in cui le armate non siano piú di 3 per ogni giocatore.
+
+(define (risiko2 iter)
+  (local (modi a d tmp awin dwin)
+    (setq modi '((3 3) (3 2) (3 1) (2 3) (2 2) (2 1) (1 3) (1 2) (1 1)))
+    (dolist (m modi)
+      (setq a (m 0))
+      (setq d (m 1))
+      (setq tmp nil)
+      (setq awin 0)
+      (setq dwin 0)
+      (for (i 1 iter)
+        (setq tmp (boom-boom a d))
+        (if (= tmp 0)
+            (++ dwin)
+            (++ awin)
+        )
+      )
+      (println "attackers: " a ", defenders: " d)
+      (println "wins attackers: " awin ", wins defenders: " dwin)
+      (println "attackers: " (round (div awin iter) -4) ", defenders: " (round (div dwin iter) -4))
+      (println "(wins attackers)/(wins defender) = " (round (div awin dwin) -2))
+      (println "----------------------------------------------")
+    )
+  )
+)
+
+(risiko2 1e6)
+;-> attackers: 3, defenders: 3
+;-> wins attackers: 327397, wins defenders: 672603
+;-> attackers: 0.3274, defenders: 0.6726
+;-> (wins attackers)/(wins defender) = 0.49
+;-> ---------------------------------------------
+;-> attackers: 3, defenders: 2
+;-> wins attackers: 656134, wins defenders: 343866
+;-> attackers: 0.6561, defenders: 0.3439
+;-> (wins attackers)/(wins defender) = 1.91
+;-> ---------------------------------------------
+;-> attackers: 3, defenders: 1
+;-> wins attackers: 916431, wins defenders: 83569
+;-> attackers: 0.9164, defenders: 0.08359999999999999
+;-> (wins attackers)/(wins defender) = 10.97
+;-> ---------------------------------------------
+;-> attackers: 2, defenders: 3
+;-> wins attackers: 121546, wins defenders: 878454
+;-> attackers: 0.1215, defenders: 0.8785
+;-> (wins attackers)/(wins defender) = 0.14
+;-> ---------------------------------------------
+;-> attackers: 2, defenders: 2
+;-> wins attackers: 361899, wins defenders: 638101
+;-> attackers: 0.3619, defenders: 0.6381
+;-> (wins attackers)/(wins defender) = 0.57
+;-> ---------------------------------------------
+;-> attackers: 2, defenders: 1
+;-> wins attackers: 754007, wins defenders: 245993
+;-> attackers: 0.754, defenders: 0.246
+;-> (wins attackers)/(wins defender) = 3.07
+;-> ---------------------------------------------
+;-> attackers: 1, defenders: 3
+;-> wins attackers: 18080, wins defenders: 981920
+;-> attackers: 0.0181, defenders: 0.9819
+;-> (wins attackers)/(wins defender) = 0.02
+;-> ---------------------------------------------
+;-> attackers: 1, defenders: 2
+;-> wins attackers: 105658, wins defenders: 894342
+;-> attackers: 0.1057, defenders: 0.8943
+;-> (wins attackers)/(wins defender) = 0.12
+;-> ---------------------------------------------
+;-> attackers: 1, defenders: 1
+;-> wins attackers: 416637, wins defenders: 583363
+;-> attackers: 0.4166, defenders: 0.5834
+;-> (wins attackers)/(wins defender) = 0.71
+;-> ---------------------------------------------
+
+
+I valori esatti delle percentuali di vittoria dell'attaccante ottenuti con il calcolo delle probabilità sono i seguenti (tra parentesi i risultati della simulazione):
+
+https://amslaurea.unibo.it/11436/1/MangiantiMarco.pdf
+
+  1 contro 1 = 41.7%   (41.66%)
+  2 contro 1 = 57.9% + 42.1% * 41.7% = 75.46%   (75.4%)
+  3 contro 1 = 66% + 34% * 75.46% = 91.67%   (91.64%)
+  1 contro 2 = 25.5% * 41.7% = 10.63%   (10.57%)
+  2 contro 2 = 22.8% + 32.4% * 41.7% = 36.31%   (36.19%)
+  3 contro 2 = 37.2% + 33.6% * 75.46% + 29.3% * 10.63% = 65.67%   (65.61%)
+  1 contro 3 = 17.4% * 10.63% = 1.85%   (1.81%)
+  2 contro 3 = 12.6% * 75.46% + 25.5% * 10.63% = 12.22%   (12.15%)
+  3 contro 3 = 13.8% + 21.5% * 75.46% + 26.5% * 10.64% = 32.84%   (32.74%)
+
+I risultati della funzione di simulazione sono congruenti con quelli matematici.
+
+Per finire una funzione che simula uno scontro di N attaccanti e M difensori per un determinato numero di volte.
+Restituisce la percentuale di vittoria dell'attaccante e del difensore.
+
+(define (boom-boom2 attacker defender)
+  (local (res lstA lstD end)
+    (setq end nil)
+    (until end
+      (setq res (boom attacker defender))
+      (setq attacker (+ attacker (res 0)))
+      (setq defender (+ defender (res 1)))
+      ;(println attacker { } defender)
+      ;(read-line)
+      ; vince il difensore
+      (if (<= attacker 0) (setq end true))
+      ; vince l'attaccante
+      (if (<= defender 0) (setq end true))
+    )
+    (list attacker defender)))
+
+(boom-boom2 3 1)
+;-> (3 0)
+(boom-boom2 3 1)
+;-> (0 1)
+
+(define (risiko3 attacker defender iter)
+  (local (out a d end tmp att def awin dwin)
+    (setq out nil)
+    (setq awin 0)
+    (setq dwin 0)
+    (for (i 1 iter)
+      (setq end nil)
+      (setq att attacker)
+      (setq def defender)
+      ;(println "new: " attacker { } defender)
+      (until end
+        ; attacco e difesa sempre al massimo delle possibilità
+        (if (>= att 3) (setq a 3) (setq a att))
+        (if (>= def 3) (setq d 3) (setq d def))
+        (setq tmp (boom-boom2 a d))
+        (setq att (- att (- a (tmp 0))))
+        (setq def (- def (- d (tmp 1))))
+        (if (<= att 0) (setq end true))
+        (if (<= def 0) (setq end true))
+        ;(println tmp { } att { } def)
+        ;(read-line)
+      )
+      ; aggiorna numero vittorie
+      ; (due if per controllo errori...)
+      (if (<= att 0) (++ dwin))
+      (if (<= def 0) (++ awin))
+    )
+    (println "win attackers: " (round (mul (div awin iter) 100) -4))
+    (println "win defenders: " (round (mul (div dwin iter) 100) -4))
+  )
+)
+
+Per controllare la correttezza di questa funzione verifichiamo alcuni valori che conosciamo:
+
+(risiko3 3 3 1e6)
+;-> win attackers: 32.8267
+;-> win defenders: 67.1733
+(risiko3 1 3 1e6)
+;-> win attackers: 1.8598
+;-> win defenders: 98.14019999999999
+(risiko3 2 2 1e6)
+;-> win attackers: 36.2132
+;-> win defenders: 63.7868
+
+I risultati sono congruenti con quelli precedenti.
+
+Vediamo qualche altro esempio:
+
+(risiko3 6 3 1e6)
+;-> win attackers: 66.6077
+;-> win defenders: 33.3923
+
+(risiko3 10 6 1e6)
+;-> win attackers: 55.0539
+;-> win defenders: 44.9461
+
+(risiko3 8 3 1e6)
+;-> win attackers: 77.9385
+;-> win defenders: 22.0615
+
 =============================================================================
 
 

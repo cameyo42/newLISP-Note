@@ -1492,6 +1492,7 @@ NOTE LIBERE 12
   La funzione random
   Freccette
   Lights Out Game
+  Risiko!
 
 APPENDICI
 =========
