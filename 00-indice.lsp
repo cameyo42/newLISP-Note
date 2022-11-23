@@ -1493,6 +1493,8 @@ NOTE LIBERE 12
   Freccette
   Lights Out Game
   Risiko!
+  Open doors
+  Divisibilità dei fattoriali
 
 APPENDICI
 =========

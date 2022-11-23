@@ -9,7 +9,7 @@ Sviluppo di programmi commerciali
 ---------------------------------
 
 Lutz:
-"The way newLISP is licensed, it does not permit linking or packaging closed source with newLISP together. 
+"The way newLISP is licensed, it does not permit linking or packaging closed source with newLISP together.
 
 You would have to distribute your closed source in a separate package. Users would have to install a newLISP distribution and then your closed source package.
 
@@ -2739,7 +2739,7 @@ Dopo N settimane la formula diventa:
 
   P(N) = 0.99*P(N-1) = 0.99^2*P(N-2) = ... = 0.99^N*P(0)
 
-Adesso sostituiamo nella formula: 
+Adesso sostituiamo nella formula:
 
   P(N) = 80 (il peso dopo N settimane)
   P(0) = 120 (il peso all'inizio, dopo 0 settimane)
@@ -2852,8 +2852,8 @@ Quanto tempo impiegheranno se A, B e C svolgono lo stesso lavoro insieme?
 Ragionando come prima:
                                         a*b*c
   (t/a + t/b + t/c) = 1  -->  t = -----------------
-                                   b*c + a*c + a*b 
-                               
+                                   b*c + a*c + a*b
+
                                          10*5*3           150
   (t/10 + t/5 + t/2) = 1  -->  t = ------------------- = ----- = 1.57894...
                                     5*3 + 10*3 + 10*5      95
@@ -2986,7 +2986,7 @@ Scegliere due numeri qualsiasi x e y e sostituirli con un nuovo numero che vale:
  nuovo numero = x + y + xy
 
 Ad esempio, i numeri 1/4 e 1/8 sarebbero sostituiti da 13/32.
-Continuare a ripetere il processo finché non rimane solo un numero. 
+Continuare a ripetere il processo finché non rimane solo un numero.
 Quale numero o numeri risulteranno?
 
 Come costruire la sequenza:
@@ -3085,7 +3085,7 @@ f(2, 1/3) = 2 + 1/3 + (2)*(1/3) = 3
 
 Per n = k
 Quale sarà il risultato per la sequenza S(k)?
-Sappiamo che S(k) è uguale a S(k – 1) più il termine addizionale 1/k. 
+Sappiamo che S(k) è uguale a S(k – 1) più il termine addizionale 1/k.
 E conosciamo che il termine risultante di S(k – 1) sarà k – 1, per induzione.
 Quindi possiamo valutare il termine finale per S(k) come risultato delle coppie finali (k – 1) e 1/k:
 
@@ -3129,7 +3129,7 @@ Modi in cui si possono scegliere 10 mele su 200: binom[200 10]
 
 
 1) Soluzione
-Ci sono 180 mele sane. Se Pierino vuole evitare le mele marce, deve selezionare le sue 10 mele in 
+Ci sono 180 mele sane. Se Pierino vuole evitare le mele marce, deve selezionare le sue 10 mele in
 questo insieme. Pertanto, ci sono binom[180 10] modi in cui Pierino può selezionare tutte le mele buone. Le probabilità che quasto accada vale:
 
           numero eventi favorevoli     binom[180 10]
@@ -3154,7 +3154,7 @@ Le probabilità che quasto accada vale:
 Dalle 20 mele marce, Pierino seleziona x mele marce e le restanti (10 – x) mele buone (il valore di x è compreso tra 0 e 10).
 
           binom[20 x]*binom[180 (10 - x)]
-  P(2) = --------------------------------- = 
+  P(2) = --------------------------------- =
                    binom[200 10]
 
 (define (mele-marce x)
@@ -3176,7 +3176,7 @@ Calcoliamo le probabilità di selezionare da 1 a 10 mele marce:
 ;-> mele marce: 10, prob: 8.229297783610822e-012
 
 4) Soluzione
-La probabilità che Pierino renda la madre insoddisfatta è data dalla somma di tutte le probabilità: 
+La probabilità che Pierino renda la madre insoddisfatta è data dalla somma di tutte le probabilità:
 
 (apply add (map mele-marce (sequence 1 10)))
 ;-> 0.6602256237632141
@@ -3270,8 +3270,8 @@ Quindi la formula generale è la seguente:
 
 Possiamo usare questa formula per calcolare i valori di E(3), E(2), E(1) e E(0), cioè dopo aver visto 3, 2, 1 e poi 0 numeri:
 
-  E(3) = 61/36, 
-  E(2) = 115/54, 
+  E(3) = 61/36,
+  E(2) = 115/54,
   E(1) = 899/324,
   E(0) = 1223/324.
 
@@ -3770,7 +3770,7 @@ Nota: questo comportamento dipende da "ORO: One-Reference-Only", il sistema di g
 Il numero 0 è pari o dispari?
 -----------------------------
 
-In matematica, "zero" è un numero pari. 
+In matematica, "zero" è un numero pari.
 Questo può essere facilmente verificato in base alla definizione di "pari": è un multiplo intero di 2, precisamente 0*2.
 In termini sociali la "parità" può essere vista come il "trattamento equo di due persone". La divisione per due di qualunque bene rappresenta un trattamento equo. Se il bene è "zero" e lo dividiamo per due, entrambe le persone hanno avuto lo stesso trattamento.
 Anche per newLISP il numero 0 è pari:
@@ -3799,7 +3799,7 @@ Per esempio:
   a/b = 0.9525437177648244/0.2914517654957732 = 3.268272251308901
   result = round(3.268272251308901) = 3  --> numero dispari
 
-Dato che x/y varia da 0 a infinito, e la probabilità che un numero sia pari o dispari è la stessa, allora la probabilità di arrotondamento a pari o dispari deve essere la stessa. 
+Dato che x/y varia da 0 a infinito, e la probabilità che un numero sia pari o dispari è la stessa, allora la probabilità di arrotondamento a pari o dispari deve essere la stessa.
 Quindi la risposta è del 50%.
 
 Siamo sicuri?
@@ -3920,7 +3920,7 @@ Vediamo la definizione dal manuale:
 ********************
 sintassi: (for-all func-condition list)
 
-Applica la funzione func-condition a tutti gli elementi nella lista. 
+Applica la funzione func-condition a tutti gli elementi nella lista.
 Se tutti gli elementi soddisfano la condizione in func-condition, il risultato è true, in caso contrario, viene restituito nil.
 
 (for-all number? '(2 3 4 6 7))
@@ -4139,22 +4139,35 @@ Lights Out Game
 ---------------
 
 Lights Out è un gioco elettronico pubblicato da Tiger Electronics nel 1995.
-Il gioco consiste in una griglia di pulsanti luminosi 5x5. 
+Il gioco consiste in una griglia di pulsanti luminosi 5x5.
 All'inizio del gioco, si accendono un numero casuale di pulsanti.
-Ogni volta che viene premuto un pulsante, lo stato di quel pulsante e di tutti i pulsanti che condividono un bordo con esso cambia (le spie accese si spengono e viceversa). 
+Ogni volta che viene premuto un pulsante, lo stato di quel pulsante e di tutti i pulsanti che condividono un bordo con esso cambia (le spie accese si spengono e viceversa).
 L'obiettivo del gioco è spegnere tutte le luci.
 
 Scriviamo una versione minimale del gioco (circa 50 linee di codice).
+Il programma funziona solo per matrici di dimensione NxN (con 2 <= N <=9 ).
 
+Prima vediamo alcuni risultati matematici sul gioco:
+1) Alcune configurazioni iniziali non hanno soluzione.
+2) In alcuni casi sono possibili soluzioni multiple.
+3) Passare da tutte le luci accese a tutte le luci spente è sempre possibile per matrici quadrate di qualsiasi dimensione (Sutner 1989).
+
+Inoltre osserviamo che:
+a) commutare due volte una luce equivale a non fare nulla,
+b) commutare la luce A e poi luce B ha lo stesso effetto di commutare B e poi commutare A.
+Di conseguenza, l'ordine in cui premiamo i pulsanti è irrilevante.
+
+Caratteri grafici usati:
 ; on
 (print "■ ")
 ; off
-(print "∙ ")
+(print "· ")
+;(print "∙ ")
 
 ; on
 (print "* ")
 ; off
-(print ". ")
+(print "· ")
 
 Funzione che stampa la griglia di gioco:
 
@@ -4165,7 +4178,8 @@ Funzione che stampa la griglia di gioco:
     (for (i 0 (- row 1))
       (for (j 0 (- col 1))
         (cond ((= (grid i j) 1) (print "■ ")) ; on
-              ((= (grid i j) 0) (print "∙ ")) ; off
+              ((= (grid i j) 0) (print "· ")) ; off
+              ;((= (grid i j) 0) (print "∙ ")) ; off
               (true (println "ERROR"))
         )
       )
@@ -4174,9 +4188,9 @@ Funzione che stampa la griglia di gioco:
 (setq test (array 3 3 (rand 2 9)))
 ;-> ((0 1 0) (1 1 0) (0 1 1))
 (print-grid test)
-;-> ∙ ■ ∙
-;-> ■ ■ ∙
-;-> ∙ ■ ■
+;-> · ■ ·
+;-> ■ ■ ·
+;-> · ■ ■
 
 Funzione che crea una lista di "vicini" della cella (row col):
 
@@ -4200,11 +4214,36 @@ Funzione che crea una lista di "vicini" della cella (row col):
 (vicini 2 3 5 5)
 ;-> ((1 3) (3 3) (2 2) (2 4))
 
+Funzione che crea una griglia di gioco casuale:
+
+(define (make-grid size)
+  (local (board rr cc celle)
+  ; partiamo da una configurazione di luci tutte accese (tutti 1)
+  ; poichè questa configurazione è sicuramente risolvibile
+  (setq board (array size size '(1)))
+  ; eseguiamo 1000 mosse casuali sulla griglia di tutti 1
+  (for (i 1 1000)
+    (setq rr (rand size))
+    (setq cc (rand size))
+    ; calcola le celle vicine alla cella (rr cc)
+    (setq celle (vicini rr cc size size))
+    ; aggiorna la cella corrente
+    (setf (board rr cc) (- 1 (board rr cc)))
+    ; aggiorna le celle vicine
+    (dolist (c celle)
+      (setf (board (c 0) (c 1)) (- 1 (board (c 0) (c 1))))
+    )
+  )
+  board))
+
+(make-grid 4)
+;-> ((0 0 0 1) (0 0 0 0) (0 1 0 0) (0 0 0 0))
+
 Funzione che verifica se il gioco è finito (tutte le luci spente = tutti i valori uguali a 0):
 
 (define (endgame? grid) (for-all (fn(x) (= x 0)) (flat (array-list grid))))
 
-Funzione che gestisce l'input utente di una cifra intera:
+Funzione che gestisce l'input utente di una cifra intera (0..9):
 
 (define (read-int msg val-min val-max)
   (local (done k)
@@ -4219,12 +4258,18 @@ Funzione che gestisce l'input utente di una cifra intera:
     (println k)
     k))
 
+(read-int "Intero (1 5): " 1 5)
+;-> Intero (1 5): 2
+
 Funzione che gestisce il gioco:
 
 (define (lights-out size)
   (local (board mosse rr cc celle)
     ; crea griglia di gioco casuale
-    (setq board (array size size (rand 2 (* size size))))
+    (setq board (make-grid size))
+    ; Il seguente metodo può creare griglie non risolvibili
+    ; quindi non è utilizzabile
+    ;(setq board (array size size (rand 2 (* size size))))
     (setq mosse 0)
     ; ciclo del gioco
     (until (endgame? board)
@@ -4256,25 +4301,232 @@ Facciamo una prova:
 
 (lights-out 2)
 ;-> ■ ■
-;-> ∙ ∙
+;-> · ·
 ;-> row (0..1): 0
 ;-> col (0..1): 0
-;-> ∙ ∙
-;-> ■ ∙
+;-> · ·
+;-> ■ ·
 ;-> row (0..1): 1
 ;-> col (0..1): 0
-;-> ■ ∙
-;-> ∙ ■
+;-> ■ ·
+;-> · ■
 ;-> row (0..1): 0
 ;-> col (0..1): 0
-;-> ∙ ■
+;-> · ■
 ;-> ■ ■
 ;-> row (0..1): 1
 ;-> col (0..1): 1
 ;-> Risolto in 4 mosse.
-;-> ∙ ∙
-;-> ∙ ∙
+;-> · ·
+;-> · ·
 ;-> game-over
+
+Scriviamo una funzione che prova a risolvere il gioco in modo casuale (cioè premendo i pulsanti a caso).
+
+(define (solve-rnd size)
+  (local (board mosse rr cc celle)
+    ; crea griglia di gioco casuale
+    (setq board (make-grid size))
+    ; stampa la griglia iniziale
+    (print-grid board)
+    (setq mosse 0)
+    ; ciclo del gioco
+    (until (endgame? board)
+      ; mossa casuale
+      (setq rr (rand size))
+      (setq cc (rand size))
+      ; calcola le celle vicine alla cella (rr cc)
+      (setq celle (vicini rr cc size size))
+      ; aggiorna la cella corrente
+      (setf (board rr cc) (- 1 (board rr cc)))
+      ; aggiorna le celle vicine
+      (dolist (c celle)
+        (setf (board (c 0) (c 1)) (- 1 (board (c 0) (c 1))))
+      )
+      (++ mosse)
+    )
+    ; fine del gioco
+    (println "Risolto in " mosse " mosse.")
+    ; stampa la griglia finale
+    ;(print-grid board)
+  ) 'solved
+)
+
+Proviamo con una matrice 2x2:
+
+(solve-rnd 2)
+;-> · ·
+;-> ■ ·
+;-> Risolto in 5 mosse.
+
+(solve-rnd 2)
+;-> · ■
+;-> ■ ·
+;-> Risolto in 38 mosse.
+
+(solve-rnd 2)
+;-> · ■
+;-> ■ ■
+;-> Risolto in 61 mosse.
+
+Proviamo con una matrice 3x3:
+
+(solve-rnd 3)
+;-> · ■ ■
+;-> ■ ■ ·
+;-> ■ · ·
+;-> Risolto in 422 mosse.
+
+(solve-rnd 3)
+;-> · ■ ·
+;-> ■ ■ ·
+;-> ■ · ·
+;-> Risolto in 2033 mosse.
+
+Proviamo con una matrice 4x4:
+
+(solve-rnd 4)
+;-> · ■ ■ ■
+;-> ■ · ■ ·
+;-> ■ · ■ ·
+;-> · · · ■
+;-> Risolto in 720 mosse.
+
+(solve-rnd 4)
+;-> · · ■ ■
+;-> · ■ ■ ■
+;-> · ■ · ·
+;-> · ■ ■ ■
+;-> Risolto in 4306 mosse.
+
+(solve-rnd 4)
+;-> · · ■ ■
+;-> · · ■ ■
+;-> ■ · ■ ■
+;-> · · · ·
+;-> Risolto in 94 mosse.
+
+Proviamo con una matrice 5x5:
+
+(solve-rnd 5)
+;-> ■ · · ■ ·
+;-> · · · ■ ■
+;-> ■ ■ · · ·
+;-> ■ ■ ■ ■ ■
+;-> · · ■ · ·
+;-> Risolto in 62934 mosse.
+
+(solve-rnd 5)
+;-> · ■ · ■ ·
+;-> ■ · ■ · ■
+;-> ■ ■ · · ■
+;-> ■ · ■ ■ ·
+;-> · · ■ ■ ·
+;-> Risolto in 107798 mosse.
+
+(solve-rnd 5)
+;-> · ■ ■ ■ ■
+;-> ■ ■ · · ·
+;-> ■ · ■ ■ ■
+;-> · · ■ ■ ·
+;-> ■ · ■ ■ ·
+;-> Risolto in 402828 mosse.
+
+(solve-rnd 5)
+;-> · ■ · · ■
+;-> ■ ■ · · ·
+;-> ■ ■ ■ · ■
+;-> · · ■ ■ ■
+;-> · · ■ · ■
+;-> Risolto in 9721170 mosse.
+
+Con una matrice 5x5 ci mette alcuni secondi per trovare la soluzione (che sicuramente non è quella ottimale).
+
+Esiste un algoritmo per risolvere questo gioco chiamato "Light Chasing".
+
+Descriviamo l'algoritmo per una matrice 5x5.
+Per iniziare, spegnere tutte le luci nella riga superiore, premendo i pulsanti della seconda riga che si trovano direttamente sotto qualsiasi pulsante acceso nella riga superiore. La riga superiore avrà quindi tutte le luci spente.
+Ripetere questo passaggio per la seconda, terza e quarta riga. (cioè spegnere le luci fino alla riga inferiore).
+Questo potrebbe aver già risolto il puzzle, ma è più probabile che siano rimaste accese alcune luci nella riga inferiore.
+Se è così, ci sono solo 7 configurazioni possibili.
+A seconda della configurazione ottenuta, occorre premere alcuni pulsanti nella riga superiore, come mostrato dalla seguente tabella:
+
+  Luci accese sulla riga inferiore    Luci da premere sulla riga superiore
+  1 0 0 0 1                           1 1 0 0 0
+  0 1 0 1 0                           1 0 0 1 0
+  1 1 1 0 0                           0 1 0 0 0
+  0 0 1 1 1                           0 0 0 1 0
+  1 0 1 1 0                           0 0 0 0 1
+  0 1 1 0 1                           1 0 0 0 0
+  1 1 0 1 1                           0 0 1 0 0
+
+Dopo aver premuto i pulsanti nella riga superiore, ora applicare nuovamente l'algoritmo "Light Chasing" (cioè spegnere le luci riga per riga).
+Questa volta il puzzle sarà sicuramente risolto quando raggiungeremo la riga inferiore.
+Nota: questo algoritmo non genera la soluzione ottimale (quella con il minor numero di mosse).
+
+Vediamo un esempio di applicazione dell'algoritmo:
+
+(lights-out 4)
+;-> · ■ · ·
+;-> · ■ · ■
+;-> · · · ·
+;-> ■ · · ■
+;-> row (0..3): 1
+;-> col (0..3): 1
+;-> · · · ·
+;-> ■ · ■ ■
+;-> · ■ · ·
+;-> ■ · · ■
+;-> row (0..3): 2
+;-> col (0..3): 0
+;-> · · · ·
+;-> · · ■ ■
+;-> ■ · · ·
+;-> · · · ■
+;-> row (0..3): 2
+;-> col (0..3): 2
+;-> · · · ·
+;-> · · · ■
+;-> ■ ■ ■ ■
+;-> · · ■ ■
+;-> row (0..3): 2
+;-> col (0..3): 3
+;-> · · · ·
+;-> · · · ·
+;-> ■ ■ · ·
+;-> · · ■ ·
+;-> row (0..3): 3
+;-> col (0..3): 0
+;-> · · · ·
+;-> · · · ·
+;-> · ■ · ·
+;-> ■ ■ ■ ·
+;-> row (0..3): 3
+;-> col (0..3): 1
+;-> Risolto in 6 mosse.
+;-> · · · ·
+;-> · · · ·
+;-> · · · ·
+;-> · · · ·
+;-> game-over
+
+Nel caso di una matrice 5x5 possiamo verificare se una data posizione è risolvibile usando il seguente algoritmo:
+
+https://www.jaapsch.net/puzzles/lights.htm
+
+Le posizioni seguenti sono chiamate "quiet patterns" (modelli di pulsanti che, se premuti, lasceranno le luci invariate):
+
+  Posizione A        Posizione B
+  1 0 1 0 1          1 1 0 1 1
+  1 0 1 0 1          0 0 0 0 0
+  0 0 0 0 0          1 1 0 1 1
+  1 0 1 0 1          0 0 0 0 0
+  1 0 1 0 1          1 1 0 1 1
+
+Osserva la posizione A e considera le luci segnate (1). Qualsiasi delle 25 pressioni del pulsante cambierà un numero pari delle luci contrassegnate. 
+Pertanto, gli unici schemi risolvibili hanno un numero pari di luci contrassegnate accese. 
+Lo stesso vale per la posizione B. 
+Se nella nostra posizione entrambi questi gruppi di luci segnate hanno un numero pari di luci accese, allora la posizione è risolvibile.
 
 
 -------
@@ -4605,6 +4857,195 @@ Vediamo qualche altro esempio:
 ;-> win attackers: 77.9385
 ;-> win defenders: 22.0615
 
-=============================================================================
 
+----------
+Open doors
+----------
+
+Abbiamo un lungo corridoio con N porte su un lato. Tutte le porte sono inizialmente chiuse.
+Ci muoviamo avanti e indietro nel corridoio cambiando lo stato delle porte come segue:
+1) Apriamo una porta che è chiusa e chiudiamo una porta che è aperta.
+2) Iniziamo da un'estremità e continuiamo a modificare lo stato delle porte fino a raggiungere l'altra estremità, quindi torniamo indietro e iniziamo ad alterare di nuovo lo stato delle porte.
+3) Al primo passaggio si alterano gli stati delle porte numerate 1, 2, 3, ..., N.
+4) Al secondo passaggio, si modificano gli stati delle porte numerate 2, 4, 6, ....
+5) Al terzo giro si alterano gli stati delle porte numerate 3, 6, 9, ...
+6) e così via...
+7) La procedura di cui sopra continuerà fino all'ennesimo turno in cui si modifica lo stato della porta numero N.
+
+Trovare il numero di porte aperte alla fine della procedura.
+
+(define (doors num show)
+  (local (porte turn base)
+    (setq porte (array num '(0)))
+    (setq turn 1)
+    (setq base 0)
+    (while (<= turn num)
+      (if show (println "turno: " turn))
+      (for (i base (- num 1) turn)
+        (setf (porte i) (- 1 (porte i)))
+      )
+      (if show (begin (print "porte: " porte) (read-line)))
+      (++ turn)
+      (++ base)
+    )
+    (first (count '(1) (array-list porte)))))
+
+Vediamo come agisce la procedura:
+
+(doors 10 true)
+;-> turno: 1
+;-> porte: (1 1 1 1 1 1 1 1 1 1)
+;-> turno: 2
+;-> porte: (0 1 0 1 0 1 0 1 0 1)
+;-> turno: 3
+;-> porte: (1 1 0 0 0 1 1 1 0 0)
+;-> turno: 4
+;-> porte: (0 1 0 0 1 1 1 1 1 0)
+;-> turno: 5
+;-> porte: (1 1 0 0 1 0 1 1 1 0)
+;-> turno: 6
+;-> porte: (0 1 0 0 1 0 0 1 1 0)
+;-> turno: 7
+;-> porte: (1 1 0 0 1 0 0 0 1 0)
+;-> turno: 8
+;-> porte: (0 1 0 0 1 0 0 0 0 0)
+;-> turno: 9
+;-> porte: (1 1 0 0 1 0 0 0 0 1)
+;-> turno: 10
+;-> porte: (0 1 0 0 1 0 0 0 0 1)
+;-> 3
+
+(doors 372)
+;-> 19
+(doors 400)
+;-> 20
+(doors 100)
+;-> 10
+(doors 120)
+;-> 10
+(doors 121)
+;-> 11
+(doors 825625)
+;-> 908
+
+Per vedere se esiste qualche pattern, possiamo scrivere:
+
+(map (fn(x) (list x (doors x))) (sequence 1 30))
+;-> ((1 1) (2 1) (3 1)
+;->  (4 2) (5 2) (6 2) (7 2) (8 2)
+;->  (9 3) (10 3) (11 3) (12 3) (13 3) (14 3) (15 3)
+;->  (16 4) (17 4) (18 4) (19 4) (20 4) (21 4) (22 4) (23 4) (24 4)
+;->  (25 5) (26 5) (27 5) (28 5) (29 5) (30 5))
+
+Sembra che la funzione restituisca floor(sqrt(num)).
+Per verificare la nostra ipotesi scriviamo una nuova funzione:
+
+(define (doors2 num) (floor (sqrt num)))
+
+Facciamo alcune prove:
+
+(doors2 372)
+;-> 19
+(doors2 400)
+;-> 20
+(doors2 100)
+;-> 10
+(doors2 120)
+;-> 10
+(doors2 121)
+;-> 11
+(doors2 825625)
+;-> 908
+
+Verifichiamo la nostra ipotesi fino a 1000:
+
+(= (map doors (sequence 1 1e3))
+   (map doors2 (sequence 1 1e3)))
+;-> true
+
+
+---------------------------
+Divisibilità dei fattoriali
+---------------------------
+
+Dato un numero N, determinare se il suo fattoriale N! è divisibile dalla somma dei primi N numeri.
+
+Soluzione ingenua
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+Funzione che calcola la somma dei numeri 1..n:
+
+(define (somma n) (/ (* n (+ n 1)) 2))
+
+(somma 10)
+;-> 55
+
+(define (divisibile n)
+  (zero? (% (fact-i n) (somma n))))
+
+(divisibile 3)
+;-> true
+
+(divisibile 4)
+;-> nil
+
+Soluzione matematica
+
+La somma dei primi n numeri vale:
+
+  s = n*(n+1)/2
+
+Ora il termine n*(n+1) può essere scritto come:
+
+  n*(n+1) = (n+1)!/(n-1)!
+
+Quindi la somma diventa:
+
+  s = (n+1)!/2*(n-1)!
+
+Il rapporto da calcolare n!/s vale:
+
+    n!     2*(n - 1)!
+  ----- = ------------
+    s       (n + 1)
+
+Da questa formula possiamo osservare che:
+
+- se (n + 1) è un numero primo, allora n! non è divisibile per s
+- se (n + 1) non è un numero primo, allora n! è divisibile per s
+
+Nota: il numero 1! è divisibile per 1 e va trattato a parte.
+
+La nuova funzione è la seguente:
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (divisible n)
+  (cond ((= n 1) true)
+        ((prime? (+ n 1)) nil)
+        (true true)))
+
+(divisible 3)
+;-> true
+
+(divisible 4)
+;-> nil
+
+Verifichiamo se le due funzioni producono risultati uguali fino a 1000:
+
+(= (map divisibile (sequence 1 1000))
+   (map divisible (sequence 1 1000)))
+;-> true
+
+=============================================================================
 
