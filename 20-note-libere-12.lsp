@@ -5047,5 +5047,592 @@ Verifichiamo se le due funzioni producono risultati uguali fino a 1000:
    (map divisible (sequence 1 1000)))
 ;-> true
 
+
+---------------------
+Paradossi delle buste
+---------------------
+
+Esistono diversi paradossi logici che trattano due buste.
+
+https://it.wikipedia.org/wiki/Paradosso_delle_due_buste
+
+Il mio approccio è quello di simulare i vari processi.
+
+Due buste: X e 2X
+-----------------
+Due buste uguali, una contiene X euro e l'altra contiene 2X euro.
+Apriamo una busta e vediamo il numero di euro.
+Conviene cambiare la busta con l'altra oppure tenerla?
+
+(define (buste-x2x max-value iter)
+  (local (win lose x)
+    (setq win 0)
+    (setq lose 0)
+    (for (i 1 iter)
+      ; primo numero (x)
+      (setq x (+ 1 (rand max-value)))
+      ; secondo numero (2*x oppure x/2)
+      (setq y (if (zero? (rand 2)) (* x 2) (/ x 2)))
+      ; scambio sempre...
+      ; quindi se risulta x > y, allora ho perso
+      (if (> x y)
+        (++ lose)
+        (++ win)
+      )
+    )
+    (println "win: " win " (" (round (div win iter) -2) "%)")
+    (println "lose: " lose " (" (round (div lose iter) -2) "%)")))
+
+(buste-x2x 100 1e5)
+;-> win: 50005 (0.5%)
+;-> lose: 49995 (0.5%)
+
+(buste-x2x 1000 1e5)
+;-> win: 49943 (0.5%)
+;-> lose: 50057 (0.5%)
+
+Senza altre informazioni la scelta non cambia il risultato, ho sempre il 50% di probabilità di scegliere la busta X e il 50% di scegliere la busta 2X.
+
+Due buste: x e y
+----------------
+Primo caso: conosciamo il valore minimo e massimo che può contenere una busta.
+
+In questo caso una strategia ovvia è quella di utilizzare come soglia il valore (massimo - minimo)/2.
+Se il valore della busta che apriamo è inferiore alla soglia, allora scambiamo le buste.
+Se il valore della busta che apriamo è superiore alla soglia, allora non scambiamo le buste.
+
+La seguente funzione simula un evento con questa strategia
+(valore minimo = 1, valore massimo = num):
+
+(define (buste1 num)
+  (local (out cambio x y z)
+    (setq out -1)
+    (setq cambio nil)
+    ; il nostro numero (che conosciamo)
+    (setq x (+ (rand num) 1))
+    ; l'altro numero (che non conosciamo)
+    (setq y (+ (rand num) 1))
+    ; se il nostro numero è meno della metà del valore massimo
+    ; allora facciamo lo scambio tra x e y
+    (if (< x (/ num 2)) (setq cambio true))
+    ; Verifichiamo i possibili risultati:
+    ; 1. scambio e l'altro numero è maggiore
+    (if (and cambio (>= y x))
+        (setq out true)
+    )
+    ; 2. scambio e l'altro numero è minore
+    (if (and cambio (< y x))
+        (setq out nil)
+    )
+    ; 3. nessuno scambio e l'altro numero è maggiore
+    (if (and (not cambio) (>= y x))
+        (setq out nil)
+    )
+    ; 4. nessuno scambio e l'altro numero è minore
+    (if (and (not cambio) (< y x))
+        (setq out true)
+    )
+    out))
+
+(buste1 100)
+;-> nil
+(buste1 100)
+;-> true
+
+Funzione di simulazione che esegue un evento un determinato numero di volte:
+
+(define (simula-buste func max-value iter)
+  (local (win lose)
+    (setq win 0)
+    (setq lose 0)
+    (for (i 1 iter)
+      (if (func max-value)
+        (++ win)
+        (++ lose)
+      )
+    )
+    (println "win: " win " (" (round (div win iter) -2) "%)")
+    (println "lose: " lose " (" (round (div lose iter) -2) "%)")))
+
+Calcoliamo le percentuali di vittoria e sconfitta della strategia:
+
+(simula-buste buste1 100 1e5)
+;-> win: 74779 (0.75%)
+;-> lose: 25221 (0.25%)
+(simula-buste buste1 1000 1e5)
+;-> win: 75141 (0.75%)
+;-> lose: 24859 (0.25%)
+
+Secondo caso: non conosciamo l'intervallo dei valori, ma conosciamo un altro valore (z) che ha la stessa distribuzione di x e y.
+
+In questo caso una possibile strategia è la seguente.
+Poichè z proviene dallo stesso intervallo di valori di x e y, allora può essere minore o maggiore di x e y con la stessa probabilità.
+Se z > x, allora supponiamo che x è minore di y e facciamo lo scambio.
+Se z <= x, allora supponiamo che x è maggiore di y e non facciamo lo scambio.
+
+Perchè?
+Consideriamo due casi:
+La prima busta che scegliamo contiene x (cioè la quantità minore).
+La prima busta che scegliamo contiene y (questo è ciò che vogliamo).
+Il caso per prima x: 
+se prendiamo prima x, dobbiamo cambiare la busta per avere y. 
+Quando succede secondo la nostra strategia? 
+Succede ogni volta che la nostra z campionata casualmente è maggiore di x. 
+Ciò significa che in questo caso vinciamo con una probabilità P(z>x).
+
+Il primo caso per y: 
+se prendiamo prima y, dobbiamo attenerci alla busta. 
+Ciò accade ogni volta che la nostra z campionata casualmente è minore di y. 
+Ciò significa che in questo caso vinciamo con una probabilità P(z<y).
+
+Poiché entrambi i casi hanno una probabilità del 50% (le buste sono state mescolate), si ottiene una probabilità di successo totale di:
+
+  P(win) = P(win|prima x)*P(prima x) + P(win|prima y)*P(prima y) =
+         = (1/2)*P(win|prima x) + P(win|prima y) =
+         = (1/2)*[P(z>x) + P(z<y)] =
+         = (1/2)*[1- P(z<=x) + P(z<y)] =
+         = (1/2) + (1/2)*P(x<z<y)
+
+Questa probabilità è almeno del 50%, e se P(x<z<y)>0, è ancora più grande.
+Il vantaggio varia da 0% (quando z non è mai compreso tra x e y) al 50% (quando z è sempre compreso tra x e y).
+
+La seguente funzione simula questa strategia (z viene "estratto" nello stesso modo di x e y):
+
+(define (buste2 num)
+  (local (out cambio x y z)
+    (setq out -1)
+    (setq cambio nil)
+    ; il nostro numero (che conosciamo)
+    (setq x (+ (rand num) 1))
+    ; l'altro numero (che non conosciamo)
+    (setq y (+ (rand num) 1))
+    ; generiamo un numero casuale
+    (setq z (+ (rand num) 1))
+    ; se z > x, allora supponiamo che x è minore di y
+    ; e quindi facciamo lo scambio tra x e y
+    (if (> z x) (setq cambio true))
+    ; Verifichiamo i possibili risultati:
+    ; 1. scambio e l'altro numero è maggiore
+    (if (and cambio (>= y x))
+        (setq out true)
+    )
+    ; 2. scambio e l'altro numero è minore
+    (if (and cambio (< y x))
+        (setq out nil)
+    )
+    ; 3. nessuno scambio e l'altro numero è maggiore
+    (if (and (not cambio) (>= y x))
+        (setq out nil)
+    )
+    ; 4. nessuno scambio e l'altro numero è minore
+    (if (and (not cambio) (< y x))
+        (setq out true)
+    )
+    out))
+
+(buste2 100)
+;-> true
+(buste2 100)
+;-> nil
+
+Calcoliamo le percentuali di vittoria e sconfitta della strategia:
+
+(simula-buste buste2 100 1e5)
+;-> win: 66718 (0.67%)
+;-> lose: 33282 (0.33%)
+
+(simula-buste buste2 1000 1e5)
+;-> win: 66497 (0.66%)
+;-> lose: 33503 (0.34%)
+
+
+-----------------------------------
+Parse numbers from a list of symbol
+-----------------------------------
+
+; by newdep
+(define (numbers:numbers) (clean nil? (args)))
+
+(numbers any number from 10 upto 100 from this line)
+;-> (10 100)
+
+
+------------------------------
+Esempio di programmazione FOOP
+------------------------------
+
+;lambdaj/java
+;Person me = new Person("Mario", "Fusco", 35);
+;Person luca = new Person("Luca", "Marrocco", 29);
+;Person biagio = new Person("Biagio", "Beatrice", 39);
+;Person celestino = new Person("Celestino", "Bellone", 29);
+;List<Person> meAndMyFriends = asList(me, luca, biagio, celestino);
+;it is possible to filter the ones having more than 30 years applying the following filter:
+;LList<Person> oldFriends = filter(having(on(Person.class).getAge(), greaterThan(30)), meAndMyFriends)
+;int totalAge = sum(meAndMyFriends, on(Person.class).getAge());
+
+; newlisp by Cormullion
+
+(new Class 'Person)
+(new Class 'Firstname)
+(new Class 'Lastname)
+(new Class 'Age)
+
+(set 'me
+  (Person
+    (Firstname "Mario")
+    (Lastname "Fusco")
+    (Age 35)))
+
+(set 'luca
+  (Person
+    (Firstname "Luca")
+    (Lastname "Marrocco")
+    (Age 29)))
+
+(set 'biagio
+  (Person
+    (Firstname "Biagio")
+    (Lastname "Beatrice")
+    (Age 39)))
+
+(set 'celestino
+  (Person
+    (Firstname "Celestino")
+    (Lastname "Bellone")
+    (Age 29)))
+
+(set 'me-and-my-friends
+  (list me luca biagio celestino))
+
+(lookup Age luca)
+;-> 29
+
+(map (curry assoc Age) me-and-my-friends)
+;-> ((Age 35) (Age 29) (Age 39) (Age 29))
+
+(set 'oldfriends
+ (filter (fn (person) (> (lookup Age person) 30)) me-and-my-friends))
+;-> ((Person
+;->    (Firstname "Mario")
+;->    (Lastname "Fusco")
+;->    (Age 35))
+;->  (Person
+;->    (Firstname "Biagio")
+;->    (Lastname "Beatrice")
+;->    (Age 39)))
+
+(set 'total-age (apply add (map (curry lookup Age) me-and-my-friends)))
+;-> 132
+
+
+-------------
+Peg solitaire
+-------------
+
+Peg Solitaire, è un classico puzzle di "jumping".
+È costituito da una tavola con 33 fori, disposti a forma di croce:
+un quadrato 3×3 con quattro rettangoli 2×3 aggiunti ai suoi lati.
+
+casa libera = "·"
+casa occupata = "■"
+
+      ■ ■ ■
+      ■ ■ ■
+  ■ ■ ■ ■ ■ ■ ■
+  ■ ■ ■ · ■ ■ ■
+  ■ ■ ■ ■ ■ ■ ■
+      ■ ■ ■
+      ■ ■ ■
+
+All'inizio, tutti i fori, tranne quello centrale contengono una pedina (in genere una pallina). Una mossa consiste nel saltare una pedina sopra un'altro per finire in una buca vuota, quindi rimuovere la pedina che è stata saltata.
+Le pedine possono muoversi solo in modo orizzontale (a sinistra o a destra) e verticale (in alto o in basso).
+Lo scopo del puzzle è rimuovere tutte le pedine tranne una e preferibilmente lasciare quest'ultima pedina al centro della tavola.
+
+Simulazione del gioco
+---------------------
+casa libera = "·"
+casa occupata = "■"
+
+0 = casa libera
+1 = casa occupata
+2 = casa impossibile
+
+(setq peg '((2 2 1 1 1 2 2)
+            (2 2 1 1 1 2 2)
+            (1 1 1 1 1 1 1)
+            (1 1 1 0 1 1 1)
+            (1 1 1 1 1 1 1)
+            (2 2 1 1 1 2 2)
+            (2 2 1 1 1 2 2)))
+
+Funzione che stampa una determinata posizione del gioco:
+
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    (println "  0 1 2 3 4 5 6")
+    (for (i 0 (- row 1))
+      (print i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid i j) 2) (print "  ")) ; invisibile
+              ((= (grid i j) 1) (print "■ ")) ; occupata
+              ((= (grid i j) 0) (print "· ")) ; libera
+              (true (println "ERROR"))
+        )
+      )
+      (println))))
+
+(print-grid peg)
+;->   0 1 2 3 4 5 6
+;-> 0     ■ ■ ■
+;-> 1     ■ ■ ■
+;-> 2 ■ ■ ■ ■ ■ ■ ■
+;-> 3 ■ ■ ■ · ■ ■ ■
+;-> 4 ■ ■ ■ ■ ■ ■ ■
+;-> 5     ■ ■ ■
+;-> 6     ■ ■ ■
+
+Funzione che crea una lista di mosse possibili da una determinata posizione:
+mosse possibili = ((r1 c1 r2 c2) ... (r1 c1 r2 c2)))
+
+(define (possible-moves grid)
+  (let ((out '()))
+    (for (r 0 6)
+      (for (c 0 6)
+        (cond ((= (grid r c) 1)
+                ; up possible?
+                (if (and (>= (- r 2) 0)
+                         (zero? (grid (- r 2) c))
+                         (= (grid (- r 1) c) 1))
+                    (push (list r c (- r 2) c) out -1)
+                )
+                ; down possible?
+                (if (and (< (+ r 2) 7)
+                         (zero? (grid (+ r 2) c))
+                         (= (grid (+ r 1) c) 1))
+                    (push (list r c (+ r 2) c) out -1)
+                )
+                ; left possible?
+                (if (and (>= (- c 2) 0)
+                         (zero? (grid r (- c 2)))
+                         (= (grid (- c 1) r) 1))
+                    (push (list r c r (- c 2)) out -1)
+                )
+                ; right possible?
+                (if (and (< (+ c 2) 7)
+                         (zero? (grid r (+ c 2)))
+                         (= (grid (+ c 1) r) 1))
+                    (push (list r c r (+ c 2)) out -1)
+                ))
+              (true nil)
+        )
+      )
+    )
+    out))
+
+(possible-moves peg)
+;-> ((1 3 3 3) (3 1 3 3) (3 5 3 3) (5 3 3 3))
+
+Funzione che verifica se il gioco è terminato (ci deve essere un solo 1 nella matrice):
+
+(define (endgame? grid)
+  (= 1 (first (count '(1) (flat grid)))))
+
+(setq test '((2 2 0 0 0 2 2)
+             (2 2 0 0 0 2 2)
+             (0 0 0 0 0 0 0)
+             (1 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0)
+             (2 2 0 0 0 2 2)
+             (2 2 0 0 0 2 2)))
+
+(endgame? test)
+;-> true
+
+Funzione che verifica se una mossa è legale in una determinata posizione:
+
+(define (legal-move? move grid)
+  (local (r1 c1 r2 c2 rr cc out)
+    (setq out true)
+    (map set '(r1 c1 r2 c2) move)
+    ; la casa di partenza deve essere occupata (1)
+    (if (!= (grid r1 c1) 1) (setq out nil))
+    ; la casa di arrivo deve essere libera (0)
+    (if (!= (grid r2 c2) 0) (setq out nil))
+    ; la casa in mezzo deve essere occupata (1)
+    ; (pallina da mangiare)
+    (cond ((= r1 r2) ; mossa in orizzontale
+            (setq cc (/ (+ c1 c2) 2))
+            (if (!= (grid r1 cc) 1) (setq out nil)))
+          ((= c1 c2) ; mossa in verticale
+            (setq rr (/ (+ r1 r2) 2))
+            (if (!= (grid rr c1) 1) (setq out nil)))
+          (true (setq out nil))
+    )
+    out))
+
+(for (i 0 3) (print (legal-move? ((possible-moves peg) i) peg) { }))
+;-> true true true true
+
+Funzione che effettua una mossa legale da una determinata posizione:
+mossa = (r1 c1 r2 c2)
+
+(define (make-move move grid)
+  (local (r1 c1 r2 c2 rr cc)
+    (map set '(r1 c1 r2 c2) move)
+    ; la casa di partenza diventa libera (0)
+    (setf (grid r1 c1) 0)
+    ; la casa di arrivo diventa occupata (1)
+    (setf (grid r2 c2) 1)
+    ; la casa in mezzo diventa libera (0)
+    ; (pallina mangiata)
+    (cond ((= r1 r2) ; mossa in orizzontale
+            (setq cc (/ (+ c1 c2) 2))
+            (setf (grid r1 cc) 0))
+          ((= c1 c2) ; mossa in verticale
+            (setq rr (/ (+ r1 r2) 2))
+            (setf (grid rr c1) 0))
+          (true (println "ERROR: wrong move."))
+    )
+    grid))
+
+(setq tmp peg)
+(print-grid tmp)
+;->   0 1 2 3 4 5 6
+;-> 0     ■ ■ ■
+;-> 1     ■ ■ ■
+;-> 2 ■ ■ ■ ■ ■ ■ ■
+;-> 3 ■ ■ ■ · ■ ■ ■
+;-> 4 ■ ■ ■ ■ ■ ■ ■
+;-> 5     ■ ■ ■
+;-> 6     ■ ■ ■
+(setq tmp (make-move '(1 3 3 3) tmp))
+(print-grid tmp)
+;->   0 1 2 3 4 5 6
+;-> 0     ■ ■ ■
+;-> 1     ■ · ■
+;-> 2 ■ ■ ■ · ■ ■ ■
+;-> 3 ■ ■ ■ ■ ■ ■ ■
+;-> 4 ■ ■ ■ ■ ■ ■ ■
+;-> 5     ■ ■ ■
+;-> 6     ■ ■ ■
+(setq tmp (make-move '(4 3 2 3) tmp))
+(print-grid tmp)
+;->   0 1 2 3 4 5 6
+;-> 0     ■ ■ ■
+;-> 1     ■ · ■
+;-> 2 ■ ■ ■ ■ ■ ■ ■
+;-> 3 ■ ■ ■ · ■ ■ ■
+;-> 4 ■ ■ ■ · ■ ■ ■
+;-> 5     ■ ■ ■
+;-> 6     ■ ■ ■
+
+Funzione che gestisce l'input utente di una cifra intera (0..9):
+
+(define (read-int msg val-min val-max)
+  (local (done k)
+    (setq done nil)
+    (print msg)
+    (until done
+      (setq k (- (read-key) 48))
+      (if (and (>= k val-min) (<= k val-max))
+        (setq done true)
+      )
+    )
+    (println k)
+    k))
+
+(read-int "Intero (1 5): " 1 5)
+;-> Intero (1 5): 2
+
+Funzione che gestisce il gioco:
+
+(define (peg-solo)
+  (local (board mosse rr1 cc1 rr2 cc2)
+    ; crea griglia di gioco
+    (setq board '((2 2 1 1 1 2 2)
+                  (2 2 1 1 1 2 2)
+                  (1 1 1 1 1 1 1)
+                  (1 1 1 0 1 1 1)
+                  (1 1 1 1 1 1 1)
+                  (2 2 1 1 1 2 2)
+                  (2 2 1 1 1 2 2)))
+    (setq mosse 0)
+    ; ciclo del gioco
+    (until (endgame? board)
+      ; stampa griglia di gioco
+      (print-grid board)
+      ; input utente
+      (setq rr1 (read-int (string "start row (0..6): ") 0 6))
+      (setq cc1 (read-int (string "start col (0..6): ") 0 6))
+      (setq rr2 (read-int (string "end row (0..6): ") 0 6))
+      (setq cc2 (read-int (string "end col (0..6): ") 0 6))
+      ;(println rr1 { } cc1 { } rr2 { } cc2)
+      ; se la mossa è legale...
+      (if (legal-move? (list rr1 cc1 rr2 cc2) board)
+        ; allora effettua la mossa sulla griglia
+        (setq board (make-move (list rr1 cc1 rr2 cc2) board))
+        ; altrimenti stampa un messaggio di errore
+        (println "Attenzione: mossa illegale")
+      )
+      (++ mosse)
+    )
+    ; fine del gioco
+    (println "Risolto in " mosse " mosse.")
+    (print-grid board)
+  ) 'game-over
+)
+
+Facciamo una partita:
+
+(peg-solo)
+;->   0 1 2 3 4 5 6
+;-> 0     ■ ■ ■
+;-> 1     ■ ■ ■
+;-> 2 ■ ■ ■ ■ ■ ■ ■
+;-> 3 ■ ■ ■ · ■ ■ ■
+;-> 4 ■ ■ ■ ■ ■ ■ ■
+;-> 5     ■ ■ ■
+;-> 6     ■ ■ ■
+;-> start row (0..6): 5
+;-> start col (0..6): 3
+;-> end row (0..6): 3
+;-> end col (0..6): 3
+;->   0 1 2 3 4 5 6
+;-> 0     ■ ■ ■
+;-> 1     ■ ■ ■
+;-> 2 ■ ■ ■ ■ ■ ■ ■
+;-> 3 ■ ■ ■ ■ ■ ■ ■
+;-> 4 ■ ■ ■ · ■ ■ ■
+;-> 5     ■ · ■
+;-> 6     ■ ■ ■
+;-> start row (0..6):
+;-> ...
+;-> ...
+;->   0 1 2 3 4 5 6
+;-> 0     · · ·
+;-> 1     · · ·
+;-> 2 · · · · · · ·
+;-> 3 · ■ ■ · · · ·
+;-> 4 · · · · · · ·
+;-> 5     · · ·
+;-> 6     · · ·
+;-> start row (0..6): 3
+;-> start col (0..6): 1
+;-> end row (0..6): 3
+;-> end col (0..6): 3
+;-> Risolto in 31 mosse.
+;->   0 1 2 3 4 5 6
+;-> 0     · · ·
+;-> 1     · · ·
+;-> 2 · · · · · · ·
+;-> 3 · · · ■ · · ·
+;-> 4 · · · · · · ·
+;-> 5     · · ·
+;-> 6     · · ·
+;-> game-over
+
 =============================================================================
 

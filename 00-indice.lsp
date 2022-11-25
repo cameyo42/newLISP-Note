@@ -1495,6 +1495,11 @@ NOTE LIBERE 12
   Risiko!
   Open doors
   Divisibilità dei fattoriali
+  Paradossi delle buste
+  Parse numbers from a list of symbol
+  Esempio di programmazione FOOP
+  Peg solitaire
+
 
 APPENDICI
 =========

@@ -6357,6 +6357,72 @@ si spiega col fatto che (apply *) restituisce 1 e quindi:
 (1 '(0 1 2))
 ;-> (1 2)
 
+Infine un quiz da Lutz Mueller, spiegare l'output delle seguenti espressioni:
+
+(map 1 '((a b c d) (e f g h) (i j k l)))
+;-> ((b c d) (f g h) (j k l))
+
+(map 1 '((1 2) (4 3 2 1) (6 5 4)))
+;-> ((2) (3 2 1) (5 4))
+
+(map (curry 1 2) '((a b c d) (e f g h) (i j k l)))
+;-> ((b c) (f g) (j k))
+
+(map (curry 1 2) '((1 2) (4 3 2 1) (6 5 4)))
+;-> ((2) (3 2) (5 4))
+
+Spiegazione:
+
+"Users Manual and Reference":
+(map exp-functor list-args-1 [list-args-2 ... ])
+Applica successivamente la funzione primitiva, la funzione definita o l'espressione lambda exp-functor agli argomenti specificati in list-args-1, list-args-2-, restituendo tutti i risultati in una lista.
+
+Quindi le espressioni:
+
+(map 1 '((a b c d) (e f g h) (i j k l)))
+(map (curry 1 2) '((a b c d) (e f g h) (i j k l)))
+
+Diventano:
+
+(list (1 '(a b c d)) (1 '(e f g h)) (1 '(i j k l)))
+(list ((curry 1 2) '(a b c d)) ((curry 1 2) '(e f g h)) ((curry 1 2) '(e f g h)))
+
+Inoltre, sempre dal manuale,:
+
+Implicit indexing for rest and slice 
+(Indicizzazione implicita per "rest" e "slice")
+È possibile creare forme implicite di "rest" e "slice" anteponendo ad una lista o uno o due numeri per offset e lunghezza.
+
+Quindi:
+
+(1 '(a b c d))  ->  (b c d)
+(1 '(e f g h))  ->  (f g h)
+(1 '(i j k l))  ->  (j k l)
+
+Inoltre, la funzione curry:
+
+(curry func exp)
+Trasforma func da una funzione f(x, y) che accetta due argomenti in una funzione fx(y) che accetta un singolo argomento. curry funziona come una macro in quanto non valuta i suoi argomenti. Vengono invece valutati durante l'applicazione della func.
+
+Quindi:
+
+((curry 1 2) '(a b c d))  ->  (1 2 '(a b c d))  ->  (b c)
+((curry 1 2) '(e f g h))  ->  (1 2 '(e f g h))  ->  (f g)
+((curry 1 2) '(i j k l))  ->  (1 2 '(i j k l))  ->  (j k)
+
+Inoltre:
+
+Implicit indexing for nth
+(Indicizzazione implicita per nth)
+Nel Lisp originale, il primo elemento in una lista di s-espressioni viene applicato come funzione agli elementi resto come argomenti. In newLISP, una lista nella posizione functor di una s-espressione presuppone la funzionalità di auto-indicizzazione utilizzando gli argomenti di indice che lo seguono.
+
+Quindi:
+
+(map ''(a b c d) '(3 2 1 0))
+;-> (d c b a)
+
+Vedi anche "curry e hayashi" in "Note libere 11"
+
 
 -------------------------------------
 Trasformare la struttura di una lista
