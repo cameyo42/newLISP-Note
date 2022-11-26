@@ -5219,6 +5219,14 @@ Una lista lambda è un sottotipo del tipo lista:
 (lambda? (lambda))
 ;-> true
 
+(first (lambda (x y z)))
+;-> (x y z)
+
+Non possiamo usare l'indicizzazione implicita:
+
+((lambda (x y z)) 0)
+;-> nil
+
 Quando si compongono liste lambda da zero, assicurarsi di iniziare con un lista di tipo lambda, ad esempio:
 
 (append (lambda) '((x) (+ x x)))

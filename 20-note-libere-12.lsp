@@ -5634,5 +5634,80 @@ Facciamo una partita:
 ;-> 6     · · ·
 ;-> game-over
 
+
+----------------------------------
+Il gatto, la tartaruga e il tavolo
+----------------------------------
+
+Un gatto è seduto sul tavolo e una tartaruga sta strisciando sul pavimento direttamente sotto di esso. La distanza dalle orecchie del gatto alla sommità del guscio della tartaruga è di 170 cm. 
+Eva ha scambiato i suoi animali domestici. 
+Ora la tartaruga è sopra il tavolo e il gatto sotto e la distanza dalle orecchie del gatto alla sommità del guscio della tartaruga è di 130 cm. 
+Qual è l'altezza del tavolo?
+
+Le due situazioni sono rappresentate dal grafico seguente, in cui A è la tartaruga e B è il gatto (con molta fantasia):
+
+                                                           +--+    +
+                 +---+    +                                |B |    |
+                 | A |    |                                |  |    |
+  ---------+-----+---+    |                ---------+------+--+    |
+           |              | 130                     |              | 170
+           |              |                         |              |
+           |              |                         |              |
+           | x = ?        |                         | x = ?        |
+           |              +--+                      |              |
+           |              |B |                      |              +---+
+           |              |  |                      |              | A |
+           +              +--+                      +              +---+
+
+Scriviamo le due equazioni:
+
+1) 130 + B - A = x
+2) 170 + A - B = x
+
+Sommiamo le due equazioni:
+
+  130 + B - A + 170 + A - B = 2x
+  300 = 2x
+  x = 300/2 = 150
+
+Quindi il tavolo è alto 150 cm.
+
+
+-------------------
+Problema di Basilea
+-------------------
+
+Il problema di Basilea è un problema matematico, proposto da Pietro Mengoli nel 1644 e risolto dal ventottenne Eulero nel 1735, che consiste nel trovare la somma esatta della seguente serie infinita:
+
+   ∞
+   ∑ 1/n² = 1/1² + 1/2² + 1/3² + ... = π²/6
+  n=1
+
+  Sum[n=1,inf](1/n^2) - 1/1^2 + 1/2^2 + 1/3^2 + ... = π²/6
+
+La serie è approssimativamente uguale a 1.644934...
+Eulero dimostrò che la somma esatta vale π²/6.
+
+(setq PI 3.141592653589793)
+(setq basilea (div (mul PI PI) 6))
+;-> 1.644934066848226
+
+π²/6 ≈ 1.644934066848226...
+
+(define (basil n)
+  (apply add (map (fn(x) (div (mul x x))) (sequence 1 n))))
+
+(setq values (map basil '(10 100 1000 1e4 1e5 1e6 1e7 1e8)))
+;-> (1.549767731166541 1.634983900184892
+;->  1.643934566681562 1.644834071848065
+;->  1.644924066898242 1.644933066848770
+;->  1.644933966847260 1.644934057834575)
+
+(setq errors (map (fn(x) (sub basilea x)) values))
+;-> (0.09516633568168564 0.009950166663334148 
+;->  0.0009995001666649461 9.999500016122376e-005
+;->  9.999949984074164e-006 9.999994563525405e-007
+;->  1.000009668405966e-007 9.013651380840315e-009)
+
 =============================================================================
 

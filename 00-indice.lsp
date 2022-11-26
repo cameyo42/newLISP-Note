@@ -1499,6 +1499,8 @@ NOTE LIBERE 12
   Parse numbers from a list of symbol
   Esempio di programmazione FOOP
   Peg solitaire
+  Il gatto, la tartaruga e il tavolo
+  Problema di Basilea
 
 
 APPENDICI
