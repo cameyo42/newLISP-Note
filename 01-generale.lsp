@@ -3034,12 +3034,14 @@ Se il valore in float è infinito la funzione restituisce true altrimenti nil.
 
 (div 0 0) → NaN
 
-Nota che una divisione intera per zero, ad es. (/ 1 0) genera un errore di "divisione per zero" e non produce infinito.
-
 Vediamo alcuni esempi:
+
+Una divisione intera per zero, ad es. (/ 1 0), genera un errore di "divisione per zero" e non produce infinito:
 
 (setq a (/ 1 0))
 ;-> ERR: division by zero in function /
+
+Mentre una divisione floating per zero, ad es. (div 1 0), produce infinito:
 
 (setq a (div 1 0))
 ;-> 1.#INF

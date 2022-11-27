@@ -5709,5 +5709,419 @@ Eulero dimostrò che la somma esatta vale π²/6.
 ;->  9.999949984074164e-006 9.999994563525405e-007
 ;->  1.000009668405966e-007 9.013651380840315e-009)
 
+
+--------------------------------------
+Forum: In-place parameter substitution
+--------------------------------------
+
+genghis:
+--------
+Is it possible to create a user-defined function much like what inc does: in-place parameter substitution, or is this only available for built-in functions?
+
+Let me clarify my question:
+
+Is it possible to create my version of inc, my-inc?
+
+(define (sum (x 0)) (my-inc 0 x))
+(sum 1) ;=> 1
+(sum 2) ;=> 3
+sum ;=> (lambda ((x 0)) (my-inc 3 x))
+
+My gut instinct tells me in order to have a self-modifying code like the above, my-inc must have a reference to the enclosing lambda list. How do I go about creating my-inc ? Is this possible?
+
+Lutz:
+-----
+Any destructive primitive could be used to do this, when there is a way to reference the currently executing lambda expression:
+
+(define (selfmod x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
+;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 0)
+(selfmod)
+;-> 1
+(selfmod)
+;-> 2
+(selfmod)
+;-> 3
+selfmod
+;-> (lambda (x) (setf (last selfmod) (+ (last selfmod) 1)) 3)
+
+A user-defined function has no way to reference the function it was invoked from, except when it has previous knowledge of it:
+
+(define (selfinc x) (myinc x) 0)
+;-> (lambda (x) (myinc x) 0)
+(define (myinc x) (inc (last selfinc) x))
+;-> (lambda (x) (inc (last selfinc) x))
+(selfinc 1)
+;-> 1
+(selfinc 2)
+;-> 3
+(selfinc 3)
+;-> 6
+selfinc
+;-> (lambda (x) (myinc x) 6)
+
+Kazimir Majorinc:
+-----------------
+It would be nice to have some function that returns list of the caller functions, similarly like (sys-info 3) returns the level of recursion. Although it sounds quite 'dangerous' it can actually provide some debugging facilities, i.e. functions could react if called by someone they do not appreciate.
+
+Lutz:
+-----
+
+(define (callers) 
+    (catch (0) 'error) 
+    (slice (map sym (find-all "function (\\w+)" error $1 0)) 3) 
+)
+
+(define (foo) (bar))
+(define (bar) (baz))
+(define (baz) (callers))
+
+(foo) => (baz bar foo)
+
+Instead of 3 in the last statement of 'callers' put 4 to exclude the current function.
+
+I had this function coded natively a while back for experimentation, but couldn't really find any good use for it. Similar to 'estack', which was even shipped - undocumented - for a for a few versions and returned the variable environment stack. These functions seem interesting too me too, but I cannot see useful applications, it is just overhead nobody ever uses. When you really have a situation, where a function needs to know the caller, just make it a parameter of the function call.
+
+Above code is not the only way to implement this. A while back Cormullion showed how you could redefine 'define' to include debugging code. In the current case, it would mean pushing the function symbol on a 'callers' stack as first statement of each function.
+
+
+-------------------------------------
+Forum: How to solve context collision
+-------------------------------------
+
+lotabout:
+---------
+I am new to newLISP, and just can't find out how to solve this problem.
+As we know, we can surround a macro to avoid variable capture.
+But if we write two different modules without knowing the other one, we might encounter a context collision, i.e. using the same name for context.
+
+here is an example:
+
+In module 'A', we define a macro 'my-set' and put it in context 'my-set'(just to illustrate).
+
+; A.lsp
+(context 'my-set)
+(define-macro (my-set a b)
+  (set (eval a) b))
+(context MAIN)
+(context 'A)
+(define (my-test x)
+  (letex (x x) (my-set:my-set 'y x)))
+(context MAIN)
+
+And now we write module 'B' without recognizing the existence of module 'A'.
+
+; B.lsp
+(context 'my-set)
+(define-macro (my-set a b)
+  (set  (eval b) a))
+(context MAIN)
+(context 'B)
+(define (my-test x)
+  (letex (x x) (my-set:my-set x 'y)))
+(context MAIN)
+
+Now we see that we have two implementations of 'my-set' macro in the same context, if we load these two files at the same time, one will break the other.
+If we load 'A.lsp' first, and then 'B.lsp', then the definition of 'my-set' in B will overwrite that in 'A.lsp', so the 'my-test' function in 'A.lsp' will fail.
+
+Cause contexts can be seen globally instead of being shadowed by the other
+contexts. And we might be using different modules written by different people,
+and somehow they might have context collision, and I just wondering how to deal
+with this situation.
+
+Lutz:
+-----
+Use only one context per module file. Different programmers maintain different contexts. The MAIN context is the only place where other contexts should be loaded and controls the main organization of the program and is maintained by a lead programmer. No context should redefine functions during runtime in contexts not maintained by the same developer.
+
+lotabout:
+---------
+Using only one context per module file is a good convention. But in this case, there won't be an easy solution of solving variable capture when defining macros (in a module).
+Also, that means we are not allow to use context as a 'dict' or 'hash table'
+when writing modules.
+How to deal with this situation?
+
+Lutz:
+-----
+Hashes / dictionaries are globally accessible data (contexts), which can be changed by different other modules. By why would this be a problem, the same happens to databases or other global data intended for global use.
+
+The thing happening in your example is not caused by variable capture or dynamic scoping, but is simply the effect of redefining the context my-set during run-time. I expanded the example with printing statements and usage of the my-test function to show the effect:
+
+; A.lsp
+(context 'my-set)
+(define-macro (my-set:my-set a b)
+  (set (eval a) b))
+(context MAIN)
+(context 'A)
+(println "A before " my-set:my-set)
+(define (my-test x)
+  (letex (x x) (my-set:my-set 'y x)))
+(my-test 123)
+(println "A after " my-set:my-set)
+(context MAIN)
+
+; B.lsp
+(context 'my-set)
+(define-macro (my-set:my-set a b)
+  (set  (eval b) a))
+(context MAIN)
+(context 'B)
+(println "B before " my-set:my-set)
+(define (my-test x)
+  (letex (x x) (my-set:my-set x 'y)))
+(my-test 456)
+(println "B after " my-set:my-set)
+(context MAIN)
+
+and this is the output:
+
+A before (lambda-macro (my-set:a my-set:b) (set (eval my-set:a) my-set:b))
+A after (lambda-macro (my-set:a my-set:b) (set (eval my-set:a) my-set:b))
+B before (lambda-macro (my-set:a my-set:b) (set (eval my-set:b) my-set:a))
+B after (lambda-macro (my-set:a my-set:b) (set (eval my-set:b) my-set:a))
+
+The only effect we can see, is caused by explicitly redefining the my-set:my-set function. The A:my-test and B:my-test functions have no effect on my-set:myset
+
+Variable capture via macros (really fexprs) of the type as described here: http://www.newlisp.org/downloads/newlisp_manual.html#scoping
+is only possible via interactions inside the same context.
+That context is under the control of one developer, or better, you have all macros in their own context. Then any symbol brought into the space of the macro is foreign and cannot interact.
+
+On a more general note:
+
+Dynamic scoping is frequently cited as an argument against newLISP. In practice, I never have seen variable capture problems in my own code or code of others. When sticking to the "separate contexts" rule and putting macros in to their own contexts, problems cannot occur.
+
+A few years ago I worked on a team of seven developers for over a year, all except I, using newLISP for the first time and building a multi-module distributed application for search.
+Some of the programmers were experienced in programming, others new to the craft. One was an experienced CL programmer.
+We never saw problems caused by dynamic scoping.
+Many newLISP users don't even fully understand the whole concept and avoid free variables as a matter of good programming style.
+
+Today, I believe that the problems with dynamic scoping are vastly exaggerated, which is sad, because people have stopped using dynamic scoping as a tool, exploiting its special characteristics, e.g.: switching and separation of concerns.
+
+The real problems in dynamic languages are of different nature. E.g. misspelling variables, because there is no need to pre-declare them, or confusing types of different variables in duck typed functions.
+
+lotabout:
+---------
+Now I have more confidence in using dynamic scope.
+And understand that we can avoid variable capture by putting macros(fexprs) into a seperate context, and use it inside another context. Without interactions, no variable caputure will ever happen to macros(fexprs).
+
+Just for discussion, consider the following situation:
+Now we have this convention when writing modules (all I can think up):
+1. segregate macros. => put them into a seperate context.
+2. wrap all codes with a context. => i.e. the name of the module.
+3. use only one context(which is specified by No.2) except those used as data containers(such as dict/hash table)
+
+And what if two developers use the same contex name for different purpose?
+Here, we use contexts as data(dict/hash table, etc.) inside another global context(to specify module name). Suppose developer A use the context 'dict' to store (word explanations) pairs, and developer B happen to use the same context for holding (word frequency) pairs. Now we have to use both modules, because these two modules will affect the other by operate on the same context 'dict', both will fail to some extent.
+
+How to deal with this one?
+
+I have little experience of joinning large projects, but I do believe with the
+modules for newLisp increasing, there will be a name collision. Of course we
+can have all contexts as data named with a prefix such as "A-dict" or something
+like that, which I believe is easy and will work, besides, can we prevent this
+from happenning instead of fixed it as a bug?
+
+cormullion:
+-----------
+And what if two developers use the same contex name for different purpose?
+How to deal with this one?
+I think this issue should be considered as part of project management, not language design. If two developers working closely on the same project are not already working consistently to some agreed policies, then the project is probably going to fail anyway..
+
+Lutz:
+-----
+Name clashes occur in any programming language and must be dealt with as part of development management, as Cormullion states. Name clashes occur in different programming languages at different time. They can occure in C, C++ and in Java too. In fully compiled languages, they can be catched during compile time before running.
+
+The problem is more critical in fully dynamic languages like newLISP, where you can create and delete symbols during runtime. For normal grouping of code into context modules, the rules outlined in the previous post work, because these are created and dealt with before runtime. For hashes created and deleted at runtime do the following:
+
+Using the uuid function you could create a dictionary at runtime and guaranteed to be unique. Fortunately contexts in newLISP can be referred to with variables, which could be local to a context. So you don't have to know the name of the dictionary context when writing your program before the context is created, and you don't have to deal with hard to remember UUID strings.
+
+The following code shows this as an example:
+
+(context 'A)
+(set 'mydict (let (s (sym (append "dict" (uuid)) MAIN)) (new Tree s)))
+(bayes-train (parse "this sentence has words and words") mydict)
+(bayes-train (parse "and more words") mydict)
+(println "mydict in A:" (mydict))
+(context MAIN)
+
+(context 'B)
+(set 'mydict (let (s (sym (append "dict" (uuid)) MAIN)) (new Tree s)))
+(mydict "foo" "hello world")
+(mydict "bar" 1234567)
+(println "mydict in B:" (mydict))
+(println "association in B: " (mydict "foo"))
+(context MAIN)
+(exit)
+
+Both contexts A and B use the same internal name mydict to refer to a dictionary context created using the sym and uuid functions. This is the output:
+
+mydict in A:(("and" (2)) ("has" (1)) ("more" (1)) ("sentence" (1)) ("this" (1)) ("words" (3)))
+mydict in B:(("bar" 1234567) ("foo" "hello world"))
+association in B: hello world
+
+In A word frequencies are counted. Note, that frequencies are in parenthesis, because you could count and compare several corpuses using bayes-query. In B general associations are made.
+
+lotabout:
+---------
+This trick works!
+And I think we should always use this trick when using a context as a data container inside a module.
+Thanks again for being so patient. And surely I will stay with newlisp, it is just amazing.
+
+bairui:
+-------
+I would love to hear more about this. I am a struggling convert to the world of functional programming and dynamic scope bewilders me. :-/
+
+rickyboy:
+---------
+Hello bairui,
+
+I'm going to try to explain how dynamic scope of variables and static (lexical) scope of variables differ. If you don't understand it after reading this, I will bet money that it is the fault of my bad explanation. :)
+
+Free and bound variables
+
+To answer this question, we should first look at a simple classification of variables: free variables versus bound variables. To explain what free and bound variables are, consider this code snippet which is at the top-level in newLISP.
+
+(define x 42)  ; <-- 0
+(+ x y)  ; <-- 1
+(let (y 1) (+ x y))  ; <-- 2
+(let (x 42 y 1) (+ x y))  ; <-- 3
+(lambda (y) (+ x y))  ; <-- 4
+(define (dumb-sum y) (+ x y)) ; <-- 5
+
+Expression 1 has two variables: x and y. Both of them are free. Expression 2 has the same variables, but only x is free -- y is bound. Why? Because the let is responsible for binding y (and BTW this is why the second item of any let form is called "the let bindings").
+
+Here's a good idea to keep in the mind in determining whether a variable is free or bound in an expression: every variable is free until it is *bound* by something -- that is, until something puts binds, or fetters, on it. That's what let did to y in Expression 2. (Bad let!) :))
+
+[Aside: BTW, it is not conventional to say that (non-lambda) top-level defines (as in Expression 0) "bind" variables. Hence, while associating x to 42, x is not considered bound there. In short, ignore non-lambda top-level defines.]
+
+Expression 3 has x and y both bound, i.e. they are both bound variables and no variables in that expression are free.
+
+When you write a lambda form, the parameter list tells you which variables are going to be bound by lambda. So, Expression 4 has y as bound and x as free. Expression 5, while being a top-level define, defines a lambda, and as we said about lambdas, they bind variables. So, in Expression 5, as we saw in Expression 4, y is bound and x is free.
+
+The following are "binders" (in maths they are called "quantifiers") of variables: let, lambda, local, etc. (I'd have to look at the manual to get an exhaustive list, but hopefully you get the idea).
+
+Dynamic scope versus static (or lexical) scope
+
+Now, consider the following code snippet, again at the top level.
+
+(define x 42)
+
+(define (f y) (let ((x 13)) (g y)))
+(define (g z) (list x z))
+
+(define (h x y) (list x y))
+
+Notice that f calls g before it can "return" a value. It calls g with its own parameter y. Now the question is, with these definitions, what should be the value of the expression (f 3)?
+
+Clearly, this depends on what the value of x. Why? Because x is free in g; that is, x is free in this expression: (lambda (z) (list x z)). Well then, x can take on one of two values: either 42 or 13. So, that means that the value of (f 3) is either (42 3) or (13 3). So which is it?
+
+The answer has to do with the type of variable scoping that prevails in the language. The value of (f 3) in Scheme (which has static scope) is (42 3) but in newLISP (dynamic scope), it's (13 3). That's because Scheme only "sees" the value of x due to the top level definition, but newLISP sees the x binding up the call stack (as f calls g, there's that intervening let).
+
+Finally, let's not forget the function h defined above. What is the value of (h 1 2)? The answer is that it is the list (1 2), both in dynamically scoped languages AND in statically scoped langauges. Why this is so easy to resolve and why this point is important, is because there are no free variables in h!
+
+So, the question of what is the value of such-and-such in dynamic scope versus lexical scope, only depends on how the free variables are resolved (or evaluated) in the greater expression being evaluated. At the heart of the variable scoping scheme (whether it be dynamic or static) is this issue of "how the free variables are resolved." That's pretty much it.
+
+That's why it is good programming practice to not have free variables in your expressions when you don't need them. (In order words, think about the "boundness" of your variables and don't be a lazy programmer. :)) However, there are times when you need to have a free variable in the expression on purpose, like if you want to wire in a run-time switch in your code (Lutz mentioned this earlier in this thread), but in general, when you code you should be dealing in bound variables only. This practice/discipline will really help eliminate many problems that could creep up in your code without it. (Inadvertent free variables tend to be less of a problem with lexical variable scope; however, being mindful of the "boundness" of variables should be observed as a practice with lexically scoped languages also).
+I hope this helps a little.
+
+bairui:
+-------
+Thanks, rickyboy! That helped a lot. Thank you! 
+So, now I'd like to understand what Lutz meant when he said there were good uses for dynamic scope that us lexical scopers are deprived of. Could you elaborate on: "switching and separation of concerns"?
+
+Lutz:
+-----
+If you want to know it all and have time on this weekend :)
+
+http://en.wikipedia.org/wiki/Separation_of_concerns
+
+So basically concerns are groups of topic requirements which have to be covered by your program. The most famous tool at the moment to achieve this is Object Oriented Programming (OOP). But dynamic scoping can do it too. In Rickyboy's example, different concerns are expressed via the value of the variable x, which is 42 by default, but could be shadowed with other values, e.g. 13 in function f.
+
+Now things get get hairy when you deal with crosscutting concerns. It's possible to solve the situation using OOP but complicated:
+
+http://en.wikipedia.org/wiki/Cross-cutting_concern
+
+The solution is Aspect Oriented Programming (AOP):
+
+http://en.wikipedia.org/wiki/Aspect-oriented_programming
+
+Here comes Pascal Costanza and proves, that AOP type of programming is really a natural thing for dynamically scoped languages! Google for 'aspect oriented programming and dynamic scoping' and you will get this Article as one of the links:
+
+http://www.p-cos.net/documents/dynfun.pdf
+
+There is a neat way to switch concerns using contexts in newLISP. Imagine your task is formatting documents. Your two main methods are using HTML or using Markdown (a simple markup language by John Gruber).
+
+On a higher level, you want write only one program doing the formatting, but you want an easy way to switch between both, and perhaps you want to add LATEX later but not change your main program.
+
+This is how to do it in newLISP contexts:
+
+(context 'HTML)
+
+(define (format-title text)
+    (string "<h1>" text "</h2>"))
+
+(context MAIN)
+
+(context 'Markdown)
+
+(define (format-title text)
+    (string "===" text "==="))
+
+(context MAIN)
+
+(define (format-page method text)
+    (method:format-title text))
+
+(println (format-page HTML "hello world"))
+(println)
+(println (format-page Markdown "hello world"))
+
+(exit)
+
+and this would be the output:
+
+<h1>hello world</h2>
+
+===hello world===
+
+So basically you are using a variable named method to hold the contexts required.
+
+bairui:
+-------
+Excellent, Lutz.
+
+Those WP articles and the PDF helped a lot. Thanks! :-)
+Your example of handling separate concerns with contexts was clear. That reminds me of one of the GOF patterns... strategy? (I never got into the habit of quoting GOF patterns.)
+However, your example shows... completely separate concerns rather than cross-cutting concerns. I googled for AOP in newlisp rather unsuccessfully. It seems that dragonfly has a (wrap_func) that provides an aspect of it (no pun intended).
+I will have to play with this to truly understand it. But now I have the means to begin that journey. Thanks, Lutz & rickyboy. Much appreciated. :-D
+
+
+------------------------------------
+Creazione di una REPL personalizzata
+------------------------------------
+
+In newLISP posiamo creare facilmente una REPL  utilizzando le funzioni "readline", "read-expp" e "eval":
+
+(define (repl)
+  (while true
+   (print ">> ")
+   (catch (eval (read-expr (read-line))) 'result)
+   (println "--> " result)
+  )
+)
+
+(repl)
+;-> >>
+(+ 2 3)
+;-> --> 5
+;-> >>
+
+Possiamo anche creare un meccanismo di valutazione personalizzato ed usarlo al posto di "eval".
+La funzione "read-expr" restituisce una s-espressione non valutata della stringa restituita da "read-line". In caso di errori "result" conterrà il messaggio di errore.
+
+(2 + 3)
+;-> --> ERR: illegal parameter type : +
+;-> called from user function (repl)
+;-> >>
+
+
 =============================================================================
 

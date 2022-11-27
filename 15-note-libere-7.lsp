@@ -7330,6 +7330,8 @@ Funzioni con stato
 ------------------
 
 L'uso dei contesti ci permette di scrivere funzioni che "ricordano" uno stato.
+
+
 Scriviamo due funzioni che generano una il prossimo numero pari e l'altra il prossimo numero dispari.
 
 Funzione che genera il prossimo numero dispari (odd):
@@ -7404,6 +7406,33 @@ Nota: le ultime due funzioni possono sostituire "next-odd-reset" e "next-even-re
 ;-> nil
 (next-even)
 ;-> 0
+
+Un altro metodo è il seguente:
+
+(define (foo x) (inc (last foo) x) 0)
+;-> (lambda (x) (inc (last foo) x) 0)
+(foo 1)
+;-> 1
+(foo 1)
+;-> 2
+(foo 10)
+;-> 12
+
+In newLISP è meglio realizzare le funzioni con stato utilizzando i contesti (gli spazi dei nomi):
+
+(define (gen:gen)
+    (inc gen:sum))
+
+(gen)
+;-> 1
+(gen)
+;-> 2
+
+Nota: è possibile modificare un'espressione lambda solo in questo modo. La riassegnazione della funzione all'interno del suo corpo provocherebbe il crash del sistema:
+
+(define (foo) (define (foo) "hello"))
+
+(foo) ==> crash
 
 Vedi anche "Chiusure, contesti e funzioni con stato (Lutz Mueller)" nelle Appendici.
 

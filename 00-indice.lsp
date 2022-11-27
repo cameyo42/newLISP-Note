@@ -1501,6 +1501,9 @@ NOTE LIBERE 12
   Peg solitaire
   Il gatto, la tartaruga e il tavolo
   Problema di Basilea
+  Forum: In-place parameter substitution
+  Forum: How to solve context collision
+  Creazione di una REPL personalizzata
 
 
 APPENDICI
@@ -1537,7 +1540,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (222 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (224 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
