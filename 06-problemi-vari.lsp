@@ -9310,7 +9310,7 @@ Adesso proviamo le funzioni che abbiamo scritto. Possiamo verificare i risultati
 (area poly)
 ;-> 20
 (bound-point poly)
-;-> 26
+;-> 24
 (interior-point poly)
 ;-> 9
 
@@ -9321,6 +9321,8 @@ Adesso proviamo le funzioni che abbiamo scritto. Possiamo verificare i risultati
 ;-> 8
 (interior-point poly)
 ;-> 7
+
+Vedi anche "Poligoni su reticolo di punti (lattice)" su "Note libere 12".
 
 
 ---------------------------------

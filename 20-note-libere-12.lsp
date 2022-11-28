@@ -6011,7 +6011,7 @@ Now, consider the following code snippet, again at the top level.
 
 Notice that f calls g before it can "return" a value. It calls g with its own parameter y. Now the question is, with these definitions, what should be the value of the expression (f 3)?
 
-Clearly, this depends on what the value of x. Why? Because x is free in g; that is, x is free in this expression: (lambda (z) (list x z)). Well then, x can take on one of two values: either 42 or 13. So, that means that the value of (f 3) is either (42 3) or (13 3). So which is it?
+Clearly, this depends on what the value of x. Why? Because x is free in g: that is, x is free in this expression: (lambda (z) (list x z)). Well then, x can take on one of two values: either 42 or 13. So, that means that the value of (f 3) is either (42 3) or (13 3). So which is it?
 
 The answer has to do with the type of variable scoping that prevails in the language. The value of (f 3) in Scheme (which has static scope) is (42 3) but in newLISP (dynamic scope), it's (13 3). That's because Scheme only "sees" the value of x due to the top level definition, but newLISP sees the x binding up the call stack (as f calls g, there's that intervening let).
 
@@ -6019,7 +6019,7 @@ Finally, let's not forget the function h defined above. What is the value of (h 
 
 So, the question of what is the value of such-and-such in dynamic scope versus lexical scope, only depends on how the free variables are resolved (or evaluated) in the greater expression being evaluated. At the heart of the variable scoping scheme (whether it be dynamic or static) is this issue of "how the free variables are resolved." That's pretty much it.
 
-That's why it is good programming practice to not have free variables in your expressions when you don't need them. (In order words, think about the "boundness" of your variables and don't be a lazy programmer. :)) However, there are times when you need to have a free variable in the expression on purpose, like if you want to wire in a run-time switch in your code (Lutz mentioned this earlier in this thread), but in general, when you code you should be dealing in bound variables only. This practice/discipline will really help eliminate many problems that could creep up in your code without it. (Inadvertent free variables tend to be less of a problem with lexical variable scope; however, being mindful of the "boundness" of variables should be observed as a practice with lexically scoped languages also).
+That's why it is good programming practice to not have free variables in your expressions when you don't need them. (In order words, think about the "boundness" of your variables and don't be a lazy programmer. :)) However, there are times when you need to have a free variable in the expression on purpose, like if you want to wire in a run-time switch in your code (Lutz mentioned this earlier in this thread), but in general, when you code you should be dealing in bound variables only. This practice/discipline will really help eliminate many problems that could creep up in your code without it. (Inadvertent free variables tend to be less of a problem with lexical variable scope, however, being mindful of the "boundness" of variables should be observed as a practice with lexically scoped languages also).
 I hope this helps a little.
 
 bairui:
@@ -6122,6 +6122,330 @@ La funzione "read-expr" restituisce una s-espressione non valutata della stringa
 ;-> called from user function (repl)
 ;-> >>
 
+
+---------------
+Forum: closure?
+---------------
+
+oofoe:
+------
+I'm working through the early examples of the "Stratified Design" paper[1] and I've run (almost immediately!) into something that doesn't seem to work.
+
+They describe an average-damp function that given a function, returns a new function that averages the value with the result of the function:
+
+(define (average)
+   (div (apply 'add (args)) (length (args))))
+
+(define (average-damp f)
+   (fn (x)
+      (average x (f x))))
+
+You might use it like this: ((average-damp (fn (y) (+ 2 y))) 3)
+
+And expect to get 4 (the average of 3 and the result of adding 2 to 3). However, instead I get this:
+
+ERR: invalid function : (f x)
+called from user defined function average
+
+I assume that this is happening because the function f, that is passed to average-damp is not lexically closed in the new function that's returned, because NewLisp is not doing that sort of thing.
+
+I have looked through the "Functions as Data" section of the Code Patterns and those examples didn't seem to help. I tried both "expand" and "letex" and they didn't seem to help.
+
+So, is it possible to implement something like average-damp in NewLisp, and how would you do it?
+
+rickyboy:
+---------
+You are correct that the reliance on lexical scope is causing the problem. In the manual, Lutz talks about what you should do in this case in the manual (letex).
+
+In the second example a function make-adder is defined for making adder functions:
+
+(define (make-adder n)
+    (letex (c n) (lambda (x) (+ x c))))
+
+(define add3 (make-adder 3)) → (lambda (x) (+ x 3))
+
+(add3 10)
+;-> 13
+
+letex evaluates n to the constant 3 and replaces c with it in the lambda expression.
+
+So your definition of average-damp in this case might be:
+
+(define (average-damp f)
+  (letex ([f] f)
+    (fn (x) (average x ([f] x)))))
+
+((average-damp (fn (y) (+ 2 y))) 3)
+;-> 4
+
+Lutz:
+-----
+(define (average)
+    (div (apply add (args)) (length (args))))
+
+(define (average-damp f)
+    (apply average (append (map f (args)) (args))))
+
+I assume a dampening factor has to be applied to every argument, as in the second example
+
+(average-damp (fn (x) (+ 2 x)) 3)
+;-> 4
+(average-damp (fn (x) (+ 2 x)) 3 4 5 6)
+;-> 5.5
+
+Note, that the x is not a free variable in (fn (x)...) and is protected so the following won't harm:
+
+(set 'x 3)
+;-> 3
+(average-damp (fn (x) (+ 2 x)) x (+ x 1) (+ x 2) (+ x 3))
+;-> 5.5
+
+also: fn is just a shorter writing for lambda
+
+:-) I just see, rickyboy and I posted at the same time, but two different solutions
+
+the function passed doesn't need to be anonymous:
+
+(define (my-damp x) (+ 2 x))
+;-> (lambda (x) (+ 2 x))
+(average-damp my-damp 3)
+;-> 4
+(average-damp my-damp 3 4 5 6)
+;-> 5.5
+
+
+-----------------------
+Forum: Why no closures?
+-----------------------
+
+Ishpeck:
+--------
+I'm really quite surprised that this isn't in the FAQ.
+Why don't we have closures now?
+
+(define (foo x) (lambda (y) (+ x y)))
+;-> (lambda (x) (lambda (y) (+ x y)))
+((foo 3) 4)
+;-> ERR: value expected in function + : x
+
+I can do this in Common Lisp:
+
+[1]> (defun foo (x) (lambda (y) (+ x y)))
+FOO
+[2]> (apply (foo 3) '(5))
+8
+
+Was this part of the design philosophy or have we just not done it yet?
+Ishpeck
+
+Lutz:
+-----
+See here:
+
+http://www.newlisp.org/index.cgi?Closures
+
+TedWalther:
+-----------
+I'm kind of surprised that example doesn't work. I know newLISP is dynamically scoped. I assumed that would work even in a dynamically scoped LISP? Not sure how closures come into it. Perhaps I better buckle down and read through SICP.
+
+rickyboy:
+---------
+No need to go to SICP. When (foo 3) gets evaluated in newLISP, the value of x is gone from the stack (it gets popped off), and without the environment carried by a closure to remember it, it gets forgotten. So then the value of (foo 3) (with the lost value of x) gets applied to the argument 4 and the evaluator complains that there is no x. We might not like this, but it does work as advertized.
+
+For that example to work as the fellow intended, it needs to have the binding of x hang around in an environment (part of the closure) -- if only for a moment. However, in newLISP, what you want to do is just have any reference to x expanded on the fly. If this can be done, then in this case, there is no need to have environments hang around.
+
+(define (foo* x) (letex (x x) (lambda (y) (+ x y))))
+((foo* 3) 4)
+;-> 7
+;; Here's what's really happening with (foo* 3):
+(foo* 3)
+;-> (lambda (y) (+ 3 y))
+;; Here is what happens with (foo 3):
+(foo 3)
+;-> (lambda (y) (+ x y))
+;; The following works, because the value of x is still on the stack:
+((lambda (x) ((lambda (y) (+ x y)) 4)) 3)
+7
+
+Of course, closures are neat for other reasons, but in this case, it is no great loss (or any loss), since all you really need to do is just "fill in" the value of x on the fly -- a way for doing that in newLISP is to expand the reference to x in that lambda expression on the fly.
+
+TedWalther:
+-----------
+In some sense, a (let ...) block is a closure. I assumed that (fn ...) acted as a closure in the same way, like a let block. Thanks for the explanation, ricky.
+
+Ishpeck:
+--------
+It's good to see that I'm the one who's the moron.
+Thanks for the help, all.
+
+xytroxon:
+---------
+Lisp(s) make all mere mortals "morons" at some point...
+
+
+----------------
+Spirale numerica
+----------------
+
+Una spirale numerica è una griglia infinita il cui quadrato in alto a sinistra ha il numero 1. Ecco i primi cinque strati della spirale:
+
+   1  2  9 10 25
+   4  3  8 11 24
+   5  6  7 12 23
+  16 15 14 13 22
+  17 18 19 20 21
+
+Determinare il numero che si trova alla riga x e colonna y.
+
+(define (number x y)
+  (local (r c tmp)
+    (setq tmp nil)
+    (setq r (+ x 1))
+    (setq c (+ y 1))
+    (setq tmp (- (max r c) 1))
+    (if (odd? tmp)
+        (if (< r c)
+            (+ r (* tmp tmp))
+            (+ (* tmp tmp) (* 2 tmp) (- c) 2)
+        )
+    ;else (even)
+        (if (< r c)
+            (+ (* tmp tmp) (* 2 tmp) (- r) 2)
+            (+ c (* tmp tmp))
+        )
+    )
+  )
+)
+
+(number 0 0)
+;-> 1
+
+(number 4 3)
+;-> 20
+
+Funzione che crea una spirale numerica di lato n:
+
+(define (make-spiral n)
+  (let ((out '()))
+    (for (i 0 (- n 1))
+      (for (j 0 (- n 1))
+        (push (number i j) out -1)
+      )
+    )
+    ; create matrix (list of list)
+    (explode out n)))
+
+(make-spiral 10)
+;-> ((  1  2  9 10 25 26 49 50 81 82)
+;->  (  4  3  8 11 24 27 48 51 80 83)
+;->  (  5  6  7 12 23 28 47 52 79 84)
+;->  ( 16 15 14 13 22 29 46 53 78 85)
+;->  ( 17 18 19 20 21 30 45 54 77 86)
+;->  ( 36 35 34 33 32 31 44 55 76 87)
+;->  ( 37 38 39 40 41 42 43 56 75 88)
+;->  ( 64 63 62 61 60 59 58 57 74 89)
+;->  ( 65 66 67 68 69 70 71 72 73 90)
+;->  (100 99 98 97 96 95 94 93 92 91))
+
+
+------------------------------------------------
+read-line, current-line, read-char, current-char
+------------------------------------------------
+
+La funzione "read-line" assegna a "current-line" il valore della linea corrente.
+La funzione "read-char" non ha "current-char" (analogo di "current-line"), ma possiamo utilizzare la seguente espressione:
+
+(read 0 chr 1)
+
+Le seguenti spressioni funzionano con pipe e reindirizzamento stdin:
+
+(while (read 0 chr 1)
+    (print chr))
+
+oppure:
+
+(while (set 'chr (read-char 0))
+    (print (char chr)))
+
+La seguente legge caratteri UTF8:
+
+(while (set 'chr (read-utf8 0))
+    (print (char chr)))
+
+Questa legge un file <= 1Mbyte in una volta:
+
+(read 0 theFile 1000000)
+(print theFile)
+
+e potremmo usare:
+
+(dolist (chr (explode theFile))
+...
+)
+
+"explode" riconosce i caratteri UTF8 (con la versione UTF di newLISP).
+
+
+---------------------------------------
+Poligoni su reticolo di punti (lattice)
+---------------------------------------
+
+Dato un poligono, calcolare il numero di punti del reticolo all'interno del poligono e sul suo confine. 
+Un punto del reticolo è un punto le cui coordinate sono interi.
+
+Il poligono è costituito da n vertici (x1,y1),(x2,y2),…,(xn,yn). I vertici (xi,yi) e (xi+1,yi+1) sono adiacenti per i=1,2,…,n−1, e anche i vertici (x1,y1) e (xn,yn) sono adiacenti.
+Il poligono è semplice, cioè non si interseca.
+
+Usiamo il teorema di Pick (vedi "Teorema di Pick" su "Problemi vari").
+
+(define (pick poly)
+  (local (area2 inside boundary x y)
+    (setq inside 0)
+    (setq boundary 0)
+    ; il primo e l'ultimo punto del poligono devono essere uguali
+    (if (!= (poly 0) (poly -1))
+        (push (poly 0) poly -1)
+    )
+    ; extract coordinates of points (x and y)
+    (setq x (map first poly))
+    (setq y (map last poly))
+    ; calculate area2
+    (setq area2 0)
+    (for (i 0 (- (length poly) 2))
+      (setq area2 (+ area2 (* (y (+ i 1)) (x i))))
+      (setq area2 (- area2 (* (x (+ i 1)) (y i))))
+    )
+    (setq area2 (abs area2))
+    ; loop over polygon points
+    ; to calculate boundary points...
+    (for (i 0 (- (length poly) 2))
+      (cond ((= (x (+ i 1)) (x i))
+              (setq boundary (+ boundary (abs (- (y (+ i 1)) (y i))))))
+            ((= (y (+ i 1)) (y i))
+              (setq boundary (+ boundary (abs (- (x (+ i 1)) (x i))))))
+            (true
+              (setq boundary (+ boundary (gcd (- (x (+ i 1)) (x i))
+                                              (- (y (+ i 1)) (y i))))))
+      )
+    )
+    (setq inside (div (+ area2 2 (- boundary)) 2))
+    (list (/ area2 2) inside boundary)))
+
+(pick '((1 1) (5 3) (3 5) (1 4)))
+;-> (9 6 8)
+
+; un quadrato
+(pick '((0 0) (5 0) (5 5) (0 5) (0 0)))
+;-> (25 16 20)
+
+(pick '((4 9) (8 9) (14 3) (7 3) (7 6) (4 6) (4 9)))
+;-> (33 21 26)
+
+(pick '((2 6) (4 4) (6 6) (8 4) (10 4) (10 1) (9 1) (7 3) (4 3) (2 1) (2 6)))
+;-> (20 9 24)
+
+(pick '((3 2) (6 5) (6 7) (2 5) (3 2)))
+;-> (10 7 8)
 
 =============================================================================
 

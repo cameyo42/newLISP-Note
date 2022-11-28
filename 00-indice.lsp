@@ -1504,6 +1504,11 @@ NOTE LIBERE 12
   Forum: In-place parameter substitution
   Forum: How to solve context collision
   Creazione di una REPL personalizzata
+  Forum: closure?
+  Forum: Why no closures?
+  Spirale numerica
+  read-line, current-line, read-char, current-char
+  Poligoni su reticolo di punti (lattice)
 
 
 APPENDICI
