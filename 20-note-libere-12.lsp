@@ -692,7 +692,7 @@ a^3 + b^3 = 10989
 Minimo e massimo tra due frazioni
 ---------------------------------
 
-Scrivere due funzione per calcolare il valore minimo e il valore massimo tra due frazioni.
+Scrivere due funzioni per calcolare il valore minimo e il valore massimo tra due frazioni.
 
 Per esempio, 11/18 è maggiore/uguale/minore di 5/8?
 
@@ -1796,7 +1796,7 @@ Con 100 iterazioni il topo viene preso quasi sempre:
 
 Nota: la simulazione casuale dei movimenti del gatto e del topo utilizzata nella nostra funzione non è quella ottimale.
 La strategia ottimale del topo e del gatto è quella di muoversi nella casella che massimizza/minimizza la distanza dall'avversario.
-Comunque questa strategia porta il gatto a catturare sempre il topo.
+Comunque questa strategia porta il gatto a catturare sempre il topo (perchè la griglia ha dimensioni finite).
 
 
 -----------------
@@ -6446,6 +6446,262 @@ Usiamo il teorema di Pick (vedi "Teorema di Pick" su "Problemi vari").
 
 (pick '((3 2) (6 5) (6 7) (2 5) (3 2)))
 ;-> (10 7 8)
+
+
+------------------
+Problema con i Bit
+------------------
+
+Dato un numero x calcolare:
+il numero di elementi y <= x tali che x|y = x
+il numero di elementi y <= x tali che x&y = x
+il numero di elementi y <= x tali che x&y != 0
+
+Soluzione in stile procedurale/iterativo:
+
+Funzione per x|y = x:
+
+(define (test-or x)
+  (local (out val)
+    (setq out '())
+    (for (y 1 x)
+      (setq val (| x y))
+      (if (= val x)
+        (push (list x y val) out -1)
+      )
+    )
+    out))
+
+Funzione per x&y = x:
+
+(define (test-and x)
+  (local (out val)
+    (setq out '())
+    (for (y 1 x)
+      (setq val (& x y))
+      (if (= val x)
+        (push (list x y val) out -1)
+      )
+    )
+    out))
+
+Funzione per x|y != 0
+
+(define (test-and-0 x)
+  (local (out val)
+    (setq out '())
+    (for (y 1 x)
+      (setq val (& x y))
+      (if (!= val 0)
+        (push (list x y val) out -1)
+      )
+    )
+    out))
+
+Funzione finale:
+
+(define (test x values)
+  (local (out1 out2 out3)
+    (setq out1 (test-or x))
+    (setq out2 (test-and x))
+    (setq out3 (test-and-0 x))
+    (if values
+        (list out1 out2 out3)
+        (list (length out1) (length out2) (length out3)))))
+
+(test 10)
+;-> (3 1 7)
+(test 10 true)
+;-> (((10 2 10) (10 8 10) (10 10 10)) 
+;->  ((10 10 10)) 
+;->  ((10 2 2) (10 3 2) (10 6 2) (10 7 2) (10 8 8) (10 9 8) (10 10 10)))
+(test 88)
+;-> (7 1 73)
+
+Soluzione procedurale/iterativa ottimizzata:
+
+(define (test1 x values)
+  (local (out1 out2 out3)
+    (set 'out1 '() 'out2 '() 'out3 '())
+    (for (y 1 x)
+      ; x|y = x
+      (setq val (| x y))
+      (if (= val x)
+        (push (list x y val) out1 -1)
+      )
+      ; x&y = x
+      (setq val (& x y))
+      (if (= val x)
+        (push (list x y val) out2 -1)
+      )      
+      ; x&y != 0
+      (setq val (& x y))
+      (if (!= val 0)
+        (push (list x y val) out3 -1)
+      )
+    (if values
+        (list out1 out2 out3)
+        (list (length out1) (length out2) (length out3))))))
+
+(test1 10)
+;-> (3 1 7)
+(test1 10 true)
+;-> (((10 2 10) (10 8 10) (10 10 10)) 
+;->  ((10 10 10)) 
+;->  ((10 2 2) (10 3 2) (10 6 2) (10 7 2) (10 8 8) (10 9 8) (10 10 10)))
+(test1 88)
+;-> (7 1 73)
+
+Soluzione in stile newLISP (molto più compatta):
+
+(define (test2 x)
+  (list 
+    (first (count (list x) (map (curry | x) (sequence 1 x))))
+    (first (count (list x) (map (curry & x) (sequence 1 x))))
+    (length (clean zero? (map (curry & x) (sequence 1 x))))))
+
+(test2 10)
+;-> (3 1 7)
+(test 88)
+;-> (7 1 73)
+
+
+----------
+Bit string
+----------
+
+Calcolare il numero di stringhe di bit di lunghezza n.
+Ad esempio, se n=3, la risposta è 8, perché le possibili stringhe di bit sono:
+000, 001, 010, 011, 100, 101, 110 e 111.
+
+Una stringa di bit è una sequenza composta da 0 e 1.
+Se la lunghezza di questa sequenza è N, quante stringhe di bit distinte possiamo creare?
+
+Se f(n) è la funzione che ci dà il numero di stringhe possibili, allora possiamo scrivere:
+
+   f(n) = 2*f(n−1)
+
+Ciò significa che il numero di possibili stringhe di bit raddoppia ogni volta che aggiungiamo un nuovo bit alla sequenza.
+Come mai? Perché aggiungendo un bit avremo tutte le combinazioni precedenti con l'ennesimo bit assegnato a 1 più tutte le combinazioni precedenti con l'ennesimo bit assegnato a 0, quindi raddoppiandolo.
+
+La funzione è la seguente:
+
+(define (stringhe n) (pow 2 n))
+
+(stringhe 3)
+;-> 8
+(stringhe 4)
+;-> 16
+
+In altri termini si tratta di generare tutte le pemutazioni di n elementi dalla lista di elementi (0 1):
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(perm-rep 3 '(0 1))
+;-> ((0 0 0) (1 0 0) (0 1 0) (1 1 0) (0 0 1) (1 0 1) (0 1 1) (1 1 1))
+(perm-rep 4 '(0 1))
+;-> ((0 0 0 0) (1 0 0 0) (0 1 0 0) (1 1 0 0) (0 0 1 0) (1 0 1 0) 
+;->  (0 1 1 0) (1 1 1 0) (0 0 0 1) (1 0 0 1) (0 1 0 1) (1 1 0 1)
+;->  (0 0 1 1) (1 0 1 1) (0 1 1 1) (1 1 1 1))
+
+
+---------------------------------------
+Sviluppi in serie di Taylor e Maclaurin
+---------------------------------------
+
+In analisi matematica, la serie di Taylor di una funzione in un punto x0 è la rappresentazione della funzione come serie di termini calcolati a partire dalle derivate della funzione stessa nel punto.
+
+La formula è la seguente:
+
+                 f'(x0)            f''(x0)            f'''(x0)
+  f(x) = f(x0) + ------*(x-x0)^1 + -------*(x-x0)^2 + --------*(x-x0)^3 + ...
+                   1!                 2!                 3!
+
+          fn(x0)
+       + --------*(x-x0)^n + ...
+            n!
+
+Uno sviluppo di Taylor in cui x0 sia uguale a 0 è definito sviluppo di Maclaurin.
+Il teorema di Taylor (in realtà scoperto per primo da Gregory) afferma che qualsiasi funzione che soddisfi determinate condizioni può essere espressa come una serie di Taylor.
+
+Vediamo alcune sviluppi di Taylor di alcune funzioni comuni:
+
+Funzione esponenziale:
+
+  e^x = Sum[n=0,inf](x^n/n!) =
+
+      = 1 + x + x^2/2! + x^3/3! + x^4/4! + ...
+
+Logaritmo naturale:
+
+  ln(1 + x) = Sum[n=1,inf](x^n*(-1)^(n-1)/n), per |x| < 1
+
+            = x - x^2/2 + x^3/3! - x^4/4! + x^5/5! - ... , per |x| < 1
+
+Funzioni trigonometriche:
+
+                          (-1)^n
+  sin(x) = Sum[n=0,inf] -----------*x^(2n+1) =
+                         (2n + 1)!
+
+         = x - x^3/3! + x^5/5! - x^7/7! + ...
+
+                           (-1)^n
+  cos(x) = Sum[n=0,inf] -----------*x^(2n) =
+                            (2n)!
+
+         = 1 - x^2/2! + x^4/4! - x^6/6! + x^8/8! + ... 
+
+Calcoliamo la convergenza di queste funzioni:
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+Funzione per il calcolo della sommatoria di una funzione generica in un punto:
+
+(define (fn-sum func x0 start end)
+  (let (sum 0)
+    (for (i start end)
+      (inc sum (func x0 i)))))
+
+(define (seno x n)
+  (mul (pow x (+ (* 2 n) 1)) (div (pow -1 n) (fact-i (+ (* 2 n) 1)))))
+
+Valore con la serie di Taylor:
+(fn-sum seno 1 0 6)
+;-> 0.8414709848086585
+
+Valore con primitiva "sin":
+(sin 1)
+;-> 0.8414709848078965
+
+Errore:
+(sub (fn-sum seno 1 0 6) (sin 1))
+;-> 7.619460618002449e-013
+
+(define (coseno x n)
+  (mul (pow x (* 2 n)) (div (pow -1 n) (fact-i (* 2 n)))))
+
+Valore con la serie di Taylor:
+(fn-sum coseno 1 0 6)
+;-> 0.5403023058795627
+
+Valore con primitiva "cos":
+(cos 1)
+;-> 0.5403023058681398
+
+Errore:
+(sub (fn-sum coseno 1 0 6) (cos 1))
+;-> 1.142297367806577e-011
 
 =============================================================================
 

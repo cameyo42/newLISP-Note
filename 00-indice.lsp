@@ -1509,6 +1509,9 @@ NOTE LIBERE 12
   Spirale numerica
   read-line, current-line, read-char, current-char
   Poligoni su reticolo di punti (lattice)
+  Problema con i Bit
+  Bit string
+  Sviluppi in serie di Taylor e Maclaurin
 
 
 APPENDICI
