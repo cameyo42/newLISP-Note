@@ -1512,7 +1512,9 @@ NOTE LIBERE 12
   Problema con i Bit
   Bit string
   Sviluppi in serie di Taylor e Maclaurin
-
+  Equazione di quarto grado
+  Gestione stipendi (Salary Queries)
+  Teorema di Wilson e numeri primi
 
 APPENDICI
 =========

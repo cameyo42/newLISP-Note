@@ -6703,5 +6703,368 @@ Errore:
 (sub (fn-sum coseno 1 0 6) (cos 1))
 ;-> 1.142297367806577e-011
 
+
+-------------------------
+Equazione di quarto grado
+-------------------------
+
+https://en.wikipedia.org/wiki/Quartic_function
+
+Data l'equazione generale di quarto grado:
+
+  ax^4 + bx^3 + cx^2 + dx + e = 0
+
+con coefficienti reali e a ≠ 0 la natura delle sue radici è determinata principalmente dal segno del suo discriminante:
+
+  delta = 256a^3e^3 - 192a^2bde^2 - 128a^2c^2e^2 + 144a^2cd^2e - 27a^2d^4
+        + 144ab^2ce^2 - 6ab^2d^2e - 80abc^2de + 18abcd^3 + 16ac^4e
+        - 4ac^3d^2 - 27b^4e^2 + 18b^3cde - 4b^3d^3 - 4b^2c^3e + b^2c^2d^2
+
+e dai seguenti polinomi:
+
+  P = 8ac - 3b^3
+
+  R = b^3 + 8da^2 - 4abc
+
+  d0 = c^2 - 3bd + 12ae
+
+  D = 64a^3e - 16a^2c^2 + 16ab^2c - 16a^2bd - 3b^4
+
+(define (tipo a b c d e)
+  (setq delta (add (mul  256 a a a e e e)
+                   (mul -192 a a b d e e)
+                   (mul -128 a a c c e e)
+                   (mul  144 a a c d d e)
+                   (mul  -27 a a d d d d)
+                   (mul  144 a b b c e e)
+                   (mul   -6 a b b d d e)
+                   (mul  -80 a b c c d e)
+                   (mul   18 a b c d d d)
+                   (mul   16 a c c c c e)
+                   (mul   -4 a c c c d d)
+                   (mul  -27 b b b b e e)
+                   (mul   18 b b b c d e)
+                   (mul   -4 b b b d d d)
+                   (mul   -4 b b c c c e)
+                   (mul    1 b b c c d d)))
+  (setq P (add (mul 8 a c) (mul -3 b b b)))
+  (setq R (add (mul b b b) (mul 8 d a a) (mul -4 a b a)))
+  (setq d0 (add (mul 12 a e) (mul -3 b d) (mul c c)))
+  (setq D (add (mul  64 a a a e)
+               (mul -16 a a c c)
+               (mul  16 a b b c)
+               (mul -16 a a b d)
+               (mul  -3 b b b b)))
+  (cond ((< delta 0)
+          (println "2 distinct real and 2 complex conjugate"))
+        ((> delta 0)
+          (if (and (< P 0) (< D 0))
+              (println "4 distinct real"))
+          (if (or (> P 0) (> D 0))
+              (println "2 pairs complex conjugate")))
+        ((= delta 0)
+          (if (and (< P 0) (< D 0) (!= d0 0))
+              (println "1 double real and 2 distinct real"))
+          (if (or (> D 0) (and (> P 0) (or (!= D 0) (!= R 0))))
+              (println "1 double real and 2 complex conjugate"))
+          (if (and (= d0 0) (!= D 0))
+              (println "1 triple real and 1 distinct real"))
+          (if (= D 0)
+              (cond ((< P 0)
+                     (println "2 double real"))
+                    ((and (> p 0) (= R 0))
+                     (println "2 double complex conjugate"))
+                    ((= d0 0)
+                     (println "1 quadruple real -b/2a"))
+              )
+          ))
+  )
+)
+
+(set 'a 1 'b -2 'c -13 'd 14 'e 24)
+(tipo a b c d e)
+;-> 4 distinct real
+
+(set 'a 1 'b -10 'c 35 'd -50 'e 24)
+(tipo a b c d e)
+;-> 2 pairs complex conjugate ???
+
+(set 'a 1 'b 1 'c 1 'd 1 'e 1)
+(tipo a b c d e)
+;-> 2 pairs complex conjugate
+
+La quattro radici (x1, x2, x3, x4) della seguente equazione di quarto grado:
+
+  ax^4 + bx^3 + cx^2 + dx + e = 0
+
+Si trovano con la seguente formula:
+
+             b
+  x1,x2 = - ---- - S +- (1/2)*sqrt(-4S^2 - 2p + q/S)
+             4a
+
+             b
+  x3,x4 = - ---- + S +- (1/2)*sqrt(-4S^2 - 2p - q/S)
+             4a
+
+dove:
+
+  delta = 256a^3e^3 - 192a^2bde^2 - 128a^2c^2e^2 + 144a^2cd^2e - 27a^2d^4
+        + 144ab^2ce^2 - 6ab^2d^2e - 80abc^2de + 18abcd^3 + 16ac^4e
+        - 4ac^3d^2 - 27b^4e^2 + 18b^3cde - 4b^3d^3 - 4b^2c^3e + b^2c^2d^2
+
+  P = 8ac -3b^3
+
+  R = b^3 + 8da^2 - 4abc
+
+  d0 = c^2 - 3bd + 12ae
+
+  D = 64a^3e - 16a^2c^2 + 16ab^2c - 16a^2bd - 3b^4
+
+
+       8ac - 3b^2
+  p = ------------
+          8a^2
+
+       b^3 - 4abc + 8a^2d
+  q = --------------------
+             8a^3
+
+  S = (1/2)*sqrt[-(2/3)*p + (1/3a)*(Q + d0/Q)]
+
+  Q = cubic[(d1 + sqrt(d1^2 - 4d0^3))/2]
+
+  d0 = c^2 - 3bd + 12ae
+
+  d1 = 2c^3 - 9bcd + 27b^2e - 72ace
+
+  (d1^2 - 4d0^3) = -27delta
+
+(set 'a 1 'b 1 'c 1 'd 1 'e 1)
+
+Equazione:
+
+  y = x^4 - 10x^3 + 35x^2 - 50x + 24
+  y = (x - 4) (x - 3) (x - 2) (x - 1)
+
+(set 'a 1 'b -10 'c 35 'd -50 'e 24)
+
+Soluzioni:
+
+  x1 = 1
+  x2 = 2
+  x3 = 3
+  x4 = 4
+
+Equazione:
+
+  y = x^4 - 2x^3 - 13x^2 + 14x + 24
+  y = (x - 4) (x + 3) (x - 2) (x + 1)
+
+(set 'a 1 'b -2 'c -13 'd 14 'e 24)
+
+Soluzioni:
+
+  x1 = -1
+  x2 =  2
+  x3 = -3
+  x4 =  4
+
+(setq delta (add (mul  256 a a a e e e)
+                 (mul -192 a a b d e e)
+                 (mul -128 a a c c e e)
+                 (mul  144 a a c d d e)
+                 (mul  -27 a a d d d d)
+                 (mul  144 a b b c e e)
+                 (mul   -6 a b b d d e)
+                 (mul  -80 a b c c d e)
+                 (mul   18 a b c d d d)
+                 (mul   16 a c c c c e)
+                 (mul   -4 a c c c d d)
+                 (mul  -27 b b b b e e)
+                 (mul   18 b b b c d e)
+                 (mul   -4 b b b d d d)
+                 (mul   -4 b b c c c e)
+                 (mul    1 b b c c d d)))
+
+(setq p (div (add (mul 8 a c) (mul -3 b b)) (mul 8 a a)))
+
+(setq q (div (add (mul 8 a a d) (mul -4 a b c) (mul b b b)) (mul 8 a a a)))
+
+(setq d0 (add (mul 12 a e) (mul -3 b d) (mul c c)))
+
+(setq d1 (add (mul 27 a d d) (mul -72 a c e) (mul 27 b b e) (mul -9 b c d) (mul 2 c c c)))
+
+Test:
+(add (mul 27 delta) (add (mul d1 d1) (mul -4 d0 d0 d0)))
+;-> 0
+
+;
+; todo: check negative cubic root
+;
+(setq Q (pow (div (add d1 (sqrt (add (mul d1 d1) (mul -4 d0 d0 d0)))) 2) (div 3)))
+
+;
+; todo: check negative square root
+;
+(setq S (mul 0.5 (sqrt (add (div (add Q (div d0 Q)) (mul 3 a)) (div (mul -2 p) 3)))))
+
+Soluzioni:
+
+(setq z1 (sub (div (- b) (mul 4 a)) S))
+(setq z2 (mul 0.5 (sqrt (add (mul -4 S S) (mul -2 p) (div q S)))))
+(setq z3 (add (div (- b) (mul 4 a)) S))
+(setq z4 (mul 0.5 (sqrt (add (mul -4 S S) (mul -2 p) (- (div q S))))))
+
+(setq sol1 (add z1 z2))
+(setq sol2 (sub z1 z2))
+(setq sol3 (add z3 z4))
+(setq sol4 (sub z3 z4))
+
+
+----------------------------------
+Gestione stipendi (Salary Queries)
+----------------------------------
+
+Una società ha n dipendenti con determinati stipendi.
+Il compito è tenere traccia degli stipendi ed elaborare le richieste.
+I dipendenti sono numerati 1,2,…,n.
+Una lista di n interi (p1 p2 ... pn) contiene lo stipendio di ciascun impiegato.
+
+Le richieste da elaborare per tenere traccia degli stipendi sono le seguenti:
+
+ "! k":   licenzia (elimina) l'impiegato k
+ "& x":   inserisce un nuovo impiegato con stipendio x
+ "$ k x": cambia lo stipendio dell'impiegato k in x
+ "? a b": conta il numero di dipendenti il cui stipendio è compreso tra a e b
+ "*":     stampa tutti gli stipendi
+
+Utilizziamo una variabile globale per gli stipendi (lista).
+
+; global list for salaries
+(setq *stipendi* '())
+
+Funzione che inizializza gli stipendi:
+
+; init salaries
+(define (setup lst)
+  (setq *stipendi* lst))
+
+Scriviamo una funzione per ogni richiesta:
+
+; delete employee
+(define (delete-employee k)
+  (pop *stipendi* (- k 1)))
+
+; add employee
+(define (add-employee x)
+  (push x *stipendi* -1))
+
+; update salary of employee
+(define (update-salary k x)
+  (setf (*stipendi* (- k 1)) x))
+
+; num of salaries within (a...b)
+(define (query-salary a b)
+  (length (filter (fn(x) (and (>= x a) (<= x b))) *stipendi*)))
+
+; show salaries
+(define (show-salaries)
+  (dolist (el *stipendi*) (print el { })) (println))
+
+Funzione che gestisce gli stipendi;
+
+(define (main salaries)
+; no correctness check on user input
+  (local (getline line)
+    (setup salaries)
+    (println "Salaries: " *stipendi*)
+    (setq line "")
+    (until (= getline "quit") ; type "quit" to exit
+      (print "Command: ")
+      (setq getline (read-line))
+      (setq line (parse getline))
+      (cond ((= (line 0) "!") ; "!"
+              (delete-employee (int (line 1)))
+              (println "delete employee " (line 1)))
+            ((= (line 0) "&") ; "&"
+              (add-employee (int (line 1)))
+              (println "add employee with salary " (line 1)))
+            ((= (line 0) "$") ; "$"
+              (update-salary (int (line 1)) (int (line 2)))
+              (println "update salary employee " (line 1) " to " (line 2)))
+            ((= (line 0) "?") ; "?"
+              (println "Total salaries within (" (line 1) ".." (line 2) "): "
+                (query-salary (int (line 1)) (int (line 2)))))
+            ((= (line 0) "*") ; "*"
+              (println "Salaries:")
+              (show-salaries))
+            (true nil)
+      ))))
+
+(main '(3 7 2 2 5 8))
+;-> Salaries: (3 7 2 2 5 8)
+;-> Command: *
+;-> Salaries:
+;-> 3 7 2 2 5 8
+;-> Command: ? 2 3
+;-> Total salaries within (2..3): 3
+;-> Command: ! 1
+;-> delete employee 1
+;-> Command: *
+;-> Salaries:
+;-> 7 2 2 5 8
+;-> Command: ? 2 3
+;-> Total salaries within (2..3): 2
+;-> Command: & 12
+;-> add employee with salary 12
+;-> Command: *
+;-> Salaries:
+;-> 7 2 2 5 8 12
+;-> Command: $ 2 6
+;-> update salary employee 2 to6
+;-> Command: *
+;-> Salaries:
+;-> 7 6 2 5 8 12
+;-> Command: quit
+
+
+--------------------------------
+Teorema di Wilson e numeri primi
+--------------------------------
+
+Il teorema di Wilson afferma che un numero naturale p > 1 è un numero primo se e solo se
+
+  (p - 1)! ≡ -1 mod p    oppure    (p - 1)! ≡ (p-1) mod p
+
+In modo equivalente:
+un numero p è primo se e solo se ((p-1)! + 1) % p = 0.
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (primo? num)
+  (if (< num 2) nil
+      (zero? (% (+ (fact-i (- num 1)) 1) num))))
+
+(primo? 1)
+;-> nil
+(primo? 3)
+;-> true
+(primo? 11)
+;-> trrue
+(primo? 85)
+;-> nil
+
+(filter primo? (sequence 1 100))
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+Nota: questo metodo è molto lento rispetto agli algoritmi standard per calcolare i numeri primi.
+
 =============================================================================
 
