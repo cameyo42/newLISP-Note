@@ -1515,6 +1515,11 @@ NOTE LIBERE 12
   Equazione di quarto grado
   Gestione stipendi (Salary Queries)
   Teorema di Wilson e numeri primi
+  Patate disidratate
+  Taxi verdi e blu
+  Short classic puzzle
+  Risultati delle votazioni
+  Il paradosso di Simpson e la fallacia di Berkson
 
 APPENDICI
 =========

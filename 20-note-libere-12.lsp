@@ -7066,5 +7066,509 @@ un numero p è primo se e solo se ((p-1)! + 1) % p = 0.
 
 Nota: questo metodo è molto lento rispetto agli algoritmi standard per calcolare i numeri primi.
 
+
+------------------
+Patate disidratate
+------------------
+
+Supponiamo di acquistare 100 grammi di patate.
+Sappiamo che il 99% delle patate è costituito da acqua.
+Portiamo le patate a casa e le lasciamo fuori a disidratarsi fino a quando la quantità di acqua nelle patate è del 98%. 
+Qual è il peso delle patate adesso?
+
+Situazione iniziale:
+ x = 99% acqua + 1% solida
+ x = 100
+ x = 99gr acqua + 1gr solida
+
+Situazione finale:
+  y = 98% acqua + 2% solida
+  y = ?
+
+Al termine della disidratazione il peso della sostanza solida non è cambiato.
+Questo significa che:
+
+ 1% di x = 2% di y
+
+Poichè 1% di x = 1gr, risulta 2% di y = 1gr, cioè:
+
+(2/100)*y = 1gr  -->  y = (100/2)*1gr = 50gr
+
+Al termine della disidratazione le patate pesano 50 grammi.
+
+Scriviamo una funzione generica:
+
+peso = peso iniziale
+p1 = percentuale iniziale materia A
+p2 = percentuale finale materia A
+
+(define (disidrata peso p1 p2)
+  (local (pa1 pa2 pb1 pb2 ma1 ma2 mb1 mb2 peso-finale)
+    (set 'pa1 p1 'pa2 p2)
+    (set 'pb1 (sub 100 pa1) 'pb2 (sub 100 pa2))
+    (setq ma1 (div (mul peso pa1) 100))
+    (setq mb1 (div (mul peso pb1) 100))
+    (setq mb2 mb1)
+    (setq peso-finale (mul 100 (mul (div pb2) mb1)))
+    (setq ma2 (sub peso-finale mb2))
+    (println "Peso iniziale: " 
+      peso " con " ma1 " di A (" pa1 "%) e " mb1 " di B (" pb1 "%)")
+    (println "Peso finale: " 
+      peso-finale " con " ma2 " di A (" pa2 "%) e " mb2 " di B (" pb2 "%)")))
+
+(disidrata 100 99 98)
+;-> Peso iniziale: 100 con 99 di A (99%) e 1 di B (1%)
+;-> Peso finale: 50 con 49 di A (98%) e 1 di B (2%)
+
+(disidrata 200 90 50)
+;-> Peso iniziale: 200 con 180 di A (90%) e 20 di B (10%)
+;-> Peso finale: 40 con 20 di A (50%) e 20 di B (50%)
+
+
+----------------
+Taxi verdi e blu
+----------------
+
+Un uomo è testimone di un incidente notturno in una città.
+Un taxi urta una macchina parcheggiata e poi scompare.
+L'uomo afferma che il taxi coinvolto nell'incidente era di colore Verde.
+Nella città ci sono 85% di taxi Blu e 15% di taxi Verdi.
+L'uomo, di notte, riconosce i colori Verde e Blu con una precisione dell'80%.
+Qual è la probabilità che il taxi fosse effettivamente di colore verde?
+
+Supponiamo che ci siano 100 incidenti:
+
+  85 coinvolgono i taxi blu e
+  15 coinvolgono i taxi verdi
+
+Degli 85 incidenti con i taxi blu, il testimone ne riconosce:
+
+  80% come blu, cioè 80% di 85 = 63
+  20% come verdi, 20% di 85 = 17
+
+Dei 15 incidenti con i taxi verdi, il testimone ne riconosce:
+
+  80% come verdi, cioè 80% di 15 = 12
+  20% come blu, cioè 20% di 15 = 3
+
+La probabilità di un evento è data da:
+
+               numero casi favorevoli
+  P(evento) = -------------------------
+                numero casi possibili
+
+Il numero dei casi possibili è il numero dei casi in cui è stata riconosciuta una macchina Verde, cioè 17 + 12.
+Il numero dei casi favorevoli è il numero dei casi in cui la macchina coinvolta era effettivamente verde, cioè 12.
+
+La probabilità che il taxi coinvolto nell'incidente fosse effettivamente Verde vale:
+
+  P(Verde) = 12/29 = 0.4137 = 41.37%
+
+Scriviamo una funzione generica.
+
+p1 = percentuale oggetti A (85 blu)
+p2 = percentuale oggetti A (15 verdi)
+acc = accuratezza del testimone (80%)
+
+(define (correct? p1 p2 acc)
+  (local (out err numA numB)
+    ; errore del testimone
+    (setq err (sub 100 acc))
+    ; oggetti A riconosciuti come B
+    (setq numA (div (mul p1 err) 100))
+    ; oggetti B riconosciuti come B
+    (setq numB (div (mul p2 acc) 100))
+    ; percentuale di oggetti riconosciuti correttamente
+    (mul 100 (div numB (add numA numB)))))
+
+(correct? 85 15 80)
+;-> 41.37931034482759
+
+(correct? 80 20 80)
+;-> 50
+
+(correct? 60 40 80)
+;-> 72.72727272727273
+
+(correct? 98 2 98)
+;-> 50
+
+Se la percentuale di accuratezza del testimone è maggiore della percentuale di oggetti A, allora la probabilità che il testimone abbia visto giusto è maggiore del 50%.
+
+Proviamo a simulare il processo.
+
+(define (accident blu verdi accuratezza iter)
+  (local (b v correct-v correct-b wrong-v wrong-b taxi)
+    (set 'b 0 'v 0)
+    (setq correct-v 0) ; verdi corretti
+    (setq correct-b 0) ; blu corretti
+    (setq wrong-v 0)   ; verdi sbagliati
+    (setq wrong-b 0)   ; blu sbagliati
+    (for (i 1 iter)
+      (if (> blu (rand 100))
+        (setq taxi "blu")
+        (setq taxi "verde")
+      )
+      (cond ((= taxi "blu")
+              (++ b)
+              (if (> accuratezza (rand 100))
+                  (++ correct-b)
+                  (++ wrong-b)))
+            ((= taxi "verde")
+              (++ v)
+              (if (> accuratezza (rand 100))
+                  (++ correct-v)
+                  (++ wrong-v)))
+            (true (println "error"))
+      )
+    )
+    ;(println b { } v)
+    (list (div correct-v (add correct-v wrong-b)))))
+
+(accident 85 15 80 1e7)
+;-> (0.4135245750449149)
+
+(accident 80 20 80 1e7)
+;-> (0.5001220565180991)
+
+(accident 60 40 80 1e7)
+;-> (0.7273790548541494)
+
+I risultati della simulazione sono congruenti con quelli teorici.
+
+
+--------------------
+Short classic puzzle
+--------------------
+
+Risolvere i seguenti problemi senza utilizzo dell'algebra con carta e penna.
+
+Il prezzo di un libro è di 10 euro più la metà del suo prezzo. 
+Quanto costa il libro?
+
+  x = 10 + x/2 
+  (1/2)x = 10
+  x = 10 * 2 = 20 euro
+ 
+---------------------
+
+Il peso di un mattone è di 1kg più il peso di mezzo mattone.
+Quanto pesa un mattone?
+
+  x = 1 + (1/2)x
+  (1/2)x = 1
+  x = 1 * 2 = 2kg
+
+---------------------
+
+Una matita e una penna costano 1 euro e 10 centesimi.
+La penna costa 1 euro in più della matita.
+Quanto costano la matita e la penna?
+
+  m + p = 1.10
+  p = 1 + m
+  m + (1 + m) = 1.10
+  2q + 1 = 1.10
+  2q = 0.10
+  m = 0.10/2 = 0.05 
+  p = 1 + m = 1 + 0.05 = 1.05
+ 
+La penna costa 1 euro e 5 centesimi (1.05), la matita costa 5 centesimi (0.05).
+
+
+-------------------------
+Risultati delle votazioni
+-------------------------
+
+Una elezione ha 8000 votanti e 4 candidati.
+Il vincitore ha superato i suoi avversari di 200, 221 e 400 voti.
+Ci sono state 97 schede bianche o nulle.
+Calcolare quanti voti sono stati espressi per ogni candidato.
+
+Sia x il numero di voti ottenuti dal candidato che ha vinto.
+Gli altri candidati hanno ricevuto: x - 200, x - 221 e x - 400. 
+La somma di questi voti è uguale a:
+
+  4x - 821
+
+Questo deve essere uguale ai votanti meno il numero di schede bianche o nulle:
+
+  8000 - 97 = 7903
+
+Quindi, possiamo scrivere:
+
+  4x − 821 = 7903. 
+
+Pertanto:
+
+  4x = 7903 + 821 = 8724 --> x = 8724/4 = 2181.
+
+Pertanto, il candidato vincente (primo) ha ricevuto 2181 voti. 
+Il numero di voti ricevuti dagli altri candidati si ottiene sottraendo i voti di scarto:
+
+  voti del primo = 2181
+  voti del secondo = voti del primo - 200 = 2181 - 200 = 1981
+  voti del terzo   = voti del primo - 221 = 2181 - 221 = 1960
+  voti del quarto  = voti del primo - 400 = 2181 - 400 = 1781
+
+Scriviamo una funzione generica che risolve il problema:
+
+(define (votazione votanti diff nulle)
+  (local (out somma)
+    (setq out '())
+    (setq somma (apply + diff))
+    (setq primo (div (add (sub votanti nulle) somma) (length diff)))
+    (dolist (p diff)
+      (push (sub primo p) out -1)
+    )
+    out))
+
+(votazione 8000 '(0 200 221 400) 97)
+;-> (2181 1981 1960 1781)
+
+
+------------------------------------------------
+Il paradosso di Simpson e la fallacia di Berkson
+------------------------------------------------
+
+Il paradosso di Simpson viene descritto per la prima volta dallo statistico Edward Simpson in un articolo del 1951 intitolato "The Interpretation of Interaction in Contingency Tables".
+Simpson ha descritto uno scenario in cui i risultati di uno studio scientifico sembrano supportare una conclusione, ma quando i risultati vengono divisi per tenere conto di una particolare variabile, i risultati mostrano una conclusione diversa.
+Il paradosso di Simpson si manifesta quando la relazione tra due variabili nell’intera popolazione è molto diversa dalla relazione tra le stesse variabili nelle sottopopolazioni definite da una terza variabile, tanto che le conclusioni sono opposte.
+Il paradosso di Simpson viene descritto anche come un metodo per dimostrare, con gli stessi dati, conclusioni opposte.
+
+Vediamo alcuni esempi.
+
+1) Soccorso in ambulanza o elicottero
+-------------------------------------
+Analizziamo la seguente tabella:
+
+                  +------------+-----------+--------+
+                  | Elicottero | Ambulanza | Totale |
+  +---------------+------------+-----------+--------+
+  | Morti         |  64        |  260      |  324   |
+  +---------------+------------+-----------+--------+
+  | Sopravvissuti | 136        |  840      |  976   |
+  +---------------+------------+-----------+--------+
+  | Totale        | 200        | 1100      | 1300   |
+  +---------------+------------+-----------+--------+
+
+Pazienti morti:
+- Elicottero: 64/200 = 32%
+- Ambulanza: 260/1100 = 24%
+
+Adesso inseriamo una nuova variabile (incidenti gravi e non gravi):
+
+  Incidenti gravi
+                  +------------+-----------+--------+
+                  | Elicottero | Ambulanza | Totale |
+  +---------------+------------+-----------+--------+
+  | Morti         |  48        |  60       | 108    |
+  +---------------+------------+-----------+--------+
+  | Sopravvissuti |  52        |  40       |  92    |
+  +---------------+------------+-----------+--------+
+  | Totale        | 100        | 100       | 200    |
+  +---------------+------------+-----------+--------+
+
+Pazienti morti:
+- Elicottero: 48/100 = 48%
+- Ambulanza: 60/100 = 60%
+
+  Incidenti non gravi
+                  +------------+-----------+--------+
+                  | Elicottero | Ambulanza | Totale |
+  +---------------+------------+-----------+--------+
+  | Morti         | 16         | 200       | 216    |
+  +---------------+------------+-----------+--------+
+  | Sopravvissuti | 84         | 800       | 884    |
+  +---------------+------------+-----------+--------+
+  | Totale        | 100        | 1000      | 1100   |
+  +---------------+------------+-----------+--------+
+
+Pazienti morti:
+• Elicottero: 16/100 = 16%
+• Ambulanza:200/1000= 20%
+
+Vediamo cosa accade:
+
+  X = mezzo di soccorso (elicottero/ambulanza)
+  Y = esito (morto/sopravvissuto)
+  Z = gravità dell’incidente (grave/non grave)
+
+La relazione tra X e Y nell’intera popolazione (1300 persone) è ben diversa dalla relazione tra X e Y nella sottopopolazione con incidente grave (Z= "grave", 200 persone) e in quella con incidente non grave (Z="non grave", 1100 persone).
+
+2) Discriminazione sessuale
+---------------------------
+Negli anni Settanta l’università di Berkeley ha analizzato i dati relativi alle assunzioni nei vari dipartimenti, scoprendo che il tasso di ammissione delle femmine era sostanzialmente inferiore a quello dei maschi.
+L’università poteva essere accusata di discriminazione sessuale!
+
+Consideriamo un esempio con 200 candidati, di cui 100 maschi e 100 femmine
+
+                +--------+---------+
+                | Maschi | Femmine |
+  +-------------+--------+---------+
+  | Assunti     |  55    |  45     |
+  +-------------+--------+---------+
+  | Non assunti |  45    |  55     |
+  +-------------+--------+---------+
+  | Totale      | 100    | 100     |
+  +-------------+--------+---------+
+  | % assunti   |  55%   |  45%    |
+  +-------------+--------+---------+
+
+La tabella mostra che il tasso di assunzione delle femmine è minore di quello dei maschi.
+
+Adesso introduciamo una nuova variabile (dipartimento: sociologia o fisica):
+
+                +---------+---------+--------+---------+--------+---------+
+                |    Sociologia     |     Fisica       | Totale | Totale  |
+  +-------------+---------+---------+--------+---------+--------+---------+
+  |             | Maschi  | Femmine | Maschi | Femmine | Maschi | Femmine |
+  +-------------+---------+---------+--------+---------+--------+---------+
+  | Assunti     | 5       | 30      | 50     | 15      | 55     | 45      |
+  +-------------+---------+---------+--------+---------+--------+---------+
+  | Non-assunti | 15      | 50      | 30     | 5       | 45     | 55      |
+  +-------------+---------+---------+--------+---------+--------+---------+
+  | Totale      | 20      | 80      | 80     | 20      | 100    | 100     |
+  +-------------+---------+---------+--------+---------+--------+---------+
+  | %-assunti   | 25.0%   | 37.5%   | 62.5%  | 75.0%   | 55.0%  | 45.0%   |
+  +-------------+---------+---------+--------+---------+--------+---------+
+
+L’analisi dei dati mostra che non c'♪ alcuna discriminazione sessuale.
+Infatti, considerando i tassi di ammissione per dipartimento, la situazione è rovesciata poiché nella maggior parte dei dipartimenti (nell'esempio solo Sociologia e Fisica) le femmine facevano registrare un tasso di successo più elevato (il tasso di assunzione globale risultava inferiore perché le femmine facevano domanda soprattutto nei dipartimenti più "difficili", cioè con molti candidati per ogni posizione).
+Il tasso di successo complessivo si ottiene come media pesata dei tassi di successo nei due dipartimenti, usando pesi proporzionali al numero di partecipanti.
+Ad es., le femmine hanno un tasso di successo di 0.375 a sociologia (dove partecipano in 80) e 0.75 a fisica (dove partecipano in 20):
+il tasso di successo complessivo è 0.375*(80/100)+0.75*(20/100)=0.45
+I maschi hanno un tasso di 0.25 per Sociologia e 0.625 per Fisica, con un tasso di successo complessivo pari a 0.55.
+In entrambi i dipartimenti il tasso di successo delle femmine è superiore a quello dei maschi, ma per il tasso complessivo accade il contrario a causa dei pesi (le femmine partecipano in prevalenza alla selezione nel dipartimento più "difficile").
+
+Interpretazione in termini di effetti causali
+
+           +--------------+
+       +-->| Dipartimento |---+
+       |   +--------------+   |
+   (b) |                      | (b)
+       |                      |
+       |                      ∨
+  +---------+    (a)    +------------+
+  | Femmina |---------->| Assunzione |
+  +---------+           +------------+
+
+Essere femmina influenza probabilità di assunzione in due modi:
+a) Effetto diretto (la freccia (a))
+b) Effetto indiretto tramite la scelta del dipartimento (le frecce (b))
+L’effetto di interesse per valutare la discriminazione è quello diretto.
+Tuttavia, studiando la relazione tra femmina e assunzione senza considerare il dipartimento non si ottiene l’effetto diretto, ma quello complessivo (diretto + indiretto).
+Per ottenere l’effetto diretto l’analisi va svolta condizionatamente al dipartimento, cioè si deve studiare la relazione tra femmina e assunzione separatamente per ogni dipartimento.
+
+3) Razzismo e pena di morte
+---------------------------
+
+          +-----------------+---------------+
+          | Imputato-bianco | Imputato-nero |
+  +-------+-----------------+---------------+
+  | Morte | 19              | 17            |
+  +-------+-----------------+---------------+
+  | Salvo | 141             | 149           |
+  +-------+-----------------+---------------+
+            11.86%            20.24%
+
+(div 19 (+ 19 141))
+;-> 0.11875
+(div 17 (+ 17 149))
+;-> 0.1024096385542169
+
+Introduciamo una nuova variabile (vittima: bianca o nera):
+
+  Imputato bianco
+          +----------------+--------------+
+          | Vittima-bianca | Vittima-nera |
+  +-------+----------------+--------------+
+  | Morte | 19             | 0            |
+  +-------+----------------+--------------+
+  | Salvo | 132            | 9            |
+  +-------+----------------+--------------+
+            12.6%            0%
+
+(div 19 (+ 19 132))
+;-> 0.1258278145695364
+(div 0 (+ 0 9))
+;-> 0
+
+  Imputato nero
+          +----------------+--------------+
+          | Vittima-bianca | Vittima-nera |
+  +-------+----------------+--------------+
+  | Morte | 11             | 6            |
+  +-------+----------------+--------------+
+  | Salvo | 52             | 5.8          |
+  +-------+----------------+--------------+
+            17.5%            5.8%
+
+(div 11 (+ 11 52))
+;-> 0.1746031746031746
+(div 6 (+ 6 97))
+;-> 0.05825242718446602
+
+Anche in questo caso è evidente la contraddizione dei due risultati.
+
+La fallacia di Berkson
+----------------------
+
+Paradosso di Simpson: la relazione tra due variabili di interesse X e Y si inverte quando ci si condiziona ad una terza variabile Z.
+
+Negli esempi visti fino ad ora l’analisi che ignora Z è sbagliata, mentre l’analisi che condiziona a Z è corretta.
+Questo è ciò che accade di solito, ma ci sono situazioni in accade il contrario, ovvero è l’analisi condizionata a Z a produrre risultati fuorvianti.
+
+Un caso interessante è la fallacia di Berkson, in cui Z denota l’appartenenza al campione osservato.
+Esempio fittizio con X: diabete, Y: ipertensione, questa è la tabella doppia nell’intera popolazione.
+
+          Ipertensione
+ Diabete   No  Sì Tot
+ No       420 180 600
+ Sì       280 120 400
+ Tot      700 300 1000
+
+Nella popolazione le due patologie sono indipendenti: la proporzione di ipertesi è la stessa tra i non diabetici (180/600=0.3) e diabetici (280/400=0.3).
+
+Supponiamo di non poter osservare l’intera popolazione, ma solo coloro che sono ricoverati in ospedale (Z=1) e consideriamo due scenari.
+
+Scenario A: 
+sono in ospedale tutti coloro che hanno almeno una delle due patologie.
+
+           Ipertensione
+  Diabete   No  Sì Tot
+  No         0 180 180
+  Sì       280 120 400
+  Tot      280 300 580
+
+Nella sottopopolazione in ospedale le due patologie sono positivamente associate: la proporzione di ipertesi è maggiore tra i non diabetici (180/180=1) che tra i diabetici (120/400=0.3).
+
+Scenario B: 
+sono in ospedale tutti coloro che hanno entrambe le due patologie + 1 su 10 di coloro che hanno una sola patologia + altri 12 soggetti che non hanno ne l’una né l’altra.
+
+           Ipertensione
+  Diabete   No  Sì Tot
+  No        12  18  30
+  Sì        28 120 148
+  Tot       40 138 178
+
+Nella sottopopolazione in ospedale le due patologie sono negativamente associate: la proporzione di ipertesi è minore tra i non diabetici (18/30=0.6) che tra i diabetici (120/148=0.81).
+
+Interpretazione in termini di effetti causali
+
+       +---------+          +--------------+
+       | Diabete |          | Ipertensione |     
+       +---------+          +--------------+   
+               |              |             
+               |              |             
+               ∨              ∨             
+            +----------------------+
+            | Ricovero in ospedale |
+            +----------------------+
+
+In questo esempio non c’è associazione tra diabete e ipertensione (nessuna freccia). Tuttavia, diabete e ipertensione hanno un effetto comune (ricovero in ospedale), per cui l’analisi condizionata allo stato di ricovero in ospedale crea una associazione fittizia tra diabete e ipertensione. 
+In questo caso l’analisi condizionata (cioè sui soggetti ricoverati in ospedale) è sbagliata, mentre quella non condizionata (cioè su tutta la popolazione) è corretta.
+La fallacia di Berkson è detta anche distorsione da selezione campionaria: in generale, si verifica quando l’appartenere o meno al campione osservato dipende dal valore delle variabili di interesse, per cui la relazione tra le variabili nel campione è diversa dalla relazione nella popolazione.
+
 =============================================================================
 
