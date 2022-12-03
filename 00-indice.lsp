@@ -1520,6 +1520,8 @@ NOTE LIBERE 12
   Short classic puzzle
   Risultati delle votazioni
   Il paradosso di Simpson e la fallacia di Berkson
+  Forum: The semantics of newLISP's if
+  Forza 4 - Connect Four
 
 APPENDICI
 =========

@@ -4002,9 +4002,9 @@ La funzione random
 
 Vediamo la definizione dal manuale:
 
-********************
->>> funzione RANDOM
-********************
+*******************
+>>>funzione RANDOM
+*******************
 sintassi: (random float-offset float-scale int-n)
 sintassi: (random float-offset float-scale)
 
@@ -7569,6 +7569,491 @@ Interpretazione in termini di effetti causali
 In questo esempio non c’è associazione tra diabete e ipertensione (nessuna freccia). Tuttavia, diabete e ipertensione hanno un effetto comune (ricovero in ospedale), per cui l’analisi condizionata allo stato di ricovero in ospedale crea una associazione fittizia tra diabete e ipertensione. 
 In questo caso l’analisi condizionata (cioè sui soggetti ricoverati in ospedale) è sbagliata, mentre quella non condizionata (cioè su tutta la popolazione) è corretta.
 La fallacia di Berkson è detta anche distorsione da selezione campionaria: in generale, si verifica quando l’appartenere o meno al campione osservato dipende dal valore delle variabili di interesse, per cui la relazione tra le variabili nel campione è diversa dalla relazione nella popolazione.
+
+
+------------------------------------
+Forum: The semantics of newLISP's if
+------------------------------------
+
+rickyboy:
+---------
+The if expression in newLISP can usually be found to have different semantics than ifs in other lisps. Lutz has chosen for it to have semantics which are in the spirit of cond.
+
+I believe that this is a great choice, because newLISP's if is a general type of if. What do I mean by this? In the manual discussion,
+
+ http://www.newlisp.org/downloads/newlisp_manual.html#if 
+
+we are presented with the two different forms of if, but in fact, the second form (the one that takes an arbitrary number of clauses) is just a generalization of the first form.[1]
+
+Lutz may not like for me to say this, but there is a beauty and a consistency[2] in its simple semantics.
+
+http://www.newlispfanclub.alh.net/forum/viewtopic.php?t=4381&p=21628#p21628
+
+(Programming language geeks like me love it, but I think other users would too. This is something that I think can bring us all together. :)
+
+I believe that Lutz made a great decision in choosing the semantics of newLISP's if expression, and in the following, I am going to detail why this is so.
+
+The arguments to if are a list of clauses, which in the non-degenerate cases, are pairs of test and consequent clauses. The situation looks like this:
+
+( if test-clause-1 consequent-clause-1 . . . test-clause-N consequent-clause-N )
+
+These pairs are continually looped though until the first such test clause evaluates to a "truthy" value, in which case its corresponding consequent clause is evaluated and yielded as the value of the if expression itself.
+
+The degenerate cases are when the if expression has one clause (argument) or none. But these cases can be thought of as base cases of a recursive evaluator for if. In fact, you can write such an evaluator in newLISP. Here is one.
+
+(define (eval-if EXPR)
+  (if (empty? EXPR)        nil
+      (= 'if (EXPR 0))     (eval-if (1 EXPR))
+      (= 1 (length EXPR))  (eval (EXPR 0))      
+      (let (test-clause (EXPR 0)
+            consequent-clause (EXPR 1)
+            rest-of-the-clauses (2 EXPR))
+        (if (eval test-clause)
+            (eval consequent-clause)
+            (eval-if rest-of-the-clauses)))))
+
+There is something important lurking here, and it is that this function describes the semantics of newLISP's if in newLISP itself!!! Yeah, that's cool.
+
+Now, it is clear why the degenerate cases yield the values they do for newLISP's if. Here are some examples of these cases.
+
+(if)          ;=> nil
+(if 42)       ;=> 42
+(if (+ 2 40)) ;=> 42
+
+Our evaluator treats them the same.
+
+(eval-if '(if))          ;=> nil
+(eval-if '(if 42))       ;=> 42
+(eval-if '(if (+ 2 40))) ;=> 42
+
+Next, examples from the first form of if in the manual look like this.
+
+(set 'x 50)
+(if (< x 100) "small" "big") ;=> "small"
+(set 'x 1000)
+(if (< x 100) "small" "big") ;=> "big"
+(if (> x 2000) "big")        ;=> nil
+
+Our evaluator in action now.
+
+(set 'x 50)
+(eval-if '(if (< x 100) "small" "big")) ;=> "small"
+(set 'x 1000)
+(eval-if '(if (< x 100) "small" "big")) ;=> "big"
+(eval-if '(if (> x 2000) "big"))        ;=> nil
+
+Finally, the examples from the second form of if in the manual.
+
+(define (classify x)
+  (if (< x 0) "negative"
+      (< x 10) "small"
+      (< x 20) "medium"
+      (>= x 30) "big"
+      "n/a"))
+
+(classify 15)   ;=> "medium"
+(classify 100)  ;=> "big"
+(classify 22)   ;=> "n/a"
+(classify -10)  ;=> "negative"
+
+Our evaluator.
+
+(define (classify-eval-if x)
+  (eval-if '(if (< x 0) "negative"
+                (< x 10) "small"
+                (< x 20) "medium"
+                (>= x 30) "big"
+                "n/a")))
+
+(classify-eval-if 15)   ;=> "medium"
+(classify-eval-if 100)  ;=> "big"
+(classify-eval-if 22)   ;=> "n/a"
+(classify-eval-if -10)  ;=> "negative"
+
+__________
+[1] No doubt though that the manual presents two forms of if to the user because the first form is well-known; so it will communicate its ideas (about it and the second form) best to the broadest section of readers.
+
+[2] There you go, Lutz; I used both terms. :)
+---------------------
+
+***************
+>>>funzione IF
+***************
+syntax: (if exp-condition exp-1 [exp-2])
+syntax: (if exp-cond-1 exp-1 exp-cond-2 exp-2 [ ... ])
+
+If the value of exp-condition is neither nil nor an empty list, the result of evaluating exp-1 is returned; otherwise, the value of exp-2 is returned. If exp-2 is absent, the value of exp-condition is returned.
+
+if also sets the anaphoric system variable $it to the value of the conditional expression in if.
+
+(set 'x 50)                   → 50
+(if (< x 100) "small" "big")  → "small"
+(set 'x 1000)                 → 1000
+(if (< x 100) "small" "big")  → "big"
+(if (> x 2000) "big")         → nil
+
+; more than one statement in the true or false
+; part must be blocked with (begin ...)
+(if (= x y)
+  (begin
+    (some-func x)
+    (some-func y))
+  (begin
+    (do-this x y)
+    (do-that x y))
+)
+
+; if also sets the anaphoric system variable $it
+(set 'lst '(A B C))
+(if lst (println (last $it)))  → C
+
+The second form of if works similarly to cond, except it does not take parentheses around the condition-body pair of expressions. In this form, if can have an unlimited number of arguments.
+
+(define (classify x)
+(if
+(< x 0) "negative"
+(< x 10) "small"
+(< x 20) "medium"
+(>= x 30) "big"
+"n/a"))
+
+(classify 15)   → "medium"
+(classify 100)  → "big"
+(classify 22)   → "n/a"
+(classify -10)  → "negative"
+
+The last expression, "n/a", is optional. When this option is omitted, the evaluation of (>= x 30) is returned, behaving exactly like a traditional cond but without requiring parentheses around the condition-expression pairs.
+
+In any case, the whole if expression always returns the last expression or condition evaluated.
+
+See also the when and unless functions.
+
+
+----------------------
+Forza 4 - Connect Four
+----------------------
+
+Forza 4 (Connect Four) è un gioco da tavolo prodotto dalla Milton Bradley nel 1974.
+Si tratta di un gioco di allineamento (di solito su una matrice di sei righe e sette colonne) simile al tris o al go-moku.
+
+Anche in questo caso l'obiettivo è mettere in fila (orizzontale, verticale o diagonale) un certo numero (quattro) di proprie pedine. L'elemento fondamentale del gioco, che lo rende del tutto originale, è la forza di gravità: la scacchiera è posta in verticale fra i giocatori, e le pedine vengono fatte cadere lungo una griglia verticale, in modo tale che una pedina inserita in una certa colonna va sempre a occupare la posizione libera situata più in basso nella colonna stessa.
+Forza 4 è stato risolto, nel senso che è stato dimostrato che il giocatore che comincia la partita ed esegue tutte le mosse "ottimali" vince sempre.
+
+0 = empty cell
+1 = yellow piece
+2 = red piece
+
+Funzione che stampa la griglia del gioco:
+
+(define (print-grid grid)
+  (local (rows cols)
+    (setq rows (length grid))
+    (setq cols (length (first grid)))
+    (for (i 0 (- rows 1))
+      (for (j 0 (- cols 1))
+        (cond ((= (grid i j) 0) (print " 0")) ; empty
+              ((= (grid i j) 1) (print " 1")) ; yellow
+              ((= (grid i j) 2) (print " 2")) ; red
+        )
+      )
+      (println))))
+
+(setq grid '((0 0 0 0 0 0 0)
+             (0 0 0 0 0 0 0)
+             (0 0 0 0 1 0 0)
+             (0 0 0 0 2 1 0)
+             (1 1 2 2 1 2 1)
+             (1 2 1 2 1 2 1)))
+
+(print-grid grid)
+;-> 0 0 0 0 0 0 0
+;-> 0 0 0 0 0 0 0
+;-> 0 0 0 0 1 0 0
+;-> 0 0 0 0 2 1 0
+;-> 1 1 2 2 1 2 1
+;-> 1 2 1 2 1 2 1
+
+Funzione che verifica se una mossa è legale:
+Una mossa è un numero che rappresenta la colonna di inserimento (0..(cols -1)).
+Il numero è valido se è compreso tra 0 e (cols - 1) e l'elemento della riga = 0 e colonna = num è vuoto (cioè vale 0).
+
+(define (legal-move? num grid)
+  (let ((cols (length (first grid))))
+    (and (>= num 0) (< num cols) (zero? (grid 0 num)))))
+
+Funzione che effettua una mossa legale (modifica la griglia di gioco):
+
+(define (make-move num color grid)
+  (local (tmp rows)
+    (setq tmp -1)
+    (setq rows (length grid))
+    ; cerca l'ultimo 0 della colonna num
+    (for (r 0 (- rows 1))
+      (if (zero? (grid r num)) (setq tmp r))
+    )
+    (setf (grid tmp num) color)
+    grid))
+
+(setq g1 grid)
+(print-grid g1)
+(valid-move? 1 g1)
+(setq g1 (make-move 2 1 g1))
+(print-grid g1)
+
+Funzione che verifica se un giocatore ha vinto:
+(0 = nessun vincitore, 1 = vince yellow, 2 = vince red)
+
+(define (check-win player grid)
+  (local (out rows cols)
+    (setq out 0)
+    (setq rows (length grid))
+    (setq cols (length (first grid)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+        (if (check r c grid player) (setq out (grid r c)))
+      )
+    )
+    out))
+
+Funzione ausiliaria che verifica se una casella è un estremo di una configurazione vincente (nelle 8 direzioni possibili):
+
+(define (check i j grid player)
+  (local (rows cols val out)
+    (setq out nil)
+    (setq rows (length grid))
+    (setq cols (length (first grid)))
+    (setq val (grid i j))
+    (if (= val player)
+      (begin
+        ; right
+        (if (< (+ j 3) cols)
+            (if (= (grid i j) (grid i (+ j 1))
+                   (grid i (+ j 2)) (grid i (+ j 3)))
+                (begin
+                  ;(println "right: " i { } j)
+                  (setq out true)))
+        )
+        ; left
+        (if (>= (- j 3) 0)
+            (if (= (grid i j) (grid i (- j 1))
+                   (grid i (- j 2)) (grid i (- j 3)))
+                (begin
+                  ;(println "left: " i { } j)
+                  (setq out true)))
+        )
+        ; down
+        (if (< (+ i 3) rows)
+            (if (= (grid i j) (grid (+ i 1) j)
+                   (grid (+ i 2) j) (grid (+ i 3) j))
+                (begin
+                  ;(println "down: " i { } j)
+                  (setq out true)))
+        )
+        ; up
+        (if (>= (- i 3) 0)
+            (if (= (grid i j) (grid (- i 1) j)
+                   (grid (- i 2) j) (grid (- i 3) j))
+                (begin
+                  ;(println "up: " i { } j)
+                  (setq out true)))
+        )
+        ; up-right
+        (if (and (>= (- i 3) 0) (< (+ j 3) cols))
+            (if (= (grid i j) (grid (- i 1) (+ j 1))
+                   (grid (- i 2) (+ j 2)) (grid (- i 3) (+ j 3)))
+                (begin
+                  ;(println "up-right: " i { } j)
+                  (setq out true)))
+        )
+        ; up-left
+        (if (and (>= (- i 3) 0) (>= (- j 3) 0))
+            (if (= (grid i j) (grid (- i 1) (- j 1))
+                   (grid (- i 2) (- j 2)) (grid (- i 3) (- j 3)))
+                (begin
+                  ;(println "up-left: " i { } j)
+                  (setq out true)))
+        )
+        ; down-left
+        (if (and (< (+ i 3) rows) (>= (- j 3) 0))
+            (if (= (grid i j) (grid (+ i 1) (- j 1))
+                   (grid (+ i 2) (- j 2)) (grid (+ i 3) (- j 3)))
+                (begin
+                  ;(println "down-left: " i { } j)
+                  (setq out true)))
+        )
+        ; down-right
+        (if (and (< (+ i 3) rows) (< (+ j 3) cols))
+            (if (= (grid i j) (grid (+ i 1) (+ j 1))
+                   (grid (+ i 2) (+ j 2)) (grid (+ i 3) (+ j 3)))
+                (begin
+                  ;(println "down-right: " i { } j)
+                  (setq out true)))
+        )
+      )
+    )
+    out))
+
+(setq test '((1 1 1 1)
+             (1 1 1 1)
+             (1 1 1 1)
+             (1 1 1 1)))
+
+(check-win 1 test)
+;-> 1
+(check-win 2 test)
+;-> 0
+
+Funzione che gestisce l'input utente di una cifra intera (0..9):
+
+(define (read-int msg val-min val-max)
+  (local (done k)
+    (setq done nil)
+    (print msg)
+    (until done
+      (setq k (- (read-key) 48))
+      (if (and (>= k val-min) (<= k val-max))
+        (setq done true)
+      )
+    )
+    (println k)
+    k))
+
+(read-int "Intero (1 5): " 1 5)
+;-> Intero (1 5): 2
+
+Funzione che gestisce una partita di forza4 tra due giocatori:
+
+(define (forza4 rows cols)
+  (local (board mosse endgame player p1 p2)
+    ; crea griglia di gioco
+    (setq board (array-list (array rows cols '(0))))
+    (setq mosse 0)
+    (setq endgame nil)
+    ; ciclo del gioco
+    (until endgame
+      ; stampa griglia di gioco
+      (print-grid board)
+      ;
+      ; input player 1
+      ;
+      (setq player 1)
+      (setq p1 (read-int (string "Player 1 --> colonna (0.." (- cols 1) "): ")
+                0 (- cols 1)))
+      ; se la mossa è legale...
+      (if (legal-move? p1 board)
+        ; allora effettua la mossa sulla griglia
+        (setq board (make-move p1 player board))
+        ; altrimenti stampa un messaggio di errore
+        (println "Attenzione: mossa illegale, salta il turno.")
+      )
+      ; controllo vincita del giocatore 1
+      (if (= (check-win player board) player) (setq endgame true))
+      ; aggiorna numero delle mosse
+      (++ mosse)
+      ; stampa griglia di gioco
+      (print-grid board)
+      ;
+      ; input player 2
+      ;
+      (cond ((not endgame)
+              (setq player 2)
+              (setq p2 (read-int (string "Player 2 --> colonna (0.." (- cols 1) "): ")
+                        0 (- cols 1)))
+              ; se la mossa è legale...
+              (if (legal-move? p2 board)
+                ; allora effettua la mossa sulla griglia
+                (setq board (make-move p2 player board))
+                ; altrimenti stampa un messaggio di errore
+                (println "Attenzione: mossa illegale, salta il turno.")
+              )
+              ; controllo vincita del giocatore 1
+              (if (= (check-win player board) player) (setq endgame true)))
+      )
+    )
+    ; fine del gioco
+    (println "-----FORZA4-----")
+    (print-grid board)
+    (println "The winner is: " player " (" mosse " moves)")
+  ) 'game-over
+)
+
+Facciamo una partita:
+
+(forza4 6 7)
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;-> Player 1 --> colonna (0..6): 1
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 1 0 0 0 0 0
+;-> Player 2 --> colonna (0..6): 2
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 1 2 0 0 0 0
+;-> Player 1 --> colonna (0..6): 1
+;-> ...
+;-> -----FORZA4-----
+;->  0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0
+;->  0 1 0 0 0 0 0
+;->  0 1 2 0 0 0 0
+;->  0 1 2 0 0 0 0
+;->  0 1 2 0 0 0 0
+;-> The winner is: 1 (4 moves)
+;-> game-over
+
+Una funzione di stampa a colori e caratteri UTF8 (per terminali ANSI):
+
+ █ ■
+
+(define (print-grid grid)
+  (local (rows cols yellow red nocol)
+    (setq yellow "\027[0;33m")
+    (setq red "\027[0;31m")
+    (setq nocol "\027[39;49m")
+    (setq rows (length grid))
+    (setq cols (length (first grid)))
+    (for (i 0 (- cols 1))
+      (print (string " " i " "))
+    )
+    (println)
+    (for (i 0 (- rows 1))
+      (for (j 0 (- cols 1))
+        (cond ((= (grid i j) 0) (print "|  ")) ; empty
+              ((= (grid i j) 1) (print "|" yellow "██" nocol)) ; yellow
+              ((= (grid i j) 2) (print "|" red    "██" nocol)) ; red
+        )
+      )
+      (println "|" )
+    )
+    (println (dup "-" (+ (* cols 3) 1)))))
+
+Pronto per giocare per dimensioni diverse:
+
+(forza4 10 10)
+;->  0  1  2  3  4  5  6  7  8  9
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> |  |  |  |  |  |  |  |  |  |  |
+;-> -------------------------------
+;-> Player 1 --> colonna (0..9):
 
 =============================================================================
 

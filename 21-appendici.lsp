@@ -4225,8 +4225,7 @@ Il seguente frammento di codice mostra il passaggio per riferimento utilizzando 
 
 reflist:reflist => (a b c d e f g)
 
-La gestione automatica della memoria di newLISP è completamente trasparente per il programmatore, ma più veloce e
-è richiede meno risorse rispetto ai classici algoritmi di garbage collection.
+La gestione automatica della memoria di newLISP è completamente trasparente per il programmatore, ma è più veloce e richiede meno risorse rispetto ai classici algoritmi di garbage collection.
 Poiché la gestione della memoria ORO è sincrona, il codice newLISP ha un tempo di esecuzione è costante e ripetibile. I linguaggi di programmazione che utilizzano la garbage collection tradizionale mostrano ritardi e pause improvvis.
 La combinazione tra il passaggio per valore-copia e la gestione unica della memoria rendono newLISP il linguaggio di scripting interattivo (non compilato) più veloce in generale tra quelli disponibili. Come mostrato sopra, è comunque possibile anche il passaggio per riferimento. Per le funzioni integrate il passaggio per riferimento è quello predefinito.
 Come sottoprodotto della gestione della memoria ORO di newLISP, è necessario solo il segno di uguale "=" per verificare l'uguaglianza tra due oggetti. Common Lisp richiede eq, eql, equal, equalp, =, string=, string-equal, char= e char-eq per i test di uguaglianza di espressioni, tipi di dati, oggetti identici e oggetti referenziati.
