@@ -8055,5 +8055,263 @@ Pronto per giocare per dimensioni diverse:
 ;-> -------------------------------
 ;-> Player 1 --> colonna (0..9):
 
+
+-----------------------------------------
+Moltiplicazione fra matrici e stress-test
+-----------------------------------------
+
+Dal momento che anche i programmatori esperti commettono errori nella risoluzione di problemi algoritmici, è importante imparare a identificare gli errori (bug) il più presto possibile.
+I programmi non sono quasi mai corretti quando li eseguiamo per la prima volta.
+Per essere sicuri che il nostro programma funziona, spesso lo proviamo solo con alcuni casi di test e se i risultati sono ragionevoli, consideraimo il programma terminato.
+Tuttavia, questa è il modo migliore per andare incontro ad un disastro.
+Per rendere "robusto" ikl nostro programma dovremmo provarlo con una serie di casi di test attentamente progettati.
+Il lavoro del programmatore consiste nell'implementare algoritmi ed eseguire il debug dei programmi.
+
+Stress Test
+-----------
+Lo stress test è una tecnica per generare migliaia di test con l'obiettivo di trovare uno o più casi per il quale il nostro programma fallisce.
+
+Uno stress test si compone di quattro parti:
+
+1. La nostra implementazione di un algoritmo.
+
+2. Un'implementazione alternativa corretta dell'algoritmo per lo stesso problema (anche banale e lenta).
+
+3. Un generatore di test casuali.
+
+4. Un ciclo di lunghezza arbitraria in cui un nuovo test viene generato e inserito in entrambe
+ le implementazioni per confrontare i risultati.
+Se i loro risultati differiscono, allora viene riportato un errore e lo sterss test si interrompe.
+Se i risultati sono uguali si passa al prosimo test generato all'interno del ciclo.
+
+L'idea alla base dello stress test è che due implementazioni corrette dovrebbero dare la stessa risposta per ogni test (a condizione che la risposta al problema sia unica).
+Se, tuttavia, una delle implementazioni non è corretta, allora esiste almeno un test su cui le loro risposte differiscono.
+L'unico caso in cui questo non è vero si ha quando c'è lo stesso errore in entrambe le implementazioni, ma questo è improbabile (a meno che l'errore non sia nell'input/output o nelle routine comuni ad entrambe le soluzioni).
+Se entrambi i programmi sono sbagliati, ma i bug sono diversi, molto probabilmente esiste un test in cui due soluzioni danno risultati differenti.
+
+Moltiplicazione tra matrici
+---------------------------
+Data una matrice A di dimensione MxN ed una seconda matrice B di dimensioni NxP.
+Siano a(i j) gli elementi di A e b(i j) gli elementi di B.
+Si definisce il prodotto matriciale di A per B la matrice  C = A*B di dimensioni MxP i cui elementi c(i j) sono dati da:
+
+  c(i j) = Sum[k=1,N] a(i k)*b(k j)
+
+per i = 1..M e j = 1..P.
+
+Per poter eseguire la moltiplicazione tra matrici, il numero di colonne nella prima matrice deve essere uguale al numero di righe nella seconda matrice.
+
+La matrice risultante, nota come prodotto tra matrici, ha il numero di righe della prima matrice e il numero di colonne della seconda matrice.
+
+  Prima matrice:        A (MxN)
+  Seconda matrice:      B (NxP)
+  Prodotto tra matrici: C (MxP)
+
+Scriviamo la nostra funzione per la moltiplicazione tra matrici:
+
+(define (mult-mat A B)
+  (local (out rowA colA rowB colB)
+    (setq rowA (length A))
+    (setq colA (length (first A)))
+    (setq rowB (length B))
+    (setq colB (length (first B)))
+    (read-line)
+    ; matrice risultante: rowA righe e colB colonne
+    (setq out (array rowA colB '(0)))
+    ; condizione per poter moltiplicare due matrici:
+    ; numero colonne prima matrice = numero righe seconda matrice
+    (cond ((!= colA rowB) (setq out nil))
+          (true ; moltiplicazione tra matrici
+            (for (i 0 (- rowA 1))
+              (for (j 0 (- colB 1))
+                (for (k 0 (- colA 1))
+                  (setf (out i j) (add (out i j) (mul (A i k) (B k j))))
+                )
+              )
+            ))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(setq m1 '((1 1 1) (2 2 2) (3 3 3)))
+(setq m2 '((1 1 1) (2 2 2) (3 3 3)))
+(print-matrix (mult-mat m1 m2))
+;->  6  6  6
+;-> 12 12 12
+;-> 18 18 18
+(print-matrix (multiply m1 m2))
+;->   6  6  6
+;->  12 12 12
+;->  18 18 18
+
+(setq m1 '((1 1 2) (0 1 -3)))
+(setq m2 '((1 1 1) (2 5 1) (0 -2 1)))
+(print-matrix (mult-mat m1 m2))
+;-> 3  2  4
+;-> 2 11 -2
+(print-matrix (multiply m1 m2))
+;-> 3  2  4
+;-> 2 11 -2
+
+(setq m1 '((1 1 1 1) (2 5 1 -1) (0 -2 1 -1)))
+(setq m2 '((1 1 2) (0 1 -3) (1 1 2) (0 1 -3)))
+(print-matrix (mult-mat m1 m2))
+;-> 2  4 -2
+;-> 3  7 -6
+;-> 1 -2 11
+(print-matrix (multiply m1 m2))
+;-> 2  4 -2
+;-> 3  7 -6
+;-> 1 -2 11
+
+(setq m1 '((1 1 1 1) (2 5 1 -1) (0 -2 1 -1)))
+(setq m2 '((1 1 2) (0 1 -3) (1 1 2)))
+(mult-mat m1 m2)
+;-> nil
+(multiply m1 m2)
+;-> ERR: wrong dimensions in function multiply
+
+La funzione "multiply" è una primitiva di newLISp che moltiplica due matrici.
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Funzioni che generano numeri casuali (interi e floating) in un intervallo:
+
+(define (rand-range min-val max-val)
+"Generate a random integer in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+
+(define (rand-range-f min-val max-val)
+"Generate a random float in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (add min-val (random 0 (sub max-val min-val))))
+
+Funzione che crea due matrici casuali idonee per la moltiplicazione.
+I parametri sono:
+  max-row = numero massimo di righe 
+  max-col = numero massimo di colonne
+  min-val = valore minimo dei numeri
+  max-val = valore massimo dei numeri
+  floating = true->floating, nil->integer
+
+(define (make-matrix max-row max-col min-val max-val floating)
+  (local (m1 m2 rows cols nums)
+    ; first matrix m1
+    (setq rows (+ (rand max-row) 1))
+    (setq cols (+ (rand max-col) 1))
+    (setq nums '())
+    (if floating
+      ; numeri casuali floating point
+      (for (i 1 (* rows cols))
+        (push (rand-range-f min-val max-val) nums -1)
+      )
+      ; else
+      ; numeri casuali interi
+      (for (i 1 (* rows cols))
+        (push (rand-range min-val max-val) nums -1)
+      )
+    )
+    (setq m1 (array rows cols nums))
+    ; second matrix m2
+    ; numero righe seconda matrice = numero colonne prima matrice
+    (setq rows cols)
+    (setq cols (+ (rand max-col) 1))
+    (setq nums '())
+    (if floating
+      ; numeri casuali floating point
+      (for (i 1 (* rows cols))
+        (push (rand-range-f min-val max-val) nums -1)
+      )
+      ; else
+      ; numeri casuali interi
+      (for (i 1 (* rows cols))
+        (push (rand-range min-val max-val) nums -1)
+      )
+    )
+    (setq m2 (array rows cols nums))
+    (list m1 m2)))
+
+(print-matrix ((make-matrix 5 5 -10 10 true) 0))
+
+Scriviamo una funzione di test.
+Questa funzione crea due matrici casuali e le moltiplica con la nostra funzione "mult-mat" e con la funzione "multiply".
+Se i risultati sono uguali restituisce true.
+Se i risultati sono diversi, allora stampa un messaggio di errore e restituisce nil.
+
+(define (test max-row max-col min-val max-val floating)
+  (local (mm a b res1 res2)
+    (setq mm (make-matrix max-row max-col min-val max-val floating))
+    (setq a (mm 0))
+    (setq b (mm 1))
+    ; (print-matrix a) (print-matrix b)
+    (setq res1 (multiply a b))
+    (setq res2 (mult-mat a b))
+    ;(print-matrix res1) (print-matrix res2)
+    ; risultati diversi --> ERRORE --> nil
+    (cond ((!= (multiply a b) (array-list (mult-mat a b)))
+            (println "ERROR: ")
+            (println "matrix A:")
+            (println (print-matrix a))
+            (println "matrix B:")
+            (println (print-matrix b))
+            (println "Result with multiply:")
+            (println (print-matrix res1))
+            (println "Result with mult-mat:")
+            (println (print-matrix res1))
+            nil)
+          ; risultati uguali --> true
+          (true true))))
+
+Proviamo la funzione di test con matrici 10x10 al massimo e valori compresi tra -100 e 100:
+
+(test 10 10 -100 100)
+;-> true
+
+(test 10 10 0 1 true)
+
+Adesso possiamo scrivere la funzione di stress che applica la funzione "test" un determinato numero di volte:
+
+(define (stress max-row max-col min-val max-val floating iter)
+  (local (stop)
+    ; inizializzazione generatore numeri casuali
+    (seed (time-of-day))
+    (setq stop nil)
+    (dotimes (i iter stop)
+      (if (not (test max-row max-col min-val max-val floating)) (setq stop true)
+      (print "\r" i))
+    )
+    'end))
+
+Test con numeri interi da -100 a 100 con matrici 100x100 max:
+
+(stress 100 100 -100 100 nil  100)
+;-> 99end
+Test con numeri floating da -100 a 100 con matrici 100x100 max:
+
+(stress 100 100 -100 100 true 100)
+;-> 99end
+
 =============================================================================
 

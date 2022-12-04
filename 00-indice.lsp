@@ -1522,6 +1522,7 @@ NOTE LIBERE 12
   Il paradosso di Simpson e la fallacia di Berkson
   Forum: The semantics of newLISP's if
   Forza 4 - Connect Four
+  Moltiplicazione fra matrici e stress-test
 
 APPENDICI
 =========
