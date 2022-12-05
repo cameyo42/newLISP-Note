@@ -8313,5 +8313,96 @@ Test con numeri floating da -100 a 100 con matrici 100x100 max:
 (stress 100 100 -100 100 true 100)
 ;-> 99end
 
+
+---------------------------
+Estrazione di sotto-matrici
+---------------------------
+
+Ecco una funzione per estrarre una sottomatrice da una matrice.
+
+Parameters | Parametri:
+i: start row of matrix M | riga iniziale della matrice M
+j: start column of matrix M | riga finale della matrice M
+rows: number of rows to extract | numero di righe da estrare
+cols: number of columns to extract | numero di colnne da estrarre
+
+Se rows oppure cols non vengono passati, allora la funzione estrae tutta la sottomatrice a partire dalla cella M(i j).
+
+(define (sub-matrix M i j rows cols)
+  (local (sub-mat ic jc)
+    ; no passing rows, cols then
+    ; select all sub-matrix from M(i j)
+    (if (= rows nil) (setq rows (- (length M) i)))
+    (if (= cols nil) (setq cols (- (length (M 0)) j)))
+    ;; no passing rows, cols and
+    ;; if (rows + i) or (cols + j) exceed M dimension then
+    ;; select all sub-matrix from M(i j)
+    ;(if (or (= rows nil) (> (+ rows i) (length M)))
+    ;    (setq rows (- (length M) i))
+    ;)
+    ;(if (or (= cols nil) (> (+ cols i) (length (M 0))))
+    ;    (setq cols (- (length (M 0)) j))
+    ;)
+    ; create the result array (empty)
+    (setq sub-mat (array rows cols '(0)))
+    ; index for rows of sub-mat
+    (setq ic 0)
+    (for (rr i (+ rows i -1))
+      ; index for cols of sub-mat
+      (setq jc 0)
+      (for (cc j (+ cols j -1))
+        (setf (sub-mat ic jc) (M rr cc))
+        (++ jc)
+      )
+      (++ ic)
+    )
+    sub-mat))
+
+(setq a '((1 2 3) (4 5 6) (7 8 9)))
+(print-matrix a)
+;-> 1 2 3
+;-> 4 5 6
+;-> 7 8 9
+(print-matrix (sub-matrix a 1 1 1 2))
+;-> 5 6
+(print-matrix (sub-matrix a 0 0 3 1))
+;-> 1
+;-> 4
+;-> 7
+(print-matrix (sub-matrix a 0 0 3 3))
+;-> 1 2 3
+;-> 4 5 6
+;-> 7 8 9
+(sub-matrix a 1 1 3 3)
+;-> ERR: invalid list index in function setf
+;-> called from user function (sub-matrix a 1 1 3 3)
+
+(setq b (array 6 4 (sequence 1 (* 6 4))))
+(print-matrix b)
+;->  1  2  3  4
+;->  5  6  7  8
+;->  9 10 11 12
+;-> 13 14 15 16
+;-> 17 18 19 20
+;-> 21 22 23 24
+(print-matrix (sub-matrix b 2 2 4 2))
+;-> 11 12
+;-> 15 16
+;-> 19 20
+;-> 23 24
+(print-matrix (sub-matrix b 1 2 5 2))
+;->  7  8
+;-> 11 12
+;-> 15 16
+;-> 19 20
+;-> 23 24
+(print-matrix (sub-matrix b 3 2))
+;-> 15 16
+;-> 19 20
+;-> 23 24
+(print-matrix (sub-matrix b 0 0 2 2))
+;-> 1 2
+;-> 5 6
+
 =============================================================================
 

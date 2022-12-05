@@ -1523,6 +1523,7 @@ NOTE LIBERE 12
   Forum: The semantics of newLISP's if
   Forza 4 - Connect Four
   Moltiplicazione fra matrici e stress-test
+  Estrazione di sotto-matrici
 
 APPENDICI
 =========
