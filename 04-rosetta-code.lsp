@@ -7661,9 +7661,9 @@ Vediamo al differenza di velocità tra le due funzioni:
 Purtroppo la funzione "rand" non gestisce i numeri big-integer.
 
 
------------------------
-IL PROBLEMA DI GIUSEPPE
------------------------
+------------------------------------------
+IL PROBLEMA DI GIUSEPPE (JOSEPHUS PROBLEM)
+------------------------------------------
 
 Il problema di Giuseppe (Josephus problem) o la permutazione di Giuseppe è un problema collegato ad un episodio raccontato dallo storico Flavio Giuseppe nella sua opera "Guerra giudaica" (composta tra il 93 e il 94 d.C.).
 Il problema presenta n persone disposte in circolo in attesa di una esecuzione. Scelta una persona iniziale e un senso di rotazione, si saltano k-1 persone, raggiungendo così la k-esima persona, che viene giustiziata ed eliminata dal cerchio. Poi si saltano k-1 persone e si giustizia la k-esima persona. Le esecuzioni proseguono e il cerchio si restringe sempre più, finché non rimane che una sola persona, la quale viene graziata. Dati n e k, determinare la posizione del sopravvissuto all'interno del cerchio iniziale. In altre parole il problema è scegliere il posto nel cerchio iniziale che assicura la sopravvivenza.

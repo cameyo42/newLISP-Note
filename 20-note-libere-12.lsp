@@ -4523,9 +4523,9 @@ Le posizioni seguenti sono chiamate "quiet patterns" (modelli di pulsanti che, s
   1 0 1 0 1          0 0 0 0 0
   1 0 1 0 1          1 1 0 1 1
 
-Osserva la posizione A e considera le luci segnate (1). Qualsiasi delle 25 pressioni del pulsante cambierà un numero pari delle luci contrassegnate. 
-Pertanto, gli unici schemi risolvibili hanno un numero pari di luci contrassegnate accese. 
-Lo stesso vale per la posizione B. 
+Osserva la posizione A e considera le luci segnate (1). Qualsiasi delle 25 pressioni del pulsante cambierà un numero pari delle luci contrassegnate.
+Pertanto, gli unici schemi risolvibili hanno un numero pari di luci contrassegnate accese.
+Lo stesso vale per la posizione B.
 Se nella nostra posizione entrambi questi gruppi di luci segnate hanno un numero pari di luci accese, allora la posizione è risolvibile.
 
 
@@ -5174,15 +5174,15 @@ Perchè?
 Consideriamo due casi:
 La prima busta che scegliamo contiene x (cioè la quantità minore).
 La prima busta che scegliamo contiene y (questo è ciò che vogliamo).
-Il caso per prima x: 
-se prendiamo prima x, dobbiamo cambiare la busta per avere y. 
-Quando succede secondo la nostra strategia? 
-Succede ogni volta che la nostra z campionata casualmente è maggiore di x. 
+Il caso per prima x:
+se prendiamo prima x, dobbiamo cambiare la busta per avere y.
+Quando succede secondo la nostra strategia?
+Succede ogni volta che la nostra z campionata casualmente è maggiore di x.
 Ciò significa che in questo caso vinciamo con una probabilità P(z>x).
 
-Il primo caso per y: 
-se prendiamo prima y, dobbiamo attenerci alla busta. 
-Ciò accade ogni volta che la nostra z campionata casualmente è minore di y. 
+Il primo caso per y:
+se prendiamo prima y, dobbiamo attenerci alla busta.
+Ciò accade ogni volta che la nostra z campionata casualmente è minore di y.
 Ciò significa che in questo caso vinciamo con una probabilità P(z<y).
 
 Poiché entrambi i casi hanno una probabilità del 50% (le buste sono state mescolate), si ottiene una probabilità di successo totale di:
@@ -5639,9 +5639,9 @@ Facciamo una partita:
 Il gatto, la tartaruga e il tavolo
 ----------------------------------
 
-Un gatto è seduto sul tavolo e una tartaruga sta strisciando sul pavimento direttamente sotto di esso. La distanza dalle orecchie del gatto alla sommità del guscio della tartaruga è di 170 cm. 
-Eva ha scambiato i suoi animali domestici. 
-Ora la tartaruga è sopra il tavolo e il gatto sotto e la distanza dalle orecchie del gatto alla sommità del guscio della tartaruga è di 130 cm. 
+Un gatto è seduto sul tavolo e una tartaruga sta strisciando sul pavimento direttamente sotto di esso. La distanza dalle orecchie del gatto alla sommità del guscio della tartaruga è di 170 cm.
+Eva ha scambiato i suoi animali domestici.
+Ora la tartaruga è sopra il tavolo e il gatto sotto e la distanza dalle orecchie del gatto alla sommità del guscio della tartaruga è di 130 cm.
 Qual è l'altezza del tavolo?
 
 Le due situazioni sono rappresentate dal grafico seguente, in cui A è la tartaruga e B è il gatto (con molta fantasia):
@@ -5704,7 +5704,7 @@ Eulero dimostrò che la somma esatta vale π²/6.
 ;->  1.644933966847260 1.644934057834575)
 
 (setq errors (map (fn(x) (sub basilea x)) values))
-;-> (0.09516633568168564 0.009950166663334148 
+;-> (0.09516633568168564 0.009950166663334148
 ;->  0.0009995001666649461 9.999500016122376e-005
 ;->  9.999949984074164e-006 9.999994563525405e-007
 ;->  1.000009668405966e-007 9.013651380840315e-009)
@@ -5766,9 +5766,9 @@ It would be nice to have some function that returns list of the caller functions
 Lutz:
 -----
 
-(define (callers) 
-    (catch (0) 'error) 
-    (slice (map sym (find-all "function (\\w+)" error $1 0)) 3) 
+(define (callers)
+    (catch (0) 'error)
+    (slice (map sym (find-all "function (\\w+)" error $1 0)) 3)
 )
 
 (define (foo) (bar))
@@ -6024,7 +6024,7 @@ I hope this helps a little.
 
 bairui:
 -------
-Thanks, rickyboy! That helped a lot. Thank you! 
+Thanks, rickyboy! That helped a lot. Thank you!
 So, now I'd like to understand what Lutz meant when he said there were good uses for dynamic scope that us lexical scopers are deprived of. Could you elaborate on: "switching and separation of concerns"?
 
 Lutz:
@@ -6390,7 +6390,7 @@ e potremmo usare:
 Poligoni su reticolo di punti (lattice)
 ---------------------------------------
 
-Dato un poligono, calcolare il numero di punti del reticolo all'interno del poligono e sul suo confine. 
+Dato un poligono, calcolare il numero di punti del reticolo all'interno del poligono e sul suo confine.
 Un punto del reticolo è un punto le cui coordinate sono interi.
 
 Il poligono è costituito da n vertici (x1,y1),(x2,y2),…,(xn,yn). I vertici (xi,yi) e (xi+1,yi+1) sono adiacenti per i=1,2,…,n−1, e anche i vertici (x1,y1) e (xn,yn) sono adiacenti.
@@ -6512,8 +6512,8 @@ Funzione finale:
 (test 10)
 ;-> (3 1 7)
 (test 10 true)
-;-> (((10 2 10) (10 8 10) (10 10 10)) 
-;->  ((10 10 10)) 
+;-> (((10 2 10) (10 8 10) (10 10 10))
+;->  ((10 10 10))
 ;->  ((10 2 2) (10 3 2) (10 6 2) (10 7 2) (10 8 8) (10 9 8) (10 10 10)))
 (test 88)
 ;-> (7 1 73)
@@ -6533,7 +6533,7 @@ Soluzione procedurale/iterativa ottimizzata:
       (setq val (& x y))
       (if (= val x)
         (push (list x y val) out2 -1)
-      )      
+      )
       ; x&y != 0
       (setq val (& x y))
       (if (!= val 0)
@@ -6546,8 +6546,8 @@ Soluzione procedurale/iterativa ottimizzata:
 (test1 10)
 ;-> (3 1 7)
 (test1 10 true)
-;-> (((10 2 10) (10 8 10) (10 10 10)) 
-;->  ((10 10 10)) 
+;-> (((10 2 10) (10 8 10) (10 10 10))
+;->  ((10 10 10))
 ;->  ((10 2 2) (10 3 2) (10 6 2) (10 7 2) (10 8 8) (10 9 8) (10 10 10)))
 (test1 88)
 ;-> (7 1 73)
@@ -6555,7 +6555,7 @@ Soluzione procedurale/iterativa ottimizzata:
 Soluzione in stile newLISP (molto più compatta):
 
 (define (test2 x)
-  (list 
+  (list
     (first (count (list x) (map (curry | x) (sequence 1 x))))
     (first (count (list x) (map (curry & x) (sequence 1 x))))
     (length (clean zero? (map (curry & x) (sequence 1 x))))))
@@ -6604,7 +6604,7 @@ In altri termini si tratta di generare tutte le pemutazioni di n elementi dalla 
 (perm-rep 3 '(0 1))
 ;-> ((0 0 0) (1 0 0) (0 1 0) (1 1 0) (0 0 1) (1 0 1) (0 1 1) (1 1 1))
 (perm-rep 4 '(0 1))
-;-> ((0 0 0 0) (1 0 0 0) (0 1 0 0) (1 1 0 0) (0 0 1 0) (1 0 1 0) 
+;-> ((0 0 0 0) (1 0 0 0) (0 1 0 0) (1 1 0 0) (0 0 1 0) (1 0 1 0)
 ;->  (0 1 1 0) (1 1 1 0) (0 0 0 1) (1 0 0 1) (0 1 0 1) (1 1 0 1)
 ;->  (0 0 1 1) (1 0 1 1) (0 1 1 1) (1 1 1 1))
 
@@ -6654,7 +6654,7 @@ Funzioni trigonometriche:
   cos(x) = Sum[n=0,inf] -----------*x^(2n) =
                             (2n)!
 
-         = 1 - x^2/2! + x^4/4! - x^6/6! + x^8/8! + ... 
+         = 1 - x^2/2! + x^4/4! - x^6/6! + x^8/8! + ...
 
 Calcoliamo la convergenza di queste funzioni:
 
@@ -7073,7 +7073,7 @@ Patate disidratate
 
 Supponiamo di acquistare 100 grammi di patate.
 Sappiamo che il 99% delle patate è costituito da acqua.
-Portiamo le patate a casa e le lasciamo fuori a disidratarsi fino a quando la quantità di acqua nelle patate è del 98%. 
+Portiamo le patate a casa e le lasciamo fuori a disidratarsi fino a quando la quantità di acqua nelle patate è del 98%.
 Qual è il peso delle patate adesso?
 
 Situazione iniziale:
@@ -7111,9 +7111,9 @@ p2 = percentuale finale materia A
     (setq mb2 mb1)
     (setq peso-finale (mul 100 (mul (div pb2) mb1)))
     (setq ma2 (sub peso-finale mb2))
-    (println "Peso iniziale: " 
+    (println "Peso iniziale: "
       peso " con " ma1 " di A (" pa1 "%) e " mb1 " di B (" pb1 "%)")
-    (println "Peso finale: " 
+    (println "Peso finale: "
       peso-finale " con " ma2 " di A (" pa2 "%) e " mb2 " di B (" pb2 "%)")))
 
 (disidrata 100 99 98)
@@ -7243,13 +7243,13 @@ Short classic puzzle
 
 Risolvere i seguenti problemi senza utilizzo dell'algebra con carta e penna.
 
-Il prezzo di un libro è di 10 euro più la metà del suo prezzo. 
+Il prezzo di un libro è di 10 euro più la metà del suo prezzo.
 Quanto costa il libro?
 
-  x = 10 + x/2 
+  x = 10 + x/2
   (1/2)x = 10
   x = 10 * 2 = 20 euro
- 
+
 ---------------------
 
 Il peso di un mattone è di 1kg più il peso di mezzo mattone.
@@ -7270,9 +7270,9 @@ Quanto costano la matita e la penna?
   m + (1 + m) = 1.10
   2q + 1 = 1.10
   2q = 0.10
-  m = 0.10/2 = 0.05 
+  m = 0.10/2 = 0.05
   p = 1 + m = 1 + 0.05 = 1.05
- 
+
 La penna costa 1 euro e 5 centesimi (1.05), la matita costa 5 centesimi (0.05).
 
 
@@ -7286,7 +7286,7 @@ Ci sono state 97 schede bianche o nulle.
 Calcolare quanti voti sono stati espressi per ogni candidato.
 
 Sia x il numero di voti ottenuti dal candidato che ha vinto.
-Gli altri candidati hanno ricevuto: x - 200, x - 221 e x - 400. 
+Gli altri candidati hanno ricevuto: x - 200, x - 221 e x - 400.
 La somma di questi voti è uguale a:
 
   4x - 821
@@ -7297,13 +7297,13 @@ Questo deve essere uguale ai votanti meno il numero di schede bianche o nulle:
 
 Quindi, possiamo scrivere:
 
-  4x − 821 = 7903. 
+  4x − 821 = 7903.
 
 Pertanto:
 
   4x = 7903 + 821 = 8724 --> x = 8724/4 = 2181.
 
-Pertanto, il candidato vincente (primo) ha ricevuto 2181 voti. 
+Pertanto, il candidato vincente (primo) ha ricevuto 2181 voti.
 Il numero di voti ricevuti dagli altri candidati si ottiene sottraendo i voti di scarto:
 
   voti del primo = 2181
@@ -7532,7 +7532,7 @@ Nella popolazione le due patologie sono indipendenti: la proporzione di ipertesi
 
 Supponiamo di non poter osservare l’intera popolazione, ma solo coloro che sono ricoverati in ospedale (Z=1) e consideriamo due scenari.
 
-Scenario A: 
+Scenario A:
 sono in ospedale tutti coloro che hanno almeno una delle due patologie.
 
            Ipertensione
@@ -7543,7 +7543,7 @@ sono in ospedale tutti coloro che hanno almeno una delle due patologie.
 
 Nella sottopopolazione in ospedale le due patologie sono positivamente associate: la proporzione di ipertesi è maggiore tra i non diabetici (180/180=1) che tra i diabetici (120/400=0.3).
 
-Scenario B: 
+Scenario B:
 sono in ospedale tutti coloro che hanno entrambe le due patologie + 1 su 10 di coloro che hanno una sola patologia + altri 12 soggetti che non hanno ne l’una né l’altra.
 
            Ipertensione
@@ -7557,16 +7557,16 @@ Nella sottopopolazione in ospedale le due patologie sono negativamente associate
 Interpretazione in termini di effetti causali
 
        +---------+          +--------------+
-       | Diabete |          | Ipertensione |     
-       +---------+          +--------------+   
-               |              |             
-               |              |             
-               ∨              ∨             
+       | Diabete |          | Ipertensione |
+       +---------+          +--------------+
+               |              |
+               |              |
+               ∨              ∨
             +----------------------+
             | Ricovero in ospedale |
             +----------------------+
 
-In questo esempio non c’è associazione tra diabete e ipertensione (nessuna freccia). Tuttavia, diabete e ipertensione hanno un effetto comune (ricovero in ospedale), per cui l’analisi condizionata allo stato di ricovero in ospedale crea una associazione fittizia tra diabete e ipertensione. 
+In questo esempio non c’è associazione tra diabete e ipertensione (nessuna freccia). Tuttavia, diabete e ipertensione hanno un effetto comune (ricovero in ospedale), per cui l’analisi condizionata allo stato di ricovero in ospedale crea una associazione fittizia tra diabete e ipertensione.
 In questo caso l’analisi condizionata (cioè sui soggetti ricoverati in ospedale) è sbagliata, mentre quella non condizionata (cioè su tutta la popolazione) è corretta.
 La fallacia di Berkson è detta anche distorsione da selezione campionaria: in generale, si verifica quando l’appartenere o meno al campione osservato dipende dal valore delle variabili di interesse, per cui la relazione tra le variabili nel campione è diversa dalla relazione nella popolazione.
 
@@ -7581,7 +7581,7 @@ The if expression in newLISP can usually be found to have different semantics th
 
 I believe that this is a great choice, because newLISP's if is a general type of if. What do I mean by this? In the manual discussion,
 
- http://www.newlisp.org/downloads/newlisp_manual.html#if 
+ http://www.newlisp.org/downloads/newlisp_manual.html#if
 
 we are presented with the two different forms of if, but in fact, the second form (the one that takes an arbitrary number of clauses) is just a generalization of the first form.[1]
 
@@ -7604,7 +7604,7 @@ The degenerate cases are when the if expression has one clause (argument) or non
 (define (eval-if EXPR)
   (if (empty? EXPR)        nil
       (= 'if (EXPR 0))     (eval-if (1 EXPR))
-      (= 1 (length EXPR))  (eval (EXPR 0))      
+      (= 1 (length EXPR))  (eval (EXPR 0))
       (let (test-clause (EXPR 0)
             consequent-clause (EXPR 1)
             rest-of-the-clauses (2 EXPR))
@@ -8210,7 +8210,7 @@ Funzioni che generano numeri casuali (interi e floating) in un intervallo:
 
 Funzione che crea due matrici casuali idonee per la moltiplicazione.
 I parametri sono:
-  max-row = numero massimo di righe 
+  max-row = numero massimo di righe
   max-col = numero massimo di colonne
   min-val = valore minimo dei numeri
   max-val = valore massimo dei numeri
@@ -8318,7 +8318,26 @@ Test con numeri floating da -100 a 100 con matrici 100x100 max:
 Estrazione di sotto-matrici
 ---------------------------
 
-Ecco una funzione per estrarre una sottomatrice da una matrice.
+Vediamo una funzione per estrarre una sottomatrice da una matrice.
+
+Prima una funzione per stampare una matrice:
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    (setq digit (+ 1 lenmax))
+    (setq fmtstr (append "%" (string digit) "s"))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Adesso la funzione che estra una sottomatrice:
 
 Parameters | Parametri:
 i: start row of matrix M | riga iniziale della matrice M
@@ -8403,6 +8422,215 @@ Se rows oppure cols non vengono passati, allora la funzione estrae tutta la sott
 (print-matrix (sub-matrix b 0 0 2 2))
 ;-> 1 2
 ;-> 5 6
+
+
+---------------------------------------
+La leggenda della nascita degli scacchi
+---------------------------------------
+
+Tanto tempo fa, in India c'era un principe (Khusraw o Re Cosroe) le cui ricchezze erano tali che nulla gli mancava ed ogni suo desiderio poteva essere esaudito.
+Mancandogli però in tal modo proprio ciò che l'uomo comune spesso ha, ovvero la bramosia verso un desiderio inesaudibile, il Principe trascorreva le giornate nell'ozio e nella noia.
+Un giorno, stanco di tanta inerzia, annunciò a tutti che avrebbe donato qualunque cosa richiesta a colui che fosse riuscito a farlo divertire nuovamente.
+A corte si presentò uno stuolo di personaggi d'ogni genere, eruditi saggi e stravaganti fachiri, improbabili maghi e spericolati saltimbanchi, sfarzosi nobili e zotici plebei, ma nessuno riuscì a rallegrare l'annoiato Principe.
+Finché si fece avanti un mercante (Sissa), famoso per le sue invenzioni. Aprì una scatola, estrasse una tavola con disegnate alternatamente 64 caselle bianche e nere, vi appoggiò sopra 32 figure di legno variamente intagliate, e si rivolse al nobile reggente: "Vi porgo i miei omaggi, o potentissimo Signore, nonché questo gioco di mia modesta invenzione. L'ho chiamato il gioco degli scacchi".
+Poi stese a terra un tappeto sul quale aveva disegnato un "reticolato" composto da 64 piccoli quadrati alternativamente bianchi e neri , poi estrasse via via delle statuine spiegando che rappresentavano schematicamente due eserciti contrapposti pronti alla battaglia.
+La conformazione dell’esercito presentata dal mercante era ovviamente stabilita secondo la concezione  dell’epoca, quindi guerrieri a piedi, truppe a cavallo e su elefante, carri per il trasporto delle vettovaglie e delle salmerie e poi il sovrano con il suo generale.
+Sistemò quei pezzi e cominciò a spiegare le regole del movimento di ciascuno e lo scopo del "gioco", che era evidentemente uccidere il re (lo scià) nemico.
+Chi fosse riuscito avrebbe potuto gridare "Shah mat!", "il Re è morto!"
+E proprio dall’espressione “Shah mat!” per assonanza deriverà “scacco matto!”.
+Il Principe guardò perplesso il mercante e gli chiese spiegazioni sulle regole.
+Il mercante gliele mostrò, sconfiggendolo in una partita dimostrativa. 
+Punto sull'orgoglio il Principe chiese la rivincita, perdendo nuovamente. 
+Fu alla quarta sconfitta consecutiva che capì il genio del mercante, accorgendosi per giunta che non provava più noia, ma un gran divertimento!
+Memore della sua promessa, chiese all'inventore di tale sublime gioco quale ricompensa desiderasse. Il mercante, con aria dimessa, chiese un chicco di grano per la prima casella della scacchiera, due chicchi per la seconda, quattro chicchi per la terza, e via a raddoppiare fino all'ultima casella.
+Stupito da tanta modestia, il Principe diede ordine affinché la richiesta del mercante venisse subito esaudita. 
+Gli scribi di corte si apprestarono a fare i conti, ma dopo qualche calcolo la meraviglia si stampò sui loro volti. 
+Il mercante infatti stava chiedendo 18.446.744.073.709.551.615 chicchi di grano, una quantità che avrebbe richiesto secoli di produzione. 
+Non potendo materialmente esaudire la richiesta dell'esoso mercante e non potendo neppure sottrarsi alla parola data, il Principe diede ordine di giustiziare immediatamente l'inventore degli scacchi.
+
+Di questa leggenda appare un accenno anche nella Divina Commedia di Dante Alighieri, dove viene adoperata dal poeta per dare un'idea al lettore del numero degli Angeli presenti nei cieli:
+
+       L'incendio suo seguiva ogne scintilla
+         ed eran tante, che 'l numero loro
+     più che 'l doppiar de li scacchi s'inmilla.
+               Paradiso, XXVIII, 91-93
+
+Il numero di chicchi di grano vale:
+
+  2^64 - 1 = 18446744073709551615
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(- (** 2 64) 1)
+;-> 18446744073709551615L
+
+Ma quanto pesano tutti questi chicchi di grano?
+
+Un chicco di grano pesa 0.04-0.06 grammi, quindi il peso totale è compreso tra:
+> (mul 18446744073709551615L 0.04)
+;-> 7.378697629483821e+017
+> (div (mul 18446744073709551615L 0.04) 1e6)
+;-> 737869762948.3821
+Circa 737 miliardi e 869 milioni di tonnellate di grano.
+
+(mul 18446744073709551615L 0.06)
+;-> 1.106804644422573e+018
+(div (mul 18446744073709551615L 0.06) 1e6)
+;-> 1106804644422.573
+Circa 1106 miliardi e 804 milioni di tonnellate di grano.
+
+Nel 2020 la produzione mondiale di grano è stata di 760 milioni di tonnellate:
+
+ 1) CINA    (134254710 tonnellate)
+ 2) INDIA   (107590000 tonnellate)
+ 3) RUSSIA   (85896326 tonnellate)
+ 4) USA      (49690680 tonnellate)
+ 5) CANADA   (35183000 tonnellate)
+ 6) FRANCIA  (30144110 tonnellate)
+ 7) PAKISTAN (25247511 tonnellate)
+ 8) UCRAINA  (24912350 tonnellate)
+ 9) GERMANIA (22172100 tonnellate)
+10) TURCHIA  (20500000 tonnellate)
+
+Interessante notare che se venisse conteggiata la produzione di grano dell’Unione Europea come fosse un unico paese, con le sue 126658950 tonnellate (l’Italia ne ha prodotte 6716180 tonnellate), sarebbe il secondo produttore di grano del mondo.
+
+
+----------------------
+Quante cifre ha x^y^z?
+----------------------
+
+Quante cifre ha il massimo numero x^y^z quando x, y e z sono le cifre da 1 a 9?
+Ovviamente il numero massimo vale 9^9^9, ma quante cifre ha?
+
+Proviamo a scrivere una funzione che ci indica come vanno le cose con le prime cifre.
+
+(define (pow-i num power)
+"Calculates the integer power of an integer"
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))
+        )
+    )
+    out))
+
+Funzione che calcola x^y^z con x,y,z in (2..max-val):
+
+(define (xyz max-val)
+  (for (x 2L max-val)
+    (for (y 2L max-val)
+      (for (z 2L max-val)
+        (println "x: " x { } "y: " y { } "z: " z { } "x^y^z: "
+          (length (pow-i (bigint x) (pow-i (bigint y) (bigint z)))))))))
+
+(xyz 6)
+;-> x: 2 y: 2 z: 2 x^y^z: 2
+;-> x: 2 y: 2 z: 3 x^y^z: 3
+;-> x: 2 y: 2 z: 4 x^y^z: 5
+;-> ...
+;-> x: 6 y: 5 z: 5 x^y^z: 2432
+;-> x: 6 y: 5 z: 6 x^y^z: 12159
+;-> x: 6 y: 6 z: 2 x^y^z: 29
+;-> x: 6 y: 6 z: 3 x^y^z: 169
+;-> x: 6 y: 6 z: 4 x^y^z: 1009
+;-> x: 6 y: 6 z: 5 x^y^z: 6051
+;-> x: 6 y: 6 z: 6 x^y^z: 36306
+
+Quindi 6^6^6 è un numero che ha 36306 cifre.
+
+(time (println (length (pow-i 6L (pow-i 6L 6L)))))
+;-> 39306
+;-> 10.001
+
+Proviamo a calcolare 7^7^7 (e quanto tempo ci vuole):
+
+(time (println (length (pow-i 7L (pow-i 7L 7L)))))
+;-> 695975
+;-> 3515.933
+
+Quindi 7^7^7 è un numero che ha 695975 cifre (calcolato in 3.5 secondi).
+
+Non è possibile calcolare 8^8^8 perchè ci vuole troppo tempo.
+
+Allora come facciamo a calcolare le cifre di 9^9^9?
+
+Calcoliamo 9^9:
+
+(setq a (pow-i 9L 9L))
+;-> 387420489L
+
+Calcoliamo il logaritmo in base 10 di 9:
+
+(setq b (log 9 10))
+;-> 0.9542425094393249
+
+Moltiplichiamo a e b:
+
+(setq c (mul a b))
+;-> 369693099.6315703
+
+Il numero il cui logaritmo in base 10 vale 369693099 è 10^369693099.
+Questo numero ha 369693099 cifre.
+
+Il numero il cui logaritmo in base 10 vale 369693100 è 10^369693100.
+Questo numero ha 369693100 cifre.
+
+Quindi il numero il cui logaritmo in base 10 vale 369693099.6315703 è più vicino a 10^369693100.
+Quindi 10^369693100 ha 369693100 cifre.
+
+Questo ci dice che:
+
+  9^9^9 ≈ 10^369693100 è un numero con 369693100 cifre (quasi 370 milioni).
+
+Verifichiamo questo metodo calcolando il numero di cifre di 7^7^7.
+
+Calcoliamo 7^7^7:
+
+(setq a (pow-i 7L 7L))
+;-> 823543L
+
+Calcoliamo il logaritmo in base 10 di 7:
+
+(setq b (log 7 10))
+;-> 0.8450980400142567
+
+Moltiplichiamo a e b:
+
+(setq c (mul a b))
+;-> 695974.575167461
+
+Quindi il numero il cui logaritmo in base 10 vale 695974.575167461 è più vicino a 10^695975.
+Quindi 10^695975 ha 695975 cifre.
+
+Questo ci dice che:
+
+  7^7^7 ≈ 10^695975 è un numero con 695975 cifre (quasi 696 mila).
+
+Il risultato è uguale a quello calcolato direttamente:
+
+(length (pow-i 7L (pow-i 7L 7L)))
+;-> 695975
+
+Vediamo l'ultimo caso rimasto 8^8^8:
+(setq a (pow-i 8L 8L))
+;-> 16777216L
+(setq b (log 8 10))
+;-> 0.9030899869919434
+(setq c (mul a b))
+;-> 15151335.77920103
+
+Quindi:
+
+  8^8^8 ≈ 10^15151336 è un numero con 15151336 cifre (più di 15 milioni).
 
 =============================================================================
 

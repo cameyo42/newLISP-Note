@@ -278,7 +278,7 @@ ROSETTA CODE
   Fibonacci sequenze di n-numeri
   Il problema dei matrimoni stabili
   Test Primi Miller-Rabin
-  Il problema di Giuseppe
+  Il problema di Giuseppe (Josephus Problem)
   ROT-13
   Sudoku
   Chess960
@@ -1524,6 +1524,8 @@ NOTE LIBERE 12
   Forza 4 - Connect Four
   Moltiplicazione fra matrici e stress-test
   Estrazione di sotto-matrici
+  La leggenda della nascita degli scacchi
+  Quante cifre ha x^y^z?
 
 APPENDICI
 =========

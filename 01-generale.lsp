@@ -4,6 +4,20 @@
 
 =======================
 
+             +---+
+             | L |
+             +---+
+            /     \
+           /       \
+      +---+         +---+
+      | e |         | S |
+      +---+         +---+
+     /     \       /     \
+    /       \     /       \
+  +---+   +---+ +---+   +---+
+  | n |   | w | | I |   | P |
+  +---+   +---+ +---+   +---+
+
 "If you truly want to understand something, teach it.
 And I know of no more recalcitrant a student than the computer.
 So I decided to program something i want to learn."
