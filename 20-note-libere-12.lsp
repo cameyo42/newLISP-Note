@@ -8337,7 +8337,7 @@ Prima una funzione per stampare una matrice:
       )
       (println))))
 
-Adesso la funzione che estra una sottomatrice:
+Adesso la funzione che estrae una sottomatrice:
 
 Parameters | Parametri:
 i: start row of matrix M | riga iniziale della matrice M
@@ -8375,7 +8375,10 @@ Se rows oppure cols non vengono passati, allora la funzione estrae tutta la sott
       )
       (++ ic)
     )
-    sub-mat))
+    ; restituisce una lista
+    (array-list sub-mat)))
+
+Proviamo la funzione:
 
 (setq a '((1 2 3) (4 5 6) (7 8 9)))
 (print-matrix a)
@@ -8423,6 +8426,178 @@ Se rows oppure cols non vengono passati, allora la funzione estrae tutta la sott
 ;-> 1 2
 ;-> 5 6
 
+(print-matrix (setq A '((1 2 3 4 5 6 7 8)
+                        (1 2 3 4 5 6 7 8)
+                        (1 2 3 4 5 6 7 8)
+                        (1 2 3 4 5 6 7 8)
+                        (1 1 1 1 2 2 2 2)
+                        (3 3 3 3 4 4 4 4)
+                        (5 5 5 5 6 6 6 6)
+                        (7 7 7 7 8 8 8 8))))
+(print-matrix (setq A11 (sub-matrix A 0 0 4 4)))
+(print-matrix (setq A12 (sub-matrix A 0 4 4 4)))
+(print-matrix (setq A21 (sub-matrix A 4 0 4 4)))
+(print-matrix (setq A22 (sub-matrix A 4 4 4 4)))
+;->  1 2 3 4 5 6 7 8
+;->  1 2 3 4 5 6 7 8
+;->  1 2 3 4 5 6 7 8
+;->  1 2 3 4 5 6 7 8
+;->  1 1 1 1 2 2 2 2
+;->  3 3 3 3 4 4 4 4
+;->  5 5 5 5 6 6 6 6
+;->  7 7 7 7 8 8 8 8
+;->
+;->  1 2 3 4
+;->  1 2 3 4
+;->  1 2 3 4
+;->  1 2 3 4
+;->
+;->  5 6 7 8
+;->  5 6 7 8
+;->  5 6 7 8
+;->  5 6 7 8
+;->
+;->  1 1 1 1
+;->  3 3 3 3
+;->  5 5 5 5
+;->  7 7 7 7
+;->
+;->  2 2 2 2
+;->  4 4 4 4
+;->  6 6 6 6
+;->  8 8 8 8
+
+
+-----------------------
+Unione di sotto-matrici
+-----------------------
+
+Vediamo una funzione per unire sue matrici.
+
+Prima una funzione per stampare una matrice:
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    (setq digit (+ 1 lenmax))
+    (setq fmtstr (append "%" (string digit) "s"))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Adesso la funzione che unisce due matrici:
+
+Parameters | Parametri:
+A: first matrix | prima matrice
+B: second matrix | seconda matrice
+position: position of second matrix | posizione della seconda matrice
+
+Il parametro "position" può avere 4 valori:
+
+  "n" --> nord  (La matrice B a sopra la matrice A)
+  deve risultare: numero colonne A = numero colonne B
+  "s" --> sud   (La matrice B a sotto la matrice A)
+  deve risultare: numero colonne A = numero colonne B
+  "e" --> est   (La matrice B a destra della matrice A)
+  deve risultare: numero righe A = numero righe B
+  "o" --> ovest (La matrice B a sinistra della matrice A)
+  deve risultare: numero righe A = numero righe B
+
+(define (merge-matrix A B position)
+  (local (out rowsA colsA rowsB colsB)
+    (setq rowsA (length A))
+    (setq colsA (length (A 0)))
+    (setq rowsB (length B))
+    (setq colsB (length (B 0)))
+    (cond ((= position "n") ; B sopra A (nord) con (colsA == colsB)
+            (setq out '())
+            (dolist (r B) (push r out -1))
+            (dolist (r A) (push r out -1)))
+          ((= position "s") ; B sotto A (sud) con (colsA == colsB)
+            (setq out '())
+            (dolist (r A) (push r out -1))
+            (dolist (r B) (push r out -1)))
+          ((= position "e") ; B a destra di A (est) con (rowsA == rowsB)
+            (dolist (r A)
+              (push (append r (B $idx)) out -1)))
+          ((= position "o") ; B a sinistra di A (ovest) con (rowsA == rowsB)
+            (dolist (r A)
+              (push (append (B $idx) r) out -1)))
+    )
+    out))
+
+Proviamo la funzione:
+
+(print-matrix (setq m1 '((1 2 3 4) (5 6 7 8))))
+;-> 1 2 3 4
+;-> 5 6 7 8
+(print-matrix (setq m2 '((11 22 33 44) (55 66 77 88))))
+;-> 11 22 33 44
+;-> 55 66 77 88
+
+(print-matrix (merge-matrix m1 m2 "e"))
+;-> 1  2  3  4 11 22 33 44
+;-> 5  6  7  8 55 66 77 88
+
+(print-matrix (merge-matrix m1 m2 "o"))
+;-> 11 22 33 44  1  2  3  4
+;-> 55 66 77 88  5  6  7  8
+
+(print-matrix (merge-matrix m1 m2 "n"))
+;-> 11 22 33 44
+;-> 55 66 77 88
+;->  1  2  3  4
+;->  5  6  7  8
+
+(print-matrix (merge-matrix m1 m2 "s"))
+;->  1  2  3  4
+;->  5  6  7  8
+;-> 11 22 33 44
+;-> 55 66 77 88
+
+(setq c11 '((1 2 3 4)
+            (1 2 3 4)
+            (1 2 3 4)
+            (1 2 3 4)))
+(setq c12 '((5 6 7 8)
+            (5 6 7 8)
+            (5 6 7 8)
+            (5 6 7 8)))
+(setq c21 '((1 1 1 1)
+            (3 3 3 3)
+            (5 5 5 5)
+            (7 7 7 7)))
+(setq c22 '((2 2 2 2)
+            (4 4 4 4)
+            (6 6 6 6)
+            (8 8 8 8)))
+
+(print-matrix (setq t1 (merge-matrix c11 c12 "e")))
+;-> 1 2 3 4 5 6 7 8
+;-> 1 2 3 4 5 6 7 8
+;-> 1 2 3 4 5 6 7 8
+;-> 1 2 3 4 5 6 7 8
+(print-matrix (setq t2 (merge-matrix c21 c22 "e")))
+;-> 1 1 1 1 2 2 2 2
+;-> 3 3 3 3 4 4 4 4
+;-> 5 5 5 5 6 6 6 6
+;-> 7 7 7 7 8 8 8 8
+(print-matrix (setq R (merge-matrix t1 t2 "s")))
+;-> 1 2 3 4 5 6 7 8
+;-> 1 2 3 4 5 6 7 8
+;-> 1 2 3 4 5 6 7 8
+;-> 1 2 3 4 5 6 7 8
+;-> 1 1 1 1 2 2 2 2
+;-> 3 3 3 3 4 4 4 4
+;-> 5 5 5 5 6 6 6 6
+;-> 7 7 7 7 8 8 8 8
+
 
 ---------------------------------------
 La leggenda della nascita degli scacchi
@@ -8439,13 +8614,13 @@ Sistemò quei pezzi e cominciò a spiegare le regole del movimento di ciascuno e
 Chi fosse riuscito avrebbe potuto gridare "Shah mat!", "il Re è morto!"
 E proprio dall’espressione “Shah mat!” per assonanza deriverà “scacco matto!”.
 Il Principe guardò perplesso il mercante e gli chiese spiegazioni sulle regole.
-Il mercante gliele mostrò, sconfiggendolo in una partita dimostrativa. 
-Punto sull'orgoglio il Principe chiese la rivincita, perdendo nuovamente. 
+Il mercante gliele mostrò, sconfiggendolo in una partita dimostrativa.
+Punto sull'orgoglio il Principe chiese la rivincita, perdendo nuovamente.
 Fu alla quarta sconfitta consecutiva che capì il genio del mercante, accorgendosi per giunta che non provava più noia, ma un gran divertimento!
 Memore della sua promessa, chiese all'inventore di tale sublime gioco quale ricompensa desiderasse. Il mercante, con aria dimessa, chiese un chicco di grano per la prima casella della scacchiera, due chicchi per la seconda, quattro chicchi per la terza, e via a raddoppiare fino all'ultima casella.
-Stupito da tanta modestia, il Principe diede ordine affinché la richiesta del mercante venisse subito esaudita. 
-Gli scribi di corte si apprestarono a fare i conti, ma dopo qualche calcolo la meraviglia si stampò sui loro volti. 
-Il mercante infatti stava chiedendo 18.446.744.073.709.551.615 chicchi di grano, una quantità che avrebbe richiesto secoli di produzione. 
+Stupito da tanta modestia, il Principe diede ordine affinché la richiesta del mercante venisse subito esaudita.
+Gli scribi di corte si apprestarono a fare i conti, ma dopo qualche calcolo la meraviglia si stampò sui loro volti.
+Il mercante infatti stava chiedendo 18.446.744.073.709.551.615 chicchi di grano, una quantità che avrebbe richiesto secoli di produzione.
 Non potendo materialmente esaudire la richiesta dell'esoso mercante e non potendo neppure sottrarsi alla parola data, il Principe diede ordine di giustiziare immediatamente l'inventore degli scacchi.
 
 Di questa leggenda appare un accenno anche nella Divina Commedia di Dante Alighieri, dove viene adoperata dal poeta per dare un'idea al lettore del numero degli Angeli presenti nei cieli:
@@ -8631,6 +8806,61 @@ Vediamo l'ultimo caso rimasto 8^8^8:
 Quindi:
 
   8^8^8 ≈ 10^15151336 è un numero con 15151336 cifre (più di 15 milioni).
+
+
+-----------------------
+La funzione unget del C
+-----------------------
+
+Nella programmazione C prendere il carattere successivo di un file file viene eseguita la funzione "gets":
+
+  ch = getc(infile)
+
+Comunque possiamo riportare il carattere "indietro" con la funzione "ungetc":
+
+  ungetc(ch, infile)
+
+In questo modo la prossima "getc" ritorna lo stesso carattere.
+
+In newLISP la funzione "getc" si chiama "raad-char", comunque non esiste una funzione primitiva analoga a "ungetc".
+
+Comunque la seguente funzione "unread-char" si comporta come "ungetc":
+
+(define (unread-char file) (seek file (- (seek file) 1)))
+
+Si noti che la funzione ritornerà alla fine del file quando viene raggiunto l'inizio (posizione 0).
+
+
+-----------------------------------------------------
+Cartella corrente/lavoro - Current/Working directory
+-----------------------------------------------------
+
+Percorso della cartella corrente con la primitiva newLISP "real-path":
+
+(real-path)
+;-> "F:\\Lisp-Scheme\\newLisp\\MAX\\newLISP-NoteNEW"
+
+Percorso della cartella corrente con una funzione di Windows:
+
+;;
+;;  cwd
+;;  return the current working directory (Windows)
+;;  by Sammo
+;;  In the Windows API the maximum length for a path is 260 characters.
+;;  It is structured as follows: Drive letter, colon, backslash
+;;  components separated by backslashes and a null-terminating character 
+;;  (eg. "D:\<256 chars>NUL"), which restricts the path to 256 characters.
+;;
+(import "kernel32.dll" "GetCurrentDirectoryA")
+(define (cwd , buff bufflen)
+    (setq bufflen 260)
+    ;(setq buff (allocate bufflen))
+    (setq buff (string ""))
+    (GetCurrentDirectoryA bufflen buff)
+    (string buff))
+
+(cwd)
+;-> "F:\\Lisp-Scheme\\newLisp\\MAX\\newLISP-NoteNEW"
 
 =============================================================================
 

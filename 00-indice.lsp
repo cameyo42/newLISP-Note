@@ -1524,8 +1524,14 @@ NOTE LIBERE 12
   Forza 4 - Connect Four
   Moltiplicazione fra matrici e stress-test
   Estrazione di sotto-matrici
+  Unione di sotto-matrici
   La leggenda della nascita degli scacchi
   Quante cifre ha x^y^z?
+  La funzione unget del C
+  Cartella corrente/lavoro - Current/Working directory
+
+NOTE LIBERE 13
+==============
 
 APPENDICI
 =========
