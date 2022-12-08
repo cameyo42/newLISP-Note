@@ -8132,6 +8132,8 @@ Scriviamo la nostra funzione per la moltiplicazione tra matrici:
     )
     out))
 
+Complessità temporale: O(n^3)
+
 Facciamo alcune prove:
 
 (setq m1 '((1 1 1) (2 2 2) (3 3 3)))

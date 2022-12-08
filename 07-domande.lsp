@@ -185,9 +185,9 @@ Vediamo ora un altro metodo proposto da Brian Kernighan (autore insieme a Dennis
 (define (kbit1 n)
   (let (conta 0)
     (while (> n 0)
-      ; In questo modo arriviamo al prossimo bit impostato (successivo 1) 
+      ; In questo modo arriviamo al prossimo bit impostato (successivo 1)
       ; invece di eseguire il loop per ogni bit e controllare se vale 1
-      ; quindi il loop non verrà eseguito 32 volte, 
+      ; quindi il loop non verrà eseguito 32 volte,
       ; ma verrà eseguito solo quanti sono gli "1".
       (setq n (& n (- n 1)))
       (++ conta)
@@ -2948,12 +2948,49 @@ Alla fine del ciclo, confrontare i prodotti dei primi due e degli ultimi due e s
 )
 
 (pairmax '(12 13 11 3 4 -3 -4 45 -34 -15 4))
-;-> 45 13 585
+;-> (45 13 585)
 
 (pairmax '(12 13 11 3 4 -3 -4 45 -34 -18 4))
 ;-> (-34 -18 612)
 
 Complessità temporale: O(n) (lineare)
+
+Possiamo anche usare la primitiva "sort" per risolvere il problema:
+
+(define (pair-max lst)
+  (local (a b c d)
+    (sort lst)
+    (setq a (lst 0))
+    (setq b (lst 1))
+    (setq c (lst -1))
+    (setq d (lst -2))
+    (if (> (* c d) (* a b))
+        (list c d (* c d))
+        (list a b (* a b)))))
+
+(pair-max '(12 13 11 3 4 -3 -4 45 -34 -15 4))
+;-> (45 13 585)
+
+(pair-max '(12 13 11 3 4 -3 -4 45 -34 -18 4))
+;-> (-34 -18 612)
+
+Complessità temporale: O(n*log(n))
+
+Vediamo la velocità di esecuzione delle due funzioni:
+
+(silent (setq test (randomize (append (rand 100 10) (rand -100 10)))))
+
+(time (pairmax test) 1e5)
+;-> 468.859
+(time (pair-max test) 1e5)
+;-> 140.588
+
+(silent (setq test (randomize (append (rand 1e5 1e5) (rand -1e5 1e5)))))
+
+(time (println (pairmax test)))
+;-> 62.476
+(time (println (pair-max test)))
+;-> 78.139
 
 
 ------------------------------------
