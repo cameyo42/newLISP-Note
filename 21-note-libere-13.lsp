@@ -13,9 +13,9 @@ https://www.geeksforgeeks.org/implementing-strassens-algorithm-in-java/
 Complessità temporale: O(n^(ln 7)) = O(n^2.807)
 
 Ipotesi di questa implementazione:
-Le matrici devono essere quadrate
-Le matrici devono avere la stessa dimensione
-La dimensione deve essere una potenza di 2 ((n & (n - 1)) == 0)
+- Le matrici devono essere quadrate
+- Le matrici devono avere la stessa dimensione
+- La dimensione deve essere una potenza di 2 ((n & (n - 1)) == 0)
 
 L'algoritmo è valido anche per matrici non quadrate e con dimensioni che non sono potenza di 2. In pratica si rendono quadrate queste matrici con numeri fittizi.
 
@@ -196,7 +196,8 @@ Se la cella non è un estremo, restituisce nil.
         ; search right - est
         (if (< (+ j ext) cols) (begin
             (setq equal true)
-            (for (k 1 ext)
+            ;(for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix i (+ j k))) (setq equal nil))
             )
             (if equal (push (list i j "e") out -1)))
@@ -204,7 +205,7 @@ Se la cella non è un estremo, restituisce nil.
         ; search left - ovest
         (if (>= (- j ext) 0) (begin
             (setq equal true)
-            (for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix i (- j k))) (setq equal nil))
             )
             (if equal (push (list i j "o") out -1)))
@@ -212,7 +213,7 @@ Se la cella non è un estremo, restituisce nil.
         ; search down - sud
         (if (< (+ i ext) rows) (begin
             (setq equal true)
-            (for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix (+ i k) j)) (setq equal nil))
             )
             (if equal (push (list i j "s") out -1)))
@@ -220,7 +221,7 @@ Se la cella non è un estremo, restituisce nil.
         ; search up - nord
         (if (>= (- i ext) 0) (begin
             (setq equal true)
-            (for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix (- i k) j)) (setq equal nil))
             )
             (if equal (push (list i j "n") out -1)))
@@ -228,7 +229,7 @@ Se la cella non è un estremo, restituisce nil.
         ; search up-right - nord-est
         (if (and (>= (- i ext) 0) (< (+ j ext) cols)) (begin
             (setq equal true)
-            (for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix (- i k) (+ j k))) (setq equal nil))
             )
             (if equal (push (list i j "ne") out -1)))
@@ -236,7 +237,7 @@ Se la cella non è un estremo, restituisce nil.
         ; search up-left - nord-ovest
         (if (and (>= (- i ext) 0) (>= (- j ext) 0)) (begin
             (setq equal true)
-            (for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix (- i k) (- j k))) (setq equal nil))
             )
             (if equal (push (list i j "no") out -1)))
@@ -244,7 +245,7 @@ Se la cella non è un estremo, restituisce nil.
         ; search down-left - sud-ovest
         (if (and (< (+ i ext) rows) (>= (- j ext) 0)) (begin
             (setq equal true)
-            (for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix (+ i k) (- j k))) (setq equal nil))
             )
             (if equal (push (list i j "so") out -1)))
@@ -252,7 +253,7 @@ Se la cella non è un estremo, restituisce nil.
         ; search down-right - sud-est
         (if (and (< (+ i ext) rows) (< (+ j ext) cols)) (begin
             (setq equal true)
-            (for (k 1 ext)
+            (for (k 1 ext 1 (not equal))
               (if (!= (matrix i j) (matrix (+ i k) (+ j k))) (setq equal nil))
             )
             (if equal (push (list i j "se") out -1)))
@@ -268,7 +269,7 @@ Facciamo alcune prove:
              (1 1 1 1)
              (1 1 1 1)))
 
-(straight 1 4 test
+(straight 1 4 test)
 ;-> (((0 0 "e") (0 0 "s") (0 0 "se"))
 ;->  ((0 1 "s"))
 ;->  ((0 2 "s"))
@@ -324,6 +325,213 @@ Facciamo alcune prove:
 ;->  ((2 3 "n"))
 ;->  ((3 1 "n"))
 ;->  ((3 3 "n")))
+
+
+------------------
+Potere di acquisto
+------------------
+
+A) Se il nostro stipendio aumenta del 30% (e i prezzi rimangono stabili) di quanto aumenta il nostro potere di acquisto?
+
+B) Se i prezzi scendono del 30% (e lo stipendio rimane stabile) di quanto diminuisce il nostro potere di acquisto?
+
+Situazione iniziale:
+Guadagniamo 100 e spendiamo 100 --> potere = 100/100 = 1 = 100%
+
+Situazione A (+30% stipendio):
+Guadagniamo 130 e spendiamo 100 --> potere = 130/100 = 1.3 = 100% + 30%
+
+Situazione B (-30% prezzi):
+Guadagniamo 100 e spendiamo 70  --> potere = 100/70 = 1.4286 = 100% + 42.86%
+
+Quindi è più conveniente che diminuiscano i prezzi.
+
+
+-------------------------------
+Copertura di segmenti con punti
+-------------------------------
+
+Trovare il numero minimo di punti necessari per individuare tutti i segmenti lungo una linea.
+
+Data una lista di segmenti costituita da coppie di numeri interi positivi che denotano rispettivamente i punti iniziale e finale di ogni segmento (start end), il compito è trovare il numero minimo di numeri interi che si trovano in almeno uno dei segmenti dati e ogni segmento contiene almeno uno di loro.
+
+Il modo matematico di descrivere il problema è considerare ogni dato intervallo di numeri interi come un segmento di linea definito da due coordinate intere (x1 x2) su una linea.
+Quindi il numero minimo di numeri interi richiesti per coprire ciascuno dell'intervallo dato è il numero minimo di punti tale che ogni segmento contenga almeno un punto.
+
+Esempi
+------
+
+Input: segmenti = ((1 3) (2 5) (3 6))
+Output: 3
+Spiegazione:
+Tutti e tre gli intervalli (1 3), (2 5), (3 6) contengono il numero intero 3.
+
+              |
+              3-----------6
+              |
+          2-----------5
+              |
+      1-------3
+              |
+  +---+---+---+---+---+---+---+
+  0   1   2   3   4   5   6   7
+
+Input: segmenti = ((4 7) (1 3) (2 5) (5 6)))
+Output: 3 6 oppure 2 5 oppure ...
+Spiegazione:
+I segmenti (1 3) e (2 5) contengono il numero intero 3.
+I segmenti (4 7) e (5 6) contengono il numero intero 6.
+
+I segmenti (1 3) e (2 5) contengono il numero intero 2.
+I segmenti (2 5) (4 7) e (5 6) contengono il numero intero 5.
+
+                                     
+              |           |                    |           |  
+              |       5---6                    |           5---6
+              |           |                    |           |
+          2-----------5   |                    2-----------5   
+              |           |                    |           |
+      1-------3           |                1-------3       |
+              |           |                    |           |
+              |   4-----------7                |       4-----------7
+              |           |                    |           |
+  +---+---+---+---+---+---+---+        +---+---+---+---+---+---+---+
+  0   1   2   3   4   5   6   7        0   1   2   3   4   5   6   7
+
+In alcuni casi ci possono essere diverse soluzioni.
+
+Algortimo 1
+-----------
+Trovare il valore minimo di tutti i punti iniziali e il valore massimo di tutti i punti finali di tutti i segmenti.
+Iterare su questo intervallo e per ogni punto in questo intervallo tenere traccia del numero di segmenti che possono essere coperti usando questo punto.
+Utilizzare un array per memorizzare il numero di segmenti come:
+
+arr(punto) = numero di segmenti che sono attraversati da questo punto
+
+1. Trovare il valore massimo nell'array arr[].
+2. Se questo valore massimo è uguale a N, l'indice corrispondente a questo valore è il punto che copre tutti i segmenti.
+3. Se questo valore massimo è minore di N, allora l'indice corrispondente a questo valore è un punto che copre alcuni segmenti.
+4. Ripetere i passaggi da 1 a 3 per l'array arr[] escludendo questo valore massimo finché la somma di tutti segmenti relativi ai valori massimi trovati non è uguale a N.
+Nota: ogni valore massimo ha associati i relativi segmenti che attraversa. Non è corretto sommare i valori massimi, bisogna sommare i segmenti nuovi (per la soluzione) associati ad ogni valore massimo.
+
+Vediamo una funzione che mostra la situazione:
+
+(define (within x a b) (and (>= x a) (<= x b)))
+
+(define (max-idx lst)
+  (let ((massimo (apply max lst)))
+    (list massimo (first (ref massimo lst)))))
+
+(define (pts-seg-status lst)
+  (local (x1 x2 min-x max-x arr out x-seg seg maxidx idx)
+    (setq all '())
+    ; numero di segmenti
+    (setq n (length lst))
+    ; coordinate iniziali
+    (setq x1 (map first lst))
+    ; coordinate finali
+    (setq x2 (map last lst))
+    ; valore minimo iniziale
+    (setq min-x (apply min x1))
+    ; valore massimo finale
+    (setq max-x (apply max x2))
+    ; arr(i) = numero di segmenti che contengono/attraversano "i"
+    (setq arr (array (+ max-x 2 (- min-x)) '(0)))
+    ; ciclo per ogni punto intero
+    (for (x min-x max-x)
+      (setq x-seg '())
+      (dolist (s lst)
+        (if (within x (s 0) (s 1)) 
+          (begin
+            (push s x-seg -1)
+            (++ (arr x))
+          )
+        )
+      )
+      ; (numero segmenti lista-segmenti)
+      (push (list x (length x-seg) x-seg) all -1)
+    )
+    all))
+
+Vediamo cosa abbiamo dopo i primi 3 passi dell'agoritmo:
+
+(setq p1 '((1 3) (2 5) (3 6)))
+(pts-seg-status p1)
+;-> ((1 1 ((1 3))) 
+;->  (2 2 ((1 3) (2 5))) 
+;->  (3 3 ((1 3) (2 5) (3 6))) 
+;->  (4 2 ((2 5) (3 6)))
+;->  (5 2 ((2 5) (3 6)))
+;->  (6 1 ((3 6))))
+
+(setq p2 '((4 7) (1 3) (2 5) (5 6)))
+(pts-seg-status p2)
+;-> ((1 1 ((1 3))) 
+;->  (2 2 ((1 3) (2 5))) 
+;->  (3 2 ((1 3) (2 5))) 
+;->  (4 2 ((4 7) (2 5))) 
+;->  (5 3 ((4 7) (2 5) (5 6)))
+;->  (6 2 ((4 7) (5 6)))
+;->  (7 1 ((4 7))))
+
+Adesso il passo 4 consiste nel selezionare i punti massimi e contare quanti segmenti nuovi aggiungono alla soluzione fino ad arrivare al numero totale di segmenti. 
+
+Invece di scrivere questa parte, utilizziamo un algoritmo greedy più veloce.
+
+Algoritmo 2
+-----------
+1) Ordinare in modo ascendente i segmenti in base ai loro punti finali.
+2) Inizializzare il punto corrente come primo punto finale (punto finale minimo).
+3) Inserire il punto corrente nella lista soluzione.
+4) Loop sui punti finali
+     se il punto corrente non si trova nel segmento corrente,
+     allora aggiornare il punto corrente come punto finale del segmento corrente
+            e
+            inserire il punto corrente nella soluzione.
+5) Restituire la lista soluzione.
+
+(define (pts-seg seg)
+  (local (pts p)
+    ; ordina lista ind modo crescente rispetto al punto finale dei segmenti
+    (sort seg (fn (x y) (<= (last x) (last y))))
+    ; lista soluzione
+    (setq pts '())
+    ; il primo punto corrente è il punto finale del primo segmento
+    (setq p (seg 0 1))
+    ; il punto finale del primo segmento fa parte della soluzione
+    (push p pts -1)
+    (for (i 1 (- (length seg) 1))
+      ; se in punto corrente non si trova nel segmento corrente
+      (if (or (< p (seg i 0)) (> p (seg i 1)))
+        (begin
+          ; aggiorna il punto corrente
+          (setq p (seg i 1))
+          ; inserisce il punto corrente nella soluzione
+          (push p pts -1)
+        )
+      )
+    )
+    pts))
+
+Complessità temporale:v O(n*log(n))
+
+Proviamo la funzione:
+
+(setq p1 '((1 3) (2 5) (3 6)))
+(pts-seg p1)
+;-> (3)
+
+(setq p2 '((4 7) (1 3) (2 5) (5 6)))
+(pts-seg p2)
+;-> (3 6)
+
+(setq p3 '((1 2) (5 7) (8 9)))
+(pts-seg p3)
+;-> (2 7 9)
+
+(setq p4 '((5 6) (4 7) (3 8) (2 9)))
+(pts-seg p4)
+;-> (6)
 
 =============================================================================
 

@@ -1534,6 +1534,8 @@ NOTE LIBERE 13
 ==============
   Moltiplicazione tra matrici - Algoritmo di Strassen
   Ricerca in una matrice di numeri uguali in sequenza
+  Potere di acquisto
+  Copertura di segmenti con punti
 
 APPENDICI
 =========
