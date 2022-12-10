@@ -65,9 +65,9 @@ L'errore quadratico medio (Mean Squared Error - MSE) indica la discrepanza quadr
 
 La formula per calcolare il MSE è la seguente:
 
-        1    n
+         1    n
   MSE = --- * ∑ [yo(i) - yp(i)]²
-        n   i=1
+         n   i=1
 
 
 dove, n è il numero di termini per i quali viene calcolato l'errore
@@ -2557,7 +2557,7 @@ Nel caso della funzione "eval-string", quando abbiamo una stringa più lunga di 
 
 (eval-string {(setq str [text]...(long string)...[/text])})
 
-oppure 
+oppure
 
 (eval-string [text] (string {...(long string)...} ) [/text])
 
@@ -6759,7 +6759,7 @@ newbert:
   (println "C - Fahrenheit TO Celsius")
   (println "F - Celsius TO Fahrenheit")
   (println "Q - To exit the program"))
-  
+
 (define (app)
   (menu)
   (print "\nEnter your choice > ")
@@ -7459,11 +7459,11 @@ Esempi:
     out))
 
 (k-primi-to 100 2)
-;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51 
+;-> (4 6 9 10 14 15 21 22 25 26 33 34 35 38 39 46 49 51
 ;->  55 57 58 62 65 69 74 77 82 85 86 87 91 93 94 95)
 
 (k-primi-to 100 3)
-;-> (8 12 18 20 27 28 30 42 44 45 50 
+;-> (8 12 18 20 27 28 30 42 44 45 50
 ;->  52 63 66 68 70 75 76 78 92 98 99)
 
 (k-primi-to 10000 10)
@@ -7599,7 +7599,7 @@ Funzione che genera tutte le permutazioni degli elementi di una lista:
        )
     )
     out))
-    
+
 (length (perm '(1 2 3 4 5 6 7 8)))
 ;-> 40320
 
@@ -7678,7 +7678,7 @@ Facciamo alcune prove:
 Infine cerchiamo di risolvere il problema con carta e penna:
 Notiamo che i numeri più facili da posizionare sono 1 e 8, perché ognuno ha un solo numero a cui non può essere adiacente, rispettivamente 2 e 7. ​
 Inoltre i quadrati più difficili da riempire sono quelli al centro ("d" e "e"), poiché ognuno è adiacente ad altri sei.
-Ciò suggerisce di posizionare 1 e 8 nei quadrati centrali (ad esempio, "d" = 1 e "e" = 8). 
+Ciò suggerisce di posizionare 1 e 8 nei quadrati centrali (ad esempio, "d" = 1 e "e" = 8).
 Con 1 a sinistra di 8, le uniche posizioni possibili per 2 e 7 sono "c" = 7 e "f" = 2.
 Ora il numero 3 può essere posizionato solo in alto a sinistra ("a" = 3), mentre il 6 può essere posizionato solo in basso a destra ("h" = 6)
 Ora è facile posizionare i rimanenti numeri 4 e 5: "b" = 5 e "g" = 4.

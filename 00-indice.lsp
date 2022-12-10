@@ -1536,6 +1536,8 @@ NOTE LIBERE 13
   Ricerca in una matrice di numeri uguali in sequenza
   Potere di acquisto
   Copertura di segmenti con punti
+  Distanza approssimata tra due punti - Fast square root trick
+  Errore quadratico medio (RMSE) e errore medio percentuale (MAPE)
 
 APPENDICI
 =========

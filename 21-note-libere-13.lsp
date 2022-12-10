@@ -385,11 +385,11 @@ I segmenti (4 7) e (5 6) contengono il numero intero 6.
 I segmenti (1 3) e (2 5) contengono il numero intero 2.
 I segmenti (2 5) (4 7) e (5 6) contengono il numero intero 5.
 
-                                     
-              |           |                    |           |  
+
+              |           |                    |           |
               |       5---6                    |           5---6
               |           |                    |           |
-          2-----------5   |                    2-----------5   
+          2-----------5   |                    2-----------5
               |           |                    |           |
       1-------3           |                1-------3       |
               |           |                    |           |
@@ -441,7 +441,7 @@ Vediamo una funzione che mostra la situazione:
     (for (x min-x max-x)
       (setq x-seg '())
       (dolist (s lst)
-        (if (within x (s 0) (s 1)) 
+        (if (within x (s 0) (s 1))
           (begin
             (push s x-seg -1)
             (++ (arr x))
@@ -457,24 +457,24 @@ Vediamo cosa abbiamo dopo i primi 3 passi dell'agoritmo:
 
 (setq p1 '((1 3) (2 5) (3 6)))
 (pts-seg-status p1)
-;-> ((1 1 ((1 3))) 
-;->  (2 2 ((1 3) (2 5))) 
-;->  (3 3 ((1 3) (2 5) (3 6))) 
+;-> ((1 1 ((1 3)))
+;->  (2 2 ((1 3) (2 5)))
+;->  (3 3 ((1 3) (2 5) (3 6)))
 ;->  (4 2 ((2 5) (3 6)))
 ;->  (5 2 ((2 5) (3 6)))
 ;->  (6 1 ((3 6))))
 
 (setq p2 '((4 7) (1 3) (2 5) (5 6)))
 (pts-seg-status p2)
-;-> ((1 1 ((1 3))) 
-;->  (2 2 ((1 3) (2 5))) 
-;->  (3 2 ((1 3) (2 5))) 
-;->  (4 2 ((4 7) (2 5))) 
+;-> ((1 1 ((1 3)))
+;->  (2 2 ((1 3) (2 5)))
+;->  (3 2 ((1 3) (2 5)))
+;->  (4 2 ((4 7) (2 5)))
 ;->  (5 3 ((4 7) (2 5) (5 6)))
 ;->  (6 2 ((4 7) (5 6)))
 ;->  (7 1 ((4 7))))
 
-Adesso il passo 4 consiste nel selezionare i punti massimi e contare quanti segmenti nuovi aggiungono alla soluzione fino ad arrivare al numero totale di segmenti. 
+Adesso il passo 4 consiste nel selezionare i punti massimi e contare quanti segmenti nuovi aggiungono alla soluzione fino ad arrivare al numero totale di segmenti.
 
 Invece di scrivere questa parte, utilizziamo un algoritmo greedy più veloce.
 
@@ -532,6 +532,304 @@ Proviamo la funzione:
 (setq p4 '((5 6) (4 7) (3 8) (2 9)))
 (pts-seg p4)
 ;-> (6)
+
+
+------------------------------------------------------------
+Distanza approssimata tra due punti - Fast square root trick
+------------------------------------------------------------
+
+Per trovare la distanza approssimata tra due punti 2D abbiamo a disposizione diversi metodi.
+
+  P1 = (x1 y1)
+  P2 = (x2 y2)
+
+1) Fast square root trick (Max + Min/2)
+  dx = abs(x2 - x1)
+  dy = abs(y2 - y1)
+  Se dx>dy, distanza-approssimata = dx + dy/2
+  Se dx<dy, distanza-approssimata = dx/2 + dy
+
+                      P2
+                       + +
+                      /| |
+                     / | |
+                    /  | |
+                   /   | dy
+                  /    | |
+                 /     | |
+             P1 +------+ +
+                +--dx--+
+
+2) Max + Min/4
+  dx = abs(x2 - x1)
+  dy = abs(y2 - y1)
+  Se dx>dy, distanza-approssimata = dx + dy/4
+  Se dx<dy, distanza-approssimata = dx/4 + dy
+
+3) Max + 3*Min/8
+  dx = abs(x2 - x1)
+  dy = abs(y2 - y1)
+  Se dx>dy, distanza-approssimata = dx + (3/8)*dy
+  Se dx<dy, distanza-approssimata = (3/8)*dx + dy
+
+4) Octagonal (0.941246*Max + 0.41*Min)
+  dx = abs(x2 - x1)
+  dy = abs(y2 - y1)
+  Se dx>dy, distanza-approssimata = 0.941246dx + 0.41dy
+  Se dx<dy, distanza-approssimata = 0.41dx + 0.941246dy
+
+Scriviamo le funzioni per tutte le distanze:
+
+; distanza esatta
+(define (dist2d x1 y1 x2 y2)
+"Calculates 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+; Max + Min/2
+(define (distance1 x1 y1 x2 y2)
+  (local (dx dy)
+    (setq dx (abs (sub x2 x1)))
+    (setq dy (abs (sub y2 y1)))
+    (if (> dx dy)
+      (add dx (div dy 2))
+      (add dy (div dx 2)))))
+; Max + Min/4
+(define (distance2 x1 y1 x2 y2)
+  (local (dx dy)
+    (setq dx (abs (sub x2 x1)))
+    (setq dy (abs (sub y2 y1)))
+    (if (> dx dy)
+      (add dx (div dy 4))
+      (add dy (div dx 4)))))
+; Max + 3*Min/8
+(define (distance3 x1 y1 x2 y2)
+  (local (dx dy)
+    (setq dx (abs (sub x2 x1)))
+    (setq dy (abs (sub y2 y1)))
+    (if (> dx dy)
+      (add dx (div (mul 3 dy) 8))
+      (add dy (div (mul 3 dx) 8)))))
+; (0.941246*Max + 0.41*Min)
+(define (distance4 x1 y1 x2 y2)
+  (local (dx dy)
+    (setq dx (abs (sub x2 x1)))
+    (setq dy (abs (sub y2 y1)))
+    (if (> dx dy)
+      (add (mul dx 0.941246) (mul dy 0.41))
+      (add (mul dx 0.41) (mul dy 0.941246)))))
+
+Facciamo alcune prove:
+
+(setq pp (rand 10 4))
+;-> (8 1 2 9)
+(apply dist2d pp) ;distanza esatta
+;-> 10
+(apply distance1 pp)
+;-> 11
+(apply distance2 pp)
+;-> 9.5
+(apply distance3 pp)
+;-> 10.25
+(apply distance4 pp)
+;-> 9.989968
+
+Adesso vediamo quale errore si commette nell'uso di queste funzioni.
+
+Errore assoluto
+---------------
+
+ErroreAssoluto = ValoreMisurato - ValoreEsatto
+
+L'errore assoluto è un valore con segno.
+
+Errore relativo
+---------------
+
+                   ErroreAssoluto
+ErroreRelativo = -----------------
+                    ValoreMedio
+
+Nel caso di due misure "a" = valore misurato e "b" = valore esatto, il valore medio delle misurazioni vale "b":
+                         (a - b)
+  ErroreRelativo(a,b) = ---------
+                         abs(b)
+
+L'errore relativo è un valore con segno.
+
+Funzioni per il calcolo dell'errore relativo:
+
+(define (err a b)
+  ; errore relativo
+  (if (zero? a)
+      0
+      (div (sub a b) (abs b))))
+
+(define (err% a b)
+  ; errore relativo %
+  (if (zero? a)
+      0
+      (mul 100 (div (abs (sub a b)) (abs b)))))
+
+Nota: attenzione ai valori assoluti e ai valori negativi. Calcolare un valore assoluto o meno di una espressione dipende dal tipo di risultato che vogliamo ottenere.
+
+La seguente funzione calcola l'errore relativo massimo e l'errore relativo medio per ogni funzione di distanza:
+
+(define (errors iter)
+  (local (func coords dist err-max err-sum err-avg e)
+    (setq func '(dist2d distance1 distance2 distance3 distance4))
+    (setq dist (array 5 '(0)))
+    (setq err-max (array 5 '(0)))
+    (setq err-sum (array 5 '(0)))
+    (setq err-avg (array 5 '(0)))
+    (setq error 0)
+    (setq all 0)
+    (for (i 1 iter)
+      (setq coords (rand 10 4))
+      ; calcola tutte le distanze
+      (dolist (f func)
+        (setf (dist $idx) (apply f coords))
+      )
+      ; aggiorna err-max e err-sum per ogni distanza
+      (for (i 0 4)
+        ; calcola errore distanza corrente
+        (setq e (err (dist i) (dist 0)))
+        (if (< (abs (err-max i)) (abs e))
+            (setf (err-max i) e)
+        )
+        (setf (err-sum i) (add (err-sum i) (abs e)))
+      )
+    )
+    ; calcola errore relativo medio
+    (for (i 0 4)
+      (setf (err-avg i) (div (err-sum i) iter))
+    )
+    (setq err-max (map (fn(x) (round (mul 100 x) -2)) err-max))
+    (setq err-avg (map (fn(x) (round (mul 100 x) -2)) err-avg))
+    (println err-max)
+    (println err-avg)
+    ))
+
+(errors 1e4)
+;-> (0 11.8 -11.61 6.8 -5.88)
+;-> (0 7.73 3.22 3.87 2.7)
+
+In definitiva abbiamo la seguente tabella:
+
+                   Metodo    err-max    err-avg
+                   ------    -------    -------
+              Max + Min/2      11.80       7.73
+              Max + Min/4     -11.61       3.22
+            Max + 3*Min/8       6.80       3.87
+(0.941246*Max + 0.41*Min)      -5.88       2.70
+
+A questo punto bisogna vedere la velocità di queste funzioni.
+
+(define (test func iter) (for (i 1 iter) (apply func (rand 100 4))))
+
+(time (test dist2d 1e5))
+;-> 63.961
+(time (test distance1 1e5))
+;-> 65.961
+(time (test distance2 1e5))
+;-> 78.571
+(time (test distance3 1e5))
+;-> 80.512
+(time (test distance4 1e5))
+;-> 82.605
+
+Il risultato è abbastanza sorprendente, la funzione "dist2d" che calcola la distanza esatta è la più veloce (anche se calcola una radice quadrata).
+
+Per cercare di capire cosa accade vediamo le seguenti funzioni (una con "sqrt" e una con un "if"):
+
+(define (t1 a b) (sqrt (add (mul a a) (mul b b))))
+(define (t2 a b)
+    (if (< a b) (add (mul a a) (mul b b))
+                (add (mul a a) (mul b b))))
+
+Calcoliamo la loro velocità:
+
+(time (t1 120 140) 1e6)
+;-> 128.359
+(time (t2 120 140) 1e6)
+;-> 128.402
+
+Sembra che in newLISP la funzione "if" pesa come "sqrt"  (?!).
+
+Nota: nello spazio 3D, ordinando i lati in decrescente di lunghezza dx1, dx2, dx3 possiamo utilizzare la seguente formula per calcolare la distanza approssimata tra due punti P1(x1 y1 z1) e P2(x2 y2 z2):
+
+  0.9398*dx1 + 0.3893*dx2 + 0.2987*dx3
+
+con un errore massimo del 6.0%.
+
+
+----------------------------------------------------------------
+Errore quadratico medio (RMSE) e errore medio percentuale (MAPE)
+----------------------------------------------------------------
+
+Errore quadratico medio - Root Mean Square error (RMSE)
+-------------------------------------------------------
+
+             Sum[i=1,n]((Vp(i) - Vr(i))^2)
+RMSE = sqrt(-------------------------------)
+                           n
+
+Vp = valore previsto (misurato)
+Vr = valore reale
+
+RMSE è sempre non negativo e un valore pari a 0 (quasi mai raggiunto nella pratica) indica un adattamento perfetto ai dati.
+In generale, un RMSE più basso è migliore di uno più alto.
+Tuttavia, i confronti tra diversi tipi di dati non sarebbero validi perché la misura dipende dalla scala dei numeri utilizzati.
+
+RMSE è la radice quadrata della media degli errori al quadrato.
+L'effetto di ciascun errore su RMSE è proporzionale alla dimensione dell'errore al quadrato, quindi errori più grandi hanno un effetto sproporzionatamente grande su RMSE.
+Di conseguenza, RMSE è sensibile ai valori anomali (outliers).
+
+Purtroppo non è un valore facile da spiegare (è la deviazione standard dei valori residui cioè Vp(i) - Vr(i)), ma più basso è questo valore, più il modello predice bene i risultati futuri (in genere).
+
+(define (RMSE lst1 lst2)
+  (sqrt (div
+          (apply add (map (fn(x y) (mul (sub x y) (sub x y))) lst1 lst2))
+          (length lst1))))
+
+(setq vr '(11 20 19 17 10))
+(setq vp '(12 18 19.5 18 9))
+(RMSE vr vp)
+;-> 1.45
+(RMSE vp vr)
+;-> 1.45
+
+Errore medio percentuale - Mean Absolute Percentage Error (MAPE)
+----------------------------------------------------------------
+
+        Sum[i=1,n](abs((Vr(i) - Vp(i))/Vr(i)))
+MAPE = -----------------------------------------
+                           n
+
+Vr = valore reale
+Vp = valore previsto (misurato)
+
+Questo valore esprime l'accuratezza del modello, ovvero quanto il modello sbaglia in % rispetto al valore reale.
+
+(define (MAPE lst1 lst2)
+  (div
+    (apply add (map (fn(x y) (abs (div (sub x y) x))) lst1 lst2))
+    (length lst1)))
+
+(setq vr '(11 20 19 17 10))
+(setq vp '(12 18 19.5 18 9))
+(MAPE vr vp)
+;-> 0.07520968195890795
+(MAPE vp vr)
+;-> 0.07735042735042734
+
+Vediamo un altro esempio:
+
+(setq vr '(95 120 110 75))
+(setq vp '(90 110 130 85))
+(RMSE vp vr)
+;-> 12.5
+(MAPE vr vp)
+;-> 0.1127791068580542
 
 =============================================================================
 
