@@ -1538,6 +1538,7 @@ NOTE LIBERE 13
   Copertura di segmenti con punti
   Distanza approssimata tra due punti - Fast square root trick
   Errore quadratico medio (RMSE) e errore medio percentuale (MAPE)
+  TimSort
 
 APPENDICI
 =========
@@ -1573,7 +1574,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (224 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (226 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

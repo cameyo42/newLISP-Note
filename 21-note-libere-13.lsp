@@ -831,5 +831,153 @@ Vediamo un altro esempio:
 (MAPE vr vp)
 ;-> 0.1127791068580542
 
+
+-------
+TimSort
+-------
+
+TimSort è un algoritmo di ordinamento basato su Insertion Sort e Merge Sort.
+Viene usato in Java e in Python.
+L'idea di base è quella dividere la lista in piccoli pezzi ordinati con l'Insertion Sort e poi unire il tutto con il Merge Sort.
+I pezzi della lista vengono ordinati con l'Insertion Sort perchè è un algoritmo che funziona molto bene con liste piccole.
+In genere il numero di "Run" è una potenza di 2, perchè in questo caso la loro unione con il Merge Sort funziona in modo ottimale.
+Il numero di "Run" può variare da 32 a 64 a seconda della dimensione della lista.
+
+L'algoritmo implementato è il seguente:
+1) Numero di "Run": 32
+2) Ordinare uno per uno i "Run" di dimensioni uguali con Insertion Sort
+3) Unire i "Run" uno per uno con il Merge Sort.
+La dimensione delle sottoliste unite viene raddoppiata dopo ogni iterazione.
+
+Nota: per semplicità questa implementazione ha il vincolo che quando "Run" è minore della lunghezza della lista, allora "Run" deve essere un sottomultiplo della lunghezza della lista.
+Quando "Run" è maggiore della lunghezza della lista, allora viene utilizzato solo l'algoritmo di InsertionSort e non c'è alcun vincolo (ma non sfruttiamo l'idea del TimSort).
+
+Complessità temporale
+Caso migliore: O(n)
+Caso medio:    O(n*log(n))
+Caso peggiore: O(n*log(n))
+
+; Funzione che ordina la lista dall'indice sinistro all'indice destro;
+; (che è di dimensioni al massimo RUN)
+(define (insertionSort arr left right)
+  (local (j temp)
+    (for (i (+ left 1) right)
+      (setq temp (arr i))
+      (setq j (- i 1))
+      (while (and (>= j left) (> (arr j) temp))
+        (setf (arr (+ j 1)) (arr j))
+        (-- j)
+      )
+      (setf (arr (+ j 1)) temp)
+    )
+    arr))
+
+Facciamo alcune prove:
+
+(setq lst '(8 3 6 9 7 4 10 0 2 -2))
+(insertionSort lst 0 3)
+;-> (3 6 8 9 7 4 10 0 2 -2)
+(insertionSort lst 0 9)
+;-> (-2 0 2 3 4 6 7 8 9 10)
+
+; Funzione che unisce i RUN ordinati
+(define (mergeSort arr l m r)
+  (local (len1 len2 left right i j k)
+    ; la lista originale viene divisa in due parti:
+    ; lista sinistro e lista destra
+    (setq len1 (+ m 1 (- l)))
+    (setq len2 (- r m))
+    (setq left (array len1 '(0)))
+    (setq right (array len2 '(0)))
+    (for (x 0 (- len1 1))
+      (setf (left x) (arr (+ l x)))
+    )
+    (for (x 0 (- len2 1))
+      (setf (right x) (arr (+ m 1 x)))
+    )
+    (setq i 0) (setq j 0) (setq k l)
+    ; Dopo il confronto, unisce due liste in una lista più grande
+    (while (and (< i len1) (< j len2))
+      (if (<= (left i) (right j))
+          (begin (setf (arr k) (left i)) (++ i))
+          (begin (setf (arr k) (right j)) (++ j))
+      )
+      (++ k)
+    )
+    ; Copia gli elementi rimanenti di sinistra, se presenti
+    (while (< i len1)
+      (setf (arr k) (left i))
+      (++ k)
+      (++ i)
+    )
+    ; Copia gli elementi rimanenti di destra, se presenti
+    (while (< j len2)
+      (setf (arr k) (right j))
+      (++ k)
+      (++ j)
+    )
+    arr))
+
+Facciamo alcune prove:
+
+(setq lst1 '(1 2 3 4 5 6 7 8))
+(mergeSort lst1 0 4 7)
+;-> (1 2 3 4 5 6 7 8)
+
+(setq lst2 '(5 6 7 1 2 3 4))
+(mergeSort lst2 0 2 6)
+;-> (1 2 3 4 5 6 7)
+
+(setq lst3 '(5 6 7 8 1 2 3 4))
+(mergeSort lst3 0 3 7)
+;-> (1 2 3 4 5 6 7 8)
+
+; Funzione iterativa Timsort per ordinare una lista (0..n-1)
+(define (timSort arr run)
+  (local (n size mid right)
+    (setq n (length arr))
+    ; Sort individual subarrays of size RUN
+    ; Ordina le singole sottoliste di dimensioni Run
+    (for (i 0 (- n 1) run)
+      (setq arr (insertionSort arr i (min (+ i run -1) (- n 1))))
+      ;(println arr) (read-line)
+    )
+    ; Inizia l'unione dalla dimensione Run.
+    ; L'unione lavora con dimensioni 64, poi 128, 256 e così via....
+    (setq size run)
+    (while (< size n)
+      ; Trova il punto di partenza della sottolista sinistra.
+      ; Unisce arr[left..left+size-1] e arr[left+size, left+2*size-1]
+      ; Dopo ogni unione, aumenta a sinistra di 2*size
+      (for (left 0 (- n 1) (* 2 size))
+        ; Trova il punto finale della sottolista sinistra
+        ; mid+1 è il punto di partenza della sottolista destra
+        (setq mid (+ left size -1))
+        (setq right (min (+ left (* 2 size) -1) (- n 1)))
+        ; Merge sub array arr[left.....mid] e arr[mid+1....right]
+        (if (< mid right)
+          (setq arr (mergeSort arr left mid right))
+        )
+        ;(println arr) (read-line)
+      )
+      (setq size (* 2 size))
+    )
+    arr))
+
+Facciamo alcune prove:
+
+(setq lst '(8 3 6 9 7 4 10 0 2 -2 11 12 13 16 15 14))
+(timSort lst 32)
+;-> (-2 0 2 3 4 6 7 8 9 10 11 12 13 14 15 16) ; solo InsertionSort
+
+(timSort lst 4)
+;-> (-2 0 2 3 4 6 7 8 9 10 11 12 13 14 15 16) ; InsertionSort e MergeSort
+
+(setq a '(3 -4 -5 6 8 -3))
+(timSort a 2)
+;-> (-5 -4 -3 3 6 8)
+
+Nota: questa implementazione è solo per capire come funziona l'algoritmo TimSort, la funzione integrata "sort" è molto più veloce di qualunque altra funzione di ordinamento.
+
 =============================================================================
 
