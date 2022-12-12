@@ -979,5 +979,190 @@ Facciamo alcune prove:
 
 Nota: questa implementazione è solo per capire come funziona l'algoritmo TimSort, la funzione integrata "sort" è molto più veloce di qualunque altra funzione di ordinamento.
 
+
+-------------
+Counting Sort
+-------------
+
+L'algoritmo Counting Sort appartiene alla categoria degli algoritmi di ordinamento che non richiedono confronti tra valori (algoritmi di ordinamento non basati sul confronto).
+Questo algoritmo utilizza uno intricato metodo per calcolare correttamente le posizioni di ciascun valore nella lista.
+
+Si effettuano diversi passaggi sulla lista dei numeri durante il processo di ordinamento. 
+Il primo passaggio è necessario per trovare il numero massimo nell'elenco. 
+Quindi usiamo questo numero per generare un elenco di dimensioni di numero massimo + 1. 
+Quindi contiamo il numero di istanze di ogni numero che appare nella lista e memorizziamo questo valore di conteggio nella lista che abbiamo appena creato. 
+Dopo aver completato questo tipo di conteggio, iteriamo sull'intera nuova lista, sommando cumulativamente tutti i valori al suo interno.
+
+Infine, utilizzando una formula è possibile determinare correttamente l'indice di ciascun numero, all'interno di una nuova lista di dimensione n, dove n è il numero di cifre nella lista originale. Questa nuova lista è una versione completamente ordinata della lista originale di numeri non ordinati.
+
+(define (counting-sort lst)
+  (local (val-max conteggi arr idx)
+    ; calcola valore massimo della lista
+    (setq val-max (apply max lst))
+    # Crea vettore di val-max elementi
+    (setq conteggi (array (+ val-max 1) '(0)))
+    (println conteggi)
+    ; Calcola il conteggio di ogni numero della lista
+    (dolist (el lst)
+      (++ (conteggi el))
+    )
+    (println conteggi)
+    ; Cacola la somma cumulativa dei punteggi
+    (for (i 1 (- (length conteggi) 1))
+      (setf (conteggi i) (+ (conteggi i) (conteggi (- i 1))))
+    )
+    (println conteggi)
+    ; Fase di ordinamento (applicazione della formula)
+    (setq arr (array (length lst) '(0)))
+    (dolist (el lst)
+      (setq idx (- (conteggi el) 1))
+      (setf (arr idx) el)
+      (-- (conteggi el))
+    )
+    arr))
+
+(setq a '(8 1 3 5 2 0 10 2 5))
+(counting-sort a)
+;-> (0 0 0 0 0 0 0 0 0 0 0)
+;-> (1 1 2 1 0 2 0 0 1 0 1)
+;-> (1 2 4 5 5 7 7 7 8 8 9)
+;-> (0 1 2 2 3 5 5 8 10)
+
+Cosa accade se la lista contiene numeri negativi?
+
+(setq b '(-1 3 -5 8 4 -3 -1))
+(counting-sort b)
+;-> (0 0 0 0 0 0 0 0 0)
+;-> (0 0 0 1 2 0 1 0 3)
+;-> (0 0 0 1 3 3 4 4 7)
+;-> (3 4 -5 -3 -1 8 -1)
+
+(setq c '(-1 3 -5 -8 4 -3 -1))
+(counting-sort c)
+;-> ERR: array index out of bounds in function ++ : -3
+;-> called from user function (counting-sort c)
+
+Nel primo caso l'algoritmo non produce i risultati corretti perchè la formula usa indici negativi.
+Nel secondo caso il vettore dei conteggi contiene solo 3 elementi (perchè 3 è il numero massimo della lista) e viene generata un errore di indicizzazione.
+
+Per ordinare una lista con numeri negativi possiamo usare il seguente metodo:
+
+1) Calcolare il valore assoluto del valore minimo della lista
+2) Sommare il valore minimo ad ogni elemento della lista
+3) Ordinare la lista
+4) Sottrarre il valore minimo ad ogni elemento della lista
+5) Calcolare il valore assoluto del valore minimo della lista
+
+Per esempio:
+
+Sommare il valore minimo ad ogni elemento della lista:
+(setq b1 (map (fn(x) (+ x minimo)) b))
+;-> (4 8 0 13 9 2 4)
+
+Ordinare la lista:
+(setq b2 (counting-sort b1))
+;-> (0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+;-> (1 0 1 0 2 0 0 0 1 1 0 0 0 1)
+;-> (1 1 2 2 4 4 4 4 5 6 6 6 6 7)
+;-> (0 2 4 4 8 9 13)
+
+Sottrarre il valore minimo ad ogni elemento della lista:
+(setq b3 (map (fn(x) (- x minimo)) b2))
+;-> (-5 -3 -1 -1 3 4 8)
+
+
+-------------------------------------------------------
+Caratteristiche dei principali algoritmi di ordinamento
+-------------------------------------------------------
+
+                   +-----------------------------------------------+
+                   |             Complessità-temporale             |
+  +----------------+---------------+---------------+---------------+
+  | Algoritmo      | Caso-medio    | Caso-migliore | Caso-peggiore |
+  +----------------+---------------+---------------+---------------+
+  | Bubble-Sort    | O(n^2)        | O(n)          | O(n^2)        |
+  +----------------+---------------+---------------+---------------+
+  | Insertion-Sort | O(n^2)        | O(n)          | O(n^2)        |
+  +----------------+---------------+---------------+---------------+
+  | Selection-Sort | O(n^2)        | O(n^2)        | O(n^2)        |
+  +----------------+---------------+---------------+---------------+
+  | Quick-Sort     | O(n*log(n))   | O(n*log(n))   | O(n^2)        |
+  +----------------+---------------+---------------+---------------+
+  | Merge-Sort     | O(n*log(n))   | O(n*log(n))   | O(n*log(n))   |
+  +----------------+---------------+---------------+---------------+
+  | Heap-Sort      | O(n*log(n))   | O(n*log(n))   | O(n*log(n))   |
+  +----------------+---------------+---------------+---------------+
+  | Counting-Sort  | O(n+k)        | O(n+k)        | O(n+k)        |
+  +----------------+---------------+---------------+---------------+
+  | Radix-Sort     | O(n*k)        | O(n*k)        | O(n*k)        |
+  +----------------+---------------+---------------+---------------+
+  | Bucket-Sort    | O(n+k)        | O(n+k)        | O(n^2)        |
+  +----------------+---------------+---------------+---------------+
+
+  +----------------+----------------------+
+  | Algoritmo      | Complessità-spaziale |
+  +----------------+----------------------+
+  | Bubble-Sort    | O(1)                 |
+  +----------------+----------------------+
+  | Insertion-Sort | O(1)                 |
+  +----------------+----------------------+
+  | Selection-Sort | O(1)                 |
+  +----------------+----------------------+
+  | Quick-Sort     | O(log(n))            |
+  +----------------+----------------------+
+  | Merge-Sort     | O(n)                 |
+  +----------------+----------------------+
+  | Heap-Sort      | O(1)                 |
+  +----------------+----------------------+
+  | Counting-Sort  | O(k)                 |
+  +----------------+----------------------+
+  | Radix-Sort     | O(n+k)               |
+  +----------------+----------------------+
+  | Bucket-Sort    | O(n)                 |
+  +----------------+----------------------+
+
+  +----------------+----------+-----------+
+  | Algoritmo      | Stabile? | In-Place? |
+  +----------------+----------+-----------+
+  | Bubble-Sort    | Si       | Si        |
+  +----------------+----------+-----------+
+  | Insertion-Sort | Si       | Si        |
+  +----------------+----------+-----------+
+  | Selection-Sort | No       | Si        |
+  +----------------+----------+-----------+
+  | Quick-Sort     | No       | Si        |
+  +----------------+----------+-----------+
+  | Merge-Sort     | Si       | No        |
+  +----------------+----------+-----------+
+  | Heap-Sort      | No       | Si        |
+  +----------------+----------+-----------+
+  | Counting-Sort  | Si       | No        |
+  +----------------+----------+-----------+
+  | Radix-Sort     | Si       | No        |
+  +----------------+----------+-----------+
+  | Bucket-Sort    | Si       | No        |
+  +----------------+----------+-----------+
+
+Un algoritmo di ordinamento è "Stabile" se due oggetti con chiavi uguali appaiono nell'output ordinato nello stesso ordine in cui appaiono nel set di dati di input. Formalmente la stabilità può essere definita come il modo in cui l'algoritmo tratta elementi uguali.
+
+Un algoritmo di ordinamento è "In-place" se non utilizza di spazio aggiuntivo.
+
+Nota: la funzione primitiva "sort" si comporta in maniera "greedy", cioè cerca di ordinare tutti gli elementi:
+
+(setq a '((9 8) (1 8) (9 7) (4 1) (2 6)))
+(sort (copy a))
+;-> ((1 8) (2 6) (4 1) (9 7) (9 8))
+
+La lista viene ordinata rispetto ai primi elementi di ogni coppia e, in caso di primi elementi uguali, allora ordina anche i relativi secondi elementi (es. (9 7) e (9 8)).
+Vediamo altri due esempi:
+
+(setq b '((9 (8)) (1 (8)) (9 (7)) (4 (1)) (2 (6))))
+(sort (copy b))
+;-> ((1 (8)) (2 (6)) (4 (1)) (9 (7)) (9 (8)))
+
+(setq c '((9 (8 1)) (1 (8 3)) (9 (7 4)) (4 (1 6)) (2 (6 6)) (9 (7 3))))
+(sort (copy c))
+;-> ((1 (8 3)) (2 (6 6)) (4 (1 6)) (9 (7 3)) (9 (7 4)) (9 (8 1)))
+
 =============================================================================
 

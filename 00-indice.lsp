@@ -1539,6 +1539,8 @@ NOTE LIBERE 13
   Distanza approssimata tra due punti - Fast square root trick
   Errore quadratico medio (RMSE) e errore medio percentuale (MAPE)
   TimSort
+  Counting Sort
+  Caratteristiche dei principali algoritmi di ordinamento
 
 APPENDICI
 =========
