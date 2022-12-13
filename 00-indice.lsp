@@ -1541,6 +1541,7 @@ NOTE LIBERE 13
   TimSort
   Counting Sort
   Caratteristiche dei principali algoritmi di ordinamento
+  Il quadrato magico SATOR
 
 APPENDICI
 =========

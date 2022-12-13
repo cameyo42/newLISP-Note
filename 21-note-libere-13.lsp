@@ -1164,5 +1164,476 @@ Vediamo altri due esempi:
 (sort (copy c))
 ;-> ((1 (8 3)) (2 (6 6)) (4 (1 6)) (9 (7 3)) (9 (7 4)) (9 (8 1)))
 
+
+------------------------
+Il quadrato magico SATOR
+------------------------
+
+Il quadrato del Sator è una ricorrente iscrizione latina, in forma di quadrato magico, composta dalle seguenti cinque parole: SATOR, AREPO, TENET, OPERA, ROTAS.
+
+L'iscrizione è stata trovata in molti siti archeologici, sia nelle epigrafi delle lapidi sia come graffiti, ma il senso e/o il significato simbolico rimangono ancora oscuri, nonostante i diversi studi compiuti e le numerose ipotesi formulate.
+
+  +---+---+---+---+---+
+  | S | A | T | O | R |
+  +---+---+---+---+---+
+  | A | R | E | P | O |
+  +---+---+---+---+---+
+  | T | E | N | E | T |
+  +---+---+---+---+---+
+  | O | P | E | R | A |
+  +---+---+---+---+---+
+  | R | O | T | A | S |
+  +---+---+---+---+---+
+
+Si nota subito che il quadrato è formato da 5 parole che si possono leggere sia in orizzontale sia in verticale (palindrome).
+
+Scriviamo le cinque parole una di seguito all'altra:
+
+  SATOR-AREPO-TENET-OPERA-ROTAS
+
+Questa è una stringa palindroma (si legge sia da destra che da sinistra).
+
+(setq sator
+    '((S A T O R)
+      (A R E P O)
+      (T E N E T)
+      (O P E R A)
+      (R O T A S)))
+
+(print-table sator)
+;-> +---+---+---+---+---+
+;-> | S | A | T | O | R |
+;-> +---+---+---+---+---+
+;-> | A | R | E | P | O |
+;-> +---+---+---+---+---+
+;-> | T | E | N | E | T |
+;-> +---+---+---+---+---+
+;-> | O | P | E | R | A |
+;-> +---+---+---+---+---+
+;-> | R | O | T | A | S |
+;-> +---+---+---+---+---+
+
+Nota: La funzione "print-table" si trova nel modulo "yo.lsp".
+
+Quello che ci interessa è stabilire se sia possibile attribuire un valore numerico a ciascuna lettera in modo che il quadrato numerico risultante sia un quadrato magico.
+
+Un quadrato magico di ordine N è una matrice numerica quadrata di N×N caselle, in cui la somma dei numeri su ciascuna riga, colonna o diagonale (principale e secondaria) dà sempre lo stesso valore, detto costante C del quadrato.
+
+Un quadrato magico "canonico" di ordine N contiene nelle sue caselle tutti e soli i numeri da 1 a N^2.
+In questo caso, la costante C del quadrato ha un valore univoco e può essere calcolato tramite la seguente formula:
+
+       N^3 + N
+  C = ---------
+          2
+
+Nel nostro caso N = 5, quindi C = 65.
+
+(div (add (pow 5 3) 5) 2)
+;-> 65
+
+Guardando la disposizione e il valore della lettere del quadrato risulta chiaro che il quadrato magico risultante non sarà del tipo canonico, perché, a parte la "N" centrale, ogni lettera compare almeno un'altra volta nello schema, quindi ci saranno dei valori ripetuti.
+
+Quindi il problema consiste nel trovare i valori da attribuire alle varie lettere in modo che venga soddisfatto il seguente sistema di 5 equazioni e 9 incognite (R O T A S P E N C):
+
+  R + O + T + A + S = C
+  O + P + E + R + A = C
+  T + E + N + E + T = C
+  S + R + N + R + S = C
+  R + P + N + P + R = C
+
+Le ultime due equazioni possono essere riscritte nel modo seguente:
+
+  R + S + N + S + R = C
+  R + P + N + P + R = C
+
+Quindi deve risultare S = P e il nuovo sistema ha 4 equazioni e 8 incognite (R O T A X E N C):
+
+X = S = P
+
+  R + O + T + A + X - C = 0
+  O + X + E + R + A - C = 0
+  T + E + N + E + T - C = 0
+  X + R + N + R + X - C = 0
+  R + X + N + X + R - C = 0
+
+Le prime due equazione possono essere riscritte nel modo seguente:
+
+  X + A + T + O + R - C = 0
+  X + A + E + O + R - C = 0
+
+Quindi deve risultare T = E e il nuovo sistema ha 3 equazioni e 7 incognite (A C N O R X Y):
+
+Y = T = E
+
+  R + O + Y + A + X - C = 0
+  Y + Y + N + Y + Y - C = 0
+  X + R + N + R + X - C = 0
+  R + X + N + X + R - C = 0
+
+Riscriviamo il sistema:
+
+  A + O + R + X + Y - C = 0
+  2X + 2R + N - C = 0
+  4Y + N - C = 0
+
+Il quadrato Sator diventa:
+
+(setq qm
+    '((X A Y O R)
+      (A R Y X O)
+      (Y Y N Y Y)
+      (O X Y R A)
+      (R O Y A X)))
+
+  +---+---+---+---+---+
+  | X | A | Y | O | R |
+  +---+---+---+---+---+
+  | A | R | Y | X | O |
+  +---+---+---+---+---+
+  | Y | Y | N | Y | Y |
+  +---+---+---+---+---+
+  | O | X | Y | R | A |
+  +---+---+---+---+---+
+  | R | O | Y | A | X |
+  +---+---+---+---+---+
+
+Adesso per risolvere il sistema dobbiamo scegliere le variabili libere (3) e le variabili fisse (4).
+Ci sono 35 modi diversi di scegliere i due gruppi di variabili:
+
+(setq modi (groups '(3 4) '(A C N O R X Y)))
+;-> (((A C N) (O R X Y)) ((A C O) (N R X Y)) ((A C R) (N O X Y))
+;->  ((A C X) (N O R Y)) ((A C Y) (N O R X)) ((A N O) (C R X Y))
+;->  ((A N R) (C O X Y)) ((A N X) (C O R Y)) ((A N Y) (C O R X))
+;->  ((A O R) (C N X Y)) ((A O X) (C N R Y)) ((A O Y) (C N R X))
+;->  ((A R X) (C N O Y)) ((A R Y) (C N O X)) ((A X Y) (C N O R))
+;->  ((C N O) (A R X Y)) ((C N R) (A O X Y)) ((C N X) (A O R Y))
+;->  ((C N Y) (A O R X)) ((C O R) (A N X Y)) ((C O X) (A N R Y))
+;->  ((C O Y) (A N R X)) ((C R X) (A N O Y)) ((C R Y) (A N O X))
+;->  ((C X Y) (A N O R)) ((N O R) (A C X Y)) ((N O X) (A C R Y))
+;->  ((N O Y) (A C R X)) ((N R X) (A C O Y)) ((N R Y) (A C O X))
+;->  ((N X Y) (A C O R)) ((O R X) (A C N Y)) ((O R Y) (A C N X))
+;->  ((O X Y) (A C N R)) ((R X Y) (A C N O)))
+
+(length modi)
+;-> 35
+
+Nota: La funzione "groups" si trova nel modulo "yo.lsp".
+
+Ad esempio, ponendo come variabili fisse C, X, Y e O e come varibili libere A, R e N otteniamo la seguente soluzione:
+
+  A = C - O - 3Y
+  R = 2Y - X
+  N = C - 4Y
+
+Possiamo ottenere la soluzione per ogni modo calcolando algebricamente la soluzione oppure utilizzando il sito web:
+
+  https://www.wolframalpha.com/
+
+Per esempio:
+
+((A C N) (O R X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, C, N}]
+  { }
+
+((A C O) (N R X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, C, O}]
+  { }
+
+((A C R) (N O X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, C, R}]
+  {A -> N - O + Y, C -> N + 4Y, R -> -X + 2Y}
+
+((A C X) (N O R Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, C, X}]
+  {A -> N - O + Y, C -> N + 4Y, X -> -R + 2Y}
+
+((A C Y) (N O R X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, C, Y}]
+  {A -> N - O + R/2 + X/2, C -> N + 2 R + 2X, Y -> (R + X)/2}
+
+((A N O) (C R X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, N, O}]
+  { }
+
+((A N R) (C O X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, N, R}]
+  {A -> C - O - 3Y, N -> C - 4Y, R -> -X + 2Y}}
+
+((A N X) (C O R Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, N, X}]
+  {A -> C - O - 3Y, N -> C - 4Y, R -> -X + 2Y}}
+
+((A N Y) (C O R X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, N, Y}]
+  {A -> 1/2 (2C - 2 O - 3R - 3 X), N -> C - 2R - 2X, Y -> (R + X)/2}
+
+((A O R) (C N X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, O, R}]
+  { }
+
+((A O X) (C N R Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, O, X}]
+  { }
+
+((A O Y) (C N R X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, O, Y}]
+  { }
+
+((A R X) (C N O Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, R, X}]
+  { }
+
+((A R Y) (C N O X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, R, Y}]
+  {A -> C/4 + (3N)/4 - O, R -> C/2 - N/2 - X, Y -> C/4 - N/4}
+
+((A X Y) (C N O R))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {A, X, Y}]
+  {A -> C/4 + (3N)/4 - O, X -> C/2 - N/2 - R, Y -> C/4 - N/4}
+
+((C N O) (A R X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, N, O}]
+  { }
+
+((C N R) (A O X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, N, R}]
+  {C -> A + O + 3Y, N -> A + O - Y, R -> -X + 2Y}}
+
+((C N X) (A O R Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, N, X}]
+  {C -> A + O + 3Y, N -> A + O - Y, X -> -R + 2Y}
+
+((C N Y) (A O R X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, N, Y}]
+ {C -> 1/2 (2A + 2O + 3R + 3X), N -> 1/2 (2A + 2O - R - X), Y -> (R + X)/2}
+
+((C O R) (A N X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, O, R}]
+  {C -> N + 4Y, O -> -A + N + Y, R -> -X + 2Y}}
+
+((C O X) (A N R Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, O, X}]
+  {C -> N + 4Y, O -> -A + N + Y, X -> -R + 2Y}}
+
+((C O Y) (A N R X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, O, Y}]
+  {C -> N + 2R + 2X, O -> 1/2 (-2A + 2N + R + X), Y -> (R + X)/2}
+
+((C R X) (A N O Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, R, X}]
+  { }
+
+((C R Y) (A N O X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, R, Y}]
+  {C -> 4A - 3N + 4O, R -> 2A - 2N + 2O - X, Y -> A - N + O}
+
+((C X Y) (A N O R))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {C, X, Y}]
+  {C -> 4A - 3N + 4O, X -> 2A - 2N + 2O - R, Y -> A - N + O}}
+
+((N O R) (A C X Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {N, O, R}]
+  {N -> C - 4Y, O -> -A + C - 3Y, R -> -X + 2Y}
+
+((N O X) (A C R Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {N, O, X}]
+  {N -> C - 4Y, O -> -A + C - 3Y, X -> -R + 2Y}
+
+((N O Y) (A C R X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {N, O, Y}]
+  {N -> C - 2R - 2X, O -> 1/2 (-2A + 2C - 3R - 3X), Y -> (R + X)/2}}
+
+((N R X) (A C O Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {N, R, X}]
+  {N -> 1/3 (4A - C+ 4O), X -> 1/3 (-2A + 2C - 2O - 3R), Y -> 1/3 (-A + C - O)}
+
+((N R Y) (A C O X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {N, R, Y}]
+  { }
+
+((N X Y) (A C O R))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {N, X, Y}]
+ {N -> 1/3 (4A - C + 4O), X -> 1/3 (-2A + 2C - 2O - 3R), Y -> 1/3 (-A + C - O)}
+
+((O R X) (A C N Y))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {O, R, X}]
+  { }
+
+((O R Y) (A C N X))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {O, R, Y}]
+  {O -> -A + C/4 + (3N)/4, R -> C/2 - N/2 - X, Y -> C/4 - N/4}
+
+((O X Y) (A C N R))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {O, X, Y}]
+  {O -> -A + C/4 + (3N)/4, X -> C/2 - N/2 - R, Y -> C/4 - N/4}
+
+((R X Y) (A C N O))
+  Solve[A + O + R + X + Y - C == 0 && 2X + 2R + N - C == 0 &&
+    4Y + N - C == 0, {R, X, Y}]
+  { }
+
+A questo punto è necessario fare un pò di prove.
+Per ogni tipo di raggruppameNto scelto occorre dare dei valori arbitrari alle quattro variabili indipendenti e calcolare le altre tre.
+In alcuni casi si otterranno dei valori negativi in quanto le soluzioni possono essere dei numeri qualunque (interi o floating).
+
+Come esempio scegliamo (A C R) come variabili libere e (N O X Y) come variabili fisse.
+La soluzione vale:
+
+  A = N - O + Y
+  C = N + 4Y
+  R = -X + 2Y
+
+Funzione che verifica se una matrice è un quadrato magico:
+
+(define (magico? lst)
+  (let ((tr (transpose lst)))
+    (= (apply add (lst 1))
+       (apply add (lst 2))
+       (apply add (lst 3))
+       (apply add (lst 4))
+       (apply add (tr 1))
+       (apply add (tr 2))
+       (apply add (tr 3))
+       (apply add (tr 4))
+       (add (lst 0 0) (lst 1 1) (lst 2 2) (lst 3 3) (lst 4 4))
+       (add (tr 0 0) (tr 1 1) (tr 2 2) (tr 3 3) (tr 4 4)))))
+
+Generatore di quadrati magici sator con numeri in sequenza:
+
+(define (genera1 start end)
+  (local (a c r n o x y qm qt)
+    (setq qm '((x a y o r)
+               (a r y x o)
+               (y y n y y)
+               (o x y r a)
+               (r o y a x)))
+    (setq qt '((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0)))
+    (for (n start end)
+      (for (o start end)
+        (for (x start end)
+          (for (y start end)
+            (setq a (+ n y (- o)))
+            (setq c (+ n (* 4 y)))
+            (setq r (- (* 2 y) x))
+            ; creazione del quadrato magico corrente
+            (for (i 0 4)
+              (for (j 0 4)
+                (setf (qt i j) (eval (qm i j)))
+              )
+            )
+            (if (not (magico? qt)) (println "ERRORE: quadrato non magico"))
+            ; stampa del quadrato magico corrente
+            (print-table qt)
+            (read-line)))))))
+
+(genera1 3 5)
+;-> ...
+;-> +---+---+---+---+---+
+;-> | 3 | 6 | 4 | 3 | 5 |
+;-> +---+---+---+---+---+
+;-> | 6 | 5 | 4 | 3 | 3 |
+;-> +---+---+---+---+---+
+;-> | 4 | 4 | 5 | 4 | 4 |
+;-> +---+---+---+---+---+
+;-> | 3 | 3 | 4 | 5 | 6 |
+;-> +---+---+---+---+---+
+;-> | 5 | 3 | 4 | 6 | 3 |
+;-> +---+---+---+---+---+
+;-> ...
+
+Generatore di quadrati magici sator con numeri casuali:
+
+(define (genera2 max-val iter)
+  (local (a c r n o x y qm qt)
+    (setq qm '((x a y o r)
+               (a r y x o)
+               (y y n y y)
+               (o x y r a)
+               (r o y a x)))
+    (setq qt '((0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0) (0 0 0 0 0)))
+    (for (i 1 iter)
+      (setq n (+ (rand max-val)))
+      (setq o (+ (rand max-val)))
+      (setq x (+ (rand max-val)))
+      (setq y (+ (rand max-val)))
+      (setq a (+ n y (- o)))
+      (setq c (+ n (* 4 y)))
+      (setq r (- (* 2 y) x))
+      ; creazione del quadrato magico corrente
+      (for (i 0 4)
+        (for (j 0 4)
+          (setf (qt i j) (eval (qm i j)))
+        )
+      )
+      (if (not (magico? qt)) (println "ERRORE: quadrato non magico"))
+      ; stampa del quadrato magico corrente
+      (print-table qt)
+      ; numero magico
+      (println (apply + (qt 0)))
+      (read-line))))
+
+(genera2 100 10)
+;-> ...
+;-> +----+----+----+----+----+
+;-> | 60 | 75 | 69 | 18 | 78 |
+;-> +----+----+----+----+----+
+;-> | 75 | 78 | 69 | 60 | 18 |
+;-> +----+----+----+----+----+
+;-> | 69 | 69 | 24 | 69 | 69 |
+;-> +----+----+----+----+----+
+;-> | 18 | 60 | 69 | 78 | 75 |
+;-> +----+----+----+----+----+
+;-> | 78 | 18 | 69 | 75 | 60 |
+;-> +----+----+----+----+----+
+;-> 300
+;-> ...
+
+In definitiva possiamo generare un numero infinito di quadrati magici derivanti dal quadrato sator, il problema è trovarne uno con un significato particolare.
+
+Si potrebbe provare ad inserire numeri particolari (es. numeri legati alle tradizioni religiose), per scoprire se viene generato qualche quadrato magico particolare.
+
+I valori della Gematria ebraica:
+S (Shin) = 21, A (Aleph) = 1,
+T (Taw) = 22,  O (Wav) = 6,
+R (Res) = 20,  E (He) = 5,
+P (Pe) = 17,   N (Nun) = 14.
+
+I simboli numerici nella Bibbia:
+1, 3, 4, 7, 12, 40, 666, 1000
+
 =============================================================================
 
