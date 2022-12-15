@@ -1635,5 +1635,255 @@ P (Pe) = 17,   N (Nun) = 14.
 I simboli numerici nella Bibbia:
 1, 3, 4, 7, 12, 40, 666, 1000
 
+
+----------------------
+Alberi binari completi
+----------------------
+
+Un albero binario "completo" ha tutti i livelli tranne quello inferiore completamente compilati e il livello inferiore ha tutti i suoi nodi riempiti da sinistra a destra.
+Pertanto, un albero binario completo di n nodi ha una sola forma possibile.
+
+Iniziamo assegnando dei numeri alle posizioni dei nodi nell'albero binario completo, livello per livello, da sinistra a destra, come mostrato nella seguente figura:
+
+                     +------------------0------------------+
+                     |                                     |
+           +---------1---------+                 +---------2---------+
+           |                   |                 |                   |
+    +------3------+     +------4------+   +------5                   6
+    |             |     |             |   |
+    7             8     9            10   11
+
+  Un albero binario completo di 12 nodi, numerati a partire da 0 (0..11).
+
+Vediamo in dettaglio i termini di un albero:
+
+"Root" (Radice): la radice di un albero è il nodo più alto dell'albero che non ha un nodo padre. C'è solo un nodo radice in ogni albero.
+
+"Parent Node" (Nodo padre): il nodo che è un predecessore di un nodo è chiamato nodo padre di quel nodo.
+
+"Nodo figlio" (Nodo figlio): il nodo che è l'immediato successore di un nodo è chiamato nodo figlio di quel nodo.
+
+"Sibling" (Fratello): i figli dello stesso nodo genitore sono chiamati fratelli.
+
+"Edge" (Arco): un arco funge da collegamento tra il nodo padre e il nodo figlio.
+
+"Leaf" (Foglia): un nodo che non ha figli è noto come nodo foglia. È l'ultimo nodo dell'albero. Ci possono essere più nodi foglia in un albero.
+
+"SubTree" (Sottoalbero): il sottoalbero di un nodo è l'albero che considera quel particolare nodo come nodo radice.
+
+"Depth" (Profondità): la profondità del nodo è la distanza dal nodo radice a quel particolare nodo.
+
+"Height" (Altezza): l'altezza del nodo è la distanza da quel nodo al nodo più profondo di quel sottoalbero.
+
+"Height of Tree" (Altezza dell'albero): l'altezza dell'albero è l'altezza massima di qualsiasi nodo. Questo è lo stesso dell'altezza del nodo radice.
+
+"Level" (Livello): Un livello è il numero di nodi padre corrispondenti a un dato nodo dell'albero.
+
+"Degree of node" (Grado di un nodo): il grado di un nodo è il numero dei suoi figli.
+
+Un array può memorizzare i valori dei dati dell'albero in modo efficiente, posizionando ogni valore di dati nella posizione dell'array corrispondente alla posizione di quel nodo all'interno dell'albero.
+
+La tabella elenca gli indici dell'array per "child" (figli), "parent" (genitori) e "sibling" fratelli di ogni nodo:
+
+  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+  | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  |
+  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+  | nil | 0   | 0   | 1   | 1   | 2   | 2   | 3   | 3   | 4   | 4   | 5   |
+  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+  | 1   | 3   | 5   | 7   | 9   | 11  | nil | nil | nil | nil | nil | nil |
+  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+  | 2   | 4   | 6   | 8   | 10  | nil | nil | nil | nil | nil | nil | nil |
+  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+  | nil | nil | 1   | nil | 3   | nil | 5   | nil | 7   | nil | 9   | nil |
+  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+  | nil | 2   | nil | 4   | nil | 6   | nil | 8   | nil | 10  | nil | nil |
+  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+
+Un albero binario è un albero binario perfetto in cui tutti i nodi interni hanno due figli (child) e tutti i nodi foglia (leaf) sono allo stesso livello.
+
+Un albero binario "perfetto" è un tipo di albero binario in cui ogni nodo interno ha esattamente due nodi figli e tutti i nodi foglia sono allo stesso livello.
+
+La seguente figura mostra un albero seguenti sono esempi di alberi binari perfetti.
+
+                     +------------------0------------------+
+                     |                                     |
+           +---------1---------+                 +---------2---------+
+           |                   |                 |                   |
+    +------3------+     +------4------+   +------5------+     +------6------+
+    |             |     |             |   |             |     |             |
+    7             8     9            10   11           12     13           14
+
+  Un albero binario perfetto di 15 nodi, numerati a partire da 0 (0..14).
+
+Un albero perfetto è un albero completo.
+
+La tabella relativa all'albero perfetto di 15 nodi vale:
+
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  | 12  | 13  | 14  |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| nil | 0   | 0   | 1   | 1   | 2   | 2   | 3   | 3   | 4   | 4   | 5   | 5   | 6   | 6   |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| 1   | 3   | 5   | 7   | 9   | 11  | 13  | nil | nil | nil | nil | nil | nil | nil | nil |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| 2   | 4   | 6   | 8   | 10  | 12  | 14  | nil | nil | nil | nil | nil | nil | nil | nil |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| nil | nil | 1   | nil | 3   | nil | 5   | nil | 7   | nil | 9   | nil | 11  | nil | 13  |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| nil | 2   | nil | 4   | nil | 6   | nil | 8   | nil | 10  | nil | 12  | nil | 14  | nil |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+
+Guardando la tabella, possiamo notare uno schema riguardante le posizioni dei vari parenti di un nodo all'interno dell'array.
+È possibile derivare formule semplici per calcolare l'indice dell'array per ogni parente di un nodo r dall'indice di r.
+Non sono necessari puntatori espliciti per raggiungere il figlio sinistro o destro di un nodo. Ciò significa che non vi è alcun sovraccarico per l'implementazione dell'array se l'array è selezionato per essere di dimensione N per un albero di N nodi.
+
+Il numero totale di nodi nell'albero è N.
+L'indice del nodo in questione è "r", che deve rientrare nell'intervallo da 0 a N−1.
+Le formule per il calcolo degli indici dell'array dei vari parenti di un nodo sono le seguenti.
+
+  Parent(r) = floor((r−1)/2) se r≠0.
+
+  Left child(r) = 2r+1 se 2r+1<n.
+
+  Right child(r) = 2r+2 se 2r+2<n.
+
+  Left sibling(r) = r−1 se r is pari e r≠0
+
+  Right sibling(r) = r+1 se r is dispari e r+1<n
+
+La scelta della dimensione dell'array può consistere nel fissare l'altezza massima dell'albero (H) e rendere l'array abbastanza grande da contenere qualsiasi albero binario di questa altezza (o inferiore). In questo caso avremo bisogno di un array di dimensioni (2^H - 1).
+
+A causa del modo in cui abbiamo assegnato i nodi alle posizioni, se ci sono N nodi in un albero completo, corrisponderanno alle prime N posizioni dell'array.
+In questo modo abbiamo la necessità di conoscere solo N per sapere quali posizioni dell'array contengono informazioni valide.
+Se aggiungiamo un nuovo valore, deve andare in posizione N+1;
+Se cancelliamo un valore, dobbiamo riorganizzare l'albero in modo che il 'vuoto' creato dalla cancellazione sia colmato.
+Si può attraversare l'albero livello per livello semplicemente scorrendo l'array dall'inizio alla fine:
+
+  (for (i 0 (- N 1) 1)
+    (nodo corrente in posizione i)
+
+Vediamo le funzioni per individuare gli indici dell'array:
+
+(define (make-empty-tree n)
+  (let (tree (array n '(-1)))
+    ; root --> idx = 0
+    (setf (tree 0) 0)
+    tree))
+(setq tr (make-empty-tree 15))
+
+(define (parent idx)
+  (if (zero? idx)
+      nil
+      (floor (div (- idx 1) 2))))
+
+(define (left-child idx)
+  (if (< (+ (* 2 idx) 1) n)
+      (+ (* 2 idx) 1)
+      nil))
+
+(define (right-child idx)
+  (if (< (+ (* 2 idx) 2) n)
+      (+ (* 2 idx) 2)
+      nil))
+
+(define (left-sibling idx)
+  (if (and (even? idx) (!= idx 0))
+      (- idx 1)
+      nil))
+
+(define (right-sibling idx)
+  (if (and (odd? idx) (< (+ idx 1) n))
+      (+ idx 1)
+      nil))
+
+(left-child 3)
+;-> 7
+(left-sibling 4)
+;-> 3
+(right-sibling 4)
+;-> nil
+
+(setq n 12)
+(for (i 0 (- n 1))
+  (print i { })
+  (print (parent i) { })
+  (print (left-child i) { })
+  (print (right-child i) { })
+  (print (left-sibling i) { })
+  (println (right-sibling i)))
+
+(setq tt '(
+(0 nil 1 2 nil nil)
+(1 0 3 4 nil 2)
+(2 0 5 6 1 nil)
+(3 1 7 8 nil 4)
+(4 1 9 10 3 nil)
+(5 2 11 nil nil 6)
+(6 2 nil nil 5 nil)
+(7 3 nil nil nil 8)
+(8 3 nil nil 7 nil)
+(9 4 nil nil nil 10)
+(10 4 nil nil 9 nil)
+(11 5 nil nil nil nil)))
+
+Associazione dei dati ai nodi di un albero
+------------------------------------------
+
+I dati con una lista associativa:
+
+(setq alst (map (fn(x) (list x (char (+ 65 x)))) (sequence 0 14)))
+(lookup (left-sibling 4) alst)
+;-> "D"
+
+I dati con un vettore:
+
+(setq lettere (map last alst))
+(setq data (array n lettere))
+(data (left-sibling 4))
+;-> "D"
+
+(data (left-sibling (find "E" (array-list data))))
+;-> "D"
+
+Attraversamento di un albero binario (Binary Tree Traversals)
+-------------------------------------------------------------
+Gli algoritmi Tree Traversal possono essere classificati sostanzialmente in due categorie:
+- Algoritmi di ricerca in profondità (DFS Depth-First-Search)
+- Algoritmi di ricerca in ampiezza (BFS Breadth-First-Search)
+
+L'attraversamento dell'albero utilizzando l'algoritmo Depth-First-Search (DFS) può essere ulteriormente classificato in tre categorie:
+
+"Preorder Traversal" (current-left-right): Visita il nodo corrente prima di visitare qualsiasi nodo all'interno dei sottoalberi sinistro o destro. Qui, l'attraversamento è root – left child – right child. Significa che il nodo radice viene attraversato prima del suo figlio sinistro e finalmente il figlio giusto.
+
+"Inorder Traversal" (left-current-right): visita il nodo corrente dopo aver visitato tutti i nodi all'interno del sottoalbero sinistro ma prima di visitare qualsiasi nodo all'interno del sottoalbero destro. Qui l'attraversamento è figlio sinistro – radice – figlio destro. Significa che viene attraversato prima il figlio sinistro, poi il suo nodo radice e infine il figlio destro.
+
+"Postorder Traversal" (left-right-current): visita il nodo corrente dopo aver visitato tutti i nodi dei sottoalberi sinistro e destro. Qui l'attraversamento è figlio sinistro – figlio destro – radice. Significa che il figlio sinistro ha attraversato prima il figlio destro e infine il suo nodo radice.
+
+L'attraversamento dell'albero utilizzando l'algoritmo BFS (Breadth-First-Search) può essere ulteriormente classificato in una categoria:
+
+"Level-order Traversal": visita i nodi livello per livello e da sinistra a destra allo stesso livello. Qui, l'attraversamento è in piano. Significa che il figlio più a sinistra ha attraversato per primo e poi hanno attraversato gli altri figli dello stesso livello da sinistra a destra.
+
+Vediamo tutti i tipi di attraversamento utilizzando il seguente albero:
+
+         0
+        / \
+       /   \
+      1     2
+     / \   / \
+    3   4 5   6
+
+Pre-order Traversal:   0-1-3-4-2-5-61
+
+In-order Traversal:    3-1-4-0-5-2-6
+
+Post-order Traversal:  3-4-1-5-6-2-0
+
+Level-order Traversal: 0-1-2-3-4-5-6
+
+Pre-order Traversal of the above tree: 1-2-4-5-3-6-7
+In-order Traversal of the above tree: 4-2-5-1-6-3-7
+Post-order Traversal of the above tree: 4-5-2-6-7-3-1
+Level-order Traversal of the above tree: 1-2-3-4-5-6-7
+
 =============================================================================
 
