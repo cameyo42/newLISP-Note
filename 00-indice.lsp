@@ -1542,7 +1542,8 @@ NOTE LIBERE 13
   Counting Sort
   Caratteristiche dei principali algoritmi di ordinamento
   Il quadrato magico SATOR
-  Alberi binari completi
+  Alberi binari completi con vettori/liste
+  Algoritmo Undo/Redo
 
 APPENDICI
 =========

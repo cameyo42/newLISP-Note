@@ -987,10 +987,10 @@ Counting Sort
 L'algoritmo Counting Sort appartiene alla categoria degli algoritmi di ordinamento che non richiedono confronti tra valori (algoritmi di ordinamento non basati sul confronto).
 Questo algoritmo utilizza uno intricato metodo per calcolare correttamente le posizioni di ciascun valore nella lista.
 
-Si effettuano diversi passaggi sulla lista dei numeri durante il processo di ordinamento. 
-Il primo passaggio è necessario per trovare il numero massimo nell'elenco. 
-Quindi usiamo questo numero per generare un elenco di dimensioni di numero massimo + 1. 
-Quindi contiamo il numero di istanze di ogni numero che appare nella lista e memorizziamo questo valore di conteggio nella lista che abbiamo appena creato. 
+Si effettuano diversi passaggi sulla lista dei numeri durante il processo di ordinamento.
+Il primo passaggio è necessario per trovare il numero massimo nell'elenco.
+Quindi usiamo questo numero per generare un elenco di dimensioni di numero massimo + 1.
+Quindi contiamo il numero di istanze di ogni numero che appare nella lista e memorizziamo questo valore di conteggio nella lista che abbiamo appena creato.
 Dopo aver completato questo tipo di conteggio, iteriamo sull'intera nuova lista, sommando cumulativamente tutti i valori al suo interno.
 
 Infine, utilizzando una formula è possibile determinare correttamente l'indice di ciascun numero, all'interno di una nuova lista di dimensione n, dove n è il numero di cifre nella lista originale. Questa nuova lista è una versione completamente ordinata della lista originale di numeri non ordinati.
@@ -1636,9 +1636,9 @@ I simboli numerici nella Bibbia:
 1, 3, 4, 7, 12, 40, 666, 1000
 
 
-----------------------
-Alberi binari completi
-----------------------
+----------------------------------------
+Alberi binari completi con vettori/liste
+----------------------------------------
 
 Un albero binario "completo" ha tutti i livelli tranne quello inferiore completamente compilati e il livello inferiore ha tutti i suoi nodi riempiti da sinistra a destra.
 Pertanto, un albero binario completo di n nodi ha una sola forma possibile.
@@ -1685,19 +1685,19 @@ Un array può memorizzare i valori dei dati dell'albero in modo efficiente, posi
 
 La tabella elenca gli indici dell'array per "child" (figli), "parent" (genitori) e "sibling" fratelli di ogni nodo:
 
-  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-  | 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  |
-  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-  | nil | 0   | 0   | 1   | 1   | 2   | 2   | 3   | 3   | 4   | 4   | 5   |
-  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-  | 1   | 3   | 5   | 7   | 9   | 11  | nil | nil | nil | nil | nil | nil |
-  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-  | 2   | 4   | 6   | 8   | 10  | nil | nil | nil | nil | nil | nil | nil |
-  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-  | nil | nil | 1   | nil | 3   | nil | 5   | nil | 7   | nil | 9   | nil |
-  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
-  | nil | 2   | nil | 4   | nil | 6   | nil | 8   | nil | 10  | nil | nil |
-  +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| 0   | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  | 11  |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| nil | 0   | 0   | 1   | 1   | 2   | 2   | 3   | 3   | 4   | 4   | 5   |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| 1   | 3   | 5   | 7   | 9   | 11  | nil | nil | nil | nil | nil | nil |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| 2   | 4   | 6   | 8   | 10  | nil | nil | nil | nil | nil | nil | nil |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| nil | nil | 1   | nil | 3   | nil | 5   | nil | 7   | nil | 9   | nil |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+| nil | 2   | nil | 4   | nil | 6   | nil | 8   | nil | 10  | nil | nil |
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
 
 Un albero binario è un albero binario perfetto in cui tutti i nodi interni hanno due figli (child) e tutti i nodi foglia (leaf) sono allo stesso livello.
 
@@ -1812,38 +1812,64 @@ Vediamo le funzioni per individuare gli indici dell'array:
   (print (left-sibling i) { })
   (println (right-sibling i)))
 
-(setq tt '(
-(0 nil 1 2 nil nil)
-(1 0 3 4 nil 2)
-(2 0 5 6 1 nil)
-(3 1 7 8 nil 4)
-(4 1 9 10 3 nil)
-(5 2 11 nil nil 6)
-(6 2 nil nil 5 nil)
-(7 3 nil nil nil 8)
-(8 3 nil nil 7 nil)
-(9 4 nil nil nil 10)
-(10 4 nil nil 9 nil)
-(11 5 nil nil nil nil)))
+;-> 0 nil 1 2 nil nil
+;-> 1 0 3 4 nil 2
+;-> 2 0 5 6 1 nil
+;-> 3 1 7 8 nil 4
+;-> 4 1 9 10 3 nil
+;-> 5 2 11 nil nil 6
+;-> 6 2 nil nil 5 nil
+;-> 7 3 nil nil nil 8
+;-> 8 3 nil nil 7 nil
+;-> 9 4 nil nil nil 10
+;-> 10 4 nil nil 9 nil
+;-> 11 5 nil nil nil nil
 
 Associazione dei dati ai nodi di un albero
 ------------------------------------------
 
-I dati con una lista associativa:
+Associazione indiretta dei dati con una lista associativa:
 
-(setq alst (map (fn(x) (list x (char (+ 65 x)))) (sequence 0 14)))
+(setq alst (map (fn(x) (list x (char (+ 65 x)))) (sequence 0 11)))
 (lookup (left-sibling 4) alst)
 ;-> "D"
 
-I dati con un vettore:
+Associazione diretta dei dati con una lista:
 
-(setq lettere (map last alst))
-(setq data (array n lettere))
-(data (left-sibling 4))
+(setq letter '("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L"))
+(letter (left-sibling 4))
 ;-> "D"
 
-(data (left-sibling (find "E" (array-list data))))
+(letter (left-sibling (find "E" letter)))
 ;-> "D"
+
+(letter (left-child (find "A" letter)))
+;-> "B"
+
+(letter (parent (find "A" letter)))
+;-> ERR: invalid list index : (parent (find "A" letter))
+
+(define (find-relationship tree node-value func)
+  (let (idx (find node-value tree))
+    (setq rel (func idx))
+    (if rel (tree rel) nil)))
+
+(find-relationship letter "A" parent)
+;-> nil
+(find-relationship letter "A" left-child)
+;-> "B"
+
+Proprietà di un albero binario completo
+---------------------------------------
+- Un albero binario è un albero binario completo se tutte le foglie hanno la stessa profondità.
+- In un albero binario completo il numero di nodi alla profondità d è 2d.
+- In un albero binario completo con N nodi l'altezza dell'albero è log(N+1).
+- Tutti i livelli tranne l'ultimo livello sono completamente pieni.
+
+Proprietà di un albero binario perfetto
+---------------------------------------
+Un albero binario di altezza 'h' con il numero massimo di nodi è un albero binario perfetto.
+Per una data altezza h, il numero massimo di nodi è 2^(h+1) - 1.
 
 Attraversamento di un albero binario (Binary Tree Traversals)
 -------------------------------------------------------------
@@ -1872,7 +1898,7 @@ Vediamo tutti i tipi di attraversamento utilizzando il seguente albero:
      / \   / \
     3   4 5   6
 
-Pre-order Traversal:   0-1-3-4-2-5-61
+Pre-order Traversal:   0-1-3-4-2-5-6
 
 In-order Traversal:    3-1-4-0-5-2-6
 
@@ -1880,10 +1906,228 @@ Post-order Traversal:  3-4-1-5-6-2-0
 
 Level-order Traversal: 0-1-2-3-4-5-6
 
-Pre-order Traversal of the above tree: 1-2-4-5-3-6-7
-In-order Traversal of the above tree: 4-2-5-1-6-3-7
-Post-order Traversal of the above tree: 4-5-2-6-7-3-1
-Level-order Traversal of the above tree: 1-2-3-4-5-6-7
+Vediamo alcune funzioni per l'attraversamento degli alberi:
+
+(setq albero (sequence 0 6))
+(setq n (length albero))
+;-> 7
+
+Funzione "pre-order":
+
+(define (pre-order root)
+  (cond ((nil? root) nil)
+        (true
+          (print root { })
+          (pre-order (left-child root))
+          (pre-order (right-child root)))))
+
+(pre-order 0)
+;-> 0 1 3 4 2 5 6
+
+Funzione "in-order":
+
+(define (in-order root)
+  (cond ((nil? root) nil)
+        (true
+          (in-order (left-child root))
+          (print root { })
+          (in-order (right-child root)))))
+
+(in-order 0)
+;-> 3 1 4 0 5 2 6
+
+Funzione "post-order":
+
+(define (post-order root)
+  (cond ((nil? root) nil)
+        (true
+          (post-order (left-child root))
+          (post-order (right-child root))
+          (print root { }))))
+
+(post-order 0)
+;-> 3 4 1 5 6 2 0
+
+Funzione "level-order":
+
+Metodo semplificato (valido solo con la struttura dell'albero con un vettore):
+
+(define (level-order root)
+  (for (i root (- n 1)) (print i { })))
+
+(level-order 0)
+;-> 0 1 2 3 4 5 6
+
+Metodo generico:
+Useremo una struttura dati Queue (FIFO) per implementare l'attraversamento level-order.
+Dopo aver visitato un nodo, inseriamo i suoi figli sinistro e destro in sequenza nella coda.
+L'ordine di aggiunta dei figli nella coda è importante in quanto dobbiamo attraversare da sinistra a destra allo stesso livello.
+
+(define (level-order2 root)
+  (cond ((nil? root) nil)
+        (true
+          (let ((queue '()) (node root))
+            (push root queue)
+            (while queue
+              (setq node (pop queue -1))
+              (print node { })
+              (if (!= (left-child node) nil)
+                (push (left-child node) queue)
+              )
+              (if (!= (right-child node) nil)
+                (push (right-child node) queue)
+              ))))))
+
+(setq n 15)
+(level-order2 0)
+;-> 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+
+Nota: se al posto dell'espressione:
+
+  (setq node (pop queue -1))
+
+usiamo:
+
+  (setq node (pop queue))
+
+allora si ottiene il seguente attraversamento:
+
+  0 2 6 14 13 5 12 11 1 4 10 9 3 8 7
+
+Vediamo un'altro esempio con un albero perfetto di 15 nodi:
+
+(setq albero (sequence 0 14))
+(setq n (length albero))
+;-> 15
+
+(post-order 0)
+;-> 7 8 3 9 10 4 1 11 12 5 13 14 6 2 0
+
+(in-order 0)
+;-> 7 3 8 1 9 4 10 0 11 5 12 2 13 6 14
+
+(pre-order 0)
+;-> 0 1 3 7 8 4 9 10 2 5 11 12 6 13 14
+
+(post-order 0)
+;-> 7 8 3 9 10 4 1 11 12 5 13 14 6 2 0
+
+(level-order 0)
+;-> 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+
+L'attraversamento può iniziare da un nodo qualsiasi:
+
+(in-order 1)
+;-> 7 3 8 1 9 4 10 nil
+
+Numero di nodi di un albero binario completo/perfetto
+-----------------------------------------------------
+
+(define (nodes root)
+  (cond ((= root nil) 0)
+        (true (+ 1 (nodes (left-child root)) (nodes (right-child root))))))
+
+(setq n 15)
+(nodes 0)
+;-> 15
+(nodes 1)
+;-> 7
+
+(setq n 8)
+(nodes 0)
+;-> 8
+
+
+-------------------
+Algoritmo Undo/Redo
+-------------------
+
+Esistono due metodi principali per implementare il meccanismo di undo/redo in un programma.
+
+Memorizzazione dello Stato 
+Per ogni operazione viene prima memorizzato lo stato del sistema. Quando si desidera eseguire un annullamento (undo), è sufficiente cambiare lo stato corrente con quello memorizzato.
+
+Generazione dello Stato
+Per ogni operazione viene memorizzata la relativa operazione inversa. Quando si desidera eseguire un annullamento (undo), occorre applicare l'azione inversa allo stato corrente.
+
+La scelta di un metodo dipende da diversi fattori tra cui:
+- memoria richiesta dagli stati
+- velocità di ripristino dgli stati
+- esecuzione di azioni irreversibili
+
+Inoltre è possibile utilizzare entrambi i metodi in un meccanismo di undo/redo.
+
+L'algoritmo standard per la gestione di undo/redo è il seguente:
+
+Mantieniamo due pile (stack) UNDO e REDO.
+Usiamo lo stack UNDO per mantenere la cronologia di tutte le operazioni che sono state elaborate nel programma.
+Ogni volta che vogliamo effettuare un'operazione di annullamento (undo), estraiamo il primo elemento (quello superiore) dallo stack UNDO e lo spingiamo nello stack REDO.
+Quando vogliamo effettuare un'operazione di ripristino (redo), estraiamo il primo elemento dello stack REDO e lo spingiamo nello stack UNDO.
+Quando eseguiamo una nuova operazione azzeriamo lo stack REDO.
+
+Naturalmente prima effettuare le operazioni di undo e erdo occorre controllare che i relativi stack UNDO e REDO non siano vuoti.
+
+Vediamo un esempio minimale:
+
+(setq UNDO '())
+(setq REDO '())
+(setq TEXT "")
+
+(define (writes ch)
+  (push ch TEXT -1)
+  ; insert operation on undo stack
+  (push ch UNDO)
+  ; no more redo operations
+  (setq REDO '())
+)
+
+(define (undo)
+  ; if there are operations to undo
+  (cond ((null? UNDO) nil)
+        (true  
+          (let (u (pop UNDO)) ; extract operation from stack UNDO
+            (pop TEXT -1) ; redo operation on TEXT
+            (push u REDO))))) ; insert operation on stack REDO
+
+(define (redo)
+  ; if there are operations to redo
+  (cond ((null? REDO) nil)
+        (true
+          (let (r (pop REDO))
+            (push r TEXT -1)
+            (push r UNDO)))))
+
+(define (show) 
+  (println "Text: " TEXT ", Undo: " UNDO ", Redo: " REDO))
+
+Facciamo alcune prove:
+
+(writes "A")
+;-> ("A")
+(show)
+;-> Text: A, Undo: ("A"), Redo: ()
+(writes "B")
+;-> ("B" "A")
+(show)
+;-> Text: AB, Undo: ("B" "A"), Redo: ()
+(undo)
+;-> ("B")
+(show)
+;-> Text: A, Undo: ("A"), Redo: ("B")
+(undo)
+;-> ("A" "B")
+(show)
+;-> Text: , Undo: (), Redo: ("A" "B")
+(redo)
+;-> ("A")
+(show)
+;-> Text: A, Undo: ("A"), Redo: ("B")
+(redo)
+;-> ("B" "A")
+(show)
+;-> Text: AB, Undo: ("B" "A"), Redo: ()
+(redo)
+;-> nil
 
 =============================================================================
 
