@@ -1544,6 +1544,8 @@ NOTE LIBERE 13
   Il quadrato magico SATOR
   Alberi binari completi con vettori/liste
   Algoritmo Undo/Redo
+  Multiple stack/queue
+  FLAMES: il gioco delle relazioni
 
 APPENDICI
 =========

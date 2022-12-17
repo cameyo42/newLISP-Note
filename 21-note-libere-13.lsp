@@ -2129,5 +2129,262 @@ Facciamo alcune prove:
 (redo)
 ;-> nil
 
+
+--------------------
+Multiple stack/queue
+--------------------
+
+Vediamo come usare un'unica lista per gestire diverse pile (stack) e code (queue).
+La struttura dati deve gestire tre operazioni:
+
+- push(x, stack-num): inserimento di un valore in uno stack o in una queue
+
+- pop(stack-num): estrazione del primo elemento di uno stack o di una queue
+
+- read(stack-num): lettura del primo elemento di uno stack o di una queue
+
+stack -> struttura LIFO (Last In First Out)
+queue -> struttura FIFO (First In First Out)
+
+Creazione della lista che contiene stack e queue:
+
+(setq multi '())
+
+Inserimento di contenitori per stack e queue (liste vuote) nella lista:
+
+(push '() multi)
+;-> '(())
+(push '() multi)
+;-> '(() ())
+
+Funzioni per gestire stack e queue:
+
+; push-stack
+(define (push-stack idx value)
+  (push value (multi idx)))
+
+; pop-stack
+(define (pop-stack idx)
+  (if (multi idx)
+      (pop (multi idx) 0)
+      nil))
+
+; read-stack
+(define (read-stack idx)
+  (if (multi idx)
+      ((multi idx) 0)
+      nil))
+
+; push-queue
+(define (push-queue idx value)
+  (push value (multi idx)))
+
+; pop-queue
+(define (pop-queue idx)
+  (if (multi idx)
+    (pop (multi idx) -1)
+    nil))
+
+; read-queue
+(define (read-queue idx)
+  (if (multi idx)
+      ((multi idx) -1)
+      nil))
+
+Vediamo un esempio:
+
+multi
+;-> (() ()) 
+
+"multi" è una lista con due sottoliste vuote.
+Usiamo la prima sottolista come uno stack (pila) e la seconda sottolista come una queue (coda).
+
+Inseriamo elementi nello stack (idx = 0):
+
+(push-stack 0 1)
+(push-stack 0 2)
+(push-stack 0 3)
+(push-stack 0 4)
+multi
+;-> ((4 3 2 1) ())
+
+Inseriamo elementi nella queue (idx = 1):
+
+(push-queue 1 1)
+(push-queue 1 2)
+(push-queue 1 3)
+(push-queue 1 4)
+multi
+;-> ((4 3 2 1) (4 3 2 1))
+
+Estraiamo alcuni elementi dallo stack e dalla queue:
+
+(pop-queue 1)
+;-> 1
+(pop-queue 1)
+;-> 2
+(read-queue 1)
+;-> 3
+(pop-stack 0)
+;-> 4
+(read-stack 0)
+;-> 3
+multi
+;-> ((3 2 1) (4 3))
+(push-queue 1 5)
+;-> (5 4 3)
+(pop-queue 1)
+;-> 3
+(pop-queue 1)
+;-> 4
+(pop-queue 1)
+;-> 5
+(pop-queue 1)
+;-> nil ; queue vuota
+multi
+;-> ((3 2 1) ())
+
+
+--------------------------------
+FLAMES: il gioco delle relazioni
+--------------------------------
+
+
+FLAMES è un gioco che prende il nome dall'acronimo: Friends, Lovers, Affectionate, Marriage, Enemies, Sibling. Lo scopo è scoprire quale tipo di relazione esiste tra due persone.
+Questo gioco prevede con precisione(?) la relazione tra due persone partendo dai loro nomi.
+
+I passaggi sono i seguenti:
+
+Si prendono due nomi.
+Rimuovere i caratteri comuni con le rispettive occorrenze comuni.
+Contare il numero dei caratteri rimasti (N).
+Prendere le lettere FLAMES come ("F" "L" "A" "M" "E" "S")
+Iniziare un processo di rimozione partendo dalla lettera N-esima.
+La lettera che rimane al termine del processo di rimozione è il risultato.
+
+Vediamo un esempio per capire come funziona il processo di rimozione:
+
+  nome1 = "asd"
+  nome2 = "abcd"
+
+Rimuovere i caratteri comuni (due caratteri comuni "a" e "d")
+Contare i caratteri rimasti. Rimossi "a" e "d" rimangono "s", "b" e "c": 3.
+Processo di rimozione
+Prendere le lettere FLAMES ("F" "L" "A" "M" "E" "S")
+Inizia a rimuovere le lettere usando il numero di caratteri rimasti (3).
+
+  FLAMES
+
+la lettera al posto 3 è la "A", quindi la togliamo e otteniamo:
+
+  FLMES
+
+Adesso si parte dalla lettera successiva a quella appena rimossa "A", quindi partiamo da "M" e contiamo 3 lettere in avanti in modo ciclico ("M" = 1, "E" = 2, "S" = 3).
+Arriviamo alla lettera "S" che dobbiamo togliere e otteniamo:
+
+  FLME
+
+La lettera successiva a quella appena rimossa "S" è "F".
+Contiamo 3 partendo da "F" e arriviamo a "M" che togliamo e otteniamo:
+
+  FLE
+
+La lettera successiva a quella appena rimossa "M" è "E".
+Contiamo 3 partendo da "E" e arriviamo a "L" che togliamo e otteniamo:
+
+  FE
+
+La lettera successiva a quella appena rimossa "L" è "E".
+Contiamo 3 partendo da "E" e arriviamo a "E" che togliamo e otteniamo:
+
+  F
+
+Quindi il risultato è "Friends" (amici) e questa è la relazione tra le due persone.
+
+Scriviamo una funzione per simulare il gioco.
+
+Funzione che rimuove gli elementi in comune tra due liste.
+L'eliminazione degli elementi avviene con una corrispondenza 1:1.
+Per esempio:
+  a = (1 1 2 3 4)
+  b = (1 2 3 5 3)
+  (remove-common a b) --> (1 4 5 3)
+
+(define (remove-common a b)
+  (local (a1 b1 f)
+    ; lista copia della prima lista (a)
+    (setq a1 a)
+    ; lista copia della seconda lista (b)
+    (setq b1 b)
+    ; ciclo per ogni elemento della prima lista
+    (dolist (el a)
+      ; se elemento corrente della prima lista esiste nella seconda lista
+      (if (setq f (find el b1))
+        ; allora elimina l'elemento da entrambe le liste copia
+        (begin (pop a1 (find el a1)) (pop b1 f))
+      )
+    )
+    ;(println a1) (println b1)
+    (append a1 b1)))
+
+(remove-common '(1 1 2 3 4) '(1 2 3 5 3))
+;-> (1 4 5 3)
+(remove-common '("M" "a" "g" "o" "o") '("o" "o" "o" "m" "g" "b"))
+;-> ("M" "a" "o" "m" "b")
+
+(define (extract obj start end)
+"Extract a list/string from a list/string (from start to (end -1) indexes)"
+  (if (nil? end)
+      (slice obj start)
+      (slice obj start (- end start))))
+
+Funzione che genera il risultato del gioco:
+
+(define (flames a b)
+  (local (f len n idx right left)
+    (setq f '("Friends" "Lovers" "Attraction" "Married" "Enemies" "Siblings"))
+    (setq len (length f))
+    ; uppercase different from lowerscale
+    (setq n (length (remove-common (explode a) (explode b))))
+    (while (> len 1)
+      ; index to cut list
+      (setq idx (- (% n len) 1))
+      (if (>= idx 0)
+        (begin
+          ; right part of list
+          (setq right (extract f (+ idx 1)))
+          ; left part of list
+          (setq left (extract f 0 idx))
+          ; merge parts
+          (setq f (append right left))
+        )
+        ;else
+        (setq f (extract f 0 (- len 1)))
+      )
+      (-- len)
+    )
+    (println a " + " b " = " (first f))))
+
+Facciamo alcune prove:
+
+(flames "Elisabeth" "Alexander")
+;-> Elisabeth + Alexander = Attraction
+;-> "Attraction"
+
+(flames "elisabeth" "alexander")
+;-> elisabeth + alexander = Lovers
+;-> "Lovers"
+
+(flames "Massimo" "newLISP")
+;-> Massimo + newLISP = Friends
+;-> "Friends"
+
+Altri acronimi:
+
+("Friends" "Lovers" "Affectionate" "Marriage" "Enemies" "Siblings")
+("Friends" "Lovers" "Affectionate" "Married"  "Enemies" "Siblings")
+("Friends" "Lovers" "Attraction"   "Married"  "Enemies" "Siblings")
+("Friends" "Lovers" "Admirers"     "Marriage" "Enemies" "Secret Lovers")
+
 =============================================================================
 
