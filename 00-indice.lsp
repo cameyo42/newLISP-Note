@@ -1546,6 +1546,7 @@ NOTE LIBERE 13
   Algoritmo Undo/Redo
   Multiple stack/queue
   FLAMES: il gioco delle relazioni
+  Newton forward and backward interpolation
 
 APPENDICI
 =========
@@ -1581,7 +1582,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (226 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (227 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

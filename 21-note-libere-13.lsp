@@ -2386,5 +2386,139 @@ Altri acronimi:
 ("Friends" "Lovers" "Attraction"   "Married"  "Enemies" "Siblings")
 ("Friends" "Lovers" "Admirers"     "Marriage" "Enemies" "Secret Lovers")
 
+
+-----------------------------------------
+Newton forward and backward interpolation
+-----------------------------------------
+
+Per maggiori informazioni vedere:
+
+https://www.geeksforgeeks.org/newton-forward-backward-interpolation/
+
+Newton forward interpolation
+----------------------------
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (u-cal-sub u k)
+  (let (temp u)
+    (if (> k 1)
+      (for (i 1 (- k 1))
+        (setq temp (mul temp (sub u i)))
+      )
+    )
+    temp))
+
+(define (forward-interp x y x-value)
+  (local (n yy sum u)
+    (setq n (length x))
+    ; matrix of difference
+    (setq yy (array n n '(0)))
+    ; column 0 for input data values
+    (dolist (val y)
+      (setf (yy $idx 0) val)
+    )
+    ; calculating the forward difference table
+    (for (i 1 (- n 1))
+      (for (j 0 (- n i 1))
+        (setf (yy j i) (sub (yy (+ j 1) (- i 1)) (yy j (- i 1))))
+      )
+    )
+    ; print table
+    ;(for (i 0 (- n 1))
+    ;  (print (x i) { })
+    ;  (for (j 0 (- n i 1))
+    ;    (print (yy i j) { })
+    ;  )
+    ;  (println)
+    ;)
+    ; calculating interpolation value
+    (setq sum (yy 0 0))
+    (setq u (div (sub x-value (x 0)) (sub (x 1) (x 0))))
+    (for (i 1 (- n 1))
+      (setq sum (add sum (div (mul (u-cal-sub u i) (yy 0 i)) (fact-i i))))
+    )
+    sum))
+
+Facciamo una prova:
+
+(setq xx '(45 50 55 60))
+(setq yy '(0.7071 0.7660 0.8192 0.8660))
+
+(forward-interp xx yy 52)
+;-> 0.7880032
+
+Newton backward interpolation
+-----------------------------
+
+(define (u-cal-add u k)
+  (let (temp u)
+    (if (> k 1)
+      (for (i 1 (- k 1))
+        (setq temp (mul temp (add u i)))
+      )
+    )
+    temp))
+
+(define (backward-interp x y x-value)
+  (local (n yy sum u)
+    (setq n (length x))
+    ; matrix of difference
+    (setq yy (array n n '(0)))
+    ; column 0 for input data values
+    (dolist (val y)
+      (setf (yy $idx 0) val)
+    )
+    ; calculating the backward difference table
+    (for (i 1 (- n 1))
+      (for (j (- n 1) (- i 1) -1)
+        (setf (yy j i) (sub (yy j (- i 1)) (yy (- j 1) (- i 1))))
+      )
+    )
+    ; print table
+    ;(for (i 0 (- n 1))
+    ;  (for (j 0 i)
+    ;    (print (yy i j) { })
+    ;  )
+    ;  (println)
+    ;)
+    ; calculating interpolation value
+    (setq sum (yy (- n 1) 0))
+    (setq u (div (sub x-value (x (- n 1))) (sub (x 1) (x 0))))
+    (for (i 1 (- n 1))
+      (setq sum (add sum (div (mul (u-cal-add u i) (yy (- n 1) i)) (float (fact-i i)))))
+    )
+    sum))
+
+Facciamo una prova:
+
+(setq xx '(1891 1901 1911 1921 1931))
+(setq yy '(46 66 81 93 101))
+
+(backward-interp xx yy 1925)
+;-> 96.836
+
+Proviamo le due funzioni con gli stessi dati:
+
+(setq xx '(45 50 55 60))
+(setq yy '(0.7071 0.7660 0.8192 0.8660))
+(forward-interp xx yy 52)
+;-> 0.7880032
+(backward-interp xx yy 52)
+;-> 0.7880032
+
+(setq xx '(1891 1901 1911 1921 1931))
+(setq yy '(46 66 81 93 101))
+(backward-interp xx yy 1925)
+;-> 96.83680000000001
+(forward-interp xx yy 1925)
+;-> 96.83679999999998
+
 =============================================================================
 
