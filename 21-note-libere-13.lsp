@@ -2520,5 +2520,175 @@ Proviamo le due funzioni con gli stessi dati:
 (forward-interp xx yy 1925)
 ;-> 96.83679999999998
 
+
+-----------------
+Ragazzi e ragazze
+-----------------
+
+Un sultano vuole aumentare il numero di donne disponibili per gli harem nel suo paese.
+Per raggiungere questo scopo ha approvato una legge che vieta a ogni madre di avere un altro figlio dopo aver dato alla luce il suo primo figlio maschio: fintanto che i suoi figli fossero femmine, le sarebbe stato permesso di continuare a partorire.
+Il sultano disse al suo popolo: "Come conseguenza di questa nuova legge, avremo famiglie con 8 femmine e 1 maschio, 5 femmine e 1 maschio, 4 femmine e 1 maschio, anche famiglie con un solo maschio. Ciò avrà l'effetto di aumentare il rapporto tra ragazzi e ragazze nella nostra terra".
+Il sultano ha ragione?
+
+Come spesso accade si capisce meglio il problema quando si prova a scrivere un programma per simulare il processo.
+
+Supponiamo che ci siano N famiglie nel paese e cominicamo a "generare" i figli.
+Quando una famiglia genera un maschio viene tolta dalle generazioni successive.
+Quando non esistono più famiglie in grado di generare nuovi figli, allora calcoliamo il rapporto tra maschi e femmine che abbiamo ottenuto.
+
+(define (genera famiglie show)
+  (local (maschi femmine)
+    (setq maschi 0)
+    (setq femmine 0)
+    ; finchè esistono famiglie in grado di generare nuovi figli...
+    ; maschio = 0
+    ; femmina = 1
+    (while (> famiglie 0)
+      ; generazione figli (numero di figli = numero famiglie)
+      (setq g (rand 2 famiglie))
+      ; conta i maschi e le femmine generati
+      (setq conta (count '(0 1) g))
+      ; aggiorna il numero totale di maschi e femmine
+      (setq maschi (+ maschi (conta 0)))
+      (setq femmine (+ femmine (conta 1)))
+      ; stampa situazione corrente
+      (if show (begin
+        (println "Famiglie: " famiglie)
+        (println "Maschi: " (conta 0) " - Maschi totale: " maschi)
+        (println "Femmine: " (conta 1) " - Femmine totale: " femmine)
+        (read-line)))
+      ; aggiorna il numero di famiglie in grado di generare nuovi figli
+      (setq famiglie (- famiglie (conta 0)))
+    )
+    (list maschi femmine (div maschi femmine))))
+
+Facciamo alcune prove:
+
+(genera 1e5)
+;-> (100000 100394 0.9960754626770524)
+(genera 1e7)
+;-> (10000000 9998772 1.000122815081692)
+
+Sembra che il sultano abbia torto.
+
+Vediamo cosa accade durante il processo con 256 famiglie:
+
+(genera 256 true)
+;-> Famiglie: 256
+;-> Maschi: 136 - Maschi totale: 136
+;-> Femmine: 120 - Femmine totale: 120
+;-> 
+;-> Famiglie: 120
+;-> Maschi: 51 - Maschi totale: 187
+;-> Femmine: 69 - Femmine totale: 189
+;-> 
+;-> Famiglie: 69
+;-> Maschi: 36 - Maschi totale: 223
+;-> Femmine: 33 - Femmine totale: 222
+;-> 
+;-> Famiglie: 33
+;-> Maschi: 18 - Maschi totale: 241
+;-> Femmine: 15 - Femmine totale: 237
+;-> 
+;-> Famiglie: 15
+;-> Maschi: 7 - Maschi totale: 248
+;-> Femmine: 8 - Femmine totale: 245
+;-> 
+;-> Famiglie: 8
+;-> Maschi: 4 - Maschi totale: 252
+;-> Femmine: 4 - Femmine totale: 249
+;-> 
+;-> Famiglie: 4
+;-> Maschi: 3 - Maschi totale: 255
+;-> Femmine: 1 - Femmine totale: 250
+;-> 
+;-> Famiglie: 1
+;-> Maschi: 1 - Maschi totale: 256
+;-> Femmine: 0 - Femmine totale: 250
+;-> 
+;-> (256 250 1.024)
+
+Ad ogni generazione (indipendentemente dal numero delle famiglie generatrici) vengono generati il 50% di maschi e il 50% di femmine (circa).
+In questo modo il numero totale di maschi e il numero totale di femmine sono quasi uguali, quindi al termine del processo il loro rapporto vale 1 (circa).
+
+La legge del sultano non produce i risultati sperati.
+
+
+--------------------
+Divisione del premio
+--------------------
+
+Due forti giocatori di ping-pong (A e B) giocano un match di 5 partite.
+Il primo che vince 3 partite vince 300 euro.
+Dopo 3 partite il giocatore A conduce per 2 a 1.
+Il match viene sospeso per cause di forza maggiore.
+Come deve essere diviso il premio tra i due giocatori?
+
+La risposta sembra ovvia: 200 euro ad A e 100 euro a B.
+
+Scriviamo una simulazione.
+
+
+(define (premi pa pb tot iter)
+  (local (vinteA vinteB punA punB end-match game)
+    (setq vinteA 0)
+    (setq vinteB 0)
+    (for (i 1 iter)
+      (setq punA pa)
+      (setq punB pb)
+      (setq end-match nil)
+      ; inizio match
+      (until end-match
+        ; partita casuale
+        ; ipotesi: i giocatori sono della stessa forza (50%)
+        ; 0 -> vince la partita A
+        ; 1 -> vince la partita B
+        (setq game (rand 2))
+        ; aggiorna il punteggio di chi ha vinto
+        (if (zero? game)
+            (++ punA)
+            (++ punB)
+        )
+        ; match corrente terminato?
+        (cond ((= punA tot)
+                (++ vinteA)
+                (setq end-match true))
+              ((= punB tot)
+                (++ vinteB)
+                (setq end-match true))
+              ;(true (println "punA: " punA " punB: " punB) (read-line))
+        )
+      )
+    )
+    (list vinteA vinteB (div vinteA vinteB))))
+
+Facciamo alcune prove.
+
+Prima vediamo un match che parte da 0 a 0 e si arriva a 3:
+
+(premi 0 0 3 1e5)
+;-> (49786 50214 0.9914764806627634)
+
+In questo caso entrambi i giocatori hanno la stessa probabilità di vincere il match.
+
+Adesso vediamo il nostro problema (2 a 1 e si arriva a 3):
+
+(premi 2 1 3 1e6)
+;-> (75167 24833 3.026899689928724)
+
+In questo caso il giocatore A ha il 75% di probabilità di vincere il match. Quindi deve avere il 75% del premio:
+
+giocatore A 
+(mul 300 0.75)
+;-> 225
+
+giocatore B
+(mul 300 0.25)
+;-> 75
+
+In altre parole il rapporto tra le due probabilità vale 3, quindi il giocatore A deve avere 3 volte il premio di B (75*3 = 225).
+
+Se i giocatori non sono della stessa forza, allora occorre modificare l'espressione che calcola il risultato di una partita.
+
 =============================================================================
 

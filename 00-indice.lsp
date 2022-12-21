@@ -1547,6 +1547,8 @@ NOTE LIBERE 13
   Multiple stack/queue
   FLAMES: il gioco delle relazioni
   Newton forward and backward interpolation
+  Ragazzi e ragazze
+  Divisione del premio
 
 APPENDICI
 =========

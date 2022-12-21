@@ -6651,19 +6651,19 @@ Distanza dell'orizzonte
 
 La distanza "d" dell'orizzonte da un osservatore (assumendo nessuna rifrazione atmosferica) è data dalla formula:
 
-d = sqrt(2*R*h)
+  d = sqrt(2*R*h)
 
 dove:
-R = raggio della Terra
-h = altezza del punto di osservazione
+  R = raggio della Terra
+  h = altezza del punto di osservazione
 
 Assumendo un raggio medio della Terra pari a R = 6.371 chilometri otteniamo:
 
-d(km) ≈ 112.9*sqrt(h(km))
+  d(km) ≈ 112.9*sqrt(h(km))
 
 Oppure esprimendo l'altezza h in metri:
 
-d(km) ≈ 3.57*sqrt(h(m))
+  d(km) ≈ 3.57*sqrt(h(m))
 
 (define (horizon h)
   (mul 3.57 (sqrt h)))

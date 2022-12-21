@@ -8249,13 +8249,13 @@ Ddefinizione: equazioni diofantee di primo grado
 ------------------------------------------------
 Si dice equazione diofantea (di 1° grado) ogni equazione della forma:
 
-ax + by = c
+  ax + by = c
 
 dove a, b, c numeri interi relativi e a e b non entrambi nulli
 
 Si dice soluzione dell’equazione diofantea ogni coppia (x0,y0) con x0 e y0 numeri interi relativi tale che:
 
-a*x + b*y = c
+  a*x + b*y = c
 
 Teorema fondamentale delle equazioni diofantee di primo grado
 -------------------------------------------------------------
@@ -8284,13 +8284,13 @@ MCD(8, 6) = 2
 Quindi c è multiplo di MCD(a,b): (26 mod 2) = 0
 Una soluzione vale (1,-3), quindi tutte le soluzioni si ottengono dalle formule:
 
-                b                  -6
-x(n) = x0 + ----------*n = 1 + ----------*n = 1 - 3*n
-             MCD(a,b)           MCD(8,6)
+                  b                  -6
+  x(n) = x0 + ----------*n = 1 + ----------*n = 1 - 3*n
+               MCD(a,b)           MCD(8,6)
 
-                a                   8
-y(n) = y0 + ----------*n = -3 + ----------*n = -3 - 4*n
-             MCD(a,b)            MCD(8,6)
+                  a                   8
+  y(n) = y0 + ----------*n = -3 + ----------*n = -3 - 4*n
+               MCD(a,b)            MCD(8,6)
 
 Quindi risulta:
 ...
@@ -8359,18 +8359,18 @@ Per finire vediamo un algoritmo per trovare la soluzione (x0,y0), se esiste, di 
 
 Possiamo usare l'algoritmo euclideo esteso. Innanzitutto, supponiamo che a e b siano non negativi. Quando applichiamo l'algoritmo euclideo esteso per a e b, possiamo trovare il loro massimo comune divisore g e due numeri xg e yg tali che:
 
-a*xg + b*yg = g
+  a*xg + b*yg = g
 
 Se c è divisibile per g = gcd(a, b), allora l'equazione diofantea data ha una soluzione, altrimenti non ha alcuna soluzione. La dimostrazione è semplice: una combinazione lineare di due numeri è sempre divisibile per il loro comune divisore.
 
 Ora supponiamo che c sia divisibile per g, quindi abbiamo:
 
-a*xg*c/g + b*yg*c/g = c
+  a*xg*c/g + b*yg*c/g = c
 
 Pertanto una delle soluzioni dell'equazione diofantea è:
 
-x0 = xg*c/g
-y0 = yg*c/g
+  x0 = xg*c/g
+  y0 = yg*c/g
 
 Questo metodo funziona anche quando a e/o b sono negativi.
 
