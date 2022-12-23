@@ -1549,6 +1549,8 @@ NOTE LIBERE 13
   Newton forward and backward interpolation
   Ragazzi e ragazze
   Divisione del premio
+  Codice numerico univoco per stringhe (ASCII)
+  Hotel e turisti
 
 APPENDICI
 =========

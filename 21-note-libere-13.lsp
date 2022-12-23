@@ -2690,5 +2690,139 @@ In altre parole il rapporto tra le due probabilità vale 3, quindi il giocatore 
 
 Se i giocatori non sono della stessa forza, allora occorre modificare l'espressione che calcola il risultato di una partita.
 
+
+--------------------------------------------
+Codice numerico univoco per stringhe (ASCII)
+--------------------------------------------
+
+Codifica della parola "newLISP":
+
+                ASCII code     format 
+(char "n")  -->    110    -->   110
+(char "e")  -->    101    -->   101
+(char "w")  -->    119    -->   119
+(char "L")  -->     76    -->   076
+(char "I")  -->     73    -->   073
+(char "S")  -->     83    -->   083
+(char "P")  -->     80    -->   080
+
+(define (code str)
+  (let (out "")
+    (dostring (c str)
+      (extend out (format "%03d" c)))))
+
+(setq s "newLISP")
+(code s)
+;-> "110101119076073083080"
+
+
+---------------
+Hotel e turisti
+---------------
+
+In una città ci sono N hotel.
+Per ogni hotel si conosce il numero di camere libere.
+Il problema è quello di assegnare le camere d'albergo per gruppi di turisti.
+Tutti i membri di un gruppo desiderano soggiornare nello stesso hotel.
+Il numero di persone di ogni gruppo è il numero di stanze richiesto.
+Si assegna sempre un gruppo al primo hotel che dispone di camere sufficienti.
+Successivamente, il numero di camere libere nell'hotel diminuisce.
+Stampare l'hotel assegnato per ogni gruppo.
+Se a un gruppo non può essere assegnato un hotel, stampare -1.
+
+Funzione che cerca l'hotel con i posti richiesti.
+Se la lista hotel è ordinata in modo crescente viene selezionato il primo hotel in cui posti >= target. Ritorna nil se non esistono hotel che hanno posti >= target.
+
+(define (find-hotel target lst)
+  (local (valore indice stop)
+    (setq stop nil)
+    (dolist (el lst stop)
+      (if (>= el target)
+          (set 'indice $idx 'valore el 'stop true)
+      )
+    )
+    (if (!= indice nil)
+        (list valore indice)
+        nil
+    )))
+
+(setq hotel '(10 20 3 5 8 12 4 5 2))
+(sort hotel)
+;-> (2 3 4 5 5 8 10 12 20)
+
+(find-hotel 21 hotel)
+;-> nil
+
+(find-hotel 6 hotel)
+;-> (8 5)
+
+(define (coupling hotel group)
+  (local ()
+    (sort hotel)
+    ; situazione iniziale posti hotel
+    (println hotel)
+    ; per ogni gruppo...
+    (while group
+      (setq g (pop group))
+      ;(println g)
+      ; cerca l'hotel più adatto (se esiste)
+      (setq cc (find-hotel g hotel))
+      ;(println cc)
+      (cond ((= cc nil)
+             (println "group: " g ", hotel: -1"))
+            (true
+              (setq h-val (cc 0))
+              (setq h-idx (cc 1))
+              ;(println h-val { } h-idx)
+              (setf (hotel h-idx 0) (- h-val g))
+              ;(println hotel)
+              ;(if (zero? (hotel h-idx 0)) (pop hotel h-idx))
+              (if (zero? (hotel h-idx 0)) (setf (hotel h-idx 0) -9999))
+              (println "group: " g ", hotel: " h-idx)
+              ;(println hotel)
+              ;(read-line)
+            )
+      )
+    )
+    ; situazione finale posti hotel
+    (println hotel)
+    'end))
+
+Facciamo alcune prove:
+
+(setq hotel '(2 3 4 5 5 8 10 12 20))
+(setq group '(1 3 5 4 3 2 7 4 1 5 7))
+(coupling hotel group)
+;-> (2 3 4 5 5 8 10 12 20)
+;-> group: 1, hotel: 0
+;-> group: 3, hotel: 1
+;-> group: 5, hotel: 3
+;-> group: 4, hotel: 2
+;-> group: 3, hotel: 4
+;-> group: 2, hotel: 4
+;-> group: 7, hotel: 5
+;-> group: 4, hotel: 6
+;-> group: 1, hotel: 0
+;-> group: 5, hotel: 6
+;-> group: 7, hotel: 7
+;-> (-9999 -9999 -9999 -9999 -9999 1 1 5 20)
+
+(setq hotel '(1 2 2 3 4 5 5 6))
+(setq group '(4 4 7 1 1))
+(coupling hotel group)
+;-> (1 2 2 3 4 5 5 6)
+;-> group: 4, hotel: 4
+;-> group: 4, hotel: 5
+;-> group: 7, hotel: -1
+;-> group: 1, hotel: 0
+;-> group: 1, hotel: 1
+;-> (-9999 1 2 3 -9999 1 5 6)
+
+(setq hotel (sequence 10 1000 3))
+(setq group (randomize (sequence 10 100)))
+(coupling hotel group)
+;-> ...
+;-> ...
+
 =============================================================================
 

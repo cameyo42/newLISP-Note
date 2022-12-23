@@ -4504,6 +4504,8 @@ Per esempio:
 ; ...
 ))
 
+Nota: i numeri da cercare sono tutti positivi.
+
 Calcoliamo tutte le differenza tra il numero e il primo valore di ogni elemento della lista (mantenendo l'indice di ogni elemento).
 Ordiniamo la lista ottenuta con la differenza crescente.
 Adesso il valore più vicino all'intero è quello che si trova al primo posto nella listail primo.
@@ -4549,6 +4551,99 @@ Possiamo scrivere la funzione:
 ;-> (101 a b c)
 (find-match 160 data1)
 ;-> (200 c d e)
+
+Vediamo una funzione più generale che permette di cercare anche in liste piatte (flat) e di cercare anche numeri negativi:
+
+Il parametro "idx" è l'indice della colonna di ricerca della lista.
+Se "idx" vale -1, allora "lst" è una lista piatta (flat).
+
+(define (find-close target lst idx)
+  (local (diffa)
+    (if (= idx -1) ; flat list
+        (setq diff (sort (map (fn(x) (list (abs (- target x)) $idx)) lst)))
+        (setq diff (sort (map (fn(x) (list (abs (- target (x idx))) $idx)) lst)))
+    )
+    ;(println diff)
+    (if (< (diff 0 0) 0)
+        (lst (diff -1 1))
+        (lst (diff 0 1)))))
+
+(find-close 150 data1 0)
+;-> (101 a b c)
+
+(setq data2 '(
+    (a 101 a b c)
+    (a 200 c d e)
+    (a 230 x y z)
+    (a 250 f g h)))
+
+(find-close 240 data2 1)
+;-> (a 230 x y z)
+
+(setq data3 '(101 200 230 250))
+(find-close 240 data3 -1)
+;-> 230
+
+(setq data4 '((a 101) (b 200) (c 230) (d 250)))
+(find-close 240 data4 1)
+;-> (c 230)
+
+(setq data5 '((a 101) (b 200) (b1 250) (c 230) (d 250)))
+(find-close 240 data5 1)
+;-> (b1 250)
+
+(setq data6 '(11 -2 -3 -4 12))
+(find-close -10 data6 -1)
+;-> -4
+(find-close 13 data6 -1)
+;-> 12
+
+(setq data7 '(101 200 -230 250))
+(find-close -20 data7 -1)
+;-> 101
+
+Adesso scriviamo una funzione che ritorna anche l'indice del valore più vicino (in una lista piatta):
+
+(define (find-close-flat target lst)
+  (local (valore indice distanza)
+    (setq distanza (abs (- target (lst 0))))
+    (setq indice 0)
+    (setq valore (lst 0))
+    (dolist (el lst)
+      (setq d (abs (- target el)))
+      (if (< d distanza)
+          (set 'distanza d 'indice $idx 'valore el)
+      )
+    )
+    (list valore indice)))
+
+(setq data8 '(-100 -10 42 101 200 -228 -230 250))
+(find-close-flat -50 data8)
+;-> (-10 1)
+(find-close-flat 40 data8)
+;-> (42 2)
+(find-close-flat -229 data8)
+;-> (-228 5)
+(find-close-flat -50 data8)
+;-> (-10 1)
+
+Vediamo se le due funzioni restituiscono gli stessi valori con uno stress-test:
+
+(define (rand-range min-val max-val)
+"Generate a random integer in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+
+(define (stress iter)
+  (for (i 1 iter)
+    (setq lst (randomize (sequence -1000 1000 2)))
+    (setq t (rand-range -999 999))
+    (if (!= (find-close t lst -1) (first (find-close-flat t lst)))
+      (println t { } (find-close t lst -1) { } (find-close-flat t lst))
+    )))
+
+(stress 1e5)
+;-> nil ; sembra tutto corretto.
 
 
 ---------------------
