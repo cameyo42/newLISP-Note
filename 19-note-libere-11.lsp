@@ -4624,8 +4624,6 @@ Adesso scriviamo una funzione che ritorna anche l'indice del valore più vicino 
 ;-> (42 2)
 (find-close-flat -229 data8)
 ;-> (-228 5)
-(find-close-flat -50 data8)
-;-> (-10 1)
 
 Vediamo se le due funzioni restituiscono gli stessi valori con uno stress-test:
 
@@ -4644,6 +4642,53 @@ Vediamo se le due funzioni restituiscono gli stessi valori con uno stress-test:
 
 (stress 1e5)
 ;-> nil ; sembra tutto corretto.
+
+Infine una funzione generica per ricercare il valore più vicino in liste piatte o annidate e con numeri positivi e negativi:
+
+(define (find-closest target lst idx)
+  (local (value val-index diff)
+    (cond ((= idx -1) ; flat list
+            (setq value (lst 0))
+            (setq val-index 0)
+            (setq diff (abs (- target (lst 0))))
+            (dolist (el lst)
+              (setq d (abs (- target el)))
+              (if (< d diff)
+                  (set 'diff d 'val-index $idx 'value el)
+              )
+            )
+            (list value val-index))
+          (true ; nested list
+            (setq value (lst 0 idx))
+            (setq val-index 0)
+            (setq diff (abs (- target (lst 0 idx))))
+            (dolist (el lst)
+              (setq d (abs (- target (el idx))))
+              (if (< d diff)
+                  (set 'diff d 'val-index $idx 'value (el idx))
+              )
+            )
+            (list (lst val-index) val-index))
+    )))
+
+Facciamo alcune prove:
+
+(find-closest 150 data1 0)
+;-> ((101 a b c) 0)
+(find-closest 240 data2 1)
+;-> ((a 230 x y z) 2)
+(find-closest 240 data3 -1)
+;-> (230 2)
+(find-closest 240 data4 1)
+;-> ((c 230) 2)
+(find-closest 240 data5 1)
+;-> ((b1 250) 2)
+(find-closest -10 data6 -1)
+;-> (-4 3)
+(find-closest 13 data6 -1)
+;-> (12 4)
+(find-closest -20 data7 -1)
+;-> (101 0)
 
 
 ---------------------

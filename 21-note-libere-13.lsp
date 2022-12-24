@@ -2824,5 +2824,7 @@ Facciamo alcune prove:
 ;-> ...
 ;-> ...
 
+Nota: l'algoritmo non è ottimale. Credo che la soluzione migliore sarebbe quella di usare un albero di ricerca.
+
 =============================================================================
 
