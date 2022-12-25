@@ -2826,5 +2826,195 @@ Facciamo alcune prove:
 
 Nota: l'algoritmo non è ottimale. Credo che la soluzione migliore sarebbe quella di usare un albero di ricerca.
 
+
+--------------
+Ordinare 0 e 1
+--------------
+
+Data una lista/vettore di 0 e 1 in ordine casuale. 
+Spostare gli 0 sul lato sinistro e gli 1 sul lato destro della lista/vettore. 
+(Fondamentalmente occorre ordinare la lista/vettore).
+
+(setq a (rand 2 100))
+;-> (1 1 1 0 0 0 0 1 0 1 1 1 1 0 1 0 0 0 1 1 0 0 1 0 1 0 0 0 0 0 1 0 1
+;->  1 0 0 0 0 1 0 1 1 1 0 0 1 0 0 0 1 1 1 1 1 0 1 1 0 1 1 1 1 1 0 0 0
+;->  0 0 1 1 0 0 0 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0 1 0 0 1 1 1 0 0 0 0 1)
+
+Soluzione veloce:
+
+(define (alg01 lst)
+  ; ordinamento ascendente
+  (sort lst))
+
+(alg01 a)
+;-> (0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1
+;->  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+Soluzione stile newLISP:
+
+(define (alg02 lst)
+    ; conta il numero di 0 e 1 nella lista
+  (let (cc (count '(0 1) lst))
+    ; unisce due liste di 0 e 1 lunghe (cc 0) e (cc 1)
+    (append (dup 0 (cc 0)) (dup 1 (cc 1)))))
+
+(alg02 a)
+
+(define (alg03 lst)
+  (local (c0 c1)
+    ; calcola il numero di 1
+    (setq c1 (apply + lst))
+    ; calcola il numero di 0
+    (setq c0 (- (length lst) c1))
+    ; unisce due liste di 0 e 1 lunghe c0 e c1
+    (append (dup 0 c0) (dup 1 c1))))
+
+(alg03 a)
+
+Soluzione elegante:
+
+(define (alg04 lst)
+  (let (out '())
+    (dolist (el lst)
+      (if (zero? el)
+          ; 0 all'inizio (sinistra) della lista di output
+          (push el out)
+          ; 1 alla fine (destra) della lista di output
+          (push el out -1)))))
+
+(alg04 a)
+
+Soluzione agnostica (lista e vettore):
+
+(define (alg05 arr)
+  (local (len sx dx)
+    (setq len (length arr))
+    (setq sx 0)
+    (setq dx (- len 1))
+    (while (< sx dx)
+      (while (and (zero? (arr sx)) (< sx dx)) (++ sx))
+      (while (and (= 1 (arr dx)) (< sx dx)) (-- dx))
+      (if (< sx dx)
+        (begin
+          (setf (arr sx) 0)
+          (setf (arr dx) 1)
+          (++ sx)
+          (-- dx)
+        )
+      )
+    )
+    arr))
+
+(alg05 a)
+
+(define (alg06 arr)
+  (local (val0 val1)
+    (setq val0 0)
+    (setq val1 (- (length arr) 1))
+    (while (< val0 val1)
+      (if (= (arr val0) 1)
+        (begin
+          (if (!= (arr val1) 1)
+              (swap (arr val0) (arr val1))
+          )
+          (-- val1)
+        )
+        ;else
+        (++ val0)
+      )
+    )
+    arr))
+
+(alg06 a)
+
+Vediamo se le funzioni restituiscono tutte lo stesso risultato:
+
+(setq a (rand 2 100))
+(= (alg01 a) (alg02 a) (alg03 a) (alg04 a) (alg05 a) (alg06 a))
+;-> true
+
+Vediamo la velocità della funzioni:
+;
+; test con lista/vettore di 1000 elementi
+;
+(silent 
+  (setq lista (rand 2 1000))
+  (setq vettore (array (length lista) lista)))
+  
+(list? lista)
+;-> true
+(array? vettore)
+;-> true
+
+(time (alg01 lista) 1000)
+;-> 70.011
+(time (alg01 vettore) 1000)
+;-> 70.105
+
+(time (alg02 lista) 1000)
+;-> 114.692
+(time (alg02 vettore) 1000)
+;-> ERR: list expected in function count : lst
+;-> called from user function (alg02 vettore)
+
+(time (alg03 lista) 1000)
+;-> 28.951
+(time (alg03 vettore) 1000)
+;-> 35.934
+
+(time (alg04 lista) 1000)
+;-> 300.737
+(time (alg04 vettore) 1000)
+;-> 312.159
+
+(time (alg05 lista) 1000)
+;-> 1594.334
+(time (alg05 vettore) 1000)
+;-> 150.6
+
+(time (alg06 lista) 1000)
+;-> 1736.486
+(time (alg06 vettore) 1000)
+;-> 143.619
+
+;
+; test con lista/vettore di 100000 elementi
+;
+(silent 
+  (setq lista (rand 2 100000))
+  (setq vettore (array (length lista) lista)))
+
+(time (alg01 lista) 5)
+;-> 60.836
+(time (alg01 vettore) 5)
+;-> 70.813
+
+(time (alg02 lista) 5)
+;-> 125.256
+(time (alg02 vettore) 5)
+;-> ERR: list expected in function count : lst
+;-> called from user function (alg02 vettore)
+
+(time (alg03 lista) 5)
+;-> 20.077
+(time (alg03 vettore) 5)
+;-> 22.942
+
+(time (alg04 lista) 5)
+;-> 17867.665
+(time (alg04 vettore) 5)
+;-> 30067.452
+
+(time (alg05 lista) 5)
+;-> 210555.044
+(time (alg05 vettore) 5)
+;-> 84.774
+
+(time (alg06 lista) 5)
+;-> 244033.329
+(time (alg06 vettore) 5)
+;-> 78.626
+
 =============================================================================
 

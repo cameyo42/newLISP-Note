@@ -1551,6 +1551,7 @@ NOTE LIBERE 13
   Divisione del premio
   Codice numerico univoco per stringhe (ASCII)
   Hotel e turisti
+  Ordinare 0 e 1
 
 APPENDICI
 =========
