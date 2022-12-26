@@ -400,7 +400,7 @@ I segmenti (2 5) (4 7) e (5 6) contengono il numero intero 5.
 
 In alcuni casi ci possono essere diverse soluzioni.
 
-Algortimo 1
+Algoritmo 1
 -----------
 Trovare il valore minimo di tutti i punti iniziali e il valore massimo di tutti i punti finali di tutti i segmenti.
 Iterare su questo intervallo e per ogni punto in questo intervallo tenere traccia del numero di segmenti che possono essere coperti usando questo punto.
@@ -650,6 +650,7 @@ ErroreRelativo = -----------------
                     ValoreMedio
 
 Nel caso di due misure "a" = valore misurato e "b" = valore esatto, il valore medio delle misurazioni vale "b":
+
                          (a - b)
   ErroreRelativo(a,b) = ---------
                          abs(b)
@@ -2628,7 +2629,6 @@ La risposta sembra ovvia: 200 euro ad A e 100 euro a B.
 
 Scriviamo una simulazione.
 
-
 (define (premi pa pb tot iter)
   (local (vinteA vinteB punA punB end-match game)
     (setq vinteA 0)
@@ -3015,6 +3015,78 @@ Vediamo la velocità della funzioni:
 ;-> 244033.329
 (time (alg06 vettore) 5)
 ;-> 78.626
+
+
+---------------------------------------------------
+Salvare la definizione di un simbolo in una stringa
+---------------------------------------------------
+
+Per salvare la definizione di un simbolo in una stringa possiamo usare la seguente funzione che gestisce i seguenti simboli:
+
+- espressioni lambda e numeri (nessuna modifica)
+- liste non lambda (aggiunge il carattere quote "'")
+- stringhe (incapsula con carattere double quote "")
+
+(define (save-string asym)
+  (set 'contents (eval asym))
+  (if (or (lambda? contents) (integer? contents) (float? contents))
+      ; for lambda expressions and numbers leave like it is
+      (append "(set '" (string asym " ") (string (eval asym)) ")")
+      (list? contents)
+      ; for lists which are not lambda put a single quote
+      (append "(set '" (string asym " ") (string "'" (eval asym)) ")")
+      (string? contents)
+      ; for strings put quotes around it
+      (append "(set '" (string asym " ") (string "\"" (eval asym)) ")")))
+
+La stringa salvata può essere valutata con "eval-string".
+
+Vediamo un paio di esempi:
+
+(define (somma a b) (+ a b))
+(save-string 'somma)
+;-> "(set 'somma (lambda (a b) (+ a b)))"
+(setq my-function (eval-string (save-string 'somma)))
+;-> (lambda (a b) (+ a b))
+(my-function 3 5)
+;-> 8
+
+(eval-string (save-string 'save-string))
+;-> (lambda (asym) (set 'contents (eval asym))
+;->  (if (or (lambda? contents) (integer? contents) (float? contents))
+;->   (append "(set '" (string asym " ") (string (eval asym)) ")")
+;->   (list? contents)
+;->   (append "(set '" (string asym " ") (string "'" (eval asym)) ")")
+;->   (string? contents)
+;->   (append "(set '" (string asym " ") (string "\"" (eval asym)) ")")))
+
+Nota: potremmo riscontrare problemi con i tag [text] [/text] nidificati.
+
+
+-------------
+Loop infinito
+-------------
+
+Come implementare un ciclo infinito?
+
+Prima soluzione:
+
+(while true func)
+
+Seconda soluzione:
+
+(dotimes (x 9223372036854775807) func)
+
+Terza soluzione:
+
+(define-macro (loop _func) (while true (eval _func)))
+
+(loop (print "."))
+;;; LOOP
+
+Nota: (define (loop _func) (while true _func)) non funziona perchè quando l'argomento (println ".") viene passato alla funzione, viene valutato e restituisce ".". QUindi all'interno della tua funzione viene eseguita continuamente l'espressione (true ".") che non produce nessun output.
+L'uso di "define-macro" lascia (println ".") non valutato e viene eseguita l'espressione:
+(while true (eval '(println "."))) che stampa "." in continuazione.
 
 =============================================================================
 

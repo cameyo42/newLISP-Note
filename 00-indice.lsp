@@ -1552,6 +1552,8 @@ NOTE LIBERE 13
   Codice numerico univoco per stringhe (ASCII)
   Hotel e turisti
   Ordinare 0 e 1
+  Salvare la definizione di un simbolo in una stringa
+  Loop infinito
 
 APPENDICI
 =========
