@@ -2092,8 +2092,14 @@ Vediamo un altro esempio:
 L'ultimo esempio mostra la massima risoluzione che possiamo avere con i numeri double float di newLISP.
 
 La funzione "trim" rimuove gli spazi davanti per numeri inferiori a 16 cifre.
-Se si stampa senza formattare newLISP sceglierà il formato "%g" e fornisce 9 cifre di precisione. Quando formattiamo a destra otteniamo fino a 15/16 cifre di precisione (52 bit)
-quando si utilizzano double float a 64 bit.
+Se si stampa senza formattare newLISP sceglierà il formato "%g" e fornisce 9 cifre di precisione. Quando formattiamo a destra otteniamo fino a 15/16 cifre di precisione (52 bit) quando si utilizzano double float a 64 bit.
+
+Nota: quando newLISP visualizza i numeri float utilizza il formato "%g":
+
+(setq x 0.000)
+;-> 0 
+
+x è un numero float (non integer).
 
 
 ===================================
@@ -2447,9 +2453,11 @@ oppure (prefisso "0"):
 (int "035")
 ;-> 29
 
+In newLISP il risultato dell'operazione aritmetica è definito dall'operatore/funzione piuttosto che dall'operando.
 Alcune funzioni convertono automaticamente i numeri floating-point in numeri interi e viceversa.
-Se utilizziamo operatori composti da lettere dell'alfabeto (es. "add", "sub", etc)  allora newLISP converte i numeri in floating-point.
+Se utilizziamo operatori composti da lettere dell'alfabeto (es. "add", "sub", etc), allora newLISP converte i numeri in floating-point.
 Se utilizziamo operatori speciali (es. +, -, *, /), allora newLISP converte i numeri in interi.
+
 
 (setq reale (sqrt 2))
 ;-> 1.414213562373095

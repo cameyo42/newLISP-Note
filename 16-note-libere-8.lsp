@@ -6270,6 +6270,41 @@ prova
 
 Ecco perché "delete" restituisce "nil" e "prova" 'pippo' è ancora esistente.
 
+Nota: un simbolo definito come "constant" non può essere usato come parametro variabile in una funzione nello stesso contesto.
+
+(constant 'PI 3.1415)
+;-> 3.1415
+
+(define (somma a PI) (add a PI))
+
+(somma 10 20)
+;-> ERR: symbol is protected : PI
+;-> called from user function (somma 10 20)
+(somma PI PI)
+;-> ERR: symbol is protected : PI
+;-> called from user function (somma PI PI)
+
+Il metodo seguente è valido perchè PI non è un parametro della funzione:
+
+(define (somma a b) (add a b))
+
+(somma PI PI)
+;-> 6.283
+
+Vediamo un trucco proposto da Lutz:
+
+I questo caso "z" è costante solo nell'ambito dinamico della funzione "trick":
+Anche il metodo seguente genera errore:
+
+(define (trick z) (constant 'z 999))
+(trick)
+;-> ERR: not allowed on local symbol in function constant : z
+;-> called from user function (trick)
+
+(setq z 123)
+;-> 123
+
+
 
 ------------------
 La funzione global

@@ -5240,6 +5240,13 @@ Lists are very good when going thru it sequentially (like map), but as soon as y
 When you are using 'nth-set' or 'set-nth' be also aware of the difference between the two. 'nth-set' is much faster becuase it doesn't need to return the whole list or array.
 Lutz
 
+Nota: "push" può essere usato anche su un simbolo non esistente:
+
+(push "1" lista)
+;-> ("1")
+lista
+;-> ("1")
+
 
 ---------------
 Funzione "itoa"

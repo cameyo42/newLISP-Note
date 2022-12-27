@@ -1554,6 +1554,7 @@ NOTE LIBERE 13
   Ordinare 0 e 1
   Salvare la definizione di un simbolo in una stringa
   Loop infinito
+  Simulazione della funzione LOAD
 
 APPENDICI
 =========

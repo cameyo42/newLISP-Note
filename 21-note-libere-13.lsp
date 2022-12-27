@@ -3088,5 +3088,30 @@ Nota: (define (loop _func) (while true _func)) non funziona perchè quando l'arg
 L'uso di "define-macro" lascia (println ".") non valutato e viene eseguita l'espressione:
 (while true (eval '(println "."))) che stampa "." in continuazione.
 
+
+-------------------------------
+Simulazione della funzione LOAD
+-------------------------------
+
+La funzione LOAD carica e traduce codice newLISP da un file sorgente specificato in uno o più file e valuta le espressioni contenute in tutti i file. Quando LOAD ha esito positivo, restituisce il risultato dell'ultima espressione nell'ultimo file valutato.
+
+Quello che ci interessa è una metodo per caricare uno script, valutarlo, ma NON eseguirlo.
+Per fare questo possiamo creare il file seguente:
+
+;; file: myprog.lsp ;;
+
+(setq myprog '(print "hello world"))
+
+;; eof ;;
+
+Adesso carichiamo il file con LOAD:
+
+(load "myprog.lsp")
+myprog => (print "hello world")
+
+(eval myprog)
+;-> "hello world" ; return value
+;-> hello world ; output from running myprog
+
 =============================================================================
 

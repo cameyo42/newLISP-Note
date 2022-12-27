@@ -3545,6 +3545,8 @@ Due ulteriori stringhe opzionali "str-header" e "str-footer" che controllano il 
 
 Nota: looks like old "print" function never dies.
 
+Nota: newLISP compiles source code to an internal lisp-cell-expression based binary format. There is no easy way to supply line numbers without inflating memory usage considerably (similar to 'debug' builds in 'C'). 
+
 
 ============================================================================
  newLISPdoc - Il programma per la documentazione newLISP

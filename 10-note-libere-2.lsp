@@ -7288,7 +7288,7 @@ L'ultima funzione è quella più veloce.
 "setq" o "set"
 --------------
 
-Notiamo che "setq" è più veloce di "set":
+Notiamo che "setq" è più veloce di "set" (circa il 50%):
 
 (time (setq a 10 b 20 c 30) 10000000)
 ;-> 382.001
