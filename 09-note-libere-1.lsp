@@ -763,6 +763,15 @@ file-info fornisce le statistiche del file (dimensione) per un file collegato, n
 (date (file-info "_TODO.txt" 7))
 ;-> "Wed May 08 17:07:39 2020"
 
+(file-info "README.md" 0)
+;-> 948
+(date (file-info "README.md" 5))
+;-> "Wed Dec 28 16:01:14 2022"
+(date (file-info "README.md" 6))
+;-> "Mon Dec 26 20:52:57 2022"
+(date (file-info "README.md" 7))
+;-> "Fri Feb 19 10:32:29 2021"
+
 Comandi shell
 -------------
 Se un ! (punto esclamativo) viene inserito come primo carattere sulla riga di comando seguito da un comando di shell, il comando verrà eseguito. Ad esempio, !ls su Unix o !dir su MS Windows mostrerà un elenco della cartella di lavoro corrente. Non sono consentiti spazi tra il ! e il comando della shell. Simboli che iniziano con ! sono ancora consentiti all'interno delle espressioni o sulla riga di comando se preceduti da uno spazio. Nota: questa modalità funziona solo quando è in esecuzione nella shell e non funziona quando si controlla newLISP da un'altra applicazione.

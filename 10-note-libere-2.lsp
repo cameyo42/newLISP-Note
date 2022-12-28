@@ -300,7 +300,7 @@ Vediamo un altro esempio con il numero "e":
 (div 2721 1001)
 ;-> 2.718281718281718
 
-Esistono altri metodi per calcolare l'approsimazione razionale di un numero (ad esempio utilizzando le frazioni continue), ma la scelta del metodo dipende dall'uso che vogliamo fare del risultato. In genere ricorriamo ad una frazione quando i numeri in virgola mobile non hanno la precisione che ci serve oppure per velocizzare il calcolo (usando numeri interi i calcoli sono molto più veloci).
+Esistono altri metodi per calcolare l'approssimazione razionale di un numero (ad esempio utilizzando le frazioni continue), ma la scelta del metodo dipende dall'uso che vogliamo fare del risultato. In genere ricorriamo ad una frazione quando i numeri in virgola mobile non hanno la precisione che ci serve oppure per velocizzare il calcolo (usando numeri interi i calcoli sono molto più veloci).
 
 
 ----------------------------
@@ -324,6 +324,45 @@ E poi usare l'indicizzazione implicita:
 
 lst
 ;-> (a 0 (a 1 (b 2 3 4 (1311234123 5 6 7))))
+
+Vediamo un altro esempio:
+
+(setq X '((1 2) (3 4) (5 6) (7 8 9)))
+
+(ref 8 X)
+;-> (3 1)
+
+La funzione "ref" ci fornisce un indice multidimensionale in X, che può avere qualsiasi complessità di annidamento.
+
+Potremmo quindi estrarre quell'elemento o semplicemente leggerlo:
+
+Non modifichiamo X:
+
+(nth '(3 1) X)
+;-> 8
+X
+;-> ((1 2) (3 4) (5 6) (7 8 9))
+
+Modifichiamo X eliminando un numero:
+
+(pop X '(3 1))
+;-> 8
+X
+;-> ((1 2) (3 4) (5 6) (7 8 9))
+
+Modifichiamo X inserendo un numero:
+
+(push 88 X '(3 1))
+;-> ((1 2) (3 4) (5 6) (7 88 9))
+
+Anche "push" e "pop" possono prendere più indici, quindi il risultato di "ref" può essere utilizzato direttamente in push/pop.
+Inoltre "ref" può prendere qualsiasi espressione come chiave di ricerca.
+
+(ref '(3 4) X)
+;-> (1)
+
+(nth 1 X)
+;-> (3 4)
 
 
 ---------------------------------------
@@ -2504,9 +2543,9 @@ ottenendo gli stessi risultati di Scheme e del Common Lisp.
 Vedi anche il capitolo "La funzione quote e il simbolo '".
 
 
-------------------------
-Il limite sulle stringhe
-------------------------
+-------------------------------------------------
+Il limite sulle stringhe: il tag [text]...[/text]
+-------------------------------------------------
 
 newLISP pone un limite all'utilizzo di stringhe: massimo 2047 caratteri.
 Questo crea dei vincoli a diverse operazioni:
@@ -2531,7 +2570,7 @@ quindi possiamo stamparla senza ulteriori accorgimenti:
 
 (println str)
 
-Se invece vogliamo stampare un testo creato internamente alla funzione "print", dobbiamo usare i tag:
+Se invece vogliamo stampare un testo creato internamente alla funzione "print", dobbiamo usare il tag "[text]...[/text]":
 
 (print
 [text]
@@ -2569,6 +2608,35 @@ Inoltre, oltre ad essere distruttiva, la funzione extend ha anche una cronologia
 Quindi il codice generato dalla funzione di salvataggio dovrebbe essere:
 (set 'str "") ; clear string
 (extend str arg1 arg2 arg3 ...)
+
+Per inserire il tag in modo automatico possiamo usare il metodo seguente:
+
+(define (text str) (append "[text]" str "[/text]"))
+(text "hello") 
+;-> "[text]hello[/text]"
+
+Usando la funzione interattivamente stringhe e tag vengono convertiti in un'unica stringa, ma se salviamo il risultato in un file è tutto corretto:
+
+(write-file "strfile" (text big-str))
+
+Possiamo utilizzare anche la seguente macro:
+
+(define-macro (text)
+(append "[text]" (join (map string (map eval (args)))) "[/text]"))
+
+(text "hi " "there") 
+;-> "[text]hi there[/text]"
+
+Oppure:
+
+(define-macro (text)
+   (append "[text]" (join (map term (args)) " ") "[/text]"))
+
+(text hello there dude)
+;-> "[text]hello there dude[/text]"
+
+Usando "string" invece di "term", viene anteposto il nome del contesto se chiamiamo la funzione da un contesto/spazio dei nomi diverso. 
+La funzione "term" prende semplicemente il nome di un simbolo senza l'eventuale prefisso del contesto.
 
 Nota: L'utilizzo di stringhe maggiori di 2047 caratteri rallenta la velocità di esecuzione dei programmi.
 

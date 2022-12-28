@@ -646,7 +646,7 @@ NOTE LIBERE 2
   Frazioni continue
   Liste formate da coppie di elementi
   Liste quotate
-  Il limite sulle stringhe
+  Il limite sulle stringhe: il tag [text]...[/text]
   Aggiunta di liste
   Liberare una variabile
   Massimo prodotto di due numeri
@@ -1555,6 +1555,9 @@ NOTE LIBERE 13
   Salvare la definizione di un simbolo in una stringa
   Loop infinito
   Simulazione della funzione LOAD
+  Unione veloce di stringhe
+  The nice thing
+  Pigeonhole Sort
 
 APPENDICI
 =========

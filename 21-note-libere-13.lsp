@@ -3113,5 +3113,129 @@ myprog => (print "hello world")
 ;-> "hello world" ; return value
 ;-> hello world ; output from running myprog
 
+
+-------------------------
+Unione veloce di stringhe
+-------------------------
+
+Se tutte le stringhe da utilizzare sono già disponibili in una lista, allora "append", "join" o "string" vanno bene, ma in caso contrario "write-buffer" con device string è più veloce.
+
+Si noti inoltre che "string" è molto più lenta di "append", perché converte anche da non stringa a stringa, mentre "append" presuppone che tutti gli argomenti siano stringhe.
+
+Anche quando usiamo la funzione "string" su un tipo noto, ad esempio:
+
+(string cognome "," età)
+
+se siamo sicuri l'età sarà sempre un numero, allora "format" è 3 volte più veloce:
+
+(format "%s,%d" età)
+
+
+--------------
+The nice thing
+--------------
+
+Lutz:
+-----
+The nice thing about LISP and Scheme is, that the syntax rules are very simple : the first list member is the functor/operator and the rest are the parameters/arguments. The only difference between LISP and Scheme/newLISP is that Scheme and newLISP evaluate the first list member first before applying it to the parameters:
+;; newLISP and Scheme evaluate the operator part first (other LISPs don't):
+
+((if (> A B) + *) A B)
+
+;; in this example A and B are added if A > B else multiplied
+Most of syntax changes suggestions could be implemented by defining functions or macros for it, i.e:
+
+(define (<=> x y A B C)
+   (if
+    (< x y) A
+    (= x y) B
+    (> x y) C))
+
+(<=> 3 4 10 20 30) => 10
+(<=> 4 4 10 20 30) => 20
+(<=> 5 4 10 20 30) => 30
+
+In newLISP you also have the possibility to redefine the built-in functions using "constant". 
+Doing this and using functions and macros, you can completely tailor a language to your own taste, which is the reason people use these kind of languages in the first place, because they let you define your own language appropiate to the problem area you are developing in.
+
+
+---------------
+Pigeonhole Sort
+---------------
+
+Il Pigeonhole sort ("buco della piccionaia") è un algoritmo di ordinamento particolarmente adatto quando il numero di elementi n e la lunghezza dell'intervallo dei possibili valori chiave (N) sono approssimativamente uguali.
+L'algoritmo ha una complessità temporale e spaziale di O(n + N).
+Il nome pigeonhole (tradotto in "buco della piccionaia") deriva dal nome inglese del principio dei cassetti, che ricorda il processo di assegnamento ad una cella all'interno dell'algoritmo.
+
+L'algoritmo funziona nel modo seguente:
+
+- Creare un array temporaneo composto inizialmente di celle vuote (i "pigeonhole"), ciascuna per ogni valore compreso nel range dell'array da ordinare.
+- Scorrere l'array dato e inserire ogni valore nella cella corrispondente dell'array temporaneo, in modo che ogni cella alla fine contenga il numero dei valori che corrispondo alla stessa chiave.
+- Iterare sull'array di appoggio e generare l'array ordinato combinando il valore dell'array di appoggio (che rappresenta il numero di ripetizioni del numero) e il suo indice (che rappresenta il valore del numero).
+
+(define (pigeon lst)
+  (local (vmax tmp out)
+    (setq out '())
+    (setq vmax (apply max lst))
+    (setq tmp (array (+ vmax 1) '(0)))
+    (dolist (el lst)
+      (++ (tmp el))
+    )
+    (println tmp)
+    (for (i 0 (- (length tmp) 1))
+      (setq val (tmp i))
+      (if (> val 0)
+          (for (r 1 val) (push i out -1))
+      )
+    )
+    out))
+
+(pigeon '(3 7 9 7 2))
+;-> (0 0 1 1 0 0 0 2 0 1)
+;-> (2 3 7 7 9)
+
+Possiamo ottimizzare la dimensione spaziale utilizzando un vettore con dimensione pari all'intervallo dei valori da ordinare:
+
+  (Valore-Max - Valore-Min + 1)
+
+In quest modo dobbiamo solo modificare l'indice del vettore temporaneo utilizzando il valore minimo:
+
+(define (pigeon2 lst)
+  (local (vmin vmax tmp out)
+    (setq out '())
+    ; valore massimo
+    (setq vmax (apply max lst))
+    ; valore minimo
+    (setq vmin (apply min lst))
+    (setq tmp (array (+ vmax (- vmin) 1) '(0)))
+    ; ciclo per aggiornare l'array temporaneo
+    ; in cui il valore dell'i-esimo elemento rappresenta quante volte viene 
+    ; ripetuto il valore i nell'array/lista originale
+    ; l'indice vale (el - vmin)
+    (dolist (el lst)
+      (++ (tmp (- el vmin)))
+    )
+    (println tmp)
+    ; ciclo per la creazione della lista ordinata
+    (for (i 0 (- (length tmp) 1))
+      (setq val (tmp i))
+      ; se un valore è maggiore di 0,
+      (if (> val 0)
+          ; allora inseriamo il suo indice i nella lista 
+          ; tante volte quanto vale il valore
+          ; l'indice vale (i + vmin)
+          (for (r 1 val) (push (+ i vmin) out -1))
+      )
+    )
+    out))
+
+(pigeon2 '(3 7 9 7 2))
+;-> (1 1 0 0 0 2 0 1)
+;-> (2 3 7 7 9)
+
+(pigeon2 (rand 3 10))
+;-> (3 6 1)
+;-> (0 0 0 1 1 1 1 1 1 2)
+
 =============================================================================
 
