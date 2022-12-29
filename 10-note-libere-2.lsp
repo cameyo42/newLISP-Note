@@ -3596,6 +3596,7 @@ Vediamo la differenza di velocità tra passaggio per riferimento e passaggio per
 (time (somma refer) 1000)
 ;-> 1916.157
 
+Vedi anche "Passaggio per valore e passaggio per riferimento" in "newLISP in generale".
 
 ---------------------
 Pagamento giornaliero

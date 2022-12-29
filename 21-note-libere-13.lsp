@@ -3237,5 +3237,190 @@ In quest modo dobbiamo solo modificare l'indice del vettore temporaneo utilizzan
 ;-> (3 6 1)
 ;-> (0 0 0 1 1 1 1 1 1 2)
 
+
+-----------
+Bucket Sort
+-----------
+
+https://www.geeksforgeeks.org/bucket-sort-2/
+
+Il bucket sort è efficiente quando i numeri da ordinare sono compresi nell'intervallo da 0.0 a 1.0 e sono distribuiti uniformemente nell'intervallo.
+
+Algoritmo Bucket Sort
+1) Creare n bucket (liste) vuote.
+2) Per ogni elemento dell'array di input arr[i]
+  2.1) Inserire arr[i] in bucket[n*array[i]]
+3) Ordinare i singoli bucket utilizzando l'ordinamento per inserzione.
+4) Concatenare tutti i bucket ordinati.
+
+Funzione che ordina una lista con il metodo "insertion sort":
+
+(define (insertion-sort b)
+  (local (up j)
+    (cond ((= b '()) '())
+          ((= (length b) 1) b)
+          (true
+            (for (i 1 (- (length b) 1))
+              (setq up (b i))
+              (setq j (- i 1))
+              (while (and (>= j 0) (> (b j) up))
+                (setf (b (+ j 1)) (b j))
+                (-- j)
+              )
+              (setf (b (+ j 1)) up)
+            )
+            b))))
+
+(insertion-sort '(3 4 2 6 7 1 5 8 2))
+;-> (1 2 2 3 4 5 6 7 8)
+
+(insertion-sort '())
+;-> ()
+(insertion-sort '(1.23))
+;-> (1.23)
+
+Come struttura dati usiamo una lista "arr" che contiene i bucket (liste):
+
+  arr = ((bucket1) (bucket2) ((bucket3)) ...)
+
+(define (bucket1 x)
+  (local (arr slot-num index-b)
+    ; 10 means 10 slots, each slot's size is 0.1
+    (setq slot-num 10)
+    (setq arr (dup '() slot-num))
+    ; put array elements in different buckets
+    (dolist (j x)
+      (setq index-b (int (mul slot-num j)))
+      (push j (arr index-b))
+    )
+    (println arr)
+    ; sort individual buckets
+    (for (i 0 (- slot-num 1))
+      (setf (arr i) (insertion-sort (arr i)))
+    )
+    ; concatenate result
+    (flat arr)))
+
+Facciamo alcune prove:
+
+(bucket1 '(0.897 0.565 0.656 0.1234 0.665 0.3434))
+;-> (() (0.1234) () (0.3434) () (0.565) (0.665 0.656) () (0.897) ())
+;-> (0.1234 0.3434 0.565 0.656 0.665 0.897)
+
+(bucket1 (random 0 1 20))
+;-> ((0.008789330729087191 0.05621509445478683) (0.108279671620838)
+;->  (0.2053590502639851 0.2728965117343669 0.2758873256630146)
+;->  (0.3852351451155126)
+;->  (0.4579607531968138 0.4684591204565569 0.4849391155735954)
+;->  (0.5990478225043489 0.58790856654561)
+;->  (0.6911832026123844 0.6772057252723777)
+;->  (0.7444380016479996 0.7437360759300515 0.7264931180761132)
+;->  (0.8376110110782189)
+;->  (0.9491561632129887 0.9187902462843715))
+;-> (0.008789330729087191 0.05621509445478683 0.108279671620838
+;->  0.2053590502639851   0.2728965117343669  0.2758873256630146
+;->  0.3852351451155126   0.4579607531968138  0.4684591204565569
+;->  0.4849391155735954   0.58790856654561    0.5990478225043489
+;->  0.6772057252723777   0.6911832026123844  0.7264931180761132
+;->  0.7437360759300515   0.7444380016479996  0.8376110110782189
+;->  0.9187902462843715   0.9491561632129887)
+
+Adesso vediamo il Bucket Sort per i numeri con parte intera:
+
+1. Trovare l'elemento massimo e minimo dell'array
+2. Calcolare l'intervallo di ciascun bucket:
+    intervallo = (max - min) / n
+    n è il numero di bucket
+3. Creare n bucket dell'intervallo calcolato
+4. Distribuire gli elementi dell'array in questi bucket:
+    BucketIndex = ( arr[i] - min ) / intervallo
+5. Ordinare ogni bucket individualmente
+6. Unire gli elementi ordinati dei bucket
+
+(define (bucket2 arr buckets)
+  (local (max-ele min-ele range temp diff)
+    (setf max-ele (apply max arr))
+    (setf min-ele (apply min arr))
+    # range(for buckets)
+    (setq range (div (sub max-ele min-ele) buckets))
+    # create empty buckets
+    (setq temp (dup '() buckets))
+    # scatter the array elements
+    # into the correct bucket
+    (dolist (el arr)
+      (setq diff (sub (div (sub el min-ele) range)
+                      (int (div (sub el min-ele) range))))
+      # append the boundary elements to the lower array
+      (if (and (zero? diff) (!= el min-ele))
+          (push el (temp (sub (int (div (sub el min-ele) range)) 1)))
+          ;else
+          (push el (temp (int (div (sub el min-ele) range))))
+      )
+    )
+    # sort each bucket individually
+    (for (i 0 (- buckets 1))
+      ;(setf (temp i) (insertion-sort (temp i)))
+      ;little cheat
+      (sort (temp i))
+    )
+    ; concatenate result
+    (flat temp)))
+
+Facciamo alcune prove:
+
+(bucket2 '(9.8 0.6 10.1 1.9 3.07 3.04 5.0 8.0 4.8 7.68) 5)
+;-> (0.6 1.9 3.04 3.07 4.8 5 7.68 8 9.800000000000001 10.1)
+
+(bucket2 (random 1 100 10) 5)
+;-> (17.01916562395093 19.99472029786065 34.59477523117771 51.41352580339976
+;->  54.2578508865627 58.78679769280068 63.86812952055421 70.5760979033784
+;->  93.48023926511429 97.30420850245675)
+
+(bucket2 (rand 100 10) 5)
+;-> (11 37 38 49 49 50 53 66 68 79)
+
+
+--------------------------------
+Creazione automatica di contesti
+--------------------------------
+
+In newLISP non si possono creare contesti anonimi , ma è possibile utilizzare uno schema di numerazione, ad esempio:
+
+(context 'BRICK)
+
+(define color MAIN:red)
+
+(define (BRICK:new ctx col x y z)
+  (MAIN:new BRICK ctx)
+  (set 'ctx (eval ctx))
+  (set 'ctx:color col)
+  ctx
+)
+(context 'MAIN)
+
+(BRICK:new (sym (format "brick-%03d" 111)) 'blue)
+;-> brick-111
+
+brick-111:color
+;-> blue
+
+Possiamo anche creare una lista di contesti:
+
+(map (fn(x) (BRICK:new (sym (format "brick%03d" x)) 'blue)) (sequence 1 5))
+;-> (brick001 brick002 brick003 brick004 brick005)
+
+Possiamo anche scrivere:
+
+(set 'bricks (map (fn(x) (BRICK:new (sym (format "brick%03d" x)) 'blue)) (sequence 1 5)))
+;-> (brick001 brick002 brick003 brick004 brick005)
+
+(dolist (b bricks)
+  (set 'b:color 'black))
+
+brick003:color
+;-> black
+
+Possiamo fare riferimento ai vari contresti brick per variabile, ecc.
+
 =============================================================================
 

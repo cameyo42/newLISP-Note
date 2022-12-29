@@ -1558,6 +1558,8 @@ NOTE LIBERE 13
   Unione veloce di stringhe
   The nice thing
   Pigeonhole Sort
+  Bucket Sort
+  Creazione automatica di contesti
 
 APPENDICI
 =========

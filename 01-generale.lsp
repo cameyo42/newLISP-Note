@@ -1401,6 +1401,42 @@ s
 ;-> "stringa"
 
 
+Altro metodo di passaggio per riferimento (by Lucas)
+----------------------------------------------------
+Another way to call-by-"reference" (macros are probably the better way to do it):
+
+;;call-by-"reference" without using macros
+
+;;example list
+(set 'a '(1 2 3))
+;-> (1 2 3)
+
+;;set "pointer" to 'a
+(set 'p 'a)
+;-> a
+
+> ;;"dereference" pointer
+(eval p)
+;-> (1 2 3)
+
+;;define function to demonstrate call-by-"reference"
+(define (ref-pop _X) (pop (eval _X)))
+;-> (lambda (_X) (pop (eval _X)))
+
+;;give it a go
+(ref-pop p)
+;-> 1
+
+;;check that we worked on the same list
+a
+;-> (2 3)
+(eval p)
+;-> (2 3)
+;;newlisp is cool!
+
+Vedi anche "Passare dati per riferimento" in "Note libere 2".
+
+
 =============================
  NIL, TRUE e LISTA VUOTA '()
 =============================
