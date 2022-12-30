@@ -3422,5 +3422,357 @@ brick003:color
 
 Possiamo fare riferimento ai vari contresti brick per variabile, ecc.
 
+
+---------------------------------------------
+Forum: A quasiquote implementation in newLISP
+---------------------------------------------
+
+jsmall:
+-------
+
+The following macro and function define a quasiquote / unquote mechanism in newlisp.
+
+Note the use of uq and uq@.
+
+  ;; usage:  (qq (x y (uq (+ 1 2)) (uq@ (list 1 2 3))))
+  ;;  ==>  (x y 3 1 2 3)
+
+  (define-macro (qq s-expr)
+    (qq-eval s-expr))
+
+  ;; Since qq is a macro you can't use (args) within.
+  ;; Use qq-eval instead which is not a macro and thus
+  ;; (args) will not capture the qq's (args).
+
+  ;; usage:  (qq-eval '(x y (uq (+ 1 2)) (uq@ (list 1 2 3))))
+  ;;  ==>  (x y 3 1 2 3)
+  (define (qq-eval s-expr , i)
+    (if (list? s-expr)
+      (begin
+        (setq i 0)
+        (while (< i (length s-expr))
+          (let ((ss-expr (nth i s-expr)))
+            (if (list? ss-expr)
+              (cond
+                ((= 'uq (first ss-expr))
+                  ;(nth-set i s-expr (eval (qq-eval (last ss-expr)))) ;original
+                  (setf (s-expr i) (eval (qq-eval (last ss-expr))))
+                  ;(inc 'i)) ;original
+                  (inc i))
+                ((= 'uq@ (first ss-expr))
+                  (let ((ss-exprs (eval (qq-eval (last ss-expr)))))
+                    (if (list? ss-exprs)
+                      (begin
+                        (pop s-expr i)
+                        (dotimes (j (length ss-exprs))
+                          (push (nth j ss-exprs) s-expr i)
+                          (inc 'i)))
+                      (begin
+                        ;(nth-set i s-expr ss-exprs) ;original
+                        (setf (s-expr i) ss-exprs)
+                        ;(inc 'i))))) ;original
+                        (inc i)))))
+                 (true
+                   ;(nth-set i s-expr (qq-eval ss-expr)) ;original
+                   (setf (s-expr i) (qq-eval ss-expr))
+                   ;(inc 'i))) ;original
+                   (inc i)))
+              (begin
+                ;(inc 'i) ;original
+                (inc i)
+                s-expr))))
+           s-expr)
+      s-expr))
+
+(qq-eval '(x y (uq (+ 1 2)) (uq@ (list 1 2 3))))
+;-> x y 3 3 2 1
+
+The following demonstrates the use of qq and qq-eval.
+
+  ;; Abbreviation for lambda or fn
+
+  (define-macro (\ )
+    (eval (qq-eval '(lambda (uq (first (args))) (uq@ (rest (args)))))))
+
+  ;; Abbreviation for define
+
+  ;(define-macro (: _var-or-fn _value) ;original
+  (define-macro ([:] _var-or-fn _value)
+    (if (list? _var-or-fn)
+      (eval (qq-eval '(define (uq _var-or-fn) (uq@ (rest (args))))))
+      (eval (qq (set _var-or-fn (uq _value))))))
+
+Notice that qq is not used whenever (args) appears in the expression being quasiquoted.
+
+I'm hoping this makes writing macros more convenient in newLisp.
+
+Warning: I've only briefly tested this.
+
+Lutz:
+-----
+
+>>>
+;; Since qq is a macro you can't use (args) within.
+>>>
+
+it is the other way around macros *can* use (args) normal functions *can not*:
+
+(define-macro (foo) (println (args)))
+
+(foo 1 2 3)
+;-> (1 2 3)
+
+(define (foo) (println (args)))
+;-> (lambda () (println (args)))
+(foo 1 2 3)
+;-> (1 2 3)
+
+Consider also using 'ref' for looking up 'uq' or 'uq@' expressions.
+This is how a qq-macro could look like for just handling the unquoting of uq:
+
+(define-macro (qq s-exp)
+  (while (set 'idx (chop (ref 'uq s-exp)))
+      (set 'qx (pop s-exp idx))
+      (push (eval (first (rest qx))) s-exp idx))
+  s-exp)
+
+;; now use it
+(set 'x 'hello)
+
+(qq ( (uq (+ 1 2)) ((uq (+ 3 4)) (uq x))))
+;-> ERR: list or string expected
+;-> called from user function (qq ((uq (+ 1 2)) ((uq (+ 3 4)) (uq x))))
+ 
+Nota: Ma funziona con "debug" (step-by-step):  
+(debug (qq ( (uq (+ 1 2)) ((uq (+ 3 4)) (uq x)))))
+;-> (3 (7 hello))
+
+;; something similar could be done for 'uq@'
+
+'ref' returns the index positions of an expresssion found in a nested list in an index-list, which can be used directly in 'pop' or 'push' which can take index lists. 'pop' and 'push' are inverse of each other. The same index-list used to pop something can be used to push something else back into the same position.
+
+jsmall:
+-------
+
+1. It would be nice if "ref" had a version that took a predicate, e.g.
+
+     (ref? (lambda (s-expr) (or (= 'uq s-expr) (= 'uq@ s-expr)))
+            s-exp)
+
+and returned the ref path along with the value returned by
+the predicate.
+
+2. Also if the continuation bookmark could be captured and
+returned as well so that the depth first? search could continue
+from where it left off that would also be nice.
+
+Essentially my longer version was taking this approach (1 & 2) but
+the size and speed advantage of your approach is obvious.
+
+
+------------------------------------------------------------------------
+Raggruppare i valori di una lista associativa che hanno la stessa chiave
+------------------------------------------------------------------------
+
+Dato una lista associativa ((k1 v1) (k2 v2) ... (kn vn)), con possibilmente valori uguali per ki, restituire una lista associativa in cui tutti gli elementi (coppia ki vi) hanno chiavi distinte e dove i valori originariamente associati alla stessa chiave sono stati raggruppati in una lista. Per esempio:
+
+input:  ((1 "a") (2 "b") (3 "c") (1 "A") (2 "B")))
+output: ((1 ("a" "A")) (2 ("b" "B")) (3 ("c")))
+
+(define (group-keys alst)
+  (local (out indici keys tmp)
+    (setq out '())
+    ; lista delle chiavi uniche
+    (setq keys (unique (map first a)))
+    ; ciclo per ogni chiave
+    (dolist (k keys)
+      ; trova tutti gli indici degli elementi con la chiave corrente
+      (setq indici (ref-all k a))
+      (setq tmp '())
+      ; costruisce la lista dei valori per la chiave corrente
+      (dolist (i indici)
+        (if (zero? (i 1)) ; indice di una chiave?
+          (push (a (i 0) 1) tmp -1)
+        )
+      )
+      ; aggiorna la lista soluzione con (ki (v1 v2..vn))
+      (push (list k tmp) out -1)
+    )
+    out))
+
+Facciamo alcune prove:
+
+(setq a '((1 "a") (2 "b") (3 "c") (1 "A") (2 "B")))
+(group-keys a)
+;-> ((1 ("a" "A")) (2 ("b" "B")) (3 ("c")))
+
+(setq a '((1 1) (2 "b") (3 "c") (1 "A") (2 "B")))
+(group-keys a)
+;-> ((1 (1 "A")) (2 ("b" "B")) (3 ("c")))
+
+(setq a '((1 "a") (2 "b") (3 "c")))
+(group-keys a)
+;-> ((1 "a") (2 "b") (3 "c")))
+
+(setq a '((1 "a") (2 "b") (3 "c") (1 ())))
+(group-keys a)
+;-> ((1 ("a" ())) (2 ("b")) (3 ("c")))
+
+Possiamo anche utilizzare una hash-map (dizionario):
+
+(define (group-keys2 alst)
+  (local (key)
+    (new Tree 'hh)
+    (dolist (el a)
+      (setq key (el 0))
+      ; se chiave esiste,
+      ; allora aggiunge un valore alla lista associata alla chiave
+      ; altrimenti aggiunge una nuova coppia (k v)
+      (hh key (if $it (extend (list (el 1)) $it)  (list (el 1))))
+    )
+    ; assegna la hash-map ad una lista
+    (setq out (hh))
+    ;elimina la hash-map
+    (delete 'hh)
+    out))
+
+Facciamo alcune prove:
+
+(setq a '((1 "a") (2 "b") (3 "c") (1 "A") (2 "B")))
+(group-keys2 a)
+;-> (("1" ("A" "a")) ("2" ("B" "b")) ("3" ("c")))
+
+(setq a '((1 1) (2 "b") (3 "c") (1 "A") (2 "B")))
+(group-keys2 a)
+;-> (("1" ("A" 1)) ("2" ("B" "b")) ("3" ("c")))
+
+(setq a '((1 "a") (2 "b") (3 "c")))
+(group-keys2 a)
+;-> (("1" ("a")) ("2" ("b")) ("3" ("c")))
+
+(setq a '((1 "a") (2 "b") (3 "c") (1 ())))
+(group-keys2 a)
+;-> (("1" (() "a")) ("2" ("b")) ("3" ("c")))
+
+Differenze tra le due funzioni:
+- la hash-map trasforma le chiavi in stringhe
+- la hash-map ha tutti i valori come lista (anche per un solo valore)
+
+Vediamo la velocità delle due funzioni:
+
+(silent
+(setq k (rand 100 1e3))
+(setq v (rand 100 1e3))
+(setq t (map list k v)))
+
+(time (group-keys t) 10000)
+;-> 213.953
+
+(time (group-keys2 t) 10000)
+;-> 407.212
+
+La funzione che utilizza la hash-map è più lenta perchè deve "eliminare" la hash-map ad ogni chiamata.
+
+; test senza cancellare la hash-map --> ;(delete 'hh)
+; una sola chiamata con una lista da 1 milione di elementi
+
+(silent
+(setq k (rand 100 1e7))
+(setq v (rand 100 1e7))
+(setq t (map list k v)))
+
+(time (group-keys t))
+;-> 418.376
+
+(time (group-keys2 t))
+;-> 523.719
+
+
+------------------------
+Ramanujan e il taxi 1729
+------------------------
+
+Nel 1940 il matematico G. H. Hardy andò a trovare il genio indiano Ramanujan che si trovava in ospedale. Hardy disse a Ramanujan che era arrivato con il taxi numero 1729, un numero che gli sembrava noioso e sperava non fosse di cattivo auspicio.
+Immediatamente Ramanujan rispose che 1729 era un numero molto interessante:
+era il numero più piccolo esprimibile come somma di cubi di due numeri in due modi diversi.
+Infatti, 10^3 + 9^3 = 12^3 + 1^3 = 1729.
+
+Scriviamo una funzione che calcola questi numeri fino ad un dato numero N.
+In pratica dobbiamo cercare 4 numeri tali che:
+
+  a^3 + b^3 = c^3 + d^3
+
+(define (rama n)
+  (local (out all-sumlimit idx)
+    (setq out '())
+    (setq all-sum '())
+    ; limit number: cbrt(n) (cube root of n)
+    (setq limit (int (pow n (div 3))))
+    ; two loops for numbers a and b
+    (for (i 1 (- limit 2))
+      (for (j (+ i 1) limit)
+        ; calculate current sum
+        (setq sum (+ (* i i i) (* j j j)))
+        ; search sum in all-sum
+        (setq idx (ref sum all-sum))
+        ; sum exists in list all-sum?
+        ; (idx 1) must be 0
+        ; otherwise sum is found on first or second number
+        (if (and (!= idx nil) (zero? (idx 1)))
+            ; put all values (sum a b c d) on solution list
+            (push (list (all-sum (idx 0) 0) ; sum
+                        (all-sum (idx 0) 1) ; first number
+                        (all-sum (idx 0) 2) ; second number
+                        i j)                ; current first and second number
+                        out -1)
+            ;else
+            ; insert (sum i j) on all-sum
+            (push (list sum i j) all-sum -1)
+        )
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(rama 1e5)
+;-> ((1729 1 12 9 10) (4104 2 16 9 15) (39312 2 34 15 33)
+;->  (40033 9 34 16 33) (13832 2 24 18 20) (32832 4 32 18 30)
+;->  (20683 10 27 19 24) (64232 17 39 26 36) (46683 3 36 27 30)
+;->  (65728 12 40 31 33))
+
+(rama 1e7)
+;-> ((1729 1 12 9 10)
+;->  (4104 2 16 9 15)
+;->  (39312 2 34 15 33)
+;->  (40033 9 34 16 33)
+;->  (13832 2 24 18 20)
+;->  (32832 4 32 18 30)
+;->  ...
+;->  (9261729 9 210 161 172)
+;->  (10702783 135 202 166 183)
+;->  (10870119 126 207 168 183))
+
+(time (println (length (rama 1e7))))
+;-> 155
+;-> 7121.324
+(time (println (length (rama 1e8))))
+;-> 497
+;-> 162745.134
+
+Sequenza OEIS: A001235
+  1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 
+  65728, 110656, 110808, 134379, 149389, 165464, 171288, 195841,
+  216027, 216125, 262656, 314496, 320264, 327763, 373464, 402597,
+  439101, 443889, 513000, 513856, 515375, 525824, 558441, 593047,
+  684019, 704977, ...
+
+(sort (map first (rama 1e6)))
+;-> (1729 4104 13832 20683 32832 39312 40033 46683 64232 65728 110656
+;->  110808 134379 149389 165464 171288 195841 216027 216125 262656 314496
+;->  320264 327763 373464 402597 439101 443889 513000 513856 515375 525824
+;->  558441 593047 684019 704977 805688 842751 885248 886464 920673 955016
+;->  984067 994688 1009736 1016496)
+
 =============================================================================
 

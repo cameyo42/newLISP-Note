@@ -926,7 +926,7 @@ NOTE LIBERE 5
   Verifica accessibilità siti web
   Miglior punto d'incontro
   Stringhe Unicode (UTF8) o ASCII
-  Funzione set-nth
+  Funzione "set-nth" e "nth-set"
   Somma di interi rappresentati come liste
   Equazione diofantea lineare
   Cache LRU
@@ -1560,6 +1560,9 @@ NOTE LIBERE 13
   Pigeonhole Sort
   Bucket Sort
   Creazione automatica di contesti
+  Forum: A quasiquote implementation in newLISP
+  Raggruppare i valori di una lista associativa che hanno la stessa chiave
+  Ramanujan e il taxi 1729
 
 APPENDICI
 =========

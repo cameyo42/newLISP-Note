@@ -7637,9 +7637,9 @@ Se la lunghezza ASCII è uguale alla lunghezza UTF8, allora la stringa contiene 
 Nota: la funzione "utf8len" è disponibile solo nella versione di newLISP UTF8.
 
 
-----------------
-Funzione set-nth
-----------------
+------------------------------
+Funzione "set-nth" e "nth-set"
+------------------------------
 
 La funzione "set-nth" è deprecata e non è più disponibile nelle versione 10.7.5 di newLISP.
 Questa funzione è stata sostituita da "setf" e l'indicizzazione implicita.
@@ -7648,6 +7648,7 @@ Riportiamo la sintassi della funzione "set-nth" al fine di facilitare la convers
   (set-nth indice list|string|array value)
 
 Sostituisce l'elemento in posizione "indice" di una lista, vettore o stringa con il valore del parametro "value".
+Restituisce la nuova lista/array.
 
 Esempi:
 
@@ -7706,6 +7707,17 @@ Nota: abbiamo anche "push" e "pop" che possono inserire o estrarre pezzi di uno 
 ;-> "a"
 ;-> "zbc"
 
+Anche la funzione "nth-set" è deprecata e non è più disponibile nelle versione 10.7.5 di newLISP.
+Questa funzione è stata sostituita da "setf" e l'indicizzazione implicita.
+Riportiamo la sintassi della funzione "nth-set" al fine di facilitare la conversione di vecchi programmi newLISP che la utilizzano:
+
+  (nth-set indice list|string|array value)
+
+Sostituisce l'elemento in posizione "indice" di una lista, vettore o stringa con il valore del parametro "value".
+Restituisce il valore inserito.
+
+Nota: "nth-set" è (era) molto più veloce perché non ha bisogno di restituire l'intera lista o array.
+When you are using 'nth-set' or 'set-nth' be also aware of the difference between the two. 'nth-set' is much faster becuase it doesn't need to return the whole list or array.
 
 ----------------------------------------
 Somma di interi rappresentati come liste
