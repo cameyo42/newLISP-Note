@@ -1563,6 +1563,8 @@ NOTE LIBERE 13
   Forum: A quasiquote implementation in newLISP
   Raggruppare i valori di una lista associativa che hanno la stessa chiave
   Ramanujan e il taxi 1729
+  Numero somma di due cubi
+  Cubo perfetto
 
 APPENDICI
 =========

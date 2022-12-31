@@ -3157,6 +3157,23 @@ Most of syntax changes suggestions could be implemented by defining functions or
 
 In newLISP you also have the possibility to redefine the built-in functions using "constant". 
 Doing this and using functions and macros, you can completely tailor a language to your own taste, which is the reason people use these kind of languages in the first place, because they let you define your own language appropiate to the problem area you are developing in.
+For example:
+(constant (global 'const) constant)
+(constant (global 'df) define)
+(constant (global 'dm) define-macro)
+(constant (global 'ap) apply)
+(constant (global 'filt) filter)
+(constant (global 'car) first)
+(constant (global 'cdr) rest)
+(constant (global 'cat) append)
+(constant (global 'fmt) format)
+(constant (global 'pr) print)
+(constant (global 'prn) println)
+(constant (global 'len) length)
+(constant (global 'int) integer)
+(constant (global 'int?) integer?)
+(constant (global 'str) string)
+(constant (global 'str?) string?)
 
 
 ---------------
@@ -3773,6 +3790,160 @@ Sequenza OEIS: A001235
 ;->  320264 327763 373464 402597 439101 443889 513000 513856 515375 525824
 ;->  558441 593047 684019 704977 805688 842751 885248 886464 920673 955016
 ;->  984067 994688 1009736 1016496)
+
+
+------------------------
+Numero somma di due cubi
+------------------------
+
+Scrivere una funzione che verifica se un numero è la somma di due cubi perfetti.
+
+Utilizziamo due puntatori "low" e "high" e poniamo low = 1 e hi = int(cbrt(n)).
+Quindi effettuiamo un ciclo con la condizione (low <= high),
+  se il valore corrente (low*low*low + high*high*high) è uguale a n, allora il numero n è la somma di due cubi.
+  se il valore corrente (low*low*low + high*high*high) è minore di n incrementiamo low, altrimenti decrementiamo high.
+Quando (low >= high) usciamo dal ciclo senza soluzione.
+
+(define (cubesum? n)
+  (local (low high val continua)
+    (setq continua true)
+    (setq low 1)
+    (setq high (int (pow n (div 3))))
+    (while (and (<= low high) continua)
+      (setq val (+ (* low low low) (* high high high)))
+      (if (= val n) (setq continua nil)
+          (< val n) (++ low)
+          (> val n) (-- high)
+      )
+    )
+    (if continua (list high low) nil)))
+
+(cubesum? 125)
+;-> (3 4)
+
+(cubesum? 1719)
+;-> (9 10)
+
+(cubesum? 2000)
+;-> nil
+
+
+-------------
+Cubo perfetto
+-------------
+
+Scrivere una funzione per verificare su un dato numero N è un cubo perfetto.
+
+Metodo 1:
+---------
+Si può dimostrare che tutti i cubi perfetti devono avere radice digitale 1, 8 o 9.
+Tuttavia, non è sempre vero il contrario. Cioè, se un numero ha una radice digitale di 1, 8 o 9, ciò non significa che il numero dato deve essere un cubo perfetto.
+
+Inoltre, la radice digitale del cubo di qualsiasi numero può essere calcolata anche nel modo seguente:
+
+- Se il numero è divisibile per 3, il suo cubo ha radice numerica 9;
+- Se ha resto 1 quando diviso per 3, il suo cubo ha radice numerica 1;
+- Se ha un resto di 2 quando diviso per 3, il suo cubo ha radice numerica 8.
+
+Quindi se un numero N non ha radice digitale pari a 1, 8 o 9, allora non è un cubo perfetto.
+
+Rimane da verificare se il numero n che ha radice pari a 1, 8 o 9 è un numero perfetto o meno.
+
+Per fare questo un metodo è quello di calcolare la fattorizzazione di N.
+Se la frequenza di ogni fattore primo non è un multiplo di 3, allora il numero N non è un cubo perfetto.
+
+(define (digit-root num)
+"Calculates the repeated sum of the digits of an integer"
+    (+ 1 (% (- (abs num) 1) 9)))
+
+(define (cube? n)
+  (local (out f)
+    (setq out true)
+    (setq f (factor n))
+    ; il numero di fattori deve essere un multiplo di 3
+    (cond ((!= (% (length f) 3) 0 (setq out nil)))
+          (true
+            (dolist (el (explode f 3) (not out))
+              ; ogni gruppo di fattori deve avere tutti i valori uguali
+              (if (not (apply = el)) (setq out nil))))
+    )
+    out))
+
+(cube? 125)
+;-> true
+(cube? 216)
+;-> true
+(cube? 999)
+;-> nil
+(cube? 15625000)
+;-> true
+
+Scriviamo una funzione per verificare i risultati di "cube?":
+
+(define (test iter)
+  (for (i 2 iter)
+    (if (nil? (cube? (* i i i)))
+        (println "Error: " i {, } (* i i i)}))))
+
+(time (println (test 1e5)))
+;-> nil
+;-> 2438.172
+
+Metodo 2:
+---------
+Possiamo utilizzare la ricerca binaria per risolvere il problema. 
+I valori di i * i * i aumentano in modo monotono, quindi il problema può essere risolto utilizzando la ricerca binaria.
+Vediamo i passi dell'algoritmo:
+
+1) Inizializzare il minimo e il massimo rispettivamente come 1 e N.
+2) Iterare fino a (low <= high):
+   2.1) Trovare il valore di mid come = (low + high)/2.
+   2.2) Se mid*mid*mid è uguale a N, allora output = true.
+   2.3) Se il cubo di mid è minore di N aggiornare low a mid + 1.
+   2.4) Se il cubo di mid è maggiore di N, aggiornare high to mid – 1.
+3) Se non si ottiene il cubo di N nel ciclo precedente, allora output = nil.
+
+Nota: questo algoritmo ha bisogno di utilizzare i big integer.
+
+(define (cube?? n)
+  (local (val low mid high continua out)
+    (setq n (bigint n))
+    (setq low 1L)
+    (setq high n)
+    (setq continua true)
+    (setq out nil)
+    (while (and (<= low high) continua)
+      (setq mid (/ (+ low high) 2))
+      (setq val (* mid mid mid))
+      (if (= n val) (set 'out true 'continua nil)
+          (> n val) (setq low (+ mid 1))
+          (< n val) (setq high (- mid 1))
+      )
+      ;(println val { } low { } high { } mid)
+      ;(read-line)
+    )
+    out))
+
+(cube?? 125)
+;-> true
+(cube?? 216)
+;-> true
+(cube?? 999)
+;-> nil
+(cube?? 15625000)
+;-> true
+
+Scriviamo una funzione per verificare i risultati di "cube??":
+
+(define (test iter)
+  (for (i 2 iter)
+    (setq k (bigint i))
+    (if (nil? (cube?? (* k k k)))
+        (println "Error: " i {, } (* i i i)))))
+
+(time (println (test 1e5)))
+;-> nil 
+;-> 3225.404
 
 =============================================================================
 

@@ -5104,6 +5104,89 @@ Nota: questo algoritmo ha il grave difetto che aumentando la precisione oltre un
 (cube-root 1234.31 10)
 ;-> 10.7268888888
 
+Il metodo standard per calcolare la radice cubica di un numero è quello di utilizzare la funzione "pow":
+
+(pow 125 (div 3))
+;-> 4.999999999999999
+
+Però non calcola le radici cubiche di numeri negativi:
+
+(pow -125 (div 3))
+;-> -1.#IND
+
+Allora possiamo scrivere una funzione:
+
+(define (cbrt x)
+"Calculates the cube root of a number"
+  (if (< x 0)
+      (sub (pow (sub x) (div 3)))
+      ;else (positive number)
+      (pow x (div 3))))
+
+(cbrt 125)
+;-> 4.999999999999999
+(cbrt -125)
+;-> -4.999999999999999
+
+Se vogliamo calcolare la radice cubica intera di un numero possiamo scrivere:
+
+(define (cbrt-i x)
+"Calculates the integer cube root of a positive number"
+  (int (add 0.5 (pow x (div 3)))))
+
+(cbrt-i 126)
+;-> 5
+
+Oppure:
+
+(define (cbrt-i2 x)
+  (let ((res 0) (stop nil))
+    (dotimes (i 9223372036854775807 stop)
+      (if (> (* i i i) x) (set 'res (- i 1) 'stop true))
+    )
+    res))
+
+(cbrt-i2 126)
+;-> 5
+(cbrt-i2 125)
+;-> 5
+(cbrt-i2 124)
+;-> 4
+
+Se vogliamo anche sapere se un numero è un cubo perfetto:
+
+(define (cbrt? n exact)
+"Calculates the integer cube root of a natural number"
+  (let ((res 0) (stop nil) (val 0))
+    (cond ((= exact true)
+            (dotimes (i 9223372036854775807 stop)
+              (setq val (* i i i))
+              (if (= val n) (set 'res i   'stop true)
+                  (> val n) (set 'res nil 'stop true)
+              )
+            )
+          )
+          (true
+            (dotimes (i 9223372036854775807 stop)
+              (if (> (* i i i) n) (set 'res (- i 1) 'stop true))
+            )
+          )
+    )
+    res))
+
+(cbrt? 125)
+;-> 5
+(cbrt? 126)
+;-> 5
+(cbrt? 125 true)
+;-> 5
+(cbrt? 126 true)
+;-> nil
+(cbrt? 123456789123456789)
+;-> 497933
+(cbrt 123456789123456789)
+;-> 497933.8593841521
+
 
 --------------
 Radice n-esima
