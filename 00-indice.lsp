@@ -1565,6 +1565,10 @@ NOTE LIBERE 13
   Ramanujan e il taxi 1729
   Numero somma di due cubi
   Cubo perfetto
+  Forum: Define-macro: new behind-the-curtains behavior
+  Invarianti e barre di cioccolato
+  Short Chess Game
+  Quantili, quartili, percentili
 
 APPENDICI
 =========

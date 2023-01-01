@@ -3945,5 +3945,283 @@ Scriviamo una funzione per verificare i risultati di "cube??":
 ;-> nil 
 ;-> 3225.404
 
+
+-----------------------------------------------------
+Forum: Define-macro: new behind-the-curtains behavior
+-----------------------------------------------------
+
+Excalibor:
+----------
+How hard would it be for define-macro to automagically switch to a new context each time it's called? 
+This would avoid variable collision in a very elegant way, even if multiple expansions are being performed...
+The idea is:
+
+(define-macro (foo x) 
+  (begin (set 'M (symbol (random)))
+         (context 'M)
+         (*macro goes in here *)
+         (context 'MAIN)))
+
+(set 'x 1)
+(print (foo 45)) ; in here 45 is referred by 'M:x and M is different everytime (or it should be) so it's not posible that the expansions collide...
+(print x) ; => prints 1
+
+Lutz:
+-----
+A Context switch only affects compiling statements like 'load', and 'eval-string'. For this reason a context statement only on the toplevel where it is evaluated when loading will affect the translation of symbols to follow. I.e.
+
+(define (foo)
+  (context 'Ctx)
+  (set 'x 123)
+  (eval-str "(set 'y 456"))
+  (context 'MAIN))
+
+(foo)
+
+x => 123
+Ctx:y 456
+
+In this example 'x' will still be part of main, only 'y' is in Ctx, because when
+'foo' is executed 'x' is already compiled in to the MAIN context.
+
+If you want to force the macro arg vars into another context you could just do:
+
+(define-macro (foo m:x)
+  (func m:x))
+
+Excalibor:
+----------
+Now I see how it works, thanks for the clarification... (I couldn't log in at the end last night)...
+
+My comments are motivated by this:
+
+"capture"
+I took a quick look at it. It looked to me as if the way you're supposed to avoid variable capture is to use variables with unusual names. Is this really the plan? What about expansions that occur within expansions?
+
+My idea goal is to avoid name collisions on variable expansions... 
+Would it be too difficult to make (context) work inside macros?
+
+something similar to this:
+
+> (set 'x 13)
+13
+> (define (foo a , x) (set 'x a) (println x))
+(lambda (a , x) (set 'x a) (println x))
+> (foo 8)
+8
+8
+> x
+13
+
+but that happened automatically? 
+I thought contexts (random contexts) could work, because something similar is done in Tcl when you are toying around with unknown, and other interesting functions...just some thoughts.
+
+Lutz:
+-----
+Variable capture is a potential danger in any dynamiccally soped language but only a potential problem in macros. In normal functions this is not of concern because the LISP evaluation algorithm saves the current variable environment on a stack and restores at function exit. This is what your example shows. Even if you would do (foo 'a) or (foo 'x) your function will still work correctly.
+
+Where variable capture or name clash is a potential problem is in macros:
+
+(define-macro (my-setq x y) (set x (eval y))) ;; bad definition
+
+(my-setq x 123) => 123
+x => nil ; x is still nil because of name clash
+
+(my-setq z 123) => 123
+z => 123 ; works becuase no name clash
+
+(define-macro (my-setq _x _y) (set _x (eval _y))) ;; better to avoid name clashes
+
+In my own work I never had a problem with variable capture and I have never seen code here on the discussion board affected by this.
+
+If it is of concern in a specific situation, put your macros inside a context, which is lexically isolated or adhere to a naming convention for variables in macros. This is why all packages/modules shipped with newLISP are inside contexts, because nobody should have to look into them and should be able to treat them as black boxes.
+
+Last not least dynamic scoping as also advantages i.e. in Aspect Oriented Programming. Nigel posted and interesting link a while ago to an article by Pascal Constanza "Dynamically Scoped Functions as the Essence of AOP".
+
+Excalibor:
+----------
+
+Regarding the macros, imaging I want to write a foreach macro similar to CL for...:
+
+(define-macro (foreach _x _from "from" _to "to" _foo)
+  (for (_x '_from '_to)
+    (_foo '_x)))
+
+or similar, as this doesn't compile, probably due to the "from" and "to" strings... how does this work in newLISP?
+
+Lutz:
+-----
+
+This could be a start for a foreach macro:
+
+(define-macro (foreach _x from _a to  _z _body)
+  (for (_x (eval _a) (eval _z)) (eval _body)))
+
+(foreach x from 1 to 10 (println x))
+
+1
+2
+...
+10
+
+Its doesn't check that 'from' really is 'from' etc. but it works. The (eval a) and (eval z) makes sure that you can say:
+
+(foreach i from start to end (println i)
+
+When start is a number etc.
+
+
+--------------------------------
+Invarianti e barre di cioccolato
+--------------------------------
+
+Una barretta di cioccolato rettangolare è composta da tanti quadrati della stessa dimensione.
+Per esempio la seguente barretta è composta da 7x4=28 quadrati.
+
+   +---+---+---+---+---+---+---+
+   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+
+   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+
+   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+
+   |   |   |   |   |   |   |   |
+   +---+---+---+---+---+---+---+
+
+Quanti tagli sono necessari per suddividere la barretta in 28 singoli quadrati?
+
+Ogni volta che viene effettuato un taglio, il numero di tagli aumenta di uno e il numero di pezzi aumenta di uno. 
+Così, il numero di tagli e il numero di pezzi cambiano entrambi. Ciò che non cambia, invece, è la
+differenza tra il numero di tagli e il numero di pezzi. 
+Questo è un "invariante", oppure una "costante", del processo di taglio della tavoletta di cioccolato.
+Iniziamo con un pezzo (la tavoletta intera) e zero tagli. 
+La differenza tra il numero di pezzi e il numero di tagli, all'inizio, vale 1.
+Possiamo quindi scrivere: pezzi - tagli = 1 - 0 = 1
+Essendo una costante/invariante questo valore rimane sempre uguale indipendentemente dal numero di tagli effettuati.
+Quindi per tagliare la tavoletta di cioccolato in tutti i suoi singoli quadrati, il numero di tagli necessari è uno in meno rispetto al numero di quadrati, cioè:
+
+  tagli = pezzi - 1
+
+Nota: pezzi - tagli = (pezzi + 1) - (tagli + 1)
+
+
+----------------
+Short Chess Game
+----------------
+
+Problema:
+Una partita di scacchi inizia con 1.e4 e termina alla quinta mossa con un cavallo nero che dà scacco matto al re bianco.
+Trovare le mosse della partita.
+
+Suggerimento:
+Provare il ragionamento inverso: immaginate quali posizioni di matto sono possibili nelle prime mosse.
+L'idea è quella di cercare di arrivare alla soluzione partendo anche dalla posizione finale.
+
+Soluzione:
+1. e4   Nf6 
+2. f3   Nxe4
+3. Qe2  Ng3 
+4. Qxe7 Qxe7+
+5. Kf2  Nxh1#
+
+Nota: N = kNight (Cavallo), Q = Queen (Regina), K = King (Re)
+      B = Bishop (Alfiere), R = Rook (Torre)
+      P = Pawn (Pedone) (simbolo non usato nella notazione PGN)
+
+
+------------------------------
+Quantili, quartili, percentili
+------------------------------
+
+In statistica i "quantili" sono indici di posizione che dividono le distribuzioni in determinate percentuali.
+A seconda delle percentuali in cui la distribuzione viene suddivisa, si classificano diversi tipi di quantili:
+
+- Mediana (quantile di ordine 1/2)
+- Quartili (quantili di ordine 1/4, 1/2 e 3/4)
+- Decili (quantili di ordine 1/10)
+- Centili o percentili (quantili di ordine 1/100)
+
+Quartili
+--------
+I quartili si ottengono dividendo l'insieme di dati ordinati in 4 parti uguali ed esattamente:
+
+Il primo quartile Q1 è il valore che lascia alla sua sinistra il 25% degli elementi della distribuzione.
+Q1 è anche detto 25-esimo percentile P(0.25).
+
+Il secondo quartile Q2 coincide con la mediana dato che è quello che lascia alla sua sinistra il 50% dei dati della distribuzione.
+Q2 è anche detto 50-esimo percentile P(0.5).
+
+Il terzo quartile Q3 è il valore che lascia il 75% degli elementi a sinistra e il 25% a destra.
+Q3 è anche detto 75-esimo percentile P(0.75).
+
+Decili
+------
+I decili dividono la distribuzione in 10 parti, ad esempio:
+
+Il primo decile P(0.1) lascia alla sua sinistra un decimo degli elementi della distribuzione, ossia il 10%;
+Il terzo decile P(0.3) lascia alla sua sinistra il 30% degli elementi della distribuzione;
+Il quinto decile (che coincide con la mediana e con il secondo quartile) lascia alla sua sinistra il 50% della distribuzione.
+
+Percentili
+----------
+I percentili, invece, dividono la distribuzione in 100 parti, ad esempio:
+
+Il 1° percentile P(0.01) lascia alla sua sinistra un centesimo degli elementi della distribuzione, ossia l'1%.
+Il 10° percentile P(0.1) lascia alla sua sinistra il 10% degli elementi della distribuzione.
+Il 50° percentile (che coincide con la mediana e con il secondo quartile) lascia alla sua sinistra il 50% della distribuzione.
+
+Regola pratica per il calcolo dei quartili e dei percentili
+-----------------------------------------------------------
+
+Per calcolare i quartili (o anche i percentili) di una distribuzione, seguiamo i passi di seguito indicati:
+
+Si ordinano gli n dati della distribuzione in ordine crescente:
+Indicato con p il percentile in decimale (p=0.25 per il 25° percentile o 1° quartile, p=0.42 per il 42° percentile), si calcola il prodotto:
+
+  k = n*p;
+
+a) se k è un intero, il quartile (percentile) si ottiene facendo la media del k-esimo e del (k+1)-esimo valore dei dati ordinati.
+b) se k non è un intero, si arrotonda k per eccesso al primo intero successivo e si sceglie come quartile (percentile) il corrispondente valore dei dati ordinati
+
+Calcolare il primo, il secondo e il terzo quartile dell'insieme di dati:
+
+(setq a '(32.2 32 30.4 31 31.2 31.3 30.3 29.6 30.5 30.7))
+
+(define (quantile p lst)
+  (let (k (mul p (length lst)))
+    (sort lst)
+    (if (= k (int k))
+        (div (add (lst (- k 1)) (lst k)) 2) ; index are 0-based
+        ;else
+        (lst (int k))))) ; index are 0-based
+
+(quantile 0.25 a)
+;-> 30.4
+
+(quantile 0.5 a)
+;-> 30.85
+
+(quantile 0.75 a)
+;-> 31.3
+
+(setq b '(
+     6.2  7.7  8.3  9.0  9.4  9.8 10.5 10.7 11.0 11.2
+    11.8 12.3 12.8 13.2 13.3 13.5 13.9 14.4 14.5 14.7
+    15.2 15.5 15.8 15.9 16.2 16.7 16.9 17.0 17.3 17.5
+    17.6 17.9 18.0 18.0 18.1 18.1 18.4 18.5 18.7 19.0
+    19.1 19.2 19.3 19.4 19.4 20.0 20.1 20.1 20.4 20.5
+    20.8 20.9 21.4 21.6 21.9 22.3 22.5 22.7 22.7 22.9
+    23.0 23.5 23.7 23.9 24.1 24.3 24.6 24.6 24.8 25.7
+    25.9 26.1 26.4 26.6 26.8 27.5 28.5 28.6 29.6 31.8))
+
+(quantile 0.95 b)
+;-> 28
+
+Che significato ha il "quantile"?
+---------------------------------
+Il valore dell'x-esimo quantile divide i dati in (1 - x) maggiori e x minori.
+Ad esempio, nell'esempio precedente significa che:
+Poichè il 95° quantile vale 28, questo significa che solo il 5% dei valori sono maggiori di 28.
+
 =============================================================================
 
