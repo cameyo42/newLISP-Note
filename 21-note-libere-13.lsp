@@ -4188,19 +4188,20 @@ Calcolare il primo, il secondo e il terzo quartile dell'insieme di dati:
 (setq a '(32.2 32 30.4 31 31.2 31.3 30.3 29.6 30.5 30.7))
 
 (define (quantile p lst)
-  (let (k (mul p (length lst)))
-    (sort lst)
-    (if (= k (int k))
-        (div (add (lst (- k 1)) (lst k)) 2) ; index are 0-based
-        ;else
-        (lst (int k))))) ; index are 0-based
+  (cond ((zero? p) (lst 0)) ; (- (lst 0) 1) or nil ?
+        ((= 1 p) (lst -1))
+        (true
+          (let (k (mul p (length lst)))
+            (sort lst)
+            (if (= k (int k))
+                (div (add (lst (- k 1)) (lst k)) 2) ; index are 0-based
+                ;else
+                (lst (int k))))))) ; index are 0-based
 
 (quantile 0.25 a)
 ;-> 30.4
-
 (quantile 0.5 a)
 ;-> 30.85
-
 (quantile 0.75 a)
 ;-> 31.3
 
@@ -4222,6 +4223,171 @@ Che significato ha il "quantile"?
 Il valore dell'x-esimo quantile divide i dati in (1 - x) maggiori e x minori.
 Ad esempio, nell'esempio precedente significa che:
 Poichè il 95° quantile vale 28, questo significa che solo il 5% dei valori sono maggiori di 28.
+
+(setq c '(1 5 4 6 7 2 5 6 3 1 2 4 4 7 7))
+
+(quantile 0.25 c)
+;-> 2
+(quantile 0.75 c)
+;-> 6
+
+(setq d '(20 2 7 1 34))
+
+(quantile 0.5 d)
+;-> 7
+(quantile 0.25 d)
+;-> 2
+(quantile 0.75 d)
+;-> 20
+(quantile 0.1 d)
+;-> 1
+
+(setq e '(1 1 2 2 2 3 3 3 3 4 5 5 6 6))
+(quantile 0.25 e)
+;-> 2
+(quantile 0.5 e)
+;-> 3
+(quantile 0.75 e)
+;-> 5
+
+Nota: alcuni software (R, Gnumeric, Octave...) possono calcolare i quantili in modo leggermente diverso interpolando i valori.
+Non esiste un modo univoco universalmente riconosciuto per il calcolo dei quantili.
+
+
+--------
+Box-plot
+--------
+
+In statistica il diagramma box-plot è una rappresentazione grafica utilizzata per descrivere la località, la diffusione e l'asimmetria dei dati numerici attraverso i loro quartili.
+
+          Q1   Q2   Q3
+     min   +----+----+   max
+      +----|    |    |----+
+           +----+----+
+
+------|----|----|----|----|-------> X
+     x0   x1   x2   x3   x4
+
+Box-plot stilizzato
+
+      +----|----|----|----+
+     x0   x1   x2   x3   x4
+
+Scriviamo una funzione che visualizza il box-plot di una serie di dati.
+L'implementazione è molto spartana.
+
+Funzione che calcola i quantili:
+
+(define (quantile p lst)
+  (let (k (mul p (length lst)))
+    (sort lst)
+    (if (= k (int k))
+        (div (add (lst (- k 1)) (lst k)) 2) ; index are 0-based
+        ;else
+        (lst (int k))))) ; index are 0-based
+
+(define (normalize lst-num val-min val-max)
+"Normalize a list of numbers in the range (a,b)"
+  (local (hi lo k out)
+    (setq out '())
+    (setq hi (apply max lst-num))
+    (setq lo (apply min lst-num))
+    ; if val-max == nil then val-max = hi
+    (setq val-max (or val-max hi))
+    ; if val-min == nil then val-min = 0
+    (setq val-min (or val-min 0))
+    (setq k (div (sub val-max val-min) (sub hi lo)))
+    (dolist (val lst-num)
+      (push (add val-min (mul (sub val lo) k)) out -1))
+    out))
+
+Funzione che stampa un box-plot di una lista di numeri:
+
+(define (box-plot lst delta)
+  (local (vmin vmax q1 q2 q3 lst-norm
+          punti punti-norm line-box line-values segni idx v)
+    (setq segni '("+" "|" "|" "|" "+"))
+    (sort lst)
+    ; calcolo quantili, minimo e massimo
+    (setq vmin (lst 0))
+    (setq vmax (lst -1))
+    (setq q1 (quantile 0.25 lst))
+    (setq q2 (quantile 0.50 lst))
+    (setq q3 (quantile 0.75 lst))
+    (setq punti (list vmin q1 q2 q3 vmax))
+    ; normalizzazione dei dati
+    (setq lst-norm (normalize lst 0 delta))
+    ; normalizzazione dei punti
+    (setq punti-norm (normalize punti 0 delta))
+    ; crea la linea del box-plot
+    (setq line-box (dup "-" (add delta 2)))
+    ; crea la linea dei valori del box-plot
+    (setq line-values (dup " " (add delta 2)))
+    ; ciclo per inserire i simboli e i valori nelle due linee
+    (dolist (p punti-norm)
+      (setq idx (int (add 0.5 p)))
+      (setf (line-box idx) (segni $idx))
+      (setq v (format "%.2f" (punti $idx)))
+      (push v line-values idx)
+    )
+    ; stampa il box-plot
+    (println " " line-box)
+    (println " " line-values)))
+
+Facciamo alcune prove:
+
+(setq a '(2 4 3 6 8 6 9 11 3 5 9 15 14 7))
+(box-plot a 60)
+;-> +--------|-----------|----------|---------------------------+-
+;-> 2.00     4.00        6.50       9.00                        15.00
+
+
+(setq b (random 1 -100 100))
+(box-plot b 60)
+;-> +---------------|--------------|------------|---------------+-
+;-> 1.47            27.96          52.10        74.94           100.97
+
+(setq c (random 1 -100 100))
+(box-plot c 60)
+;-> +---------------|----------|---------------|----------------+-
+;-> -96.65          -71.64     -54.31          -29.99           -3.32
+
+
+-----------------------------------------------------------
+Selezionare colonne in una matrice (lista a due dimensioni)
+-----------------------------------------------------------
+
+Data una matrice (lista a due dimensioni) scriviamo una funzione per selezionare una colonna.
+
+(setq a '((1 2 3) (4 5 6) (7 8 9)))
+
+(define (select-column1 lst col)
+  (let (l '())
+    (dolist (i lst)
+       (push (i col) l -1))
+   l))
+
+(select-column1 a 1)
+;-> (2 5 8)
+
+(define (select-column2 lst col)
+   (map (fn (row) (row col)) lst) )
+
+(select-column2 a 1)
+;-> (2 5 8)
+
+Le precedenti funzioni estraggono una colonna come riga.
+La prossima funzione permette di scegliere se selezionare i dati come colonna o come riga:
+
+(define (select-column3 lst col row)
+  (if row
+      ((transpose lst) col)
+      (transpose (list ((transpose lst) col)))))
+
+(select-column3 a 1)
+;-> ((2) (5) (8))
+(select-column3 a 1 true)
+;-> (2 5 8)
 
 =============================================================================
 

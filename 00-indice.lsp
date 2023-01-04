@@ -1569,6 +1569,8 @@ NOTE LIBERE 13
   Invarianti e barre di cioccolato
   Short Chess Game
   Quantili, quartili, percentili
+  Box-plot
+  Selezionare colonne in una matrice (lista a due dimensioni)
 
 APPENDICI
 =========
