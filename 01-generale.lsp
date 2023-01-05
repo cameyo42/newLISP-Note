@@ -447,8 +447,7 @@ Possiamo usare solo funzioni e operatori che hanno una valutazione normale dei l
 ;-> 12
 
 Il parametro opzionale "int-reduce" indica il numero di parametri della funzione "func".
-In questo caso, "func" viene applicata ripetutamente utilizzando il risultato precedente come primo argomento, mentre gli altri argomenti vengono presi da "list".
-(con ordine di associazione sinistro).
+In questo caso, "func" viene applicata ripetutamente utilizzando il risultato precedente come primo argomento, mentre gli altri argomenti vengono presi da "list" (con ordine di associazione sinistro).
 
 In altre parole, se la funzione "op" ha due argomenti, allora l'espressione:
 
@@ -468,7 +467,22 @@ Per esempio:
 (max (max (max (max 11 22) 13) 41) 15)
 ;-> 41
 
-Nel nostro caso risulta che: (MCD a b c ...) = (MCD (MCD (MCD a b) c) ...)
+Nota: possiamo usare "apply" solo su normali funzioni che valutano i loro argomenti.
+Per esempio:
+(eval '(case 1 (1 "a")))
+;-> "a"
+(apply case '(1 (1 "a")))
+;-> nil
+;-> nil
+;-> nil
+Qual è la differenza?
+In "case" i termini tra parentesi non vengono mai valutati, ma spezzati direttamente da "case" per accedere agli interni. Nel gergo LISP le funzioni che non valutano i loro argomenti sono chiamate funzioni speciali o forme speciali perché non seguono le normali regole di valutazione.
+È come fare:
+(apply dotimes '((x 10) (print x))) => errore
+oppure:
+(apply setq '(x 10)) => errore
+
+Ritornando al nostro caso risulta che: (MCD a b c ...) = (MCD (MCD (MCD a b) c) ...)
 
 Gli argomenti di una funzione/macro che non vengono associati nella chiamata sono memorizzati nella lista "args".
 

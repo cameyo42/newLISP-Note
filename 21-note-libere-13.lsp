@@ -4188,11 +4188,11 @@ Calcolare il primo, il secondo e il terzo quartile dell'insieme di dati:
 (setq a '(32.2 32 30.4 31 31.2 31.3 30.3 29.6 30.5 30.7))
 
 (define (quantile p lst)
-  (cond ((zero? p) (lst 0)) ; (- (lst 0) 1) or nil ?
-        ((= 1 p) (lst -1))
+  (sort lst)
+  (cond ((zero? p) (lst 0)) ; min value
+        ((= 1 p) (lst -1))  ; max value
         (true
           (let (k (mul p (length lst)))
-            (sort lst)
             (if (= k (int k))
                 (div (add (lst (- k 1)) (lst k)) 2) ; index are 0-based
                 ;else
@@ -4249,14 +4249,18 @@ Poichè il 95° quantile vale 28, questo significa che solo il 5% dei valori son
 ;-> 3
 (quantile 0.75 e)
 ;-> 5
+(quantile 0 e)
+;-> 1 ; valore minimo
+(quantile 1 e)
+;-> 6 ; valore massimo
 
 Nota: alcuni software (R, Gnumeric, Octave...) possono calcolare i quantili in modo leggermente diverso interpolando i valori.
 Non esiste un modo univoco universalmente riconosciuto per il calcolo dei quantili.
 
 
---------
-Box-plot
---------
+-----------------------------------
+Box-plot e valori anomali (outlier)
+-----------------------------------
 
 In statistica il diagramma box-plot è una rappresentazione grafica utilizzata per descrivere la località, la diffusione e l'asimmetria dei dati numerici attraverso i loro quartili.
 
@@ -4279,12 +4283,15 @@ L'implementazione è molto spartana.
 Funzione che calcola i quantili:
 
 (define (quantile p lst)
-  (let (k (mul p (length lst)))
-    (sort lst)
-    (if (= k (int k))
-        (div (add (lst (- k 1)) (lst k)) 2) ; index are 0-based
-        ;else
-        (lst (int k))))) ; index are 0-based
+  (sort lst)
+  (cond ((zero? p) (lst 0)) ; min value
+        ((= 1 p) (lst -1))  ; max value
+        (true
+          (let (k (mul p (length lst)))
+            (if (= k (int k))
+                (div (add (lst (- k 1)) (lst k)) 2) ; index are 0-based
+                ;else
+                (lst (int k))))))) ; index are 0-based
 
 (define (normalize lst-num val-min val-max)
 "Normalize a list of numbers in the range (a,b)"
@@ -4320,9 +4327,9 @@ Funzione che stampa un box-plot di una lista di numeri:
     ; normalizzazione dei punti
     (setq punti-norm (normalize punti 0 delta))
     ; crea la linea del box-plot
-    (setq line-box (dup "-" (add delta 2)))
+    (setq line-box (dup "-" (add delta 1)))
     ; crea la linea dei valori del box-plot
-    (setq line-values (dup " " (add delta 2)))
+    (setq line-values (dup " " (add delta 1)))
     ; ciclo per inserire i simboli e i valori nelle due linee
     (dolist (p punti-norm)
       (setq idx (int (add 0.5 p)))
@@ -4332,25 +4339,60 @@ Funzione che stampa un box-plot di una lista di numeri:
     )
     ; stampa il box-plot
     (println " " line-box)
-    (println " " line-values)))
+    (println " " line-values)
+    ; IQR = differenza tra Q3 e Q1
+    (println "IQR = " (sub (punti 3) (punti 1)))))
 
 Facciamo alcune prove:
 
 (setq a '(2 4 3 6 8 6 9 11 3 5 9 15 14 7))
 (box-plot a 60)
-;-> +--------|-----------|----------|---------------------------+-
-;-> 2.00     4.00        6.50       9.00                        15.00
-
+;->  +--------|-----------|----------|---------------------------+
+;->  2.00     4.00        6.50       9.00                        15.00
+;-> IQR = 5
 
 (setq b (random 1 -100 100))
 (box-plot b 60)
-;-> +---------------|--------------|------------|---------------+-
-;-> 1.47            27.96          52.10        74.94           100.97
+;->  +---------------|------------|---------------|--------------+
+;->  -98.97          -72.94       -49.92          -24.08         0.87                     
+;-> IQR = 48.86013367107151
 
 (setq c (random 1 -100 100))
 (box-plot c 60)
-;-> +---------------|----------|---------------|----------------+-
-;-> -96.65          -71.64     -54.31          -29.99           -3.32
+;->  +--------------|---------------|----------------|-----------+
+;->  -98.46         -73.12          -47.81           -18.99      0.84                     
+;-> IQR = 54.12610248115482
+
+Identificare i valori anomali (outlier)
+---------------------------------------
+L'intervallo interquartile (IQR= Q3 - Q1) può essere utilizzato per identificare i valori anomali. I valori anomali sono osservazioni estremamente alte o basse. Una definizione di valore anomalo è qualsiasi osservazione che dista più di 1.5*IQR dal primo o dal terzo quartile.
+
+(define (outlier lst)
+  (local (iqr q1 q3 soglia1 soglia3 out)
+    (setq out nil)
+    (sort lst)
+    ; calcolo quantili Q1 e Q3
+    (setq q1 (quantile 0.25 lst))
+    (setq q3 (quantile 0.75 lst))
+    (setq iqr (sub q3 q1))
+    (setq soglia1 (sub q1 (mul 1.5 iqr)))
+    (setq soglia3 (add q3 (mul 1.5 iqr)))
+    (println q1 { } q3 { } iqr { } soglia1 { } soglia3)
+    (dolist (el lst)
+      (if (< el soglia1) (push (list el (sub soglia1 el)) out -1))
+      (if (> el soglia3) (push (list el (sub el soglia3)) out -1))
+    )
+    out))
+
+(setq d '(2 4 3 6 8 6 9 11 3 5 9 15 14 7))
+(outlier d)
+;-> 4 9 5 -3.5 16.5
+;-> nil
+
+(setq d '(2 4 3 6 8 44 6 9 11 3 5 9 15 14 7 31 77))
+(outlier d)
+;-> 5 14 9 -8.5 27.5
+;-> ((31 3.5) (44 16.5) (77 49.5))
 
 
 -----------------------------------------------------------
@@ -4384,10 +4426,328 @@ La prossima funzione permette di scegliere se selezionare i dati come colonna o 
       ((transpose lst) col)
       (transpose (list ((transpose lst) col)))))
 
+Seleziona come colonna:
 (select-column3 a 1)
 ;-> ((2) (5) (8))
+
+Seleziona come riga:
 (select-column3 a 1 true)
 ;-> (2 5 8)
+
+-----------------------------
+Forum: kazimir majorinc wrote
+-----------------------------
+
+Example for functions identical to their definitions:
+-----------------------------------------------
+Once I wanted to "infect" SOME functions with extra
+code during runtime, and later to clean that extra
+code from functions. Wraping around function was not
+enough, code had to be inserted in function definitions.
+
+It had to be done WITHOUT knowledge and cooperation of
+infected function, these had to be ordinary,
+user defined functions, not purposely prepared to be infected.
+
+It turned to be easy in Newlisp, because functions are
+just lambda-expressions, they can be processed like
+any list.
+
+Example for unrestricted eval:
+-----------------------------
+
+What macros actually do? They behave *like*
+functions that produce code and - evaluate that
+code in the caller environment once again.
+
+Sure, macros have other specificities, they
+are not functions, they are not evaluated but
+expanded, etc, but those two things interest me
+now: code generation and evaluation in the caller
+environment.
+
+Now, what if one wants code transformation, but
+macros are not suitable (1) because they are
+not the first class, (2) code transformation
+is not known in macro expansion time, or especially
+interesting (3) because they are just too big
+to be used for every small code transformation
+one can imagine? People do not define functions
+for every expression they evaluate, why should
+they define macros for every code transformation
+they do?!
+
+OK, in that case, code transformations can be done
+without macros, using normal Lisp expressions,
+possibly functions - but resulting code has to
+be EVALUATED ONCE MORE in the caller environment,
+explicitly. And Newlisp has exactly such eval,
+eval able to access to local variables.
+
+More specifically, lets say one need macro m
+which has to be determined during runtime.
+In CL, such macro cannot be defined (without
+eval). But it can be replaced with function f
+that does exactly the same code transformation.
+So, instead of impossible
+
+(m expr1 ... exprn)
+
+it is possible to write
+
+(eval (f 'expr1 ... 'exprn))
+
+Functional version works, because functions
+are the first class citizens. Macro version
+doesn't. But, eval able to access to local
+variables needs to be inserted.
+
+If one takes a look on Newlisp code, it is
+full of evals. Some of these evals could
+be replaced with macros - but many of those
+would be ultrasmall "define once - use once"
+macros, it is just more trouble defining
+macros than applying eval directly on the
+result of some expression. Some evals couldn't
+be replaced with macros at all.
+
+Example for dynamic scope:
+--------------------------
+Define IF as function.
+
+(set 'IF (lambda()
+            (eval
+              ((args)
+                (find (true? (eval (first (args))))
+                      '(* true nil))))))
+
+(let ((x 2)(y 3))
+      (IF '(< x y)
+          '(println  x " is less than " y)
+          '(println  x " is not less than " y))
+
+      (IF '(> x y)
+          '(println x " is greater than " y)
+          '(println x " is not greater than " y)))
+
+It works in Newlisp.
+
+This particular definition of IF is complicated,
+because I did it as game - IF is not only function,
+but it is defined without built in operators
+like IF and COND, and also, without using any variable.
+
+Many other - less extravagant definitions are possible.
+
+More generally, whenever one can define macro,
+he can define equivalent function as well.
+
+Example for first-class macros
+--------------------------------------------
+Experienced Lisper probably noted that he sometimes
+write macros only because it is impossible to write
+equivalent function. Also, that he sometimes write
+functions although macros would be syntactically better,
+but he needs the first class citizens.
+
+In Newlisp, macros are fexprs, whenever one can write
+the function, he can write macro that does the same
+and vice versa. Both have the advantages and
+disadvantages resulting from its syntax and semantics.
+Because of that, it is possible to define two functions:
+
+function-to-macro
+macro-to-function
+
+For example, after
+
+(set 'for-function (macro-to-function for))
+(set 'append-macro (function-to-macro append))
+
+are evaluated the expressions
+
+(for-function '(i 1 10) '(println i))
+(append-macro (1 2 3) (4 5 6))
+
+are valid and behave just like one might expect.
+
+----------------------------------------
+Forum: fnparse to get all used functions
+----------------------------------------
+
+HPW:
+----
+Would it be possible to get a command fnparse?
+
+  (fnparse "Lsp_Source_String")
+
+which would use the internal newlisp-parser to generate a list of all function-names (without duplicates) used in "Lsp_Source_String" without any evaluating.
+
+Would return something like this:
+
+  ("set" "define" .... .... "MyFn" "foo")
+
+Background: To be able to check a Lsp-source before loading, that it does not contain malicious, bad Lisp-code. So a app can store a Lisp-Data-Table and can have a Load-Routine which is not a security hole for bad code. Using the internal parser should provide the speed.
+Any ideas?
+
+Sammo:
+------
+Would something like this work?
+
+(define (fnparse SOURCE)
+  (letn
+    ( (LP    "(")     ;) left paren
+      (SP    " ")     ;  space
+      (LPSP  "( ")    ;) left paren and space
+      (NULL  "")      ;  null string
+      (keep  (lambda (L K) (dolist (x L) (if (= (x 0) LP) (push x K))) K))
+      (s     (parse (replace LPSP (join (parse SOURCE) SP) LP) SP))
+    )
+  ;body of letn
+    (unique (map (fn (x) (replace LP x NULL)) (keep s))) ))
+
+(define (bob one two) (+ one two))
+;-> (lambda (one two) (+ one two))
+
+(source 'bob)
+;-> "(define (bob one two)\r\n (+ one two))\r\n\r\n"
+
+(fnparse (source 'bob))
+;-> ("+" "bob" "define")
+
+
+--------------------------
+LISP syntax and evaluation
+--------------------------
+
+Lutz:
+-----
+LISP syntax and evaluation relies on one simple rule: that the first element in a list is an operator or function applied to the rest of the elements in the list, which constitute the arguments: (func arg1 arg2 ...). Anything changing this would only complicate the syntax and workings of LISP and create ambiguities when reading the language.
+
+The term '(a b c) already constitutes a list. Writing (list a b c) is only necessary when you want the contents of the variables a, b and c be the elements of the list. I.e. if 'a is 1 and 'b is 2 and 'c is 3, then writing: (list a b c) is the same as writing (1 2 3).
+
+There is probably no syntax more minimalistic and flexible than the LISP syntax, which is a mayor attraction to use LISP as a programming language and data modelling language at the same time ;)
+
+
+--------------------------------------------------
+Gestione degli elementi (nome valore) in una lista
+--------------------------------------------------
+
+Supponiamo di avere una lista i cui elementi sono coppie (nome valore).
+
+Per esempio:
+
+(setq a '((nome "Jack") (peso "67") (altezza "170")))
+
+Estraiamo un valore (tag):
+
+(setq the-name (assoc 'nome a))
+;-> (nome "Jack")
+
+the-name
+;-> (nome "Jack")
+
+Possiamo definire una funzione (per ogni valore/tag):
+
+(define (nome s) (append "the name is: " s))
+
+Poi valutiamo la struttura della lista:
+
+(eval the-name)
+;-> "the name is: Jack"
+
+Nota: Questa tecnica può essere utilizzata anche per generare XML/HTML dalla struttura di una lista.
+
+
+-------------------------------------
+Controllo parentesi nei file sorgenti
+-------------------------------------
+
+Il seguente programma verifica la correttezza delle parentesi in un file sorgente newLISP.
+Salvare il programma in un file (es. check.lsp).
+Dal terminale:
+
+  newlisp check.lsp source.lsp
+
+#!/usr/bin/newlisp
+#
+# Simple program to check parantheses -version 1.0
+#
+# Shows the location of unanswered brackets
+#
+# March - Nov. 2005 by PvE.
+# Revised for newLisp 10 at december 28, 2008 - PvE.
+# 
+#------------------------------------------------------
+
+# Open the file
+(set 'file (open (last (main-args)) "read"))
+(when (not file)
+    (println "File not found!")
+    (exit))
+
+(set 'line 0)
+
+# Avoid unexpected pop's
+(set 'bpos (list))
+(set 'epos (list))
+
+(println {Checking file "} (last (main-args)) {" for unanswered opening brackets...})
+
+# Read a line from the file
+(while (read-line file)
+    (set 'cur-line (current-line))
+    # Replace standalone brackets mentioned as a string
+    (replace {"("} cur-line "")
+    (replace {")"} cur-line "")
+    # Save program lines in list
+    (push cur-line program)
+    # Increment line number
+    (inc line)
+    # Count open brackets
+    (set 'bopen (first (count '("(") (parse cur-line))))
+    # Count close brackets
+    (set 'bclose (first (count '(")") (parse cur-line))))
+    # Now see if open brackets need to be remembered
+    (while (> bopen bclose) (dec bopen) (push line opos))
+    # Unremember when closing brackets have been found
+    (while (> bclose bopen) (dec bclose) (pop opos)))
+
+(println {Checking file "} (last (main-args)) {" for unanswered closing brackets...})
+# Reading a line backwards from the file
+(while (> line 0)
+    (set 'cur-line (pop program))
+    # Count open brackets
+    (set 'bopen (first (count '("(") (parse cur-line))))
+    # Count close brackets
+    (set 'bclose (first (count '(")") (parse cur-line))))
+    # Now see if closing brackets need to be remembered
+    (while (> bclose bopen) (dec bclose) (push line epos))
+    # Unremember when opening brackets have been found
+    (while (> bopen bclose) (dec bopen) (pop epos))
+    # Decrement line number
+    (dec line))
+
+# Close filehandle
+(close file)
+
+# Print what is left
+(if (> (length opos) 0)
+    (println (append "Unanswered opening bracket(s) at: " (string (reverse opos))))
+    (println "No unanswered opening brackets found!"))
+
+(if (> (length epos) 0)
+    (println (append "Unanswered closing bracket(s) at: " (string (reverse epos))))
+    (println "No unanswered closing brackets found!"))
+
+# Exit newlisp
+(exit)
+
+c:\newlisp\> newlisp check.lsp ABC.lsp
+;-> Checking file "ABC.lsp" for unanswered opening brackets...
+;-> Checking file "ABC.lsp" for unanswered closing brackets...
+;-> Unanswered opening bracket(s) at: (9 17)
+;-> No unanswered closing brackets found!)
 
 =============================================================================
 

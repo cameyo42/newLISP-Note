@@ -527,6 +527,18 @@ Converte un numero in una stringa o in una lista (1 -> true, 0 -> nil) che conti
 (int (bits 1234) 0 2)
 ;-> 1234
 
+Funzione di conversione proposta da Lutz:
+
+(define (binary x)
+   (append
+      (if (> x 1) (binary (/ x 2)) '())
+      (list (% x 2))
+   )
+)
+
+(binary 10239)
+;-> (1 0 0 1 1 1 1 1 1 1 1 1 1 1)
+
 
 -------------------------------------
 Conversione decimale <--> esadecimale

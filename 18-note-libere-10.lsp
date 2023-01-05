@@ -2499,9 +2499,6 @@ Interpolazione di una stringa
 -----------------------------
 
 Problema: come sostituire i segnaposto in una stringa con i valori dei simboli?
-
-It's like placeholders in function format but named so instead of %s you are using named placeholders
-The effect should be like in PHP where you write something like this
 Si tratta dei "segnaposto" della funzione "format", ma invece di %s possiamo usare i nomi dei segnaposti.
 L'effetto dovrebbe essere come in PHP dove possiamo scrivere qualcosa del genere:
 
@@ -2628,6 +2625,18 @@ Stampa dei risultati:
 ;-> John lives in NY and is 37 years old.
 ;-> Giorgos lives in Athens and is 25 years old.
 ;-> Elena lives in Amsterdam and is 43 years old.
+
+Quarto metodo (by Lutz)
+-------------
+
+(define-macro (repvar str)
+    (dolist (_v (args))
+        (replace (append "#" (term _v)) (eval str) (eval _v)))) 
+
+(set 'var "foo")
+
+(repvar "Goodnight #var" var)
+;-> "Goodnight foo"
 
 
 -------------

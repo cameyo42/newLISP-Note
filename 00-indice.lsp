@@ -1569,8 +1569,13 @@ NOTE LIBERE 13
   Invarianti e barre di cioccolato
   Short Chess Game
   Quantili, quartili, percentili
-  Box-plot
+  Box-plot e valori anomali (outlier)
   Selezionare colonne in una matrice (lista a due dimensioni)
+  Forum: kazimir majorinc wrote
+  Forum: fnparse to get all used functions
+  LISP syntax and evaluation
+  Gestione degli elementi (nome valore) in una lista
+  Controllo parentesi nei file sorgenti
 
 APPENDICI
 =========
