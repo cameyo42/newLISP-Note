@@ -4749,5 +4749,212 @@ c:\newlisp\> newlisp check.lsp ABC.lsp
 ;-> Unanswered opening bracket(s) at: (9 17)
 ;-> No unanswered closing brackets found!)
 
+
+-------------------------------
+Statistica: Skewness e Kurtosis
+-------------------------------
+
+Nota: per una rappresentazione grafica del significato di "skewness" e "kurtosis" vedere il file "skew-kurt.png" nella cartella "data".
+
+Skewness
+--------
+Una distribuzione di valori (una distribuzione di frequenza) si dice "skewed" (distorta) se non è simmetrica.
+
+Asimmetria positiva
+La curva di distribuzione sale ripida a sinistra fino al suo apice e poi scende gradualmente a destra.
+
+Asimmetria negativa
+La curva di distribuzione sale gradualmente a sinistra fino al suo apice per poi diminuire bruscamente a destra.
+
+Distorsione debole: -0.5 <= skew <= 0.5)
+Distorsione moderata: 0.5 <= skew <= 1 oppure -0.5 <= skew <= -1
+Distorsione forte: skew < -1 oppure skew > 1
+
+Il valore di skewness (asimmetria) viene calcolato trovando il terzo momento rispetto alla media e dividendo per il cubo della deviazione standard.
+
+          ∑[(x(i) - media)³]
+  skew = --------------------
+              N*devstd³
+
+Tipo di deviazione standard (devstd):
+type = 1 --> stdev (N)
+type = 2 --> stdev2 (N-1)
+
+Vediamo le funzioni statistiche che ci servono:
+
+(define (media lst)
+  (div (apply add lst) (length lst)))
+
+(define (mediana lst)
+  (let (len (length lst))
+    (sort lst)
+    (if (odd? len)
+        (lst (/ len 2))
+        (div (add (lst (- (/ len 2) 1)) (lst (/ len 2))) 2))))
+
+(define (moda lst)
+  (letn ((uniq (unique lst))
+        (conta (count uniq lst)))
+    (uniq (find (apply max conta) conta))))
+
+(define (stdev lst) ; diviso N
+  (let (m (media lst))
+    (sqrt (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+               (length lst)))))
+
+(define (stdev2 lst) ; diviso (N - 1)
+  (let (m (media lst))
+    (sqrt (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+               (- (length lst) 1)))))
+
+(define (varianza lst) ; popolazione -> diviso N
+  (let (m (media lst))
+    (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+         (length lst))))
+
+(define (varianza2 lst) ; campione -> diviso (N - 1)
+  (let (m (media lst))
+    (div (apply add (map (fn(x) (mul (sub x m) (sub x m))) lst))
+         (- (length lst) 1))))
+
+(define (quantile p lst)
+  (sort lst)
+  (cond ((zero? p) (lst 0)) ; min value
+        ((= 1 p) (lst -1))  ; max value
+        (true
+          (let (k (mul p (length lst)))
+            (if (= k (int k))
+                (div (add (lst (- k 1)) (lst k)) 2)
+                ;else
+                (lst (int k)))))))
+
+Funzione che calcola la "skewness" di una lista di valori:
+
+(define (skew lst type)
+  (local (m sd)
+    (setq type (or type 1))
+    (setq m (media lst))
+    (if (= type 1)
+      (setq sd (stdev lst))
+      (setq sd (stdev2 lst))
+    )
+    (div (apply add (map (fn(x) (mul (sub x m) (sub x m) (sub x m))) lst))
+         (mul (length lst) sd sd sd))))
+
+Facciamo alcune prove:
+
+(setq dat
+  '(-0.533 0.270 0.859 -0.043 -0.205 -0.127 -0.071 0.275 1.251 -0.231
+    -0.401 0.269 0.491 0.951 1.150 0.001 -0.382 0.161 0.915 2.080 -2.337
+    0.034 -0.126 0.014 0.709 0.129 -1.093 -0.483 -1.193 0.020 -0.051
+    0.047 -0.095 0.695 0.340 -0.182 0.287 0.213 -0.423 -0.021 -0.134 1.798
+    0.021 -1.099 -0.361 1.636 -1.134 1.315 0.201 0.034 0.097 -0.170 0.054
+    -0.553 -0.024 -0.181 -0.700 -0.361 -0.789 0.279 -0.174 -0.009 -0.323
+    -0.658 0.348 -0.528 0.881 0.021 -0.853 0.157 0.648 1.774 -1.043 0.051
+    0.021 0.247 -0.310 0.171 0.000 0.106 0.024 -0.386 0.962 0.765 -0.125
+    -0.289 0.521 0.017 0.281 -0.749 -0.149 -2.436 -0.909 0.394 -0.113 -0.598
+    0.443 -0.521 -0.799 0.087))
+
+Funzione "stats" di newLISP:
+
+  Name   Description
+  ----   -----------
+  N      Number of values
+  mean   Mean of values
+  avdev  Average deviation from mean value
+  sdev   Standard deviation (population estimate)
+  var    Variance (population estimate)
+  skew   Skew of distribution
+  kurt   Kurtosis of distribution
+
+(println (format [text]
+  N        = %5d
+  mean     = %8.6f
+  avdev    = %8.6f
+  sdev     = %8.6f
+  var      = %8.6f
+  skew     = %8.6f
+  kurt     = %8.6f
+[/text] (stats dat)))
+;-> N        =   100
+;-> mean     = 0.000400
+;-> avdev    = 0.489892
+;-> sdev     = 0.718875
+;-> var      = 0.516781
+;-> skew     = -0.070368
+;-> kurt     = 2.034227
+
+Nota: la funzione "stats" calcola la deviazione standard come "stdev2" e la varianza come "varianza2".
+
+(media dat)
+;-> 0.0003999999999999896
+(mediana dat)
+;-> 0.0075
+(moda dat)
+;-> 0.021
+(stdev dat)
+;-> 0.7152712073053128
+(stdev2 dat)
+;-> 0.7188746115079505
+(varianza dat)
+;-> 0.5116128999999997
+(varianza2 dat)
+;-> 0.5167807070707068
+(skew dat 1)
+;-> -0.07143695867549046
+(skew dat 2)
+;-> -0.07036808766294561
+
+Kurtosis
+--------
+La "kurtosis" (curtosi) si riferisce al picco di una distribuzione. Ad esempio, una distribuzione di valori potrebbe essere perfettamente simmetrica, ma apparire molto "con picco" o molto "piatta".
+
+Picco di curtosi "leptokurtic" (kurt > 3)
+La curva sale alta ed è acuta al suo apice.
+
+Curtosi piatta "platykurtic"  (kurt > 3)
+La curva non sale tanto in alto ed è più piatta attorno al suo apice.
+
+Una distribuzione normale, che di solito viene utilizzata come standard di riferimento, ha una curtosi di 3.
+
+Il valore di "kurtosis" viene calcolato trovando il quarto momento sulla media e dividendo per il quadruplo della deviazione standard:
+
+          ∑[(x(i) - media)^4]
+  kurt = ---------------------
+              N*devstd^4
+
+Tipo di deviazione standard (devstd):
+type = 1 --> stdev (N)
+type = 2 --> stdev2 (N-1)
+
+(define (kurt lst type)
+  (local (m sd)
+    (setq type (or type 1))
+    (setq m (media lst))
+    (if (= type 1)
+      (setq sd (stdev lst))
+      (setq sd (stdev2 lst))
+    )
+    (div (apply add (map (fn(x) (mul (sub x m) (sub x m) (sub x m) (sub x m))) lst))
+         (mul (length lst) sd sd sd sd))))
+
+(kurt dat 1)
+;-> 5.136442008015037
+(kurt dat 2)
+;-> 5.03422681205554
+
+Nota: Il valore di "kurt" della funzione "stats" è normalizzato, cioè al valore calcolato con la nostra funzione "kurt" viene sottratto 3 che è il valore di kurtosis della distribuzione normale.
+(sub 5.03422681205554 3)
+;-> 2.03422681205554
+
+Valori anomali (outliers)
+-------------------------
+Il valore di kurtosis indica il grado di presenza di valori anomali nella distribuzione.
+La kurtosis è una misura della forma della coda di una distribuzione. 
+Le code sono le estremità affusolate su entrambi i lati di una distribuzione. Rappresentano la probabilità o la frequenza di valori estremamente alti o bassi rispetto alla media. In altre parole, le code rappresentano la frequenza con cui si verificano valori anomali.
+Le distribuzioni con kurtosis media (code medie) sono mesocurtiche.
+Le distribuzioni con bassa kurtosis (code sottili) sono platicurtiche.
+Le distribuzioni con alta kurtosis (code spesse) sono leptocurtiche.
+
 =============================================================================
 
