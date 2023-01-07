@@ -4956,5 +4956,191 @@ Le distribuzioni con kurtosis media (code medie) sono mesocurtiche.
 Le distribuzioni con bassa kurtosis (code sottili) sono platicurtiche.
 Le distribuzioni con alta kurtosis (code spesse) sono leptocurtiche.
 
+
+---------------------------
+Dadi e funzioni generatrici
+---------------------------
+
+Lanciamo due dadi equi a 6 facce (da 1 a 6).
+Qual è la probabilità di ottenere 5?
+Qual è la probabilità di ottenere 10?
+
+Ci sono 6^2 = 36 casi possibili che possiamo elencare con una tabella:
+
+     | 1  2  3  4  5  6
+  ---+------------------
+   1 | 2  3  4  5  6  7
+   2 | 3  4  5  6  7  8
+   3 | 4  5  6  7  8  9
+   4 | 5  6  7  8  9 10
+   5 | 6  7  8  9 10 11
+   6 | 7  8  9 10 11 12
+
+La probabilità di ottenere 5 vale 4/36 = 1/9
+La probabilità di ottenere 10 vale 3/36 = 1/12
+
+Scriviamo una funzione che crea questa tabella per due dadi con f1 e f2 facce:
+
+(define (make-table f1 f2)
+  (local (table)
+    (setq table (array f1 f2 '(0)))
+    (for (r 0 (- f1 1))
+      (for (c 0 (- f2 1))
+        (setf (table r c) (+ (+ r 1) (+ c 1)))
+      )
+    )
+    (array-list table)))
+
+(print-matrix (make-table 6 6))
+;-> 2  3  4  5  6  7
+;-> 3  4  5  6  7  8
+;-> 4  5  6  7  8  9
+;-> 5  6  7  8  9 10
+;-> 6  7  8  9 10 11
+;-> 7  8  9 10 11 12
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    (setq digit (+ 1 lenmax))
+    (setq fmtstr (append "%" (string digit) "s"))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Scriviamo una funzione che calcola la probabilità che esca un numero predefinito lanciando due dadi con f1 e f2 facce:
+
+(define (prob num f1 f2)
+  (local (out)
+    (setq a (length (ref-all num (flat (make-table f1 f2)) = true)))
+    (list a (* f1 f2))))
+
+Facciamo alcune prove:
+
+(prob 5 6 6)
+;-> (4 36)
+(prob 10 6 6)
+;-> (3 36)
+(prob 1 6 6)
+;-> (0 36)
+
+(print-matrix (make-table 4 6))
+;-> 2  3  4  5  6  7
+;-> 3  4  5  6  7  8
+;-> 4  5  6  7  8  9
+;-> 5  6  7  8  9 10
+
+(prob 2 4 6)
+;-> (1 24)
+(prob 6 4 6)
+;-> (4 24)
+(prob 8 4 6)
+;-> (3 24)
+
+Questo metodo presenta diverse difficoltà se vogliamo lanciare più di due dadi.
+
+Funzioni generatrici
+--------------------
+Un dado con N facce può essere rappresentato da un polinomio nel modo seguente:
+
+  f(x) = p(1)*x + p(2)*x^2 + ... + p(n)*x^n
+
+  dove p(i) è la probabilità della faccia i
+
+Un dado a 6 facce viene rappresentato come:
+
+  f(x) = (1/6)*x + (1/6)*x^2 + (1/6)*x^3 + (1/6)*x^4 + (1/6)*x^5 + (1/6)*x^6
+
+Un dado a 4 facce viene rappresentato come:
+
+  g(x) = (1/4)*x + (1/4)*x^2 + (1/4)*x^3 + (1/4)*x^4
+
+Calcoliamo il prodotto delle due funzioni f(x) e g(x):
+
+  q(x) = f(x)*g(x) =
+
+  = (1/24)*x^2 + (1/12)*x^3 + (1/8)*x^4 + (1/6)*x^5 + (1/6)*x^6 +
+    (1/6)*x^7 + (1/8)*x^8 + (1/12)*x^9 + (1/24)*x^10
+
+Come si interpreta un termine, p(i)*x^i, del polinomio q(x)?
+p(i) è la probabilità che esca il numero i dal lancio dei due dadi.
+Ad esempio, la probabilità che esca il numero 3 vale 1/12.
+
+Verifichiamo i valori:
+
+(define (mul-poly p1 p2)
+"Multiplication between two polynomials"
+  (local (res l1 l2)
+    (setq l1 (length p1))
+    (setq l2 (length p2))
+    (setq res (dup 0 (+ l1 l2 (- 1))))
+    (for (i 0 (- l1 1))
+      (for (j 0 (- l2 1))
+        (setf (res (+ i j)) (add (res (+ i j)) (mul (p1 i) (p2 j))))
+      )
+    )
+    res))
+
+(mul-poly '(0 0.1666666666666667 0.1666666666666667 0.1666666666666667
+              0.1666666666666667 0.1666666666666667 0.1666666666666667)
+          '( 0 0.25 0.25 0.25 0.25))
+;-> (0 0 0.04166666666666668 0.08333333333333336 0.125 0.1666666666666667 0.1666666666666667
+;->  0.1666666666666667 0.125 0.08333333333333336 0.04166666666666668)
+
+(div 1 24)
+;-> 0.04166666666666668
+(div 1 12)
+;-> 0.08333333333333336
+(div 1 8)
+;-> 0.125
+(div 1 6)
+;-> 0.1666666666666667
+
+Questo metodo permette di calcolare la probabilità di uscita di un numero con il lancio di N dadi moltiplicando tutti i relativi polinomi e valutando il polinomio risultante.
+
+Dadi non equi
+-------------
+Un dado non equo ha numeri con probabilità diverse.
+Questo avviene nei dadi truccati o in dadi con numerazione non standard (ad esempio un dado con 6 facce in cui i numeri sono 1,1,1,2,3,4).
+Il metodo delle funzioni generatrici è in grado di trattare anche questo caso.
+Basta associare la corretta probabilità ad ogni numero.
+Ad esempio, con un dado a 6 facce numerato 1,1,1,2,3,4 abbiamo le seguenti probabilità per i numeri:
+
+  1  --> prob = 1/2
+  2  --> prob = 1/6
+  3  --> prob = 1/6
+  4  --> prob = 1/6
+
+e il polinomio vale: f(x) = (1/2)*x + (1/6)*x^2 + (1/6)*x^3 + (1/6)*x^4
+
+Facciamo un esempio:
+
+Dado 1                 Dado 2
+Faccia  Prob           Faccia  Prob
+ 1      1/4             1      1/3
+ 2      1/3             2      1/2
+ 3      1/5             3      1/8
+ 4      1/12            4      1/24
+ 5      1/30
+ 6      1/10
+
+(add (div 1 3) (div 1 2) (div 1 8) (div 1 24))
+;-> 0.9999999999999999
+(add (div 1 4) (div 1 3) (div 1 5) (div 1 12) (div 1 30) (div 1 10))
+;-> 0.9999999999999999
+
+  f2(x) = (1/3)*x + (1/2)*x^2 + (1/8)*x^3 + (1/24)*x^4
+  f1(x) = (1/4)*x + (1/3)*x^2 + (1/5)*x^3 + (1/12)*x^4 + (1/30)*x^5 + (1/10)*x^6
+
+  q(x) = f1(x) * f2(x) = 
+       = (1/12)x^2 + (17/72)x^3 + (127/480)x^4 + (259/1440)x^5 + (11/120)x^6 +
+         (11/160)x^7 + (83/1440)x^8 + (1/72)x^9 + (1/240)x^10
+
 =============================================================================
 

@@ -1577,6 +1577,7 @@ NOTE LIBERE 13
   Gestione degli elementi (nome valore) in una lista
   Controllo parentesi nei file sorgenti
   Statistica: Skewness e Kurtosis
+  Dadi e funzioni generatrici
 
 APPENDICI
 =========
