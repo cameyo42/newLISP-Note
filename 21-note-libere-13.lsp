@@ -5138,9 +5138,257 @@ Faccia  Prob           Faccia  Prob
   f2(x) = (1/3)*x + (1/2)*x^2 + (1/8)*x^3 + (1/24)*x^4
   f1(x) = (1/4)*x + (1/3)*x^2 + (1/5)*x^3 + (1/12)*x^4 + (1/30)*x^5 + (1/10)*x^6
 
-  q(x) = f1(x) * f2(x) = 
+  q(x) = f1(x) * f2(x) =
        = (1/12)x^2 + (17/72)x^3 + (127/480)x^4 + (259/1440)x^5 + (11/120)x^6 +
          (11/160)x^7 + (83/1440)x^8 + (1/72)x^9 + (1/240)x^10
+
+  Numero         Probabilità di uscita
+     2    -->    (div 1 12)     =  0.08333333333333333
+     3    -->    (div 17 72)    =  0.2361111111111111
+     4    -->    (div 127 480)  =  0.2645833333333333
+     5    -->    (div 259 1440) =  0.1798611111111111
+     6    -->    (div 11 120)   =  0.09166666666666666
+     7    -->    (div 11 160)   =  0.06875000000000001
+     8    -->    (div 83 1440)  =  0.05763888888888889
+     9    -->    (div 1 72)     =  0.01388888888888889
+    10    -->    (div 1 240)    =  0.004166666666666667
+
+Verifichiamo questo risultato con la funzione "mul-poly":
+
+(setq d1 (list (div 1 3) (div 1 2) (div 1 8) (div 1 24)))
+;-> (0.3333333333333333 0.5 0.125 0.04166666666666666)
+(setq d2 (list (div 1 4) (div 1 3) (div 1 5) (div 1 12) (div 1 30) (div 1 10)))
+;-> (0.25 0.3333333333333333 0.2 0.08333333333333333 0.03333333333333333 0.1)
+
+(mul-poly d1 d2)
+;-> (0.08333333333333333 0.2361111111111111 0.2645833333333333 
+;->  0.1798611111111111 0.09166666666666667 0.06875000000000001 
+;->  0.05763888888888889 0.01388888888888889 0.004166666666666667)
+
+Adesso scriviamo una funzione che simula il lancio di N dadi con probabilità assegnate.
+
+Funzione che genera un numero (0...length(lista) - 1) con le probabilità di lista.
+Data una lista con dei valori di probabilità associati ai rispettivi indici, la funzione estrae casualmente un indice della lista seguendo le probabilità assegnate.
+
+(define (rand-pick lst)
+  (local (rnd stop out)
+    ; generiamo un numero random diverso da 1
+    ; (per evitare errori di arrotondamento)
+    (while (= (setq rnd (random)) 1))
+    ;(if (= rnd 1) (println rnd))
+    (setq stop nil)
+    (dolist (p lst stop)
+      ; sottraiamo la probabilità corrente al numero random...
+      (setq rnd (sub rnd p))
+      ; se il risultato è minore di zero,
+      ; allora restituiamo l'indice della probabilità corrente
+      (if (< rnd 0)
+          (set 'out $idx 'stop true)
+      )
+    )
+    out))
+
+Facciamo un esempio:
+
+(setq p '(0.05 0.15 0.35 0.45))
+(apply add p)
+;-> 1
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick p))))
+vet
+;-> (50146 149694 350013 450147)
+(apply + vet)
+;-> 1000000
+
+Funzione che effettua il lancio di N dadi con probabilità dei dadi assegnate:
+
+(define (lancio lst)
+  (let (somma 0)
+    (dolist (el lst)
+      (setq somma (+ somma (rand-pick el)))
+    )
+    somma))
+
+(setq d1 (list 0 (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6)))
+(setq d2 (list 0 (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6) (div 1 6)))
+
+(lancio (list d1 d2))
+;-> 4
+
+Proviamo la funzione per verificare il risultato precedente:
+
+(setq d1 (list (div 1 3) (div 1 2) (div 1 8) (div 1 24)))
+;-> (0.3333333333333333 0.5 0.125 0.04166666666666666)
+(setq d2 (list (div 1 4) (div 1 3) (div 1 5) (div 1 12) (div 1 30) (div 1 10)))
+;-> (0.25 0.3333333333333333 0.2 0.08333333333333333 0.03
+
+(setq vet (array 10 '(0)))
+(for (i 0 999999) (++ (vet (lancio (list d1 d2)))))
+(map (fn(x) (div x 1e6)) vet)
+;-> (0.083562 0.236468 0.264033 0.179512 0.091124 
+;->  0.06916600000000001 0.057875 0.013993 0.004267 0)
+
+Quindi abbiamo:
+
+  Numero   Probabilità teorica    Probabilità simulata
+     2     0.08333333333333333    0.083562 
+     3     0.2361111111111111     0.236468 
+     4     0.2645833333333333     0.264033 
+     5     0.1798611111111111     0.179512 
+     6     0.09166666666666666    0.091124 
+     7     0.06875000000000001    0.069166 
+     8     0.05763888888888889    0.057875 
+     9     0.01388888888888889    0.013993 
+    10     0.004166666666666667   0.004267
+
+I risultati teorici e quelli della simulazione sono congruenti.
+
+
+--------------------------------------------
+Forum: Tiny Lisp course - Lisp in 10 bullets
+--------------------------------------------
+
+Vishnu Vyas:
+------------
+
+1. In Lisp everything thats written is called a s-expression, which are basically of 2 types. Atoms and Forms.
+
+2. Atoms are stuff like numbers (10, 234.56, etc..), characters , strings, boolean literals like T (true) and NIL (false) and variable names (called symbols in Lisp, which are associated with other values).
+
+3. Forms, the 2nd type of s-expressions are always enclosed within paranthesis.
+
+4. Lisp works by evaluating the s-expression and printing the output, which is the value of the s-expression. Each s-expression's value depends on what it is (atom/form) and what type of an atom or a form it is. The process of finding the value of an s-expression is called evaluation.
+
+5. Literals (atoms like 12, #\a , "Hey", etc.. basically numbers, chars and strings) evaluate to themselves, i.e 10 evaluates to the number 10. Atoms like symbols evaluate to the value that they are associated to.
+
+6. Forms are of two types - Functional application and Special forms. And they are always enclosed within paranthesis (this is just rule 3 again, but to drive home the point!)
+
+7. Special forms are written as (special-form-name arg1 arg2 arg3 arg4 ... argN) and special forms dictates how and when (even wether) each of arg1 to argN is evaluated. Functional Application is simpler, even though written in the same manner as (function-name arg1 arg2... argN), it works by evaluating all the values from arg1 to argN first and then passing them to the function 'function-name'.
+
+8. Functions in lisp are a bit different and there is a 2 step process to work with them. First the action of creating a function which is done using the lambda special form and then process of associating the function with a name. (i.e, its upto you to assign functions a name, you can leave it if you don't need it).
+
+9. Lisp has a data structure called the list, whose written literal representation is indistinguishable from that of forms. Its enclosed within paranthesis and its elements seperated by whitespaces. So basically you can see any lisp program as a bunch of atoms (which are data anyway) and lists. This means that lisp code and lisp data are indistinguishable.
+
+10. Since code is indistinguishable from data, you can write programs to change/generate code because its basically working by modifying lists. Since Lisp provides you with an eval function you can evaluate your generated code at runtime, and Lispniks call this feature 'Macros'.
+
+Update 1: As far as point 10 goes, thats not what Lispniks call macros, Macros are simply programs which change/generate code, but this happens during compile time. (however the point is still valid, you can evaluate your code at runtime using eval.)
+
+Update 2: Just a quibble with point 2. Symbols are not just variable names, and calling them such loses some of what makes lisp so unique and strange. It would be more accurate to say that symbols are just that, symbols, which can be bound to values.
+
+
+-----------------
+Funzione "filter"
+-----------------
+
+*******************
+>>>funzione FILTER
+*******************
+sintassi: (filter exp-predicate exp-list)
+
+Il predicato "exp-predicate" viene applicato a ogni elemento della lista "exp-list". Viene restituito una lista contenente gli elementi per i quali "exp-predicate" è vero (true). "filter" funziona come "clean", ma con un predicato negato.
+
+(filter symbol? '(1 2 d 4 f g 5 h))  → (d f g h)
+
+(define (big? x) (> x 5))  → (lambda (x) (> x 5))
+
+(filter big? '(1 10 3 6 4 5 11))  → (10 6 11)
+
+; filter with comparison functor
+
+(set 'L '((a 10 2 7) (b 5) (a 8 3) (c 8) (a 9)))
+
+(filter (curry match '(a *)) L)   → ((a 10 2 7) (a 8 3) (a 9))
+
+(filter (curry match '(? ?)) L)   → ((b 5) (c 8) (a 9))
+
+(filter (curry match '(* 8 *)) L) → ((a 8 3) (c 8))
+
+Il predicato può essere un predicato predefinito, una funzione definita dall'utente o un'espressione lambda.
+
+Per filtrare una lista di elementi con gli elementi di un'altra lista, utilizzare la funzione "difference" o "intersect" (con l'opzione list).
+
+Vedere anche la funzione correlata "index", che restituisce gli indici degli elementi filtrati e "clean", che restituisce tutti gli elementi di una lista per i quali un predicato è falso.
+
+Vediamo alcune funzioni che simulano la primitiva "filter":
+
+Sammo
+-----
+;;  recursive version
+;;
+(define (myfilter pred? items)
+  (reverse (myfilter-aux pred? items '())) )
+
+(define (myfilter-aux pred? items result)
+  (if (empty? items)
+    result
+    (myfilter-aux
+          pred?
+          (rest items)
+          (if (pred? (first items)) (cons (first items) result) result ))))
+
+(myfilter float? '(1 2.1 3.00001 4.1 5 6 7 3.2 8))
+;-> (2.1 3.00001 4.1 3.2)
+
+;;  map version
+;;
+(define (myfilter pred? items)
+  (let
+    ( keep '()
+      keep-if-true (fn (p item) (if p (push item keep -1)))
+    )
+  ;body of let
+    (map keep-if-true (map pred? items) items)
+    keep ))
+
+(myfilter float? '(1 2.1 3.00001 4.1 5 6 7 3.2 8))
+;-> (2.1 3.00001 4.1 3.2)
+
+Cormullion
+----------
+(define (myfilter f lst r)
+   (cond ((= (length lst) 1)  ; the basic situation
+            r )
+         (true
+            (if (f (first lst))
+               (push (first lst) r -1))
+            (myfilter f (rest lst) r ))))
+
+(myfilter float? '(1 2.1 3.00001 4.1 5 6 7 3.2 8))
+;-> (2.1 3.00001 4.1 3.2)
+
+
+-----------------
+Funzione "index"
+-----------------
+
+******************
+>>>funzione INDEX
+******************
+sintassi: (index exp-predicate exp-list)
+
+Applica il predicato "exp-predicate" a ciascun elemento della lista "exp-list" e restituisce una lista contenente gli indici degli elementi per i quali "exp-predicate" è vero (true).
+
+(index symbol? '(1 2 d 4 f g 5 h))
+;-> (2 4 5 7)
+
+(define (big? x) (> x 5))
+;-> (lambda (x) (> x 5))
+
+(index big? '(1 10 3 6 4 5 11))
+;-> (1 3 6)
+
+(select '(1 10 3 6 4 5 11) '(1 3 6))
+;-> (10 6 11) 
+
+Il predicato può essere un predicato predefinito, una funzione definita dall'utente o un'espressione lambda.
+
+Utilizzare la funzione "filter" per restituire gli elementi stessi.
+
+Altri esempi:
+
+(index (fn(x) (= x "b")) '("a" "b" "c" "d" "e" "b"))
+;-> (1 5)
 
 =============================================================================
 

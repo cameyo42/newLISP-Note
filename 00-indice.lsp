@@ -1578,6 +1578,10 @@ NOTE LIBERE 13
   Controllo parentesi nei file sorgenti
   Statistica: Skewness e Kurtosis
   Dadi e funzioni generatrici
+  Forum: Tiny Lisp course - Lisp in 10 bullets
+  Funzione "filter"
+  Funzione "index"
+  
 
 APPENDICI
 =========
