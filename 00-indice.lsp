@@ -1581,7 +1581,10 @@ NOTE LIBERE 13
   Forum: Tiny Lisp course - Lisp in 10 bullets
   Funzione "filter"
   Funzione "index"
-  
+  Formattazione di numeri interi e float (no "format")
+  Pack Length Bytes
+  Verificare la lunghezza di una lista
+  Suddividere gli elementi di una lista (no "explode")
 
 APPENDICI
 =========

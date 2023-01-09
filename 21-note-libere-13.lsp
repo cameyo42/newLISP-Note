@@ -2045,7 +2045,7 @@ Algoritmo Undo/Redo
 
 Esistono due metodi principali per implementare il meccanismo di undo/redo in un programma.
 
-Memorizzazione dello Stato 
+Memorizzazione dello Stato
 Per ogni operazione viene prima memorizzato lo stato del sistema. Quando si desidera eseguire un annullamento (undo), è sufficiente cambiare lo stato corrente con quello memorizzato.
 
 Generazione dello Stato
@@ -2085,7 +2085,7 @@ Vediamo un esempio minimale:
 (define (undo)
   ; if there are operations to undo
   (cond ((null? UNDO) nil)
-        (true  
+        (true
           (let (u (pop UNDO)) ; extract operation from stack UNDO
             (pop TEXT -1) ; redo operation on TEXT
             (push u REDO))))) ; insert operation on stack REDO
@@ -2098,7 +2098,7 @@ Vediamo un esempio minimale:
             (push r TEXT -1)
             (push r UNDO)))))
 
-(define (show) 
+(define (show)
   (println "Text: " TEXT ", Undo: " UNDO ", Redo: " REDO))
 
 Facciamo alcune prove:
@@ -2195,7 +2195,7 @@ Funzioni per gestire stack e queue:
 Vediamo un esempio:
 
 multi
-;-> (() ()) 
+;-> (() ())
 
 "multi" è una lista con due sottoliste vuote.
 Usiamo la prima sottolista come uno stack (pila) e la seconda sottolista come una queue (coda).
@@ -2578,35 +2578,35 @@ Vediamo cosa accade durante il processo con 256 famiglie:
 ;-> Famiglie: 256
 ;-> Maschi: 136 - Maschi totale: 136
 ;-> Femmine: 120 - Femmine totale: 120
-;-> 
+;->
 ;-> Famiglie: 120
 ;-> Maschi: 51 - Maschi totale: 187
 ;-> Femmine: 69 - Femmine totale: 189
-;-> 
+;->
 ;-> Famiglie: 69
 ;-> Maschi: 36 - Maschi totale: 223
 ;-> Femmine: 33 - Femmine totale: 222
-;-> 
+;->
 ;-> Famiglie: 33
 ;-> Maschi: 18 - Maschi totale: 241
 ;-> Femmine: 15 - Femmine totale: 237
-;-> 
+;->
 ;-> Famiglie: 15
 ;-> Maschi: 7 - Maschi totale: 248
 ;-> Femmine: 8 - Femmine totale: 245
-;-> 
+;->
 ;-> Famiglie: 8
 ;-> Maschi: 4 - Maschi totale: 252
 ;-> Femmine: 4 - Femmine totale: 249
-;-> 
+;->
 ;-> Famiglie: 4
 ;-> Maschi: 3 - Maschi totale: 255
 ;-> Femmine: 1 - Femmine totale: 250
-;-> 
+;->
 ;-> Famiglie: 1
 ;-> Maschi: 1 - Maschi totale: 256
 ;-> Femmine: 0 - Femmine totale: 250
-;-> 
+;->
 ;-> (256 250 1.024)
 
 Ad ogni generazione (indipendentemente dal numero delle famiglie generatrici) vengono generati il 50% di maschi e il 50% di femmine (circa).
@@ -2678,7 +2678,7 @@ Adesso vediamo il nostro problema (2 a 1 e si arriva a 3):
 
 In questo caso il giocatore A ha il 75% di probabilità di vincere il match. Quindi deve avere il 75% del premio:
 
-giocatore A 
+giocatore A
 (mul 300 0.75)
 ;-> 225
 
@@ -2697,7 +2697,7 @@ Codice numerico univoco per stringhe (ASCII)
 
 Codifica della parola "newLISP":
 
-                ASCII code     format 
+                ASCII code     format
 (char "n")  -->    110    -->   110
 (char "e")  -->    101    -->   101
 (char "w")  -->    119    -->   119
@@ -2831,8 +2831,8 @@ Nota: l'algoritmo non è ottimale. Credo che la soluzione migliore sarebbe quell
 Ordinare 0 e 1
 --------------
 
-Data una lista/vettore di 0 e 1 in ordine casuale. 
-Spostare gli 0 sul lato sinistro e gli 1 sul lato destro della lista/vettore. 
+Data una lista/vettore di 0 e 1 in ordine casuale.
+Spostare gli 0 sul lato sinistro e gli 1 sul lato destro della lista/vettore.
 (Fondamentalmente occorre ordinare la lista/vettore).
 
 (setq a (rand 2 100))
@@ -2938,10 +2938,10 @@ Vediamo la velocità della funzioni:
 ;
 ; test con lista/vettore di 1000 elementi
 ;
-(silent 
+(silent
   (setq lista (rand 2 1000))
   (setq vettore (array (length lista) lista)))
-  
+
 (list? lista)
 ;-> true
 (array? vettore)
@@ -2981,7 +2981,7 @@ Vediamo la velocità della funzioni:
 ;
 ; test con lista/vettore di 100000 elementi
 ;
-(silent 
+(silent
   (setq lista (rand 2 100000))
   (setq vettore (array (length lista) lista)))
 
@@ -3155,7 +3155,7 @@ Most of syntax changes suggestions could be implemented by defining functions or
 (<=> 4 4 10 20 30) => 20
 (<=> 5 4 10 20 30) => 30
 
-In newLISP you also have the possibility to redefine the built-in functions using "constant". 
+In newLISP you also have the possibility to redefine the built-in functions using "constant".
 Doing this and using functions and macros, you can completely tailor a language to your own taste, which is the reason people use these kind of languages in the first place, because they let you define your own language appropiate to the problem area you are developing in.
 For example:
 (constant (global 'const) constant)
@@ -3226,7 +3226,7 @@ In quest modo dobbiamo solo modificare l'indice del vettore temporaneo utilizzan
     (setq vmin (apply min lst))
     (setq tmp (array (+ vmax (- vmin) 1) '(0)))
     ; ciclo per aggiornare l'array temporaneo
-    ; in cui il valore dell'i-esimo elemento rappresenta quante volte viene 
+    ; in cui il valore dell'i-esimo elemento rappresenta quante volte viene
     ; ripetuto il valore i nell'array/lista originale
     ; l'indice vale (el - vmin)
     (dolist (el lst)
@@ -3238,7 +3238,7 @@ In quest modo dobbiamo solo modificare l'indice del vettore temporaneo utilizzan
       (setq val (tmp i))
       ; se un valore è maggiore di 0,
       (if (> val 0)
-          ; allora inseriamo il suo indice i nella lista 
+          ; allora inseriamo il suo indice i nella lista
           ; tante volte quanto vale il valore
           ; l'indice vale (i + vmin)
           (for (r 1 val) (push (+ i vmin) out -1))
@@ -3559,8 +3559,8 @@ This is how a qq-macro could look like for just handling the unquoting of uq:
 (qq ( (uq (+ 1 2)) ((uq (+ 3 4)) (uq x))))
 ;-> ERR: list or string expected
 ;-> called from user function (qq ((uq (+ 1 2)) ((uq (+ 3 4)) (uq x))))
- 
-Nota: Ma funziona con "debug" (step-by-step):  
+
+Nota: Ma funziona con "debug" (step-by-step):
 (debug (qq ( (uq (+ 1 2)) ((uq (+ 3 4)) (uq x)))))
 ;-> (3 (7 hello))
 
@@ -3778,7 +3778,7 @@ Facciamo alcune prove:
 ;-> 162745.134
 
 Sequenza OEIS: A001235
-  1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232, 
+  1729, 4104, 13832, 20683, 32832, 39312, 40033, 46683, 64232,
   65728, 110656, 110808, 134379, 149389, 165464, 171288, 195841,
   216027, 216125, 262656, 314496, 320264, 327763, 373464, 402597,
   439101, 443889, 513000, 513856, 515375, 525824, 558441, 593047,
@@ -3891,7 +3891,7 @@ Scriviamo una funzione per verificare i risultati di "cube?":
 
 Metodo 2:
 ---------
-Possiamo utilizzare la ricerca binaria per risolvere il problema. 
+Possiamo utilizzare la ricerca binaria per risolvere il problema.
 I valori di i * i * i aumentano in modo monotono, quindi il problema può essere risolto utilizzando la ricerca binaria.
 Vediamo i passi dell'algoritmo:
 
@@ -3942,7 +3942,7 @@ Scriviamo una funzione per verificare i risultati di "cube??":
         (println "Error: " i {, } (* i i i)))))
 
 (time (println (test 1e5)))
-;-> nil 
+;-> nil
 ;-> 3225.404
 
 
@@ -3952,11 +3952,11 @@ Forum: Define-macro: new behind-the-curtains behavior
 
 Excalibor:
 ----------
-How hard would it be for define-macro to automagically switch to a new context each time it's called? 
+How hard would it be for define-macro to automagically switch to a new context each time it's called?
 This would avoid variable collision in a very elegant way, even if multiple expansions are being performed...
 The idea is:
 
-(define-macro (foo x) 
+(define-macro (foo x)
   (begin (set 'M (symbol (random)))
          (context 'M)
          (*macro goes in here *)
@@ -3998,7 +3998,7 @@ My comments are motivated by this:
 "capture"
 I took a quick look at it. It looked to me as if the way you're supposed to avoid variable capture is to use variables with unusual names. Is this really the plan? What about expansions that occur within expansions?
 
-My idea goal is to avoid name collisions on variable expansions... 
+My idea goal is to avoid name collisions on variable expansions...
 Would it be too difficult to make (context) work inside macros?
 
 something similar to this:
@@ -4013,7 +4013,7 @@ something similar to this:
 > x
 13
 
-but that happened automatically? 
+but that happened automatically?
 I thought contexts (random contexts) could work, because something similar is done in Tcl when you are toying around with unknown, and other interesting functions...just some thoughts.
 
 Lutz:
@@ -4090,11 +4090,11 @@ Per esempio la seguente barretta è composta da 7x4=28 quadrati.
 
 Quanti tagli sono necessari per suddividere la barretta in 28 singoli quadrati?
 
-Ogni volta che viene effettuato un taglio, il numero di tagli aumenta di uno e il numero di pezzi aumenta di uno. 
+Ogni volta che viene effettuato un taglio, il numero di tagli aumenta di uno e il numero di pezzi aumenta di uno.
 Così, il numero di tagli e il numero di pezzi cambiano entrambi. Ciò che non cambia, invece, è la
-differenza tra il numero di tagli e il numero di pezzi. 
+differenza tra il numero di tagli e il numero di pezzi.
 Questo è un "invariante", oppure una "costante", del processo di taglio della tavoletta di cioccolato.
-Iniziamo con un pezzo (la tavoletta intera) e zero tagli. 
+Iniziamo con un pezzo (la tavoletta intera) e zero tagli.
 La differenza tra il numero di pezzi e il numero di tagli, all'inizio, vale 1.
 Possiamo quindi scrivere: pezzi - tagli = 1 - 0 = 1
 Essendo una costante/invariante questo valore rimane sempre uguale indipendentemente dal numero di tagli effettuati.
@@ -4118,9 +4118,9 @@ Provare il ragionamento inverso: immaginate quali posizioni di matto sono possib
 L'idea è quella di cercare di arrivare alla soluzione partendo anche dalla posizione finale.
 
 Soluzione:
-1. e4   Nf6 
+1. e4   Nf6
 2. f3   Nxe4
-3. Qe2  Ng3 
+3. Qe2  Ng3
 4. Qxe7 Qxe7+
 5. Kf2  Nxh1#
 
@@ -4354,13 +4354,13 @@ Facciamo alcune prove:
 (setq b (random 1 -100 100))
 (box-plot b 60)
 ;->  +---------------|------------|---------------|--------------+
-;->  -98.97          -72.94       -49.92          -24.08         0.87                     
+;->  -98.97          -72.94       -49.92          -24.08         0.87
 ;-> IQR = 48.86013367107151
 
 (setq c (random 1 -100 100))
 (box-plot c 60)
 ;->  +--------------|---------------|----------------|-----------+
-;->  -98.46         -73.12          -47.81           -18.99      0.84                     
+;->  -98.46         -73.12          -47.81           -18.99      0.84
 ;-> IQR = 54.12610248115482
 
 Identificare i valori anomali (outlier)
@@ -4677,7 +4677,7 @@ Dal terminale:
 #
 # March - Nov. 2005 by PvE.
 # Revised for newLisp 10 at december 28, 2008 - PvE.
-# 
+#
 #------------------------------------------------------
 
 # Open the file
@@ -4950,7 +4950,7 @@ Nota: Il valore di "kurt" della funzione "stats" è normalizzato, cioè al valor
 Valori anomali (outliers)
 -------------------------
 Il valore di kurtosis indica il grado di presenza di valori anomali nella distribuzione.
-La kurtosis è una misura della forma della coda di una distribuzione. 
+La kurtosis è una misura della forma della coda di una distribuzione.
 Le code sono le estremità affusolate su entrambi i lati di una distribuzione. Rappresentano la probabilità o la frequenza di valori estremamente alti o bassi rispetto alla media. In altre parole, le code rappresentano la frequenza con cui si verificano valori anomali.
 Le distribuzioni con kurtosis media (code medie) sono mesocurtiche.
 Le distribuzioni con bassa kurtosis (code sottili) sono platicurtiche.
@@ -5161,8 +5161,8 @@ Verifichiamo questo risultato con la funzione "mul-poly":
 ;-> (0.25 0.3333333333333333 0.2 0.08333333333333333 0.03333333333333333 0.1)
 
 (mul-poly d1 d2)
-;-> (0.08333333333333333 0.2361111111111111 0.2645833333333333 
-;->  0.1798611111111111 0.09166666666666667 0.06875000000000001 
+;-> (0.08333333333333333 0.2361111111111111 0.2645833333333333
+;->  0.1798611111111111 0.09166666666666667 0.06875000000000001
 ;->  0.05763888888888889 0.01388888888888889 0.004166666666666667)
 
 Adesso scriviamo una funzione che simula il lancio di N dadi con probabilità assegnate.
@@ -5226,20 +5226,20 @@ Proviamo la funzione per verificare il risultato precedente:
 (setq vet (array 10 '(0)))
 (for (i 0 999999) (++ (vet (lancio (list d1 d2)))))
 (map (fn(x) (div x 1e6)) vet)
-;-> (0.083562 0.236468 0.264033 0.179512 0.091124 
+;-> (0.083562 0.236468 0.264033 0.179512 0.091124
 ;->  0.06916600000000001 0.057875 0.013993 0.004267 0)
 
 Quindi abbiamo:
 
   Numero   Probabilità teorica    Probabilità simulata
-     2     0.08333333333333333    0.083562 
-     3     0.2361111111111111     0.236468 
-     4     0.2645833333333333     0.264033 
-     5     0.1798611111111111     0.179512 
-     6     0.09166666666666666    0.091124 
-     7     0.06875000000000001    0.069166 
-     8     0.05763888888888889    0.057875 
-     9     0.01388888888888889    0.013993 
+     2     0.08333333333333333    0.083562
+     3     0.2361111111111111     0.236468
+     4     0.2645833333333333     0.264033
+     5     0.1798611111111111     0.179512
+     6     0.09166666666666666    0.091124
+     7     0.06875000000000001    0.069166
+     8     0.05763888888888889    0.057875
+     9     0.01388888888888889    0.013993
     10     0.004166666666666667   0.004267
 
 I risultati teorici e quelli della simulazione sono congruenti.
@@ -5379,7 +5379,7 @@ Applica il predicato "exp-predicate" a ciascun elemento della lista "exp-list" e
 ;-> (1 3 6)
 
 (select '(1 10 3 6 4 5 11) '(1 3 6))
-;-> (10 6 11) 
+;-> (10 6 11)
 
 Il predicato può essere un predicato predefinito, una funzione definita dall'utente o un'espressione lambda.
 
@@ -5390,5 +5390,180 @@ Altri esempi:
 (index (fn(x) (= x "b")) '("a" "b" "c" "d" "e" "b"))
 ;-> (1 5)
 
+
+----------------------------------------------------
+Formattazione di numeri interi e float (no "format")
+----------------------------------------------------
+
+Funzioni per la formattazione di numeri interi e float.
+
+alex
+----
+
+;; Transform integer to special string format (see example)
+;;
+;; syntax: (pretty-int num)
+;; syntax: (pretty-int num delimiter)
+;;
+;; Example:
+;;   (pretty-int 20482048) -> "20 482 048"
+;;   (pretty-int 1234567890 "'") -> "1'234'567'890"
+;;
+(define (pretty-int num delimiter)
+  (unless delimiter (setq delimiter " "))
+  (trim (reverse (replace {(\d{3})} (reverse (string num)) (append $1 delimiter) 0)) delimiter)
+)
+
+(pretty-int 1234567 ",")
+;-> "1,234,567"
+
+cameyo
+------
+
+(define (pretty num del)
+  (reverse (join (explode (reverse (string num)) 3) del)))
+
+(pretty 1234567 ",")
+;-> "1,234,567"
+
+Sammo
+-----
+
+(define (pretty-integer num delim)
+  (let
+    ( pattern "(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" )
+  ;body of let
+    (replace pattern (string num) (or delim " ") 0) ))
+
+(pretty-integer 1234567 ",")
+;-> "1,234,567"
+
+Posts: 180
+Joined: Sat Dec 06, 2003 6:11 pm
+Location: Loveland, Colorado USA
+Top
+Postby Dmi » Wed Mar 29, 2006 8:16 pm
+
+Dmi
+---
+Questa vale per i numeri float.
+
+(define (format-sum a)
+  (let (s (format "%18.2f" a) r "")
+    (dotimes (i 5)
+      (set 'r (append r " " ((* 3 i) 3 s))))
+    (append r (-3 s))))
+
+(format-sum 1234567)
+;-> "           1 234 567.00"
+(format-sum 1234567.3456789)
+;-> "           1 234 567.35"
+
+
+-----------------
+Pack Length Bytes
+-----------------
+
+In case anyone's interested, here is function 'pack-length-bytes' to compute and return the number of bytes that a proper 'pack' format string would produce. It works by cleverly replacing the elements of the format string with the number of bytes for each element, then summing those numbers.
+
+Ecco la funzione 'pack-length-bytes' per calcolare e restituire il numero di byte prodotto da una stringa formattata correttamente con "pack".
+Funziona sostituendo gli elementi della stringa formattata con il numero di byte per ciascun elemento, quindi sommando quei numeri.
+
+;; Sammo
+;; pack-length-bytes
+;; return the number of bytes defined by a well-formed
+;; 'pack' format string
+;;
+;; e.g.,
+;; (pack-length-bytes ">ucc c s27 s4 n1 s3 n22 n2") --> 64
+;; (pack-length-bytes "cccccs27s4n1s3n22n2") --> 64
+;;
+;; Knowing that 'replace' is destructive is the key to
+;; understanding this function.
+;;
+;; The (cons 0 (map ...)) hack returns 0 for the
+;; legal "" str-format.
+;;
+(define (pack-length-bytes str-format)
+  (let
+    ( TABLE '((">"  ""  )   ;order of table entries matters
+              ("<"  ""  )
+              ("ld" "4 ")   ;"ld" must precede "d"
+              ("lf" "8 ")   ;"lf" must precede "f"
+              ("lu" "4 ")   ;"lu" must precede "u"
+              ("b"  "1 ")
+              ("c"  "1 ")
+              ("d"  "2 ")
+              ("f"  "4 ")
+              ("u"  "2 ")
+              ("s"  " " )
+              ("n"  " " ))
+    )
+  ;body of let
+    (map (fn (x) (replace (x 0) str-format (x 1))) TABLE)
+    (apply + (cons 0 (map integer (parse str-format)))) ))
+
+
+------------------------------------
+Verificare la lunghezza di una lista
+------------------------------------
+
+La maggior parte delle volte che utilizzo "lenght" è per verificare se una lista ha una determinata lunghezza.
+Una funzione potrebbe essere:
+
+(define (len? lst n) (= (length lst) (or n 0)))
+
+dove se non viene passato il numero n, allora n = 0.
+
+(len? '(1 2 3 4) 4)
+;-> true
+(len? '(1 2 3 4) 2)
+;-> nil
+(len? '())
+;-> true
+(len? '() 1)
+;-> nil
+
+
+----------------------------------------------------
+Suddividere gli elementi di una lista (no "explode")
+----------------------------------------------------
+
+;; Jeremy Dunn
+;; This function performs a multiple slice on a given list
+;; One supplies a list and an integer n. The list is broken into a list of sublists of
+;; length n. If n is negative the list items are collected going from the end of the list
+;; to the beginning. If the optional bool argument is supplied then remaining elements are
+;; included in the result.
+;; (group '(1 2 3 4 5 6 7) 3)       -> ((1 2 3) (4 5 6))
+;; (group '(1 2 3 4 5 6 7) 3 true)  -> ((1 2 3) (4 5 6) (7))
+;; (group '(1 2 3 4 5 6 7) -3 true) -> ((1) (2 3 4) (5 6 7))
+(define (group lst n bool , len num rep rem start)
+  (setq num (abs n))
+  (if (< n 0)
+      (reverse (map reverse (group (reverse lst) num bool)))
+      (= n 0)
+      nil
+      (begin
+        (setq len   (length lst)
+              rep   (/ len num)
+              rem   (% len num)
+              start '()
+        )
+        (if (< num len)
+            (begin
+              (dotimes (x rep)
+                (setq start (cons (slice lst (* x num) num) start)))
+              (if (and bool (> rem 0))
+                  (setq start (cons (slice lst (* num rep) rem) start)))
+              (reverse start))
+            (list lst)))))
+
+(group '(1 2 3 4 5 6 7) 3)
+;-> ((1 2 3) (4 5 6))
+(group '(1 2 3 4 5 6 7) 3 true)
+;-> ((1 2 3) (4 5 6) (7))
+(group '(1 2 3 4 5 6 7) -3 true)
+;-> ((1) (2 3 4) (5 6 7))
 =============================================================================
 
