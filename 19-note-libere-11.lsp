@@ -1308,6 +1308,26 @@ Esempio:
 (test 37 '(+ 10 2))
 ;-> 37 (+ 10 2)
 
+Lutz ha fornito un'altra versione di "defun" (con spiegazione):
+
+In newLISP the difference between a function written with 'define' and 'define-macro' is that 'define' will evaluate all it's arguments, while 'define-macro' will not.
+
+With 'define-macro' it is possible to make functions which behave and look like built-in fiunctions. I.e. the function (setq x y) does not evaluate the 'x' argument, but passes 'x' on directly as a symbol. The normal (set 'x y) doesn't work that way it evaluates both of it's arguments.
+
+Another example is: (dolist (item mylist) .....). The expression (item mylist) is not evaluated but passed on into 'dolist' to deal with it. If not, we would have to quote doing (dolist '(item mylist) ...).
+
+Macros are not used very often but when they are used they can be handy and important. The following example from init.lsp implements a 'defun' as found in Common LISP. Without 'define-macro' this would be impossible:
+
+; usage example: (defun foo (x y z) ....)
+
+(define-macro (defun _func-name _arguments)
+      (set _func-name (append
+        '(lambda )
+         (list _arguments)
+         (args))))
+
+Without 'define-macro' you could only write a 'defun' where both the function name (i.e. foo) and the parameter list (i.e. (x y z)) would have to be quoted.
+
 
 ---------------
 Spirale di Ulam

@@ -1585,6 +1585,9 @@ NOTE LIBERE 13
   Pack Length Bytes
   Verificare la lunghezza di una lista
   Suddividere gli elementi di una lista (no "explode")
+  Funzioni di autoincremento
+  Undocumented "apply"
+  La funzione "replace-assoc" (deprecata)
 
 APPENDICI
 =========

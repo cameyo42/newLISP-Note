@@ -2736,6 +2736,62 @@ Esecuzione delle tre domande:
 
 I risultati sono sostanzialmente gli stessi.
 
+Train additional list into the same context
+-------------------------------------------
+
+pjot:
+-----
+With (bayes-train) it is possible to train lists and put this into a context. As is described in the documentation, the syntax is (bayes-train list-M1 list-M2 [list-M3 ... ] sym-context-D), where the lists are the categories to be trained.
+
+What I want to do is train an additional list into the same context.
+
+One way of doing this, is reserve the position for it: (bayes-train c1 c2 '() '() '() 'MYCONTEXT) . Here 3 positions have been reserved which I can update later on in my program.
+
+However, if I have used all positions and want to add another category, how should I do that? I want to do this dynamically, I mean, without interruption of the running program. So stopping, changing the code, and starting is not an option.
+
+In case of self-learning program this seems to be a very convenient construction. While I am encountering new categories, I can add them on the fly. Is there a way of doing this?
+
+Lutz:
+-----
+You could append a new empty category with 0's this way:
+
+> (bayes-train '(a b c d c) '(c d e) 'T) ; train on 2 categories
+(4 3)
+> (dolist (s (symbols T)) (push 0  (eval s) -1)) ; append 3rd category
+0
+> (dolist (s (symbols T)) (println s " " (eval s)))
+T:a (1 0 0)
+T:b (1 0 0)
+T:c (2 1 0)
+T:d (1 1 0)
+T:e (0 1 0)
+T:total (5 3 0)
+(5 3 0)
+
+You simply push a 0 at the end of each list contained in the symbols. After this you keep on training with 3 categories. If you are out of data for the first category, just populate only the 3rd list:
+
+> (bayes-train '() '() '(a b c d) 'T)
+(5 3 4)
+> (dolist (s (symbols T)) (println s " " (eval s)))
+T:a (1 0 1)
+T:b (1 0 1)
+T:c (2 1 1)
+T:d (1 1 1)
+T:e (0 1 0)
+T:total (5 3 4)
+(5 3 4)
+
+pjot:
+-----
+How do I change the (bayes-train) command then? Do I need to interact manually with the sourcefile to adapt it to the new amount of categories? Or should I do this with a (case) and write down all possibilities? Still I am limited to the amount of possibilities I put into my sourcefile then.
+Also, is there a limit on the amount of categories?
+
+Lutz:
+-----
+There is no limit to the amount of categories you could train.
+you would have to change the 'bayes-train' statements to accomodate more categories.
+Perhaps as a workaround you can train from the beginning with a fixed max amount of categories and leave unused categories with '() empty lists. In-between training sessions you can save the context then load it again later using 'save' and 'load' for contexts.
+
 
 ----
 Dadi

@@ -5565,5 +5565,114 @@ Suddividere gli elementi di una lista (no "explode")
 ;-> ((1 2 3) (4 5 6) (7))
 (group '(1 2 3 4 5 6 7) -3 true)
 ;-> ((1) (2 3 4) (5 6 7))
+
+
+--------------------------
+Funzioni di autoincremento
+--------------------------
+
+;; @syntax (p++ '<int-a> <int-b>)
+;; 
+;; Post-increment <int-a> by <int-b>.
+(define (p++ _a01 _b01)
+  "(p++ int-sym int-num) - post-increment int-sym by int-num"
+  (let (_old (eval _a01))
+    (++ _a01 (or _b01 1))
+	_old))
+
+;; @syntax (p-- '<int-a> <int-b>)
+;; 
+;; Post-decrement <int-a> by <int-b>.
+(define (p-- _a01 _b01)
+  "(p-- int-sym int-num) - post-decrement int-sym by int-num"
+  (let (_old (eval _a01))
+    (-- _a01 (or _b01 1))
+	_old))
+
+Le seguenti funzioni sono obsolete in quanto "++" e "--" sono delle primitive in newLISP 10.7.5.
+
+(define (++ _a01 _b01)
+  "(++ int-a int-b) - increment int-a by int-b. int-a can be either a symbol or a value"
+  (if (symbol? _a01)
+    (set _a01 (+ (eval _a01) (or _b01 1)))
+    (+ (eval _a01) (or _b01 1))))
+
+(define (p++ _a01 _b01)
+  "(p-- int-sym int-num) - post-increment int-sym by int-num"
+  (let (_old (eval _a01))
+    (++ _a01 (or _b01 1))
+  _old))
+
+
+--------------------
+Undocumented "apply"
+--------------------
+
+cormullion
+----------
+I discovered by accident (and from ignorance) that apply doesn't always need a list if the function doesn't need one. So you can do this:
+
+(map apply '(directory real-path sys-info))
+
+or something more useful. This is cool, and seems to work fine, even though the reference manual doesn't explicitly say that you can do it!
+
+
+---------------------------------------
+La funzione "replace-assoc" (deprecata)
+---------------------------------------
+
+Storia della funzione deprecata "replace-assoc":
+
+7.5
+---
+replace-assoc
+now also uses the system variable $0 for the old  list, which can be reused in the replacement expression, i.e:
+
+(set 'lst '((a 1)(b 2)(c 3)))
+(replace-assoc 'b lst
+    (list 'b (+ 1 (last $0))))
+lst => ((a 1)(b 3)(c 3))
+
+now returns the changed list not the replaced element,which now is in $0.
+
+9.3
+---
+set-assoc – renamed replace-assoc changes an association, handles nested associations.
+
+9.4
+---
+Deprecated replace-assoc has been removed. Use set-assoc and pop-assoc instead. (v.9.4.4)
+------------
+
+Comunque nella versione 10.7.5 anche "set-assoc" è deprecata.
+Adesso al posto della funzione "replace-assoc" bisogna usare "set-ref" (o "set-ref-all") per modificare una lista di associazione.
+
+Vediamo un esempio:
+
+(set 'lst '((a 1) (b 2) (c 3)))
+
+; funzione deprecata
+(replace-assoc 'b lst
+    (list 'b (+ 1 (last $0))))
+
+; output
+lst --> ((a 1)(b 3)(c 3))
+
+; uso di set-ref
+        
+(set-ref (assoc 'b lst) lst (list 'b (+ ($it 1) 1)))
+;-> ((a 1) (b 3) (c 3))
+
+Come funziona?
+
+(assoc 'b lst)
+;-> (b 2) ; elemento trovato
+
+(ref (assoc 'b lst) lst)
+;-> (1) ; indice elemento da modificare
+
+                                  $it
+(list 'b (+ ($it 1) 1))) --> (b (+ 2 1)) --> (b 3) ; elemento nuovo ($it = 2)
+
 =============================================================================
 
