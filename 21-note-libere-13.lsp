@@ -3600,16 +3600,16 @@ output: ((1 ("a" "A")) (2 ("b" "B")) (3 ("c")))
   (local (out indici keys tmp)
     (setq out '())
     ; lista delle chiavi uniche
-    (setq keys (unique (map first a)))
+    (setq keys (unique (map first alst)))
     ; ciclo per ogni chiave
     (dolist (k keys)
       ; trova tutti gli indici degli elementi con la chiave corrente
-      (setq indici (ref-all k a))
+      (setq indici (ref-all k alst))
       (setq tmp '())
       ; costruisce la lista dei valori per la chiave corrente
       (dolist (i indici)
         (if (zero? (i 1)) ; indice di una chiave?
-          (push (a (i 0) 1) tmp -1)
+          (push (alst (i 0) 1) tmp -1)
         )
       )
       ; aggiorna la lista soluzione con (ki (v1 v2..vn))
@@ -3638,9 +3638,9 @@ Facciamo alcune prove:
 Possiamo anche utilizzare una hash-map (dizionario):
 
 (define (group-keys2 alst)
-  (local (key)
+  (local (key out)
     (new Tree 'hh)
-    (dolist (el a)
+    (dolist (el alst)
       (setq key (el 0))
       ; se chiave esiste,
       ; allora aggiunge un valore alla lista associata alla chiave
@@ -3798,7 +3798,7 @@ Numero somma di due cubi
 
 Scrivere una funzione che verifica se un numero è la somma di due cubi perfetti.
 
-Utilizziamo due puntatori "low" e "high" e poniamo low = 1 e hi = int(cbrt(n)).
+Utilizziamo due puntatori "low" e "high" e poniamo low = 1 e high = int(cbrt(n)).
 Quindi effettuiamo un ciclo con la condizione (low <= high),
   se il valore corrente (low*low*low + high*high*high) è uguale a n, allora il numero n è la somma di due cubi.
   se il valore corrente (low*low*low + high*high*high) è minore di n incrementiamo low, altrimenti decrementiamo high.
@@ -5399,7 +5399,6 @@ Funzioni per la formattazione di numeri interi e float.
 
 alex
 ----
-
 ;; Transform integer to special string format (see example)
 ;;
 ;; syntax: (pretty-int num)
@@ -5419,7 +5418,6 @@ alex
 
 cameyo
 ------
-
 (define (pretty num del)
   (reverse (join (explode (reverse (string num)) 3) del)))
 
@@ -5428,7 +5426,6 @@ cameyo
 
 Sammo
 -----
-
 (define (pretty-integer num delim)
   (let
     ( pattern "(?<=[0-9])(?=(?:[0-9]{3})+(?![0-9]))" )
@@ -5438,15 +5435,9 @@ Sammo
 (pretty-integer 1234567 ",")
 ;-> "1,234,567"
 
-Posts: 180
-Joined: Sat Dec 06, 2003 6:11 pm
-Location: Loveland, Colorado USA
-Top
-Postby Dmi » Wed Mar 29, 2006 8:16 pm
-
 Dmi
 ---
-Questa vale per i numeri float.
+Questa vale per i numeri float:
 
 (define (format-sum a)
   (let (s (format "%18.2f" a) r "")
@@ -5673,6 +5664,117 @@ Come funziona?
 
                                   $it
 (list 'b (+ ($it 1) 1))) --> (b (+ 2 1)) --> (b 3) ; elemento nuovo ($it = 2)
+
+
+--------------
+Insertion Sort
+--------------
+
+Algoritmo Insertion Sort
+1) Iterare la lista
+2) Confrontare l'elemento corrente (chiave) con il suo predecessore.
+3) Se l'elemento chiave è più piccolo del suo predecessore, confrontalo con gli elementi precedenti.
+4) Sposta gli elementi più grandi di una posizione in alto per fare spazio all'elemento scambiato.
+
+(define (insertion lst)
+  (local (len key j)
+    (setq len (length lst))
+    (for (i 1 (- len 1))
+      (setq key (lst i))
+      (setq j (- i 1))
+      ; Spostare gli elementi di lst[0..i-1], che sono maggiori di key,
+      ; di una posizione avanti rispetto alla loro posizione attuale
+      (while (and (>= j 0) (> (lst j) key))
+        (setf (lst (+ j 1)) (lst j))
+        (-- j)
+      )
+      (setf (lst (+ j 1)) key)
+    )
+    lst))
+
+(insertion '(1 3 4 5 2 3 7 8 9 3 3 4))
+;-> (1 2 3 3 3 3 4 4 5 7 8 9)
+
+(insertion (randomize (sequence -10 10)))
+;-> (-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10)
+
+Complessità temporale: O(n^2)
+Insertion Sort impiega il tempo massimo O(n^2) se gli elementi sono ordinati in ordine inverso. 
+Insertion Sort impiega il tempo minimo O(n) quando gli elementi sono già ordinati.
+
+
+--------------------
+Rimuovere i commenti
+--------------------
+
+Ecco un paio di funzioni per rimuovere i commenti da un file sorgente:
+
+HPW:
+----
+(define (striplinecomment completelinestr      complinelst newlinestr)
+   (setq complinelst (parse completelinestr ";"))
+   (if (>(length complinelst)1)
+      (if (not(find "\""(last complinelst)))     ;when semicolon not part of a string
+        (begin
+          (pop complinelst -1)
+          (setq newlinestr (trim(join complinelst ";")"" "\t"))
+        )
+        (setq newlinestr completelinestr)
+      )
+      (setq newlinestr completelinestr)
+   )
+   newlinestr
+)
+
+Sammo:
+------
+; not account for comments beginning with "#" or 
+; strings delimited with "{" and "}".
+(define (uncomment str)
+  (let
+    ( loc (explode str)
+      result '()
+      comment nil
+      in-quote nil
+    )
+  ;body of let
+    (until (or comment (empty? loc))
+      (let
+        ( ch (pop loc) )
+      ;body of let
+        (case ch
+          ("\"" (push ch result)
+                (set 'in-quote (not in-quote)) )
+          (";"  (if in-quote
+                  (push ch result)
+                  (set 'comment true) ))
+          (true (push ch result) ))))
+  ;return from outer let
+    (trim (join (reverse result)) "" " ") ))
+
+Modalità di utilizzo:
+
+(set 'OUT "outfile.lsp"
+(set 'IN "infile.lsp"
+(set 'NL "\r\n")
+(write-file OUT (join (map uncomment (parse (read-file IN) NL)) NL))
+
+alex:
+-----
+; use newLISP's own parser
+(define (no-comments src)
+# Remove all comments from newlisp program
+# ATTENTION! The program must have RIGHT SYNTAX
+# Example:
+#     (println (no-comments (read-file "prog.lsp")))
+#
+  (setq src (append "(let (____ (lambda ()\n" src "\n))(eval ____))"))
+  (regex "^[(] *lambda *[(][)] *(.*) *[)]$" (string (eval-string src)) 4)
+  $1
+)
+
+(define (no-comments src) 
+  (rest (chop (string (eval-string (append "'(" src ")"))))))
 
 =============================================================================
 

@@ -1588,6 +1588,8 @@ NOTE LIBERE 13
   Funzioni di autoincremento
   Undocumented "apply"
   La funzione "replace-assoc" (deprecata)
+  Insertion Sort
+  Rimuovere i commenti
 
 APPENDICI
 =========
