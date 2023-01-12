@@ -1590,6 +1590,11 @@ NOTE LIBERE 13
   La funzione "replace-assoc" (deprecata)
   Insertion Sort
   Rimuovere i commenti
+  Rimuovere una sequenza di elementi uguali da una lista
+  Verificare l'esistenza di un contesto
+  Lutz Computer 2006
+  Forum: Help with some basic object-oriented programming
+  Forum: Formatting of println output
 
 APPENDICI
 =========

@@ -3704,6 +3704,48 @@ La funzione che utilizza la hash-map è più lenta perchè deve "eliminare" la h
 (time (group-keys2 t))
 ;-> 523.719
 
+Possiamo generalizzare la funzione per utilizzare liste di associazione che hanno più di un valore associato ad una chaive.
+Per esempio:
+
+(setq cc
+'(("User1" 1 20 4 9 1 10 2005)
+  ("User3" 19 31 5 17 1 10 2005)
+  ("User6" 13 44 15 18 1 10 2005)
+  ("User6" 2 55 9 12 2 10 2005)
+  ("User6" 5 44 58 14 2 10 2005)
+  ("User2" 2 47 17 17 2 10 2005)
+  ("User2" 3 28 19 17 2 10 2005)
+  ("User1" 3 45 52 17 2 10 2005)))
+
+(define (group-keys alst)
+  (local (out indici keys tmp)
+    (setq out '())
+    ; lista delle chiavi uniche
+    (setq keys (unique (map first alst)))
+    ; ciclo per ogni chiave
+    (dolist (k keys)
+      ; trova tutti gli indici degli elementi con la chiave corrente
+      (setq indici (ref-all k alst))
+      (setq tmp '())
+      ; costruisce la lista dei valori per la chiave corrente
+      (dolist (i indici)
+        (if (zero? (i 1)) ; indice di una chiave?
+          ; inserisce tutti i valori associati alla chiave corrente
+          (push (slice (alst (i 0)) 1) tmp -1)
+          ;(push (alst (i 0) 1) tmp -1)
+        )
+      )
+      ; aggiorna la lista soluzione con (ki (v1 v2..vn))
+      (push (list k tmp) out -1)
+    )
+    out))
+
+(group-keys cc)
+;-> (("User1" ((1 20 4 9 1 10 2005) (3 45 52 17 2 10 2005))) 
+;->  ("User3" ((19 31 5 17 1 10 2005)))
+;->  ("User6" ((13 44 15 18 1 10 2005) (2 55 9 12 2 10 2005) (5 44 58 14 2 10 2005)))
+;->  ("User2" ((2 47 17 17 2 10 2005) (3 28 19 17 2 10 2005))))
+
 
 ------------------------
 Ramanujan e il taxi 1729
@@ -5563,22 +5605,22 @@ Funzioni di autoincremento
 --------------------------
 
 ;; @syntax (p++ '<int-a> <int-b>)
-;; 
+;;
 ;; Post-increment <int-a> by <int-b>.
 (define (p++ _a01 _b01)
   "(p++ int-sym int-num) - post-increment int-sym by int-num"
   (let (_old (eval _a01))
     (++ _a01 (or _b01 1))
-	_old))
+  _old))
 
 ;; @syntax (p-- '<int-a> <int-b>)
-;; 
+;;
 ;; Post-decrement <int-a> by <int-b>.
 (define (p-- _a01 _b01)
   "(p-- int-sym int-num) - post-decrement int-sym by int-num"
   (let (_old (eval _a01))
     (-- _a01 (or _b01 1))
-	_old))
+  _old))
 
 Le seguenti funzioni sono obsolete in quanto "++" e "--" sono delle primitive in newLISP 10.7.5.
 
@@ -5650,7 +5692,7 @@ Vediamo un esempio:
 lst --> ((a 1)(b 3)(c 3))
 
 ; uso di set-ref
-        
+
 (set-ref (assoc 'b lst) lst (list 'b (+ ($it 1) 1)))
 ;-> ((a 1) (b 3) (c 3))
 
@@ -5699,7 +5741,7 @@ Algoritmo Insertion Sort
 ;-> (-10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10)
 
 Complessità temporale: O(n^2)
-Insertion Sort impiega il tempo massimo O(n^2) se gli elementi sono ordinati in ordine inverso. 
+Insertion Sort impiega il tempo massimo O(n^2) se gli elementi sono ordinati in ordine inverso.
 Insertion Sort impiega il tempo minimo O(n) quando gli elementi sono già ordinati.
 
 
@@ -5728,7 +5770,7 @@ HPW:
 
 Sammo:
 ------
-; not account for comments beginning with "#" or 
+; not account for comments beginning with "#" or
 ; strings delimited with "{" and "}".
 (define (uncomment str)
   (let
@@ -5773,8 +5815,654 @@ alex:
   $1
 )
 
-(define (no-comments src) 
+(define (no-comments src)
   (rest (chop (string (eval-string (append "'(" src ")"))))))
+
+
+------------------------------------------------------
+Rimuovere una sequenza di elementi uguali da una lista
+------------------------------------------------------
+
+Dato una lista con alcuni elementi raddoppiati:
+
+(setq s '(1 1 4 2 2 3 3 4 4 5 5 4 4 3 3 4 2 2 1 1))
+
+Qual è il modo migliore per rimuovere - ad esempio - le due coppie di 4 4?
+
+Non è possibile usare "replace":
+
+(replace 4 s)
+;-> (1 1 2 2 3 3 5 5 3 3 2 2 1 1)
+
+perché perdiamo anche i 4 singoli (quelli non raddoppiati).
+
+Sammo:
+------
+
+(define (remove-pair L A)
+  (reverse (remove-pair-aux (first L) (rest L) A '())) )
+
+(define (remove-pair-aux head tail atom result)
+  (cond
+    ( (empty? tail)
+      (cons head result)
+    )
+    ( (!= head atom)
+      (remove-pair-aux (first tail) (rest tail) atom (cons head result))
+    )
+    ( (= head (first tail))
+      (remove-pair-aux (first (rest tail)) (rest (rest tail)) atom result)
+    )
+    ( true
+      (remove-pair-aux (first tail) (rest tail) atom (cons head result))
+    ) ))
+
+(setq s '(1 1 4 2 2 3 3 4 4 5 5 4 4 3 3 4 2 2 1 1))
+(remove-pair s 4)
+;-> (1 1 4 2 2 3 3 5 5 3 3 4 2 2 1 1)
+
+Ecco la stessa funzione espressa con la notazione di indicizzazione implicita:
+
+(define (remove-pair L A)
+  (reverse (remove-pair-aux (L 0) (1 L) A '())) )
+
+(define (remove-pair-aux head tail atom result)
+  (cond
+    ( (empty? tail)
+      (cons head result)
+    )
+    ( (!= head atom)
+      (remove-pair-aux (tail 0) (1 tail) atom (cons head result))
+    )
+    ( (= head (tail 0))
+      (remove-pair-aux (tail 1) (2 tail) atom result)
+    )
+    ( true
+      (remove-pair-aux (tail 0) (1 tail) atom (cons head result))
+    ) ))
+
+(setq s '(1 1 4 2 2 3 3 4 4 5 5 4 4 3 3 4 2 2 1 1))
+(remove-pair s 4)
+;-> (1 1 4 2 2 3 3 5 5 3 3 4 2 2 1 1)
+
+Ecco una soluzione più generale che consente di rimuovere "gruppi" adiacenti di atomi (non solo gruppi di due) e che consente di specificare che desideri rimuovere gruppi di N o più grandi.
+
+Iniziamo scrivendo la funzione "grouper" per creare liste di atomi identici adiacenti nella lista L:
+
+; aggiunta da cameyo per newLISP 10.7.5
+(define (car lst)
+  (if lst
+    (first lst)
+    nil))
+
+(define (grouper L)
+  (reverse (grouper-aux (car L) (rest L) '())) )
+
+(define (grouper-aux head tail result)
+  (cond
+    ( (= head nil)
+      result
+    )
+    ( (empty? result)
+      (grouper-aux (car tail) (rest tail) (cons (list head) result))
+    )
+    ( (member head (car result))
+      (push head result 0 0)
+      (grouper-aux (car tail) (rest tail) result)
+    )
+    ( true
+      (grouper-aux (car tail) (rest tail) (cons (list head) result))
+    ) ))
+
+(setq s '(1 1 2 2 3 3 4 4 5 5 4 4 4 3 3 3 2 2 2 1 1 1))
+(grouper s)
+;-> ((1 1) (2 2) (3 3) (4 4) (5 5) (4 4 4) (3 3 3) (2 2 2) (1 1 1))
+
+E ora una funzione per rimuovere dalla lista L gruppi di atomi A di lunghezza N o maggiore:
+
+(define (remove-groups L A N)
+  (let
+    ( result '() )
+  ;body of let
+    (dolist (sublist L)
+      (if (or (!= (sublist 0) A) (< (length sublist) (or N 1)))
+        (push sublist result -1)) )
+  ;return from let
+    result ))
+
+Infine, un esempio che rimuove i gruppi di 4 con lunghezza 3 o maggiore:
+
+(setq s '(1 1 2 2 3 3 4 4 5 5 4 4 4 3 3 3 2 2 2 1 1 1))
+(flat (remove-groups (grouper s) 4 3))
+;-> (1 1 2 2 3 3 4 4 5 5 5 3 3 3 2 2 2 1 1 1)
+
+Lutz:
+-----
+Questo sembra un lavoro per "match":
+
+(setq s '(1 1 4 2 2 3 3 4 4 5 5 4 4 3 3 4 2 2 1 1))
+
+(while (match '(* 4 4 *) s) (set 's (apply append (match '(* 4 4 *) s))))
+;-> (1 1 4 2 2 3 3 5 5 3 3 4 2 2 1 1)
+
+oppure in modo più breve e più veloce:
+
+(set 's '(1 1 4 2 2 3 3 4 4 5 5 4 4 3 3 4 2 2 1 1))
+
+(while (set 'L (match '(* 4 4 *) s)) (set 's (apply append L)))
+(1 1 4 2 2 3 3 5 5 3 3 4 2 2 1 1)
+
+
+-------------------------------------
+Verificare l'esistenza di un contesto
+-------------------------------------
+
+Come verificare l'esistenza di un contesto dato da una stringa:
+
+(set 'CON:demo 123)
+;-> 123
+(sym "CON" MAIN nil)
+;-> CON
+(context? CON)
+;-> true
+Questo non funziona:
+(context? (sym "CON" MAIN nil))
+;-> nil
+
+Basta aggiungere "eval" all'ultima espressione:
+
+(sym "CONT" MAIN nil)
+;-> nil
+(set 'CONT:foo 123)
+;-> 123
+(sym "CONT" MAIN nil)
+;-> CONT
+
+(context? (eval (sym "CONT" MAIN nil)))
+;-> true
+
+
+------------------
+Lutz Computer 2006
+------------------
+
+Il 16 aprile 2006 Lutz ha fatto il seguente post:
+
+(set 'a (sequence 1 200))
+; indexing (nth)
+(time (dotimes (i 1000) (dotimes (j 200) (set 'b (nth j a)))))
+;-> ;-> 217
+; indexing (implicit)
+(time (dotimes (i 1000) (dotimes (j 200) (set 'b (a j)))))
+;-> 212
+; slicing (j a)
+(time (dotimes (i 1000) (dotimes (j 200) (set 'b (j a))))) ; slicing
+;-> 2262
+
+Il mio computer il 12 gennaio 2023 è 10 volte più veloce:
+
+(set 'a (sequence 1 200))
+; indexing (nth)
+(time (dotimes (i 1000) (dotimes (j 200) (set 'b (nth j a)))))
+;-> 21.322
+; indexing (implicit)
+(time (dotimes (i 1000) (dotimes (j 200) (set 'b (a j)))))
+;-> 18.23
+; slicing (j a)
+(time (dotimes (i 1000) (dotimes (j 200) (set 'b (j a))))) ; slicing
+;-> 134.241
+
+
+-------------------------------------------------------
+Forum: Help with some basic object-oriented programming
+-------------------------------------------------------
+
+cormullion:
+-----------
+
+I thought I ought to learn a bit of "object-oriented" programming. Following the examples in the book, with some changes, I thought about something like this:
+
+(context 'Account)
+   (define (make-new nme bal ph)
+      (println nme " "  bal " " ph)
+      (set 'ctxt (replace " " (upper-case nme) ""))
+      (new Account 'ctxt)
+      (set 'ctxt (eval ctxt))
+      (set 'ctxt:full-name nme 'ctxt:balance bal 'ctxt:phone ph))
+
+   (define (Account:deposit amount)
+      (inc 'balance amount)
+      (println full-name "'s new balance is " balance))
+
+   (define (Account:withdraw amount)
+      (dec 'balance amount)
+      (println full-name "'s new balance is " balance))
+
+   (define (Account:statement)
+      (println "Fullname: " full-name)
+      (println "Balance: " balance))
+
+(context 'MAIN)
+
+(Account:make-new "John Doe" 123.45 "555-555-1212")
+
+The idea is to create a context automatically from the name.
+But at the moment it fails on (new Account) with
+"symbol not in MAIN context in function new : ctxt
+called from user defined function 
+Account:(make-new "John Doe" 123.45 "555-555-1212")"
+
+What's the problem?
+
+And then, having successfully created dozens of these accounts, how do I iterate across them?
+
+Lutz:
+-----
+
+Here are the changes to make it work and comments after the important lines:
+
+(context 'Account)
+   (define (make-new nme bal ph)
+      (println nme " "  bal " " ph)
+      (set 'ctxt (replace " " (upper-case nme) ""))
+      (set 'ctxt (sym ctxt MAIN)) ; MAIN is context MAIN, don't need to quote it
+      (new Account ctxt)  ; new takes a symbol as second argument
+      (set 'ctxt (eval ctxt)) ; unwrap the context inside the symbol in ctxt
+      (set 'ctxt:full-name nme 'ctxt:balance bal 'ctxt:phone ph)
+      ctxt)  ; return the new context to work with
+ ......
+
+(context MAIN) ; don't need to quote cuase MAIN contains MAIN (but doesn't harm)
+
+Note that the function returns the new conetxt JOHNDOE, so you can do this:
+
+(set 'customer (Account:make-new "John Doe" 123.45 "555-555-1212"))
+;-> John Doe 123.45 555-555-1212
+;-> JOHNDOE
+(customer:deposit 200)
+;-> John Doe's new balance is 323.45
+;-> 323.45
+> JOHNDOE:balance
+323.45
+
+cormullion:
+-----------
+
+Thanks Lutz!
+Now, having got this working, how do I find all the new objects that I've created using Account:new. Say I want to list everyone's balance. Do I store them myself or can I ask newLISP for all Account objects?
+
+Lutz:
+-----
+
+Yoy would keep a list yourself, i.e. you could push all accounts on a list during creation:
+
+(push (Account:make-new "John Doe" 123.45) TheAccounts)
+;-> John Doe 123.45 nil
+;-> JOHNDOE
+(push (Account:make-new "Mary Jane" 456.78) TheAccounts)
+;-> Mary Jane 456.78 nil
+;-> (MARYJANE JOHNDOE)
+TheAccounts
+;-> (MARYJANE JOHNDOE)
+(map (fn (acc) (println acc:balance)) TheAccounts)
+;-> 456.78
+;-> 123.45
+;-> (456.78 123.45)
+
+The last list you see: (456.78 123.45), is the result of the 'map' statement, because the return value of the 'println' statement is the balance printed
+
+cormullion:
+-----------
+
+OK, I think I get it. So, given a string, I can turn it into a symbol that should be a context name (continuing this example):
+
+(set 'c (replace " " (upper-case "John Doe") ""))
+;-> "JOHNDOE"
+
+then how do I get the balance?
+
+(set 'c (replace " " (upper-case "John Doe") ""))
+;-> "JOHNDOE"
+(println c "'s balance is " ...)
+;-> JOHNDOE's balance is nil
+;-> nil
+
+I'm finding this a little tricky. Does everyone else find it really easy? :-)
+
+Lutz:
+-----
+
+(set 'c (replace " " (upper-case "John Doe") ""))
+;-> "JOHNDOE"
+(set 'customer (eval (sym c MAIN)))
+;-> JOHNDOE
+customer:balance
+123.45
+
+It gets complicated when handling objects with their string instead of their contexts. Because now everytime you have to create the symbol from the name and then get the context.
+
+Once an object is created you should handle it with its context not the name string.
+
+I'm finding this a little tricky. Does everyone else find it really easy? :-)
+
+Many would agree with you. There are two things to comment on this:
+
+(1) handling contexts and symbols requires good knowledge of evaluation rules in newLISP. I.e. understanding the difference between a context and a symbol or the fact that contexts evaluate to themselves, that symbols can refer to contexts, i.e: (set 'foo aContext) etc.
+
+(2) newLISP is primarily not an object oriented language. OO programming is possible using contexts (name spaces) but if you are into heavy OO programming then newLISP is not the right language to use. newLISP's preferred data structure is the list, and a list can also hold methods (functions).
+
+cormullion:
+-----------
+
+Thanks. I'm more or less with you now. The confusing part is this, I think:
+
+  ...
+  (set 'ctxt (sym ctxt MAIN)) 
+  (new Account ctxt) 
+  (set 'ctxt (eval ctxt))
+  ...
+
+It looks like a roundabout approach. But I can see (dimly) the logic behind it...
+
+Lutz:
+-----
+
+The confusion comes from the fact, that 'new' and 'context' take a symbol, while in terms like (print ctx:var) the 'ctx' either is the context or contains one.
+
+Let me expand on your example:
+
+(set 'ctxt "Hello")  ; ctxt contains a string
+;-> "Hello"
+(set 'ctxt (sym ctxt MAIN))  ; we made the symbol Hello
+;-> Hello
+; above statement is the same as saying:
+(set 'ctxt 'Hello) ; put the symbol Hello into ctxt
+;-> Hello
+(new Account ctxt) ; new takes a symbol in target (set '(ctxt (eval ctxt)) ; peel the context out of the symbol
+;-> Hello
+
+The symbol Hello now contains the context Hello.
+
+
+-----------------------------------
+Forum: Formatting of println output
+-----------------------------------
+
+Perchè l'output di newLISP è strano?
+
+cormullion:
+-----------
+
+Just puzzled by the way newLISP outputs things.
+
+(println (set 'l (map list (randomize (sequence 1 20)) (sequence 1 20))))
+
+always prints the first 10 elements on one line, then prints the rest of the elements one per line:
+
+((1 1) (10 2) (3 3) (16 4) (7 5) (12 6) (11 7) (17 8) (19 9) (18
+  10)
+ (8 11)
+ (13 12)
+ (6 13)
+ (14 14)
+ (4 15)
+ (9 16)
+ (15 17)
+ (2 18)
+ (5 19)
+ (20 20))
+
+Why is this?
+
+HPW:
+----
+
+pretty-print is your friend:
+
+> (pretty-print 7)
+(7 " ")
+> (silent(println (set 'l (map list (randomize (sequence 1 20)) (sequence 1 20)))))
+((19 1)
+(7 2)
+(3 3)
+(10 4)
+(12 5)
+(17 6)
+(15 7)
+(20 8)
+(2 9)
+(1 10)
+(11 11)
+(18 12)
+(9 13)
+(6 14)
+(13 15)
+(5 16)
+(14 17)
+(4 18)
+(16 19)
+(8 20))
+
+Or do you want:
+
+(silent(map println (set 'l (map list (randomize (sequence 1 20)) (sequence 1 20)))))
+(16 1)
+(9 2)
+(2 3)
+(19 4)
+(11 5)
+(14 6)
+(6 7)
+(13 8)
+(10 9)
+(3 10)
+(7 11)
+(15 12)
+(4 13)
+(8 14)
+(5 15)
+(18 16)
+(1 17)
+(20 18)
+(12 19)
+(17 20)
+
+Lutz:
+-----
+
+Pretty printing in newLISP is optimized for saving/sourceing contents with "save" or "source", saving content with 'set' statements, and it works well for user defined functions when entering the function name on the interactive command line.
+
+Whe you put your list into a variable and then do a
+
+(save "myfile" 'var)
+you will get a
+
+(set 'var ....)
+statement in "myfile" file which is well formatted.
+
+Or try
+
+(save "everything")
+and get a well formatted file of all your newLISP contents you have in memory in a file.
+
+Doing a
+
+(load "everything")
+will bring you back where you were.
+
+Lutz
+
+ps: and as HPW suggests, fine tune pretty printing using 'pretty-print'
+
+cormullion:
+-----------
+
+Thanks. I hadn't thought of pretty-print.
+
+PS - Why does println do what it does, though?. :-)
+
+Dmi:
+----
+
+I done something like this for my not-yet-released newlisp-console:
+
+(define (sys-cols) 80)
+
+(define (format-expr lst cols indent , curline shift lstart lend)
+  "format the nested list to simply indented wrapped string list"
+  "use (indent (format-expr ...)) then for more fine wrap"
+  (setq curline "" lstart true shift 0)
+  (unless cols (setq cols (sys-cols)))
+  (unless indent (setq indent 2)) ; indent step
+  (let (outbuf (indent-wrap lst))
+    (new-curline)
+    outbuf))
+
+; inner to indent-wrap
+(define (new-curline value)
+  (if (and curline (not (empty? curline)) (push-end curline outbuf)))
+  (set 'curline (append (dup " " shift) (unless value "" value))
+       'lstart true))
+
+; supply string-like converter. needed workaround for \t etc.
+(define (string-value s)
+  (if (string? s) (append "\""
+                          (replace "\n" (replace "\"" (replace "\\"
+                            s "\\\\") "\\\"") "\\n")
+                          "\"")
+                  (string s)))
+
+; if s-expr fit the line, we write it
+; else we'll write subexpressions until they fill the line
+(define (indent-wrap lst , lbuf)
+  (let (outbuf '() s (string-value lst))
+    (if (< (+ (length curline) 1 (length s)) cols)
+      (write-buffer curline (append
+                              (unless (or (empty? curline) lstart) " " "")
+                              s))
+      (unless (list? lst)
+        (new-curline s)
+        (begin
+          (new-curline "(")
+          (inc 'shift indent)
+          (set 'lbuf (length outbuf))
+          (dolist (l lst)
+            (if lend (new-curline))
+            (set 'lend nil)
+            (set 'outbuf (append outbuf (indent-wrap l))))
+          (write-buffer curline ")")
+          (set 'lend (> (length outbuf) lbuf))
+          (dec 'shift indent))))
+    (set 'lstart nil)
+    outbuf))
+
+use: (format-expr lst)
+
+Lutz:
+-----
+
+How does pretty print work?
+
+There is a set of rules when to break the line and how much indenting steps to fill in before each line.
+
+The rules count the the level and balance of open braces and watch if the stuff printed comes from a user-defined function. Certain primitives like i'if', 'dotimes', 'dolist', 'while', 'until' have an iternal flag telling when to break the line, this way braking after the parameter list or condition.
+
+When saving lists formattting is optimized for 'save' and 'source'.
+
+DMI's program does something similar, but I haven't looked into it enough to explain the differences.
+
+HPW:
+----
+
+PS - Why does println do what it does, though?. :-)
+
+I uses simply the default settings:
+
+(pretty-print)         => (64 " ") ;; default setting
+
+It should print a long list and reach that default boundry.
+
+cormullion:
+-----------
+
+I see that it does that for the first line, but then it doesn't take any notice for the remaining lines...
+Not a problem - a curiousity!
+
+Dmi:
+----
+My one is mainly for printing the "data" lists. It trying to fill each line until possible, then do a line break with indenting (if it needed to reflect the structure).
+The cormullion's example will be printed like this:
+
+((17 1) (12 2) (14 3) (3 4) (10 5) (9 6) (11 7) (1 8) (8 9) (7 10) (16 11)
+  (6 12) (4 13) (18 14) (19 15) (2 16) (15 17) (13 18) (5 19) (20 20))
+
+It can also pretty indent a code too, for ex:
+(join (format-expr indent-wrap) "\n")
+but there is no sufficient euristics for smart line breaking according with lisp code etc. - only the list structure is checked for indenting and bracket closing.
+
+Lutz:
+-----
+
+Pretty printing in newLISP is optimized for saving/sourceing contents with "save" or "source", saving content with 'set' statements:
+
+> (set 'l (map list (randomize (sequence 1 20)) (sequence 1 20)))
+((7 1) (6 2) (18 3) (19 4) (14 5) (13 6) (3 7) (12 8) (9 9) (16 10)
+ (4 11)
+ (2 12)
+ (8 13)
+ (15 14)
+ (5 15)
+ (11 16)
+ (10 17)
+ (17 18)
+ (1 19)
+ (20 20))
+> (save "list" 'l)
+true
+
+> !cat list
+(set 'l '(
+  (7 1)
+  (6 2)
+  (18 3)
+  (19 4)
+  (14 5)
+  (13 6)
+  (3 7)
+  (12 8)
+  (9 9)
+  (16 10)
+  (4 11)
+  (2 12)
+  (8 13)
+  (15 14)
+  (5 15)
+  (11 16)
+  (10 17)
+  (17 18)
+  (1 19)
+  (20 20)))
+
+Note that 'cat' is a shell command the '!' has to come immedeately before it and in the first column and initiates the shell. Of course you also could open the file "list" in an editor.
+
+Only a completely flat list will fill each line to the end.
+
+> (set 'l (sequence 1 100))
+(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+ 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+ 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69
+ 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91
+ 92 93 94 95 96 97 98 99 100)
+> (save "list" 'l)
+true
+> !cat list
+(set 'l '(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22
+  23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43
+  44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64
+  65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85
+  86 87 88 89 90 91 92 93 94 95 96 97 98 99 100))
+
+It is impossible to make a pretty print algorithm, which gets it right all the time. Remember that LISP has the same syntax for data and program. The current algorithm is optimized for displaying program text and does a reasonable well job on data, when using 'save' and 'source' for ouput.
 
 =============================================================================
 
