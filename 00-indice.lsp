@@ -1595,6 +1595,13 @@ NOTE LIBERE 13
   Lutz Computer 2006
   Forum: Help with some basic object-oriented programming
   Forum: Formatting of println output
+  Here document
+  Numeri di Keith
+  Numeri ondulati
+  La funzione "replace"
+  Translating S-expressions into XML
+  Forum: On recursive procedures
+  Sequenza di Sylvester
 
 APPENDICI
 =========

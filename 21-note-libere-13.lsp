@@ -6464,5 +6464,584 @@ true
 
 It is impossible to make a pretty print algorithm, which gets it right all the time. Remember that LISP has the same syntax for data and program. The current algorithm is optimized for displaying program text and does a reasonable well job on data, when using 'save' and 'source' for ouput.
 
+
+-------------
+Here document
+-------------
+
+Un documento "here" (o "heredoc") è un modo per specificare un blocco di testo, preservando le interruzioni di riga, i rientri e altri spazi bianchi all'interno del testo.
+
+; here-document.lsp
+; oofoe 2012-01-19
+; http://rosettacode.org/wiki/Here_document
+
+(print (format [text]
+    Blast it %s! I'm a %s,
+    not a %s!
+       --- %s
+[/text] "James" "magician" "doctor" "L. McCoy"))
+;(exit)
+;->    Blast it James! I'm a magician,
+;->    not a doctor!
+;->       --- L. McCoy
+
+(silent 
+(println (format 
+[text]
+    I tag sono utili...
+ 
+    ... a volte.
+[/text])))
+;->   I tag sono utili...
+;-> 
+;->   ... a volte.
+
+Nota: la riga vuota (seconda riga tra i tag) contiene uno spazio all'inizio (altrimenti viene generato un errore).
+
+
+---------------
+Numeri di Keith
+---------------
+
+Un numero intero X è un numero di Keith se appare in una sequenza (definita di seguito) generata utilizzando le sue N cifre.
+La sequenza ha come primi N termini le cifre di X e gli altri termini sono valutati ricorsivamente come somma dei precedenti N termini.
+
+Esempi:
+
+X = 197
+197 ha 3 cifre, quindi N = 3
+Costruiamo la sequenza partendo dalle cifre del numero:
+1 9 7 (+ 1 9 7) --> 1 9 7 17 (+ 9 7 17) --> 1 9 7 17 33 (+ 7 17 33) -->
+1 9 7 17 33 57 (+ 17 33 57) --> 1 9 7 17 33 57 107 (+ 33 57 107) -->
+1 9 7 17 33 57 107 197 ...
+Il numero è di Keith perché compare nella sequenza che ha i primi tre termini come 1, 9, 7 e i termini rimanenti valutati utilizzando la somma dei 3 termini precedenti.
+
+X = 12
+12 ha 2 cifre, quindi N = 2
+Costruiamo la sequenza: 1 2 3 5 8 13 21
+Il numero non è di Keith perché non compare nella sequenza
+
+Sequenza OEIS A130010:
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 19, 28, 47, 61, 75, 197, 742, 1104, 1537, 2208, 2580, 3684, 4788, 7385, 7647, 7909, 31331, 34285, 34348, 55604, 62662, 86935, 93993, 120284, 129106, 147640, 156146, 174680, 183186, 298320, 355419, 694280, 925993, 1084051, 7913837, 11436171, 33445755,
+
+Nota: i primi 10 numeri (0..9) sono tutti numeri di Keith per definizione (sono i primi termini della sequenza.
+
+Algoritmo
+Creare una lista con le cifre del numero X
+Ciclo per generare i termini successivi della sequenza e aggiorna la sequenza stessa.
+  Generare termini fino a che (X < termine)
+Se il termine finale è uguale a x, allora X è un numero di Keith. 
+Se il termine finale è maggiore di x, allora X non è un numero di Keith.
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (keith? num)
+  (local (values len next-val)
+    (setq values (int-list num))
+    (setq len (length values))
+    (setq next-val 0)
+    (while (< next-val num)
+      (push (setq next-val (apply + (slice values (- len)))) values -1)
+    )
+    ; (println values)
+    (= next-val num)))
+
+Facciamo alcune prove:
+
+(keith? 197)    
+;-> true
+
+(filter keith? (sequence 0 100))
+;-> (1 2 3 4 5 6 7 8 9 14 19 28 47)
+
+(time (println (filter keith? (sequence 0 1e6))))
+;-> (0 1 2 3 4 5 6 7 8 9 14 19 28 47 61 75 197 742 1104 1537 2208 2580 3684 4788 7385
+;->  7647 7909 31331 34285 34348 55604 62662 86935 93993 120284 129106 147640 156146
+;->  174680 183186 298320 355419 694280 925993)
+;-> 5953.238
+(time (println (filter keith? (sequence 0 1e7))))
+;-> (0 1 2 3 4 5 6 7 8 9 14 19 28 47 61 75 197 742 1104 1537 2208 2580 3684 4788 7385
+;->  7647 7909 31331 34285 34348 55604 62662 86935 93993 120284 129106 147640 156146
+;->  174680 183186 298320 355419 694280 925993 1084051 7913837)
+;-> 72725.268
+
+
+---------------
+Numeri ondulati
+---------------
+
+Un numero "ondulato" è un numero che ha solo due tipi di cifre e le cifre alternate sono uguali, cioè è della forma "ababab...".
+I numeri ondulati non banali devono avere almeno 3 cifre e "a" non è uguale a "b".
+
+Sequenza OEIS A046075:
+  101, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 232, 242, 252, 
+  262, 272, 282, 292, 303, 313, 323, 343, 353, 363, 373, 383, 393, 404,
+  414, 424, 434, 454, 464, 474, 484, 494, 505, 515, 525, 535, 545, 565,
+  575, 585, 595, 606, 616, 626, 636, 646, 656...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (ondulato? num)
+  (local (s stop)
+    (cond ((< num 100) nil)
+          (true
+            (setq s (int-list num))
+            (setq stop nil)
+            ; le prime due cifre devono essere diverse
+            (if (= (s 0) (s 1) (setq stop true)))
+            ; se le prime due cifre sono diverse, allora
+            ; controlla se tutte le cifre alternate sono uguali o no
+            (for (i 2 (- (length s) 1) 1 stop)
+              (if (!= (s (- i 2)) (s i)) (setq stop true))
+            )
+            (not stop)))))
+
+(ondulato? 121)
+;-> true
+
+(ondulato? 818182)
+;-> nil
+
+(filter ondulato? (sequence 100 1000))
+;-> (101 121 131 141 151 161 171 181 191 202 212 232 242 252 262 272 282
+;->  292 303 313 323 343 353 363 373 383 393 404 414 424 434 454 464 474
+;->  484 494 505 515 525 535 545 565 575 585 595 606 616 626 636 646 656
+;->  676 686 696 707 717 727 737 747 757 767 787 797 808 818 828 838 848
+;->  858 868 878 898 909 919 929 939 949 959 969 979 989)
+
+
+---------------------
+La funzione "replace"
+---------------------
+
+********************
+>>>funzione REPLACE
+********************
+
+sintassi: (replace exp-key list exp-replacement [func-compare])
+sintassi: (replace exp-key list)
+
+sintassi: (replace str-key str-data exp-replacement)
+sintassi: (replace str-pattern str-data exp-replacement regex-option)
+
+Sostituzioni nelle liste
+------------------------
+Se il secondo argomento è una lista, "replace" sostituisce tutti gli elementi nella lista list che sono uguali all'espressione in "exp-key". L'elemento viene sostituito con "exp-replacement". Se manca "exp-replacement", tutte le istanze di "exp-key" verranno eliminate dalla lista.
+
+Si noti che "replace" è distruttiva. Cambia la lista che gli è stato passata e restituisce la lista modificata. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count dopo il ritorno della funzione. Durante le esecuzioni dell'espressione di sostituzione, la variabile di sistema anaforica $it viene impostata sull'espressione da sostituire.
+
+Facoltativamente, "func-compare" può specificare un operatore di confronto o una funzione definita dall'utente. Per impostazione predefinita, func-compare è il = (segno di uguale).
+
+;; list replacement
+
+(set 'aList '(a b c d e a b c d))
+
+(replace 'b aList 'B)  → (a B c d e a B c d)
+aList  → (a B c d e a B c d)
+$count → 2  ; number of replacements
+
+;; list replacement with special compare functor/function
+
+; replace all numbers where 10 < number
+(set 'L '(1 4 22 5 6 89 2 3 24))
+
+(replace 10 L 10 <) → (1 4 10 5 6 10 2 3 10)
+$count → 3
+
+; same as:
+
+(replace 10 L 10 (fn (x y) (< x y))) → (1 4 10 5 6 10 2 3 10)
+
+; change name-string to symbol, x is ignored as nil
+
+(set 'AL '((john 5 6 4) ("mary" 3 4 7) (bob 4 2 7 9) ("jane" 3)))
+
+(replace nil AL (cons (sym ($it 0)) (rest $it)) 
+                (fn (x y) (string? (y 0)))) ; parameter x = nil not used
+→ ((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3))
+
+; use $count in the replacement expression
+(replace 'a '(a b a b a b) (list $count $it) =) →  ((1 a) b (2 a) b (3 a) b)
+
+Usando le funzione "match" e "unify" le ricerche sulle liste sono potenti come le ricerche sulle stringhe con le espressioni regolari:
+
+; calculate the sum in all associations with 'mary
+
+(set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
+
+(replace '(mary *)  AL (list 'mary (apply + (rest $it))) match)
+→ ((john 5 6 4) (mary 14) (bob 4 2 7 9) (jane 3))
+
+$count → 1
+
+; make sum in all expressions
+
+(set 'AL '((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3)))
+
+(replace '(*) AL (list ($it 0) (apply + (rest $it))) match)
+→ ((john 15) (mary 14) (bob 22) (jane 3))
+$count → 4
+
+; using unify, replace only if elements are equal
+(replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
+→ ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
+ 
+Rimozioni nelle liste
+---------------------
+L'ultima forma di "replace" ha solo due argomenti: l'espressione "exp-key" e "list". Questa forma rimuove tutte le "exp-key" trovate nella lista.
+
+;; removing elements from a list
+
+(set 'lst '(a b a a c d a f g))
+(replace 'a lst)  → (b c d f g)
+lst               → (b c d f g)
+
+$count → 4
+
+Sostituzioni nelle stringhe senza espressioni regolari
+------------------------------------------------------
+Se tutti gli argomenti sono stringhe, "replace" sostituisce tutte le occorrenze di "str-key" in "str-data" con la "exp-replacement" valutata, restituendo la stringa modificata. L'espressione in "exp-replacement" viene valutata per ogni sostituzione. Il numero di sostituzioni effettuate è contenuto nella variabile di sistema $count. Questa forma di sostituzione può anche elaborare 0 binari (zero).
+
+;; string replacement
+(set 'str "this isa sentence")
+(replace "isa" str "is a")  → "this is a sentence"
+
+$count → 1
+
+Sostituzioni nelle stringhe con espressioni regolari
+----------------------------------------------------
+La presenza di un quarto parametro indica che è necessario eseguire una ricerca di espressioni regolari con un modello di espressione regolare specificato in str-pattern e un numero di opzione specificato in regex-option (ad es. 1 (uno) o "i" per la ricerca senza distinzione tra maiuscole e minuscole o 0 (zero) per una ricerca standard Perl compatibile con espressione regolare (PCRE) senza opzioni). Vedi regex sopra per i dettagli.
+
+Per impostazione predefinita, replace sostituisce tutte le occorrenze di una stringa di ricerca anche se nel modello di ricerca è inclusa una specifica di inizio riga. Dopo ogni sostituzione, viene avviata una nuova ricerca in una nuova posizione in str-data. L'impostazione del bit di opzione su 0x8000 in regex-option forzerà la sostituzione solo della prima occorrenza. Viene restituita la stringa modificata.
+
+replace con le espressioni regolari imposta anche le variabili interne $0, $1 e $2 con il contenuto delle espressioni e delle sottoespressioni trovate. La variabile di sistema anaforica $it è impostata sullo stesso valore di $0. Questi possono essere utilizzati per eseguire sostituzioni che dipendono dal contenuto trovato durante la sostituzione. I simboli $it, $0, $1 e $2  possono essere usati nelle espressioni come qualsiasi altro simbolo. Se l'espressione di sostituzione restituisce qualcosa di diverso da una stringa, non viene effettuata alcuna sostituzione. In alternativa, è possibile accedere al contenuto di queste variabili anche utilizzando ($ 0), ($ 1), ($ 2) e così via. Questo metodo consente l'accesso indicizzato (ad es. ($ i), dove i è un numero intero).
+
+Dopo aver effettuato tutte le sostituzioni, il numero di sostituzioni è contenuto nella variabile di sistema $count.
+
+;; using the option parameter to employ regular expressions
+
+(set 'str "ZZZZZxZZZZyy")     → "ZZZZZxZZZZyy"
+(replace "x|y" str "PP" 0)    → "ZZZZZPPZZZZPPPP"
+str                           → "ZZZZZPPZZZZPPPP"
+
+;; using system variables for dynamic replacement
+
+(set 'str "---axb---ayb---")
+(replace "(a)(.)(b)" str (append $3 $2 $1) 0)
+→ "---bxa---bya---"
+
+str  → "---bxa---bya---"
+
+;; using the 'replace once' option bit 0x8000
+
+(replace "a" "aaa" "X" 0)  → "XXX"
+
+(replace "a" "aaa" "X" 0x8000)  → "Xaa"
+
+;; URL translation of hex codes with dynamic replacement
+
+(set 'str "xxx%41xxx%42")
+(replace "%([0-9A-F][0-9A-F])" str
+               (char (int (append "0x" $1))) 1)
+
+str    → "xxxAxxxB"
+
+$count → 2
+
+Anche la funzione "setf" insieme a "nth", "first" o "last" può essere utilizzata per modificare gli elementi in una lista.
+
+Vedere "directory", "find", "find-all", "parse", "regex", e "search" per altre funzioni che utilizzano le espressioni regolari.
+
+
+----------------------------------
+Translating S-expressions into XML
+----------------------------------
+
+newLISP has built in support for parseing XML into s-expressions using xml-parse, but going the other way translating s-expressions into XML has to be coded. Fortunately this is a natural task for LISP with a recursive algorithm. The following function can be used to translate a LISP s-expression back into XML:
+
+;;
+;; translate s-expr to XML
+;; written by Lutz Mueller
+;; updated: 2007-01-08
+;;
+(define (expr2xml expr (level 0))
+ (cond 
+   ((or (atom? expr) (quote? expr))
+       (print (dup "  " level))
+       (println expr))
+   ((list? (first expr))
+       (expr2xml (first expr) (+ level 1))
+       (dolist (s (rest expr)) (expr2xml s (+ level 1))))
+   ((symbol? (first expr))
+       (print (dup "  " level))
+       (println "<" (first expr) ">")
+       (dolist (s (rest expr)) (expr2xml s (+ level 1)))
+       (print (dup "  " level))
+       (println "</" (first expr) ">"))
+   (true
+      (print (dup "  " level) 
+      (println "<error>" (string expr) "<error>")))
+ ))
+
+;; a lisp expression for a person
+
+(set 'expr '(person
+              (name "John Doe")
+              (address (street "Main Street") (city "Anytown"))))
+
+;; translate to XML with default indentation 0
+
+(expr2xml expr)   =>
+
+<person>
+   <name>
+     John Doe
+   </name>
+   <address>
+       <street>
+         Main Street
+       </street>
+       <city>
+         Anytown
+       </city>
+   </address>
+</person> 
+
+The second parameter 0 is the indentation level for the outermost tag expression.
+
+
+------------------------------
+Forum: On recursive procedures
+------------------------------
+
+rickyboy:
+---------
+
+; This roman numbers generator by Sam Cox 
+; is a nice example of recursive programming in LISP.
+; roman.lsp
+; Sam Cox December 8, 2003
+;
+; LM 2003/12/12: took out type checking of n
+;                 
+;
+; This function constructs a roman numeral representation from its positive
+; integer argument, N.  For example,
+;
+;     (roman 1988) --> MCMLXXXVIII
+;
+; The Roman method of writing numbers uses two kinds of symbols: the basic
+; symbols are I=1, X=10, C=100 and M=1000; the auxiliary symbols are V=5,
+; L=50 and D=500. A rule prescribes that the symbol for the larger number
+; always stands to the left of that for the smaller number. An exception
+; is motivated by the desire to use as few symbols as possible. For
+; example, the number nine can be represented as VIIII (5+4) or IX (10-1);
+; the latter is preferred.  Therefore, if the symbol of a smaller number
+; stands at the left, the corresponding number has to be subtracted, not
+; added.  It is not permitted to place several basic symbols or an
+; auxiliary symbol in front.  For example, use CML for 950 instead of LM.
+; ---
+; The VNR Encyclopedia of Mathematics, W. Gellert, H. Kustner, M. Hellwich,
+; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.  
+
+(define (roman n)
+        (roman-aux "" n (first *ROMAN*) (rest *ROMAN*)))
+
+(define (roman-aux result n pair remaining)
+    (roman-aux-2 result n (first pair) (second pair) remaining)) 
+
+(define (roman-aux-2 result n val rep remaining)
+    (if
+        (= n 0)
+            result
+        (< n val)
+            (roman-aux result n (first remaining) (rest remaining))
+        ;else
+            (roman-aux-2 (append result rep) (- n val) val rep remaining))) 
+
+(define (second x) (nth 1 x)) 
+
+(setq *ROMAN*
+         '(( 1000  "M" )
+           (  999 "IM" )
+           (  990 "XM" )
+           (  900 "CM" )
+           (  500  "D" )
+           (  499 "ID" )
+           (  490 "XD" )
+           (  400 "CD" )
+           (  100  "C" )
+           (   99 "IC" )
+           (   90 "XC" )
+           (   50  "L" )
+           (   49 "IL" )
+           (   40 "XL" )
+           (   10  "X" )
+           (    9 "IX" )
+           (    5  "V" )
+           (    4 "IV" )
+           (    1  "I" ))) 
+
+; end of file
+
+If I load the previous function in newlisp, I can time it like this:
+
+> (time (roman 2006) 1000)
+470
+
+A version with less call overhead, but still recursive, will yield:
+
+(define (roman* n val rep vrlist acc)
+  (if (not val)
+      (roman* n ((*ROMAN* 0) 0) ((*ROMAN* 0) 1) (1 *ROMAN*) "")
+      (= n 0)
+      acc
+      (< n val)
+      (roman* n ((vrlist 0) 0) ((vrlist 0) 1) (1 vrlist) acc)
+      (roman* (- n val) val rep vrlist (string acc rep))))
+
+> (time (roman* 2006) 1000)
+266
+
+Of course, as you know, the best performing version is the one with no extra call overhead:
+
+(define (roman** n)
+  (let ((val ((*ROMAN* 0) 0))
+        (rep ((*ROMAN* 0) 1))
+        (vrlist (1 *ROMAN*))
+        (acc ""))
+    (until (= n 0)
+      (cond ((< n val)
+             (set 'val ((vrlist 0) 0) 'rep ((vrlist 0) 1))
+             (pop vrlist))
+            (true
+             (set 'acc (string acc rep) 'n (- n val)))))
+    acc))
+
+> (time (roman** 2006) 1000)
+94
+
+My only problem is that the recursive ones are easier to program, read, and understand. And it would be nice if, also, both 'roman' and 'roman*' could perform about as well as 'roman**'. That is, Lutz, will tail recursive call optimization ever be forthcoming in newLISP? Curious.
+
+Dmi:
+----
+
+Btw, about tail recursion:
+Imho, it isn't mandatory for newlisp - to analyze the code to determine "is this funcall - a tail recursion finisher?" - we can just to have a function, that will imitate tail-recursive call (i.e. replace current function in stack) whenever it called.
+Something like an "exec()" libc function in unix...
+
+How about this, Lutz?
+
+rickyboy:
+---------
+
+Wow! This comment is very interesting to me because I was not aware that this could be done, in general. When I think about how this could be done, I can't avoid using a stack. (I am not a language implementor, so I am not surprised by any of my inabilities in this area :-) For instance, if I write a function which makes a non-tail recursive call, I find myself stuck thinking that there is some computation, at that level, which has to wait for the recursive call to complete, before it can complete its own computation. So, I naturally think of this as a continuation. Well, if we replace the current run-time on the stack with the recursive call, as you suggest, I'm thinking "what about the loss of the continuation?" Then I think, "well, we can remember this continuation and all further ones, down the line, by pushing them onto a list; when we then bottom out on the recursion, we call the continuations one by one, by popping them off of the list" -- the final answer ends up being a composition of the continuations. But this is just another stack! :-)
+Dmi, could you elaborate on this concept for the feeble-minded among us (i.e. me). If you could also point to a written resource, I'd happily 
+ 
+Dmi:
+----
+
+Hmm... the thing I wrote isn't a big news. Look at this:
+
+(define (recur a b c)
+  (some code 1)
+  (recur (x y z)
+  (some code 2)
+
+This is a "regular" recursion. It must be done with stack growing because after recursive call we must return to upper level, complete (some code 2 section) and return it's result to the top level.
+Now this:
+
+(define (recur a b c)
+  (some code 1)
+  (recur (x y z))
+
+In this example we haven't a finish-section like (some code 2), so the result of the top-level recur will be the same as the result of recur of a sublevel and so forth. So in this case we won't need in top-level (recur) anymore and we can forgot about it - i.e., drop from stack. If the language can treat this, then we got the ability to write some of recursive code as effective as iterative one. Afaik, term "tail-recursive" is about this situation.
+
+About implementation: PROLOG does this, "classic" LISP does this. newLISP doesn't this at present, but, really, I think this isn't a big cost for it's smallness/advantages rate.
+
+Speaking about implementation, I think, this isn't simple. But we already have the (catch ... (throw)) construct, that perform a stack cleaning.
+So, I have a think - is it possible to have something like (recurse .... (return)), so the return will first clean the stack and then somehow evaluate it's arguments.
+Really only Lutz can know is it possible :-)
+
+rickyboy:
+---------
+
+He, he, he. Yes, Dmi, I know what "tail recursion" means. :-)
+
+I had just thought in your original message that you were claiming that it wouldn't be necessary for newlisp to determine if a recursive call was of the tail type, and I didn't know how this would be possible, i.e. not to check for "tailness" but still able to optimize the tail call. But I realize now that you were not originally claiming this. I'm sorry for any confusion.
+
+However, this does not let Lutz off the hook. :-) So, Lutz, what do you think? Would it be a terribly difficult task to optimize tail calls in newlisp? Thanks, in advance, for any response. --Ricky
+ 
+Dmi:
+----
+
+heh :-)
+The only new, I mean, is that if we realize a function like "return" in C, then it will _always_ can be a tail-recursive. So, meeting such function, the interpreter will not need to gess. And a programmer will not need to guess too ;-)
+ 
+Lutz:
+-----
+
+I have several thoughts and comments to this, some against, some for tail recursion optimization. Perhaps Dmitry's suggestion is a good compromise.
+
+The memory overhead is about 80 stack bytes per call function call for an average of 2 parameters passed. Currently the stack default is 2048 levels, which can be increased to hundreds of thousands vi the -s command line switch when starting newLISP.
+
+Tail recursive functions are easy to rewrite as iterating functions. The benefit of code elegance and and code readability is greatest for recursive functions which are not tail recursive. The same benefit for tail recursive functions is small. As a side note: much of this judgement is subjective and a matter of taste either way.
+
+Tail recursion in newLISP would rather slow down performance than speed it up. Checking for tail recursion would be expensive and not justify the speed performance gain of minimizing function call overhead. The benefit would be mainly in saving stack memory.
+
+From a practical, application oriented point of view there is not enough benefit. I prefer iterative solutions most of the time because they tend to be much faster. There are algorithms like "Translating S-expressions into XML" where recursion is the best way to do it. But algorithms like this one are not tail recursive anyway and tend to be shallow enough for the default 2048 level stack allocation.
+
+To sum it up when tail recursion optimization is possible, it doesn't give us much benefit.
+
+Still I have looked into it again and again, simply because the feature seemed to be interesting from a theoretical point of view and have some application benefits in (imho rare) situations. But I have not found a simple way to implement this without using much resources, checking for tail recursion would be expensive speed performance wise.
+
+BUT, what I found interesting is Dmitry's comment/suggestion of implementing an explicit tail recursive function call (replacing the current function on the function call stack). So basically let the programmer decide when a recursive call is pushing the stack or not. This solution would not burden present performance, but give the programmer a way of optimizing a tail recursive function by saving stack and call overhead space. I will look into that.
+
+
+---------------------
+Sequenza di Sylvester
+---------------------
+
+La sequenza di Sylvester è una sequenza di numeri interi definita dalla seguente relazione:
+
+  a(n+1) = a(n)^2 - a(n) + 1, con a(0) = 2
+
+  a(1) = 2^2 - 2 + 1 = 3
+  a(2) = 3^2 - 3 + 1 = 7
+  ...
+
+Sequenza OEIS A000058:
+  2, 3, 7, 43, 1807, 3263443, 10650056950807, 113423713055421844361000443,
+  12864938683278671740537145998360961546653259485195807, ...
+
+(define (sylvester limit)
+  (local (val cur out)
+    (setq val 2L)
+    (setq cur 0L)
+    (setq out '(2))
+    (for (i 1 (- limit 1))
+      (setq cur (+ (* val val) (- val) 1L))
+      (push cur out -1)
+      (setq val cur)
+    )
+    out))
+
+(sylvester 4)
+;-> (2 3L 7L 43L)
+
+(sylvester 9)
+;-> (2 3L 7L 43L 1807L 3263443L 10650056950807L 113423713055421844361000443L
+;->  12864938683278671740537145998360961546653259485195807L)
+
 =============================================================================
 

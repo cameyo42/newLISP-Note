@@ -4565,6 +4565,14 @@ Questo comporta che newLISP esegue sempre il corpo del ciclo (indipendentemente 
 
 Ricordare che il segno del passo non viene considerato da newLISP, quindi il corpo del ciclo "for" viene sempre eseguito (almeno una volta).
 
+Nota: in realtà esiste un caso in cui il corpo del ciclo for non viene mai eseguito, questo avviene quando il parametro "exp-break" vale true prima di valutare l'espressione "for". Per esempio,
+
+(for (i 1 10 1 true) (println i))
+;-> true
+
+Nota: il modo in cui si comporta l'espressione "for" di newLISP è diversa da quello di altri linguaggi (C, C++, Java, python, ecc.).
+Infatti questi linguaggi non eseguono il corpo del ciclo "for" se num-from è maggiore di num-to (con passo positivo) oppure se num-from è minore di num-to (con passo negativo). Bisogna fare attenzione quando si vuole convertire codice di altri linguaggi in newLISP.
+
 
 ------------------------------------------------------------------
 Perché uno specchio inverte destra e sinistra invece che su e giù?
