@@ -3553,6 +3553,36 @@ iamtim2:
 (define (double! x) (<< x 1))
 (define (b x y) (cond ((= 1 x) y) ((and (< 1 x) (odd? x)) (+ y (b (half! x) (double! y)))) ((< 1 x) (b (half! x) (double! y)))))
 
+cameyo:
+Il metodo del contadino russo può essere utilizzato per moltiplicare o elevare a potenza:
+
+(define (russian-mul x y)
+  (let ((x0 x) (y0 y) (r 0L))
+    ; invariante x*y = r + x0*y0
+    (while (!= x0 0)
+      (if (odd? x0)
+          (set 'r (+ r y0) 'x0 (- x0 1)))
+      (setq x0 (/ x0 2))
+      (setq y0 (* y0 2))
+    )
+    r))
+
+(time (russian-mul 12345232332323 6782323232323239) 100000)
+;-> 955.476
+
+(define (russian-exp x y)
+  (let ((x0 y) (y0 x) (r 1L))
+    ; invariante x^y = r * y0^x0
+    (while (!= x0 0)
+      (if (odd? x0)
+          (set 'r (* r y0) 'x0 (- x0 1)))
+      (setq x0 (/ x0 2))
+      (setq y0 (* y0 y0))
+    )
+    r))
+
+(russian-exp 3 42)
+;-> 109418989131512359209L
 
 ---------------------
 Distanza di Manhattan

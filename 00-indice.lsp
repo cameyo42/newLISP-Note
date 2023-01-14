@@ -926,7 +926,7 @@ NOTE LIBERE 5
   Verifica accessibilità siti web
   Miglior punto d'incontro
   Stringhe Unicode (UTF8) o ASCII
-  Funzione "set-nth" e "nth-set"
+  Le funzioni "set-nth" e "nth-set" (deprecate)
   Somma di interi rappresentati come liste
   Equazione diofantea lineare
   Cache LRU
@@ -1602,6 +1602,8 @@ NOTE LIBERE 13
   Translating S-expressions into XML
   Forum: On recursive procedures
   Sequenza di Sylvester
+  Numeri di Cullen e di Woodall/Riedel
+  Moltiplicazione, divisione, addizione e sottrazione di interi solo con "+"
 
 APPENDICI
 =========

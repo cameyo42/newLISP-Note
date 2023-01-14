@@ -5654,6 +5654,41 @@ or something more useful. This is cool, and seems to work fine, even though the 
 La funzione "replace-assoc" (deprecata)
 ---------------------------------------
 
+****************************
+>>>funzione "REPLACE-ASSOC"
+****************************
+syntax: (replace-assoc exp-key list-assoc exp-replacement)
+syntax: (replace-assoc exp-key list-assoc)
+In the first syntax, replace-assoc replaces an association element with exp-key in the association list-assoc with exp-replacement. An association list is a list whose elements are in turn lists, the first element serving as a key.
+
+example:
+(set 'aList '((a 1 2 3)(b 4 5 6)(c 7 8 9)))
+
+(replace-assoc 'b aList '(q "I am the replacement")) 
+→ ((a 1 2 3)(q "I am the replacement")(c 7 8 9))
+
+aList  → ((a 1 2 3)(q "I am the replacement")(c 7 8 9))
+
+replace-assoc uses the system variable $0 for the association found. This can be used in the replacement expression:
+
+(set 'lst '((a 1)(b 2)(c 3))) 
+
+(replace-assoc 'b lst (list 'b (+ 1 (last $0))))
+
+lst → ((a 1)(b 3)(c 3))
+
+replace-assoc returns the changed list or nil if no association is found. A destructive operation, replace-assoc changes the contents of the list.
+
+In the second syntax, replace-assoc removes an association from the list and returns it, as follows:
+
+example:
+(set 'lst '((a 1) (b 2) (c 3))) 
+
+(replace-assoc 'c lst)
+
+lst  → ((a 1) (b 3))   
+$0   → (c 3)
+
 Storia della funzione deprecata "replace-assoc":
 
 7.5
@@ -7042,6 +7077,239 @@ Sequenza OEIS A000058:
 (sylvester 9)
 ;-> (2 3L 7L 43L 1807L 3263443L 10650056950807L 113423713055421844361000443L
 ;->  12864938683278671740537145998360961546653259485195807L)
+
+
+------------------------------------
+Numeri di Cullen e di Woodall/Riedel
+------------------------------------
+
+Woodall/Riedel
+--------------
+w(n) = n*2^n - 1
+
+Sequenza OEIS A003261:
+  1, 7, 23, 63, 159, 383, 895, 2047, 4607, 10239, 22527, 49151, 106495,
+  229375, 491519, 1048575, 2228223, 4718591, 9961471, 20971519, 44040191,
+  92274687, 192937983, 402653183, 838860799, 1744830463, 3623878655,
+  7516192767, ...
+
+Cullen
+------
+c(n) = n*2^n + 1
+
+Sequenza OEIS 002064:
+  1, 3, 9, 25, 65, 161, 385, 897, 2049, 4609, 10241, 22529, 49153,
+  106497, 229377, 491521, 1048577, 2228225, 4718593, 9961473, 20971521,
+  44040193, 92274689, 192937985, 402653185, 838860801, 1744830465,
+  3623878657, 7516192769, 15569256449, 32212254721, ...
+
+Nota:
+  c(n) = w(n-1) + 2, per n > 1
+  w(n) = c(n+1) - 2, per n > 1
+
+Funzioni per calcolare il numero di Woodall e Cullen per un dato intero:
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (woodall num) (- (* num (** 2 num)) 1))
+
+(define (cullen num) (+ (* num (** 2 num)) 1))
+
+(map woodall (sequence 1 20))
+;-> (1 7 23 63 159 383 895 2047 4607 10239 22527 49151 106495 
+;->  229375 491519 1048575 2228223 4718591 9961471 20971519)
+(map cullen (sequence 1 20))
+;-> (3 9 25 65 161 385 897 2049 4609 10241 22529 49153 106497 
+;->  229377 491521 1048577 2228225 4718593 9961473 20971521)
+
+Funzioni per verificare se un numero dato è di Woodall o di Cullen:
+
+Possiamo osservare che tutti i numeri di Woodall e Cullen sono dispari. 
+Quindi, prima di tutto controlliamo se un determinato numero è dispari o meno.
+ - Adesso per verificare se il numero è woodall o no, incrementare il numero dato per 1 e ora dividere il numero per 2 finché non è pari e contare il numero di volte in cui è divisibile. Ad ogni passaggio controllare se questo valore è uguale al numero oppure no.
+ - Adesso per verificare se il numero è cullen o meno, decrementare il numero dato per 1 e ora dividere il numero per 2 finché non è pari e contare il numero di volte in cui è divisibile. Ad ogni passaggio controllare se questo valore è uguale al numero oppure no.
+
+(define (woodall? num)
+  (setq continua true)
+  (cond ((even? num) nil); nessun numero pari
+        ((= num 1) true)
+        (true
+          (++ num) ; adesso num è pari
+          ; numero di divisioni (potenza)
+          (setq pot 0)
+          ; ciclo delle divisioni
+          (while (and (zero? (% num 2)) continua)
+            (setq num (/ num 2))
+            (++ pot)
+            ; se numero di divisioni uguale a num --> stop (true)
+            (if (= pot num) (setq continua nil))
+          )
+          (not continua))))
+
+(woodall? 383)
+;-> true
+
+(filter woodall? (sequence 1 1000))
+;-> (1 7 23 63 159 383 895)
+
+(define (cullen? num)
+  (setq continua true)
+  (cond ((even? num) nil) ; nessun numero pari
+        ((= num 1) true)
+        (true
+          (-- num) ; adesso num è pari
+          ; numero di divisioni (potenza)
+          (setq pot 0)
+          ; ciclo delle divisioni
+          (while (and (zero? (% num 2)) continua)
+            (setq num (/ num 2))
+            (++ pot)
+            ; se numero di divisioni uguale a num --> stop (true)
+            (if (= pot num) (setq continua nil))
+          )
+          (not continua))))
+
+(cullen? 385)
+;-> true
+
+(filter cullen? (sequence 1 1000))
+;-> (1 3 9 25 65 161 385 897)
+
+
+
+--------------------------------------------------------------------------
+Moltiplicazione, divisione, addizione e sottrazione di interi solo con "+"
+--------------------------------------------------------------------------
+
+Scrivere delle funzioni che effettuano le operazioni di moltiplicazione, divisione, addizione e sottrazione utilizzando solo l'operatore di addizione "+".
+Implementiamo le operazioni nel modo seguente:
+
+  Moltiplicazione: a * b = a + a + a ... b times.
+  Divisione:       a / b = contare quante volte possiamo sottrarre b da a
+  Sottrazione:     a - b = a + (-1)*b.
+  Addizione:       a + b = a + b
+
+(define (same-sign? x y)
+"Check if two numbers have same sign"
+  (= (> x 0) (> y 0)))
+
+Funzione per cambiare segno ad un intero utilizzando solo l'operatore "+":
+
+(define (change-sign x)
+; non possiamo usare l'operatore "-"
+  (local (neg tmp)
+    (setq neg 0)
+    (if (< x 0)
+        (setq tmp 1)
+        ;else
+        (setq tmp -1)
+    )
+    (while (!= x 0)
+      (setq neg (+ neg tmp))
+      (setq x (+ x tmp))
+    )
+    neg))
+
+(change-sign 100)
+;-> -100
+(change-sign 0)
+;-> 0
+
+Funzione per addizionare due numeri interi x e y:
+
+(define (addizione x y)
+  (+ x y))
+
+Funzione per sottrarre due numeri interi x e y:
+
+(define (sottrazione x y)
+  (+ x (change-sign y)))
+
+(sottrazione -11 -7)
+;-> -4
+(sottrazione -10 6)
+;-> -16
+(sottrazione 12 3)
+;-> 9
+(sottrazione 11 -4)
+;-> 15
+(sottrazione 8 0)
+;-> 8
+(sottrazione 0 5)
+;-> -5
+
+Funzione per moltiplicare due numeri interi x e y:
+
+(define (moltiplicazione x y)
+  (if (or (zero? x) (zero? y))
+      0
+      ;else
+      (let (out 0)
+        ; perchè la funzione è più veloce se x > y
+        (if (< x y) (swap x y))
+        ; aggiuge x a se stesso y volte
+        (for (i 1 (abs y))
+          (setq out (+ out x))
+        )
+        ; controllo del segno
+        (if (< y 0) (setq out (change-sign out)))
+        out)))
+
+(moltiplicazione -11 -7)
+;-> 77
+(moltiplicazione -10 6)
+;-> -60
+(moltiplicazione 12 3)
+;-> 36
+(moltiplicazione 11 -4)
+;-> -44
+(moltiplicazione 1 0)
+;-> 0
+(moltiplicazione 0 1)
+;-> 0
+(moltiplicazione 1 10)
+;-> 10
+
+Funzione per dividere due numeri interi x e y:
+
+(define (divisione x y)
+  (local (quoziente divisore dividendo)
+    (cond ((zero? x) 0)
+          ((zero? y) (div 1 0)) ; 1.#INF
+          ((and (zero? x) (zero? y)) (div 0 0)) ; 1.#IND (NaN)
+          (true 
+            (setq quoziente 0)
+            (setq dividendo (abs x))
+            (setq divisore (abs y))
+            (while (>= dividendo divisore)
+              (setq dividendo (- dividendo divisore))
+              (++ quoziente)
+            )
+            (if (not (same-sign? x y)) 
+              (setq quoziente (change-sign quoziente)))
+            quoziente))))
+
+(divisione -11 -7)
+;-> 1
+(divisione -10 6)
+;-> -1
+(divisione 12 3)
+;-> 4
+(divisione 11 -4)
+;-> -2
+(divisione 1 0)
+;-> 1.#INF
+(divisione 0 1)
+;-> 0
+(divisione 1 10)
+;-> 0
+(divisione 1234 12)
+;-> 102
 
 =============================================================================
 

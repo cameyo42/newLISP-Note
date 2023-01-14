@@ -7637,9 +7637,148 @@ Se la lunghezza ASCII è uguale alla lunghezza UTF8, allora la stringa contiene 
 Nota: la funzione "utf8len" è disponibile solo nella versione di newLISP UTF8.
 
 
-------------------------------
-Funzione "set-nth" e "nth-set"
-------------------------------
+---------------------------------------------
+Le funzioni "set-nth" e "nth-set" (deprecate)
+---------------------------------------------
+
+**********************
+>>>funzione "SET-NTH"
+**********************
+
+syntax: (set-nth int-nth-1 [ int-nth-2 ... ] list|array exp-replacement)
+syntax: (set-nth int-nth-1 str str-replacement)
+
+syntax: (set-nth (list|array int-nth-1 [ int-nth-2 ... ]) exp-replacement)
+syntax: (set-nth (str int-nth-1) str str-replacement)
+
+set-nth works like nth-set, except instead of returning the replaced element, it returns the entire changed expression. For this reason, set-nth is slower on larger data objects.
+------------------------
+
+***********************
+>>> funzione "NTH-SET"
+***********************
+
+syntax: (nth-set int-index list exp-replacement)
+
+syntax: (nth-set (list int-nth-1 [ int-nth-2 ...]) exp-replacement)
+
+syntax: (nth-set (array int-nth-1 [ int-nth-2 ...]) exp-replacement)
+
+syntax: (nth-set (str int-nth-1) str str-replacement)
+
+Sets the int-nth element of a list or array with the evaluation of exp-replacement and returns the old element. As shown in the last two syntax lines, implicit indexing syntax can be used for specifying indices. Implicit indexing is the preferred form in nth-set and set-nth, but both forms remain valid.
+
+nth-set performs a destructive operation, changing the original list or array. More than one index can be specified to recursively traverse nested list structures or multidimensional arrays. An out-of-bounds index always returns the last or first element when indexing a list, but it causes an out-of-bound error when indexing an array.
+
+When replacing in lists, the old element is also contained in the system variable $0 and can be used in the replacement expression itself.
+
+(set 'aList '(a b c d e f g))   
+
+;; plain syntax for on level index
+(nth-set 4 aList (list $0 'z))     → e ; old value
+
+;; modern syntax and preferred for multiple indices
+(nth-set (aList 4) (list $0 'z))   → e ; old value
+
+aList → (a b c d (e z) f g)
+
+In the second form, the int-nth character in str is replaced with the string in str-replacement. Out-of-bounds indices will pick the first or last character for replacement, and the system variable $0 is set to the old, replaced character.
+
+example:
+
+;;;;;;;;;;; usage on lists ;;;;;;;;;;;;
+
+(set 'aList '(a b c d e f g))
+
+(nth-set (aList 2) "I am the replacement")  → c  ; new syntax
+
+aList  → (a b "I am the replacement" d e f g)
+
+$0  → c
+
+(set 'aList '(a b (c d (e f g) h) i))
+(nth-set (aList 2 2 0) 'x)  → e
+
+aList  → (a b (c d (x f g) h) i)
+$0     → e
+
+(nth-set (aList -2 2 -1) 99)  → g
+
+aList  → (a b (c d (x f 99) h) i)
+
+;; use indices in a vector
+
+(set 'aList '(a b (c d (e f g) h) i))
+
+(set 'vec (ref 'f aList))  → (2 2 1)
+
+(nth-set (aList vec) 'Z)  → f ; old value
+
+aList  → (a b (c d (e Z g) h) i)
+
+;; usage on default functors
+
+(set 'db:db '(a b c d e f g))
+
+(nth-set (db 3) 99)  → d
+
+db:db  → (a b c 99 e f g)
+
+The following examples use nth-set to change the contents of arrays.
+
+example:
+
+;;;;;;;;;;; usage on arrays ;;;;;;;;;;;;
+
+(set 'myarray (array 3 4 (sequence 1 12)))
+→ ((1 2 3 4) (5 6 7 8) (9 10 11 12))
+
+(nth-set (myarray 2 3) 99)  → 12        
+myarray  
+→ ((1 2 3 4) (5 6 7 8) (9 10 11 99))
+
+(nth-set (myarray -2 1) "hello")  → 6  
+myarray
+→ ((1 2 3 4) (5 "hello" 7 8) (9 10 11 99))
+
+(nth-set (myarray 1) (array 4 '(a b c d)))
+→ (5 "hello" 7 8)    
+myarray
+→ ((1 2 3 4) (a b c d) (9 10 11 99))
+
+;; usage on default functors
+(set 'myarray:myarray (array 7 '(a b c d e f g)))
+
+(nth-set (myarray 3) 99)  → d
+myarray:myarray           → (a b c 99 e f g)
+
+When replacing whole rows as in the third example, care must be taken to replace it as an array. See also the array functions array, array?, and array-list.
+
+In second form, the int-nth character in str is replaced with the string in str-replacement.
+
+example:
+;;;;;;;;;;; usage on strings ;;;;;;;;;;;;
+(set 's "abcd")
+
+(nth-set (s 0) "xyz")  → "a"   
+s   → "xyzbcd"
+$0  → "a"
+
+nth-set uses the system variable $0 for the element found in lists and strings. This can be used in the replacement expression:
+
+(set 'lst '(1 2 3 4))
+
+(nth-set (lst 1) (+ $0 1))  → 2
+
+lst  → '(1 3 3 4)
+
+See the set-nth function, which works like nth-set but returns the whole changed expression instead of the replaced element. set-nth is also slower when doing replacements in larger lists or string buffers.
+
+Use the nth, push, and pop functions to access multidimensional nested lists. The nth function will also work with multidimensional nested arrays.
+
+nth-set works exactly like set-nth but returns the replaced element instead of the whole changed list expression. nth-set is much faster when replacing elements in larger lists or arrays.
+
+------------------------
 
 La funzione "set-nth" è deprecata e non è più disponibile nelle versione 10.7.5 di newLISP.
 Questa funzione è stata sostituita da "setf" e l'indicizzazione implicita.
@@ -7717,7 +7856,7 @@ Sostituisce l'elemento in posizione "indice" di una lista, vettore o stringa con
 Restituisce il valore inserito.
 
 Nota: "nth-set" è (era) molto più veloce perché non ha bisogno di restituire l'intera lista o array.
-When you are using 'nth-set' or 'set-nth' be also aware of the difference between the two. 'nth-set' is much faster becuase it doesn't need to return the whole list or array.
+
 
 ----------------------------------------
 Somma di interi rappresentati come liste

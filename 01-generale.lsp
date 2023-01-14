@@ -1632,6 +1632,77 @@ La valutazione di (cons 'x' ()) produce (x), ma (cons 'x nil) produce (x nil) pe
 
 Una lista in newLISP è una cella newLISP di tipo lista. Agisce come un contenitore per la lista (linked list) che collega gli elementi che formano il contenuto della lista. Non c'è una coppia puntata in newLISP perché la parte "cdr" (coda) di una cella Lisp punta sempre a un'altra cella Lisp e mai a un tipo di dati di base, come un numero o un simbolo. Solo la parte "car" (testa) può contenere un tipo di dati di base. Le prime implementazioni di Lisp utilizzavano "car" e "cdr" per i nomi head (testa) e tail (coda).
 
+Come abbiamo visto, nil, la lista vuota '() e cons funzionano diversamente in newLISP rispetto ad altre implementazioni LISP. Le seguenti "ridefinizioni" delle funzioni base del LISP provano la coerenza interna di questo approccio.
+
+;;  purelisp.lsp
+;;
+;;  Lutz Mueller
+;;
+;;  this file proves the consistent working of 'cons' with 'first'
+;;  and 'rest' in newLISP defining some basic list manipulating
+;;  functions. 'cons' has a different working in newLISP in the 
+;;  following cases: 
+;;
+;;       (cons 1 nil) => (1 nil)  ;; would be '(1) in other LISP dialects
+;;  and
+;;       (cons exp)     => (exp)  ;; not defined in other LISP dialects
+;;
+;;  working definitions using for:
+;;
+;;    append, apply, reverse, last, length and nth
+;;
+;;  all defined functions have a prepended "_" underscore, so they
+;;  do not interfere with the built-in functions of the same name.
+;;
+;;
+;;
+;; (_append list1 list2)
+;;
+;; appends to lists
+;;
+(define (_append x y)
+        (if (empty? x) y
+              (cons (first x) (_append (rest x) y))))
+;;
+;; (_apply op lst)
+;;
+;; apply an operator/function to a list of args
+;;
+(define (_apply op lst)                    
+        (eval (cons op lst)))
+;;
+;; (_reverse lst)
+;;
+;; reverse a list
+;;
+(define (_reverse lst)
+  (if (empty? lst) lst
+      (_append (_reverse (rest lst)) (cons (first lst)))))
+;;
+;; (_last lst)
+;;
+;; return last element in a list or string
+;;
+(define (_last lst) 
+        (if (empty? (rest lst)) (first lst) (_last (rest lst))))
+;;
+;; (_length lst)
+;;
+;; length of a list or string
+;;
+(define (_length lst) 
+        (if (not (first lst)) 0 (+ 1 (_length (rest lst)))))
+;;
+;; (_nth n lst)
+;;
+;; return element of list or string at position n
+;;
+(define (_nth n lst)
+  (cond 
+   ((= n 0) (first lst))
+   ((empty? (rest lst)) (first lst))  
+   (true (_nth (- n 1) (rest lst)))))
+
 
 ==================================
  LA FUNZIONE QUOTE E IL SIMBOLO '
