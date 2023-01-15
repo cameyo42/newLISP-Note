@@ -7187,6 +7187,7 @@ Moltiplicazione, divisione, addizione e sottrazione di interi solo con "+"
 --------------------------------------------------------------------------
 
 Scrivere delle funzioni che effettuano le operazioni di moltiplicazione, divisione, addizione e sottrazione utilizzando solo l'operatore di addizione "+".
+
 Implementiamo le operazioni nel modo seguente:
 
   Moltiplicazione: a * b = a + a + a ... b times.
@@ -7310,6 +7311,653 @@ Funzione per dividere due numeri interi x e y:
 ;-> 0
 (divisione 1234 12)
 ;-> 102
+
+
+-----------------------------------
+Primo elemento uguale tra due liste
+-----------------------------------
+
+Date due liste, trovare il primo elemento in comune (uguale) tra le due liste.
+Per esempio le seguenti due liste:
+
+(setq a '(1 3 -3 9 7 10 -4 -8))
+(setq b '(2 4 11 -9 3 -5 -6 -8))
+
+hanno 3 come primo elemento uguale in comune.
+
+Primo metodo
+------------
+La soluzione più immediata è quella di usare due cicli per attraversare le due liste alla ricerca del primo elemento uguale:
+
+(define (trova-primo lst1 lst2)
+  (let ((stop nil) (out '()) (idx1 nil) (idx2 nil))
+    (dolist (e1 lst1 stop)
+      (setq idx1 $idx)
+      (dolist (e2 lst2 stop)
+        (setq idx2 $idx)
+        (if (= e1 e2)
+          (begin
+            (setq stop true)
+            (setq out (list e1 idx1 idx2))
+          )
+        )
+      )
+    )
+    out))
+
+(trova-primo a b)
+;-> (3 1 4)
+
+La funzione trova il primo elemento uguale tra due liste e i relativi indici:
+
+  (numero-comune indice-lista1 indice-lista2)
+
+Un caso particolare è il seguente:
+
+(setq a1 '(10 3 2))
+(setq b1 '(11 2 3))
+
+dove le due liste hanno sia 3 che 2 come primo elemento in comune.
+In questo caso prevale l'elemento che compare prima nella prima lista (in questo esempio 3).
+
+(trova-primo a1 b1)
+;-> (3 1 2)
+
+(setq a2 '(4 3 1 2))
+(setq b2 '(8 7 5 6))
+
+(trova-primo a2 b2)
+;-> ()
+
+Secondo metodo
+--------------
+Un altro metodo è quello di usare la primitiva "intersect".
+
+(define (find-first lst1 lst2)
+  (let (c (intersect lst1 lst2))
+    (if c (list (first c) (find (first c) lst1) (find (first c) lst2))
+          '())))
+
+(find-first a b)
+;-> (3 1 4)
+(find-first a1 b1)
+;-> (3 1 2)
+(find-first a2 b2)
+;-> ()
+
+Terzo metodo
+------------
+Un altro metodo è quello di usare una hash-map (per la seconda lista).
+
+(define (encontrar-primero lst1 lst2)
+  (let ((stop nil) (out '()))
+    (new Tree 'hash)
+    ; converte la seconda lista in una hash-map con elementi ("el" el)
+    (hash (map list lst2 lst2))
+    ;(println (hash))
+    ; cerca gli elementi della prima lista nella hash-map
+    (dolist (el lst1 stop)
+      (if (hash el)
+        (set 'stop true 'out (list el $idx (find el lst2)))
+      )
+    )
+    ; elimina la hash-map (operazione onerosa in termini di tempo)
+    (delete 'hash)
+    out))
+
+(encontrar-primero a b)
+;-> (3 1 4)
+(encontrar-primero a1 b1)
+;-> (3 1 2)
+(encontrar-primero a2 b2)
+;-> ()
+
+Quarto metodo
+-------------
+Un altro metodo è quello di usare la ricerca binaria:
+
+(define (bs num lst)
+  (local (basso alto indice out)
+    (setq out -1) ; elemento non trovato
+    (setq basso 0) ; inizio lista
+    (setq alto (- (length lst) 1)) ; fine lista
+    (while (and (>= alto basso) (= out -1))
+      (setq indice (>> (+ basso alto))) ; valore centrale indice
+      (cond ((> (lst indice) num)
+             (setq alto (- indice 1))) ; aggiorno l'indice "alto"
+            ((< (lst indice) num)
+             (setq basso (+ indice 1))) ; aggiorno l'indice "basso"
+            (true (setq out indice)) ; elemento trovato
+      )
+    )
+    out))
+
+(define (trouver-premier lst1 lst2)
+  (let ((stop nil) (out '()) (indice -1))
+    (setq sort2 (sort (copy lst2))) ; O(n*log(n))
+    (dolist (el lst1 stop)
+      ; cerca gli elementi della prima lista nella seconda lista
+      ; utilizzando la ricerca binaria
+      (setq indice (bs el sort2))
+      (if (!= indice -1)
+        (set 'stop true 'out (list el $idx (find el lst2)))
+      )
+    )
+    out))
+
+(trouver-premier a b)
+;-> (3 1 4)
+(trouver-premier a1 b1)
+;-> (3 1 2)
+(trouver-premier a2 b2)
+;-> ()
+
+Vediamo la velocità delle funzioni:
+
+Con due liste casuali:
+
+(silent
+  (setq t1 (rand 1e6 1e5))
+  (setq t2 (rand 1e6 1e5)))
+
+vediamo prima se danno risultati uguali:
+
+(= (trova-primo t1 t2) (find-first t1 t2)
+   (encontrar-primero t1 t2) (trouver-premier t1 t2))
+;-> true
+
+(time (trova-primo t1 t2))
+;-> 5.984
+(time (find-first t1 t2))
+;-> 48.344
+(time (encontrar-primero t1 t2))
+;-> 55.88
+(time (trouver-premier t1 t2))
+;-> 25.097
+
+Con due liste inverse (1..n) e (n..1):
+
+(silent
+  (setq t1 (sequence 1 1e6))
+  (setq t2 (sequence 1e6 1 1)))
+
+(time (trova-primo t1 t2))
+;-> 93.536
+(time (find-first t1 t2))
+;-> 490.071
+(time (encontrar-primero t1 t2))
+;-> 782.776
+(time (trouver-premier t1 t2))
+;-> 228.061
+
+Comunque le funzioni trovano anche gli indici del primo numero in comune.
+Riscriviamo le funzioni in modo che trovino solo il numero in comune (per vedere se e come cambiano i tempi di esecuzione).
+
+(define (f1 lst1 lst2)
+  (let ((stop nil) (out nil))
+    (dolist (e1 lst1 stop)
+      (dolist (e2 lst2 stop)
+        (if (= e1 e2)
+            (set 'stop true 'out e1))))
+    out))
+
+(define (f2 lst1 lst2)
+  (let (c (intersect lst1 lst2))
+    (if c (first c) nil)))
+
+(define (f3 lst1 lst2)
+  (let ((stop nil) (out nil))
+    (new Tree 'hash)
+    (hash (map list lst2 lst2))
+    (dolist (el lst1 stop)
+      (if (hash el) (set 'stop true 'out el))
+    )
+    ; elimina la hash-map (operazione onerosa in termini di tempo)
+    (delete 'hash)
+    out))
+
+(define (f4 lst1 lst2)
+  (let ((stop nil) (out nil))
+    (sort lst2) ; O(n*log(n))
+    (dolist (el lst1 stop)
+      (if (!= (bs el lst2) -1) (set 'stop true 'out el))
+    )
+    out))
+
+Vediamo la velocità delle funzioni:
+
+Con due liste casuali:
+
+(silent
+  (setq t1 (rand 1e6 1e5))
+  (setq t2 (rand 1e6 1e5)))
+
+vediamo prima se danno risultati uguali:
+
+(= (f1 t1 t2) (f2 t1 t2) (f3 t1 t2) (f4 t1 t2))
+;-> true
+
+(time (f1 t1 t2))
+;-> 12.99
+(time (f2 t1 t2))
+;-> 56.916
+(time (f3 t1 t2))
+;-> 95.252
+(time (f4 t1 t2))
+;-> 47.351
+
+Con due liste inverse (1..n) e (n..1):
+
+(silent
+  (setq t1 (sequence 1 1e6))
+  (setq t2 (sequence 1e6 1 1)))
+
+(time (f1 t1 t2))
+;-> 102.236
+(time (f2 t1 t2))
+;-> 511.886
+(time (f3 t1 t2))
+;-> 812.303
+(time (f4 t1 t2))
+;-> 212.816
+
+Qualche volta la soluzione più semplice (la prima) è anche la più veloce.
+
+Nota: in altri linguaggi probabilmente la versione più veloce è diversa dalla prima. Molto dipende da quali primitive sono a disposizione e come sono state implementate nel linguaggio.
+
+
+------------------------------
+Modulo 10^9+7 (M = 1000000007)
+------------------------------
+
+In alcune delle competizioni di programmazione, occorre calcolare il risultato modulo 10^9+7.
+
+Operazione modulo
+-----------------
+Il resto ottenuto dopo l'operazione di divisione su due operandi è noto come operazione modulo.
+L'operatore per eseguire l'operazione del modulo è '%'.
+Ad esempio: a % b = c che significa che quando a è diviso per b dà il resto c:
+per esempio: 15 % 4 = 3, 22 % 3 = 1.
+
+Nota: il risultato di (a % b) è sempre minore di b.
+
+Perchè modulo 10^9+7 ?
+----------------------
+1) Se il problema coinvolge numeri interi grandi, solo algoritmi efficienti possono risolverlo nel tempo consentito.
+2) viene usato il modulo per prevenire overflow di numeri interi. Per esempio, in C/C++ il tipo unsigned long long int ha 64 bit e può gestire numeri interi da 0 a (2^64 – 1).
+3) In alcuni problemi è necessario calcolare il risultato modulo inverso e 10^9+7 è comodo perché è primo ed è abbastanza grande per poter eseguire correttamente le tecniche modulari inverse.
+
+Nota: 10^9+7 = 1000000007 è il primo numero primo di 10 cifre (tipo int).
+Qualsiasi numero primo inferiore a 2^30 è sufficiente per evitare possibili overflow.
+
+Proprietà distributive dell'operazione modulo %
+-----------------------------------------------
+L'operazione modulo è distributiva rispetto a "+", "*" e "–", ma non rispetto a "/".
+
+  1) (a + b) % c = ((a % c) + (b % c)) % c  (addizione)
+  2) (a * b) % c = ((a % c) * (b % c)) % c  (moltiplicazione)
+  3) (a – b) % c = ((a % c) – (b % c)) % c  (sottrazione)
+  4) (a / b) % c != ((a % c) / (b % c)) % c (divisione) non vale la proprietà
+
+Nei programmi eseguiamo il modulo ad ogni fase intermedia per evitare gli eventuali overflow.
+
+; Maximum value of int64
+(setq MAX-INT 9223372036854775807)
+; Minimum value of int64
+(setq MIN-INT -9223372036854775808)
+
+(setq M 1000000007)
+
+Moltiplicazione
+---------------
+Esempio:
+
+(setq a 8272348623486123476)
+(setq b 2678234723472347734)
+(setq c 1238956721589712338)
+
+Per calcolare (a*b*c)%M possiamo usare due metodi
+
+1) calcolare direttamente il valore (a * b * c) % M:
+
+(% (* a b c) M)
+;-> 920119129 ; risultato errato
+
+Infatti calcolando con i big-integer otteniamo il valore corretto:
+
+(% (* (bigint a) (bigint b) (bigint c)) m2)
+;-> 850869488L ; risultato corretto
+
+2) Calcolare il modulo M ad ogni passo (moltiplicazione):
+
+(setq res 1) ; res = 1
+(setq res (% (* (bigint a) res) M)) ; res = (res*a) % M    // res = 579683521L
+(setq res (% (* (bigint b) res) M)) ; res = (res*b) % M    // res = 687005916L
+(setq res (% (* (bigint c) res) M)) ; res = (res*c) % M    // res = 850869488L
+res
+;-> 850869488L ; risultato corretto
+
+Nota: dobbiamo usare lo stesso "bigint" perchè altrimenti è la moltiplicazione stessa che va in overflow.
+
+Vediamo un altro esempio dove (a3*b3*c3) > MAX-INT, ma (a3*b3) < MAX-INT:
+
+(setq aa 1234512345)
+(setq bb 3458964859)
+(setq cc 2346234635)
+
+Usiamo il primo metodo:
+
+(% (* aa bb cc) M)
+;-> -251141583 ; risultato errato
+
+Usiamo i big-integer per calcolare il risultato corretto:
+
+(% (* (bigint aa) (bigint bb) (bigint cc)) M)
+;-> 322955479L
+
+Usiamo il secondo metodo:
+
+(setq res 1) ; res = 1
+(setq res (% (* aa res) M)) ; res = (res*a) % M    // res = 234512338
+(setq res (% (* bb res) M)) ; res = (res*b) % M    // res = 465740832
+(setq res (% (* cc res) M)) ; res = (res*c) % M    // res = 322955479
+res
+;-> 322955479
+
+Addizione
+---------
+La stessa procedura può essere utilizzata per l'addizione.
+
+  (a + b + c) % M è uguale a (((a + b) % M) + c) % M
+
+Eseguire % M ogni volta che viene aggiunto un numero in modo da evitare l'overflow.
+
+Nota: nella maggior parte dei linguaggi (es. C/C++) quando si esegue l'operazione modulare con numeri negativi si ottiene un risultato negativo come -a % b = -c, ma il risultato di un'operazione modulare deve essere sempre positivo (da 0 a b-1), quindi il risultato vale c.
+
+(setq a 2347123489712345871)
+(setq b 1223495723485712389)
+(setq c 7234697823469023904)
+
+1) calcolo diretto di ((+ a b c) % M)
+
+(% (+ a b c ) M)
+;-> -552480571 ; risultato errato
+
+Usiamo i big-integer per calcolare il risultato corretto:
+
+(% (+ (bigint a) (bigint b) (bigint c)) M)
+;-> 29863437L
+
+Usiamo il secondo metodo:
+
+(setq res 0)
+(setq res (abs (% (+ a res) M)))
+;-> 282481560
+(setq res (abs (% (+ b res) M)))
+;-> 203723944
+(setq res (abs (% (+ c res) M)))
+;-> 29863437
+
+Oppure più brevemente:
+
+(setq res 0)
+(setq res (abs (% (+ a b) M)))
+;-> 203723944
+(setq res (abs (% (+ c res) M)))
+;-> 29863437
+
+
+-----------------------------------
+Primo elemento uguale tra due liste
+-----------------------------------
+
+Date due liste, trovare il primo elemento in comune (uguale) tra le due liste.
+Per esempio le seguenti due liste:
+
+(setq a '(1 3 -3 9 7 10 -4 -8))
+(setq b '(2 4 11 -9 3 -5 -6 -8))
+
+hanno 3 come primo elemento uguale in comune.
+
+Primo metodo
+------------
+La soluzione più immediata è quella di usare due cicli per attraversare le due liste alla ricerca del primo elemento uguale:
+
+(define (trova-primo lst1 lst2)
+  (let ((stop nil) (out '()) (idx1 nil) (idx2 nil))
+    (dolist (e1 lst1 stop)
+      (setq idx1 $idx)
+      (dolist (e2 lst2 stop)
+        (setq idx2 $idx)
+        (if (= e1 e2)
+          (begin
+            (setq stop true)
+            (setq out (list e1 idx1 idx2))
+          )
+        )
+      )
+    )
+    out))
+
+(trova-primo a b)
+;-> (3 1 4)
+
+La funzione trova il primo elemento uguale tra due liste e i relativi indici:
+
+  (numero-comune indice-lista1 indice-lista2)
+
+Un caso particolare è il seguente:
+
+(setq a1 '(10 3 2))
+(setq b1 '(11 2 3))
+
+dove le due liste hanno sia 3 che 2 come primo elemento in comune.
+In questo caso prevale l'elemento che compare prima nella prima lista (in questo esempio 3).
+
+(trova-primo a1 b1)
+;-> (3 1 2)
+
+(setq a2 '(4 3 1 2))
+(setq b2 '(8 7 5 6))
+
+(trova-primo a2 b2)
+;-> ()
+
+Secondo metodo
+--------------
+Un altro metodo è quello di usare la primitiva "intersect".
+
+(define (find-first lst1 lst2)
+  (let (c (intersect lst1 lst2))
+    (if c (list (first c) (find (first c) lst1) (find (first c) lst2))
+          '())))
+
+(find-first a b)
+;-> (3 1 4)
+(find-first a1 b1)
+;-> (3 1 2)
+(find-first a2 b2)
+;-> ()
+
+Terzo metodo
+------------
+Un altro metodo è quello di usare una hash-map (per la seconda lista).
+
+(define (encontrar-primero lst1 lst2)
+  (let ((stop nil) (out '()))
+    (new Tree 'hash)
+    ; converte la seconda lista in una hash-map con elementi ("el" el)
+    (hash (map list lst2 lst2))
+    ;(println (hash))
+    ; cerca gli elementi della prima lista nella hash-map
+    (dolist (el lst1 stop)
+      (if (hash el)
+        (set 'stop true 'out (list el $idx (find el lst2)))
+      )
+    )
+    ; elimina la hash-map (operazione onerosa in termini di tempo)
+    (delete 'hash)
+    out))
+
+(encontrar-primero a b)
+;-> (3 1 4)
+(encontrar-primero a1 b1)
+;-> (3 1 2)
+(encontrar-primero a2 b2)
+;-> ()
+
+Quarto metodo
+-------------
+Un altro metodo è quello di usare la ricerca binaria:
+
+(define (bs num lst)
+  (local (basso alto indice out)
+    (setq out -1) ; elemento non trovato
+    (setq basso 0) ; inizio lista
+    (setq alto (- (length lst) 1)) ; fine lista
+    (while (and (>= alto basso) (= out -1))
+      (setq indice (>> (+ basso alto))) ; valore centrale indice
+      (cond ((> (lst indice) num)
+             (setq alto (- indice 1))) ; aggiorno l'indice "alto"
+            ((< (lst indice) num)
+             (setq basso (+ indice 1))) ; aggiorno l'indice "basso"
+            (true (setq out indice)) ; elemento trovato
+      )
+    )
+    out))
+
+(define (trouver-premier lst1 lst2)
+  (let ((stop nil) (out '()) (indice -1))
+    (setq sort2 (sort (copy lst2))) ; O(n*log(n))
+    (dolist (el lst1 stop)
+      ; cerca gli elementi della prima lista nella seconda lista
+      ; utilizzando la ricerca binaria
+      (setq indice (bs el sort2))
+      (if (!= indice -1)
+        (set 'stop true 'out (list el $idx (find el lst2)))
+      )
+    )
+    out))
+
+(trouver-premier a b)
+;-> (3 1 4)
+(trouver-premier a1 b1)
+;-> (3 1 2)
+(trouver-premier a2 b2)
+;-> ()
+
+Vediamo la velocità delle funzioni:
+
+Con due liste casuali:
+
+(silent
+  (setq t1 (rand 1e6 1e5))
+  (setq t2 (rand 1e6 1e5)))
+
+vediamo prima se danno risultati uguali:
+
+(= (trova-primo t1 t2) (find-first t1 t2)
+   (encontrar-primero t1 t2) (trouver-premier t1 t2))
+;-> true
+
+(time (trova-primo t1 t2))
+;-> 5.984
+(time (find-first t1 t2))
+;-> 48.344
+(time (encontrar-primero t1 t2))
+;-> 55.88
+(time (trouver-premier t1 t2))
+;-> 25.097
+
+Con due liste inverse (1..n) e (n..1):
+
+(silent
+  (setq t1 (sequence 1 1e6))
+  (setq t2 (sequence 1e6 1 1)))
+
+(time (trova-primo t1 t2))
+;-> 93.536
+(time (find-first t1 t2))
+;-> 490.071
+(time (encontrar-primero t1 t2))
+;-> 782.776
+(time (trouver-premier t1 t2))
+;-> 228.061
+
+Comunque le funzioni trovano anche gli indici del primo numero in comune.
+Riscriviamo le funzioni in modo che trovino solo il numero in comune (per vedere se e come cambiano i tempi di esecuzione).
+
+(define (f1 lst1 lst2)
+  (let ((stop nil) (out nil))
+    (dolist (e1 lst1 stop)
+      (dolist (e2 lst2 stop)
+        (if (= e1 e2)
+            (set 'stop true 'out e1))))
+    out))
+
+(define (f2 lst1 lst2)
+  (let (c (intersect lst1 lst2))
+    (if c (first c) nil)))
+
+(define (f3 lst1 lst2)
+  (let ((stop nil) (out nil))
+    (new Tree 'hash)
+    (hash (map list lst2 lst2))
+    (dolist (el lst1 stop)
+      (if (hash el) (set 'stop true 'out el))
+    )
+    ; elimina la hash-map (operazione onerosa in termini di tempo)
+    (delete 'hash)
+    out))
+
+(define (f4 lst1 lst2)
+  (let ((stop nil) (out nil))
+    (sort lst2) ; O(n*log(n))
+    (dolist (el lst1 stop)
+      (if (!= (bs el lst2) -1) (set 'stop true 'out el))
+    )
+    out))
+
+Vediamo la velocità delle funzioni:
+
+Con due liste casuali:
+
+(silent
+  (setq t1 (rand 1e6 1e5))
+  (setq t2 (rand 1e6 1e5)))
+
+vediamo prima se danno risultati uguali:
+
+(= (f1 t1 t2) (f2 t1 t2) (f3 t1 t2) (f4 t1 t2))
+;-> true
+
+(time (f1 t1 t2))
+;-> 12.99
+(time (f2 t1 t2))
+;-> 56.916
+(time (f3 t1 t2))
+;-> 95.252
+(time (f4 t1 t2))
+;-> 47.351
+
+Con due liste inverse (1..n) e (n..1):
+
+(silent
+  (setq t1 (sequence 1 1e6))
+  (setq t2 (sequence 1e6 1 1)))
+
+(time (f1 t1 t2))
+;-> 102.236
+(time (f2 t1 t2))
+;-> 511.886
+(time (f3 t1 t2))
+;-> 812.303
+(time (f4 t1 t2))
+;-> 212.816
+
+Qualche volta la soluzione più semplice (la prima) è anche la più veloce.
+
+Nota: in altri linguaggi probabilmente la versione più veloce è diversa dalla prima. Molto dipende da quali primitive sono a disposizione e come sono state implementate nel linguaggio.
 
 =============================================================================
 

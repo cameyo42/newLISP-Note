@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2022 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2023 Massimo Corinaldesi aka cameyo
  MIT License
 ============================================================================
 
@@ -1604,6 +1604,8 @@ NOTE LIBERE 13
   Sequenza di Sylvester
   Numeri di Cullen e di Woodall/Riedel
   Moltiplicazione, divisione, addizione e sottrazione di interi solo con "+"
+  Modulo 10^9+7 (M = 1000000007)
+  Primo elemento uguale tra due liste
 
 APPENDICI
 =========
@@ -1654,7 +1656,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2019-2022 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2023 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

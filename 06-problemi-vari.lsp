@@ -1720,7 +1720,7 @@ Scriviamo questo algoritmo sia in versione iterativa che in versione ricorsiva (
 Versione iterativa:
 
 (define (bs num lst)
-  (local (basso alto indice)
+  (local (basso alto indice out)
     (setq out -1) ; elemento non trovato
     (setq basso 0) ; inizio lista
     (setq alto (- (length lst) 1)) ; fine lista
@@ -1753,7 +1753,7 @@ Aggiungiamo un parametro che ci permette di specificare l'ordinamento della list
 2) < la lista è ordinata in modo decrescente
 
 (define (bs num lst op)
-  (local (basso alto indice)
+  (local (basso alto indice out)
     (setq out -1)
     (setq basso 0)
     (setq alto (- (length lst) 1))
