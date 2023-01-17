@@ -7581,6 +7581,22 @@ per esempio: 15 % 4 = 3, 22 % 3 = 1.
 
 Nota: il risultato di (a % b) è sempre minore di b.
 
+Nota: nella maggior parte dei linguaggi (es. C/C++) quando si esegue l'operazione modulare con numeri negativi si ottiene un risultato negativo come -a % b = -c, ma il risultato di un'operazione modulare deve essere sempre positivo (da 0 a b-1), quindi si utilizza la seguente regola:
+
+ - se x è positivo, allora x modulo 10^9+7 =  x % (10^9+7)
+ - se x è negativo, allora x modulo 10^9+7 = (x % (10^9+7)) + (10^9+7)
+
+(setq x 86714357681)
+(setq y -86714357681)
+
+(% x 1000000007)
+;-> 714357079
+
+(% y 1000000007)
+;-> -714357079
+(+ (% y 1000000007) 1000000007)
+;-> 285642928
+
 Perchè modulo 10^9+7 ?
 ----------------------
 1) Se il problema coinvolge numeri interi grandi, solo algoritmi efficienti possono risolverlo nel tempo consentito.
@@ -7705,6 +7721,8 @@ Oppure più brevemente:
 ;-> 203723944
 (setq res (abs (% (+ c res) M)))
 ;-> 29863437
+
+Quindi se in un problema scopriamo che qualsiasi passo di un ciclo può calcolare un valore che è fuori dall'intervallo degli interi, allora possiamo usare l'operatore modulo in quel passo stesso. La risposta finale sarà come se avessimo usato l'operatore modulo solo una volta.
 
 
 -----------------------------------
@@ -7958,6 +7976,239 @@ Con due liste inverse (1..n) e (n..1):
 Qualche volta la soluzione più semplice (la prima) è anche la più veloce.
 
 Nota: in altri linguaggi probabilmente la versione più veloce è diversa dalla prima. Molto dipende da quali primitive sono a disposizione e come sono state implementate nel linguaggio.
+
+
+---------------------------
+Ordinare parte di una lista
+---------------------------
+
+Scrivere una funzione che ordina una parte di una lista definita da un indice di inizio e un indice di fine.
+La funzione ha quattro parametri:
+
+  lst   = lista di input
+  start = indice di partenza (compreso)
+  end   = indice di arrivo (compreso)
+  op    = tipo di ordinamento (es. > o <)
+
+L'output deve essere una lista uguale alla lista di input tranne il fatto che gli elementi da start a end (compresi) sono ordinati.
+
+Dividiamo la lista in tre parti: (0..start) (start...end) (end...(length lst)).
+Poi ordiniamo la parte centrale e infine riuniamo le tre sottoliste.
+
+Nota: non viene fatto alcun controllo sulla correttezza degli indici start e end.
+
+(define (sort-part lst start end op)
+  (local (len1 len2 len3)
+    ; default: ordinamento crescente "<"
+    (setq op (or op '<))
+    ; calcoliamo la lunghezza delle liste
+    ; per le operazioni di "slice"
+    (setq len1 (- start 0))
+    (setq len2 (+ (- end start) 1))
+    (setq len3 (- (length lst) len1 len2))
+    ; slice, sort e append
+    (append (slice lst 0 len1)                ; lista iniziale
+            (sort (slice lst start len2) op)  ; lista centrale (ordinata)
+            (slice lst (+ len1 len2) len3)))) ; lista finale
+
+Facciamo alcune prove:
+
+(setq a '("2" "3" "1" "7" "8" "6"))
+
+(sort-part a 0 3)
+;-> ("1" "2" "3" "7" "8" "6")
+(sort-part a 1 3)
+;-> ("2" "1" "3" "7" "8" "6")
+(sort-part a 0 4)
+;-> ("1" "2" "3" "7" "8" "6")
+(sort-part a 0 5)
+;-> ("1" "2" "3" "6" "7" "8")
+(sort-part a 4 5)
+;-> ("2" "3" "1" "7" "6" "8")
+
+(sort-part a 0 3 >)
+;-> ("7" "3" "2" "1" "8" "6")
+(sort-part a 1 3 >)
+;-> ("2" "7" "3" "1" "8" "6")
+(sort-part a 0 4 >)
+;-> ("8" "7" "3" "2" "1" "6")
+(sort-part a 0 5 >)
+;-> ("8" "7" "6" "3" "2" "1")
+(sort-part a 4 5 >)
+;-> ("2" "3" "1" "7" "8" "6")
+
+
+--------------------------------------------
+Prossimo numero maggiore con le stesse cifre
+--------------------------------------------
+
+Dato un numero intero positivo N, trovare il primo numero maggiore di N che ha le stesse cifre di N.
+Se questo numero non esiste (perchè N è il numero più grande possibile con le sue cifre), allora restituire nil.
+
+Esempi:
+
+N = 123     -->  primo maggiore = 132
+N = 12021   -->  primo maggiore = 12102
+N = 348123  -->  primo maggiore = 348123
+N = 54321   -->  primo maggiore = nil
+
+Soluzione che utilizza le permutazioni:
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i))))
+    out))
+
+(define (prossimo num)
+  (local (lst p idx-num)
+    (setq lst (int-list num))
+    (setq p (perm lst))
+    ; unique serve per eliminare i numeri uguali che si creano
+    ; quando abbiamo delle cifre uguali nel numero dato.
+    (setq p (unique (map list-int (sort p))))
+    (setq idx-num (find num p))
+    (println p)
+    (println idx-num)
+    ; se il numero dato è l'ultimo delle permutazioni ordinate,
+    ; allora non esiste un numero maggiore con le stesse cifre
+    ; altrimenti restituisce il numero successivo al numero dato
+    (if (= num (p -1))
+        nil
+        ;else
+        (p (+ idx-num 1)))))
+
+(prossimo 12021)
+;-> 12102
+(prossimo 218765)
+;-> 251678
+(prossimo 1234)
+;-> 1243
+(prossimo 4321)
+;-> nil
+(prossimo 534976)
+;-> 536479
+(prossimo 456)
+;-> 465
+
+Un pò più concisa:
+
+(define (next num)
+  (let (p (unique (map list-int (sort (perm (int-list num))))))
+    (if (= num (p -1)) nil (p (+ (find num p) 1)))))
+
+(next 123)
+;-> 132
+(next 12021)
+;-> 12102
+(next 348123)
+;-> 348132
+(next 54321)
+;-> nil
+(next 12345)
+;-> 12354
+
+Cosa possiamo osservare?
+Se tutte le cifre sono ordinate in ordine decrescente (es. 8765), l'output è sempre "nil" perchè non esiste un numero maggiore.
+Se tutte le cifre sono ordinate in ordine crescente (es. 3456), è necessario scambiare le ultime due cifre (es. 3465)
+Per gli altri casi, usiamo il seguente algoritmo:
+
+Attraversare il numero dato dalla cifra più a destra finché non si trova una cifra che è più piccola della cifra precedentemente attraversata. Ad esempio, con N = 134875, ci fermiamo a 4 perché 4 è più piccolo della cifra successiva 8.
+Se non troviamo tale cifra non esiste un numero maggiore con le stesse cifre (output = nil).
+Ora cercare, a destra della cifra sopra "d", la cifra più piccola maggiore di "d".
+Per 134875, il lato destro di 4 contiene "875". La cifra più piccola maggiore di 4 è 5.
+Scambiare le due cifre trovate sopra: otteniamo 135874 (scambiando 4 con 5).
+Adesso ordinare tutte le cifre dalla posizione successiva di "d" alla fine del numero (a destra della posizione d).
+Il numero che otteniamo dopo l'ordinamento è la soluzione.
+Nell'esempio dobbiamo ordinare 874, in 135874, ottenendo il numero 135478, che è il numero successivo più grande di 134875.
+
+Nota: partiamo dalla destra del numero perché dobbiamo trovare il più piccolo di tutti i numeri maggiori.
+
+Funzione che ordina parte di una lista (dall'indice start all'indice end compresi):
+
+(define (sort-part lst start end op)
+  (local (len1 len2 len3)
+    ; default: ordinamento crescente "<"
+    (setq op (or op '<))
+    (setq len1 (- start 0))
+    (setq len2 (+ (- end start) 1))
+    (setq len3 (- (length lst) len1 len2))
+    (append (slice lst 0 len1)                ; lista iniziale
+            (sort (slice lst start len2) op)  ; lista centrale (ordinata)
+            (slice lst (+ len1 len2) len3)))) ; lista finale
+
+(define (proximo lst)
+  (local (s len idx stop base diff idx2)
+    (setq s (int-list lst))
+    (setq len (length lst))
+    ; trova la prima cifra minore da destra
+    (setq stop nil)
+    (for (i (- len 1) 1 -1 stop)
+      (if (> (s i) (s (- i 1)))
+          (set 'stop true 'idx (- i 1))
+      )
+    )
+    ; se non abbiamo trovato la cifra minore,
+    ; allora il risultato è nil
+    (cond ((= stop nil) nil)
+          (true
+            ; trova la cifra più piccola di (s idx)
+            ; a destra di idx (fino alla fine del numero)
+            (setq base (s idx))
+            (setq diff 99)
+            (for (i (+ idx 1) (- len 1))
+              (if (> (s i) base)
+                  (if (> diff (- (s i) base))
+                      (set 'diff (- (s i) base) 'idx2 i)
+                  )
+              )
+            )
+            ; scambia le cifre degli indici idx e idx2
+            (swap (s idx) (s idx2))
+            ; ordina la parte del numero dopo l'indice idx
+            (list-int (sort-part s (+ idx 1) (- len 1)))))))
+
+
+Facciamo alcune prove:
+
+(proximo 134875)
+;-> 135478
+(proximo 134855)
+;-> 135458
+
+Vediamo se le due funzioni restituiscono risultati identici.
+
+(= (map next (sequence 100 1e5))
+   (map proximo (sequence 100 1e5)))
+;-> true
 
 =============================================================================
 
