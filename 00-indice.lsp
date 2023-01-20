@@ -1607,7 +1607,8 @@ NOTE LIBERE 13
   Modulo 10^9+7 (M = 1000000007)
   Primo elemento uguale tra due liste
   Ordinare parte di una lista
-  Prossimo numero maggiore con le stesse cifre
+  Numero maggiore con le stesse cifre
+  Numero minore con le stesse cifre
 
 APPENDICI
 =========

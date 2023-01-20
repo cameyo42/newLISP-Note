@@ -3741,7 +3741,7 @@ Per esempio:
     out))
 
 (group-keys cc)
-;-> (("User1" ((1 20 4 9 1 10 2005) (3 45 52 17 2 10 2005))) 
+;-> (("User1" ((1 20 4 9 1 10 2005) (3 45 52 17 2 10 2005)))
 ;->  ("User3" ((19 31 5 17 1 10 2005)))
 ;->  ("User6" ((13 44 15 18 1 10 2005) (2 55 9 12 2 10 2005) (5 44 58 14 2 10 2005)))
 ;->  ("User2" ((2 47 17 17 2 10 2005) (3 28 19 17 2 10 2005))))
@@ -5664,14 +5664,14 @@ In the first syntax, replace-assoc replaces an association element with exp-key 
 example:
 (set 'aList '((a 1 2 3)(b 4 5 6)(c 7 8 9)))
 
-(replace-assoc 'b aList '(q "I am the replacement")) 
+(replace-assoc 'b aList '(q "I am the replacement"))
 → ((a 1 2 3)(q "I am the replacement")(c 7 8 9))
 
 aList  → ((a 1 2 3)(q "I am the replacement")(c 7 8 9))
 
 replace-assoc uses the system variable $0 for the association found. This can be used in the replacement expression:
 
-(set 'lst '((a 1)(b 2)(c 3))) 
+(set 'lst '((a 1)(b 2)(c 3)))
 
 (replace-assoc 'b lst (list 'b (+ 1 (last $0))))
 
@@ -5682,11 +5682,11 @@ replace-assoc returns the changed list or nil if no association is found. A dest
 In the second syntax, replace-assoc removes an association from the list and returns it, as follows:
 
 example:
-(set 'lst '((a 1) (b 2) (c 3))) 
+(set 'lst '((a 1) (b 2) (c 3)))
 
 (replace-assoc 'c lst)
 
-lst  → ((a 1) (b 3))   
+lst  → ((a 1) (b 3))
 $0   → (c 3)
 
 Storia della funzione deprecata "replace-assoc":
@@ -6084,7 +6084,7 @@ I thought I ought to learn a bit of "object-oriented" programming. Following the
 The idea is to create a context automatically from the name.
 But at the moment it fails on (new Account) with
 "symbol not in MAIN context in function new : ctxt
-called from user defined function 
+called from user defined function
 Account:(make-new "John Doe" 123.45 "555-555-1212")"
 
 What's the problem?
@@ -6192,8 +6192,8 @@ cormullion:
 Thanks. I'm more or less with you now. The confusing part is this, I think:
 
   ...
-  (set 'ctxt (sym ctxt MAIN)) 
-  (new Account ctxt) 
+  (set 'ctxt (sym ctxt MAIN))
+  (new Account ctxt)
   (set 'ctxt (eval ctxt))
   ...
 
@@ -6520,15 +6520,15 @@ Un documento "here" (o "heredoc") è un modo per specificare un blocco di testo,
 ;->    not a doctor!
 ;->       --- L. McCoy
 
-(silent 
-(println (format 
+(silent
+(println (format
 [text]
     I tag sono utili...
- 
+
     ... a volte.
 [/text])))
 ;->   I tag sono utili...
-;-> 
+;->
 ;->   ... a volte.
 
 Nota: la riga vuota (seconda riga tra i tag) contiene uno spazio all'inizio (altrimenti viene generato un errore).
@@ -6565,7 +6565,7 @@ Algoritmo
 Creare una lista con le cifre del numero X
 Ciclo per generare i termini successivi della sequenza e aggiorna la sequenza stessa.
   Generare termini fino a che (X < termine)
-Se il termine finale è uguale a x, allora X è un numero di Keith. 
+Se il termine finale è uguale a x, allora X è un numero di Keith.
 Se il termine finale è maggiore di x, allora X non è un numero di Keith.
 
 (define (int-list num)
@@ -6588,7 +6588,7 @@ Se il termine finale è maggiore di x, allora X non è un numero di Keith.
 
 Facciamo alcune prove:
 
-(keith? 197)    
+(keith? 197)
 ;-> true
 
 (filter keith? (sequence 0 100))
@@ -6614,7 +6614,7 @@ Un numero "ondulato" è un numero che ha solo due tipi di cifre e le cifre alter
 I numeri ondulati non banali devono avere almeno 3 cifre e "a" non è uguale a "b".
 
 Sequenza OEIS A046075:
-  101, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 232, 242, 252, 
+  101, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 232, 242, 252,
   262, 272, 282, 292, 303, 313, 323, 343, 353, 363, 373, 383, 393, 404,
   414, 424, 434, 454, 464, 474, 484, 494, 505, 515, 525, 535, 545, 565,
   575, 585, 595, 606, 616, 626, 636, 646, 656...
@@ -6701,7 +6701,7 @@ $count → 3
 
 (set 'AL '((john 5 6 4) ("mary" 3 4 7) (bob 4 2 7 9) ("jane" 3)))
 
-(replace nil AL (cons (sym ($it 0)) (rest $it)) 
+(replace nil AL (cons (sym ($it 0)) (rest $it))
                 (fn (x y) (string? (y 0)))) ; parameter x = nil not used
 → ((john 5 6 4) (mary 3 4 7) (bob 4 2 7 9) (jane 3))
 
@@ -6730,7 +6730,7 @@ $count → 4
 ; using unify, replace only if elements are equal
 (replace '(X X) '((3 10) (2 5) (4 4) (6 7) (8 8)) (list ($it 0) 'double ($it 1)) unify)
 → ((3 10) (2 5) (4 double 4) (6 7) (8 double 8))
- 
+
 Rimozioni nelle liste
 ---------------------
 L'ultima forma di "replace" ha solo due argomenti: l'espressione "exp-key" e "list". Questa forma rimuove tutte le "exp-key" trovate nella lista.
@@ -6810,7 +6810,7 @@ newLISP has built in support for parseing XML into s-expressions using xml-parse
 ;; updated: 2007-01-08
 ;;
 (define (expr2xml expr (level 0))
- (cond 
+ (cond
    ((or (atom? expr) (quote? expr))
        (print (dup "  " level))
        (println expr))
@@ -6824,7 +6824,7 @@ newLISP has built in support for parseing XML into s-expressions using xml-parse
        (print (dup "  " level))
        (println "</" (first expr) ">"))
    (true
-      (print (dup "  " level) 
+      (print (dup "  " level)
       (println "<error>" (string expr) "<error>")))
  ))
 
@@ -6850,7 +6850,7 @@ newLISP has built in support for parseing XML into s-expressions using xml-parse
          Anytown
        </city>
    </address>
-</person> 
+</person>
 
 The second parameter 0 is the indentation level for the outermost tag expression.
 
@@ -6862,13 +6862,13 @@ Forum: On recursive procedures
 rickyboy:
 ---------
 
-; This roman numbers generator by Sam Cox 
+; This roman numbers generator by Sam Cox
 ; is a nice example of recursive programming in LISP.
 ; roman.lsp
 ; Sam Cox December 8, 2003
 ;
 ; LM 2003/12/12: took out type checking of n
-;                 
+;
 ;
 ; This function constructs a roman numeral representation from its positive
 ; integer argument, N.  For example,
@@ -6887,13 +6887,13 @@ rickyboy:
 ; auxiliary symbol in front.  For example, use CML for 950 instead of LM.
 ; ---
 ; The VNR Encyclopedia of Mathematics, W. Gellert, H. Kustner, M. Hellwich,
-; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.  
+; and H. Kastner, eds., Van Nostrand Reinhold Company, New York, 1975.
 
 (define (roman n)
         (roman-aux "" n (first *ROMAN*) (rest *ROMAN*)))
 
 (define (roman-aux result n pair remaining)
-    (roman-aux-2 result n (first pair) (second pair) remaining)) 
+    (roman-aux-2 result n (first pair) (second pair) remaining))
 
 (define (roman-aux-2 result n val rep remaining)
     (if
@@ -6902,9 +6902,9 @@ rickyboy:
         (< n val)
             (roman-aux result n (first remaining) (rest remaining))
         ;else
-            (roman-aux-2 (append result rep) (- n val) val rep remaining))) 
+            (roman-aux-2 (append result rep) (- n val) val rep remaining)))
 
-(define (second x) (nth 1 x)) 
+(define (second x) (nth 1 x))
 
 (setq *ROMAN*
          '(( 1000  "M" )
@@ -6925,7 +6925,7 @@ rickyboy:
            (    9 "IX" )
            (    5  "V" )
            (    4 "IV" )
-           (    1  "I" ))) 
+           (    1  "I" )))
 
 ; end of file
 
@@ -6981,8 +6981,8 @@ rickyboy:
 ---------
 
 Wow! This comment is very interesting to me because I was not aware that this could be done, in general. When I think about how this could be done, I can't avoid using a stack. (I am not a language implementor, so I am not surprised by any of my inabilities in this area :-) For instance, if I write a function which makes a non-tail recursive call, I find myself stuck thinking that there is some computation, at that level, which has to wait for the recursive call to complete, before it can complete its own computation. So, I naturally think of this as a continuation. Well, if we replace the current run-time on the stack with the recursive call, as you suggest, I'm thinking "what about the loss of the continuation?" Then I think, "well, we can remember this continuation and all further ones, down the line, by pushing them onto a list; when we then bottom out on the recursion, we call the continuations one by one, by popping them off of the list" -- the final answer ends up being a composition of the continuations. But this is just another stack! :-)
-Dmi, could you elaborate on this concept for the feeble-minded among us (i.e. me). If you could also point to a written resource, I'd happily 
- 
+Dmi, could you elaborate on this concept for the feeble-minded among us (i.e. me). If you could also point to a written resource, I'd happily
+
 Dmi:
 ----
 
@@ -7016,13 +7016,13 @@ He, he, he. Yes, Dmi, I know what "tail recursion" means. :-)
 I had just thought in your original message that you were claiming that it wouldn't be necessary for newlisp to determine if a recursive call was of the tail type, and I didn't know how this would be possible, i.e. not to check for "tailness" but still able to optimize the tail call. But I realize now that you were not originally claiming this. I'm sorry for any confusion.
 
 However, this does not let Lutz off the hook. :-) So, Lutz, what do you think? Would it be a terribly difficult task to optimize tail calls in newlisp? Thanks, in advance, for any response. --Ricky
- 
+
 Dmi:
 ----
 
 heh :-)
 The only new, I mean, is that if we realize a function like "return" in C, then it will _always_ can be a tail-recursive. So, meeting such function, the interpreter will not need to gess. And a programmer will not need to guess too ;-)
- 
+
 Lutz:
 -----
 
@@ -7121,15 +7121,15 @@ Funzioni per calcolare il numero di Woodall e Cullen per un dato intero:
 (define (cullen num) (+ (* num (** 2 num)) 1))
 
 (map woodall (sequence 1 20))
-;-> (1 7 23 63 159 383 895 2047 4607 10239 22527 49151 106495 
+;-> (1 7 23 63 159 383 895 2047 4607 10239 22527 49151 106495
 ;->  229375 491519 1048575 2228223 4718591 9961471 20971519)
 (map cullen (sequence 1 20))
-;-> (3 9 25 65 161 385 897 2049 4609 10241 22529 49153 106497 
+;-> (3 9 25 65 161 385 897 2049 4609 10241 22529 49153 106497
 ;->  229377 491521 1048577 2228225 4718593 9961473 20971521)
 
 Funzioni per verificare se un numero dato è di Woodall o di Cullen:
 
-Possiamo osservare che tutti i numeri di Woodall e Cullen sono dispari. 
+Possiamo osservare che tutti i numeri di Woodall e Cullen sono dispari.
 Quindi, prima di tutto controlliamo se un determinato numero è dispari o meno.
  - Adesso per verificare se il numero è woodall o no, incrementare il numero dato per 1 e ora dividere il numero per 2 finché non è pari e contare il numero di volte in cui è divisibile. Ad ogni passaggio controllare se questo valore è uguale al numero oppure no.
  - Adesso per verificare se il numero è cullen o meno, decrementare il numero dato per 1 e ora dividere il numero per 2 finché non è pari e contare il numero di volte in cui è divisibile. Ad ogni passaggio controllare se questo valore è uguale al numero oppure no.
@@ -7283,7 +7283,7 @@ Funzione per dividere due numeri interi x e y:
     (cond ((zero? x) 0)
           ((zero? y) (div 1 0)) ; 1.#INF
           ((and (zero? x) (zero? y)) (div 0 0)) ; 1.#IND (NaN)
-          (true 
+          (true
             (setq quoziente 0)
             (setq dividendo (abs x))
             (setq divisore (abs y))
@@ -7291,7 +7291,7 @@ Funzione per dividere due numeri interi x e y:
               (setq dividendo (- dividendo divisore))
               (++ quoziente)
             )
-            (if (not (same-sign? x y)) 
+            (if (not (same-sign? x y))
               (setq quoziente (change-sign quoziente)))
             quoziente))))
 
@@ -8038,9 +8038,9 @@ Facciamo alcune prove:
 ;-> ("2" "3" "1" "7" "8" "6")
 
 
---------------------------------------------
-Prossimo numero maggiore con le stesse cifre
---------------------------------------------
+-----------------------------------
+Numero maggiore con le stesse cifre
+-----------------------------------
 
 Dato un numero intero positivo N, trovare il primo numero maggiore di N che ha le stesse cifre di N.
 Se questo numero non esiste (perchè N è il numero più grande possibile con le sue cifre), allora restituire nil.
@@ -8138,7 +8138,7 @@ Un pò più concisa:
 
 Cosa possiamo osservare?
 Se tutte le cifre sono ordinate in ordine decrescente (es. 8765), l'output è sempre "nil" perchè non esiste un numero maggiore.
-Se tutte le cifre sono ordinate in ordine crescente (es. 3456), è necessario scambiare le ultime due cifre (es. 3465)
+Se tutte le cifre sono ordinate in ordine crescente (es. 3456), è sufficiente scambiare le ultime due cifre (es. 3465)
 Per gli altri casi, usiamo il seguente algoritmo:
 
 Attraversare il numero dato dalla cifra più a destra finché non si trova una cifra che è più piccola della cifra precedentemente attraversata. Ad esempio, con N = 134875, ci fermiamo a 4 perché 4 è più piccolo della cifra successiva 8.
@@ -8180,7 +8180,7 @@ Funzione che ordina parte di una lista (dall'indice start all'indice end compres
     ; allora il risultato è nil
     (cond ((= stop nil) nil)
           (true
-            ; trova la cifra più piccola di (s idx)
+            ; trova la cifra più piccola che è maggiore di (s idx)
             ; a destra di idx (fino alla fine del numero)
             (setq base (s idx))
             (setq diff 99)
@@ -8196,7 +8196,6 @@ Funzione che ordina parte di una lista (dall'indice start all'indice end compres
             ; ordina la parte del numero dopo l'indice idx
             (list-int (sort-part s (+ idx 1) (- len 1)))))))
 
-
 Facciamo alcune prove:
 
 (proximo 134875)
@@ -8208,6 +8207,288 @@ Vediamo se le due funzioni restituiscono risultati identici.
 
 (= (map next (sequence 100 1e5))
    (map proximo (sequence 100 1e5)))
+;-> true
+
+
+---------------------------------
+Numero minore con le stesse cifre
+---------------------------------
+
+Dato un numero intero positivo N, trovare il primo numero minore di N che ha le stesse cifre di N.
+Se questo numero non esiste (perchè N è il numero più piccolo possibile, con le sue cifre), allora restituire nil.
+
+Esempi:
+
+N = 123     -->  primo minore = 132
+N = 12021   -->  primo minore = nil
+N = 348123  -->  primo minore = 343821
+N = 54321   -->  primo minore = 54312
+
+Input:  N = "218765"
+Output: 218756
+
+Input:  N = "1234"
+Output: Not Possible
+
+Input: N = "262345"
+Output: 256432
+
+Soluzione che utilizza le permutazioni:
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i))))
+    out))
+
+(define (prossimo num)
+  (local (lst p idx-num)
+    (setq lst (int-list num))
+    (setq p (perm lst))
+    ; unique serve per eliminare i numeri uguali che si creano
+    ; quando abbiamo delle cifre uguali nel numero dato.
+    (setq p (unique (map list-int (sort p))))
+    (setq idx-num (find num p))
+    (println p)
+    (println idx-num)
+    ; se il numero dato è l'ultimo delle permutazioni ordinate,
+    ; allora non esiste un numero maggiore con le stesse cifre
+    ; altrimenti restituisce il numero successivo al numero dato
+    (if (= num (p -1))
+        nil
+        ;else
+        (p (+ idx-num 1)))))
+
+(prossimo 12021)
+;-> 12102
+(prossimo 218765)
+;-> 251678
+(prossimo 1234)
+;-> 1243
+(prossimo 4321)
+;-> nil
+(prossimo 534976)
+;-> 536479
+(prossimo 456)
+;-> 465
+
+Un pò più concisa:
+
+(define (next num)
+  (let (p (unique (map list-int (sort (perm (int-list num))))))
+    (if (= num (p -1)) nil (p (+ (find num p) 1)))))
+
+(next 123)
+;-> 132
+(next 12021)
+;-> 12102
+(next 348123)
+;-> 348132
+(next 54321)
+;-> nil
+(next 12345)
+;-> 12354
+
+
+--------------------------------------------
+Numero minore con le stesse cifre
+--------------------------------------------
+
+Dato un numero intero positivo N, trovare il primo numero minore di N che ha le stesse cifre di N.
+Se questo numero non esiste (perchè N è il numero più grande possibile, o più piccolo possibile, con le sue cifre), allora restituire nil.
+
+Esempi:
+
+N = 123     -->  primo minore = nil
+N = 12021   -->  primo minore = 12012
+N = 348123  -->  primo minore = 343821
+N = 54321   -->  primo minore = 54312
+
+Soluzione che utilizza le permutazioni:
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i))))
+    out))
+
+(define (precedente num)
+  (local (lst p idx-num)
+    (setq lst (int-list num))
+    (setq p (perm lst))
+    ; unique serve per eliminare i numeri uguali che si creano
+    ; quando abbiamo delle cifre uguali nel numero dato.
+    (setq p (unique (map list-int (sort p))))
+    (setq idx-num (find num p))
+    (println p)
+    (println idx-num)
+    ; se il numero dato è il primo delle permutazioni ordinate,
+    ; allora non esiste un numero minore con le stesse cifre
+    ; altrimenti restituisce il numero precedente al numero dato
+    (if (= num (p 0))
+        nil
+        ;else
+        (p (- idx-num 1)))))
+
+(precedente 12021)
+;-> 12012
+(precedente 218765)
+;-> 218756
+(precedente 1234)
+;-> nil
+(precedente 4321)
+;-> 4312
+(precedente 534976)
+;-> 534967
+(precedente 456)
+;-> nil
+
+Un pò più concisa:
+
+(define (previous num)
+  (let (p (unique (map list-int (sort (perm (int-list num))))))
+    (if (= num (p 0)) nil (p (- (find num p) 1)))))
+
+(previous 123)
+;-> nil
+(previous 12021)
+;-> 12012
+(previous 348123)
+;-> 343821
+(previous 54321)
+;-> 54312
+(previous 12345)
+;-> nil
+
+Cosa possiamo osservare?
+Se tutte le cifre sono ordinate in ordine crescente (es. 3456), l'output è sempre "nil" perchè non esiste un numero minore.
+Se tutte le cifre sono ordinate in ordine decrescente (es. 8765), è sufficiente scambiare le ultime due cifre (es. 8756).
+Per gli altri casi, usiamo il seguente algoritmo:
+
+Attraversare il numero dato dalla cifra più a destra finché non si trova una cifra che è più grande della cifra precedentemente attraversata. Ad esempio, con N = 262345, ci fermiamo a 6 perché 6 è più grande della cifra precedente 2.
+Se non troviamo tale cifra non esiste un numero maggiore con le stesse cifre (output = nil).
+Ora cercare, a destra della cifra sopra "d", la cifra più grande minore di "d".
+Per 262345, il lato destro di 6 contiene "2345". La cifra più grande minore di 6 è 5.
+Scambiare le due cifre trovate sopra: otteniamo 252346 (scambiando 6 con 5).
+Adesso ordinare in modo decrescente tutte le cifre dalla posizione successiva di "d" alla fine del numero (a destra della posizione "d").
+Il numero che otteniamo dopo l'ordinamento è la soluzione.
+Nell'esempio dobbiamo ordinare 2345, in 252346, ottenendo il numero 256432, che è il numero precedente più piccolo di 262345.
+
+Nota: partiamo dalla destra del numero perché dobbiamo trovare il più grande di tutti i numeri minori.
+
+Funzione che ordina parte di una lista (dall'indice start all'indice end compresi):
+
+(define (sort-part lst start end op)
+  (local (len1 len2 len3)
+    ; default: ordinamento crescente "<"
+    (setq op (or op '<))
+    (setq len1 (- start 0))
+    (setq len2 (+ (- end start) 1))
+    (setq len3 (- (length lst) len1 len2))
+    (append (slice lst 0 len1)                ; lista iniziale
+            (sort (slice lst start len2) op)  ; lista centrale (ordinata)
+            (slice lst (+ len1 len2) len3)))) ; lista finale
+
+(define (preximo lst)
+  (local (s len idx stop base diff idx2)
+    (setq s (int-list lst))
+    (setq len (length lst))
+    ; trova la prima cifra maggiore da destra
+    (setq stop nil)
+    (for (i (- len 1) 1 -1 stop)
+      (if (< (s i) (s (- i 1)))
+          (set 'stop true 'idx (- i 1))
+      )
+    )
+    ; se non abbiamo trovato la cifra maggiore,
+    ; allora il risultato è nil
+    (cond ((= stop nil) nil)
+          (true
+            ; trova la cifra più grande che è minore di (s idx)
+            ; a destra di idx (fino alla fine del numero)
+            (setq base (s idx))
+            (setq diff 99)
+            (for (i (+ idx 1) (- len 1))
+              (if (> base (s i))
+                  (if (> diff (- base (s i)))
+                      (set 'diff (- base (s i)) 'idx2 i)
+                  )
+              )
+            )
+            ; scambia le cifre degli indici idx e idx2
+            (swap (s idx) (s idx2))
+            ; ordina la parte del numero dopo l'indice idx
+            (list-int (sort-part s (+ idx 1) (- len 1) >))))))
+
+Facciamo alcune prove:
+
+(preximo 262345)
+;-> 256432
+(preximo 134875)
+;-> 134857
+(preximo 134855)
+;-> 134585
+
+Vediamo se le due funzioni restituiscono risultati identici.
+
+(= (map previous (sequence 100 1e5))
+   (map preximo (sequence 100 1e5)))
 ;-> true
 
 =============================================================================
