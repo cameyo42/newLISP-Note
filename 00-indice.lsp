@@ -1609,6 +1609,9 @@ NOTE LIBERE 13
   Ordinare parte di una lista
   Numero maggiore con le stesse cifre
   Numero minore con le stesse cifre
+  x + y + z = x * y * x
+  chatGPT e newLISP
+  Forum: Context switch
 
 APPENDICI
 =========

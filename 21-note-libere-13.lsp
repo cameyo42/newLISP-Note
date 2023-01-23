@@ -8491,5 +8491,339 @@ Vediamo se le due funzioni restituiscono risultati identici.
    (map preximo (sequence 100 1e5)))
 ;-> true
 
+
+---------------------
+x + y + z = x * y * x
+---------------------
+
+Scrivere un programma per trovare tutte le soluzioni intere positive dell'equazione:
+
+ x + y + z = x * y * x
+
+La prima soluzione (estremamente inefficiente) che viene in mente:
+
+(define (solve iter show)
+  (local (s p)
+    (for (x 1 iter)
+      (for (y x iter)
+        (for (z y iter)
+          (setq s (+ x y z))
+          (setq p (* x y z))
+          (if show (println "somma: " s ", prodotto: " p))
+          (if (= p s)
+              (println x " + " y " + " z " = " x " * " y " * " z " = " s)))))))
+
+Facciamo una prova:
+
+(solve 4 true)
+;-> somma: 3, prodotto: 1
+;-> somma: 4, prodotto: 2
+;-> somma: 5, prodotto: 3
+;-> somma: 6, prodotto: 4
+;-> somma: 5, prodotto: 4
+;-> somma: 6, prodotto: 6
+;-> 1 + 2 + 3 = 1 * 2 * 3 = 6
+;-> somma: 7, prodotto: 8
+;-> somma: 7, prodotto: 9
+;-> somma: 8, prodotto: 12
+;-> somma: 9, prodotto: 16
+;-> somma: 6, prodotto: 8
+;-> somma: 7, prodotto: 12
+;-> somma: 8, prodotto: 16
+;-> somma: 8, prodotto: 18
+;-> somma: 9, prodotto: 24
+;-> somma: 10, prodotto: 32
+;-> somma: 9, prodotto: 27
+;-> somma: 10, prodotto: 36
+;-> somma: 11, prodotto: 48
+;-> somma: 12, prodotto: 64
+
+Soluzione: 1 + 2 + 3 = 1 * 2 * 3 = 6
+
+Sembra anche che questa sia l'unica soluzione in assoluto, perchè la somma di tre numeri positivi qualunque (quando x, y e z sono maggiori di 1) è sempre minore del loro prodotto (intuitivamente).
+
+Vediamo la dimostrazione che 1+2+3=1*2*3=6 è l'unica soluzione.
+
+1) La terna di numeri distinti (1, 2, 3) è una soluzione.
+2) Incrementando o decrementando di un'unità un numero qualsiasi di una terna x, y, z, la relativa somma cambia allo stesso modo, invece il suo prodotto cambia almeno di xy, xz oppure yz. Queste quantità sono sempre >= 2, altrimenti la somma non sarebbe uguale al prodotto, contraddicendo l'assunto (se fosse 1, allora -> (1*1)*n = 1+1+n, il che è impossibile). Quindi, questa operazione rende sempre falsa l'equazione. 
+Siccome aumentando/diminuendo di 1 il generico elemento della terna il prodotto aumenta/diminuisce del prodotto degli altri due (detti y,z), l'unico modo per soddisfare l'uguaglianza 1 = yz ==> y=1 et z=1 (per ipotesi di numeri interi). Quindi tutte e sole le terne per le quali l'uguaglianza è verificata anche aumentando/diminuendo un termine di un'unità sarebbero del tipo (x,1,1). Ma per esse si ha che x+2 = x, il che contrasta l'ipotesi iniziale. Sbaglio?
+3) Dalla terna (1, 2, 3) possiamo generare tutte le altre con la medesima operazione, che sappiamo già generare false equivalenze
+Questo ragionamento è direttamente estendibile ad equazioni ad N variabili.
+
+
+-----------------
+chatGPT e newLISP
+-----------------
+
+Colloquio tra il sottoscritto e l'intelligenza artificiale chatGPT (2023-01-23).
+
+-------------------------------
+max: 
+are you able to write newlisp code?
+
+chatGPT:
+Yes, I am able to write newLISP code. newLISP is a Lisp-like programming language that is designed for general-purpose scripting and is often used for web development, artificial intelligence, natural language processing, and other tasks that involve manipulating symbols and lists. If you have a specific task or problem you would like me to help with, I would be happy to assist you.
+
+max:
+write a program to solve quadratic equation
+
+chatGPT:
+Sure, here is a program in newLISP that will solve a quadratic equation of the form ax^2 + bx + c = 0:
+
+(define (solve-quadratic a b c)
+  (let (
+    (discriminant (* b b - (* 4 a c)))
+    (x1 0)
+    (x2 0)
+  )
+    (cond 
+      ((= discriminant 0) 
+        (set 'x1 (/ (- b) (* 2 a)))
+        (println "The equation has one real solution: " x1)
+      )
+      ((> discriminant 0) 
+        (set 'x1 (/ (+ (- b) (sqrt discriminant)) (* 2 a)))
+        (set 'x2 (/ (- (- b) (sqrt discriminant)) (* 2 a)))
+        (println "The equation has two real solutions: " x1 " and " x2)
+      )
+      (else 
+        (println "The equation has no real solutions.")
+      )
+    )
+  )
+)
+
+You can call this function by passing the values of a, b and c as arguments.
+For example, to solve the equation x^2 + 2x + 1 = 0, you would call the function like this:
+
+(solve-quadratic 1 2 1)
+
+This will output "The equation has no real solutions."
+Alternatively you can use the function like this
+
+(define a 1) 
+(define b 2) 
+(define c 1)
+
+(solve-quadratic a b c)
+This will also output "The equation has no real solutions."
+
+max:
+can you write a program to calculate the complex solution too?
+
+chatGPT:
+Sure, here is a newLISP program that will solve a quadratic equation of the form ax^2 + bx + c = 0 and will return the complex solutions if any, otherwise returns the real solutions if any.
+
+(define (solve-quadratic a b c)
+  (let (
+    (discriminant (* b b - (* 4 a c)))
+    (x1 0)
+    (x2 0)
+  )
+    (cond 
+      ((= discriminant 0) 
+        (set 'x1 (/ (- b) (* 2 a)))
+        (println "The equation has one real solution: " x1)
+      )
+      ((> discriminant 0) 
+        (set 'x1 (/ (+ (- b) (sqrt discriminant)) (* 2 a)))
+        (set 'x2 (/ (- (- b) (sqrt discriminant)) (* 2 a)))
+        (println "The equation has two real solutions: " x1 " and " x2)
+      )
+      (else 
+        (set 'x1 (/ (- b) (* 2 a)))
+        (set 'x2 (sqrt (/ (- discriminant) (* 4 a))))
+        (println "The equation has no real solutions. Instead it has two complex solutions: " x1 "+" x2 "i and " x1 "-" x2 "i")
+      )
+    )
+  )
+)
+You can call this function by passing the values of a, b and c as arguments.
+For example, to solve the equation x^2 + 2x + 1 = 0, you would call the function like this:
+
+(solve-quadratic 1 2 1)
+
+This will output "The equation has no real solutions. Instead it has two complex solutions: -0.5+0.87i and -0.5-0.87i"
+Please note that in newLISP the sqrt function returns the square root of a real number
+
+max:
+(discriminant (* b b - (* 4 a c))) is wrong. (discriminant (sub (mul b b) (mul 4 a c)))) is correct.
+
+chatGPT:
+You are correct, my apologies for the mistake. The correct code for the discriminant should be:
+
+(define (solve-quadratic a b c)
+  (let (
+    (discriminant (sub (mul b b)  (mul 4 a c)))
+    (x1 0)
+    (x2 0)
+  )
+    (cond 
+      ((= discriminant 0) 
+        (set 'x1 (/ (- b) (* 2 a)))
+        (println "The equation has one real solution: " x1)
+      )
+      ((> discriminant 0) 
+        (set 'x1 (/ (+ (- b) (sqrt discriminant)) (* 2 a)))
+        (set 'x2 (/ (- (- b) (sqrt discriminant)) (* 2 a)))
+        (println "The equation has two real solutions: " x1 " and " x2)
+      )
+      (else 
+        (set 'x1 (/ (- b) (* 2 a)))
+        (set 'x2 (sqrt (/ (- discriminant) (* 4 a))))
+        (println "The equation has no real solutions. Instead it has two complex solutions: " x1 "+" x2 "i and " x1 "-" x2 "i")
+      )
+    )
+  )
+)
+
+In this corrected version, I've replaced (* b b - (* 4 a c)) with (sub (mul b b) (mul 4 a c)), which calculates the discriminant correctly.
+Thank you for pointing this out, I apologize for any confusion caused by my mistake.
+
+max:
+you must use add,sub,div e mul. +,-,/ and * are only for integer
+
+chatGPT:
+I apologize for the confusion. In newLISP, mathematical operations must be done using the functions add, sub, div, and mul for addition, subtraction, division and multiplication respectively, not the mathematical operators +, -, /, and * which are only for integers.
+Here is the corrected version of the program:
+
+(define (solve-quadratic a b c)
+  (let (
+    (discriminant (sub (mul b b) (mul 4 a c)))
+    (x1 0)
+    (x2 0)
+  )
+    (cond 
+      ((= discriminant 0) 
+        (set 'x1 (div (- b) (mul 2 a)))
+        (println "The equation has one real solution: " x1)
+      )
+      ((> discriminant 0) 
+        (set 'x1 (div (+ (- b) (sqrt discriminant)) (mul 2 a)))
+        (set 'x2 (div (- (- b) (sqrt discriminant)) (mul 2 a)))
+        (println "The equation has two real solutions: " x1 " and " x2)
+      )
+      (else 
+        (set 'x1 (div (- b) (mul 2 a)))
+        (set 'x2 (sqrt (div (- discriminant) (mul 4 a))))
+        (println "The equation has no real solutions. Instead it has two complex solutions: " x1 "+" x2 "i and " x1 "-" x2 "i")
+      )
+    )
+  )
+)
+
+I apologize for any confusion caused by my previous mistake. I hope this clears up any confusion and that the program works as intended.
+
+max:
+Use 'add','sub','div' and 'mul' instead of '+', '-', '/' and '*'.
+
+chatGPT:
+You are correct, and I apologize for any confusion. In newLISP, mathematical operations must be done using the functions add, sub, div, and mul for addition, subtraction, division and multiplication respectively, not the mathematical operators +, -, /, and *.
+Here is the corrected version of the program:
+
+(define (solve-quadratic a b c)
+  (let (
+    (discriminant (sub (mul b b) (mul 4 a c)))
+    (x1 0)
+    (x2 0)
+  )
+    (cond 
+      ((= discriminant 0) 
+        (set 'x1 (div (sub 0 b) (mul 2 a)))
+        (println "The equation has one real solution: " x1)
+      )
+      ((> discriminant 0) 
+        (set 'x1 (div (add (sub 0 b) (sqrt discriminant)) (mul 2 a)))
+        (set 'x2 (div (sub (sub 0 b) (sqrt discriminant)) (mul 2 a)))
+        (println "The equation has two real solutions: " x1 " and " x2)
+      )
+      (true 
+        (set 'x1 (div (sub 0 b) (mul 2 a)))
+        (set 'x2 (div (sqrt (sub 0 discriminant)) (mul 4 a)))
+        (println "The equation has no real solutions. Instead it has two complex solutions: " x1 " " x2 "i and " x1 " " x2 "i")
+      )
+    )
+  )
+)
+
+Again, I apologize for any confusion caused by my previous mistake. I hope this clears up any confusion and that the program works as intended.
+
+(solve-quadratic 1 2 1)
+;-> The equation has one real solution: -1
+
+(solve-quadratic -4 -2 -1)
+;-> The equation has no real solutions. Instead it has two complex solutions: -0.25 -0.2165063509461097i and -0.25 -0.2165063509461097i
+-------------------------------
+Divertente...ma ancora non conosce bene newLISP :-)
+
+
+---------------------
+Forum: Context switch
+---------------------
+
+alex:
+-----
+What are reasons, that (context) is switch?
+Why (context) is not standart lisp function?
+Why we use
+
+(context 'BLA-BLA-BLA)
+  ..............
+(context 'MAIN)
+
+against
+
+(context 'BLA-BLA-BLA
+  ....................
+)
+ 
+Lutz:
+-----
+When newLISP loads it has a compile and evaluation phase. Each toplevel expression in a file gets at first compiled to an internal representation, then evaluated by an internal VM. Writing contexts in a functional manner, would break the separation of compile versus evaluation phase.
+
+The toplevel (context 'FOO) declaration works like a compiler directive switching to a different name space (symbol tree).
+
+The closure effect of the namespace is established during code translation not during run-time, as is the case i.e. in Scheme.
+
+The way how contexts work went through some changes during the current series of development releases, to give it a more intuitive feel. The change was prompted by the experience working with newLISP in a group of programmers (all new to newLISP) and on a bigger multi-module distributed application.
+
+These are in short the differences:
+
+OLD: the runtime context is always the context where the original toplevel function is called from.
+NEW: the runtime context is the context the function is written/compiled in (v.8.7.9):
+
+(set 'x 123)
+(context 'CTX)
+
+(set 'x 456)
+
+(define (foo) (context))
+
+(define (bar) (eval-string "x"))
+
+(context 'MAIN)
+
+; OLD
+(CTX:foo) => MAIN
+(CTX:bar) => 123
+; NEW
+(CTX:foo) 
+;-> CTX
+(CTX:bar) 
+;-> 456
+
+OLD: In (load myfile) the code in myfile will be in the runtime context of caller, except when a (context ...) statement in 'myfile' switches it. The context after (load ...) returns may be changed.
+
+NEW: If not specified differently in 'mylfile' myfile will always be translated for MAIN, but when (load ...) returns, the runtime context will always be the same as before the (load ...) statement regardless, of what happened inside 'myfile' (v. 8.7.11)
+
+The changes in the context model only effect 'load', 'eval-string', 'net-eval' and 'sym' (when used without the context parameter). Most of anybody's code will not need changes. In all apps. published by newlisp.org only 'cgi.lsp' has changed.
+
+The newer model seems to be more intuitive and behaves more like people expect it. The newer model also offers a better isolation of the context from the context-environment it is called into from.
+
+These are the differences to other LISPs:
+When using contexts for object oriented programming in newLISP all objects have to be bound to a symbol, but context-symbols can be assigned to variables and context-objects can be created and deleted during run-time. In Scheme and most other LISPs the object is defined by a lambda closure duing runtime and can stay anonymous. I believe that namespaces are easier to understand than lambda (static) closures.
+
+Contexts as they appear in the official release 8.8.
+
 =============================================================================
 
