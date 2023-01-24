@@ -1613,6 +1613,10 @@ NOTE LIBERE 13
   chatGPT e newLISP
   Forum: Context switch
 
+NOTE LIBERE 14
+==============
+  Triangolo di Hosoya
+
 APPENDICI
 =========
   The fifteen ideas characterizing LISP
