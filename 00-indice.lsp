@@ -1616,6 +1616,9 @@ NOTE LIBERE 13
 NOTE LIBERE 14
 ==============
   Triangolo di Hosoya
+  Divisione Modulare
+  Potenza (esponenziazione) modulare
+  Aspettativa matematica o valore atteso di una lista
 
 APPENDICI
 =========

@@ -7579,6 +7579,10 @@ L'operatore per eseguire l'operazione del modulo è '%'.
 Ad esempio: a % b = c che significa che quando a è diviso per b dà il resto c:
 per esempio: 15 % 4 = 3, 22 % 3 = 1.
 
+QUindi l'operazione modulo è la stessa di "il resto della divisione". 
+Se dico a modulo b è c, significa che quando a è diviso per b il resto è c. 
+L'operazione modulo è rappresentata dall'operatore '%' nella maggior parte dei linguaggi di programmazione.
+
 Nota: il risultato di (a % b) è sempre minore di b.
 
 Nota: nella maggior parte dei linguaggi (es. C/C++) quando si esegue l'operazione modulare con numeri negativi si ottiene un risultato negativo come -a % b = -c, ma il risultato di un'operazione modulare deve essere sempre positivo (da 0 a b-1), quindi si utilizza la seguente regola:
