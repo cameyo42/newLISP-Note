@@ -2050,6 +2050,20 @@ Purtroppo questa funzione si applica solo alle liste e non alle stringhe o ai ve
 (count-obj '((1 2) (2 2)) '((2 2) (2 1) (1 1)))
 ;-> (0 1)
 
+Un altra funzione che lavora solo con le stringhe (by Cormullion):
+
+(define (num-chars str)
+    (count (args) (explode str)))
+
+(setq s (dup "abcdefg" 5))
+;-> "abcdefgabcdefgabcdefgabcdefgabcdefg"
+
+(num-chars s "b" "g" "a" "x")
+;-> (5 5 5 0)
+
+(num-chars "aabbcabsdbcgabcbfbghsgbc" "a" "b" "c")
+;-> (4 8 4)
+
 
 -----------------
 Onesti e Bugiardi

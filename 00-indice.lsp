@@ -1619,6 +1619,9 @@ NOTE LIBERE 14
   Divisione Modulare
   Potenza (esponenziazione) modulare
   Aspettativa matematica o valore atteso di una lista
+  Script caricato dalla REPL o dal terminale?
+  Captcha
+  Somma della serie (n/1) + (n/2) + (n/3) + (n/4) + ... + (n/n)
 
 APPENDICI
 =========

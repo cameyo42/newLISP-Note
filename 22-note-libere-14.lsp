@@ -122,7 +122,7 @@ Dati tre numeri positivi a, b e m. Calcolare a/b % m.
 In altre parole, si tratta di trovare un numero c tale che (b * c) % m = a % m.
 
 La divisione modulare non è sempre possibile
-1) la divisione per 0 non è possibile (consentita).
+1) la divisione per 0 non è possibile.
 2) x/y mod z non è possibile quando y ≡ 0 mod z
 
 La divisione modulare è definita quando esiste l'inverso modulare del divisore.
@@ -239,6 +239,202 @@ Facciamo alcune prove:
 Nota: il valore atteso è la media dei valori della lista,
 (div (apply add '(1 9 6 7 8 12)) 6)
 ;-> 7.166666666666667
+
+
+-------------------------------------------
+Script caricato dalla REPL o dal terminale?
+-------------------------------------------
+
+La seguente funzione ci permette di determinare se uno script viene caricato dalla REPL di newLISP oppure se viene caricato eseguendo newLISP dal terminale:
+
+; REPL or terminal loading?
+; by Lutz
+(define (interactive?)
+    (not (main-args 1)))
+
+Per caricare uno script dalla REPL:
+
+  (load "script.lsp")
+
+Per caricare uno script dal terminale:
+
+  newlisp script.lsp
+
+Questo ci permette di poter eseguire funzioni differenti in base al tipo di caricamento.
+
+Per esempio, salviamo il file seguente come "test-load.lsp":
+
+;--------------
+; test-load.lsp
+;
+; Questo file si comporta in modo diverso a seconda
+; che sia caricato dalla REPL di newLISP: (load "test-load.lsp")
+; oppure dal prompt del terminale: newlisp test-load.lsp
+
+(define (interactive?)
+    (not (main-args 1)))
+
+(define (print-repl)
+  (println "Sessione interattiva"))
+
+(define (print-no-repl)
+  (println "Sessione NON interattiva"))
+
+(if (interactive?)
+  (begin
+    (print-repl)
+  )
+  ;else 
+  (begin
+    (print-no-repl)
+    (exit)
+  )
+)
+;--------------
+;eof
+
+Dalla REPL di newLISP:
+
+(load "test-load.lsp")
+;-> Sessione interattiva
+
+Dal prompt del terminale:
+
+c:\newlisp> newlisp test-load.lsp
+;-> Sessione NON interattiva
+
+Dalla REPL di newLISP:
+
+(! "newlisp test-load.lsp")
+;-> Sessione NON interattiva
+;-> 0
+
+
+-------
+Captcha
+-------
+
+Un CAPTCHA (Completely Automated Public Turing test to tell Computers and Humans Apart) è un test per determinare se l'utente è umano o meno.
+Si genera un CAPTCHA univoco ogni volta che bisogna verificare se l'utente è umano o meno e si chiede all'utente di inserire lo stesso CAPTCHA generato automaticamente e controllando l'input dell'utente con il CAPTCHA generato.
+In genere il CAPTCHA viene creato con caratteri grafici di difficile lettura per un computer, ma relativamente facile da leggere per un umano.
+In questo esempio, generiamo i CAPTCHA con caratteri ASCII.
+
+Il set di caratteri per generare CAPTCHA contiene "a-z", "A-Z" e "0-9", quindi contiene 62 caratteri.
+Per generare un CAPTCHA lungo N si selezionano N caratteri in modo casuale dal set definito.
+
+Stile iterativo:
+
+(define (captcha len)
+  (let ((chr "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+        (capt ""))
+    (while (> len 0)
+      (extend capt (chr (rand 62)))
+      (-- len)
+    )
+    capt))
+
+(captcha 12)
+;-> "IvDx0tCq8sTJ"
+(captcha 10)
+;-> "mV0yF3b9Jd"
+(captcha 4)
+;-> "Gm0M"
+
+Stile newLISP:
+
+(define (captcha len)
+  (select "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" 
+          (rand 62 len)))
+
+(captcha 12)
+;-> "Om0hgUt6ruiT"
+(captcha 10)
+;-> "ZRLUpiadX0"
+(captcha 4)
+;-> "nhIa"
+
+
+-------------------------------------------------------------
+Somma della serie (n/1) + (n/2) + (n/3) + (n/4) + ... + (n/n)
+-------------------------------------------------------------
+
+Scrivere una funzione per calcolare la seguente serie:
+
+  (n/1) + (n/2) + (n/3) + (n/4) + ... + (n/n)
+
+Stile iterativo:
+
+Funzione che calcola la somma con divisione intera:
+
+(define (sum-int n)
+  (let ((top (int (sqrt n)))
+        (sum 0))
+    (for (i 1 top)
+      (setq sum (+ sum (/ n i)))
+    )
+    (setq sum (- (* 2 sum) (* top top)))))
+
+(sum-int 10)
+;-> 27
+(sum-int 100)
+;-> 482
+(sum-int 1000)
+;-> 7069
+
+Stile newLISP:
+
+Funzione che calcola la somma con divisione intera:
+
+(define (somma-int n)
+  (apply + (map (curry / n) (sequence 1 n))))
+
+Funzione che calcola la somma con divisione float:
+
+(define (somma-float n)
+  (apply add (map (curry div n) (sequence 1 n))))
+
+(somma-int 10)
+;-> 27
+(somma-float 10)
+;-> 29.28968253968254
+
+(somma-int 100)
+;-> 482
+(somma-float 100)
+;-> 518.7377517639619
+
+(somma-int 1000)
+;-> 7069
+(somma-float 1000)
+;-> 7485.470860550351
+
+Verifichiamo che le funzioni calcolano gli stessi valori per le serie intere:
+
+(= (map sum-int (sequence 1 1e4))
+   (map somma-int (sequence 1 1e4)))
+;-> true
+
+Vediamo la velocità di esecuzione delle funzioni:
+
+(time (sum-int 1000) 10000)
+;-> 23.964
+(time (somma-int 1000) 10000)
+;-> 815.847
+
+Sequenza dei valori per n = 1..100:
+
+(map somma-int (sequence 1 100))
+;-> (1 3 5 8 10 14 16 20 23 27 29 35 37 41 45 50 52 58 60 66 70 74 76 84 87
+;->  91 95 101 103 111 113 119 123 127 131 140 142 146 150 158 160 168 170
+;->  176 182 186 188 198 201 207 211 217 219 227 231 239 243 247 249 261 263
+;->  267 273 280 284 292 294 300 304 312 314 326 328 332 338 344 348 356 358
+;->  368 373 377 379 391 395 399 403 411 413 425 429 435 439 443 447 459 461
+;->  467 473 482)
+
+Sequenza OEIS ???:
+  1 3 5 8 10 14 16 20 23 27 29 35 37 41 45 50 52 58 60 66 70 74 76 84 87
+  91 95 101 103 111 113 119 123 127 131 140 142 146 150 158 160 168 170
+  176 182 186 188 198 201 207 211 217 219 227 231 239 243 247 249 261 263 ...
 
 =============================================================================
 
