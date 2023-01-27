@@ -362,6 +362,11 @@ Scrivere una funzione per calcolare la seguente serie:
 
   (n/1) + (n/2) + (n/3) + (n/4) + ... + (n/n)
 
+Sequenza OEIS A006218:
+  1 3 5 8 10 14 16 20 23 27 29 35 37 41 45 50 52 58 60 66 70 74 76 84 87
+  91 95 101 103 111 113 119 123 127 131 140 142 146 150 158 160 168 170
+  176 182 186 188 198 201 207 211 217 219 227 231 239 243 247 249 261 263 ...
+
 Stile iterativo:
 
 Funzione che calcola la somma con divisione intera:
@@ -431,10 +436,209 @@ Sequenza dei valori per n = 1..100:
 ;->  368 373 377 379 391 395 399 403 411 413 425 429 435 439 443 447 459 461
 ;->  467 473 482)
 
-Sequenza OEIS ???:
-  1 3 5 8 10 14 16 20 23 27 29 35 37 41 45 50 52 58 60 66 70 74 76 84 87
-  91 95 101 103 111 113 119 123 127 131 140 142 146 150 158 160 168 170
-  176 182 186 188 198 201 207 211 217 219 227 231 239 243 247 249 261 263 ...
+
+--------------------------------------
+Palline e contenitori (Balls and Bins)
+--------------------------------------
+
+Consideriamo il seguente processo stocastico:
+
+  M palline vengono lanciate casualmente in N contenitori.
+
+Il contenitore selezionato per ciascuna delle M palline è determinato in modo uniforme e indipendentemente dagli altri lanci.
+
+Esempio con 5 contenitori e 8 palline (o):
+
+  |   |   |   |   |   |   |   |   |   |
+  |oo |   |o  |   |oo |   |   |   |ooo|
+  +---+   +---+   +---+   +---+   +---+
+    0       1       2       3       4
+
+Che rappresentiamo con:
+
+(setq bins '(2 1 2 0 3))
+
+Funzione che esegue un processo (lancia M palline in N contenitori):
+
+(define (simula M N)
+  (let (bins (array N '(0)))
+    (dolist (idx (rand N M)) (++ (bins idx)))
+    bins))
+
+(simula 8 5)
+;-> (0 1 4 3 0)
+
+(define (check-full bins) (not (ref 0 (array-list bins))))
+
+Considerando un contenitore qualunque, con M palline la probabilità che una pallina cada in un contenitore vale 1/N. Quindi il numero di palline di un contenitore k(i) ë distribuito in maniera binomiale con i parametri M e 1/N per ogni contenitore (i).
+Quindi:
+
+- in ogni contenitore ci aspettiamo M/N palline
+- la probabilità che un contenitore sia vuoto vale (1 - 1/n)^M
+
+Considerando tutti i contenitori i problemi sono più complicati perchè:
+
+- il numero di palline in ogni contenitore dipendono stocasticamente l'uno dall'altro (non sono indipendenti)
+
+Per capirlo, basta immaginare che tutte le M palline siano nel contenitore 1.
+Allora il numero di palline negli altri contenitori vale 0.
+
+Vediamo alcuni dei quesiti che si possono formulare su questo processo:
+
+1) Qual è la probabilità che almeno uno dei contenitori contenga almeno due palline?
+2) Quante palline in media dobbiamo lanciare affinché tutti i contenitori contengano almeno una pallina?
+3) Qual è il carico massimo (previsto) su tutti i contenitori dopo che tutte le palline sono state lanciate?
+
+Confrontiamo i risultati ottenuti con formule matematiche con i risultati delle simulazioni che andremo a implementare.
+
+1) Qual è la probabilità che almeno uno dei contenitori contenga almeno due palline?
+
+La formula matematica è la seguente:
+
+              M-1
+  P(E) = (1 -  ∏ (1 - i/N))
+              i=1
+
+(define (p1 M N)
+  (let (p 1)
+    (for (i 1 (- M 1))
+      (setq p (mul p (sub 1 (div i N))))
+      (println p)
+    )
+    (list (sub 1 p) p)))
+
+(p1 10 8)
+;-> (1 -0)
+(p1 5 8)
+;-> (0.794921875 0.205078125)
+(p1 100 1100)
+;-> (0.99036326269542 0.00963673730458005)
+(p1 10 1000)
+;-> (0.04413938699560271 0.9558606130043973)
+(p1 2 1000)
+;-> (0.001000000000000001 0.999)
+(p1 50 365)
+;-> (0.9703735795779884 0.0296264204220116)
+
+Funzione di simulazione:
+
+(define (p1-sim M N iter)
+  (local (p bins stop)
+    (setq p 0)
+    (for (i 1 iter)
+      (setq bins (array N '(0)))
+      (setq stop nil)
+      (dolist (idx (rand N M) stop)
+        (++ (bins idx))
+        ; se un contenitore ha più di una pallina
+        ; allora l'evento corrente è terminato positivamente
+        (if (> (bins idx) 1)
+          (set 'stop true 'p (+ p 1))
+        )
+      )
+    )
+    (div p iter)))
+
+(p1-sim 10 8 1e6)
+;-> 1
+(p1-sim 5 8 1e6)
+;-> 0.794476
+(p1-sim 100 1100 1e6)
+;-> 0.990304
+(p1-sim 10 1000 1e6)
+;-> (0.044273)
+(p1-sim 2 1000 1e6)
+;-> 0.0009829999999999999
+(p1-sim 50 365 1e6)
+;-> 0.970402
+
+I risultati matematici e quelli delle simulazioni sono congruenti.
+
+Nota: vedi anche "Il problema del compleanno" su "Funzioni Varie".
+
+2) Quante palline in media dobbiamo lanciare affinché tutti i contenitori contengano almeno una pallina?
+
+        N
+  T = N*∑(1/i)
+       i=1
+
+(define (p2 N)
+  (let (sum 0)
+    (for (i 1 N)
+      (setq sum (add sum (div i)))
+    )
+    (mul N sum)))
+
+(p2 1)
+;-> 1
+(p2 10)
+;-> 29.28968253968254
+(p2 100)
+;-> 518.737751763962
+(p2 1000)
+;-> 7485.470860550343
+
+Funzione di simulazione:
+
+(define (p2-sim N iter)
+  (local (cur tot bins stop trovato)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq bins (array N '(0)))
+      (setq stop nil)
+      (setq cur 0)
+      (until stop
+        (++ (bins (rand N)))
+        (++ cur)
+        ; controllo contenitori...
+        ; metodo 1 (più veloce)
+        (setq stop (not (find 0 (array-list bins))))
+        ; metodo 2
+        ;(setq stop (not (ref 0 (array-list bins))))
+        ; metodo 3
+        ;(setq trovato nil)
+        ;(dolist (el bins trovato)
+        ;; se un elemento = 0,
+        ;; allora i contenitori non hanno tutti almeno una pallina
+        ;  (if (zero? el) (setq trovato true))
+        ;)
+        ;(setq stop (not trovato))
+      )
+      (setq tot (+ tot cur))
+    )
+    (list (div tot iter) tot)))
+
+(p2-sim 1 1e5)
+;-> (1 100000)
+(p2-sim 10 1e5)
+;-> (29.2603 2926030)
+(time (println (p2-sim 100 1e5)))
+;-> (518.07089 51807089)
+;-> 45149.834
+(time (println (p2-sim 1000 1e4)))
+;-> (7491.3304 74913304)
+;-> 517297.962
+
+I risultati matematici e quelli delle simulazioni sono congruenti.
+
+Nota: vedi anche "Raccolta di figurine" su "Note libere 6".
+
+3) Qual è il carico massimo (previsto) su tutti i contenitori dopo che tutte le palline sono state lanciate?
+
+"'Balls into Bins' - A Simple and Tight Analysis"
+di Martin Raab e Angelika Steger
+
+Per M = N:
+
+         (ln N)
+  C = -------------
+       (ln (ln N))
+
+Per M >> N*(ln(N))^3:
+
+       M          2*M*ln(N)
+  C = --- + sqrt(-----------)
+       N             N
 
 =============================================================================
 
