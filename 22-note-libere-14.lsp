@@ -488,6 +488,8 @@ Vediamo alcuni dei quesiti che si possono formulare su questo processo:
 1) Qual è la probabilità che almeno uno dei contenitori contenga almeno due palline?
 2) Quante palline in media dobbiamo lanciare affinché tutti i contenitori contengano almeno una pallina?
 3) Qual è il carico massimo (previsto) su tutti i contenitori dopo che tutte le palline sono state lanciate?
+4) Qual è la probabilità che un contenitore qualunque contenga k palline?
+5) Quante palline devono essere lanciate affinchè tutti i contenitori contengano almeno k palline?
 
 Confrontiamo i risultati ottenuti con formule matematiche con i risultati delle simulazioni che andremo a implementare.
 
@@ -639,6 +641,178 @@ Per M >> N*(ln(N))^3:
        M          2*M*ln(N)
   C = --- + sqrt(-----------)
        N             N
+
+(define (p3 M N molt)
+  (cond ((= M N)
+          (div (log N) (log (log N))))
+        ; M > molt * N*(ln(N))^3
+        ((> M (mul molt (mul N (pow (log N) 3))))
+          (add (div M N) (sqrt (div (mul 2 M (log N)) N))))
+        (true
+          nil)))
+
+Il parametro "molt" è quanto deve essere maggiore M di N*(ln(N))^3:
+
+  M > molt * N*(ln(N))^3
+
+(p3 10 10 10)
+;-> 2.760785993534691
+(p3 50 50 10)
+;-> 2.867937186023309
+(p3 100 100 10)
+;-> 3.015473823880991
+(p3 2000 10 10)
+;-> 230.3485425877029
+(p3 10000 25 10)
+;-> 450.7454496471808
+
+Funzione di simulazione:
+
+(define (p3-sim M N iter)
+  (local (tot bins)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq bins (array N '(0)))
+      ; riempie N contenitori con M palline
+      (dolist (idx (rand N M)) (++ (bins idx)))
+      (setq tot (+ tot (apply max bins)))
+    )
+    (div tot iter)))
+
+(p3-sim 10 10 1e5)
+;-> 2.75045
+(p3-sim 50 50 1e5)
+;-> 3.803
+(p3-sim 100 100 1e5)
+;-> 4.23266
+(p3-sim 2000 10 1e5)
+;-> 222.05482
+(time (println (p3-sim 10000 25 1e5)))
+;-> 439.79507
+;-> 59660.722
+
+I risultati matematici e quelli delle simulazioni sono abbastanza congruenti.
+
+4) Qual è la probabilità che un contenitore qualunque contenga k palline?
+
+  P(E)  = binom(m k) * (1/n^k) * (1 - 1/n)^(m-k)
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (p4 M N k)
+  (mul (binom M k)
+       (div 1 (pow N k))
+       (pow (sub 1 (div 1 N)) (- M k))))
+
+(p4 10 200 2)
+;-> 0.001080779674022367
+(p4 100 50 4)
+;-> 0.0902079912322042
+(p4 100 50 2)
+;-> 0.2734139115697736
+
+Funzione di simulazione:
+
+(define (p4-sim M N k bin iter)
+  (local (tot bins)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq bins (array N '(0)))
+      ; riempie N contenitori con M palline
+      (dolist (idx (rand N M)) (++ (bins idx)))
+      (if (= k (bins bin)) (++ tot))
+    )
+    (div tot iter)))
+
+(p4-sim 10 200 2 0 1e5)
+;-> 0.00109
+(p4-sim 100 50 4 0 1e5)
+;-> 0.09089
+(p4-sim 100 50 2 0 1e5)
+;-> 0.27368
+
+I risultati matematici e quelli delle simulazioni sono congruenti.
+
+5) Quante palline devono essere lanciate affinchè tutti i contenitori contengano almeno k palline?
+Si tratta della domanda numero 2) con k > 1.
+
+Newman e Shepp hanno generalizzato il problema del collezionista di figurine quando si vuole raccogliere k copie di ciascuna figurina.
+Sia Tk la prima volta che vengono raccolte k copie di ciascuna figurina.
+Allora l'aspettativa in questo caso vale:
+
+  A(Tk) = n*ln(n) + (k - 1)*n*ln(ln(n)) + O(n), per n -> infinito
+
+dove:
+
+  n*ln(n) è il termine dovuto alla figurine originali (prima copia)
+
+e:
+
+  (k - 1)*n*ln(ln(n)) è il termine dovuto alle altre (k - 1) copie
+
+(define (p5 N k)
+  (add (mul N (log N))
+       (mul (sub k 1) N (log (log N)))))
+
+(p5 10 1)
+;-> 23.02585092994046
+(p5 100 1)
+;-> 460.5170185988092
+(p5 10 2)
+;-> 31.36617538242002
+(p5 100 2)
+;-> 613.2349811795992
+(p5 1000 2)
+;-> 8840.400012898203
+
+Funzione di simulazione:
+
+(define (p5-sim N k iter)
+  (local (cur tot bins stop trovato)
+    (setq tot 0)
+    (for (i 1 iter)
+      (setq bins (array N '(0)))
+      (setq stop nil)
+      (setq cur 0)
+      (until stop
+        (++ (bins (rand N)))
+        (++ cur)
+        ; controllo contenitori...
+        (setq stop (for-all (fn(x) (>= x k)) (array-list bins)))
+      )
+      (setq tot (+ tot cur))
+    )
+    (list (div tot iter) tot)))
+
+Nota: per k=1 dobbiamo ottenere risultati simili a "p2" e "p2-sim".
+
+(p5-sim 1 1 1e4)
+;-> (1 10000)
+(p5-sim 10 1 1e4)
+;-> (29.2857 292857)
+(time (println (p5-sim 100 1 1e5)))
+;-> (519.00168 51900168)
+;-> 166524.317
+
+(p5-sim 10 2 1e5)
+;-> (46.2694 4626940)
+(p5-sim 100 2 1e4)
+;-> (727.6312 7276312)
+(time (println (p5-sim 1000 2 1e4)))
+;-> (9884.672200000001 98846722)
+;-> 3392360.719
+
+I risultati matematici e quelli delle simulazioni sono congruenti.
 
 =============================================================================
 
