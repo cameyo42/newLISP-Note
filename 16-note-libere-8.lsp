@@ -2382,11 +2382,11 @@ Modificando la versione iterativa possiamo ottenere tutta la sequenza di lunghez
 ;-> (1 1 1 2 2 3 4 5 7 9 12 16 21 28 37 49 65 86 114 151 200)
 
 
-----------
-Fattorione
-----------
+------------------------------------
+Fattorione (numero di krishnamurthy)
+------------------------------------
 
-Un numero fattorione è un numero che è uguale alla somma dei fattoriali di ogni sua cifra, cioè un numero è un fattorione se risulta:
+Un numero fattorione (o numero di krishnamurthy) è un numero che è uguale alla somma dei fattoriali di ogni sua cifra, cioè un numero è un fattorione se risulta:
 
   numero = d1! + d2! + d3! + ... + dn!
   dove d1..dn sono le cifre del numero

@@ -814,5 +814,192 @@ Nota: per k=1 dobbiamo ottenere risultati simili a "p2" e "p2-sim".
 
 I risultati matematici e quelli delle simulazioni sono congruenti.
 
+
+-------------------------------
+Invertire le cifre di un numero
+-------------------------------
+
+Dato un numero intero positivo, invertire le sue cifre.
+
+Nota: nei numeri invertiti le cifre iniziali che valgono 0 vengono eleminate, per esempio, 52100 diventa 00125, cioè 125.
+
+Metodo iterativo:
+
+Algoritmo
+1) Inizializzare rev = 0
+2) Ciclo mentre num > 0
+     (a) Moltiplicare rev per 10 e aggiungiere
+         il resto di num diviso per 10 a rev:
+         rev = rev*10 + num%10
+     (b) Dividire num per 10
+3) Restituire rev
+
+Esempio, numero = 7742:
+  num: 7742, rev: 0
+  num: 774, rev: 2
+  num: 77, rev: 24
+  num: 7, rev: 247
+  num: 0, rev: 2477
+
+(define (invert-digit num)
+  (let (rev 0)
+    (while (> num 0)
+      ;(println "num: " num ", rev: " rev)
+      (setq rev (+ (% num 10) (* rev 10)))
+      (setq num (/ num 10))
+    )
+    ;(println "num: " num ", rev: " rev)
+    rev))
+
+(invert-digit 7742)
+;-> 2477
+(invert-digit 1234567890)
+;-> 987654321
+(invert-digit 1000)
+;-> 1
+
+Metodo newLISP:
+
+(define (inv-dig num) (int (reverse (string num)) 0 10))
+(inv-dig 7742)
+;-> 2477
+(inv-dig 1234567890)
+;-> 987654321
+(inv-dig 1000)
+
+Vediamo se le due funzioni producono gli stessi risultati:
+
+(silent (setq data (rand 1e7 1e3)))
+(= (map invert-digit data)
+   (map inv-dig data))
+;-> true
+
+Vediamo la velocità delle due funzioni
+
+(silent (setq data (rand 1e7 1e4)))
+(time (map invert-digit data) 1000)
+;-> 11559.936
+(time (map inv-dig data) 1000)
+;-> 5573.95
+
+
+----------------------------
+Fattorioni e anti-fattorioni
+----------------------------
+
+Un numero "fattorione" (o numero di krishnamurthy) è un numero che è uguale alla somma dei fattoriali di ogni sua cifra, cioè un numero è un fattorione se risulta:
+
+  numero = d1! + d2! + d3! + ... + dn!
+  dove d1..dn sono le cifre del numero
+
+Es. 145 = 1! + 4! + 5! = 1 + 24 + 120 = 145
+
+Sequenza OEIS A014080:
+  1, 2, 145, 40585
+
+Nota: è stato dimostrato (Poole, 1971) che questi sono gli unici fattorioni possibili.
+
+Un numero "anti-fattorione" è un numero la cui inversione di cifre è uguale alla somma dei fattoriali di ogni sua cifra, cioè un numero è un anti-fattorione se risulta:
+
+  reverse(numero) = dn..d3d2d1 = d1! + d2! + d3! + ... + dn!
+  dove d1..dn sono le cifre del numero
+
+Nota: nei numeri invertiti le cifre iniziali che valgono 0 vengono eleminate, per esempio, 52100 diventa 00125, cioè 125.
+
+Es. 541 --> 145 = 1! + 4! + 5! = 1 + 24 + 120 = 145
+Es. 863180 --> 081368 = 0! + 8! + 1! + 3! + 6! + 8! =
+                      = 1 + 40320 + 1 + 6 + 720 + 40320 = 81368
+
+Sequenza OEIS A101702:
+  1, 2, 541, 52100, 58504, 66410, 430000, 863180, 8601400, 17927300,
+  27927300, 31000000, 665100000, 3715000000, 6739630000, 11000000000,
+  21000000000, 53100000000, 70858000000, 79637300000, 451000000000,
+  1715000000000, 2715000000000, 48304000000000, ...
+
+Funzione che calcola la somma dei fattoriali delle cifre di un dato numero:
+
+(define (sum-digit-fact num)
+       ; precodifica dei fattoriali da 0 a 9
+  (let ((fact '(1 1 2 6 24 120 720 5040 40320 362880))
+        (temp num) (out 0))
+    (while (> temp 0)
+      (setq out (+ out (fact (% temp 10))))
+      (setq temp (/ temp 10))
+    )
+    out))
+
+Funzione che verifica se un numero è un fattorione:
+
+(define (fattorione? num)
+  (= (sum-digit-fact num) num))
+
+Calcoliamo i fattorioni fino a 10 milioni:
+
+(time (println (filter fattorione? (sequence 1 1e7))))
+;-> (1 2 145 40585)
+;-> 14201.792
+
+Funzione che verifica se un numero è un anti-fattorione:
+
+(define (anti-fattorione? num)
+  (= (sum-digit-fact num) (int (reverse (string num)) 0 10)))
+
+Calcoliamo gli anti-fattorioni fino a 10 milioni:
+
+(time (println (filter anti-fattorione? (sequence 1 1e7))))
+;-> (1 2 541 52100 58504 66410 430000 863180 8601400)
+;-> 19845.029
+
+Funzione che verifica se un numero è un anti-fattorione:
+
+(define (anti? num)
+  (local (fact rev sum tmp)
+    ; precodifica dei fattoriali da 0 a 9
+    (setq fact '(1 1 2 6 24 120 720 5040 40320 362880))
+    ; numero invertito
+    (setq rev 0)
+    ; somma dei fattoriali delle cifre
+    (setq sum 0)
+    (while (> num 0)
+      (setq tmp (% num 10))
+      (setq sum (+ sum (fact tmp)))
+      (setq rev (+ (* rev 10) tmp))
+      (setq num (/ num 10))
+    )
+    (= sum rev)))
+
+(time (println (filter anti? (sequence 1 1e7))))
+;-> (1 2 541 52100 58504 66410 430000 863180 8601400)
+;-> 23865.854
+
+Funzione che calcola gli anti-fattorioni fino ad un dato limite:
+
+(define (find-anti limit)
+  (local (fact num rev sum out tmp)
+    ; precodifica dei fattoriali da 0 a 9
+    (setq fact '(1 1 2 6 24 120 720 5040 40320 362880))
+    (setq out '())
+    (for (i 1 limit)
+      ; numero corrente
+      (setq num i)
+      ; numero invertito
+      (setq rev 0)
+      ; somma dei fattoriali delle cifre
+      (setq sum 0)
+      (while (> num 0)
+        (setq tmp (% num 10))
+        (setq sum (+ sum (fact tmp)))
+        (setq rev (+ (* rev 10) tmp))
+        (setq num (/ num 10))
+      )
+      ;(println i { } rev { } sum)
+      (if (= sum rev) (push i out -1))
+    )
+    out))
+
+(time (println (find-anti 1e7)))
+;-> (1 2 541 52100 58504 66410 430000 863180 8601400)
+;-> 16482.133
+
 =============================================================================
 

@@ -1150,7 +1150,7 @@ NOTE LIBERE 8
   Numeri figurati poligonali
   (* x x) è più veloce di (pow x 2)
   Sequenza di Padovan
-  Fattorione
+  Fattorione (numero di krishnamurthy)
   Numeri Star
   Numeri emirp
   Numeri con tutte le cifre uguali
@@ -1623,6 +1623,8 @@ NOTE LIBERE 14
   Captcha
   Somma della serie (n/1) + (n/2) + (n/3) + (n/4) + ... + (n/n)
   Palline e contenitori (Balls and Bins)
+  Invertire le cifre di un numero
+  Fattorioni e anti-fattorioni
 
 APPENDICI
 =========
