@@ -1552,6 +1552,12 @@ Calcula il CRC a 32-bit dal buffer di str-data, iniziando con un valore di CRC u
 (crc32 "abcdefghijklmnopqrstuvwxyz")
 ;-> 1277644989
 
+(map crc32 (map string (sequence 1 20)))
+;-> (2212294583 450215437 1842515611 4088798008 2226203566 498629140
+;->  1790921346 4194326291 2366072709 2707236321 3596227959 1330857165
+;->  945058907 2788221432 3510096238 1212055764 1060745282 2944839123
+;->  3632373061 2322626082)
+
 La funzione "crc32" viene spesso utilizzato per verificare l'integrità dei dati nelle trasmissioni di dati non sicure.
 
 Nel forum di newLISP l'utente Sammo ha proposto la seguente versione:
@@ -1737,6 +1743,19 @@ Possiamo anche usare la seguente funzione per fare il parsing di una stringa:
 
 (split "Hi++++Hello-----Bye!" "+-!")
 ;-> ("Hi" "Hello" "Bye")
+
+La funzione "parse" genera stringhe vuote per poter leggere i file CSV e altri Db di tipo testo:
+
+(parse "1,2,, 3,4")
+;-> ("1" "," "2" "," "," "3" "," "4")
+
+(parse "1,2,, 3,4" ",| " 0)
+;-> ("1" "2" "" "" "3" "4")
+
+Per evitare di creare stringhe vuote possiamo usare un regex:
+
+(parse "1,2,, 3,4" "(,| )+" 0)
+;-> ("1" "2" "3" "4")
 
 
 --------------------------------------

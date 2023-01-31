@@ -8557,6 +8557,20 @@ Vediamo due esempi di utilizzo delle macro:
 (fibo 10)
 ;-> 55
 
+macro "push-end" (Dmi)
+----------------------
+Inserisce un elemento in fondo alla lista (primitiva in newLISP 10.7.5):
+
+(define-macro (push-end:push-end _l_push _lst_push)
+    "(push-end item list) - push item to the end of the list"
+    (eval (list 'push (quote (eval _l_push)) _lst_push -1)))
+
+(setq a '(1 2 3))
+(push-end:push-end 4 a)
+;-> (1 2 3 4)
+(push-end 5 a)
+;-> (1 2 3 4 5)
+
 macro "my-or" (Kazimir Majorinc)
 --------------------------------
 Questa macro simula la funzione boolena "or".

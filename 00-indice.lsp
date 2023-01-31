@@ -1625,6 +1625,7 @@ NOTE LIBERE 14
   Palline e contenitori (Balls and Bins)
   Invertire le cifre di un numero
   Fattorioni e anti-fattorioni
+  Stelle e barre (Stars and bars)
 
 APPENDICI
 =========

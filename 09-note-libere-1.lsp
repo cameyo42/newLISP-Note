@@ -515,6 +515,9 @@ Nella seconda sintassi, directory può accettare un modello di espressione regol
 
 L'espressione regolare forza la directory a restituire solo i nomi di file contenenti la stringa ".c".
 
+; tutte le cartelle e i file tranne "." e "..":
+(directory "./" "[^.\*]" 0)
+
 ***********************
 >>>funzione DIRECTORY?
 ***********************

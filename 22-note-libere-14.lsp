@@ -1001,5 +1001,207 @@ Funzione che calcola gli anti-fattorioni fino ad un dato limite:
 ;-> (1 2 541 52100 58504 66410 430000 863180 8601400)
 ;-> 16482.133
 
+
+-------------------------------
+Stelle e barre (Stars and bars)
+-------------------------------
+
+Quanti sono i modi possibili di nettere m palline in n contenitori?
+
+Il numero di modi per mettere m oggetti identici in n contenitori vale:
+
+  binom(m + n - 1, m) = binom(m + n − 1, n − 1)
+
+La prova consiste nel trasformare gli oggetti in stelle e separare le scatole usando delle barre (da qui il nome).
+Per esempio. possiamo rappresentare con *|**||** la seguente situazione: nel primo box c'è un oggetto, nel secondo box ci sono due oggetti, il terzo è vuoto e nell'ultimo box ci sono due oggetti. Questo è un modo per dividere 5 oggetti in 4 caselle.
+
+Possiamo notare che ogni partizione può essere rappresentata usando m stelle e n - 1 barre e ogni permutazione di stelle e barre usando m stelle e n - 1 barre rappresenta una partizione.
+
+Pertanto il numero di modi per dividere m oggetti identici in n contenitori è lo stesso numero delle permutazioni di m stelle e n - 1 barre. Il coefficiente binomiale ci fornisce la formula desiderata:
+
+   binom(m + n − 1, n − 1) = binom(m + n − 1, m)
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (modi m n)
+  ;(binom (+ m n (- 1)) (- n 1))
+  (binom (+ m n (- 1)) m))
+
+3 palline in 4 contenitori:
+(modi 3 4)
+;-> 20L
+3 palline in 5 contenitori:
+(modi 3 5)
+;-> 21L
+100 palline in 10 contenitori:
+(modi 100 10)
+;-> 4263421511271L
+
+Possiamo scrivere una funzione che visualizza tutte le combinazioni.
+
+Rappresentiamo una configurazione di "star and bar" (stelle e barre) con una lista.
+Vediamo alcuni esempi:
+
+  Lista      Stars and Bars
+  (5 0 0)    *****||
+  (2 3 0)    **|***|
+  (0 5 0)    |*****|
+  (4 0 1)    ****||*
+  (3 1 1)    ***|*|*
+  (0 4 1)    |****|*
+  (1 1 3)    *|*|***
+  (0 2 3)    |**|***
+  (1 0 4)    *||****
+  (0 0 5)    ||*****
+
+m --> stars
+n --> bars
+
+Versione ricorsiva:
+
+(define (stars-bars m n show)
+  (local (out)
+    (setq out '())
+    ;(aux-sb m n (dup "0" n true))
+    (aux-sb m n (array n '(0)))
+    out))
+
+(define (aux-sb m n lst)
+  ; lst contiene la disposizione corrente
+        ; condizione di stop
+  (cond ((zero? n)
+         (push (array-list lst) out -1)
+         (if show (begin (print lst "   ") (print-sb lst))))
+        ; assicura che tutte le star sono distribuite
+        ((= n 1)
+          (setf (lst 0) m)
+          (aux-sb 0 0 lst))
+        ; ricorsione regolare
+        (true
+          (for (i 0 m)
+            (setf (lst (- n 1)) i)
+            ; l'ultimo contenitore ha i stars, imposta e ricorsione
+            (aux-sb (- m i) (- n 1) lst)
+          ))))
+
+(define (print-sb lst)
+  (local (s len)
+    (setq len (length lst))
+    (setq s "")
+    (dolist (el lst)
+      (cond ((= el 0)
+              (if (!= $idx (- len 1))
+                (extend s "|")))
+            ((> el 0)
+              (if (!= $idx (- len 1))
+                  (extend s (dup "*" el) "|")
+                  (extend s (dup "*" el))))
+      )
+    )
+    (println s)))
+
+(stars-bars 3 4 true)
+;-> (3 0 0 0)   ***|||
+;-> (2 1 0 0)   **|*||
+;-> (1 2 0 0)   *|**||
+;-> (0 3 0 0)   |***||
+;-> (2 0 1 0)   **||*|
+;-> (1 1 1 0)   *|*|*|
+;-> (0 2 1 0)   |**|*|
+;-> (1 0 2 0)   *||**|
+;-> (0 1 2 0)   |*|**|
+;-> (0 0 3 0)   ||***|
+;-> (2 0 0 1)   **|||*
+;-> (1 1 0 1)   *|*||*
+;-> (0 2 0 1)   |**||*
+;-> (1 0 1 1)   *||*|*
+;-> (0 1 1 1)   |*|*|*
+;-> (0 0 2 1)   ||**|*
+;-> (1 0 0 2)   *|||**
+;-> (0 1 0 2)   |*||**
+;-> (0 0 1 2)   ||*|**
+;-> (0 0 0 3)   |||***
+;-> ((3 0 0 0) (2 1 0 0) (1 2 0 0) (0 3 0 0) (2 0 1 0) (1 1 1 0)
+;->  (0 2 1 0) (1 0 2 0) (0 1 2 0) (0 0 3 0) (2 0 0 1) (1 1 0 1)
+;->  (0 2 0 1) (1 0 1 1) (0 1 1 1) (0 0 2 1) (1 0 0 2) (0 1 0 2)
+;->  (0 0 1 2) (0 0 0 3))
+ 
+(stars-bars 5 3 true)
+;-> (5 0 0)   *****||
+;-> (4 1 0)   ****|*|
+;-> (3 2 0)   ***|**|
+;-> (2 3 0)   **|***|
+;-> (1 4 0)   *|****|
+;-> (0 5 0)   |*****|
+;-> (4 0 1)   ****||*
+;-> (3 1 1)   ***|*|*
+;-> (2 2 1)   **|**|*
+;-> (1 3 1)   *|***|*
+;-> (0 4 1)   |****|*
+;-> (3 0 2)   ***||**
+;-> (2 1 2)   **|*|**
+;-> (1 2 2)   *|**|**
+;-> (0 3 2)   |***|**
+;-> (2 0 3)   **||***
+;-> (1 1 3)   *|*|***
+;-> (0 2 3)   |**|***
+;-> (1 0 4)   *||****
+;-> (0 1 4)   |*|****
+;-> (0 0 5)   ||*****
+
+Versione iterativa:
+
+(define (star-bar m n)
+  (local (out bins stop nz)
+    (setq out '())
+    (setq bins (array n '(0)))
+    ; situazione iniziale
+    (setf (bins 0) m)
+    (setq stop nil)
+    (until stop
+      (push (array-list bins) out -1)
+            ; ultima configurazione, stop
+      (cond ((= (bins -1) m)
+            (setq stop true))
+            ; movimento della barra più a sinistra (loop interno)
+            ((> (bins 0) 0)
+              (-- (bins 0))
+              (++ (bins 1)))
+            (true
+              # inserisce la barra successiva nei cicli
+              # ovvero, trova la prima voce diversa da zero e la divide
+              (setq nz 1)
+              (while (zero? (bins nz))
+                (++ nz))
+              (setf (bins 0) (- (bins nz) 1))
+              (++ (bins (+ nz 1)))
+              (setf (bins nz) 0))
+      )
+    )
+    out))
+
+(star-bar 3 4)
+;-> ((3 0 0 0) (2 1 0 0) (1 2 0 0) (0 3 0 0) (2 0 1 0) (1 1 1 0)
+;->  (0 2 1 0) (1 0 2 0) (0 1 2 0) (0 0 3 0) (2 0 0 1) (1 1 0 1)
+;->  (0 2 0 1) (1 0 1 1) (0 1 1 1) (0 0 2 1) (1 0 0 2) (0 1 0 2)
+;->  (0 0 1 2) (0 0 0 3))
+
+Vediamo se le due funzioni producono risultati uguali:
+
+(= (sort (stars-bars 6 5)) (sort (star-bar 6 5)))
+;-> true
+(= (sort (stars-bars 7 2)) (sort (star-bar 7 2)))
+;-> true
+
 =============================================================================
 

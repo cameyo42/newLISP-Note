@@ -9,7 +9,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 02) Funzioni varie (111)
 03) newLISP 99 problemi (28)
 04) Rosetta code (101)
-05) Project eulero (125)
+05) Project eulero (126)
 06) Problemi vari (81)
 07) Domande programmatori (101)
 08) Librerie (10)
@@ -26,7 +26,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 19) Note libere 11 (80)
 20) Note libere 12 (80)
 21) Note libere 13 (80)
-21) Note libere 14 (10)
+21) Note libere 14 (11)
 97) Appendici (25)
 98) Bibliografia
 99) yo library (yo.zip) (228)
