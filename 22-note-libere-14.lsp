@@ -1203,5 +1203,186 @@ Vediamo se le due funzioni producono risultati uguali:
 (= (sort (stars-bars 7 2)) (sort (star-bar 7 2)))
 ;-> true
 
+
+-----------------------------
+La funzione "yield" di python
+-----------------------------
+
+Quando ho bisogno di convertire codice dal linguaggio python alle volte trovo la funzione "yield".
+Per capire nei dettagli tale funzione vedere:
+
+https://stackoverflow.com/questions/231767/what-does-the-yield-keyword-do
+
+Vediamo un "trucco" per convertire "yield" in codice newLISP (in maniera brutale e assolutamente non equivalente, ma serve per capire cosa accade):
+
+Quando vediamo una funzione con istruzioni "yield":
+
+1) Inserire una riga (setq result '()) all'inizio della funzione.
+2) Sostituire ogni "yield" expr con (push expr result -1).
+3) Inserire una riga che restituisce result alla fine della funzione.
+
+Questo trucco può darci un'idea della logica alla base della funzione, ma ciò che effettivamente accade con yield è significativamente diverso da ciò che accade nell'approccio basato su liste. In molti casi, l'approccio yield sarà molto più efficiente in termini di memoria e anche più veloce. In altri casi, questo trucco ti farà rimanere bloccato in un ciclo infinito, anche se la funzione originale funziona perfettamente.
+
+Vediamo un semplice esempio:
+
+# funzione per creare un generatore
+def creaGeneratore():
+	lista=range(4)
+	for numero in lista:
+		yield numero*numero
+
+# crea un generatore di tipo creaGeneratore
+generatore=creaGeneratore() 
+
+# restituisce un oggetto
+print(generatore)
+;-> <generator object creaGeneratore at 0x7fe225ce5630>
+
+#uso del generatore
+for numero in generatore:
+	print(numero)
+;-> 0
+;-> 1
+;-> 4
+;-> 9
+
+In newLISP possiamo scrivere:
+
+(define (test n)
+  (local (lista result)
+    (setq result '())
+    (setq lista (sequence 0 (- n 1)))
+    (dolist (numero lista)
+      (push (* numero numero) result -1)
+    )
+    result))
+
+(test 4)
+;-> (0 1 4 9)
+
+
+--------------------------------------------
+Riflessione di un punto P lungo una linea AB
+--------------------------------------------
+
+Dato un punto P e una retta determinata dai punti A e B, calcolare le coordinate del punto Pr che è la riflessione del punto P attraverso la linea AB.
+
+Esempio di riflessione lungo una linea verticale (tipo specchio).
+
+          A
+          * 
+          |
+  p1      |    p1r
+   *      |     *
+     p2   |  p2r
+      *   |   *
+          |
+    p3    |   p3r
+     *    |    *
+          |
+          *
+          B
+
+Algoritmo
+---------
+1.Traslazione (spostamento dell'origine in A): sottrarre A da tutti i punti.
+
+  Pt = P-A
+  Bt = B-A
+
+At è l'origine.
+
+2. Rotazione (spostamento di BtAt sull'asse X): dividere tutti i punti per Bt (dividere significa ruotare in senso orario, che qui è il requisito per portarsi sull'asse X).
+
+  Pr = Pt/Bt
+
+3. Riflessione di Pr su BrAr (che non è altro che l'asse X): prendere semplicemente il coniugato del punto.
+
+  Pr-riflesso = conj(Pr)
+
+4. Ripristino dalla rotazione: moltiplicare tutti i punti per Bt.
+
+  Pt-riflesso = conj(Pr)*Bt
+
+5. Ripristino dalla traslazione: aggiungere A a tutti i punti.
+
+  P-riflesso = conj(Pr)*Bt + A
+
+Quindi in definitiva:
+
+Restituire conj(Pr)*Bt + A
+dove, Bt = B – A 
+      Pt = P – A 
+      Pr = Pt/Bt
+
+Nota: tutte le operazioni sono con i numeri complessi.
+
+Per una spiegazione completa vedi: 
+https://www.geeksforgeeks.org/reflection-point-line-c/
+
+Funzioni con i numeri complessi:
+
+; Extract real part "real"
+(define (real num) (first num))
+; Extract imaginary part "imag"
+(define (imag num) (last num))
+;
+;;  (cx-add '(2 4) '(3 2)) ==> (5 6)
+(define (cx-add num1 num2)
+"Addition of two complex number (cartesian)"
+  (list (add (real num1) (real num2)) (add (imag num1) (imag num2))))
+;
+;; (cx-sub '(5 6) '(3 2)) ==> (2 4)
+(define (cx-sub num1 num2)
+"Subtraction of two complex number (cartesian)"
+  (list (sub (real num1) (real num2)) (sub (imag num1) (imag num2))))
+;; (cx-mul '(5 6) '(3 2)) ==> (3 28)
+;
+(define (cx-mul num1 num2)
+"Multiplication of two complex number (cartesian)"
+  (list (sub (mul (real num1) (real num2)) (mul (imag num1) (imag num2)))
+        (add (mul (imag num1) (real num2)) (mul (real num1) (imag num2)))))
+;; (cx-div '(3 28) '(3 2)) ==> (5 6)
+;
+(define (cx-div num1 num2)
+"Division of two complex number (cartesian)"
+  (if (and (zero? (real num2)) (zero? imag num2))
+    (list nil nil())
+    (list (div (add (mul (real num1) (real num2)) (mul (imag num1) (imag num2)))
+               (add (mul (real num2) (real num2)) (mul (imag num2) (imag num2))))
+          (div (sub (mul (imag num1) (real num2)) (mul (real num1) (imag num2)))
+               (add (mul (real num2) (real num2)) (mul (imag num2) (imag num2)))))))
+;
+; (cx-conj '(-10 3)) ==> (-10 -3)
+(define (cx-conj num)
+"Conjugate of a complex number"
+  (list (real num) (sub (imag num))))
+
+Funzione che riflette il Punto P attraverso la linea AB:
+
+(define (reflect p a b)
+  (local (pt bt pr)
+  ; Performing translation and shifting origin at A
+  (setq pt (cx-sub p a))
+  (setq bt (cx-sub b a))
+  ; Performing rotation in clockwise direction
+  ; BtAt becomes the X-Axis in the new coordinate system
+  (setq pr (cx-div pt bt))
+  ; Reflection of Pr about the new X-Axis
+  ; Followed by restoring from rotation
+  ; Followed by restoring from translation
+  (cx-add a (cx-mul (cx-conj pr) bt))))
+
+Facciamo alcune prove:
+
+(reflect '(4 7) '(1 1) '(3 3))
+;-> (7 4)
+
+(reflect '(-2 -2) '(0 0) '(0 1))
+;-> (2 -2)
+
+(reflect '(-2 -2) '(-1 1) '(1 -1))
+;-> (2 2)
+
 =============================================================================
 

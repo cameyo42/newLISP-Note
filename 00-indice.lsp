@@ -331,7 +331,7 @@ ROSETTA CODE
 PROJECT EULERO
 ==============
   Problemi 1..105, 108..110, 112..115, 119..125,
-           135, 145, 173, 188, 191, 206
+           135, 145, 173, 188, 191, 206, 469
 
 PROBLEMI VARI
 =============
@@ -1626,6 +1626,8 @@ NOTE LIBERE 14
   Invertire le cifre di un numero
   Fattorioni e anti-fattorioni
   Stelle e barre (Stars and bars)
+  La funzione "yield" di python
+  Riflessione di un punto P lungo una linea AB
 
 APPENDICI
 =========
@@ -1661,7 +1663,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (228 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (229 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
