@@ -1628,6 +1628,7 @@ NOTE LIBERE 14
   Stelle e barre (Stars and bars)
   La funzione "yield" di python
   Riflessione di un punto P lungo una linea AB
+  Quale nazione?
 
 APPENDICI
 =========

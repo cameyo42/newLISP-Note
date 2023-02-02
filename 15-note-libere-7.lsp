@@ -10427,7 +10427,7 @@ Poi una funzione in stile iterativo:
     (list (div sum-x num-points)
           (div sum-y num-points))))
 
-Per verificare la correttezza e la velocità delle due funzioni creiamo 1 milioni di punti casuali:
+Per verificare la correttezza e la velocità delle due funzioni creiamo 1 milione di punti casuali:
 
 (silent
   (setq x (random 1 100 1e6))

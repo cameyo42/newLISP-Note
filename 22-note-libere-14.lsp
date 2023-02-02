@@ -1227,9 +1227,9 @@ Vediamo un semplice esempio:
 
 # funzione per creare un generatore
 def creaGeneratore():
-	lista=range(4)
-	for numero in lista:
-		yield numero*numero
+  lista=range(4)
+  for numero in lista:
+    yield numero*numero
 
 # crea un generatore di tipo creaGeneratore
 generatore=creaGeneratore() 
@@ -1240,7 +1240,7 @@ print(generatore)
 
 #uso del generatore
 for numero in generatore:
-	print(numero)
+  print(numero)
 ;-> 0
 ;-> 1
 ;-> 4
@@ -1383,6 +1383,293 @@ Facciamo alcune prove:
 
 (reflect '(-2 -2) '(-1 1) '(1 -1))
 ;-> (2 2)
+
+
+--------------
+Quale nazione?
+--------------
+
+(define (which-nation)
+  (local (len flag)
+  (setq str "aO _Q \\U [[ TNPONZ SPN^ Ng Oh OePN Ob Nb Nc Ob Nb Nb ORPY QORY POVW [X [Y [[ \\Z \\Z ]Z [NNZ ^Y _Y aX aY c] c] d[ f\\ i[ j\\ SNPO`\\ TNNQaVNQ TSaUPQ TSaURP URcTSO UReP TSeQ URfR TSfR TRgR TRhP TPjO sP sO rO rO pN dNNPQQ dY dY fV hU iT lQ mP ")
+    (setq flag true)
+    (dostring (num str)
+      (cond ((= num 32) (println))
+            (true
+              (setq len (- num 77))
+              (if flag
+                  (print (dup " " len))
+                  (print (dup "█" len))
+              )
+              (setq flag (not flag)))))))
+
+(which-nation)
+;->                     ██
+;->                   ████
+;->                ████████
+;->               ██████████████
+;->        █   ██ █████████████
+;->       ███ █████████████████
+;->  ██████████████████████████
+;->   ███████████████████████████
+;->   ████████████████████████   █
+;->   █████████████████████
+;->  █████████████████████
+;->  ██████████████████████
+;->   █████████████████████
+;->  █████████████████████
+;->  █████████████████████
+;->   █████   ████████████
+;->     ██     ████████████
+;->    ██         ██████████
+;->               ███████████
+;->               ████████████
+;->               ██████████████
+;->                █████████████
+;->                █████████████
+;->                 █████████████
+;->               █ █████████████
+;->                  ████████████
+;->                   ████████████
+;->                     ███████████
+;->                     ████████████
+;->                       ████████████████
+;->                       ████████████████
+;->                        ██████████████
+;->                          ███████████████
+;->                             ██████████████
+;->                              ███████████████
+;->       █   ██                   ███████████████
+;->        █ ████                    █████████ ████
+;->        ██████                    ████████   ████
+;->        ██████                    ████████     ███
+;->         █████                      ███████      ██
+;->         █████                        ███
+;->        ██████                        ████
+;->         █████                         █████
+;->        ██████                         █████
+;->        █████                          █████
+;->        █████                           ███
+;->        ███                             ██
+;->                                       ███
+;->                                       ██
+;->                                      ██
+;->                                      ██
+;->                                    █
+;->                        █ ███    ████
+;->                        ████████████
+;->                        ████████████
+;->                          █████████
+;->                            ████████
+;->                             ███████
+;->                                ████
+;->                                 ███
+
+Come funziona?
+
+Ogni linea viene codificata come una lista di numeri:
+
+  (numero-spazi-bianchi numero-spazi-neri numero-spazi-bianchi ...)
+
+(setq a '(10 3 5 8 4 12 4))
+(setq b '(1 1 1 1 1 1 1 1 1 1))
+
+Funzione che stampa una linea:
+
+(define (line lst ch1 ch2)
+  (dolist (el lst)
+    (if (even? $idx) ; start with ch1
+        (print (dup ch1 el))
+        (print (dup ch2 el))
+    )
+  )
+  (println))
+
+(line a "-" "+")
+;-> ----------+++-----++++++++----++++++++++++----
+(line b "+" "-")
+;-> +-+-+-+-+-
+(line b " " "█")
+;->  █ █ █ █ █
+
+Funzione che stampa una lista di linee:
+
+(define (draw lst ch1 ch2)
+  (local ()
+    (dolist (el lst)
+      (line el ch1 ch2)
+    )
+  ))
+
+Creiamo una lista di linee casuali:
+
+(setq nums '())
+(for (i 1 10) (push (rand 10 10) nums -1))
+;-> ((0 5 1 8 5 4 3 8 8 7)
+;->  (1 8 7 5 3 0 0 3 1 1)
+;->  (9 4 1 0 0 3 5 5 6 6)
+;->  (1 6 4 3 0 6 7 8 5 3)
+;->  (8 7 9 9 5 1 4 2 8 2)
+;->  (7 8 9 9 6 3 2 2 8 0)
+;->  (3 0 6 0 0 9 2 2 5 6)
+;->  (8 7 4 2 7 4 4 9 7 1)
+;->  (5 3 7 6 5 3 1 2 4 8)
+;->  (5 9 7 3 1 6 4 0 6 5))
+
+Disegniamo questa lista di linee casuali:
+
+(draw nums "+" "-")
+;-> -----+--------+++++----+++--------++++++++-------
+;-> +--------+++++++-----+++---+-
+;-> +++++++++----+---+++++-----++++++------
+;-> +------++++---------+++++++--------+++++---
+;-> ++++++++-------+++++++++---------+++++-++++--++++++++--
+;-> +++++++--------+++++++++---------++++++---++--++++++++
+;-> +++++++++---------++--+++++------
+;-> ++++++++-------++++--+++++++----++++---------+++++++-
+;-> +++++---+++++++------+++++---+--++++--------
+;-> +++++---------+++++++---+------++++++++++-----
+;-> ++++++++-------++++--+++++++----++++---------+++++++-
+;-> +++++---+++++++------+++++---+--++++--------
+;-> +++++---------+++++++---+------++++++++++-----
+;-> +---------+---------++++++---+++++++++++++------
+;-> +--------++++++++-----+-++++++++----+-----
+;-> +++++++----++-----++++++-------+++++++----+---
+;-> +++++++++++++------++++-+++++++++---------+++++---
+;-> ++++---++++++++---++++--+++++++++--+++++++-----
+;-> +-------++++++++---+++++-----------------+++++
+;-> +++++-++++++++------++++++-++++++++-+-------
+
+Adesso usiamo le linee della nostra nazione (create con pazienza su un foglio a quadretti):
+
+(setq nazione '((20 2)
+                (18 4)
+                (15 8)
+                (14 14)
+                (7 1 3 2 1 13)
+                (6 3 1 17)
+                (1 26)
+                (2 27)
+                (2 24 3 1)
+                (2 21)
+                (1 21)
+                (1 22)
+                (2 21)
+                (1 21)
+                (1 21)
+                (2 5 3 12)
+                (4 2 5 12)
+                (3 2 9 10)
+                (14 11)
+                (14 12)
+                (14 14)
+                (15 13)
+                (15 13)
+                (16 13)
+                (14 1 1 13)
+                (17 12)
+                (18 12)
+                (20 11)
+                (20 12)
+                (22 16)
+                (22 16)
+                (23 14)
+                (25 15)
+                (28 14)
+                (29 15)
+                (6 1 3 2 19 15)
+                (7 1 1 4 20 9 1 4)
+                (7 6 20 8 3 4)
+                (7 6 20 8 5 3)
+                (8 5 22 7 6 2)
+                (8 5 24 3)
+                (7 6 24 4)
+                (8 5 25 5)
+                (7 6 25 5)
+                (7 5 26 5)
+                (7 5 27 3)
+                (7 3 29 2)
+                (38 3)
+                (38 2)
+                (37 2)
+                (37 2)
+                (35 1)
+                (23 1 1 3 4 4)
+                (23 12)
+                (23 12)
+                (25 9)
+                (27 8)
+                (28 7)
+                (31 4)
+                (32 3)
+                ))
+
+Disegniamo la nostra nazione:
+
+(draw nazione " " "█")
+
+Adesso trasformiamo la lista di coordinate in stringa nel modo seguente:
+
+(20 2) --> (char (+ 20 start)) (char (+ 2 start)) " "
+(18 4) --> (char (+ 18 start)) (char (+ 4 start)) " "
+
+Il carattere spazio " " indica la fine di una linea.
+
+(define (lines-str lst start)
+  (let (s "")
+    (dolist (el lst)
+      (dolist (num el)
+        (extend s (char (+ start num)))
+      )
+      (extend s " ")
+    )
+    s))
+
+(setq s (lines-str nazione 77))
+;-> "aO _Q \\U [[ TNPONZ SPN^ Ng Oh OePN Ob Nb Nc Ob Nb Nb ORPY QORY
+;->  POVW [X [Y [[ \\Z \\Z ]Z [NNZ ^Y _Y aX aY c] c] d[ f\\ i[ j\\
+;->  SNPO`\\ TNNQaVNQ TSaUPQ TSaURP URcTSO UReP TSeQ URfR TSfR TRgR
+;->  TRhP TPjO sP sO rO rO pN dNNPQQ dY dY fV hU iT lQ mP "
+
+Funzione che stampa la stringa come lista di linee:
+
+(define (plot str ch1 ch2)
+  (local (len flag start)
+    (setq flag true)
+    (setq start 77)
+    (dostring (num str)
+      (cond ((= num 32) (println))
+            (true
+              (setq len (- num start))
+              (if flag
+                  (print (dup ch1 len))
+                  (print (dup ch2 len))
+              )
+              (setq flag (not flag)))
+     ))))
+
+Disegniamo la nostra stringa:
+
+(plot s " " "█")
+
+Infine la funzione "which-nation":
+
+(define (which-nation)
+  (local (len flag start)
+  (setq str "aO _Q \\U [[ TNPONZ SPN^ Ng Oh OePN Ob Nb Nc Ob Nb Nb ORPY QORY POVW [X [Y [[ \\Z \\Z ]Z [NNZ ^Y _Y aX aY c] c] d[ f\\ i[ j\\ SNPO`\\ TNNQaVNQ TSaUPQ TSaURP URcTSO UReP TSeQ URfR TSfR TRgR TRhP TPjO sP sO rO rO pN dNNPQQ dY dY fV hU iT lQ mP ")
+    (setq flag true)
+    (setq start 77)
+    (dostring (num str)
+      (cond ((= num 32) (println))
+            (true
+              (setq len (- num start))
+              (if flag
+                  (print (dup " " len))
+                  (print (dup "█" len))
+              )
+              (setq flag (not flag)))))))
+
+Nota: l'Italia appare "allungata" perchè il rapporto della cella del terminale non è 1:1 (cioè non è un quadrato).
 
 =============================================================================
 
