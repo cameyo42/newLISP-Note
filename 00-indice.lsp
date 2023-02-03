@@ -1629,6 +1629,8 @@ NOTE LIBERE 14
   La funzione "yield" di python
   Riflessione di un punto P lungo una linea AB
   Quale nazione?
+  Reservoir Sampling
+  Punti di intersezione tra due circonferenze
 
 APPENDICI
 =========

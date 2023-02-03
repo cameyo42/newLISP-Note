@@ -1671,5 +1671,132 @@ Infine la funzione "which-nation":
 
 Nota: l'Italia appare "allungata" perchè il rapporto della cella del terminale non è 1:1 (cioè non è un quadrato).
 
+
+------------------
+Reservoir Sampling
+------------------
+
+Il Reservoir Sampling è una famiglia di algoritmi random per la scelta casuale di k elementi da una lista di n elementi, dove n è un numero molto grande.
+Data una lista di numeri scrivere una funzione per selezionare casualmente k numeri distinti, dove 1 <= k <= n.
+
+Questo problema può essere risolto in tempo O(n) con un'idea  simile a quella dell'algoritmo di mescolamento Fisher–Yates shuffle (vedi "Fisher-Yates shuffle" su "Note libere 7").
+
+Algoritmo
+1) Creare una lista reservoir[0..k-1] e copiare i primi k elementi di stream[].
+2) Considerare uno per uno tutti gli elementi dal (k+1)-esimo all'n-esimo elemento.
+   2a) Generare un numero casuale j da 0 a i dove i è l'indice dell'elemento corrente in stream[].
+   2b) Se j è compreso tra 0 e k-1, sostituire reservoir[j] con stream[i].
+
+(define (select-k lst k)
+  (local (reservoir len)
+    (setq len (length lst))
+    ; initializza reservoir con i primi k elementi di lst
+    (setq reservoir (slice lst 0 k))
+    ; indice per gli elementi di lst (parte da k)
+    (setq idx k)
+    ; ciclo 
+    (while (< idx len)
+      (setq j (rand (+ idx 1)))
+      (if (< j k) (setq (reservoir j) (lst idx)))
+      (++ idx)
+    )
+    reservoir))
+
+(setq a '(1 2 3 4 5 6 7 8 9 10 11 12))
+
+(select-k a 5)
+;-> (10 12 8 7 11)
+(select-k a 5)
+;-> (6 12 7 4 8)
+(select-k a 5)
+;-> (4 3 9 5 8)
+(select-k a 5)
+;-> (3 7 3 4 5)
+(select-k a 5)
+;-> (10 2 6 12 5)
+(select-k a 12)
+;-> (1 2 3 4 5 6 7 8 9 10 11 12)
+
+Test di correttezza sui valori distinti:
+
+Vediamo se vengono estratti valori multipli su 10000 selezioni di 500 elementi dalla lista (1..1000):
+
+(setq t (sequence 1 1000))
+(for (i 1 1e4)
+  (setq s (select-k t 500))
+  (if (!= s (unique s)) (println "Errore: " s))
+)
+;-> nil
+
+Test di correttezza statistica:
+
+Creiamo una lista con i valori di centomila selezioni di 10 elementi dalla lista (1..20)
+
+(silent
+  (setq c (sequence 1 20))
+  (setq all '())
+  (for (i 1 1e5)
+    (extend all (select-k c 10))
+  )
+)
+
+Contiamo le frequenze dei valori contenuti nella lista:
+
+(count c all)
+;-> (50151 50072 49527 50169 49983 50064 49863 49894 49861 50496 
+;->  49988 49893 50044 50089 50012 49972 50234 49906 49810 49972)
+
+
+-------------------------------------------
+Punti di intersezione tra due circonferenze
+-------------------------------------------
+
+Equazione del cerchio con centro C (cx, cy) e raggio R:
+
+  (x - cx)^2 - (y - cy)^2 = R^2
+
+Funzione che restituisce i punti di intersezione di due cerchi.
+
+Ogni cerchio è descritto dal suo centro (x,y) e raggio (r).
+
+(define (cc x0 y0 r0 x1 y1 r1)
+  (local (d a h x2 y2 x3 y3 x4 y4)
+    ; cerchio 1: (x0, y0), raggio r0
+    ; cerchio 2: (x1, y1), raggio r1
+    (setq d (sqrt (add (mul (sub x1 x0) (sub x1 x0))
+                       (mul (sub y1 y0) (sub y1 y0)))))
+    (cond ((> d (add r0 r1)) nil)        ; nessuna intersezione
+          ((< d (abs (sub r0 r1))) nil)  ; un cerchio incluso nell'altro
+          ((and (zero? d) (= 0 1)) nil ) ; cerchi coincidenti
+          (true                          ; intersezione
+            (setq a (div (add (mul r0 r0) (sub (mul r1 r1)) (mul d d))
+                         (mul 2 d)))
+            (setq h (sqrt (sub (mul r0 r0) (mul a a))))
+            (setq x2 (add x0 (div (mul a (sub x1 x0)) d)))
+            (setq y2 (add y0 (div (mul a (sub y1 y0)) d)))
+            (setq x3 (add x2 (div (mul h (sub y1 y0)) d)))
+            (setq y3 (sub y2 (div (mul h (sub x1 x0)) d)))
+            (setq x4 (sub x2 (div (mul h (sub y1 y0)) d)))
+            (setq y4 (add y2 (div (mul h (sub x1 x0)) d)))
+            (list x3 y3 x4 y4)))))
+
+Facciamo alcune prove:
+
+;cerchi inclusi uno nell'altro
+(cc 2 2 3 4 4 6)
+;-> nil
+; cerchi intersecanti
+(cc 7 3 9 -5 -3 6)
+;-> (-1.962019151721343 2.174038303442685 0.9620191517213417 -3.674038303442686)
+; cerchi intersecanti
+(cc 2 2 3 4 4 3)
+;-> (4.87082869338697 1.12917130661303 1.12917130661303 4.87082869338697)
+; cerchi tangenti esternamente
+(cc 0 0 2 5 0 3)
+;-> (2 0 2 0)
+; cerchi tangenti internamente
+(cc 0 0 4 2 0 2)
+;-> (4 0 4 0)
+
 =============================================================================
 

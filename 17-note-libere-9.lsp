@@ -6291,7 +6291,7 @@ Scriviamo la funzione:
             (setq b (sub (mul r2 r2 (acos (div d2 r2)))
                          (mul d2 (sqrt (sub (mul r2 r2) (mul d2 d2))))))
             (add a b))
-     )))
+    )))
 
 Facciamo alcune prove:
 
