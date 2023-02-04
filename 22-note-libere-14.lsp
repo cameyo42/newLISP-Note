@@ -1755,6 +1755,8 @@ Equazione del cerchio con centro C (cx, cy) e raggio R:
 
   (x - cx)^2 - (y - cy)^2 = R^2
 
+Algoritmo: http://paulbourke.net/geometry/circlesphere/
+
 Funzione che restituisce i punti di intersezione di due cerchi.
 
 Ogni cerchio è descritto dal suo centro (x,y) e raggio (r).
@@ -1797,6 +1799,275 @@ Facciamo alcune prove:
 ; cerchi tangenti internamente
 (cc 0 0 4 2 0 2)
 ;-> (4 0 4 0)
+
+Vedi anche "Area di intersezione tra due circonferenze" su "Note libere 9".
+
+
+-----------------
+Clessidra pattern
+-----------------
+
+Dato un numero positivo n, scrivere una funzione che stampa il seguente pattern numerico (clessidra).
+
+Per esempio con n = 5:
+
+ 1 2 3 4 5
+  2 3 4 5
+   3 4 5
+    4 5
+     5
+    4 5
+   3 4 5
+  2 3 4 5
+ 1 2 3 4 5
+
+(define (clessidra n)
+  (local (i j k)
+    ; parte superiore
+    (for (i 1 n)
+      ; stampa "i+1" spazi all'inizio della riga...
+      (for (k 1 i) (print " "))
+      ; ...poi stampa i valori da "i" a "n"
+      (for (j i n) (print j { }))
+      (println) ; nuova riga
+    )
+    ; parte inferiore
+    (for (i (- n 1) 1 -1)
+      ; stampa "i+1" spazi all'inizio della riga...
+      (for (k 1 i) (print " "))
+      ; ...poi stampa i valori da "i" a "n"
+      (for (j i n) (print j { }))
+      (println) ; nuova riga
+    )))
+
+(clessidra 9)
+;-> 1 2 3 4 5 6 7 8 9
+;->  2 3 4 5 6 7 8 9
+;->   3 4 5 6 7 8 9
+;->    4 5 6 7 8 9
+;->     5 6 7 8 9
+;->      6 7 8 9
+;->       7 8 9
+;->        8 9
+;->         9
+;->        8 9
+;->       7 8 9
+;->      6 7 8 9
+;->     5 6 7 8 9
+;->    4 5 6 7 8 9
+;->   3 4 5 6 7 8 9
+;->  2 3 4 5 6 7 8 9
+;-> 1 2 3 4 5 6 7 8 9
+
+
+----------------------------
+Punti interi e circonferenze
+----------------------------
+
+Dato un cerchio centrato nell'origine (0, 0) di raggio r, trovare tutti i punti interi (lattice points) che si trovano sulla circonferenza del cerchio.
+
+Nota: I punti interi (lattice points) sono tutti i punti con coordinate intere.
+
+Sequenza OEIS: A046109 
+  1, 4, 4, 4, 4, 12, 4, 4, 4, 4, 12, 4, 4, 12, 4, 12, 4, 12, 4, 4, 
+  12, 4, 4, 4, 4, 20, 12, 4, 4, 12, 12, 4, 4, 4, 12, 12, 4, 12, 4, 
+  12, 12, 12, 4, 4, 4, 12, 4, 4, 4, 4, 20, ...
+
+Per trovare i punti interi che giacciono sulla circonferenza, dobbiamo trovare i valori di (x, y) che soddisfano l'equazione x^2 + y^2 = r^2.
+Per qualsiasi valore di (x, y) che soddisfi l'equazione di cui sopra abbiamo un totale di 4 diverse combinazioni che soddisfano l'equazione.
+Ad esempio, se r = 10 e (6, 8) è una coppia che soddisfa l'equazione, allora diventano 4 combinazioni (6, 8) (-6, 8) (6, -8) (-6, -8).
+
+(define (circumference-points r)
+  (local (ysquare y out)
+    (cond ((zero? r) (setq out 1))
+          ((= r 1) (setq out 4))
+          (true
+            (setq out 4) ; (r, 0), (-r, 0), (0, r) e (0, -r)
+            (for (x 1 (- r 1))
+              (setq ysquare  (sub (mul r r) (mul x x)))
+              (setq y (int (sqrt ysquare)))
+              (if (= ysquare (mul y y))
+                (setq out (+ out 4)))))
+    )
+    out))
+
+(circumference-points 5)
+;-> 12
+(circumference-points 7)
+;-> 4
+(circumference-points 10)
+;-> 12
+
+(map circumference-points (sequence 0 50))
+;-> (1 4 4 4 4 12 4 4 4 4 12 4 4 12 4 12 4 12 4 4 12 4 4 4 4 20 12
+;->  4 4 12 12 4 4 4 12 12 4 12 4 12 12 12 4 4 4 12 4 4 4 4 20)
+
+Vediamo quali sono le coordinate dei punti sulla circonferenza del cerchio.
+
+(define (circumference-pts r)
+  (local (ysquare y four out)
+    (cond
+      ((zero? r) (setq out '((0 0))))
+      (true
+        ; (r, 0), (-r, 0), (0, r) e (0, -r)
+        (setq out (list (list r 0) (list (- r) 0) (list 0 r) (list 0 (- r))))
+        (for (x 1 (- r 1))
+          (setq ysquare  (sub (mul r r) (mul x x)))
+          (setq y (int (sqrt ysquare)))
+          (if (= ysquare (mul y y))
+            (begin
+              (setq four (list (list x y) (list (- x) y) (list x (- y)) (list (- x) (- y))))
+              (extend out four)))))
+    )
+    out))
+
+(circumference-pts 0)
+;-> ((0 0))
+
+(length (circumference-pts 5))
+;-> 12
+(length (circumference-pts 7))
+;-> 4
+(length (circumference-pts 10))
+;-> 12
+
+(circumference-pts 5)
+;-> ((5 0) (-5 0) (0 5) (0 -5) (3 4) (-3 4) (3 -4)
+;->  (-3 -4) (4 3) (-4 3) (4 -3) (-4 -3))
+(circumference-pts 10)
+;-> ((10 0) (-10 0) (0 10) (0 -10) (6 8) (-6 8)
+;->  (6 -8) (-6 -8) (8 6) (-8 6) (8 -6) (-8 -6))
+
+
+-----------------------------
+Problema del cerchio di Gauss
+-----------------------------
+
+Il problema del cerchio di Gauss è quello di determinare quanti punti interi del reticolo (lattice points) ci sono in un cerchio centrato nell'origine (0, 0) e di raggio r.
+Questo numero N(r) vale approssimativamente pi*r^2, l'area all'interno di un cerchio di raggio r.
+Questo perché in media ogni quadrato unitario contiene un punto del reticolo.
+
+Pertanto, il numero effettivo di punti reticolari nel cerchio è approssimativamente uguale alla sua area:
+
+  N(r) = π*r^2 + E(r)
+
+dove E(r) è un termine di errore con valore assoluto relativamente piccolo.
+
+Quindi il problema è delimitare l'errore rappresentato dalla differenza tra il numero di punti e l'area, cioè
+trovare un limite superiore e superiore per |E(r)|.
+Gauss ha dimostrato che per l'errore minimo assoluto vale la seguente relazione:
+
+  |E(min)| <= 2*(sqrt 2)*pi*r
+
+Inoltre è stato dimostrato che E(r) cresce, minimo, come r^(1/2) e, massimo, come r^131/208.
+Hardy e Landau (1915) per il limite minimo r^1/2.
+Martin Huxley (2000) per il limite massimo r^131/208.
+
+La sequenza di N(r) per r numero intero, genera la sequenza OEIS A000328:
+
+  1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441
+
+La sequenza dell'area pi*r^2 (arrotondata all'intero più vicino) per r numero intero, genera la sequenza OEIS A075726:
+
+  0, 3, 13, 28, 50, 79, 113, 154, 201, 254, 314, 380, 452
+
+Nota: il raggio r non deve essere necessariamente un numero intero.
+
+Funzione che calcola il numero punti lattice inclusi in un cerchio centrato in (0,0) di raggio r:
+
+(define (circle-points r)
+  (local (num r2)
+    (set 'num 0 'r2 (mul r r))
+    (for (m (- r) r 1)
+      (for (n (- r) r 1)
+        (if (<= (+ (* m m) (* n n)) r2)
+            (++ num)
+        )
+      )
+    )
+    num))
+
+(circle-points 12)
+;-> 441
+
+Sequenza OEIS A000328:
+
+(map circle-points (sequence 0 20))
+;-> (1 5 13 29 49 81 113 149 197 253 317 377 441
+;->  529 613 709 797 901 1009 1129 1257)
+
+(circle-points (sqrt 17))
+;-> 57
+
+Funzione che calcola l'area di un cerchio con centro in (0,0) e raggio r (integer):
+
+(define (circle-area-int r)
+  (int (add 0.5 (mul 3.1415926535897931 r r))))
+
+(circle-area-int 12)
+;-> 452
+
+Sequenza OEIS A075726:
+
+(map circle-area-int (sequence 0 20))
+;-> (0 3 13 28 50 79 113 154 201 254 314 380 452
+;->  531 616 707 804 908 1018 1134 1257)
+
+Funzione che calcola l'area di un cerchio con centro in (0,0) e raggio r (float):
+
+(define (circle-area-float r)
+  (mul 3.1415926535897931 r r))
+
+(circle-area-float 12)
+;-> 452.3893421169302
+
+(map circle-area-float (sequence 0 20))
+;-> (0 3.141592653589793 12.56637061435917 28.27433388230814 50.26548245743669
+;->  78.53981633974483 113.0973355292326 153.9380400258999 201.0619298297468
+;->  254.4690049407732 314.1592653589793 380.1327110843649 452.3893421169302
+;->  530.9291584566751 615.7521601035994 706.8583470577034 804.247719318987
+;->  907.9202768874503 1017.876019763093 1134.114947945915 1256.637061435917)
+
+Gauss ha dimostrato che vale la seguente relazione:
+
+  |E(min)| <= 2*(sqrt 2)*pi*r
+
+(define (min-E r)
+  (mul 2 (sqrt 2) 3.1415926535897931 r))
+
+Vediamo se la relazione è corretta per r = 1..iter:
+
+(define (test-min iter)
+  (for (r 1 iter)
+    (if (< (min-E r) (abs (sub (circle-points r) (circle-area-int r))))
+        (println r))))
+
+(time (println (test-min 1e3)))
+;-> nil
+;-> 171916.522 ; 3 minuti 11 secondi
+
+Adesso vediamo quali sono le coordinate dei punti interni al cerchio.
+
+(define (circle-pts r)
+  (local (r2 out)
+    (set 'r2 (mul r r) 'out '())
+    (for (m (- r) r 1)
+      (for (n (- r) r 1)
+        (if (<= (+ (* m m) (* n n)) r2)
+            (push (list m n) out -1)
+        )
+      )
+    )
+    out))
+
+(length (circle-pts 12))
+;-> 441
+(setq all (circle-pts 4))
+;-> ((-4 0) (-3 -2) (-3 -1) (-3 0) (-3 1) (-3 2) (-2 -3) (-2 -2) (-2 -1) 
+;->  (-2 0) (-2 1) (-2 2) (-2 3) (-1 -3) (-1 -2) (-1 -1) (-1 0) (-1 1)
+;->  (-1 2) (-1 3) (0 -4) (0 -3) (0 -2) (0 -1) (0 0) (0 1) (0 2) (0 3)
+;->  (0 4) (1 -3) (1 -2) (1 -1) (1 0) (1 1) (1 2) (1 3) (2 -3) (2 -2)
+;->  (2 -1) (2 0) (2 1) (2 2) (2 3) (3 -2) (3 -1) (3 0) (3 1) (3 2) (4 0))
 
 =============================================================================
 

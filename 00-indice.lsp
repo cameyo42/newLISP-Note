@@ -1631,6 +1631,9 @@ NOTE LIBERE 14
   Quale nazione?
   Reservoir Sampling
   Punti di intersezione tra due circonferenze
+  Clessidra pattern
+  Punti interi e circonferenze
+  Problema del cerchio di Gauss
 
 APPENDICI
 =========
