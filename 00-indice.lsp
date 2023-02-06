@@ -1634,6 +1634,8 @@ NOTE LIBERE 14
   Clessidra pattern
   Punti interi e circonferenze
   Problema del cerchio di Gauss
+  Confronto tra numeri
+  Storia di una intervista per programmatori (Programming interview)
 
 APPENDICI
 =========

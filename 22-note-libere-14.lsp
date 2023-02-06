@@ -1859,6 +1859,44 @@ Per esempio con n = 5:
 ;->  2 3 4 5 6 7 8 9
 ;-> 1 2 3 4 5 6 7 8 9
 
+(define (clessidra2 n)
+  (local (i j k)
+    ; parte superiore
+    (for (i 1 n)
+      ; stampa "i+1" spazi all'inizio della riga...
+      (for (k 1 i) (print " "))
+      ; ...poi stampa i valori da 1 a n+1-i
+      (for (j 1 (+ n 1 (- i))) (print j { }))
+      (println) ; nuova riga
+    )
+    ; parte inferiore
+    (for (i (- n 1) 1 -1)
+      ; stampa "i+1" spazi all'inizio della riga...
+      (for (k 1 i) (print " "))
+      ; ...poi stampa i valori da 1 a n+1-i
+      (for (j 1 (+ n 1 (- i))) (print j { }))
+      (println) ; nuova riga
+    )))
+
+(clessidra2 9)
+;-> 1 2 3 4 5 6 7 8 9
+;->  1 2 3 4 5 6 7 8
+;->   1 2 3 4 5 6 7
+;->    1 2 3 4 5 6
+;->     1 2 3 4 5
+;->      1 2 3 4
+;->       1 2 3
+;->        1 2
+;->         1
+;->        1 2
+;->       1 2 3
+;->      1 2 3 4
+;->     1 2 3 4 5
+;->    1 2 3 4 5 6
+;->   1 2 3 4 5 6 7
+;->  1 2 3 4 5 6 7 8
+;-> 1 2 3 4 5 6 7 8 9
+
 
 ----------------------------
 Punti interi e circonferenze
@@ -2068,6 +2106,193 @@ Adesso vediamo quali sono le coordinate dei punti interni al cerchio.
 ;->  (-1 2) (-1 3) (0 -4) (0 -3) (0 -2) (0 -1) (0 0) (0 1) (0 2) (0 3)
 ;->  (0 4) (1 -3) (1 -2) (1 -1) (1 0) (1 1) (1 2) (1 3) (2 -3) (2 -2)
 ;->  (2 -1) (2 0) (2 1) (2 2) (2 3) (3 -2) (3 -1) (3 0) (3 1) (3 2) (4 0))
+
+
+--------------------
+Confronto tra numeri
+--------------------
+
+Le seguenti definizioni sono tratte da "The art of computer programming" di Donald Knuth:
+
+bool approximatelyEqual(float a, float b, float epsilon)
+{
+  return fabs(a - b) <= ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+bool essentiallyEqual(float a, float b, float epsilon)
+{
+  return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+bool definitelyGreaterThan(float a, float b, float epsilon)
+{
+  return (a - b) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+bool definitelyLessThan(float a, float b, float epsilon)
+{
+  return (b - a) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
+Ovviamente, la scelta di epsilon dipende dal contesto e determina quanto vuoi che siano uguali i numeri.
+
+
+------------------------------------------------------------------
+Storia di una intervista per programmatori (Programming interview)
+------------------------------------------------------------------
+
+Questa è una storia ipotetica di un programmatore newLISP.
+
+Qx: domanda\questione x dell'intervistatore
+Ax: risposta x del programmatore
+
+Q1: Abbiamo una borsa contenente i numeri non ordinati 1, 2, 3, ..., 100.
+Ogni numero appare esattamente una volta, quindi ci sono 100 numeri.
+Ora un numero viene estratto a caso dalla borsa.
+Trova il numero mancante.
+
+A1: Posso usare la funzione "difference":
+
+Lista con 100 elementi:
+(setq a (randomize (sequence 1 100)))
+
+Togliamo il primo elemento
+
+(pop a)
+;-> 51
+
+(define (manca-uno1 lst)
+  (let (len (+ (length lst) 1))
+    (difference (sequence 1 len) lst)))
+
+(manca-uno1 a)
+;-> (51)
+
+Q2: Ok. Come risolveresti il problema senza usare "difference"?
+
+A2: Posso usare la funzione sort e poi vedere quale indice non è uguale al valore:
+
+(define (manca-uno2 lst)
+  (local (len)
+    (setq len (+ (length lst) 2))
+    (sort lst)
+    (setq stop nil)
+    (for (i 0 (- len 1) 1 stop)
+      (if (!= (lst i) (+ i 1))
+        (begin
+          (setq stop true)
+          (println (+ i 1)))))))
+
+(manca-uno2 a)
+;-> 51
+
+Q3: Ok. Questa soluzione ha una complessità temporale O(N*log(N)), perchè viene usato "sort". Supponiamo che sia possibile attraversare la lista solo una volta. Come risolveresti adesso il problema?
+
+A3: Posso usare una soluzione del tipo bit-set. Attraverso la lista e imposto a 1 tutte le celle di un vettore temporaneo che hanno indice uguale ai numeri della lista. Poi attraverso il vettore e cerco il valore 0.
+
+(define (manca-uno3 lst)
+  (local (len arr)
+    (setq len (+ (length lst) 2))
+    (setq arr (array len '(0)))
+    (dolist (el lst) (setq (arr el) 1))
+    (for (i 1 (- len 1))
+      (if (= (arr i) 0) (println i)))))
+
+(manca-uno3 a)
+;-> 51
+
+Q4: Bene. Adesso la complessità temporale vale O(n) e la complessità spaziale vale O(N) perchè abbiamo usato un vettore temporaneo. Sapresti risolvere il problema con una complessità spaziale O(1)?
+
+A4: Idea: posso usare la formula della somma di N numeri.
+La somma di N numeri vale: (N + 1)*N/2. Per N=100 la somma vale 5050.
+Quindi, se tutti i numeri sono presenti nel sacchetto, la somma sarà esattamente 5050. Poiché manca un numero, la somma sarà inferiore a questo, e la differenza è quel numero. Quindi possiamo trovare quel numero mancante nel tempo O(N) e nello spazio O(1).
+
+A questo punto il programmatore pensava di aver risolto il problema, ma all'improvviso ecco una domanda inaspettata:
+
+Q5: Bravo. Ora come risolvi il problema se mancano DUE numeri?
+
+A5: (Prima panico) (poi concentrazione) (e infine soluzione).
+Posso usare la formula della somma dei numeri e la formula della somma dei quadrati dei numeri.
+In questo modo ottengo un sistema in due equazione che posso risolvere.
+
+              (N + 1)*N
+  Somma(N) = -----------
+                  2
+
+                      (N + 1)*N*(2*N + 1)
+  SommaQuadrati(N) = ---------------------
+                              6
+
+La somma dei numeri mancanti (x e y) vale:
+
+  x + y = (st - sc) = k1
+
+dove: sr = somma di tutti i numeri (formula),
+      sc = somma dei numeri della lista (calcolata)
+
+La somma del quadrati dei numeri mancanti (x e y) vale:
+
+  x^2 + y^2 = (sqt - sqc) = k2
+
+dove: sqt = somma dei quadrati di tutti i numeri (formula),
+      sqc = somma dei quadrati dei numeri della lista (calcolata)
+
+Adesso abbiamo il sistema:
+
+  x + y = k1
+  x^2 + y^2 = k2
+
+Le soluzioni del sistema valgono:
+
+  x1 = 1/2*(k1 - sqrt(-(k1^2) + 2*k2))
+  y1 = 1/2 (k1 + sqrt(-(k1^2) + 2*k2))
+  x2 = 1/2 (k1 + sqrt(-(k1^2) + 2*k2))
+  y2 = 1/2 (k1 - sqrt(-(k1^2) + 2*k2))
+
+Adesso possiamo scrivere la funzione:
+
+Funzione che calcola la somma dei numeri di una lista (formula):
+
+(define (sum-nums n) (/ (* n (+ n 1)) 2))
+
+Funzione che calcola la somma dei quadrati dei numeri di una lista (formula):
+
+(define (sqsum-nums n) (/ (* n (+ n 1) (+ (* 2 n) 1)) 6))
+
+(define (manca-due lst)
+  (local (len s q k1 k2 x1 y1 x2 y2)
+    (setq len (+ (length lst) 2))
+    (setq s (sum-nums len))
+    (setq q (sqsum-nums len))
+    (setq k1 (- s (apply + lst)))
+    (setq k2 (- q (apply + (map (fn(x) (* x x)) lst))))
+    ;(println k1 { } k2)
+    (setq x1 (div (sub k1 (sqrt (add (- (mul k1 k1)) (mul 2 k2)))) 2))
+    (setq y1 (div (add k1 (sqrt (add (- (mul k1 k1)) (mul 2 k2)))) 2))
+    ; le altre soluzioni sono simmetriche
+    ;(setq x2 (div (add k1 (sqrt (add (- (mul k1 k1)) (mul 2 k2)))) 2))
+    ;(setq y2 (div (sub k1 (sqrt (add (- (mul k1 k1)) (mul 2 k2)))) 2))
+    (list x1 y1)))
+
+Togliamo un elemento dalla lista:
+
+(pop a)
+;-> 16
+
+(manca-due a)
+;-> (16 51)
+
+Q6: Perfetto.
+
+Nota: Questo metodo può essere esteso a K numeri.
+Utilizzando la somma delle i-esime potenze, dove i=1,2,..,k, il problema si riduce il problema alla risoluzione di un sistema di equazioni del tipo:
+
+  a1 + a2 + ... + ak = b1
+  a1^2 + a2^2 + ... + ak^2 = b2
+  ...
+  a1^k + a2^k + ... + ak^k = bk
+
+Per maggiori informazioni vedi: "Data Streams: Algorithms and Applications" di S. Muthukrishnan
 
 =============================================================================
 
