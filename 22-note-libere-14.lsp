@@ -284,7 +284,7 @@ Per esempio, salviamo il file seguente come "test-load.lsp":
   (begin
     (print-repl)
   )
-  ;else 
+  ;else
   (begin
     (print-no-repl)
     (exit)
@@ -343,7 +343,7 @@ Stile iterativo:
 Stile newLISP:
 
 (define (captcha len)
-  (select "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" 
+  (select "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
           (rand 62 len)))
 
 (captcha 12)
@@ -1135,7 +1135,7 @@ Versione ricorsiva:
 ;->  (0 2 1 0) (1 0 2 0) (0 1 2 0) (0 0 3 0) (2 0 0 1) (1 1 0 1)
 ;->  (0 2 0 1) (1 0 1 1) (0 1 1 1) (0 0 2 1) (1 0 0 2) (0 1 0 2)
 ;->  (0 0 1 2) (0 0 0 3))
- 
+
 (stars-bars 5 3 true)
 ;-> (5 0 0)   *****||
 ;-> (4 1 0)   ****|*|
@@ -1232,7 +1232,7 @@ def creaGeneratore():
     yield numero*numero
 
 # crea un generatore di tipo creaGeneratore
-generatore=creaGeneratore() 
+generatore=creaGeneratore()
 
 # restituisce un oggetto
 print(generatore)
@@ -1270,7 +1270,7 @@ Dato un punto P e una retta determinata dai punti A e B, calcolare le coordinate
 Esempio di riflessione lungo una linea verticale (tipo specchio).
 
           A
-          * 
+          *
           |
   p1      |    p1r
    *      |     *
@@ -1311,13 +1311,13 @@ At è l'origine.
 Quindi in definitiva:
 
 Restituire conj(Pr)*Bt + A
-dove, Bt = B – A 
-      Pt = P – A 
+dove, Bt = B – A
+      Pt = P – A
       Pr = Pt/Bt
 
 Nota: tutte le operazioni sono con i numeri complessi.
 
-Per una spiegazione completa vedi: 
+Per una spiegazione completa vedi:
 https://www.geeksforgeeks.org/reflection-point-line-c/
 
 Funzioni con i numeri complessi:
@@ -1694,7 +1694,7 @@ Algoritmo
     (setq reservoir (slice lst 0 k))
     ; indice per gli elementi di lst (parte da k)
     (setq idx k)
-    ; ciclo 
+    ; ciclo
     (while (< idx len)
       (setq j (rand (+ idx 1)))
       (if (< j k) (setq (reservoir j) (lst idx)))
@@ -1743,7 +1743,7 @@ Creiamo una lista con i valori di centomila selezioni di 10 elementi dalla lista
 Contiamo le frequenze dei valori contenuti nella lista:
 
 (count c all)
-;-> (50151 50072 49527 50169 49983 50064 49863 49894 49861 50496 
+;-> (50151 50072 49527 50169 49983 50064 49863 49894 49861 50496
 ;->  49988 49893 50044 50089 50012 49972 50234 49906 49810 49972)
 
 
@@ -1906,9 +1906,9 @@ Dato un cerchio centrato nell'origine (0, 0) di raggio r, trovare tutti i punti 
 
 Nota: I punti interi (lattice points) sono tutti i punti con coordinate intere.
 
-Sequenza OEIS: A046109 
-  1, 4, 4, 4, 4, 12, 4, 4, 4, 4, 12, 4, 4, 12, 4, 12, 4, 12, 4, 4, 
-  12, 4, 4, 4, 4, 20, 12, 4, 4, 12, 12, 4, 4, 4, 12, 12, 4, 12, 4, 
+Sequenza OEIS: A046109
+  1, 4, 4, 4, 4, 12, 4, 4, 4, 4, 12, 4, 4, 12, 4, 12, 4, 12, 4, 4,
+  12, 4, 4, 4, 4, 20, 12, 4, 4, 12, 12, 4, 4, 4, 12, 12, 4, 12, 4,
   12, 12, 12, 4, 4, 4, 12, 4, 4, 4, 4, 20, ...
 
 Per trovare i punti interi che giacciono sulla circonferenza, dobbiamo trovare i valori di (x, y) che soddisfano l'equazione x^2 + y^2 = r^2.
@@ -2101,7 +2101,7 @@ Adesso vediamo quali sono le coordinate dei punti interni al cerchio.
 (length (circle-pts 12))
 ;-> 441
 (setq all (circle-pts 4))
-;-> ((-4 0) (-3 -2) (-3 -1) (-3 0) (-3 1) (-3 2) (-2 -3) (-2 -2) (-2 -1) 
+;-> ((-4 0) (-3 -2) (-3 -1) (-3 0) (-3 1) (-3 2) (-2 -3) (-2 -2) (-2 -1)
 ;->  (-2 0) (-2 1) (-2 2) (-2 3) (-1 -3) (-1 -2) (-1 -1) (-1 0) (-1 1)
 ;->  (-1 2) (-1 3) (0 -4) (0 -3) (0 -2) (0 -1) (0 0) (0 1) (0 2) (0 3)
 ;->  (0 4) (1 -3) (1 -2) (1 -1) (1 0) (1 1) (1 2) (1 3) (2 -3) (2 -2)
@@ -2293,6 +2293,228 @@ Utilizzando la somma delle i-esime potenze, dove i=1,2,..,k, il problema si ridu
   a1^k + a2^k + ... + ak^k = bk
 
 Per maggiori informazioni vedi: "Data Streams: Algorithms and Applications" di S. Muthukrishnan
+
+
+--------------------
+Trovare il perimetro
+--------------------
+
+Calcolare il perimetro della seguente figura:
+
+Soluzione visuale:
+
+           8
+    +--------------+
+    |              |
+    |              |
+    |              |
+    |              |
+    |       +------+
+    |       |
+ 14 |       |       10
+    |       +------------------+
+    |                          |
+    |                          |
+    |                          |
+    |                          |
+    +--------------------------+
+
+Se trasformiano la figura nel modo seguente il perimetro non viene modificato.
+
+           8
+    +--------------+
+    |              |
+    |              |
+    |              |
+    |          a   |
+    |       .......+
+    |       .      |
+ 14 |     c .      | c1     10    a1
+    |       .......+-----------+------+
+    |          b               .      |
+    |                          .      |
+    |                          .      |
+    |                          .      |
+    +--------------------------+------+
+                                  b1
+
+Infatti i segmenti a, b e c sono uguali, ripsettivamente, ad a1, b1 e c1.
+
+Adesso possiamo calcolare il perimetro:
+
+  lato sinistro = 14
+  lato destro = 14 (2 pezzi che sommano a 14)
+  lato superiore = 8 + 9 = 18
+  lato inferiore = 8 + 9 = 18
+
+  Perimetro = 14 + 14 + 18 + 18 = 64
+
+Soluzione non-visuale:
+
+Supponiamo che la figura abbia il nord in alto.
+Iniziamo dall'angolo nord-ovest e camminiamo verso est seguendo la figura finché non torniamo di nuovo all'angolo nord-ovest di partenza.
+La distanza totale che percorriamo verso est è 8 + 10 = 18, quindi anche la distanza totale che percorriamo verso ovest deve essere 18. La distanza totale che percorriamo verso nord è 14, quindi anche la distanza totale che percorriamo verso sud deve essere 14.
+Il perimetro quindi vale 18 + 18 + 14 + 14 = 64
+
+Soluzione matematica:
+
+           8
+    +--------------+
+    |              |
+    |              | x
+    |              |
+    |          a   |
+    |       +------+
+    |     y |      .
+ 14 |       |  a   .  10 - a
+    |       +------------------+
+    |              .           |
+    |              .           | z
+    |              .           |
+    |              .           |
+    +--------------------------+
+           8          10 - a 
+
+  x + y + z = 14
+
+  Perimetro = 8 + x + a + y + a + 10 - a + z + 10 - a + 8 + 14 =
+            = 8 + (x + y + z) + a - a + a - a + 10 + 10 + 8 + 14 =
+            = 8 + 14 + 10 + 10 + 8 + 14 = 64
+
+
+---------------
+Numeri speciali
+---------------
+
+Prendiamo un numero (x) e creiamo la lista completa dei numeri formati eliminando le singole cifre dalla sua rappresentazione in base dieci (d1,d2,...,dn).
+Se la somma di tutti questi nuovi numeri è uguale a x, chiamiamo il numero un numero speciale.
+In altre parole, trovare i numeri n tali che la somma di tutti i numeri formati eliminando una cifra da n sia uguale a n.
+
+Esempio:
+
+1729404 = 729404 (tolgo 1) + 129404 (tolgo 7) + 179404 (tolgo 2)
+          + 172404 (tolgo 9) + 172904 (tolgo 4) + 172944 (tolgo 0)
+          + 172940 (tolgo 4)
+
+13758846 = 3758846 + 1758846 + 1358846 + 1378846 + 1375846
+           + 1375846 + 1375886 + 1375884
+(in quest'ultimo esempio 1375846 compare due volte)
+
+Sequenza OEIS: A131639
+  1729404, 1800000, 13758846, 13800000, 14358846, 14400000, 15000000,
+  28758846, 28800000, 29358846, 29400000, 1107488889, 1107489042,
+  1111088889, 1111089042, 3277800000, 3281400000, 4388888889, 4388889042,
+  4392488889, 4392489042, 4500000000, 5607488889, 5607489042, 5611088889,
+  5611089042, 7777800000, 7781400000, 8888888889, 8888889042, 8892488889,
+  8892489042, 10000000000, 20000000000, 30000000000, 40000000000,
+  50000000000, 60000000000, 70000000000, 80000000000, 90000000000.
+
+La sequenza è completa. In generale, un numero x = x_1 x_2 ... x_n di n cifre appartiene alla sequenza se le sue cifre soddisfano una certa equazione diofantea c_1*x_1 + c_2*x_2 + ... + c_n*x_n = 0, dove i coefficienti c_i dipendono da n. Si può verificare che per n > 11 tutti i coefficienti c_i sono positivi, quindi l'equazione non ammette soluzione diversa da zero.
+
+Proviamo un approccio brute-force (anche se, vista la grandezza dei numeri, è destinato a fallire).
+
+(define (sum-digit num)
+  (local (sum str s)
+    (setq sum 0)
+    (setq str (string num))
+    (for (i 0 (- (length num) 1))
+      (setq s str)
+      (pop s i)
+      (++ sum (int s 0 10)))))
+
+Proviamo:
+
+(time (for (i 1729403 1800001) (if (= (sum-digit i) i) (println i))))
+;-> 1729404
+;-> 1800000
+;-> 234.318
+
+(time (for (i 1729403 29400001) (if (= (sum-digit i) i) (println i))))
+;-> 1729404
+;-> 1800000
+;-> 13758846
+;-> 13800000
+;-> 14358846
+;-> 14400000
+;-> 15000000
+;-> 28758846
+;-> 28800000
+;-> 29358846
+;-> 29400000
+;-> 98870.034 ; 1 minuto 39 secondi
+
+
+--------------
+Numeri ciclope
+--------------
+
+Un numero naturale è un numero ciclope se la sua rappresentazione binaria contiene uno solo 0 posizionato al centro della rappresentazione.
+Si tatta dei numeri binari del tipo:
+
+      0
+     101
+    11011
+   1110111
+  111101111
+
+Sequenza OEIS: A129868
+  0, 5, 27, 119, 495, 2015, 8127, 32639, 130815, 523775, 2096127, 
+  8386559, 33550335, 134209535, 536854527, 2147450879, 8589869055,
+  34359607295, 137438691327, 549755289599, 2199022206975, 8796090925055,
+  35184367894527, 140737479966719, 562949936644095, ...
+
+Funzione che verifica se un numero è ciclope:
+
+(define (ciclope? num)
+  (local (len b)
+    (setq b (bits num))
+    (setq len (length b))
+    (and
+      (odd? len)
+      (= (length (find-all "1" b)) (- len 1))
+      (= (b (+ (/ len 2))) "0"))))
+
+(filter ciclope? (sequence 1 1e5))
+;-> (5 27 119 495 2015 8127 32639)
+
+Per trovare i numeri ciclope fino ad un certo limite usiamo una tecnica inversa: costruiamo i numeri binari usando il loro pattern.
+
+Funzione che trova tutti i numeri ciclope fino ad un dato limite:
+
+(define (ciclope limit)
+  (local (len num1 b val out)
+    (setq out '(0))
+    (setq len (length (bits limit)))
+    ; numero di 1 a sinistra (o a destra) del numero binario massimo
+    (if (odd? len)
+        (setq num1 (/ len 2))
+        (setq num1 (- (/ len 2) 1))
+    )
+    ; ciclo per la costruzione dei numeri tramite pattern:
+    ; (1..1)0(1..1)
+    (for (i 1 num1)
+      (setq b (string (dup "1" i) "0" (dup "1" i)))
+      (push (int b 0 2) out -1)
+    )
+    out))
+
+(ciclope 1e5)
+;-> (0 5 27 119 495 2015 8127 32639 130815)
+
+(time (println (ciclope 9223372036854775807)))
+;-> (0 5 27 119 495 2015 8127 32639 130815 523775 2096127 8386559 33550335
+;->  134209535 536854527 2147450879 8589869055 34359607295 137438691327
+;->  549755289599 2199022206975 8796090925055 35184367894527 140737479966719
+;->  562949936644095 2251799780130815 9007199187632127 36028796884746239
+;->  144115187807420415 576460751766552575 2305843008139952127 
+;->  9223372034707292159)
+;-> 1.995
+
+(ciclope? 9223372034707292159)
+;-> true
+
+(bits 9223372034707292159)
+;-> "111111111111111111111111111111101111111111111111111111111111111"
 
 =============================================================================
 

@@ -1636,6 +1636,9 @@ NOTE LIBERE 14
   Problema del cerchio di Gauss
   Confronto tra numeri
   Storia di una intervista per programmatori (Programming interview)
+  Trovare il perimetro
+  Numeri speciali
+  Numeri ciclope
 
 APPENDICI
 =========
