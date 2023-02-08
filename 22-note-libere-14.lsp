@@ -2516,5 +2516,113 @@ Funzione che trova tutti i numeri ciclope fino ad un dato limite:
 (bits 9223372034707292159)
 ;-> "111111111111111111111111111111101111111111111111111111111111111"
 
+
+---------------------------------
+Somma di due quadrati consecutivi
+---------------------------------
+
+Determinare se un numero n è la somma di due quadrati consecutivi.
+
+Sequenza OEIS: A001844
+  1, 5, 13, 25, 41, 61, 85, 113, 145, 181, 221, 265, 313, 365, 421, 481,
+  545, 613, 685, 761, 841, 925, 1013, 1105, 1201, 1301, 1405, 1513, 1625,
+  1741, 1861, 1985, 2113, 2245, 2381, 2521, 2665, 2813, 2965, 3121, 3281,
+  3445, 3613, 3785, 3961, 4141, 4325, 4513, ...
+
+Scriviamo l'equazione di secondo grado:
+
+  n = k^2 + (k-1)^2
+  n = 2*k^2 - 2*k - 1
+
+Risolviamo l'equazione (solo soluzione positiva):
+
+  k = (2 + sqrt(8*n - 4))/2
+  k = 1 + sqrt(n - 1)
+
+(define (sum-square? num)
+  ;(let (n (div (add 2 (sqrt (sub (mul 8 num) 4))) 2))
+  (let (n (add 1 (sqrt (- (* 2 num) 1))))
+    ;(println n)
+    (= n (int n))))
+
+(sum-square? 18)
+;-> nil
+
+(filter sum-square? (sequence 1 1000))
+;-> (1 5 13 25 41 61 85 113 145 181 221 265 313
+;->  365 421 481 545 613 685 761 841 925)
+
+Per calcolare più velocemente i numeri della sequenza possiamo usare la seguente formula:
+
+  a(n) = 2*n*(n+1)+1
+
+(define (sum-square-to limit)
+  (local (out)
+    (setq out '())
+    (setq i 1)
+    (setq val 1)
+    (while (< val limit)
+      (push val out -1)
+      (setq val (+ (* 2 i (+ i 1)) 1))
+      (++ i)
+    )
+    out))
+
+(sum-square-to 1000)
+;-> (1 5 13 25 41 61 85 113 145 181 221 265 313
+;->  365 421 481 545 613 685 761 841 925)
+
+(= (sum-square-to 1e5) (filter sum-square? (sequence 1 1e5)))
+;-> true
+
+
+----------------------------------------
+Somma di almeno due quadrati consecutivi
+----------------------------------------
+
+Numeri che possono essere scritti come somma di almeno 2 quadrati di interi positivi consecutivi.
+
+Sequenza OEIS: A174069
+  5, 13, 14, 25, 29, 30, 41, 50, 54, 55, 61, 77, 85, 86, 90, 91, 110,
+  113, 126, 135, 139, 140, 145, 149, 174, 181, 190, 194, 199, 203, 204,
+  221, 230, 245, 255, 265, 271, 280, 284, 285, 294, 302, 313, 330, 355,
+  365, 366, 371, 380, 384, 385, 415, 421, 434, 446, 451, ...
+
+(define (sum-squares num)
+(catch
+  (local (sum lower upper)
+    (setq sum 1)
+    (setq lower 1)
+    (setq upper 1)
+    ; limite superiore <= int(sqrt(num))
+    (setq max-val (int (sqrt num)))
+    ;Exit if the number is found. 
+    (while (!= sum num)
+            ; se la somma dei quadrati è troppo piccola, 
+            ; aggiunge il quadrato successivo e incrementa upper
+      (cond ((< sum num)
+              (++ upper)
+              (setq sum (+ sum (* upper upper))))
+            ; se la somma dei quadrati è troppo alta, 
+            ; sottrae il primo quadrato, e incrementa lower.
+            ((> sum num)
+              (setq sum (- sum (* lower lower)))
+              (++ lower))
+      )
+      ; se non può essere espresso come somma 
+      ; di quadrati di numeri consecutivi,
+      ; allora, alla fine upper supererà il massimo e restituisce nil.
+      (if (> upper max-val) (throw nil))
+    )
+    ;(println lower { } upper)
+    ; se lower = upper, allora num = x*x + x*x
+    (!= lower upper))))
+
+(filter sum-squares (sequence 1 500))
+;-> (5 13 14 25 29 30 41 50 54 55 61 77 85 86 90 91 110 113 126 135 139
+;->  140 145 149 174 181 190 194 199 203 204 221 230 245 255 265 271 280 
+;->  284 285 294 302 313 330 355 365 366 371 380 384 385 415 421 434 446 
+;->  451 476 481 492)
+
 =============================================================================
 

@@ -1639,6 +1639,8 @@ NOTE LIBERE 14
   Trovare il perimetro
   Numeri speciali
   Numeri ciclope
+  Somma di due quadrati consecutivi
+  Somma di almeno due quadrati consecutivi
 
 APPENDICI
 =========
