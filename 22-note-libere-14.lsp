@@ -2624,5 +2624,302 @@ Sequenza OEIS: A174069
 ;->  284 285 294 302 313 330 355 365 366 371 380 384 385 415 421 434 446 
 ;->  451 476 481 492)
 
+
+----------------------------------
+Numeri somma di numeri consecutivi
+----------------------------------
+
+Dato un numero N, determinare se un numero può essere espresso come somma di due o più numeri interi consecutivi (non necessariamente a partire da 1).
+
+Un numero espresso con k interi positivi consecutivi ha la forma seguente:
+
+  N = (n+1) + (n+2) + ... + (n+k) = k*(2*n + k - 1)/2 per qualche n
+
+Quindi se esistono k interi consecutivi la cui somma è N, il primo intero (n) vale (con passaggi algebrici):
+
+  n = (2*N − k*(k−1))/2*k
+
+Scriviamo una funzione che verifica se un numero può essere rappresentato come una somma di numeri interi positivi consecutivi.
+In caso positivo, restituisce la sequenza di numeri.
+In caso negativo, restituisce nil.
+
+(define (sum? num)
+  (local (k x continua out)
+    (setq out nil)
+    (cond
+      ((odd? num)
+        ; numero dispari N --> N/2 + N - N/2 = N (divisione intera)
+        (setq out (list (/ num 2) (- num (/ num 2)))))
+        ;(setq out (list num (/ num 2) (- num (/ num 2)))))
+      (true ; numero pari
+        (setq k 2)
+        (setq continua true)
+        (while (and (< k (mul 2 (sqrt num))) continua)
+          (++ k)
+          (setq x (div (sub (mul 2 num) (mul k (sub k 1))) (mul 2 k)))
+          (if (= x (int x))
+            (begin
+              ;(push num out)
+              (for (i 0 (- k 1))
+                (push (int (+ x i)) out -1)
+              )
+              (setq continua nil)))))
+    )
+    out))
+
+Complessità temporale: O(sqrt(N)*log(N))
+
+Facciamo alcune prove:
+
+(sum? 16)
+;-> nil
+(sum? 1024)
+;-> nil
+(sum? 23)
+;-> (11 12)
+(sum? 100)
+;-> (18 19 20 21 22)
+(sum? 1000)
+;-> (198 199 200 201 202)
+(sum? 666)
+;-> (221 222 223)
+(sum? 42)
+;-> (13 14 15)
+(sum? 1)
+;-> (0 1)
+
+Vediamo quanto sono lunghe le sequenze da 1 a 1 milione:
+
+(time (setq m (map length (setq n (map sum? (sequence 1 1e6))))))
+;-> 2176.041
+
+(slice m 0 10)
+;-> (2 0 2 0 2 3 2 0 2 4)
+(slice n 0 10)
+;-> ((0 1) nil (1 2) nil (2 3) (1 2 3) (3 4) nil (4 5) (1 2 3 4))
+
+Quanto è lunga la sequenza più lunga?
+
+(apply max m)
+;-> 1024
+
+(ref 1024 m)
+;-> (527871)
+
+Quali sono i numeri che compongono la sequenza più lunga?
+
+(n (ref 1024 m))
+;-> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
+;-> ...
+;-> 1019 1020 1021 1022 1023 1024 1025 1026 1027)
+
+Verifica:
+
+(length (n (ref 1024 m)))
+;-> 1024
+
+Quale numero genera la sequenza più lunga?
+
+(apply + (n (ref 1024 m)))
+;-> 527872
+
+Verifica:
+
+(sum? 527872)
+;-> (4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
+;-> ...
+;-> 1019 1020 1021 1022 1023 1024 1025 1026 1027)
+
+(= (sum? 527872) (n (ref 1024 m)))
+;-> true
+
+Adesso analizziamo i numeri della sequenza:
+
+(filter sum? (sequence 1 1e3))
+;-> (1 3 5 6 7 9 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 
+;->  26 27 28 29 30 31 33 34 35 36 37 38 39 40 41 42 43 44 45 ...
+;->  ...
+;->  976 977 978 979 980 981 982 983 984 985 986 987 988 989 
+;->  990 991 992 993 994 995 996 997 998 999 1000)
+
+Quali numeri restano fuori (cioè non sono esprimibili come somma di numeri interi positivi consecutivi)?
+
+(clean sum? (sequence 1 1e3))
+;-> (2 4 8 16 32 64 128 256 512)
+
+(clean sum? (sequence 1 1e6))
+;-> (2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 
+;->  16384 32768 65536 131072 262144 524288)
+
+Ipotesi: 
+restano fuori solo i numeri potenza di 2, cioè i numeri della forma 2^p.
+
+Dimostrazione matematica:
+
+Sia n il nostro numero base, e scegliamo k numeri consecutivi:
+
+ S = n + (n+1) + ... + (n+k−1)
+
+ S = n*k + (k)*(k−1)/2
+
+ S = k*(n + (k−1)/2)
+ 
+ 2S = k*(2*n + k − 1)
+
+Se supponiamo che S è della forma 2^p, allora sia k che (2n+k−1) devono essere entrambi della forma 2^q.
+Notiamo che quando k è pari, l'espressione (2*n − 1 + k) genera un numero dispari. Questa è una contraddizione.
+Quindi S non può essere della forma 2^p.
+
+
+-------------------------------
+Best time to Buy and Sell Stock
+-------------------------------
+
+Problema LeetCode N. 122
+
+Ti viene fornita una lista di numeri interi di prezzi, dove lista(i) è il prezzo di un determinato titolo l'i-esimo giorno.
+Ogni giorno puoi decidere di acquistare e/o vendere le azioni. 
+Puoi detenere al massimo una quota del titolo alla volta. 
+Tuttavia, puoi acquistarlo e poi venderlo immediatamente lo stesso giorno.
+
+Ad esempio, se la lista vale (2 4 6 8 5 3 1 3 7) il massimo profitto può essere ottenuto acquistando il giorno 0 al prezzo 2, e vendendo il giorno 3 al prezzo 8. Poi acquistando di nuovo il giorno 6 a prezzo 1 e vendendo il giorno 8 al prezzo 7. Profitto totale 6 + 6 = 12.
+Se la lista dei prezzi è ordinata in ordine decrescente, allora non può esserci alcun profitto.
+
+(define (maxprofit lst)
+  (local (buy sell profit len)
+    (setq profit 0)
+    (setq len (length lst))
+    (setq i 0)
+    (while (< i (- len 1))
+      ; se valore corrente minore del valore successivo...
+      (if (< (lst i) (lst (+ i 1)))
+        (begin
+          ; allora comprare
+          (setq buy i)
+          ; andare avanti con i giorni fino a che incontriamo
+          ; sempre un valore maggiore
+          (while (and (< i (- len 1)) (< (lst i) (lst (+ i 1))))
+            (++ i)
+          )
+          ; adesso vendere, perchè siamo arrivati ad un valore massimo
+          (setq sell i)
+          ; aggiornare il profitto
+          (setq profit (+ profit (- (lst sell) (lst buy))))
+          (println "comprare a " (lst buy) " il giorno " buy 
+                   " e vendere a " (lst sell) " il giorno " sell 
+                   ": + " (- (lst sell) (lst buy)))
+        )
+      )
+      (++ i)
+    )
+    profit))
+
+Facciamo alcune prove:
+
+(maxprofit '(2 4 6 8 5 3 1 3 7))
+;-> comprare a 2 il giorno 0 e vendere a 8 il giorno 3: + 6
+;-> comprare a 1 il giorno 6 e vendere a 7 il giorno 8: + 6
+;-> 12
+(maxprofit '(7 1 5 3 6 4))
+;-> comprare a 1 il giorno 1 e vendere a 5 il giorno 2: + 4
+;-> comprare a 3 il giorno 3 e vendere a 6 il giorno 4: + 3
+;-> 7
+(maxprofit '(1 2 3 4 5))
+;-> comprare a 1 il giorno 0 e vendere a 5 il giorno 4: + 4
+;-> 4
+(maxprofit '(7 6 4 3 2 1))
+;-> 0
+
+
+--------------------------------------------
+Analisi degli elementi di una lista/funzione
+--------------------------------------------
+
+Scriviamo una funzione che elenca tutti i simboli con i relativi tipi di una lista (o funzione).
+
+(define (index-list lst)
+"Create a list of indexes for all the elements of a list"
+  (ref-all nil lst (fn (x) true)))
+
+(define (type-of x)
+"Get the type of a symbol"
+  (let (table '("nil" "true" "int" "float" "string" "symbol" "context"
+               "primitive" "import" "ffi" "quote" "list" "lambda"
+               "fexpr" "array" "dyn_symbol"))
+    (table (& 0xf ((dump x) 1)))))
+
+(define (infos lst)
+  (let (index-list (ref-all nil lst (fn (x) true)))
+    (dolist (el index-list)
+      (println (nth el lst) ": " (type-of (nth el lst))))))
+
+Facciamo alcune prove:
+
+; lista
+(setq a '(1 (2 3) "quattro" ("cinque" "sei") 3.1415 sin))
+;-> (infos a)
+;-> 1: int
+;-> (2 3): list
+;-> 2: int
+;-> 3: int
+;-> quattro: string
+;-> ("cinque" "sei"): list
+;-> cinque: string
+;-> sei: string
+;-> 3.1415: float
+;-> sin: symbol
+
+; funzione
+(infos index-list)
+;-> (lst): list
+;-> lst: symbol
+;-> Create a list of indexes for all the elements of a list: string
+;-> (ref-all nil lst (lambda (x) true)): list
+;-> ref-all: symbol
+;-> nil: symbol
+;-> lst: symbol
+;-> (lambda (x) true): lambda
+;-> (x): list
+;-> x: symbol
+;-> true: symbol
+
+; funzione
+(infos infos)
+;-> (lst): list
+;-> lst: symbol
+;-> (let (index-list (ref-all nil lst (lambda (x) true)))
+;->  (dolist (el index-list)
+;->   (println (nth el lst) ": " (type-of (nth el lst))))): list
+;-> let: symbol
+;-> (index-list (ref-all nil lst (lambda (x) true))): list
+;-> index-list: symbol
+;-> (ref-all nil lst (lambda (x) true)): list
+;-> ref-all: symbol
+;-> nil: symbol
+;-> lst: symbol
+;-> (lambda (x) true): lambda
+;-> (x): list
+;-> x: symbol
+;-> true: symbol
+;-> (dolist (el index-list)
+;->  (println (nth el lst) ": " (type-of (nth el lst)))): list
+;-> dolist: symbol
+;-> (el index-list): list
+;-> el: symbol
+;-> index-list: symbol
+;-> (println (nth el lst) ": " (type-of (nth el lst))): list
+;-> println: symbol
+;-> (nth el lst): list
+;-> nth: symbol
+;-> el: symbol
+;-> lst: symbol
+;-> : : string
+;-> (type-of (nth el lst)): list
+;-> type-of: symbol
+;-> (nth el lst): list
+;-> nth: symbol
+;-> el: symbol
+;-> lst: symbol
+
 =============================================================================
 

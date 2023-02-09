@@ -8382,8 +8382,7 @@ Inizio  Azione     Fine
 (9,12)  SvuotaA    (0,12)
 (0,12)  TravasoBA  (12,0)
 
-Osserviamo che nella strategia sinistra le ultime due azioni sono inutili ai fini della
-risoluzione del problema, ed eliminandole, la strategia sinistra si dimostra in questo caso "migliore": 6 azioni per quella sinistra contro le 8 di quella destra.
+Osserviamo che nella strategia sinistra le ultime due azioni sono inutili ai fini della risoluzione del problema, ed eliminandole, la strategia sinistra si dimostra in questo caso "migliore": 6 azioni per quella sinistra contro le 8 di quella destra.
 
 Per finire vediamo un algoritmo per trovare la soluzione (x0,y0), se esiste, di una equazione diofantea lineare a due incognite.
 

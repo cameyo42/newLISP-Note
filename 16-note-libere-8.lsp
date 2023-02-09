@@ -6633,7 +6633,8 @@ Data una lista di numeri interi, creare una nuova lista con solo gli elementi du
           (if all
               ; inserisce tutti i valori dell'elemento
               ; multiplo corrente
-              (push (dup (uniq $idx) el) out -1)
+              ;(push (dup (uniq $idx) el) out -1)
+              (extend out (dup (uniq $idx) el))
               ; inserisce solo un valore dell'elemento
               ; multiplo corrente
               (push (uniq $idx) out -1)))
@@ -6644,7 +6645,7 @@ Data una lista di numeri interi, creare una nuova lista con solo gli elementi du
 ;-> (5 6)
 
 (multiple lst true)
-;-> ((5 5 5 5 5 5) (6 6 6))
+;-> (5 5 5 5 5 5 6 6 6)
 
 Altro metodo (Kazimir Majorinc e cameyo):
 

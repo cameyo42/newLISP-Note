@@ -1641,6 +1641,9 @@ NOTE LIBERE 14
   Numeri ciclope
   Somma di due quadrati consecutivi
   Somma di almeno due quadrati consecutivi
+  Numeri somma di numeri consecutivi
+  Best time to Buy and Sell Stock
+  Analisi degli elementi di una lista/funzione
 
 APPENDICI
 =========
