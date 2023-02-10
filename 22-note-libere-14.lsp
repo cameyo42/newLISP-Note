@@ -2921,5 +2921,147 @@ Facciamo alcune prove:
 ;-> el: symbol
 ;-> lst: symbol
 
+
+--------------
+Sequenza crc32
+--------------
+
+Si tratta della sequenza dei valori di crc32 dei numeri naturali.
+
+(define (num-crc32 n) (crc32 (string n)))
+
+(num-crc32 42)
+;-> 841265288
+
+(define (seq-crc32 limit)
+  (map crc32 (map string (sequence 0 limit))))
+
+(seq-crc32 20)
+;-> (4108050209 2212294583 450215437 1842515611 4088798008 2226203566
+;->  498629140 1790921346 4194326291 2366072709 2707236321 3596227959
+;->  1330857165 945058907 2788221432 3510096238 1212055764 1060745282
+;->  2944839123 3632373061 2322626082)
+
+Vediamo se c'è qualche "collisione" (numeri ripetuti) fino a 10 milioni:
+
+(new Tree 'hash)
+
+(for (i 1 1e7)
+  (setq c (crc32 (string i)))
+  (if (nil? (hash c))
+      (hash c c)
+      (println (hash c) { } c)
+  )
+  'end
+)
+;-> end
+(delete 'hash)
+
+
+----------------
+Sort con memoria
+----------------
+
+Una semplice funzione per ordinare una lista mantenendo anche i valori della lista originale:
+
+(define (mem-sort lst) (map list (sort (copy lst)) lst))
+
+Facciamo un paio di prove:
+
+(setq a '(3 8 6 5 89 76 5 45))
+(mem-sort a)
+;-> ((3 3) (5 8) (5 6) (6 5) (8 89) (45 76) (76 5) (89 45))
+
+(setq aa (map last (mem-sort a)))
+;-> (3 8 6 5 89 76 5 45)
+(setq aa-sorted (map first (mem-sort a)))
+;-> (3 5 5 6 8 45 76 89)
+
+(setq b '((3 2) (8 4) (6 5) (89 3) (76 4) (5 8)))
+(mem-sort b)
+;-> (((3 2) (3 2)) ((5 8) (8 4)) ((6 5) (6 5)) ((8 4) (89 3))
+;->  ((76 4) (76 4)) ((89 3) (5 8)))
+
+(setq bb (map last (mem-sort b)))
+;-> ((3 2) (8 4) (6 5) (89 3) (76 4) (5 8))
+(setq bb-sorted (map first (mem-sort b)))
+;-> ((3 2) (5 8) (6 5) (8 4) (76 4) (89 3))
+
+
+-------------
+email address
+-------------
+
+Caratteri permessi in un indirizzo di posta elettronica (email):
+
+; The local-part of the email address may use any of these ASCII characters:
+;
+; - uppercase and lowercase Latin letters A to Z and a to z;
+; - digits 0 to 9;
+; - special characters !#$%&'*+-/=?^_`{|}~;
+; - dot ., provided that it is not the first or last character unless quoted, and provided also that it does not appear consecutively unless quoted (e.g. John..Doe@example.com is not allowed but "John..Doe"@example.com is allowed);
+; - space and "(),:;<>@[\] characters are allowed with restrictions (they are only allowed inside a quoted string and in addition, a backslash or double-quote must be preceded by a backslash);
+; comments are allowed with parentheses at either end of the local-part; e.g. john.smith(comment)@example.com and (comment)john.smith@example.com are both equivalent to john.smith@example.com.
+
+Vediamo due funzioni per offuscare (per gioco) il nostro indirizzo in una pagina web in modo che con newLISP sia facile rivelare il vero indirizzo.
+
+; encode
+(define (encode-email str)
+  (let (alst (sort (map (fn(x) (list x $idx)) (explode str))))
+    (list (join (map first alst)) (map last alst))))
+
+; decode
+(define (decode-email str lst)
+  (join (map last (sort (map list lst (explode str))))))
+
+(setq email "nome.cognome@provider.com")
+(encode-email email)
+;-> ("..@ccdeeegimmmnnoooooprrv" 
+;->  (4 21 12 5 22 18 3 11 19 7 17 2 10 24 0 8 1 6 9 15 23 13 14 20 16))
+
+(decode-email "..@ccdeeegimmmnnoooooprrv" '(4 21 12 5 22 18 3 11 19 7 17 2 10 24 0 8 1 6 9 15 23 13 14 20 16))
+;-> "nome.cognome@provider.com"
+
+Nella pagina web:
+
+-----------------------------------------------------------------------------
+email: 
+  str = "..@ccdeeegimmmnnoooooprrv" 
+  lst = '(4 21 12 5 22 18 3 11 19 7 17 2 10 24 0 8 1 6 9 15 23 13 14 20 16)
+
+(define (decode-email str lst)
+  (join (map last (sort (map list lst (explode str))))))
+-----------------------------------------------------------------------------
+
+Come funziona?
+
+(setq str "bazzo.go")
+;-> "bazzo.go"
+; lista associativa (carattere indice)
+(setq alst (map (fn(x) (list x $idx)) (explode str)))
+;-> (("b" 0) ("a" 1) ("z" 2) ("z" 3) ("o" 4) ("." 5) ("g" 6) ("o" 7))
+; ordina la lista associativa per carattere
+(setq mlst (sort (copy alst)))
+;-> (("." 5) ("a" 1) ("b" 0) ("g" 6) ("o" 4) ("o" 7) ("z" 2) ("z" 3))
+; estrae gli indici che rappresentano la posizione di quel carattere
+; nella lista associativa
+(setq indici (map last mlst))
+;-> (5 1 0 6 4 7 2 3)
+; estrae i caratteri della lista ordinata e crea la stringa criptata
+(setq crypt (join (map first mlst)))
+;-> ".abgoozz"
+; crea una lista (indice carattere) con la stringa criptata...
+(map list indici (explode crypt))
+;-> ((5 ".") (1 "a") (0 "b") (6 "g") (4 "o") (7 "o") (2 "z") (3 "z"))
+; ... poi la ordina ina base al valore degli indici ...
+(sort (map list indici (explode crypt)))
+;-> ((0 "b") (1 "a") (2 "z") (3 "z") (4 "o") (5 ".") (6 "g") (7 "o"))
+; ... poi prende solo i caratteri ...
+(map last (sort (map list indici (explode crypt))))
+;-> ("b" "a" "z" "z" "o" "." "g" "o")
+; ... e infine ricostruisce la stringa 
+(join (map last (sort (map list indici (explode crypt)))))
+;-> "bazzo.go"
+
 =============================================================================
 

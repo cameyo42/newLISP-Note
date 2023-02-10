@@ -658,10 +658,12 @@ Scrivere una funzione che calcola tutti i numeri fino ad un dato limite che hann
 
 la somma delle cifre in posizione pari è uguale alla somma delle cifre in posizione dispari
 
+L'indice comincia da 1 a sinistra del numero.
+
 Prendiamo per esempio il numero 7523351:
 
-somma delle cifre con indice pari: 5 + 3 + 5 = 13
 somma delle cifre con indice dispari: 7 + 2 + 3 + 1 = 13
+somma delle cifre con indice pari: 5 + 3 + 5 = 13
 
 Quindi il numero 7523351 soddisfa la condizione.
 
@@ -673,7 +675,7 @@ Sequenza OEIS A135499: 11, 22, 33, 44, 55, 66, 77, 88, 99, 110, 121, 132,
 Funzione che verifica se un numero soddisfa la condizione:
 
 (define (equal-sum? num)
-  (if (zero? num) nil
+  (if (zero? num) true
       (local (odd-sum even-sum len)
         (setq odd-sum 0 even-sum 0)
         (setq len (length num))
@@ -710,9 +712,70 @@ Funzione che calcola tutti i numeri che verificano la condizione fino ad un dato
 ;->  242 253 264 275 286 297 330 341 352 363 374 385 396 440 451 462 473 484
 ;->  495 550 561 572 583 594 660 671 682 693 770 781 792 880 891 990)
 
+(time (println (length (filter equal-dp? (sequence 1 1e7)))))
+;-> 436974
+;-> 16958.25
+
+(time (println (length (equal-sum 1e7))))
+;-> 436974
+;-> 16146.418
+
 (time (println (length (equal-sum 1e8))))
 ;-> 4816029
-;-> 186272.126 ; 3 minuti e 6 secondi
+;-> 177110.473 ; 2 minuti e 57 secondi
+
+Vediamo se possiamo ottimizzare le funzioni:
+
+(define (equal-dp? num)
+  (let ((i 1) (sum-d 0) (sum-p 0))
+    (while (!= num 0)
+      (if (odd? i)
+          (++ sum-d (% num 10))
+          (++ sum-p (% num 10))
+      )
+      (setq num (/ num 10))
+      (++ i)
+    )
+    ;(println sum-d { } sum-p)
+    (= sum-d sum-p)))
+
+(equal-dp? 0)
+;-> true
+(equal-dp? 7523351)
+;-> true
+(equal-dp? 122364)
+;-> true
+(equal-dp? 11111)
+;-> nil
+
+(filter equal-dp? (sequence 1 1e3))
+;-> (11 22 33 44 55 66 77 88 99 110 121 132 143 154 165 176 187 198 220 231
+;->  242 253 264 275 286 297 330 341 352 363 374 385 396 440 451 462 473 484
+;->  495 550 561 572 583 594 660 671 682 693 770 781 792 880 891 990)
+
+(define (equal limite)
+  (let (out '())
+    (for (i 1 limite)
+      (if (equal-dp? i)
+          (push i out -1)))
+    out))
+
+(equal 1e3)
+;-> (11 22 33 44 55 66 77 88 99 110 121 132 143 154 165 176 187 198 220 231
+;->  242 253 264 275 286 297 330 341 352 363 374 385 396 440 451 462 473 484
+;->  495 550 561 572 583 594 660 671 682 693 770 781 792 880 891 990)
+
+(time (println (length (filter equal-dp? (sequence 1 1e7)))))
+;-> 436974
+;-> 16854.807
+
+(time (println (length (equal 1e7))))
+;-> 436974
+;-> 13590.867
+
+(time (println (length (equal 1e8))))
+;-> 4816029
+;-> 151885.455 ; 2 minuti e 32 secondi
 
 
 -------------------------------------

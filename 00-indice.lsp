@@ -1644,6 +1644,9 @@ NOTE LIBERE 14
   Numeri somma di numeri consecutivi
   Best time to Buy and Sell Stock
   Analisi degli elementi di una lista/funzione
+  Sequenza crc32
+  Sort con memoria
+  email address
 
 APPENDICI
 =========
