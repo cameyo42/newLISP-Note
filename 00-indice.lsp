@@ -1647,6 +1647,11 @@ NOTE LIBERE 14
   Sequenza crc32
   Sort con memoria
   email address
+  Warden and prisoners (Guardiani e prigionieri)
+  Valori di default per i parametri di una funzione
+  Da iterativo a funzionale
+  La funzione "dup"
+  Profiler casalingo
 
 APPENDICI
 =========

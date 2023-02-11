@@ -3063,5 +3063,355 @@ Come funziona?
 (join (map last (sort (map list indici (explode crypt)))))
 ;-> "bazzo.go"
 
+
+----------------------------------------------
+Warden and prisoners (Guardiani e prigionieri)
+----------------------------------------------
+
+(define (w-p)
+  (set 'start (time-of-day))
+  (seed (date-value))
+  #choose how many prisoners, and the measure of success
+  (set 'prisonerCount 100 'prisonerGoal 90)
+  (set 'wincount 0 'losecount 0)
+  (dotimes (t 100)
+  #set up random lists for the warden and the prisoners
+  (set 'warden (randomize (sequence 0 (- prisonerCount 1)))
+        'prisoners (randomize (sequence 0 (- prisonerCount 1))))
+  #initialize an array that will store how the two lists map to each other
+  (set 'prisonerArray (array prisonerCount))
+  #populate the array with entries.
+  #the index is the number from the prisoners' list
+  #the value is the number from the warden's list
+  ;(map (fn (x y) (nth-set (prisonerArray x) y)) prisoners warden)
+  (map (fn (x y) (setf (prisonerArray x) y)) prisoners warden)
+  #initialize the results lists
+  (set 'loopList '() 'prisonerDoneList (array prisonerCount))
+  #for each prisoner entry
+  (dolist (i prisoners)
+  #if the prisoner has already been included in a list, go next
+      (until (prisonerDoneList i)
+  #mark the prisoner as done
+          ;(nth-set (prisonerDoneList i) 1)
+          (setf (prisonerDoneList i) 1)
+  #find what is in the prisoner's box,
+  #and start a list with the prisoner
+  (set 'x (prisonerArray i) 'oneLoop (list i))
+  #repeat until we find a loop
+          (until (= x i)
+  #put the new box at the end of the list
+                  (push x oneLoop -1)
+  #mark the new prisoner/box as done
+                  ;(nth-set (prisonerDoneList x) 1)
+                  (setf (prisonerDoneList x) 1)
+  #move on to the next box in the loop
+                  (set 'x (prisonerArray x)))
+  #when we have a complete loop,
+  #add it to the list of loops
+          (push oneLoop loopList -1)))
+  #create a sorted list with the lengths of the loops
+  (set 'loopCount (sort (map length loopList) > ) )
+  (if (> (first loopCount) prisonerGoal)
+      (inc losecount)
+      (inc wincount)))
+  #print the results
+  (println "prisoners win: " wincount " and prisoners lose: " losecount " in " (- (time-of-day) start) " ms"))
+
+(w-p)
+;-> prisoners win: 90 and prisoners lose: 10 in 4 ms
+(w-p)
+;-> prisoners win: 84 and prisoners lose: 16 in 4 ms
+
+
+-------------------------------------------------
+Valori di default per i parametri di una funzione
+-------------------------------------------------
+
+Il metodo classico per definire i valori di default di una funzione è il seguente:
+
+(define (f a b)
+   (set
+      'a (or a 1)
+      'b (or b 3))
+   (+ a b b a))
+
+oppure in modo equivalente:
+
+(define (g a b)
+   (setq a (or a 1))
+   (setq b (or b 3))
+   (+ a b b a))
+
+Nessun parametro:
+(f)
+;-> 8
+
+Solo il parametro a:
+(f 2)
+;-> 10
+
+Solo il parametro b:
+
+(f nil 3)
+;-> 8
+
+Entrambi i parametri:
+(f 3 3)
+;-> 12
+
+Un altro metodo è il seguente:
+
+(define (foo (a 1) (b 3))
+   (println "a:" a " b:" b))
+
+Nessun parametro:
+(foo)
+;-> a:1 b:3
+
+Solo il parametro a:
+(foo 8)
+;-> a:8 b:3
+
+Solo il parametro n:
+(foo nil 3)
+;-> a:nil b:3
+
+Entrambi i parametri:
+(foo 8 9)
+;-> a:8 b:9
+
+
+-------------------------
+Da iterativo a funzionale
+-------------------------
+
+Quando devo convertire codice da un liguaggio iterativo/procedurale incontro spesso situazioni del tipo seguente:
+
+repeat with i = 1 to 10
+  #do step a
+  println (i * i)
+  if i = 5 then next repeat
+  #do step b
+  println (i * i * i)
+end repeat
+
+Ciò significa che per i = 1 2 3 4 6 7 8 9 10 il codice esegue sia il passo "a" che il passo "b" (stampa i^2 e i^3). Per i = 5, il codice esegue solo il passo "a" (stampa i^2), quindi passa a i = 6.
+
+Come convertire questo comportamento in newLISP?
+
+Vediamo due possibili soluzioni:
+
+(for (i 1 10)
+  (println i { } (* i i) " a")
+  (unless (= i 5) (println i { } (* i i i) " b")))
+;-> 1 1 a
+;-> 1 1 b
+;-> 2 4 a
+;-> 2 8 b
+;-> 3 9 a
+;-> 3 27 b
+;-> 4 16 a
+;-> 4 64 b
+;-> 5 25 a
+;-> 6 36 a
+;-> 6 216 b
+;-> 7 49 a
+;-> 7 343 b
+;-> 8 64 a
+;-> 8 512 b
+;-> 9 81 a
+;-> 9 729 b
+;-> 10 100 a
+;-> 10 1000 b
+
+(for (i 1 10)
+  (and
+    (println i { } (* i i) " a")
+    (!= i 5)
+    (println i { } (* i i i) " b")))
+;-> 1 1 a
+;-> 1 1 b
+;-> 2 4 a
+;-> 2 8 b
+;-> 3 9 a
+;-> 3 27 b
+;-> 4 16 a
+;-> 4 64 b
+;-> 5 25 a
+;-> 6 36 a
+;-> 6 216 b
+;-> 7 49 a
+;-> 7 343 b
+;-> 8 64 a
+;-> 8 512 b
+;-> 9 81 a
+;-> 9 729 b
+;-> 10 100 a
+;-> 10 1000 b
+
+
+-----------------
+La funzione "dup"
+-----------------
+
+****************
+>>>funzione DUP
+****************
+sintassi: (dup exp int-n [bool])
+sintassi: (dup exp)
+
+Se l'espressione in "exp" restituisce una stringa, verrà replicata "int-n" volte all'interno di una stringa e restituita. Quando si specifica un'espressione che valuta qualcosa di diverso da nil in "bool", la stringa non verrà concatenata, ma replicata in una lista come qualsiasi altro tipo di dati.
+
+Se "exp" contiene qualsiasi tipo di dati diverso da string, la lista restituita conterrà "int-n" valutazioni di "exp".
+
+Senza il parametro di ripetizione, "dup" assume 2.
+
+(dup "*")
+;-> "**"
+(dup "A" 6)
+;-> "AAAAAA"
+(dup "A" 6 true)
+;-> ("A" "A" "A" "A" "A" "A")
+(dup "A" 0)
+;-> ""
+(dup "AB" 5)
+;-> "ABABABABAB"
+(dup 9 7)
+;-> (9 9 9 9 9 9 9)
+(dup 9 0)
+;-> ()
+(dup 'x 8)
+;-> (x x x x x x x x)
+(dup '(1 2) 3)
+;-> ((1 2) (1 2) (1 2))
+(dup "\000" 4)
+;-> "\000\000\000\000"
+
+L'ultimo esempio mostra la gestione delle informazioni binarie, creando una stringa piena di quattro zeri binari.
+
+Vedere anche le funzioni "sequence" e "series".
+
+Quindi (dup '(2 3) 3) produce ((2 3)(2 3)(2 3)), ma se vogliamo che produca (2 3 2 3 2 3)?
+
+Possiamo scrivere:
+
+(flat (dup '(2 3) 3))
+;-> (2 3 2 3 2 3)
+
+Comunque Sammo ha scritto due funzioni simili per questo:
+
+(define (dup1)
+  (flat (dup (chop (args)) ((args) -1))))
+
+(dup1 1 2 3)
+;-> (1 2 1 2 1 2)
+(dup1 1 10)
+;-> (1 1 1 1 1 1 1 1 1 1)
+(dup1 '(1 2) 10)
+;-> (1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2)
+(dup1 '(1 2) "A" 5)
+;-> (1 2 "A" 1 2 "A" 1 2 "A" 1 2 "A" 1 2 "A")
+(dup1 5)
+;-> ()
+
+(define (dup2)
+  (apply append (dup (chop (args)) ((args) -1))))
+
+(dup2 1 2 3)
+;-> (1 2 1 2 1 2)
+(dup2 1 10)
+;-> (1 1 1 1 1 1 1 1 1 1)
+(dup2 '(1 2) 10)
+;-> ((1 2) (1 2) (1 2) (1 2) (1 2) (1 2) (1 2) (1 2) (1 2) (1 2))
+(dup2 '(1 2) "A" 5)
+;-> ((1 2) "A" (1 2) "A" (1 2) "A" (1 2) "A" (1 2) "A")
+(dup2 5)
+;-> ()
+
+
+------------------
+Profiler casalingo
+------------------
+
+newLISP non ha un profiler, ma possiamo divertirci ugualmente usando la natura introspettiva di newLISP. 
+
+L'idea chiave è quella di inserire il codice che ci interessa in una lista.
+Per esempio, supponiamo di avere la seguente e di voler conoscere la velocità di creazione delle liste l1, l2 e l3:
+
+(define (test a lst)
+(local (l1 l2 l3)
+  (setq l1 (map (fn(x) (pow x a)) lst))
+  (setq l2 (map (fn(x) (+ (* x x) (* a a))) lst))
+  (setq l3 '())
+  (dolist (el lst)
+    (push (mul a (sin el)) l3 -1)
+  )
+  (print l1 "\n" l2 "\n" l3)))
+
+(test 3 '(1 2 3 4 5))
+;-> (1 8 27 64 125)
+;-> (10 13 18 25 34)
+;-> (2.524412954423689 2.727892280477045 0.4233600241796016 
+;->  -2.270407485923784 -2.876772823989415)
+
+Mettiamo le espressioni in una lista:
+
+(setq code '(
+  (setq a 3)
+  (setq lst (sequence 1 1e5))
+  (setq l1 (map (fn(x) (pow x a)) lst))
+  (setq l2 (map (fn(x) (+ (* x x) (* a a))) lst))
+  (setq l3 '())
+  (dolist (el lst) (push (mul a (sin el)) l3 -1))
+  'end))
+
+E poi eseguiamo ogni espressione con la funzione "time":
+
+(dolist (expr code) (println (time (eval expr)) ": " expr))
+;-> 0: (setq a 3)
+;-> 0.997: (setq lst (sequence 1 100000))
+;-> 8.074999999999999: (setq l1 (map (lambda (x) (pow x a)) lst))
+;-> 9.994999999999999: (setq l2 (map (lambda (x) (+ (* x x) (* a a))) lst))
+;-> 0: (setq l3 '())
+;-> 10.023: (dolist (el lst) (push (mul a (sin el)) l3 -1))
+;-> 0: 'end
+
+Eseguendo di nuovo il codice della lista otteniamo risultati leggermente differenti:
+
+(dolist (expr code) (println (time (eval expr)) ": " expr))
+;-> 0: (setq a 3)
+;-> 0.998: (setq lst (sequence 1 100000))
+;-> 7.704: (setq l1 (map (lambda (x) (pow x a)) lst))
+;-> 9.962: (setq l2 (map (lambda (x) (+ (* x x) (* a a))) lst))
+;-> 0: (setq l3 '())
+;-> 10.022: (dolist (el lst) (push (mul a (sin el)) l3 -1))
+;-> 0: 'end
+
+Questo è dovuto a diversi motivi, ma comunque abbiamo un'idea di quali parti del programma consumano più tempo.
+
+Possiamo anche eseguire le espressioni più volte, per esempio eseguiamo il codice precedente 10 volte e sommiamo i tempi ad ogni esecuzione:
+
+; lista dei tempi di esecuzione di ogni espressione della lista
+(setq timers (dup 0 (length code)))
+(dotimes (i 10)
+  (dolist (expr code)
+    (setf (timers $idx) (add (timers $idx) (time (eval expr))))
+  )
+)
+(dolist (expr code)
+  (println (timers $idx) ": " expr)
+)
+;-> 0: (setq a 3)
+;-> 6.532: (setq lst (sequence 1 100000))
+;-> 79.821: (setq l1 (map (lambda (x) (pow x a)) lst))
+;-> 117.633: (setq l2 (map (lambda (x) (+ (* x x) (* a a))) lst))
+;-> 6.004: (setq l3 '())
+;-> 103.889: (dolist (el lst) (push (mul a (sin el)) l3 -1))
+;-> 0: 'end
+
+Possiamo anche "profilare" solo alcune espressioni e non calcolare il tempo di esecuzione delle altre.
+
+Nota: ogni volta che misuriamo i tempi di esecuzione di parti di un programma influenziamo i tempi stessi (analogo del fatto che quando misuriamo una caratteristica, modifichiamo la caratteristica stessa (anche se solo di pochissimo)).
+
 =============================================================================
 
