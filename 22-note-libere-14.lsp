@@ -3413,5 +3413,240 @@ Possiamo anche "profilare" solo alcune espressioni e non calcolare il tempo di e
 
 Nota: ogni volta che misuriamo i tempi di esecuzione di parti di un programma influenziamo i tempi stessi (analogo del fatto che quando misuriamo una caratteristica, modifichiamo la caratteristica stessa (anche se solo di pochissimo)).
 
+
+--------------------
+La funzione "member"
+--------------------
+
+*******************
+>>>funzione MEMBER
+*******************
+sintassi: (member exp list)
+sintassi: (member str-key str [num-option])
+
+Nella prima sintassi, "member" cerca l'elemento "exp" nella lista "list". Se l'elemento è un membro della lista, viene costruita e restituita una nuova lista che inizia con l'elemento trovato e il resto della lista originale. Se non viene trovato nulla, viene restituito nil. Quando si specifica "num-option", "member" esegue una ricerca con espressione regolare.
+
+(set 'aList '(a b c d e f g h))  → (a b c d e f g h)
+(member 'd aList)                → (d e f g h)
+(member 55 aList)                → nil
+
+In the second syntax, member searches for str-key in str. If str-key is found, all of str (starting with str-key) is returned. nil is returned if nothing is found.
+
+Nella seconda sintassi, il Nella seconda sintassi, il membro cerca "str-key" in "str". Se viene trovato "str-key", viene restituito tutto "str" (che inizia con "str-key"). nil viene restituito se non viene trovato nulla.
+
+(member "LISP" "newLISP")
+;-> "LISP"
+(member "LI" "newLISP")
+;-> "LISP"
+(member "" "newLISP")
+;-> "newLISP"
+(member "xyz" "newLISP")
+;-> nil
+(member "li" "newLISP" 0)
+;-> nil
+(member "li" "newLISP" 1)
+;-> "LISP"
+
+Vedi anche le relative funzioni "slice" e "find".
+
+La funzione "member" agisce in modo leggermente diverso su liste e stringhe:
+
+(member "" "this is a string")
+;-> "this is a string"
+(member '() '("this" "is" "a" "list"))
+;-> nil
+
+Ogni stringa contiene la stringa vuota come sottostringa.
+Non tutte le liste contengono la lista vuota come sottolista.
+
+La funzione "member" considera il carattere vuoto "" come presente in ogni stringa:
+
+(member "" "")
+;-> ""
+(true? (member "" ""))
+;-> true
+
+La funzione "find" è più consistente:
+
+(find "" "this is a string")
+;-> nil
+(find '() '("this" "is" "a" "list"))
+;-> nil
+
+Lutz:
+-----
+From a mathematical-logical point of view, (member "" "string") should probably be nil. But the 'member' function for strings is less trying to model mathematical member ship behaviour than that it tries to be practical for string handling purposes. It tries to offer a shorter coding for the frequently used idom:
+
+(setq str "abcd")
+(setq key "b")
+(slice str (find key str 0))
+;-> bcd
+
+(member "b" "abcd")
+;-> "bcd"
+
+The function is modelled after the 'C' function strstr() which behaves the same way, returning a pointer to the entire string when searching for the empty string. When doing a regular expression search with 'find' then the 0 position is returned, also assuming that the empty string is part of the string.
+
+When doing a non regular expression search with "find", than 'nil' is returned, but "find" without the regex option is rather a memory buffer search rather than it is a string search because it is made to also handle binary information.
+
+(member "" "abcd")
+;-> "abcd" ; => true
+
+(find "" "abc")
+;-> nil
+
+(find "" "abc" 0) 
+;-> 0 ; => true
+
+(regex "" "abc") 
+;-> ("" 0 0) ; => true
+
+Programming languages which force these kinds of decisions to be always mathematically consistent tend to be impractical. But even from a practicality point of view one could probably argue both ways. In this case the precedent of strstr() and the behaviour of regular expressions swayed the decision.
+Note that there is also:
+
+(starts-with "abc" "")
+;-> true
+
+(ends-with "abc" "") 
+;-> true
+
+
+-----------------------------------
+States & Provinces contiguity check
+-----------------------------------
+
+tburton:
+--------
+A couple years ago, I wrote an algorithm that checks whether a series of input (or is it inputted?) U.S. states and/or Canadian provinces were contiguous with eachother. It is used by a governmental agency as part of the process of validating applications for trucking licenses. Although initially written in Java, I rewrote it in Cold Fusion for production because the latter was much faster!. Later, I rewrote it while fooling around with python.
+
+Then I discovered newLisp and found that all the hoopla about it was true after rewriting the algorithm again. The newLisp version is more than half the number of lines than the previous languages and writing it in newLisp required a subtle change in consciousness that felt, to use an adjective posted more than once elsewhere, Zen-like in its focus and clarity. Verrrry interesting.
+
+Anyway, the algorithm is below. Needless to say, the bulk of the work consisted of setting up a data structure listing all North American jurisdictions and integers representing each jurisdiction's neighbors. Since I'm a newbie, any feedback on how to make the code more 'lispy' would be appreciated!
+
+Nota: refactoring by Cormullion and cameyo
+
+(define (contiguity? theInputStr)
+  ;(set 'theInputStr "OR,CA,CO,ID,WA");not contig test
+  ;(set 'theInputStr "OR,CA,ID,WA");contig test
+  ;
+  (set 'testStr (replace "," (parse theInputStr)))
+  ;
+  ;if (< (length testStr) 2)
+  ; (begin
+  ;   (println "You must input at least two jurisdictions.")
+  ;   (exit)))
+  ;
+  (set 'statesNeighbors
+  '(("AL" 1 2 3 4)
+  ("AK" 5 138)
+  ("AR" 6 7 8 9 10 11)
+  ("AZ" 12 13 14 15 16)
+  ("CA" 12 17 18 19)
+  ("CO" 20 21 22 23 24 25)
+  ("CT" 26 27 28)
+  ("DE" 29 30 31)
+  ("FL" 1 32)
+  ("GA" 2 32 33 34 35)
+  ("ID" 36 37 38 39 40 41 42)
+  ("IL" 43 44 45 46 47)
+  ("IN" 43 48 49 50)
+  ("IA" 44 51 52 53 54 55)
+  ("KS" 20 56 57 58)
+  ("KY" 45 48 59 60 61 62 63)
+  ("LA" 6 64 65)
+  ("ME" 66 67 68)
+  ("MD" 29 69 70 71 144)
+  ("MA" 26 72 73 74 75)
+  ("MI" 49 76 77 78)
+  ("MN" 51 79 80 81 82 83)
+  ("MS" 3 7 64 84)
+  ("MO" 8 46 52 56 59 85 86 87)
+  ("MT" 36 88 89 90 91 92 93)
+  ("NE" 21 53 57 85 94 95)
+  ("NV" 13 17 37 96 97)
+  ("NH" 66 72 98 99)
+  ("NJ" 30 100 101)
+  ("NM" 14 22 102 103 104)
+  ("NY" 27 73 100 105 106 107 108)
+  ("NC" 33 109 110 111)
+  ("ND" 79 88 112 113 114)
+  ("OH" 50 60 76 115 116)
+  ("OK" 9 23 58 86 102 117)
+  ("OR" 18 38 96 118)
+  ("PA" 31 69 101 105 115 119)
+  ("RI" 28 74)
+  ("SC" 34 109)
+  ("SD" 54 80 89 94 112 120)
+  ("TN" 4 10 35 61 84 87 110 121)
+  ("TX" 11 65 103 117 122)
+  ("UT" 15 24 39 97 123)
+  ("VT" 75 98 106 124)
+  ("VA" 62 70 111 121 125 145)
+  ("WA" 40 118 126)
+  ("WV" 63 71 116 119 125)
+  ("WI" 47 55 77 81)
+  ("WY" 25 41 90 95 120 123)
+  ("AB" 91 127 128 142)
+  ("BC" 5 42 92 126 127 139 140)
+  ("MB" 82 113 129 130)
+  ("NB" 67 131 132 134)
+  ("NS" 131 135 137)
+  ("ON" 78 83 107 129 133)
+  ("QC" 68 99 108 124 132 133 136)
+  ("SK" 93 114 128 130 141)
+  ("PE" 134 135)
+  ("NL" 136 137)
+  ("NT" 140 141 142 143)
+  ("YT" 138 139 143)
+  ("MX" 16 19 104 122)
+  ("DC" 144 145)))
+  ;
+  (push "ZZ" testStr -1) ;postpend a marker for a batch (one complete loop)
+  ;
+  ;remove first state from testStr & push its neighbors into matchingBucket:
+  (set 'matchingBucket (rest (assoc (pop testStr) statesNeighbors)))
+  (set 'cntBatchNoChange 0)
+  ;
+  (define (common-boundary)
+    ;if there is one boundary common to this state and boundaries in matchingBucket:
+    ;then push this state's boundaries into bucket
+    ;else push (at tail) this state back into the testStr
+    (let (boundaries (length (intersect tempStatesBoundaries matchingBucket)))
+    (cond
+        ((!= boundaries 0 )  (push tempStatesBoundaries matchingBucket)
+                            (set 'matchingBucket (unique (flat matchingBucket)))
+                            (set 'cntBatchNoChange 0))
+        (true                (push tempState testStr)
+                            (rotate testStr -1)))))
+  ;
+  (while (and (< cntBatchNoChange 2 ) (> (length testStr) 1))
+    (set 'tempState (pop testStr))
+    (cond
+        ((!= tempState "ZZ") 
+                    (set 'tempStatesBoundaries (rest (assoc tempState statesNeighbors)))
+                    (common-boundary))
+        (true ;if ZZ encountered
+                    (push tempState testStr)
+                    (rotate testStr -1)
+                    (inc cntBatchNoChange))))
+  ;
+  (if (> (length testStr) 1)
+    (begin
+      (replace "ZZ" testStr)
+      (println "not contiguous because of " testStr))
+    (println "contiguous!"))
+)
+
+Some tests:
+
+(contiguity? "OR,CA,CO,ID,WA")
+;-> not contiguous because of ("CO")
+
+(contiguity? "OR,CA,ID,WA")
+;-> contiguous
+
+(contiguity? "OR,WA,CA,ID,CO,WA")
+;-> not contiguous because of ("CO")
+
 =============================================================================
 

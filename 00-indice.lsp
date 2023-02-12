@@ -1652,6 +1652,8 @@ NOTE LIBERE 14
   Da iterativo a funzionale
   La funzione "dup"
   Profiler casalingo
+  La funzione "member"
+  States & Provinces contiguity check
 
 APPENDICI
 =========
