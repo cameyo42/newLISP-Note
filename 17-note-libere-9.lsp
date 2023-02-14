@@ -4846,6 +4846,54 @@ Altro metodo senza usare "match":
 (map (curry map int) '(("1" "2" "3") ("4")))
 ;-> ((1 2 3) (4))
 
+Come usare un pattern con "match"
+---------------------------------
+
+(set 'numbers '(1 2 3 4 5 6 7))
+(set 'matches (match '(* 5 * ) numbers))
+;-> ((1 2 3 4) (6 7))
+
+(set 'n 5)
+(set 'matches (match '(* n * ) numbers))
+;-> nil
+
+La soluzione corretta è la seguente:
+
+(set 'matches (match (list '* n '*) numbers))
+;-> ((1 2 3 4) (6 7))
+
+... ed ecco un secondo modo:
+
+(letex (n 5) (match '(* n * ) numbers))
+;-> ((1 2 3 4) (6 7))
+
+Se abbiamo una lista di numeri:
+
+(set 'numbers '(1 2 3 4 5 6 7))
+(set 'p '(2 3))
+(set 'matches (match (list '* p '*) numbers))
+;-> nil
+
+Questo non è possibile, perchè ogni specifica nel pattern descrive un elemento della lista di ricerca, che potrebbe essere un'altro lista (es. (1 2)) ma non una sottolista. Questo è il motivo per cui bisogna spezzare p in a e b.
+
+(set 'a 2 'b 3)
+(match (list '* a b '*) numbers)
+;-> ((1) (4 5 6 7))
+
+oppure:
+
+(letex (a 2 b 3) (match '(* a b *) numbers))
+;-> ((1) (4 5 6 7))
+
+Il problema originale dovrebbe essere questo:
+
+(set 'numbers '(1 (2 3) 4 5 6 7))
+;-> (1 (2 3) 4 5 6 7)
+(set 'p '(2 3))
+;-> (2 3)
+(set 'matches (match (list '* p '*) numbers))
+;-> ((1) (4 5 6 7))
+
 
 -----------
 Analisi DNA

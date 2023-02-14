@@ -1654,6 +1654,11 @@ NOTE LIBERE 14
   Profiler casalingo
   La funzione "member"
   States & Provinces contiguity check
+  Pensieri sparsi per imparare a programmare
+  Forum: Lispy regexes
+  Restituire una stringa senza i doppi apici ""
+  Allineamento di numeri floating point
+  Crittografia MD5
 
 APPENDICI
 =========

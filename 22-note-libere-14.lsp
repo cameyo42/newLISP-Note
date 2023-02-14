@@ -2373,7 +2373,7 @@ Soluzione matematica:
     |              .           |
     |              .           |
     +--------------------------+
-           8          10 - a 
+           8          10 - a
 
   x + y + z = 14
 
@@ -2458,7 +2458,7 @@ Si tatta dei numeri binari del tipo:
   111101111
 
 Sequenza OEIS: A129868
-  0, 5, 27, 119, 495, 2015, 8127, 32639, 130815, 523775, 2096127, 
+  0, 5, 27, 119, 495, 2015, 8127, 32639, 130815, 523775, 2096127,
   8386559, 33550335, 134209535, 536854527, 2147450879, 8589869055,
   34359607295, 137438691327, 549755289599, 2199022206975, 8796090925055,
   35184367894527, 140737479966719, 562949936644095, ...
@@ -2506,7 +2506,7 @@ Funzione che trova tutti i numeri ciclope fino ad un dato limite:
 ;->  134209535 536854527 2147450879 8589869055 34359607295 137438691327
 ;->  549755289599 2199022206975 8796090925055 35184367894527 140737479966719
 ;->  562949936644095 2251799780130815 9007199187632127 36028796884746239
-;->  144115187807420415 576460751766552575 2305843008139952127 
+;->  144115187807420415 576460751766552575 2305843008139952127
 ;->  9223372034707292159)
 ;-> 1.995
 
@@ -2596,20 +2596,20 @@ Sequenza OEIS: A174069
     (setq upper 1)
     ; limite superiore <= int(sqrt(num))
     (setq max-val (int (sqrt num)))
-    ;Exit if the number is found. 
+    ;Exit if the number is found.
     (while (!= sum num)
-            ; se la somma dei quadrati è troppo piccola, 
+            ; se la somma dei quadrati è troppo piccola,
             ; aggiunge il quadrato successivo e incrementa upper
       (cond ((< sum num)
               (++ upper)
               (setq sum (+ sum (* upper upper))))
-            ; se la somma dei quadrati è troppo alta, 
+            ; se la somma dei quadrati è troppo alta,
             ; sottrae il primo quadrato, e incrementa lower.
             ((> sum num)
               (setq sum (- sum (* lower lower)))
               (++ lower))
       )
-      ; se non può essere espresso come somma 
+      ; se non può essere espresso come somma
       ; di quadrati di numeri consecutivi,
       ; allora, alla fine upper supererà il massimo e restituisce nil.
       (if (> upper max-val) (throw nil))
@@ -2620,8 +2620,8 @@ Sequenza OEIS: A174069
 
 (filter sum-squares (sequence 1 500))
 ;-> (5 13 14 25 29 30 41 50 54 55 61 77 85 86 90 91 110 113 126 135 139
-;->  140 145 149 174 181 190 194 199 203 204 221 230 245 255 265 271 280 
-;->  284 285 294 302 313 330 355 365 366 371 380 384 385 415 421 434 446 
+;->  140 145 149 174 181 190 194 199 203 204 221 230 245 255 265 271 280
+;->  284 285 294 302 313 330 355 365 366 371 380 384 385 415 421 434 446
 ;->  451 476 481 492)
 
 
@@ -2736,10 +2736,10 @@ Verifica:
 Adesso analizziamo i numeri della sequenza:
 
 (filter sum? (sequence 1 1e3))
-;-> (1 3 5 6 7 9 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 
+;-> (1 3 5 6 7 9 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25
 ;->  26 27 28 29 30 31 33 34 35 36 37 38 39 40 41 42 43 44 45 ...
 ;->  ...
-;->  976 977 978 979 980 981 982 983 984 985 986 987 988 989 
+;->  976 977 978 979 980 981 982 983 984 985 986 987 988 989
 ;->  990 991 992 993 994 995 996 997 998 999 1000)
 
 Quali numeri restano fuori (cioè non sono esprimibili come somma di numeri interi positivi consecutivi)?
@@ -2748,10 +2748,10 @@ Quali numeri restano fuori (cioè non sono esprimibili come somma di numeri inte
 ;-> (2 4 8 16 32 64 128 256 512)
 
 (clean sum? (sequence 1 1e6))
-;-> (2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 
+;-> (2 4 8 16 32 64 128 256 512 1024 2048 4096 8192
 ;->  16384 32768 65536 131072 262144 524288)
 
-Ipotesi: 
+Ipotesi:
 restano fuori solo i numeri potenza di 2, cioè i numeri della forma 2^p.
 
 Dimostrazione matematica:
@@ -2763,7 +2763,7 @@ Sia n il nostro numero base, e scegliamo k numeri consecutivi:
  S = n*k + (k)*(k−1)/2
 
  S = k*(n + (k−1)/2)
- 
+
  2S = k*(2*n + k − 1)
 
 Se supponiamo che S è della forma 2^p, allora sia k che (2n+k−1) devono essere entrambi della forma 2^q.
@@ -2778,8 +2778,8 @@ Best time to Buy and Sell Stock
 Problema LeetCode N. 122
 
 Ti viene fornita una lista di numeri interi di prezzi, dove lista(i) è il prezzo di un determinato titolo l'i-esimo giorno.
-Ogni giorno puoi decidere di acquistare e/o vendere le azioni. 
-Puoi detenere al massimo una quota del titolo alla volta. 
+Ogni giorno puoi decidere di acquistare e/o vendere le azioni.
+Puoi detenere al massimo una quota del titolo alla volta.
 Tuttavia, puoi acquistarlo e poi venderlo immediatamente lo stesso giorno.
 
 Ad esempio, se la lista vale (2 4 6 8 5 3 1 3 7) il massimo profitto può essere ottenuto acquistando il giorno 0 al prezzo 2, e vendendo il giorno 3 al prezzo 8. Poi acquistando di nuovo il giorno 6 a prezzo 1 e vendendo il giorno 8 al prezzo 7. Profitto totale 6 + 6 = 12.
@@ -2805,8 +2805,8 @@ Se la lista dei prezzi è ordinata in ordine decrescente, allora non può esserc
           (setq sell i)
           ; aggiornare il profitto
           (setq profit (+ profit (- (lst sell) (lst buy))))
-          (println "comprare a " (lst buy) " il giorno " buy 
-                   " e vendere a " (lst sell) " il giorno " sell 
+          (println "comprare a " (lst buy) " il giorno " buy
+                   " e vendere a " (lst sell) " il giorno " sell
                    ": + " (- (lst sell) (lst buy)))
         )
       )
@@ -3016,7 +3016,7 @@ Vediamo due funzioni per offuscare (per gioco) il nostro indirizzo in una pagina
 
 (setq email "nome.cognome@provider.com")
 (encode-email email)
-;-> ("..@ccdeeegimmmnnoooooprrv" 
+;-> ("..@ccdeeegimmmnnoooooprrv"
 ;->  (4 21 12 5 22 18 3 11 19 7 17 2 10 24 0 8 1 6 9 15 23 13 14 20 16))
 
 (decode-email "..@ccdeeegimmmnnoooooprrv" '(4 21 12 5 22 18 3 11 19 7 17 2 10 24 0 8 1 6 9 15 23 13 14 20 16))
@@ -3025,8 +3025,8 @@ Vediamo due funzioni per offuscare (per gioco) il nostro indirizzo in una pagina
 Nella pagina web:
 
 -----------------------------------------------------------------------------
-email: 
-  str = "..@ccdeeegimmmnnoooooprrv" 
+email:
+  str = "..@ccdeeegimmmnnoooooprrv"
   lst = '(4 21 12 5 22 18 3 11 19 7 17 2 10 24 0 8 1 6 9 15 23 13 14 20 16)
 
 (define (decode-email str lst)
@@ -3059,7 +3059,7 @@ Come funziona?
 ; ... poi prende solo i caratteri ...
 (map last (sort (map list indici (explode crypt))))
 ;-> ("b" "a" "z" "z" "o" "." "g" "o")
-; ... e infine ricostruisce la stringa 
+; ... e infine ricostruisce la stringa
 (join (map last (sort (map list indici (explode crypt)))))
 ;-> "bazzo.go"
 
@@ -3333,7 +3333,7 @@ Comunque Sammo ha scritto due funzioni simili per questo:
 Profiler casalingo
 ------------------
 
-newLISP non ha un profiler, ma possiamo divertirci ugualmente usando la natura introspettiva di newLISP. 
+newLISP non ha un profiler, ma possiamo divertirci ugualmente usando la natura introspettiva di newLISP.
 
 L'idea chiave è quella di inserire il codice che ci interessa in una lista.
 Per esempio, supponiamo di avere la seguente e di voler conoscere la velocità di creazione delle liste l1, l2 e l3:
@@ -3351,7 +3351,7 @@ Per esempio, supponiamo di avere la seguente e di voler conoscere la velocità d
 (test 3 '(1 2 3 4 5))
 ;-> (1 8 27 64 125)
 ;-> (10 13 18 25 34)
-;-> (2.524412954423689 2.727892280477045 0.4233600241796016 
+;-> (2.524412954423689 2.727892280477045 0.4233600241796016
 ;->  -2.270407485923784 -2.876772823989415)
 
 Mettiamo le espressioni in una lista:
@@ -3495,10 +3495,10 @@ When doing a non regular expression search with "find", than 'nil' is returned, 
 (find "" "abc")
 ;-> nil
 
-(find "" "abc" 0) 
+(find "" "abc" 0)
 ;-> 0 ; => true
 
-(regex "" "abc") 
+(regex "" "abc")
 ;-> ("" 0 0) ; => true
 
 Programming languages which force these kinds of decisions to be always mathematically consistent tend to be impractical. But even from a practicality point of view one could probably argue both ways. In this case the precedent of strstr() and the behaviour of regular expressions swayed the decision.
@@ -3507,7 +3507,7 @@ Note that there is also:
 (starts-with "abc" "")
 ;-> true
 
-(ends-with "abc" "") 
+(ends-with "abc" "")
 ;-> true
 
 
@@ -3622,7 +3622,7 @@ Nota: refactoring by Cormullion and cameyo
   (while (and (< cntBatchNoChange 2 ) (> (length testStr) 1))
     (set 'tempState (pop testStr))
     (cond
-        ((!= tempState "ZZ") 
+        ((!= tempState "ZZ")
                     (set 'tempStatesBoundaries (rest (assoc tempState statesNeighbors)))
                     (common-boundary))
         (true ;if ZZ encountered
@@ -3647,6 +3647,644 @@ Some tests:
 
 (contiguity? "OR,WA,CA,ID,CO,WA")
 ;-> not contiguous because of ("CO")
+
+
+------------------------------------------
+Pensieri sparsi per imparare a programmare
+------------------------------------------
+
+La programmazione e il programmatore
+------------------------------------
+Oggi il lavoro del programmatore è ben pagato ed è uno dei lavori più interessanti che le persone possano fare.
+Non si impara a programmare dall'oggi al domani e può richiedere anni per un principiante.
+Ci sono molte risorse disponibili online e offline per imparare l'arte della programmazione.
+Naturalmente ci sono alcune persone che hanno un talento particolare per scrivere codice, ma con dedizione, passione, interesse e sicuramente pazienza è possibile diventare un buon programmatore.
+
+Quale linguaggio di programmazione?
+-----------------------------------
+Prima di rispondere a questa domanda dobbiamo porci prima un'altra domanda: cosa ci interessa fare come programmatore?
+Ci interessa lo sviluppo di siti web oppure vogliamo scrivere dei giochi?
+Esistono dei linguaggi general-purpose, ma se vogliamo scrivere dei driver, allora molto probabilmente la scelta migliore è il linguaggio C.
+Io non sono un programmatore professionista, nel senso che ho scritto parecchio codice, ma funzionale al mio lavoro (Geographic Information System e Infografica).
+Comunque ho scritto programmi in Fortran (CAD S5000 - O.S. Apollo Domain), C (grafica - windows), python (Arc-Gis - windows), Delphi (database - windows), MapBasic (MapInfo - windows), Zscript (ZBrush - windows, osx), processing/java (grafica, giochi - windows, osx).
+Poi ho giocato con Prolog, Pascal, Logo, Forth, Scheme (SICP), CLISP, Julia (bello), ... adesso mi diverto (tanto) con newLISP.
+Il mondo dei linguaggi è in continuo movimento e il miglior consiglio che posso dare è quello di seguire quello che accade informandosi su internet. Ad esempio, l'indice TIOBE Programming Community (https://www.tiobe.com/tiobe-index/) è un indicatore della popolarità dei linguaggi di programmazione. È importante notare che l'indice TIOBE non riguarda il miglior linguaggio di programmazione o il linguaggio in cui sono state scritte la maggior parte delle righe di codice.
+L'indice può essere utilizzato per verificare se le tue capacità di programmazione sono ancora aggiornate o per prendere una decisione strategica su quale linguaggio di programmazione dovrebbe essere adottato quando inizi a costruire un nuovo sistema software.
+La definizione dell'indice TIOBE può essere trovata al seguente indirizzo:
+https://www.tiobe.com/tiobe-index/programminglanguages_definition/
+
+Vediamo la classifica di febbraio 2023:
+
+  Rank   Language       Ratings
+  ----   --------       -------
+    1     Python         15.49%
+    2     C              15.39%
+    3     C++            13.94%
+    4     Java           13.21%
+    5     C#             6.38%
+    6     Visual Basic   4.14%
+    7     JavaScript     2.52%
+    8     SQL            2.12%
+    9     Assembly       1.38%
+   10     PHP            1.29%
+   11     Go             1.11%
+   12     R              1.08%
+   13     MATLAB         0.99%
+   14     Delphi         0.95%
+   15     Swift          0.93%
+   16     Ruby           0.83%
+   17     Perl           0.79%
+   18     Scratch        0.76%
+   19     Classic VB     0.74%
+   20     Rust           0.70%
+
+Costruire delle fondamenta solide (un passo alla volta)
+-------------------------------------------------------
+Non bisogna saltare i fondamenti o il capitolo 1 e passare direttamente al capitolo successivo. Per comprendere i concetti avanzati è necessario avere molto chiari i fondamenti della programmazione. Questo errore ci porterà, prima o poi, ad una confusione tale che dovremo tornare di nuovo a studiare le basi. Questi fondamenti sono strutture dati, variabili, strutture di controllo, sintassi, algoritmi, compilatori, editor di testo, ecc. Quando si inizia a programmare, si sceglie un linguaggio di programmazione e si studiano tutte le basi prima di passare al livello successivo.
+La padronanza di un linguaggio di programmazione si ottiene dopo anni di programmazione.
+
+Imparare facendo e non solo leggendo (pratica, teoria, pratica, teoria, ...)
+----------------------------------------------------------------------------
+Un errore comune che i principianti fanno mentre imparano a programmare è semplicemente leggere un libro o guardare il codice di esempio senza provarlo direttamente. È facile leggere i loop e le variabili e pensare che si sia capito tutto, ma la programmazione reale non funziona in questo modo. Devi davvero "sporcarti le mani" ed esercitarti regolarmente e continuamente. Scrivere il codice ci costringe ad essere precisi e a risolvere tutti quei problemi collaterali dovuti agli strumenti che usiamo (editor, compilatori, ecc.). Inoltre risolvere i problemi migliora realmente la capacità di pensiero logico e di sviluppare algoritmi.
+Quando iniziamo a programmare affrontiamo molti problemi e spesso rimaniamo bloccati lì, apparentemente senza speranza, ma è proprio in questi momenti che la forza di volontà deve spronarci a trovare una soluzione in qualche modo.
+
+Scrivere codice a mano (carta e penna)
+--------------------------------------
+I principianti dovrebbero scrivere il codice con carta e penna prima di implementare il programma con un editor.
+Questo è un processo che richiede tempo, inoltre non è possibile eseguire/verificare il programma su carta.
+Allora perché si dovrebbe usare carta e penna?
+La codifica manuale è una tecnica della vecchia scuola, ma in realtà comporta un test per la competenza di un programmatore. La codifica manuale può darti una chiara comprensione della sintassi e degli algoritmi, crei una connessione più profonda nel tuo cervello. Imparare a programmare in questo modo renderà il tuo lavoro più facile e veloce in seguito.
+
+Condividere, insegnare, discutere e chiedere aiuto (con tutti)
+--------------------------------------------------------------
+Uno dei modi migliori per vedere se abbiamo capito un concetto è quello di insegnarlo ad un'altra persona. Insegnare a qualcuno è anche insegnare a se stessi, quindi quando siamo in grado di insegnare significa che abbiamo capito veramente i concetti.
+Condividi le tue conoscenze, discuti il codice con altri programmatori (tramite forum ad esempio), impara con youtube e con corsi video specialistici, apri un account su github o gitlab, leggi il codice di altri programmatori, partecipa a progetti open source.
+Soprattutto non esitare a chiedere aiuto: fai tutte le domande che credi, nella maggior parte dei casi troverai programmatori pronti ad aiutarti.
+
+Utilizzare le risorse disponibili su Internet (e non solo)
+----------------------------------------------------------
+Ci sono molte risorse online (gratis e a pagamento). Lezioni video, boot camp, code golf, tutorial, project euler, rosetta code e molto altro sono solo ad un passo.
+Un altro consiglio è quello di leggere i blog relativi alla programmazione e al linguaggio scelto.
+I libri non sono passati di moda, ci sono alcuni classici che devono essere nella nostra biblioteca (K&R, TAOCP, SICP, ecc.).
+Leggere TUTTI i manuali del linguaggio e dell'ambiente di programmazione (RTFM, Read The Fucking Manual).
+Per una lista di libri e siti di programmazione vedi la bibliografia.
+
+Prendere aria (fare delle pause)
+--------------------------------
+La capacità di rimanere concentrati a programmare davanti ad un computer è soggettiva.
+Comunque quando ci sentiamo stanchi e poco lucidi è il momento di fare una pausa.
+A volte passo ore a cercare un bug senza successo, allora è meglio liberare la mente (porto fuori il cane) e spesso la soluzione mi viene in mente fuori.
+Quando programmi devi isolarti e concentrarti: eliminare ogni tipo di distrazione (email, notifiche, ecc.).
+
+Imparare a usare il debugger (un vero amico)
+--------------------------------------------
+Fare errori quando si scrive codice è normale (difficilmente un programma funziona al primo tentativo). All'inizio troveremo molti errori nel nostro codice quindi è bene imparare ad usare il debugger per analizzare da vicino l'esecuzione dei nostri programmi. Un programmatore passa la maggior parte del tempo a correggere i programmi. Padroneggiare il debugger è fondamentale per programmare.
+
+Matematica (accidenti...)
+-------------------------
+La conoscenza della matematica aiuta moltissimo a risolvere i problemi in modo efficace ed efficiente. Un programmatore che ha solide basi in algebra, trigonometria, calcolo delle probabilità, statistica, trigonometria e calcolo/analisi è sicuramente avvantaggiato nel suo lavoro.
+Come studiare la matematica è un altro problema... (lasciato come esercizio agli studenti di programmazione).
+
+Nota finale: requisito fondamentale per programmare: "ti deve piacere (e tanto)!!!"
+
+
+--------------------
+Forum: Lispy regexes
+--------------------
+
+Jeremy Dunn:
+------------
+
+I was thinking about the fact that NewLISP uses functional notation for everything but departs from that philosophy when we write regex patterns. I realize that this simplifies the task of including some form of regex because then one only has to adopt pre-existing PERL notation. Also, there is more or less a tradition as to how one is supposed to write regexes. Why rock the boat? Well, one reason is to be consistent and have a functional approach to everything, that eliminates the need to learn and remember a complex set of syntax rules. Large regexes are awful to create and read if you aren't doing it all the time. Standard regex notation continues to enlarge and the way that PERL does it is doomed to become limited because no one is going to be able to read all the extra little syntax goodies Larry Wall likes to create. Functional notation is not limited because one just comes up with a new function name and adds parentheses and moves on. So I have come up with the notion of having a set of NewLISP functions that generate the regex pattern string without having to know or deal with standard regex notation at all. First I will unveil my first attempt and then discuss how it is used.
+
+;; Functions:
+;;
+;; (reg x y ...) translate and join epressions
+;; (bracket s c) bracket expressions with parens
+;; (r1  x)       match 1 or more times  +
+;; (r01 x)       match 0 or 1 times     ?
+;; (r0  x)       match 0 or more times  *
+;; (r2  x)       match 2 or more times  {2,}
+;; (ntom x n m)  match a min of n and a max of m    {n,m}
+;; (lazy x)      perform lazy (non-greedy) evaluation
+;; (r-n x)       negate character class or individual character
+;; (r-or x y)    alternation (x|y)
+;; (r-run x y)   [a-z] run of characters
+;; (r-chc x)     [abc] character class
+
+;; Bracket a string with a given bracket character. If no character than parentheses () are
+;; assumed. For regex expressions the function acts as the grouping operator ().
+(define (bracket s c , opt)
+  (setq c   (or c "(")
+        opt (if (member c '("(" ")")) '("(" ")")
+                (member c '("[" "]")) '("[" "]")
+                (member c '("<" ">")) '("<" ">")
+                '("{" "}")
+            )
+  )
+  (join (list (first opt) s (last opt))))
+
+;; Convert numbers or symbols to appropriate character strings. Note that character
+;; classes or special characters are denoted by symbols. Ascii codes are typed in
+;; directly as integers.
+(define (convert-codes c)
+  (if   ;c is an ascii code
+      (= c 7)  "\\a" ;bell
+      (= c 8)  "\\b" ;backspace
+      (= c 9)  "\\t" ;tab
+      (= c 10) "\\n" ;newline
+      (= c 12) "\\f" ;formfeed
+      (= c 13) "\\r" ;carriage return
+      (= c 27) "\\e" ;escape
+      (or (<= 48 c 57)(<= 65 c 90)(<= 97 c 122)) (char c)  ;alphabet or digits
+        ;c is a symbol
+      (= c 'a)  "\\a"   ;bell
+      (= c 'b)  "\\b"   ;backspace
+      (= c 't)  "\\t"   ;tab
+      (= c 'n)  "\\n"   ;newline
+      (= c 'f)  "\\f"   ;formfeed
+      (= c 'r)  "\\r"   ;carriage return
+      (= c 'e)  "\\e"   ;escape     
+      (= c '^)  "^"          ;anchor to start of line
+      (= c '$)  "$"          ;anchor to end of line
+      (= c 'L)  "[a-z]"      ;any lower case letter
+      (= c 'U)  "[A-Z]"      ;any upper case letter
+      (= c 'UL) "[^A-Za-z]"         ;anything other than an upper or lower case letter
+      (= c 'ul) "[A-Za-z]"          ;any lower or upper case letter
+      (= c 'V)  "[^aeiouAEIOU]"     ;any consonant
+      (= c 'v)  "[aeiouyAEIOUY]"    ;any vowel
+      (= c 'br) "[()\[\]{}<>]"      ;any bracket symbol
+      (= c 'lb) "[(\[{<]"           ;any left bracket symbol
+      (= c 'rb) "[)\]}>]"           ;any right bracket symbol
+      (= c 'BR) "[^()\[\]{}<>]"     ;any non-bracket symbol
+      (= c 'W)  "\\W"        ;matches a non-alphanumeric character
+      (= c 'w)  "\\w"        ;matches an alphanumeric character
+      (= c 'D)  "\\D"        ;non-digit
+      (= c 'd)  "\\d"        ;digit
+      (= c 'S)  "\\S"        ;non-space
+      (= c 's)  "\\s"        ;space
+      (= c 'se) "[.?!]"      ;a sentence ending symbol
+      (= c 'P)  "[^,;:.?! ]" ;a non sentence punctuation symbol
+      (= c 'p)  "[,::.?! ]"  ;a sentence punctuation symbol
+      (= c '.)  "."          ;any single character
+      (= c '*)  ".*"         ;one or more of any character
+      (= c 'rp) ".{2,}"      ;2 or more of any character (repeats)
+      (= c 'K)  "[^!-~]"     ;is not a key character
+      (= c 'k)  "[!-~]"      ;is a key character
+      (= c '+)  "[-+]"       ;matches + or -
+      c
+  )
+)
+
+;; Convert a list of strings, ascii codes, symbols or other lists into
+;; a single string.
+(define (reg%% z)
+  (if (string? z) z
+      (or (integer? z)(symbol? z)) (convert-codes z)
+      (list? z)(join (map reg%% z))
+      nil
+  ))
+
+;; Convert all arguments into strings and join them into a single string.
+(define-macro (reg)
+  (join (map reg%% (map eval (args)))))
+
+;; Take the negation of a string pattern.
+(define (r-n x)
+  (setq x (reg x))
+  (if (= "^" (first x)) (rest x)
+      (= "[^" (0 2 x)) (join (list "[" (slice x 2)))
+      (= "[" (first x)) (join (list "[^" (rest x)))
+      (= "^(" (0 2 x)) (rest x)
+      (join (list "^" x))
+  ))
+
+;; Match 1 or more of x. If L is non-nil do a lazy (non-greedy) analysis.
+;; Example: (r1 "a")      -> "a+"
+;;          (r1 "a" true) -> "a+?"
+(define (r1 x L)
+  (join (list (reg x) "+" (if L "?" ""))))
+
+;; Match 0 or more of x. If L is non-nil do a lazy (non-greedy) analysis.
+;; Example: (r0 "a")      -> "a*"
+;;          (r0 "a" true) -> "a*?"
+(define (r0 x L)
+  (join (list (reg x) "*" (if L "?" ""))))
+
+;; Match 0 or 1 of x. If L is non-nil do a lazy (non-greedy) analysis.
+;; Example: (r01 "a")      -> "a?"
+;;          (r01 "a" true) -> "a??"
+(define (r01 x L)
+  (join (list (reg x) "?" (if L "?" ""))))
+
+;; Match 2 or more i.e. repeats of x. If L is non-nil do a lazy (non-greedy) analysis.
+;; Example: (r2 "a")      -> "a{2,}"
+;;          (r2 "a" true) -> "a{2,}?"
+(define (r2 x L)
+  (join (list (reg x) "{2,}" (if L "?" ""))))
+
+;; Another way of doing lazy evaluation by having a function specifically for it.
+;; The function takes a string and appends "?" onto the end of it. So you can
+;; write (r1 "A" true) as (lazy (r1 "A")) if you wish. This might be handier if you
+;; wanted to use map to map lazy onto several expressions at once.
+(define (lazy x)(join (list (reg x) "?")))
+
+;; Match x a minimum of n times and a maximum of m times. If L is non-nil
+;; do a lazy (non-greedy) analysis. If m is 0 then the maximum is infinity.
+;; Example: (ntom "a" 2 4)      -> "a{2,4}"
+;;          (ntom "a" 2 0)      -> "a{2,}"
+;;          (ntom "a" 2)        -> "a{2}"
+;;          (ntom "a" 2 4 true) -> "a{2,4}?"
+(define (ntom x n m L)
+      (join (list (reg x)
+                  (bracket (join (list (string n)
+                                   (if (>= m 0) "," "")
+                                   (if (> m 0) (string m) "")
+                                  )) "}")
+                  (if L "?" "")
+            )))
+
+;; Perform alternation on a series of arguments. If the last argument is +
+;; do a positive lookahead, if the last argument is - do a negative lookahead.
+;; Example: (r-or "cat" "dog")   -> "(cat|dog)"
+;;          (r-or "cat" "dog" +) -> "(?=cat|dog)"
+;;          (r-or "cat" "dog" -) -> "(?!cat|dog)"
+(define-macro (r-or)
+  (setq L        (last (args))
+        interior (map (fn (x)(join (list "|" (reg x)))) (args))
+        interior (rest (join interior))
+  )
+  (bracket (join (list (if (= L +) "?=" (= L -) "?!" "") interior)))
+)
+
+;; Create a run of characters. You must backslash
+;; a character for it to be taken literally.
+;; Example: (r-run "a" "b") -> "[a-b]"
+(define (r-run s f)
+  (bracket
+    (join (list (reg s)
+                "-"
+                (reg f))) "["))
+
+;; Create a character class. You must backslash a character
+;; for it to be taken literally.
+;; Example: (r-chc "f9p") -> "[f9p]"
+(define (r-chc s)(bracket (reg s) "]"))
+
+One must remember that the above code does not examine regex patterns but only produces a PERL compatible regex pattern string that can be input into a regex function. I have not done in-depth testing of the above functions and I am pretty certain that more code needs to be added to take care of situations I haven't thought of. With those caveats lets give some examples of how things will look.
+
+"cat" - a single string just remains a single string
+"^cat" - (reg '^ "cat")
+"(cat|dog)" - (r-or "cat" "dog")
+"[a9fr]" - (r-chc "a9fr")
+"[^b-t]" - (r-n (r-run "b" "t")) we use r-n to negate the class
+"[b-tamcd]" - (reg (r-run "b" "t")(r-chc "amcd"))
+"[-+]?[0-9]" - (reg (r01 '+) 'd)
+"([-+]?[0-9])+" - (r1 (bracket (reg (r01 '+) 'd)))
+
+Perhaps you are getting the idea now? The REG function is used for glueing multiple expressions together into a single string, it translates and then concatenates. The BRACKET function is used for grouping, it is the regex equivalent of LIST.
+
+If you take the time to look at the CONVERT-CODES function you will notice that I have taken the liberty of adding several shorthands for various character classes that I think are useful. Perhaps there are suggestions for more or less?
+
+Here are the advantages that I think justify this approach:
+
+1. A consistent syntax instead of myriad rules to remember.
+2. It adds extra options for the programmer while still allowing standard notation to be used if desired.
+3. Other NewLISP functions can be used on parts of the expression providing untold power to manipulate expressions in ways not thought of before. For instance, instead of normal backtracking you could use the SETQ function to set part of the expression to a variable that you call later in the expression.
+4. More readable? Debateable of course but I think that the larger the expression the more readable it will be in functional format instead of comic book swearing typology.
+
+Disadvantages:
+
+1. Unfamiliar notation.
+2. Short expressions can be more wordy.
+
+I am hoping that by providing an example of this concept that it will stimulate some thought and discussion on the issue. Ideas? Suggestions?
+
+
+---------------------------------------------
+Restituire una stringa senza i doppi apici ""
+---------------------------------------------
+
+Supponiamo di avere una funzione che restituisce una stringa e a noi serve mostrare solo il contenuto della stringa senza i doppi apici:
+
+(define (test a b) (string a b))
+
+(test "123" "456")
+;-> "123456"
+
+Possiamo usare la funzione "sym":
+
+(define (test a b) (sym (string a b)))
+
+(test "123" "456")
+;-> 123456
+
+Nota: adesso 123456 è un simbolo.
+
+Un altro metodo:
+
+(silent (println (test "123" "456")))
+;-> 123456
+(silent (println (date (date-value) 0 "%Y-%m-%d %H:%M:%S")))
+2023-02-14 16:37:23
+
+
+-------------------------------------
+Allineamento di numeri floating point
+-------------------------------------
+
+Il problema è quello di allineare i numeri floating point contenuti in una lista:
+
+(setq num '(205.492 201.729 201.38 -5.38672 -1.38724 -158.966 123.63))
+
+nel modo seguente (cioè allineati in colonna nel punto decimale):
+
+   205.492
+   201.729
+   201.38
+    -5.38672
+    -1.38724
+  -158.966
+   123.63
+
+Possiamo usare "format":
+
+(setq f (map (fn (x) (format "%10.5f" x)) num))
+;-> (" 205.49200" " 201.72900" " 201.38000" "  -5.38672"
+;->  "  -1.38724" "-158.96600" " 123.63000")
+
+e poi sostituire gli zeri finali di ogni numero con uno spazio usando una regex:
+
+(replace {(0+)$} "12345.567000" (dup " " (length $1)) 0)
+;-> "12345.567   "
+
+Il pattern (modello) {(0+)$} trova uno o più zeri finali e li sostituisce con lo stesso numero di spazi.
+
+(define (change x)
+  (replace {(0+)$} x (dup " " (length $1)) 0))
+
+(setq p (map change f))
+;-> (" 205.492  " " 201.729  " " 201.38   " "  -5.38672"
+;->  "  -1.38724" "-158.966  " " 123.63   ")
+
+Infine possiamo stampare i numeri della lista:
+
+(map println p)
+;->  205.492
+;->  201.729
+;->  201.38
+;->   -5.38672
+;->   -1.38724
+;-> -158.966
+;->  123.63
+
+Nota: se cercate di risolvere un problema con una espressione regolare (regex) vi ritroverete con due problemi ;-).
+
+
+----------------
+Crittografia MD5
+----------------
+
+Il Message Digest 5 (noto anche come "MD5" o "MD5 Checksum" o "MD5 Hash") è una funzione crittografica inventata da Ronald Rivest nel 1991 e standardizzata con la RFC 1321.
+Questa funzione prende in input una stringa di lunghezza arbitraria (max 2^64 bit) e ne produce in output un'altra di 128 bit (32 caratteri in esadecimale poichè servono solo 4 bit per codificare un valore esadecimale).
+L'algoritmo usato rende altamente improbabile ottenere due valori MD5 uguali con due stringhe di input diverse.
+In teoria è una funzione unidirezionale diversa dalla codifica e dalla cifratura perché irreversibile.
+In pratica, oggi sono disponibili molte risorse online che riescono a decriptare parole comuni codificate. Inoltre esistono algoritmi efficienti capaci di generare stringhe diverse che collidono (cioè hanno lo stesso valore di MD5).
+Nel 2008, la CMU Software Engineering Institute concluse che MD5 era "cryptographically broken and unsuitable for further use" (crittograficamente "rotto" e inadatto all'uso).
+Malgrado tutto ciò, ad oggi (2023) viene ancora ampiamente utilizzato.
+
+Nota: per scopi "casalinghi" l'MD5 "basta e avanza" ;-)
+
+Vediamo un'implementazione in newLISP:
+
+;;
+;; md5 in newLISP
+;;
+;; based on RFC 1321
+;;
+;; written by frontera000
+;;
+;; updated to newLISP 10.7.5 by cameyo
+;;
+
+(define (F x y z)
+  (| (& x y) (& (& 0xffffffff (~ x)) z)))
+;
+(define (G x y z)
+  (| (& x z) (& y (& 0xffffffff (~ z)))))
+;
+(define (H x y z)
+  (^ x y z))
+;
+(define (I x y z)
+  (^ y (| x (& 0xffffffff (~ z)))))
+;
+(define (rotate-left x n)
+  (| (& 0xffffffff (<< x n)) (& 0xffffffff (>> x (- 32 n)))))
+;
+(define (FF a b c d x s ac)
+  (set 'a (& 0xffffffff (+ a (F b c d) x ac)))
+  (set 'a (rotate-left a s))
+  (set 'a (& 0xffffffff (+ a b))))
+;
+(define (GG a b c d x s ac)
+  (set 'a (& 0xffffffff (+ a (G b c d) x ac)))
+  (set 'a (rotate-left a s))
+  (set 'a (& 0xffffffff (+ a b))))
+;
+(define (HH a b c d x s ac)
+  (set 'a (& 0xffffffff (+ a (H b c d) x ac)))
+  (set 'a (rotate-left a s))
+  (set 'a (& 0xffffffff (+ a b))))
+;
+(define (II a b c d x s ac)
+  (set 'a (& 0xffffffff (+ a (I b c d) x ac)))
+  (set 'a (rotate-left a s))
+  (set 'a (& 0xffffffff (+ a b))))
+
+(define (md5-init )
+  (set 'md5-i '(0 0))
+  (set 'md5-in (dup 0 64))
+  (set 'md5-digest (dup 0 16))
+  (set 'md5-buf '(0x67452301 0xefcdab89 0x98badcfe 0x10325476)))
+
+(define (md5-update inbuf inlen)
+  ;; compute number of bytes mod 64
+  (set 'mdi (& (>> (md5-i 0) 3) 0x3f))
+  ;; update number of bits
+  (if (< (+ (md5-i 0)  (<< inlen 3)) (md5-i 0))
+      ;(nth-set (md5-i 1) (+ 1 (md5-i 1))))
+      (setf (md5-i 1) (+ 1 (md5-i 1))))
+  (setf (md5-i 0) (+ (md5-i 0) (<< inlen 3)))
+  (setf (md5-i 1) (+ (md5-i 1) (>> inlen 29)))
+  (set 'inbuf-index 0)
+  (while (> inlen 0)
+    ;; add new character to buffer, increment mdi
+    (setf (md5-in mdi) (inbuf inbuf-index))
+    (set 'mdi (+ mdi 1))
+    (set 'inbuf-index (+ inbuf-index 1))
+    ;; transform if necessary
+    (if (= mdi 0x40)
+        (begin
+          (set 'ii 0)
+          (set 'in (dup 0 16))
+          (for (i 0 15 1)
+          (setf (in i) (| (<< (char->int (md5-in (+ ii 3))) 24)
+                          (<< (char->int (md5-in (+ ii 2))) 16)
+                          (<< (char->int (md5-in (+ ii 1))) 8)
+                          (char->int (md5-in ii))))
+          (set 'ii (+ ii 4)))
+          (transform  in)
+          (set 'mdi 0)))
+    (set 'inlen (- inlen 1))))
+
+(define (char->int x)
+  (if (integer? x) x (char x)))
+
+(define (md5-final)
+  (set 'in (dup 0 16))
+  ;; save number of bits
+  (setf (in 14) (md5-i 0))
+  (setf (in 15) (md5-i 1))
+  ;; compute number of bytse mod 64
+  (set 'mdi (& (>> (md5-i 0) 3) 0x3f))
+  ;; pad out to 56 mod 64
+  (if (< mdi 56)
+      (set 'padlen (- 56 mdi))
+      (set 'padlen (- 120 mdi)))
+  (set 'padding (dup 0 64))
+  (setf (padding 0) 0x80)
+  (md5-update padding padlen)
+  ;; append lenth in bits and transform
+  (set 'ii 0)
+  (for (i 0 13 1)
+       (setf (in i) (| (<< (char->int (md5-in (+ ii 3))) 24)
+                       (<< (char->int (md5-in (+ ii 2))) 16)
+                       (<< (char->int (md5-in (+ ii 1))) 8) 
+                       (char->int (md5-in ii))))
+       (set 'ii (+ ii 4)))
+  (transform in)
+  ;; store buffer in digest
+  (set 'ii 0)
+  (for (i 0 3 1)
+       (setf (md5-digest ii) (& (md5-buf i) 0xff))
+       (setf (md5-digest (+ ii 1)) (& (>> (md5-buf i) 8) 0xff))
+       (setf (md5-digest (+ ii 2)) (& (>> (md5-buf i) 16)  0xff))
+       (setf (md5-digest (+ ii 3)) (& (>> (md5-buf i) 24)  0xff))
+       (set 'ii (+ ii 4))))
+
+(define (transform  in)
+  (set 'a (md5-buf 0))
+  (set 'b (md5-buf 1))
+  (set 'c (md5-buf 2))
+  (set 'd (md5-buf 3))
+  ;; Round 1
+  (set 'S11 7)
+  (set 'S12 12)
+  (set 'S13 17)
+  (set 'S14 22)
+  (set 'a (FF a b c d (in 0) S11 3614090360))
+  (set 'd (FF d a b c (in 1) S12 3905402710))
+  (set 'c (FF c d a b (in 2) S13  606105819))
+  (set 'b (FF b c d a (in 3) S14 3250441966))
+  (set 'a (FF a b c d (in 4) S11 4118548399))
+  (set 'd (FF d a b c (in 5) S12 1200080426))
+  (set 'c (FF c d a b (in 6) S13 2821735955))
+  (set 'b (FF b c d a (in 7) S14 4249261313))
+  (set 'a (FF a b c d (in 8) S11 1770035416))
+  (set 'd (FF d a b c (in 9) S12 2336552879))
+  (set 'c (FF c d a b (in 10) S13 4294925233))
+  (set 'b (FF b c d a (in 11) S14 2304563134))
+  (set 'a (FF a b c d (in 12) S11 1804603682))
+  (set 'd (FF d a b c (in 13) S12 4254626195))
+  (set 'c (FF c d a b (in 14) S13 2792965006))
+  (set 'b (FF b c d a (in 15) S14 1236535329))
+  ;; Round 2
+  (set 'S21 5)
+  (set 'S22 9)
+  (set 'S23 14)
+  (set 'S24 20)
+  (set 'a (GG a b c d (in 1) S21 4129170786))
+  (set 'd (GG d a b c (in 6) S22 3225465664))
+  (set 'c (GG c d a b (in 11) S23  643717713))
+  (set 'b (GG b c d a (in 0) S24 3921069994))
+  (set 'a (GG a b c d (in 5) S21 3593408605))
+  (set 'd (GG d a b c (in 10) S22   38016083))
+  (set 'c (GG c d a b (in 15) S23 3634488961))
+  (set 'b (GG b c d a (in 4) S24 3889429448))
+  (set 'a (GG a b c d (in 9) S21  568446438))
+  (set 'd (GG d a b c (in 14) S22 3275163606))
+  (set 'c (GG c d a b (in 3) S23 4107603335))
+  (set 'b (GG b c d a (in 8) S24 1163531501))
+  (set 'a (GG a b c d (in 13) S21 2850285829))
+  (set 'd (GG d a b c (in 2) S22 4243563512))
+  (set 'c (GG c d a b (in 7) S23 1735328473))
+  (set 'b (GG b c d a (in 12) S24 2368359562))
+  ;; Round 3
+  (set 'S31 4)
+  (set 'S32 11)
+  (set 'S33 16)
+  (set 'S34 23)
+  (set 'a (HH a b c d (in 5) S31 4294588738))
+  (set 'd (HH d a b c (in 8) S32 2272392833))
+  (set 'c (HH c d a b (in 11) S33 1839030562))
+  (set 'b (HH b c d a (in 14) S34 4259657740))
+  (set 'a (HH a b c d (in 1) S31 2763975236))
+  (set 'd (HH d a b c (in 4) S32 1272893353))
+  (set 'c (HH c d a b (in 7) S33 4139469664))
+  (set 'b (HH b c d a (in 10) S34 3200236656))
+  (set 'a (HH a b c d (in 13) S31  681279174))
+  (set 'd (HH d a b c (in 0) S32 3936430074))
+  (set 'c (HH c d a b (in 3) S33 3572445317))
+  (set 'b (HH b c d a (in 6) S34   76029189))
+  (set 'a (HH a b c d (in 9) S31 3654602809))
+  (set 'd (HH d a b c (in 12) S32 3873151461))
+  (set 'c (HH c d a b (in 15) S33  530742520))
+  (set 'b (HH b c d a (in 2) S34 3299628645))
+  ;; Round 4
+  (set 'S41 6)
+  (set 'S42 10)
+  (set 'S43 15)
+  (set 'S44 21)
+  (set 'a (II a b c d (in 0) S41 4096336452))
+  (set 'd (II d a b c (in 7) S42 1126891415))
+  (set 'c (II c d a b (in 14) S43 2878612391))
+  (set 'b (II b c d a (in 5) S44 4237533241))
+  (set 'a (II a b c d (in 12) S41 1700485571))
+  (set 'd (II d a b c (in 3) S42 2399980690))
+  (set 'c (II c d a b (in 10) S43 4293915773))
+  (set 'b (II b c d a (in 1) S44 2240044497))
+  (set 'a (II a b c d (in 8) S41 1873313359))
+  (set 'd (II d a b c (in 15) S42 4264355552))
+  (set 'c (II c d a b (in 6) S43 2734768916))
+  (set 'b (II b c d a (in 13) S44 1309151649))
+  (set 'a (II a b c d (in 4) S41 4149444226))
+  (set 'd (II d a b c (in 11) S42 3174756917))
+  (set 'c (II c d a b (in 2) S43  718787259))
+  (set 'b (II b c d a (in 9) S44 3951481745))
+  (setf (md5-buf 0) (+ a (md5-buf 0)))
+  (setf (md5-buf 1) (+ b (md5-buf 1)))
+  (setf (md5-buf 2) (+ c (md5-buf 2)))
+  (setf (md5-buf 3) (+ d (md5-buf 3))))
+
+(define (md5-string str)
+  (md5-init)
+  (md5-update str (length str))
+  (md5-final)
+  (set 'result "")
+  (for (i 0 15 1)
+       (set 'result (append result (format "%02x" (md5-digest i)))))
+  result)
+
+Facciamo alcune prove:
+
+(md5-string "pippo")
+;-> "0c88028bf3aa6a6a143ed846f2be1ea4"
+
+(md5-string "newLISP")
+;-> "d3a067ae8916054962581a38e2508c78"
+
+Nota: per scopi "casalinghi" l'uso di MD5 "basta e avanza" ;-)
 
 =============================================================================
 
