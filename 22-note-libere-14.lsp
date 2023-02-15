@@ -3748,6 +3748,97 @@ Come studiare la matematica è un altro problema... (lasciato come esercizio agl
 Nota finale: requisito fondamentale per programmare: "ti deve piacere (e tanto)!!!"
 
 
+---------------------
+La tecnica di Feynman
+---------------------
+
+La tecnica di Feynman è un metodo di analisi che permette di acquisire nuove conoscenze in maniera più rapida e profonda.
+Prende il nome da Richard Feynman, un fisico che prese il nobel nel 1965 per aver contribuito allo sviluppo dell'elettrodinamica quantistica.
+La tecnica deriva dai metodi di studio che Feynman ha utilizzato quando era uno studente a Princeton.
+Di questa tecnica si possono trovare diverse versioni simili che ruotano tutte intorno a un punto focale: se non lo sai spiegare a un bimbo di 10/12 anni, allora non lo sai davvero.
+
+La tecnica Feynman può essere riassunta in 4 passi:
+
+Step 1: scegli un concetto che vuoi approfondire
+------------------------------------------------
+Quando hai individuato qualcosa che vuoi capire meglio, prendi un foglio di carta bianco o un libro degli appunti e scrivi tutto quello che sai già sull’argomento. 
+Man mano che recuperi più informazioni, aggiungile ai tuoi appunti, magari utilizzando penne di colori diversi per rendere visibile la progressione del tuo apprendimento (es. mappa mentale).
+Una volta che pensi di conoscere bene l’argomento, puoi passare al passo 2.
+
+Passo 2: cerca di spiegarlo ad un bambino di 10/12 anni
+-------------------------------------------------------
+Riscrivi quello che sai come se lo dovessi spiegare ad un bambino di 12 anni. 
+Devi seguire due regole fondamentali:
+a) semplicità: i bambini non capiscono il linguaggio tecnico o vocaboli troppo complicati;
+b) sintesi: la capacità di concentrazione dei bambini è molto breve. Devi andare subito al punto evitando troppi fronzoli.
+
+Chiunque può rendere un argomento complicato, ma solo quelli che lo comprendono veramente riescono a renderlo semplice. Il linguaggio tecnico spesso nasconde la mancanza di vera comprensione: sforzandoci ad utilizzare solo parole semplici ci rendiamo conto dove il nostro ragionamento si inceppa, dove non conosciamo le cose così in profondità come pensavamo.
+
+Passo 3: rifletti, modifica, semplifica
+---------------------------------------
+Questa è la fase dove avviene il vero apprendimento. Nel passo 2 ci siamo resi conto dei nostri punti deboli, delle nostre mancanze. Dobbiamo quindi andare a rivedere i nostri appunti, recuperare più informazioni, coprire le nostre lacune e rendere più fluido il nostro ragionamento.
+
+Passo 4: racconta una storia
+----------------------------
+Una volta che hai completato gli aggiustamenti del passo 3 sei pronto per raccontare la tua storia: rileggi i tuoi appunti a voce alta. Fai finta di spiegare l’argomento ad una classe di studenti. Se possibile raccontalo a qualcuno per capire le sue reazioni: che domande ti ha chiesto? Su quali parti è andato in confusione?
+Ritorna al passo 2 tutte le volte che lo ritieni necessario, ovvero fino a quando non ti sarai reso conto di conoscere davvero l’argomento e di spiegarlo in modo semplice.
+
+Una volta che hai terminato questo processo puoi essere sicuro di aver capito veramente quello che volevi approfondire e di non dimenticherlo più.
+
+Sembra semplice, ma è complicato da mettere in pratica: si fa molta fatica a spiegare una cosa a qualcuno che non ne sa nulla.
+In questa fatica sta una parte del segreto dell’efficacia della tecnica.
+La tecnica di Feynman è efficace per due motivi principali:
+
+a) lo sforzo che dobbiamo fare per "tradurre" il nostro contenuto mentale ci costringe all’elaborazione del nostro pensiero.
+Siamo costretti ad elaborare in maniera attiva le nostre conoscenza, facendo domande del tipo:
+ - Come faccio a rappresentare questo concetto?
+ - Come posso esemplificare questa connessione logica?
+ - Cosa significa esattamente questa frase?
+ - Con che analogia o metafora potrai descrivere questo fenomeno?
+ - Che parola potrei usare al posto di quest'altra?
+
+b) la consapevolezza sul nostro reale livello di conoscenza dell'argomento. Questa tecnica ci permette di individuare esattamente le nostre lacune concettuali, in questo modo sappiamo cosa dobbiamo approfondire.
+
+Consigli sparsi nell'utilizzo della tecnica
+-------------------------------------------
+Usare carta e penna solo per concetti e argomenti complessi. 
+La tecnica funziona molto meglio quando spieghiamo ad una persona reale.
+Lo scopo di questa tecnica è chiarire i concetti, non memorizzare le nozioni.
+
+"Ho imparato molto presto la differenza tra il conoscere il nome di una cosa e il conoscere una cosa." Richard Feynman
+
+
+------------------------
+La matrice di Eisenhower
+------------------------
+
+La matrice di Eisenhower è uno strumento di gestione delle attività che aiuta ad organizzare e ad assegnare alle attività la giusta priorità in base all'urgenza e all'importanza. Questo strumento permette di dividere le attività in quattro categorie: attività da svolgere per prime, attività da programmare per dopo, attività da delegare e attività da eliminare. Il processo di creazione della matrice e il suo utilizzo successivo hanno lo scopo fondamentale di massimizzare i nostri obiettivi personali.
+
+"Ciò che è importante raramente è urgente e ciò che è urgente raramente è importante" Dwight D. Eisenhower.
+
+Il concetto di "importante" è soggettivo e dipende anche dal contesto.
+Il concetto di "urgente" è oggettivo perché dipende unicamente dalla variabile tempo (È proprio l’oggettività della situazione che crea l’urgenza).
+
+Combinando i due concetti si ottengono i quattro quadranti che costituiscono la matrice di Eisenhower:
+
+                    +--------------------------+--------------------------+
+                    |                          |                          |
+                    |         URGENTE          |       NON URGENTE        |
+                    |                          |                          |
+ +------------------+--------------------------+--------------------------+
+ |                  | 1       da FARE          | 2       da FARE          | 
+ |    IMPORTANTE    |     (immediatamente)     |          (dopo)          |
+ |                  |  Azioni non delegabili   |   Azioni da pianificare  |
+ +------------------+--------------------------+--------------------------+
+ |                  | 3     da DELEGARE        | 4      da NON FARE       |
+ |  NON IMPORTANTE  |   (immediatamente)       |     (assolutamente)      |
+ |                  |    Azioni delegabili     |      Azioni superflue    |
+ +------------------+--------------------------+--------------------------+                        
+
+Alla base della Matrice di Eisenhower deve esserci prima di tutto un elenco dettagliato delle nostre attività, ordinate in base alla priorità, alle scadenze e alle risorse a disposizione.
+La matrice rappresenta un punto di partenza per la gestione dei progetti, non un punto di arrivo. Una volta creata la matrice occorre seguirla e aggiornarla costantemente (questa è la parte difficile).
+
+
 --------------------
 Forum: Lispy regexes
 --------------------
@@ -4285,6 +4376,251 @@ Facciamo alcune prove:
 ;-> "d3a067ae8916054962581a38e2508c78"
 
 Nota: per scopi "casalinghi" l'uso di MD5 "basta e avanza" ;-)
+
+
+-------------------
+Funtori e dizionari
+-------------------
+
+In newLISP per creare un dizionario (hash-map) usiamo un contesto.
+Un funtore è il simbolo di default associato al nome/simbolo del contesto.
+
+Per esempio, creiamo un dizionario e inseriamo alcuni valori:
+
+(new Tree 'dict)
+(dict '((1 "a") (2 "b") (3 "c")))
+(dict)
+;-> (("1" "a") ("2" "b") ("3" "c"))
+
+Il funtore di default di un contesto può essere individuato con la funzione "default":
+
+(default 'dict)
+;-> nil
+
+Un dizionario può anche essere creato in un altro modo:
+
+(define dizio:dizio)
+(dizio '((1 "x") (2 "y") (3 "z")))
+(dizio)
+;-> (("1" "x") ("2" "y") ("3" "z"))
+(default 'dizio)
+;-> nil
+
+Un altro metodo è il seguente:
+
+(define (myhash:myhash key value)
+   (if value
+       (context 'myhash key value)
+       (context 'myhash key)))
+
+In questo modo possiamo inserire/interrogare i valori nel dizionario più comodamente:
+
+(myhash "1" "uno")
+(myhash "2" "due")
+(myhash "3" "tre")
+(myhash "1")
+;-> "uno"
+
+Adesso il funtore di default del contesto/dizionario myhash è una funzione:
+
+(default 'myhash)
+;-> (lambda (key value)
+;->  (if value
+;->   (context 'myhash key value)
+;->   (context 'myhash key)))
+
+E non possiamo elencare i valori con la funzione (<nome-del-contesto>):
+
+(myhash)
+;-> ERR: illegal parameter type in function context : nil
+;-> called from user function (myhash)
+
+Dobbiamo usare "dotree":
+
+(dotree (w myhash)
+    (if (not (lambda? (eval w)))
+        (println (term w) " => " (eval w))))
+;-> 1 => uno
+;-> 2 => due
+;-> 3 => tre
+
+
+(dotree (w myhash) (println (term w) " => " (eval w)))
+;-> 1 => uno
+;-> 2 => due
+;-> 3 => tre
+;-> myhash => (lambda (key value)
+;->  (if value
+;->   (context 'myhash key value)
+;->   (context 'myhash key)))
+
+
+--------------------------
+Dividere una lista/stringa
+--------------------------
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+(setq str "abcdefghij")
+
+1)
+(explode lst 2)
+;-> ((1 2) (3 4) (5 6) (7 8) (9))
+(explode lst 2 true)
+;-> ((1 2) (3 4) (5 6) (7 8))
+(explode str 3)
+;-> ("abc" "def" "ghi" "j")
+(explode str 3 true)
+;-> ("abc" "def" "ghi")
+
+2)
+(define (pairs lst n)
+  (array-list (array (/ (length lst) n) n lst)))
+
+(pairs lst 2)
+;-> ((1 2) (3 4) (5 6) (7 8))
+(pairs lst 3)
+;-> ((1 2 3) (4 5 6) (7 8 9))
+
+3)
+(setq r '())
+(for (e 0 (length lst) 2) (push (slice lst e 2) r -1))
+;-> ((1 2) (3 4) (5 6) (7 8) (9))
+(setq r '())
+(for (e 0 (length lst) 3) (push (slice lst e 3) r -1))
+;-> ((1 2 3) (4 5 6) (7 8 9) ())
+(setq r '())
+(for (c 0 (length str) 2) (push (slice str c 2) r -1))
+;-> ("ab" "cd" "ef" "gh" "ij" "")
+(setq r '())
+(for (c 0 (length str) 3) (push (slice str c 3) r -1))
+;-> ("abc" "def" "ghi" "j")
+
+4)
+(find-all ".." str)
+;-> ("ab" "cd" "ef" "gh" "ij")
+The . dot in a regex pattern stands for "any character".
+(find-all "..." str)
+;-> ("abc" "def" "ghi")
+(find-all {..|.$} str)
+;-> ("ab" "cd" "ef" "gh" "ij")
+(find-all {...|..|.$} str)
+;-> ("abc" "def" "ghi" "j")
+
+
+--------------------
+La funzione "expand"
+--------------------
+
+sintassi: (expand exp sym-1 [sym-2 ... ])
+sintassi: (expand exp list-assoc [bool])
+sintassi: (expand exp)
+
+sintassi: (expand exp sym-1 [sym-2 ... ])
+---------------------------------------
+In the first syntax, one symbol in sym (or more in sym-2 through sym-n) is looked up in a simple or nested expression exp. They are then expanded to the current binding of the symbol and the expanded expression is returned. The original list remains unchanged.
+
+(set 'x 2 'a '(d e))
+(set 'foo 'a)
+(expand foo 'a)               
+;-> (d e)
+(expand '(a x b) 'x)           
+;-> (a 2 b)
+(expand '(a x (b c x)) 'x)     
+;-> (a 2 (b c 2))
+(expand '(a x (b c x)) 'x 'a)  
+;-> ((d e) 2 (b c 2))
+
+expand is useful when composing lambda expressions and doing variable expansion as in rewrite macros.
+
+(define (raise-to power)
+  (expand (fn (base) (pow base power)) 'power))
+
+(define square (raise-to 2))
+(define cube (raise-to 3))
+
+(square 5)  
+;-> 25
+(cube 5)    
+;-> 125
+
+If more than one symbol is present, expand will work in an incremental fashion:
+
+(set 'a '(b c))
+(set 'b 1)
+
+(expand '(a b c) 'a 'b)  
+;-> ((1 c) 1 c) 
+
+Like the apply function, expand reduces its argument list.
+
+syntax: (expand list list-assoc [bool])
+---------------------------------------
+The second syntax of expand allows expansion bindings to be specified on the fly, without performing a set on the participating variables:
+
+If the bool evaluates to true, the value parts in the association list are evaluated.
+
+(expand '(a b c) '((a 1) (b 2)))                
+;-> (1 2 c)
+(expand '(a b c) '((a 1) (b 2) (c (x y z))))    
+;-> (1 2 (x y z))
+(expand '(a b) '((a (+ 1 2)) (b (+ 3 4))))      
+;-> ((+ 1 2) (+ 3 4))
+(expand '(a b) '((a (+ 1 2)) (b (+ 3 4))) true) 
+;-> (3 7)
+
+Note that the contents of the variables in the association list will not change. This is different from the letex function, where variables are set by evaluating and assigning their association parts.
+
+This form of expand is frequently used in logic programming, together with the unify function.
+
+syntax: (expand list)
+---------------------
+A third syntax is used to expand only the contents of variables starting with an uppercase character. This PROLOG mode may also be used in the context of logic programming. As in the first syntax of expand, symbols must be preset. Only uppercase variables and those bound to anything other than nil will be expanded:
+
+(set 'A 1 'Bvar 2 'C nil 'd 5 'e 6)
+(expand '(A (Bvar) C d e f))
+;-> (1 (2) C d e f)
+
+Only the symbols A and Bvar are expanded because they have capitalized names and non-nil contents.
+
+The currying function in the example demonstrating the first syntax of expand can now be written even more simply using an uppercase variable:
+
+(define (raise-to Power) 
+  (expand (fn (base) (pow base Power))))
+
+(define cube (raise-to 3))
+;-> (lambda (base) (pow base 3))
+
+(cube 4)
+;-> 64
+
+See the letex function, which also provides an expansion mechanism, and the function unify, which is frequently used together with expand.
+
+
+-----------------------------------------------
+Aggiornamento dinamico dei simboli di una lista
+-----------------------------------------------
+
+Supponiamo di avere una lista con dei simboli all'interno:
+
+(setq lst '(a 44 55 b c 66))
+
+Il problema è quello di assegnare i valori ai simboli "a", "b" e "c".
+Ad esempio, con a=1, b=2 e c=3, come possiamo trasformare la lista "lst" nella lista (1 44 55 2 3 66)?
+
+Possiamo usare la funzione "expand" (che modifica una copia della lista):
+
+(expand lst '((a 1) (b 2) (c 3)))
+;-> (1 44 55 2 3 66)
+lst
+;-> (a 44 55 b c 66)
+
+Questo metodo tratta "a", "b" e "c" come variabili locali (in modo simile a "let").
+
+Se le variabili hanno un valore allora possiamo scrivere:
+
+(set 'a 1 'b 2 'c 3)
+(expand lst 'a 'b 'c)
+;-> (1 44 55 2 3 66)
 
 =============================================================================
 

@@ -1655,10 +1655,16 @@ NOTE LIBERE 14
   La funzione "member"
   States & Provinces contiguity check
   Pensieri sparsi per imparare a programmare
+  La tecnica di Feynman
+  La matrice di Eisenhower
   Forum: Lispy regexes
   Restituire una stringa senza i doppi apici ""
   Allineamento di numeri floating point
   Crittografia MD5
+  Funtori e dizionari
+  Dividere una lista/stringa
+  La funzione "expand"
+  Aggiornamento dinamico dei simboli di una lista
 
 APPENDICI
 =========

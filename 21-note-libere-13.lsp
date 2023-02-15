@@ -5659,6 +5659,7 @@ La funzione "replace-assoc" (deprecata)
 ****************************
 syntax: (replace-assoc exp-key list-assoc exp-replacement)
 syntax: (replace-assoc exp-key list-assoc)
+
 In the first syntax, replace-assoc replaces an association element with exp-key in the association list-assoc with exp-replacement. An association list is a list whose elements are in turn lists, the first element serving as a key.
 
 example:

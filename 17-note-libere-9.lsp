@@ -7185,7 +7185,7 @@ Quindi per inserire i dati possiamo scrivere:
 (println (schedules "user2"))
 ;-> (("Added" 1450754544 259200 1453346544))
 
-Questo metodo utilizza i "contesti come dizionari" (cioè sfrutta l'implementazione red-black tree).
+Questo metodo utilizza i "contesti come dizionari" (cioè sfrutta l'implementazione red-black tree sottostante).
 
 
 -------------------------------------------

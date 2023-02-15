@@ -1547,7 +1547,8 @@ NewLISP ha una funzione integrata per il calcolo del CRC:
 >>>funzione CRC32
 ******************
 sintassi: (crc32 str-data)
-Calcula il CRC a 32-bit dal buffer di str-data, iniziando con un valore di CRC uguale a 0xffffffff per il primo byte. "crc32" usa un algoritmo pubblicvato da www.w3.org.
+
+Calcola il CRC a 32-bit dal buffer di str-data, iniziando con un valore di CRC uguale a 0xffffffff per il primo byte. "crc32" usa un algoritmo pubblicvato da www.w3.org.
 
 (crc32 "abcdefghijklmnopqrstuvwxyz")
 ;-> 1277644989
@@ -1630,6 +1631,9 @@ Nel forum di newLISP l'utente Sammo ha proposto la seguente versione:
 Proviamo:
 
 (my-crc32 "abcdefghijklmnopqrstuvwxyz")
+;-> 1277644989
+
+(crc32 "abcdefghijklmnopqrstuvwxyz")
 ;-> 1277644989
 
 
