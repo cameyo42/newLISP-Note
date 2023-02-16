@@ -3761,13 +3761,13 @@ La tecnica Feynman può essere riassunta in 4 passi:
 
 Step 1: scegli un concetto che vuoi approfondire
 ------------------------------------------------
-Quando hai individuato qualcosa che vuoi capire meglio, prendi un foglio di carta bianco o un libro degli appunti e scrivi tutto quello che sai già sull’argomento. 
+Quando hai individuato qualcosa che vuoi capire meglio, prendi un foglio di carta bianco o un libro degli appunti e scrivi tutto quello che sai già sull’argomento.
 Man mano che recuperi più informazioni, aggiungile ai tuoi appunti, magari utilizzando penne di colori diversi per rendere visibile la progressione del tuo apprendimento (es. mappa mentale).
 Una volta che pensi di conoscere bene l’argomento, puoi passare al passo 2.
 
 Passo 2: cerca di spiegarlo ad un bambino di 10/12 anni
 -------------------------------------------------------
-Riscrivi quello che sai come se lo dovessi spiegare ad un bambino di 12 anni. 
+Riscrivi quello che sai come se lo dovessi spiegare ad un bambino di 12 anni.
 Devi seguire due regole fondamentali:
 a) semplicità: i bambini non capiscono il linguaggio tecnico o vocaboli troppo complicati;
 b) sintesi: la capacità di concentrazione dei bambini è molto breve. Devi andare subito al punto evitando troppi fronzoli.
@@ -3801,7 +3801,7 @@ b) la consapevolezza sul nostro reale livello di conoscenza dell'argomento. Ques
 
 Consigli sparsi nell'utilizzo della tecnica
 -------------------------------------------
-Usare carta e penna solo per concetti e argomenti complessi. 
+Usare carta e penna solo per concetti e argomenti complessi.
 La tecnica funziona molto meglio quando spieghiamo ad una persona reale.
 Lo scopo di questa tecnica è chiarire i concetti, non memorizzare le nozioni.
 
@@ -3826,14 +3826,14 @@ Combinando i due concetti si ottengono i quattro quadranti che costituiscono la 
                     |         URGENTE          |       NON URGENTE        |
                     |                          |                          |
  +------------------+--------------------------+--------------------------+
- |                  | 1       da FARE          | 2       da FARE          | 
+ |                  | 1       da FARE          | 2       da FARE          |
  |    IMPORTANTE    |     (immediatamente)     |          (dopo)          |
  |                  |  Azioni non delegabili   |   Azioni da pianificare  |
  +------------------+--------------------------+--------------------------+
  |                  | 3     da DELEGARE        | 4      da NON FARE       |
  |  NON IMPORTANTE  |   (immediatamente)       |     (assolutamente)      |
  |                  |    Azioni delegabili     |      Azioni superflue    |
- +------------------+--------------------------+--------------------------+                        
+ +------------------+--------------------------+--------------------------+
 
 Alla base della Matrice di Eisenhower deve esserci prima di tutto un elenco dettagliato delle nostre attività, ordinate in base alla priorità, alle scadenze e alle risorse a disposizione.
 La matrice rappresenta un punto di partenza per la gestione dei progetti, non un punto di arrivo. Una volta creata la matrice occorre seguirla e aggiornarla costantemente (questa è la parte difficile).
@@ -3895,7 +3895,7 @@ I was thinking about the fact that NewLISP uses functional notation for everythi
       (= c 'n)  "\\n"   ;newline
       (= c 'f)  "\\f"   ;formfeed
       (= c 'r)  "\\r"   ;carriage return
-      (= c 'e)  "\\e"   ;escape     
+      (= c 'e)  "\\e"   ;escape
       (= c '^)  "^"          ;anchor to start of line
       (= c '$)  "$"          ;anchor to end of line
       (= c 'L)  "[a-z]"      ;any lower case letter
@@ -4251,7 +4251,7 @@ Vediamo un'implementazione in newLISP:
   (for (i 0 13 1)
        (setf (in i) (| (<< (char->int (md5-in (+ ii 3))) 24)
                        (<< (char->int (md5-in (+ ii 2))) 16)
-                       (<< (char->int (md5-in (+ ii 1))) 8) 
+                       (<< (char->int (md5-in (+ ii 1))) 8)
                        (char->int (md5-in ii))))
        (set 'ii (+ ii 4)))
   (transform in)
@@ -4517,20 +4517,20 @@ sintassi: (expand exp)
 
 sintassi: (expand exp sym-1 [sym-2 ... ])
 ---------------------------------------
-In the first syntax, one symbol in sym (or more in sym-2 through sym-n) is looked up in a simple or nested expression exp. They are then expanded to the current binding of the symbol and the expanded expression is returned. The original list remains unchanged.
+Nella prima sintassi, un simbolo in "sym" (o più in "sym-2" attraverso "sym-n") viene cercato in un'espressione semplice o nidificata "exp". Vengono quindi espansi all'associazione corrente del simbolo e viene restituita l'espressione espansa. La lista originale rimane invariata.
 
 (set 'x 2 'a '(d e))
 (set 'foo 'a)
-(expand foo 'a)               
+(expand foo 'a)
 ;-> (d e)
-(expand '(a x b) 'x)           
+(expand '(a x b) 'x)
 ;-> (a 2 b)
-(expand '(a x (b c x)) 'x)     
+(expand '(a x (b c x)) 'x)
 ;-> (a 2 (b c 2))
-(expand '(a x (b c x)) 'x 'a)  
+(expand '(a x (b c x)) 'x 'a)
 ;-> ((d e) 2 (b c 2))
 
-expand is useful when composing lambda expressions and doing variable expansion as in rewrite macros.
+"expand" è utile quando si compongono espressioni lambda e si esegue l'espansione delle variabili come nelle macro di riscrittura.
 
 (define (raise-to power)
   (expand (fn (base) (pow base power)) 'power))
@@ -4538,53 +4538,52 @@ expand is useful when composing lambda expressions and doing variable expansion 
 (define square (raise-to 2))
 (define cube (raise-to 3))
 
-(square 5)  
+(square 5)
 ;-> 25
-(cube 5)    
+(cube 5)
 ;-> 125
 
-If more than one symbol is present, expand will work in an incremental fashion:
+Se è presente più di un simbolo, "expand" funzionerè in modo incrementale:
 
 (set 'a '(b c))
 (set 'b 1)
 
-(expand '(a b c) 'a 'b)  
-;-> ((1 c) 1 c) 
+(expand '(a b c) 'a 'b)
+;-> ((1 c) 1 c)
 
-Like the apply function, expand reduces its argument list.
+Come la funzione "apply", "expand" riduce la lista dei suoi argomenti.
 
 syntax: (expand list list-assoc [bool])
 ---------------------------------------
-The second syntax of expand allows expansion bindings to be specified on the fly, without performing a set on the participating variables:
+La seconda sintassi di "expand" consente di specificare al volo i binding di espansione, senza eseguire un "set" sulle variabili partecipanti.
+Se bool restituisce true, vengono valutate le parti del valore nella lista associativa.
 
-If the bool evaluates to true, the value parts in the association list are evaluated.
-
-(expand '(a b c) '((a 1) (b 2)))                
+(expand '(a b c) '((a 1) (b 2)))
 ;-> (1 2 c)
-(expand '(a b c) '((a 1) (b 2) (c (x y z))))    
+(expand '(a b c) '((a 1) (b 2) (c (x y z))))
 ;-> (1 2 (x y z))
-(expand '(a b) '((a (+ 1 2)) (b (+ 3 4))))      
+(expand '(a b) '((a (+ 1 2)) (b (+ 3 4))))
 ;-> ((+ 1 2) (+ 3 4))
-(expand '(a b) '((a (+ 1 2)) (b (+ 3 4))) true) 
+(expand '(a b) '((a (+ 1 2)) (b (+ 3 4))) true)
 ;-> (3 7)
 
-Note that the contents of the variables in the association list will not change. This is different from the letex function, where variables are set by evaluating and assigning their association parts.
+Si noti che il contenuto delle variabili nella lista associativa non cambierà. Questo è diverso dalla funzione "letex", in cui le variabili vengono impostate valutando e assegnando le loro parti di associazione.
 
-This form of expand is frequently used in logic programming, together with the unify function.
+Questa forma di espansione viene spesso utilizzata nella programmazione logica, insieme alla funzione "unify".
 
 syntax: (expand list)
 ---------------------
-A third syntax is used to expand only the contents of variables starting with an uppercase character. This PROLOG mode may also be used in the context of logic programming. As in the first syntax of expand, symbols must be preset. Only uppercase variables and those bound to anything other than nil will be expanded:
+Una terza sintassi viene utilizzata per espandere solo il contenuto delle variabili che iniziano con un carattere maiuscolo. Questa modalità PROLOG può essere utilizzata anche nel contesto della programmazione logica. Come nella prima sintassi di "expand", i simboli devono essere preimpostati. Verranno espanse solo le variabili maiuscole e quelle associate a qualcosa di diverso da nil:
 
 (set 'A 1 'Bvar 2 'C nil 'd 5 'e 6)
 (expand '(A (Bvar) C d e f))
 ;-> (1 (2) C d e f)
 
-Only the symbols A and Bvar are expanded because they have capitalized names and non-nil contents.
+Solo i simboli A e Bvar sono espansi perché hanno nomi in maiuscolo e contenuti non nulli.
 
-The currying function in the example demonstrating the first syntax of expand can now be written even more simply using an uppercase variable:
+La funzione currying nell'esempio mostra che la prima sintassi di "expand" ora può essere scritta ancora più semplicemente usando una variabile maiuscola:
 
-(define (raise-to Power) 
+(define (raise-to Power)
   (expand (fn (base) (pow base Power))))
 
 (define cube (raise-to 3))
@@ -4593,7 +4592,7 @@ The currying function in the example demonstrating the first syntax of expand ca
 (cube 4)
 ;-> 64
 
-See the letex function, which also provides an expansion mechanism, and the function unify, which is frequently used together with expand.
+Si veda la funzione "letex", che fornisce anche un meccanismo di espansione, e la funzione "unify", che è spesso usata insieme a "expand".
 
 
 -----------------------------------------------
@@ -4621,6 +4620,221 @@ Se le variabili hanno un valore allora possiamo scrivere:
 (set 'a 1 'b 2 'c 3)
 (expand lst 'a 'b 'c)
 ;-> (1 44 55 2 3 66)
+
+
+-------------------
+Some math functions
+-------------------
+
+;
+;
+; Some math functions
+; by Jeremy Dunn
+;
+;
+; Command name alternates for naming consistency
+;
+(define-macro (less?)(apply < (args)))
+(define-macro (greater?)(apply > (args)))
+(define-macro (ge?)(apply >= (args)))
+(define-macro (le?)(apply <= (args)))
+(define-macro (e?)(apply = (args)))
+(define-macro (ne?)(apply != (args)))
+;
+; Functions are shorthands for testing whether the number "a" lies within
+; or without of various ranges of x and y
+;
+(define (lle?  x a y)(and (<  x a)(<= a y)))
+(define (lel?  x a y)(and (<= x a)(<  a y)))
+(define (gge?  x a y)(and (>  x a)(>= a y)))
+(define (geg?  x a y)(and (>= x a)(>  a y)))
+(define (lg?   x a y)(or  (<  a x)(>  a y)))
+(define (lege? x a y)(or  (<= a x)(>= a y)))
+;
+; Functions for dealing with signs
+;
+; strictly positive
+(define (spos? x)(> x 0))
+(define (pos? x)(>= x 0))
+(define (neg? x)(<= x 0))
+; strictly negative
+(define (sneg? x)(< x 0))
+; similar to the sgn function except that it returns 1 if x=0 rather than 0
+(define (sgn2 x)(if (zero? x) 1 (sgn x)))
+; returns true if x and y have the same sign
+(define (sgn=? x y)(= 1 (* (sgn2 x)(sgn2 y))))
+; returns y with the same sign as x
+(define (sgncast x y)(if (sgn=? x y) y (sub y)))
+;
+; Functions for approximation
+;
+; The fuzzy function must be called somewhere at the start of your program
+; so that all functions that use the *fuzz* value will know what level of 
+; approximation to use. 
+; Sets the fuzz factor for functions that use it. 
+; (fuzzy) with no arguments resets *fuzz* to its default value of 0.000001. 
+; If there is an integer argument then *fuzz* is set to 10^n. 
+; If there is a real number as an argument then *fuzz* is set to that value.
+(define (fuzzy (x 0.000001))
+  (setq *fuzz* (if (integer? x) (pow 10 x) x)))
+; Return true if x=y to within +-fz
+(define (approx? x (y 0)(fz *fuzz*))
+  (< (sub y fz) x (add y fz)))
+; If x=y to within the fuzz factor then return y else return nil
+(define (approx x (y 0)(fz *fuzz*))
+  (if (approx? x y fz) y))
+
+; Functions for (a+b)/c and (a-b)/c. 
+; If c is not supplied it defaults to 2.
+(define (divadd a b (c 2))(div (add a b) c))
+(define (divsub a b (c 2))(div (sub a b) c))
+
+;
+; Functions for vectors operations
+;
+; Calculate the square of a number x
+(define (sq x)(mul x x))
+
+; Calculate the quadrance of a vector
+(define (quad u)(if (vector? u)(apply add (map sq u))))
+
+; Calculate the magnitude of a vector
+(define (mag u)(sqrt (quad u)))
+
+; Return true if u is a vector i.e a list of numbers
+(define (vector? u)
+  (and (list? u)
+       (apply and (map number? u))))
+
+; The unit vector of a vector u, the distance from origin to u divided 
+; into the coordinates of u
+(define (unitv u)
+  (if (vector? u)
+      (scalar/ (vec* u u)(quad u))))
+
+; Add two or more vectors together. 
+; It is assumed that all vectors are the same length.
+(define (v+ u v)(map add u v))
+(define-macro (vec+)(apply v+ (map eval (args)) 2))
+
+; Vector subtraction. If there is only a single
+; vector then the negation of all its coordinates is returned.
+(define (v- u v)(map sub u v))
+(define-macro (vec-)
+  (if (= 1 (length (args)))
+      (map sub (eval (args 0)))
+      (apply v- (map eval (args)) 2)))
+
+(define (v* u v)(map mul u v))
+(define-macro (vec*)
+  (apply v* (map eval (args)) 2))
+
+(define-macro (vec/)
+  (map div (eval (args 0))
+           (if (> (length (args)) 2)
+               ; we test to perform only one division
+               (apply vec* (map eval (rest (args)))) 
+               (eval (args 1)))))
+
+; Multiply a vector by a scalar. Vector first, scalar second
+(define (scalar* v n)
+  (map mul v (dup n (length v))))
+
+; Divide a vector by a scalar. Vector first, scalar second
+(define (scalar/ v n)
+  (map div v (dup n (length v))))
+
+; Vector Dot product of two vectors - produces a scalar
+(define (dot u v)(apply add (vec* u v)))
+
+; Vector Cross product of two vectors.
+(define (cross u v)
+  (setq u1 (u 0) u2 (u 1) u3 (u 2)
+        v1 (v 0) v2 (v 1) v3 (v 2))
+  (list (sub (mul u2 v3)(mul u3 v2))
+        (sub (mul u3 v1)(mul u1 v3))
+        (sub (mul u1 v2)(mul u2 v1))))
+
+;Tensor product of three vectors
+(define (tensor u v w)(vec* (dot u v) w))
+
+;Scalar triple product
+(define (striple u v w)(dot u (cross v w)))
+
+;Vector triple product of three vectors
+(define (vtriple u v w)(cross u (cross v w)))
+
+
+------------------------------
+Eliminazione sicura di un file
+------------------------------
+
+Cancellare un file in modo sicuro significa rendere difficile il recupero del file da parte di software di recupero dati.
+Un metodo semplice e relativamente sicuro è quello di sovrascrivere il file diverse volte con caratteri casuali e poi cancellarlo.
+In questo modo un eventuale recupero del file porterebbe solo ad un insieme di caratteri casuali.
+
+(define (wipefile file overwrite)
+  (local (size handle)
+    (println "Secure delete: " file)
+    (cond
+      ((file? file) ; il file esiste
+        (setq overwrite (or overwrite 1)) ; numero di sovrascritture del file
+        (setq size (file-info file 0)) ; lunghezza del file
+        (setq handle (open file "update")) ; handle del file
+        (for (pass 1 overwrite)
+          ; ciclo di sovrascrittura del file con valori casuali;
+          (println "overwrite: pass " pass)
+          (for (i 0 size)
+              (write-char handle (rand 255))
+          )
+        )
+        (close handle) ; chiusura del file
+        (delete-file file) ; cancellazione del file
+        (println "file deleted."))
+      (true ; il file non esiste
+        (println "Warning: file " file " don't exists."))
+    )))
+
+Facciamo alcune prove con file di grandezza diversa:
+
+(change-dir "f:\\tmp")
+;-> true
+(real-path)
+;-> "f:\\tmp"
+
+; file da 100 Kb
+(wipefile "test1.txt" 7)
+;-> Secure delete: test1.txt
+;-> overwrite: pass 1
+;-> overwrite: pass 2
+;-> overwrite: pass 3
+;-> overwrite: pass 4
+;-> overwrite: pass 5
+;-> overwrite: pass 6
+;-> overwrite: pass 7
+;-> file deleted.
+
+; file da 5 Mb
+(time (wipefile "test2.zip" 7))
+;-> Secure delete: test2.zip
+;-> overwrite: pass 1
+;-> overwrite: pass 2
+;-> overwrite: pass 3
+;-> overwrite: pass 4
+;-> overwrite: pass 5
+;-> overwrite: pass 6
+;-> overwrite: pass 7
+;-> file deleted.
+;-> 51437.384 ;51s 437ms
+
+; file da 1 Gb
+(time (wipefile "test3.mp4"))
+;-> Secure delete: test3.mp4
+;-> overwrite: pass 1
+;-> file deleted.
+;-> 1507829.713 ;25m 7s 829ms
+
+Nota: le probabilità di recuperare un file dipendono molto dal file-system del sistema operativo (es. I-node, cache, ecc.)
 
 =============================================================================
 

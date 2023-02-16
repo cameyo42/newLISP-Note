@@ -1665,7 +1665,9 @@ NOTE LIBERE 14
   Dividere una lista/stringa
   La funzione "expand"
   Aggiornamento dinamico dei simboli di una lista
-
+  Some math functions
+  Eliminazione sicura di un file
+  
 APPENDICI
 =========
   The fifteen ideas characterizing LISP

@@ -337,6 +337,20 @@ Stampa dei valori degli elementi della lista "var":
 (dolist (el var) (print (eval el) { }))
 ;-> 1 2 3 4
 
+Possiamo usare anche "expand", ma i simboli non mantengono il valore:
+
+(setq var '(e f g h))
+(setq num '(5 6 7 8))
+
+(expand var (map list var num))
+;-> (5 6 7 8)
+var
+;-> (e f g h)
+num
+;-> (5 6 7 8)
+e
+;-> nil
+
 Comunque con le liste annidate otteniamo un errore:
 
 (setq var '(a b (c d)))
