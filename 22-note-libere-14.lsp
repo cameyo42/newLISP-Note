@@ -4836,5 +4836,64 @@ Facciamo alcune prove con file di grandezza diversa:
 
 Nota: le probabilità di recuperare un file dipendono molto dal file-system del sistema operativo (es. I-node, cache, ecc.)
 
+
+----------------------------------------------------------------------
+Perfect Digital Invariant number (Numero invariante digitale perfetto)
+----------------------------------------------------------------------
+
+Un numero intero positivo è chiamato numero invariante digitale perfetto (PDI) se la somma di una certa potenza p delle loro cifre è uguale al numero stesso.
+Per qualsiasi numero, abcd... = pow(a, p) + pow(b, p) + pow(c, p) + pow(d, p) + ... ,
+  dove p può essere qualsiasi numero intero maggiore di 0.
+
+Si può dimostrare che per una qualunque potenza p, il valore più grande per un PDI ha al massimo (p + 1) cifre.
+
+Sequenza OEIS: A023052
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 4150, 4151, 
+  8208, 9474, 54748, 92727, 93084, 194979, 548834, 1741725, 4210818, 
+  9800817, 9926315, 14459929, 24678050, 24678051, 88593477, 146511208,
+  472335975, 534494836, 912985153, ...
+
+(define (sumpower power limit)
+  (local (out p somma tmp)
+    (setq out '())
+    ; precalcola i valori delle potenze delle cifre
+    (setq p (map (fn(x) (pow x power)) (sequence 0 9)))
+    (for (num 0 limit)
+      (setq somma 0)
+      (setq tmp num)
+      (while (!= tmp 0)
+        (++ somma (p (% tmp 10)))
+        (setq tmp (/ tmp 10))
+      )
+      (if (= somma num) (push somma out -1))
+    )
+    out))
+
+Facciamo alcune prove (fino a p=9):
+
+(sumpower 0 1e2)
+;-> (0 1)
+(sumpower 1 1e2)
+;-> (0 1 2 3 4 5 6 7 8 9)
+(sumpower 2 1e3)
+;-> (0 1)
+(sumpower 3 1e4)
+;-> (0 1 153 370 371 407)
+(sumpower 4 1e5)
+;-> (0 1 1634 8208 9474)
+(sumpower 5 1e6)
+;-> (0 1 4150 4151 54748 92727 93084 194979)
+(sumpower 6 1e7)
+;-> (0 1 548834)
+(time (println (sumpower 7 1e8)))
+;-> (1 1741725 4210818 9800817 9926315 14459929)
+;-> 122418.952 ; 2m 2s 418ms
+(time (println (sumpower 8 1e9)))
+;-> (1 24678050 24678051 88593477)
+;-> 1342803.294 ; 22m 22s 803ms
+(time (println (sumpower 9 1e9)))
+;-> (0 1 146511208 472335975 534494836 912985153)
+;-> 1325118.774 ; 22m 5s 118ms
+
 =============================================================================
 

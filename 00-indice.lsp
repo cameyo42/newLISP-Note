@@ -1667,6 +1667,7 @@ NOTE LIBERE 14
   Aggiornamento dinamico dei simboli di una lista
   Some math functions
   Eliminazione sicura di un file
+  Perfect Digital Invariant number (Numero invariante digitale perfetto)
   
 APPENDICI
 =========
