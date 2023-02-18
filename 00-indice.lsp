@@ -860,7 +860,7 @@ NOTE LIBERE 4
   Numeri promici
   Formula di Erone
   Tre funzioni per calcolare la potenza di un numero intero
-  Numeri Armstrong
+  Numeri Armstrong (narcisistici)
   Evoluzione dell'algoritmo per la moltiplicazione di due numeri interi
   Indice di equilibrio
   Numero soluzioni equazione lineare a k variabili
@@ -1668,6 +1668,8 @@ NOTE LIBERE 14
   Some math functions
   Eliminazione sicura di un file
   Perfect Digital Invariant number (Numero invariante digitale perfetto)
+  Floating-point tolerances revisited
+  Five programming problems
   
 APPENDICI
 =========

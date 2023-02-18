@@ -6908,6 +6908,26 @@ Basta convertire i numeri in stringa, ordinarli e infine unire le stringhe (nume
 (largest '(3 23))
 ;-> "323"
 
+Purtroppo la funzione sbaglia con:
+
+(setq t '("420" "423" "42"))
+(largest '(420 423 42))
+;-> "42342042"
+
+Il risultato corretto è: 42423420
+(> 42423420 42342042)
+;-> true
+
+Dobbiamo cambiare il metodo di comparazione nell'ordinamento:
+
+(define (biggest lst)
+  ; join the descending sort of the strings of numbers
+  ; compare "x"+"y" and "y"+"x"
+  (join (sort (map string lst) (fn(x y) (> (string x y) (string y x))))))
+
+(biggest t)
+;-> "42423420"
+
 
 -----------------------------------------------
 Rettagoli e quadrati in una scacchiera (Google)

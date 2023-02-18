@@ -4895,5 +4895,316 @@ Facciamo alcune prove (fino a p=9):
 ;-> (0 1 146511208 472335975 534494836 912985153)
 ;-> 1325118.774 ; 22m 5s 118ms
 
+
+-----------------------------------
+Floating-point tolerances revisited
+-----------------------------------
+
+Traduzione dell'articolo: "Floating-point tolerances revisited"
+https://realtimecollisiondetection.net/blog/?p=89
+by Christer Ericson
+
+Per diversi anni ho partecipato alla sessione di tutorial di fisica al GDC (insieme a Jim Van Verth, Gino van den Bergen, Erin Catto, Brian "Squirrel" Eiserloh e Marq Singer). Una sezione che ho trattato in dettaglio è la robustezza e all'interno di quest'area ho sottolineato (tra le altre cose) l'importanza di distinguere tra tolleranze assolute e relative quando si eseguono confronti di numeri in virgola mobile.
+
+Non entrerò nei dettagli sul motivo per cui vorresti (dovresti) preoccuparti di come vengono confrontati i tuoi numeri in virgola mobile. (Informazioni dettagliate possono essere trovate in parte nelle diapositive della mia presentazione GDC e in modo molto più approfondito nel mio libro "Rilevamento delle collisioni in tempo reale"). Qui presumo che tu sappia già perché ti interessa, e noterò solo che le tolleranze assolute e relative sono testate come:
+
+// Absolute tolerance comparison of x and y
+if (Abs(x – y) <= EPSILON) ...
+
+e
+
+// Relative tolerance comparison of x and y
+if (Abs(x – y) <= EPSILON * Max(Abs(x), Abs(y)) ...
+
+Il test di tolleranza assoluta fallisce quando x e y diventano grandi e il test di tolleranza relativa fallisce quando diventano piccoli. Si desidera quindi combinare questi due test insieme in un unico test. Negli anni alla GDC, così come nel mio libro, ho suggerito il seguente test di tolleranza combinato:
+
+if (Abs(x – y) <= EPSILON * Max(1.0f, Abs(x), Abs(y)) ...
+
+Questo in genere funziona bene, ma Erin Catto mi ha fatto notare che a volte può essere difficile controllare il comportamento desiderato con un solo EPSILON che controlla contemporaneamente sia la tolleranza assoluta che quella relativa. Quando si desidera un controllo migliore, possiamo invece utilizzare la combinazione delle tolleranze nel modo seguente.
+Quello che stiamo veramente cercando in termini di uguaglianza di x e y è il seguente test combinato:
+
+if ((Abs(x - y) <= absTol) ||
+    (Abs(x - y) <= relTol * Max(Abs(x), Abs(y)))) ...
+
+Queste due espressioni possono essere catturate in un'unica formula come:
+
+if (Abs(x - y) <= Max(absTol, relTol * Max(Abs(x), Abs(y)))) ...
+
+o in modo equivalente:
+
+if (Abs(x - y) <= absTol * Max(1.0f, relTol/absTol * Max(Abs(x), Abs(y)))) ...
+
+Nel mio libro e nelle mie presentazioni GDC ho semplificato questa espressione assumendo relTol = absTol, che dà la mia formula originale:
+
+if (Abs(x - y) <= absTol * Max(1.0f, Abs(x), Abs(y))) ...
+
+Nei casi in cui l'assunzione relTol = absTol non è auspicabile ha senso rimanere con la formula:
+
+if (Abs(x - y) <= Max(absTol, relTol * Max(Abs(x), Abs(y)))) ...
+
+perché qui si possono modificare absTol e relTol indipendentemente l'uno dall'altro.
+because here one can tweak absTol and relTol independently of each other.
+
+Ho evitato di entrare nei dettagli nelle mie presentazioni GDC perché tendono ad essere limitate per il tempo e il messaggio importante da portare a casa è davvero "tolleranza assoluta spesso cattiva, tolleranza relativa per lo più buona". Tuttavia, ho ritenuto importante documentare queste informazioni aggiuntive sui confronti in virgola mobile da qualche parte, quindi questo breve articolo!
+
+jchavez:
+--------
+Come notato nel tuo post, il confronto relativo:
+
+|a - b| <= epsilon * max(|a|, |b|)
+
+può restituire un risultato errato per a e b piccoli. Ciò accade perché il lato destro della disuguaglianza può arrivare fino a zero (underflow). 
+Per esempio:
+
+float a = -FLT_MIN;
+float b = FLT_MIN;
+float epsilon = 2 * FLT_MIN;
+ 
+abs(a - b) <= epsilon * max(abs(a), abs(b))
+
+restituisce false a causa dell'underflow. Puoi, tuttavia, evitarlo verificando la presenza di un multiplo underflow e ristrutturando la disuguaglianza con una divisione:
+
+float close_rel(float a, float b, float epsilon)
+{
+    // assume small positive epsilon
+    assert(epsilon >= 0.0f && epsilon <= 1.0f);
+
+    float diff = abs(a - b);
+    float maxab = max(abs(a), abs(b));
+
+    // if the multiply won't underflow then use a multiply
+    if (maxab >= 1.0f)
+    {
+        return diff <= (epsilon * maxab);
+    }
+    // multiply could underflow so use a divide if nonzero denominator
+    else if (maxab > 0.0f)
+    {
+        // correctly returns false on divide overflow
+        // (inf <= epsilon is false), since overflow means the
+        // relative difference is large and they are therefore not close
+        return diff / maxab <= epsilon;
+    }
+    else
+    {
+        // both a and b are zero
+        return false;
+    }
+}
+
+Ciò intrappola correttamente il problema e consente un confronto relativo in tutte le situazioni. Questo, ovviamente, non è sempre auspicabile e sono d'accordo con te sul fatto che un test combinato di tolleranza assoluta e relativa sia il modo migliore per procedere. In quasi tutte le situazioni di gioco vuoi che due valori molto piccoli siano considerati uguali, anche se la loro differenza relativa è grande. Tuttavia, potrebbero esserci situazioni in cui un confronto puramente relativo è utile e questo è un modo per farlo.
+
+
+-------------------------
+Five programming problems
+-------------------------
+
+"Five programming problems every Software Engineer should be able to solve in less than 1 hour"
+"Cinque problemi di programmazione che ogni Software Engineer dovrebbe essere in grado di risolvere in meno di 1 ora"
+https://linepole.wordpress.com/2015/06/02/five-programming-problems-every-software-engineer-should-be-able-to-solve-in-less-than-1-hour/
+
+
+Problem 1
+---------
+Write three functions that compute the sum of the numbers in a given list using a for-loop, a while-loop, and recursion.
+
+(setq a '(10 -2 6 7 1))
+
+(define (for-loop lst)
+  (let (sum 0)
+    (for (i 0 (- (length lst) 1))
+      (setq sum (add sum (lst i)))
+    )
+    sum))
+
+(define (while-loop lst)
+  (let ((sum 0) (i 0))
+    (while (< i (length lst))
+      (setq sum (add sum (lst i)))
+      (++ i)
+    )
+    sum))
+
+(define (recurse lst)
+  (cond ((= lst '()) 0)
+        (true
+          (add (first lst) (recurse (rest lst))))))
+
+(for-loop a)
+;-> 22
+(while-loop a)
+;-> 22
+(recurse a)
+;-> 22
+
+Problem 2
+---------
+Write a function that combines two lists by alternatingly taking elements. For example: given the two lists [a, b, c] and [1, 2, 3], the function should return [a, 1, b, 2, c, 3].
+
+(setq a '(1 2 3))
+(setq b '("a" "b" "c" "d"))
+
+(define (combine lst1 lst2)
+  (local (len1 len2 out)
+    (setq out '())
+    (setq len1 (length lst1))
+    (setq len2 (length lst2))
+    (setq lmin (min len1 len2))
+    (setq lmax (max len1 len2))
+    ; alternating elements 
+    (for (i 0 (- lmin 1))
+      (push (lst1 i) out -1)
+      (push (lst2 i) out -1)
+    )
+    (if (!= lmin lmax)
+      (if (< len1 len2)
+        ; len2 > len1: copy the remaining elements of lst2
+        (for (i lmin (- lmax 1)) (push (lst2 i) out -1))
+        ;else
+        ; len1 > len2: copy the remaining elements of lst1
+        (for (i lmin (- lmax 1)) (push (lst1 i) out -1))
+      )
+    )
+    out))
+
+(combine a b)
+;-> (1 "a" 2 "b" 3 "c" "d")
+(combine b a)
+;-> ("a" 1 "b" 2 "c" 3 "d")
+
+Problem 3
+---------
+Write a function that computes the list of the first 100 Fibonacci numbers. By definition, the first two numbers in the Fibonacci sequence are 0 and 1, and each subsequent number is the sum of the previous two. As an example, here are the first 10 Fibonnaci numbers: 0, 1, 1, 2, 3, 5, 8, 13, 21, and 34.
+
+Recursive version:
+
+(define (fibo n)
+  (cond ((zero? n) 0)
+        ((= 1 n) 1)
+        (true
+          (+ (fibo (- n 1)) (fibo (- n 2))))))
+
+(map fibo (sequence 0 10))
+;-> (0 1 1 2 3 5 8 13 21 34 55)
+(map fibo (sequence 0 99))
+...too slow
+
+Iterative and big-integer version:
+
+(define (fibo2 n)
+  (local (a b c)
+    (cond ((zero? n) 0L)
+      (true
+        (setq a 0L b 1L c 0L)
+        (for (i 0 (- n 1))
+          ; i number
+          (setq c (+ a b))
+          ; (i - 2)
+          (setq a b)
+          ; (i - 1)
+          (setq b c)
+        )
+        a))))
+
+(map fibo2 (sequence 0 10))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
+(map fibo2 (sequence 0 99))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L 89L 144L 233L 377L 610L 987L 
+;->  1597L 2584L 4181L 6765L 10946L 17711L 28657L 46368L 75025L 121393L 
+;->  196418L 317811L 514229L 832040L 1346269L 2178309L 3524578L 5702887L
+;->  9227465L 14930352L 24157817L 39088169L 63245986L 102334155L 165580141L
+;->  267914296L 433494437L 701408733L 1134903170L 1836311903L 2971215073L
+;->  4807526976L 7778742049L 12586269025L 20365011074L 32951280099L 
+;->  53316291173L 86267571272L 139583862445L 225851433717L 365435296162L
+;->  591286729879L 956722026041L 1548008755920L 2504730781961L 4052739537881L
+;->  6557470319842L 10610209857723L 17167680177565L 27777890035288L
+;->  44945570212853L 72723460248141L 117669030460994L 190392490709135L
+;->  308061521170129L 498454011879264L 806515533049393L 1304969544928657L 
+;->  2111485077978050L 3416454622906707L 5527939700884757L 8944394323791464L 
+;->  14472334024676221L 23416728348467685L 37889062373143906L 
+;->  61305790721611591L 99194853094755497L 160500643816367088L 
+;->  259695496911122585L 420196140727489673L 679891637638612258L 
+;->  1100087778366101931L 1779979416004714189L 2880067194370816120L
+;->  4660046610375530309L 7540113804746346429L 12200160415121876738L 
+;->  19740274219868223167L 31940434634990099905L 51680708854858323072L
+;->  83621143489848422977L 135301852344706746049L 218922995834555169026L)
+
+Problem 4
+---------
+Write a function that given a list of non negative integers, arranges them such that they form the largest possible number. For example, given [50, 2, 1, 9], the largest formed number is 95021.
+
+(setq a '(50 2 1 9))
+
+(define (biggest lst)
+  ; join the descending sort of the strings of numbers
+  (join (sort (map string lst) >)))
+
+(biggest a)
+;-> "95021"
+
+But fails with:
+
+(setq t '("420" "423" "42"))
+(biggest '(420 423 42))
+;-> "42342042"
+
+The correct result is: 42423420
+(> 42423420 42342042)
+;-> true
+
+We must change the compare function of sort:
+
+(sort t (fn(x y) (> (string x y) (string y x))))
+;-> ("42" "423" "420")
+
+(define (biggest2 lst)
+  ; join the descending sort of the strings of numbers
+  ; compare "x"+"y" and "y"+"x"
+  (join (sort (map string lst) (fn(x y) (> (string x y) (string y x))))))
+
+(biggest2 t)
+;-> 42423420
+(biggest2 a)
+;-> 95021
+
+Nota: i primi 4 problemi risolti in 45 minuti. 
+
+Problem 5
+---------
+Write a program that outputs all possibilities to put + or - or nothing between the numbers 1, 2, ..., 9 (in this order) such that the result is always 100. For example: 1 + 2 + 34 – 5 + 67 – 8 + 9 = 100.
+
+Bad solution (but it is fast and works):
+
+(define (hundred)
+  (local (oper expr)
+    (setq oper '("" " + " " - "))
+    (dolist (e1 oper)
+      (dolist (e2 oper)
+        (dolist (e3 oper)
+          (dolist (e4 oper)
+            (dolist (e5 oper)
+              (dolist (e6 oper)
+                (dolist (e7 oper)
+                  (dolist (e8 oper)
+                    (setq expr (string "1" e1 "2" e2 "3" e3 "4" e4 "5" e5 "6" e6 "7" e7 "8" e8 "9"))
+                    (if (= (eval (xlate expr)) 100)
+                        (println expr))))))))))))
+
+(hundred)
+;-> 123 + 45 - 67 + 8 - 9
+;-> 123 + 4 - 5 + 67 - 89
+;-> 123 - 45 - 67 + 89
+;-> 123 - 4 - 5 - 6 - 7 + 8 - 9
+;-> 12 + 3 + 4 + 5 - 6 - 7 + 89
+;-> 12 + 3 - 4 + 5 + 67 + 8 + 9
+;-> 12 - 3 - 4 + 5 - 6 + 7 + 89
+;-> 1 + 23 - 4 + 56 + 7 + 8 + 9
+;-> 1 + 23 - 4 + 5 + 6 + 78 - 9
+;-> 1 + 2 + 34 - 5 + 67 - 8 + 9
+;-> 1 + 2 + 3 - 4 + 5 + 6 + 78 + 9
+
+Nota: 20 minuti per risolvere il problema 5 in modo orribile, inoltre ho usato la funzione "xlate" per valutare le espressioni.
+Ma io non sono un software engineer :-)
+
 =============================================================================
 

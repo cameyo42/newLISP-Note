@@ -8351,9 +8351,9 @@ Valori piccoli:
 Il risultati sono contrastanti: la funzione 1 è la più veloce per valori piccoli, mentre la funzione 3 è la più veloce per valori grandi.
 
 
-----------------
-Numeri Armstrong
-----------------
+-------------------------------
+Numeri Armstrong (narcisistici)
+-------------------------------
 
 I numeri Armstrong (PlusPerfect o narcisistici) sono numeri con m cifre che sono uguali alla somma di ogni cifra elevata a m.
 
@@ -8435,6 +8435,33 @@ Funzione che calcola i numeri Armstrong fino ad un determinato limite:
 ;-> 108572.944
 
 I numeri Armstrong vengono utilizzati nella sicurezza sulla trasmissione di dati. Il primo passo consiste nell'assegnare un colore univoco a ciascun destinatario (receiver). Ogni colore è rappresentato con un insieme di tre valori. Ad esempio il colore rosso viola è rappresentato in formato RGB come (238, 58,140). Poi si assegna una serie di tre valori chiave a ciascun destinatario. Il mittente (sender) è a conoscenza del destinatario richiesto a cui devono essere inviati i dati. Quindi il colore univoco del destinatario viene utilizzato come password. Il set di tre valori chiave viene aggiunto ai valori del colore originale e crittografato dal lato del mittente. Questo colore crittografato funge effettivamente da password. I dati effettivi vengono crittografati utilizzando i numeri Armstrong.
+
+Ottimizziamo la funzione precalcolando le potenze:
+
+(define (armstrong? num)
+  (local (len p digit sum tmp)
+    (setq len (length num))
+    (setq p (map (fn(x) (pow x len)) (sequence 0 9)))
+    (setq tmp num)
+    (setq sum 0)
+    (while (!= 0 tmp)
+      (setq digit (% tmp 10))
+      (setq sum (+ sum (p digit)))
+      (setq tmp (/ tmp 10))
+    )
+    (= sum num)))
+
+(armstrong? 8208)
+;-> true
+
+(time (println (armstrong-to 1e6)))
+;-> (1 2 3 4 5 6 7 8 9 153 370 371 407 1634 8208 9474 54748 92727 93084 548834)
+;-> 2431.726
+
+(time (println (armstrong-to 1e7)))
+;-> (1 2 3 4 5 6 7 8 9 153 370 371 407 1634 8208 9474 54748 
+;->  92727 93084 548834 1741725 4210818 9800817 9926315)
+;-> 25830.001
 
 
 ---------------------------------------------------------------------
