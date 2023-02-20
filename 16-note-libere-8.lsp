@@ -2908,11 +2908,11 @@ ecc.
 ;-> (90000 90005 90040 90045 90080 90085 90320 90325 90360 90365
 ;->  90600 90605 90640 90645 90680 90685 90920 90925 90960 90965)
 
-Possiamo anche scrivere una funzione che verifica se un numero è polidivisibile in una base positiva qualunqe. Dato un intero positivo N e K = (int log-b(n) 1) il numero di cifre di N in base b. Il numero N è un numero polidivisibile solo se, per 1 <= i <= k, risulta:
+Possiamo anche scrivere una funzione che verifica se un numero è polidivisibile in una base positiva qualunque. Dato un intero positivo N e K = (int log-b(n) 1) il numero di cifre di N in base b. Il numero N è un numero polidivisibile solo se, per 1 <= i <= k, risulta:
 
   int(n/b^(k-i)) = 0 (mod i)
 
-La seguente funzione verifica se un numero (base 10) è polidivisbile:
+La seguente funzione verifica se un numero (base 10) è polidivisibile:
 
 (define (poly-div? n)
   (local (len stop)
@@ -2932,6 +2932,14 @@ La seguente funzione verifica se un numero (base 10) è polidivisbile:
 (filter (fn(x) (poly-div? x)) (sequence 90000 92000))
 ;-> (90000 90005 90040 90045 90080 90085 90320 90325 90360 90365
 ;->  90600 90605 90640 90645 90680 90685 90920 90925 90960 90965)
+
+Vediamo i tempi di esecuzione delle due funzioni:
+
+(time (polydivisible? 345654) 100000)
+;-> 197.537
+
+(time (poly-div? 345654) 100000)
+;-> 150.697
 
 
 ---------------------

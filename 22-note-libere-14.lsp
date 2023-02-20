@@ -4669,11 +4669,11 @@ Some math functions
 ; Functions for approximation
 ;
 ; The fuzzy function must be called somewhere at the start of your program
-; so that all functions that use the *fuzz* value will know what level of 
-; approximation to use. 
-; Sets the fuzz factor for functions that use it. 
-; (fuzzy) with no arguments resets *fuzz* to its default value of 0.000001. 
-; If there is an integer argument then *fuzz* is set to 10^n. 
+; so that all functions that use the *fuzz* value will know what level of
+; approximation to use.
+; Sets the fuzz factor for functions that use it.
+; (fuzzy) with no arguments resets *fuzz* to its default value of 0.000001.
+; If there is an integer argument then *fuzz* is set to 10^n.
 ; If there is a real number as an argument then *fuzz* is set to that value.
 (define (fuzzy (x 0.000001))
   (setq *fuzz* (if (integer? x) (pow 10 x) x)))
@@ -4684,7 +4684,7 @@ Some math functions
 (define (approx x (y 0)(fz *fuzz*))
   (if (approx? x y fz) y))
 
-; Functions for (a+b)/c and (a-b)/c. 
+; Functions for (a+b)/c and (a-b)/c.
 ; If c is not supplied it defaults to 2.
 (define (divadd a b (c 2))(div (add a b) c))
 (define (divsub a b (c 2))(div (sub a b) c))
@@ -4706,13 +4706,13 @@ Some math functions
   (and (list? u)
        (apply and (map number? u))))
 
-; The unit vector of a vector u, the distance from origin to u divided 
+; The unit vector of a vector u, the distance from origin to u divided
 ; into the coordinates of u
 (define (unitv u)
   (if (vector? u)
       (scalar/ (vec* u u)(quad u))))
 
-; Add two or more vectors together. 
+; Add two or more vectors together.
 ; It is assumed that all vectors are the same length.
 (define (v+ u v)(map add u v))
 (define-macro (vec+)(apply v+ (map eval (args)) 2))
@@ -4733,7 +4733,7 @@ Some math functions
   (map div (eval (args 0))
            (if (> (length (args)) 2)
                ; we test to perform only one division
-               (apply vec* (map eval (rest (args)))) 
+               (apply vec* (map eval (rest (args))))
                (eval (args 1)))))
 
 ; Multiply a vector by a scalar. Vector first, scalar second
@@ -4848,8 +4848,8 @@ Per qualsiasi numero, abcd... = pow(a, p) + pow(b, p) + pow(c, p) + pow(d, p) + 
 Si può dimostrare che per una qualunque potenza p, il valore più grande per un PDI ha al massimo (p + 1) cifre.
 
 Sequenza OEIS: A023052
-  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 4150, 4151, 
-  8208, 9474, 54748, 92727, 93084, 194979, 548834, 1741725, 4210818, 
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 4150, 4151,
+  8208, 9474, 54748, 92727, 93084, 194979, 548834, 1741725, 4210818,
   9800817, 9926315, 14459929, 24678050, 24678051, 88593477, 146511208,
   472335975, 534494836, 912985153, ...
 
@@ -4953,13 +4953,13 @@ Come notato nel tuo post, il confronto relativo:
 
 |a - b| <= epsilon * max(|a|, |b|)
 
-può restituire un risultato errato per a e b piccoli. Ciò accade perché il lato destro della disuguaglianza può arrivare fino a zero (underflow). 
+può restituire un risultato errato per a e b piccoli. Ciò accade perché il lato destro della disuguaglianza può arrivare fino a zero (underflow).
 Per esempio:
 
 float a = -FLT_MIN;
 float b = FLT_MIN;
 float epsilon = 2 * FLT_MIN;
- 
+
 abs(a - b) <= epsilon * max(abs(a), abs(b))
 
 restituisce false a causa dell'underflow. Puoi, tuttavia, evitarlo verificando la presenza di un multiplo underflow e ristrutturando la disuguaglianza con una divisione:
@@ -5051,7 +5051,7 @@ Write a function that combines two lists by alternatingly taking elements. For e
     (setq len2 (length lst2))
     (setq lmin (min len1 len2))
     (setq lmax (max len1 len2))
-    ; alternating elements 
+    ; alternating elements
     (for (i 0 (- lmin 1))
       (push (lst1 i) out -1)
       (push (lst2 i) out -1)
@@ -5109,23 +5109,23 @@ Iterative and big-integer version:
 (map fibo2 (sequence 0 10))
 ;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
 (map fibo2 (sequence 0 99))
-;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L 89L 144L 233L 377L 610L 987L 
-;->  1597L 2584L 4181L 6765L 10946L 17711L 28657L 46368L 75025L 121393L 
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L 89L 144L 233L 377L 610L 987L
+;->  1597L 2584L 4181L 6765L 10946L 17711L 28657L 46368L 75025L 121393L
 ;->  196418L 317811L 514229L 832040L 1346269L 2178309L 3524578L 5702887L
 ;->  9227465L 14930352L 24157817L 39088169L 63245986L 102334155L 165580141L
 ;->  267914296L 433494437L 701408733L 1134903170L 1836311903L 2971215073L
-;->  4807526976L 7778742049L 12586269025L 20365011074L 32951280099L 
+;->  4807526976L 7778742049L 12586269025L 20365011074L 32951280099L
 ;->  53316291173L 86267571272L 139583862445L 225851433717L 365435296162L
 ;->  591286729879L 956722026041L 1548008755920L 2504730781961L 4052739537881L
 ;->  6557470319842L 10610209857723L 17167680177565L 27777890035288L
 ;->  44945570212853L 72723460248141L 117669030460994L 190392490709135L
-;->  308061521170129L 498454011879264L 806515533049393L 1304969544928657L 
-;->  2111485077978050L 3416454622906707L 5527939700884757L 8944394323791464L 
-;->  14472334024676221L 23416728348467685L 37889062373143906L 
-;->  61305790721611591L 99194853094755497L 160500643816367088L 
-;->  259695496911122585L 420196140727489673L 679891637638612258L 
+;->  308061521170129L 498454011879264L 806515533049393L 1304969544928657L
+;->  2111485077978050L 3416454622906707L 5527939700884757L 8944394323791464L
+;->  14472334024676221L 23416728348467685L 37889062373143906L
+;->  61305790721611591L 99194853094755497L 160500643816367088L
+;->  259695496911122585L 420196140727489673L 679891637638612258L
 ;->  1100087778366101931L 1779979416004714189L 2880067194370816120L
-;->  4660046610375530309L 7540113804746346429L 12200160415121876738L 
+;->  4660046610375530309L 7540113804746346429L 12200160415121876738L
 ;->  19740274219868223167L 31940434634990099905L 51680708854858323072L
 ;->  83621143489848422977L 135301852344706746049L 218922995834555169026L)
 
@@ -5167,7 +5167,7 @@ We must change the compare function of sort:
 (biggest2 a)
 ;-> 95021
 
-Nota: i primi 4 problemi risolti in 45 minuti. 
+Nota: i primi 4 problemi risolti in 45 minuti.
 
 Problem 5
 ---------
@@ -5205,6 +5205,341 @@ Bad solution (but it is fast and works):
 
 Nota: 20 minuti per risolvere il problema 5 in modo orribile, inoltre ho usato la funzione "xlate" per valutare le espressioni.
 Ma io non sono un software engineer :-)
+
+
+---------------------------
+Numeri pandigitali quadrati
+---------------------------
+
+a) Trovare tutti i numeri a 9 cifre che sono quadrati perfetti e che usano tutte le cifre da 1 a 9 una volta ciascuna.
+
+Sequenza OEIS A036744:
+  139854276, 152843769, 157326849, 215384976, 245893761, 254817369,
+  326597184, 361874529, 375468129, 382945761, 385297641, 412739856,
+  523814769, 529874361, 537219684, 549386721, 587432169, 589324176,
+  597362481, 615387249, 627953481, 653927184, 672935481, 697435281,
+  714653289, 735982641, 743816529, 842973156, 847159236, 923187456
+
+b) Trovare tutti i numeri a 10 cifre che sono quadrati perfetti e che usano tutte le cifre da 0 a 9 una volta ciascuna.
+
+Sequenza OEIS A225218:
+  1026753849, 1042385796, 1098524736, 1237069584, 1248703569, 1278563049
+  1285437609, 1382054976, 1436789025, 1503267984, 1532487609, 1547320896
+  1643897025, 1827049536, 1927385604, 1937408256, 2076351489, 2081549376
+  2170348569, 2386517904, 2431870596, 2435718609, 2571098436, 2913408576
+  3015986724, 3074258916, 3082914576, 3089247561, 3094251876, ...
+
+a) Soluzione
+------------
+
+Numero più piccolo a 9 cifre:
+(setq min9 123456789)
+
+Numero più grande a 9 cifre:
+(setq max9 987654321)
+
+Quindi dovremmo verificare 864197532 numeri:
+
+(setq num9 (- max9 min9))
+;-> 864197532
+
+Calcoliamo la radice quadrata dei valori min9 e max9:
+(setq sqmin9 (sqrt min9))
+;-> 1111.11106055556
+(setq sqmax9 (sqrt max9))
+;-> 31426.96805293187
+
+In questo caso dobbiamo verificare 20315 numeri:
+
+(setq sqnum9 (sub sqmax9 sqmin9))
+;-> 20315.85699237631
+
+oppure meglio:
+
+(setq sqnum9 (- (int sqmax9) (int (+ sqmin9 1))))
+;-> 20314
+
+Funzione che verifica se un numero è pandigitale zeroless (9 cifre da 1 a 9):
+
+(define (pan9? n)
+  (cond ((or (< n 123456789) (> n 987654321) (!= 0 (% n 9))) nil)
+        (true
+          (let (lst '(0 -1 -1 -1 -1 -1 -1 -1 -1 -1))
+            (while (!= n 0)
+              (setf (lst (% n 10)) 1)
+              (setq n (/ n 10))
+            )
+            (if (ref '-1 lst) nil true)))))
+
+Funzione che cerca i numeri pandigitali zeroless quadrati:
+
+(define (square9)
+  (local (out val)
+    (setq out '())
+    (for (i 11112 31426 1)
+    ;(for (i 11112 31429 3)
+      (setq val (* i i))
+      (if (and (pan9? val) (= (sqrt val) i))
+      ;(if (and (unique-digits val) (= (sqrt val) i))
+        (push val out -1)
+      )
+    )
+    out))
+
+(square9)
+;-> (139854276 152843769 157326849 215384976 245893761 254817369
+;->  326597184 361874529 375468129 382945761 385297641 412739856
+;->  523814769 529874361 537219684 549386721 587432169 589324176
+;->  597362481 615387249 627953481 653927184 672935481 697435281
+;->  714653289 735982641 743816529 842973156 847159236 923187456)
+
+(time (square9) 100)
+;-> 1420.024
+
+Possiamo ottimizzare il ciclo "for" considerando che un numero pandigitale zeroless è divisibile per 9, quindi se ha radice quadrata perfetta, allora la radice è divisibile per 3: questo significa che possiamo incrementare la variabile del ciclo di 3 invece che di 1 ad ogni passo.
+
+(define (square91)
+  (local (out val)
+    (setq out '())
+    (for (i 11112 31426 3)
+      (setq val (* i i))
+      (if (and (pan9? val) (= (sqrt val) i))
+        (push val out -1)
+      )
+    )
+    out))
+
+(= (square91) (square9))
+;-> true
+
+(time (square91) 100)
+;-> 1090.954
+
+Altra versione ottimizzata:
+
+(define (square92)
+  (local (square root x y found c a out)
+    (setq out '())
+    (setq root 11109)
+    (setq a (array 10 '(0)))
+    (setq square (* root root))
+    (setq c 0)
+    (setf (a 0) 1)
+    (for (i 1 6771)
+      (setq square (+ square (* 6 root) 9))
+      (setq root (+ root 3))
+      (for (j 1 9) (setf (a j) 0))
+      (setq x square)
+      (setq found 1)
+      (setq stop nil)
+      (for (j 1 9 1 stop)
+        (setq y x)
+        (setq x (/ x 10))
+        (setq y (- y (* 10 x)))
+        (if (> (a y) 0)
+          (set 'found 0 'stop true)
+          (setf (a y) 1)
+        )
+      )
+      (if (= found 1)
+        (begin
+          (++ c)
+          (push square out -1)
+          ;(println square)
+        )
+      )
+    )
+    ;(println c " numeri pandigitali zeroless quadrati")
+    out))
+
+(= (square92) (square91))
+;-> true
+
+(time (square92) 100)
+;-> 934.729
+
+
+b) Soluzione
+------------
+
+Numero più piccolo a 10 cifre:
+
+(setq min10 1023456789)
+
+Numero più grande a 9 cifre:
+
+(setq max10 9876543210)
+
+Quindi dovremmo verificare 864197532 numeri:
+
+(setq num10 (- max10 min10))
+;-> 8853086421
+
+Calcoliamo la radice quadrata dei valori min9 e max9:
+
+(setq sqmin10 (sqrt min10))
+;-> 31991.51120219237
+
+(setq sqmax10 (sqrt max10))
+;-> 99380.79900061178
+
+In questo caso dobbiamo verificare 67389 numeri:
+
+(setq sqnum10 (sub sqmax10 sqmin10))
+;-> 67389.28779841941
+
+oppure meglio:
+
+(setq sqnum10 (- (int sqmax10) (int (+ sqmin10 1))))
+;-> 67388
+
+Funzione che verifica se un numero è pandigitale (10 cifre da 0 a 9):
+
+(define (pan10? n)
+  (cond ((or (< n 1023456789) (> n 9876543210) (!= 0 (% n 9))) nil)
+        (true
+          (let (lst '(0 0 0 0 0 0 0 0 0 0))
+            (while (!= n 0)
+              (setf (lst (% n 10)) 1)
+              (setq n (/ n 10))
+            )
+            (if (ref '0 lst) nil true)))))
+
+Funzione che cerca i numeri pandigitali quadrati:
+
+(define (square10)
+  (local (out val)
+    (setq out '())
+    (for (i 31992 99380 3)
+      (setq val (* i i))
+      (if (and (pan10? val) (= (sqrt val) i))
+        (push val out -1)
+      )
+    )
+    out))
+
+(square10)
+;-> (1026753849 1042385796 1098524736 1237069584 1248703569 1278563049
+;->  1285437609 1382054976 1436789025 1503267984 1532487609 1547320896
+;->  1643897025 1827049536 1927385604 1937408256 2076351489 2081549376
+;->  2170348569 2386517904 2431870596 2435718609 2571098436 2913408576
+;->  3015986724 3074258916 3082914576 3089247561 3094251876 3195867024
+;->  3285697041 3412078569 3416987025 3428570916 3528716409 3719048256
+;->  3791480625 3827401956 3928657041 3964087521 3975428601 3985270641
+;->  4307821956 4308215769 4369871025 4392508176 4580176329 4728350169
+;->  4730825961 4832057169 5102673489 5273809641 5739426081 5783146209
+;->  5803697124 5982403716 6095237184 6154873209 6457890321 6471398025
+;->  6597013284 6714983025 7042398561 7165283904 7285134609 7351862049
+;->  7362154809 7408561329 7680594321 7854036129 7935068241 7946831025
+;->  7984316025 8014367529 8125940736 8127563409 8135679204 8326197504
+;->  8391476025 8503421796 8967143025 9054283716 9351276804 9560732841
+;->  9614783025 9761835204 9814072356)
+
+(time (square10) 100)
+;-> 3885.126
+
+Nota: il numero pandigitale più piccolo in base b vale:
+
+                      b^b - b
+min-pandigital(b) = ----------- + (b - 1)*b^(b-2) - 1
+                     (b - 1)^2
+
+(define (minpan b)
+  (+ (/ (- (pow b b) b) (* (- b 1) (- b 1)))
+     (* (- b 1) (pow b (- b 2))) (- 1)))
+
+(minpan 10)
+;-> 1023456789
+
+(map minpan (sequence 2 10))
+;-> (2 11 75 694 8345 123717 2177399 44317196 1023456789)
+
+(define (b1-b2 num base1 base2)
+"Convert an integer from base1 to base2 (2 <= base <= 10)"
+  (if (zero? num) num
+      (+ (% num base2) (* base1 (b1-b2 (/ num base2) base1 base2)))))
+
+(map (fn(x y) (b1-b2 x 10 y)) (map minpan (sequence 2 10)) (sequence 2 10))
+;-> (10 102 1023 10234 102345 1023456 10234567 102345678 1023456789)
+
+
+---------------------------------
+Numeri pandigitali polidivisibili
+---------------------------------
+
+Un numero polidivisibile è un numero che soddisfa le seguenti proprietà:
+ - La sua prima cifra a non è 0.
+ - Il numero formato dalle sue prime due cifre ab è un multiplo di 2.
+ - Il numero formato dalle sue prime tre cifre abc è un multiplo di 3.
+ - Il numero formato dalle sue prime quattro cifre abcd è un multiplo di 4.
+ - ecc.
+
+Trovare i numeri pandigitali (numeri che hanno tutte e 10 le cifre ripetute una volta soltanto) in cui le prime k cifre sono divisibili esattamente per k.
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione che verifica se un numero (base 10) è polidivisibile:
+
+(define (poly-div? n)
+  (local (len stop)
+    (setq len (length n))
+    (setq stop nil)
+    (for (i 2 len 1 stop)
+      ;(println (slice s 0 i))
+      (if (!= (% (int (div n (pow 10 (- len i)))) i) 0)
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(length (perm '(0 1 2 3 4 5 6 7 8 9)))
+;-> 36628800
+
+Funzione che cerca i numeri pandigitali in cui le prime k cifre sono divisibili esattamente per k:
+
+(define (find-pan-poly)
+  ; genera tutti i numeri pandigitali
+  (let (numbers (perm '(0 1 2 3 4 5 6 7 8 9)))
+    (dolist (el numbers)
+      ; vengono verificati solo i numeri che non iniziano con 0
+      (if (!= (el 0) 0)
+        (if (poly-div? (list-int el)) (println (list-int el)))))))
+
+(time (find-pan-poly))
+;-> 3816547290
+;-> 15982.041
+
+Quindi 3816547290 è l'unico numero pandigitale polidivisibile.
 
 =============================================================================
 

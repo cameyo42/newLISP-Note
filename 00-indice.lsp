@@ -1670,6 +1670,8 @@ NOTE LIBERE 14
   Perfect Digital Invariant number (Numero invariante digitale perfetto)
   Floating-point tolerances revisited
   Five programming problems
+  Numeri pandigitali quadrati
+  Numeri pandigitali polidivisibili
   
 APPENDICI
 =========
