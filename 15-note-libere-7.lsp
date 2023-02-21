@@ -5241,6 +5241,53 @@ Possiamo usare "set" o "define" in modo equivalente:
 
 Nota: al posto di "lambda" e "lambda-macro" si possono usare anche le parole "fn" e "fn-macro".
 
+Lutz:
+-----
+lambda in newLISP is not a keyword like a built-in function or operator, but a special attribute of a list: a lambda list, so it could occur like this:
+
+(lambda)
+;-> (lambda )
+
+As you can see, a lambda list evaluates to itself in newLISP and you don't need to quote it when using it as a parameter to another function.
+
+When constructing lambda lists with 'append' or 'cons' then 'append' associates the lambda property to the right and 'cons' to the left:
+
+(append (lambda) '((x) (+ x x)))
+;-> (lambda (x) (+ x x))
+(cons '(x) (lambda (+ x x)))
+;-> (lambda (x) (+ x x))
+
+The 'cons' example shows you that lambda is not the first element of a list but rather a property of that list.
+
+(empty? (lambda))
+;-> true
+(lambda? (lambda))
+;-> true
+
+By definition there cannot be implicit indexing for (lambda).
+
+(nth 0 '(lambda (x) a b c))
+;-> (x)
+;-> ('(lambda (x) a b c) 0)
+nil
+
+The following example shows why:
+((lambda (x) (+ x x)) 1)
+;-> 2
+
+lambda is used in an applicative context/situation. Implicit indexing is giving lists or numbers functionality when using in an applicative context. For lambda expression this applicative functionality is already defined as applying the lambda expression to the arguments following it.
+
+But there is implicit slicing for lambda:
+
+(1 (lambda (x) (+ x x)))
+;-> ((+ x x))
+(0 1 (lambda (x) (+ x x)))
+;-> ((x))
+
+because now the lambda list can be treated just like a normal list.
+
+ps: note that quoting lambda is not necessary, as lambda evaluates to itself.
+
 
 ---------------------------------
 Addizioni e sottrazioni alternate

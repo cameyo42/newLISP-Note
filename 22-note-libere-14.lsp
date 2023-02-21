@@ -5541,5 +5541,238 @@ Funzione che cerca i numeri pandigitali in cui le prime k cifre sono divisibili 
 
 Quindi 3816547290 è l'unico numero pandigitale polidivisibile.
 
+
+-----------------
+La funzione "sgn"
+-----------------
+
+****************
+>>>funzione SGN
+****************
+sintassi: (sgn num)
+sintassi: (sgn num exp-1 [exp-2 [exp-3]])
+
+Nella prima sintassi, la funzione sgn è una funzione logica che estrae il segno di un numero reale secondo le seguenti regole:
+
+x > 0 : sgn(x) = 1
+x < 0 : sgn(x) = -1
+x = 0 : sgn(x) = 0
+
+(sgn -3.5)
+;-> -1
+(sgn 0)
+;-> 0
+(sgn 123)
+;-> 1
+
+Nella seconda sintassi, viene restituito il risultato della valutazione di una delle espressioni facoltative exp-1, exp-2 o exp-3, invece di -1, 0 o 1. Se exp-n manca per il caso attivato, quindi viene restituito nil.
+
+(sgn x -1 0 1)         ; works like (sgn x)
+(sgn x -1 1 1)         ; -1 for negative x all others 1
+(sgn x nil true true)  ; nil for negative else true
+(sgn x (abs x) 0)      ; (abs x) for x < 0, 0 for x = 0, else nil
+
+Qualsiasi espressione o costante può essere utilizzata per exp-1, exp-2 o exp-3.
+
+
+-------------------------------------
+Area di sovrapposizione di rettangoli
+-------------------------------------
+
+Input: una lista di rettangoli
+1) ogni rettangolo è rappresentato dai punti lower-left e upper-right con 4 numeri interi naturali: (x0,y0,x1,y1)
+2) non sono ruotati, sono tutti rettangoli con i lati a due a due paralleli all'asse X e all'asse Y
+3) sono posizionati in modo casuale: possono toccarsi ai bordi, sovrapporsi o non avere alcun contatto
+4) Ci sono diverse centinaia di rettangoli
+
+Output:
+L'area che viene formata dalla loro sovrapposizione - tutta l'area che più di un rettangolo "copre" (ad esempio con due rettangoli, sarebbe la loro intersezione)
+Non c'è bisogno di restituire la geometria della sovrapposizione, ma solo l'area (esempio: 4 metri quadrati)
+
+Le sovrapposizioni non devono essere contate più volte, ad esempio, immaginiamo 3 rettangoli che hanno la stessa dimensione e posizione - sono uno sopra l'altro - quest'area dovrebbe essere contata una volta (non tre volte).
+
+Esempio
+L'immagine qui sotto contiene tre rettangoli: A,B,C,D
+A e B si sovrappongono (come indicato dai trattini)
+B e C si sovrappongono (come indicato dai trattini)
+D e B si sovrappongono (come indicato dai trattini)
+
+Quello che dobbiamo trovare è l'area in cui vengono visualizzati i trattini.
+
+  AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  AAAAAAAAAAAAAA--------------BBB
+  AAAAAAAAAAAAAA--------------BBB
+  AAAAAAAAAAAAAA--------------BBB
+  AAAAAAAAAAAAAA--------------BBB
+                BBBBBBBBBBBBBBBBB
+    DDDDDDDDDDDD---BBBBBBBBBBBBBB
+    DDDDDDDDDDDD---BBBBBBBBBBBBBB
+    DDDDDDDDDDDD---BBB-----------CCCCCCCC
+                BBBBBB-----------CCCCCCCC
+                      CCCCCCCCCCCCCCCCCCC
+                      CCCCCCCCCCCCCCCCCCC
+                      CCCCCCCCCCCCCCCCCCC
+                      CCCCCCCCCCCCCCCCCCC
+
+Creiamo una matrice "out" di dimensioni sufficienti per contenere tutti i rettangoli.
+Inizializziamo la matrice "out" con tutti 0.
+Per ogni rettangolo aumentiamo di 1 tutte le celle della matrice "out" che sono occupate dal rettangolo corrente.
+Al termine avremo una matrice con valori da 0 a k, dove k è il numero massimo di rettangoli sovrapposti.
+L'area di sovrapposizione di tutti i rettangoli è data dal numero di celle della matrice "out" che hanno valore maggiore di 1.
+In particolare i valori delle celle della matrice hanno il seguente significato:
+
+  0: nessun rettangolo occupa la cella
+  1: 1 rettangolo occupa la cella
+  2: 2 rettangoli occupano la cella
+  ...
+  k: k rettangoli occupano la cella
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Funzione che calcola l'area di sovrapposizione di una lista di rettangoli:
+
+(define (area-rect lst show)
+  (local (xmax ymax area out)
+    ; colonne
+    (setq xmax (+ 1 (apply max (flat (map (fn(x) (list (x 0) (x 2))) lst)))))
+    ; righe
+    (setq ymax (+ 1 (apply max (flat (map (fn(x) (list (x 1) (x 3))) lst)))))
+    ; matrice per contenere i rettangoli
+    (setq out (array ymax xmax '(0)))
+    ; ciclo che aggiorna le celle della matrice con tutti i rettangoli
+    (dolist (r lst)
+      (for (y (r 1) (- (r 3) 1))
+        (for (x (r 0) (- (r 2) 1))
+          (++ (out y x))
+        )
+      )
+      ; visualizza ogni passaggio
+      (if show (begin (print-matrix out) (read-line)))
+    )
+    ; stampa la matrice finale
+    ; (print-matrix out)
+    ; calcolo dell'area di sovrapposizione
+    ; (conta tutti i valori della matrice che sono maggiori di 1)
+    (setq area (length (filter (fn(x) (> x 1)) (flat (array-list out)))))))
+
+Facciamo un paio di prove:
+
+(setq r1 '(2 2 14 6))
+(setq r2 '(1 5 5 8))
+(setq r3 '(4 4 6 10))
+(setq r4 '(8 5 12 10))
+(setq r5 '(11 3 16 9))
+(setq rects (list r1 r2 r3 r4 r5))
+
+(area-rect rects)
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
+;->  0 0 1 1 1 1 1 1 1 1 1 2 2 2 1 1 0
+;->  0 0 1 1 2 2 1 1 1 1 1 2 2 2 1 1 0
+;->  0 1 2 2 3 2 1 1 2 2 2 3 2 2 1 1 0
+;->  0 1 1 1 2 1 0 0 1 1 1 2 1 1 1 1 0
+;->  0 1 1 1 2 1 0 0 1 1 1 2 1 1 1 1 0
+;->  0 0 0 0 1 1 0 0 1 1 1 2 1 1 1 1 0
+;->  0 0 0 0 1 1 0 0 1 1 1 1 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;-> 23
+
+(setq r1 '(2 2 16 10))
+(setq r2 '(3 8 8 16))
+(setq r3 '(6 13 15 15))
+(setq r4 '(11 7 14 18))
+(setq r5 '(13 5 18 9))
+(setq rects (list r1 r2 r3 r4 r5))
+
+(area-rect rects)
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
+;->  0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
+;->  0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
+;->  0 0 1 1 1 1 1 1 1 1 1 1 1 2 2 2 1 1 0
+;->  0 0 1 1 1 1 1 1 1 1 1 1 1 2 2 2 1 1 0
+;->  0 0 1 1 1 1 1 1 1 1 1 2 2 3 2 2 1 1 0
+;->  0 0 1 2 2 2 2 2 1 1 1 2 2 3 2 2 1 1 0
+;->  0 0 1 2 2 2 2 2 1 1 1 2 2 2 1 1 0 0 0
+;->  0 0 0 1 1 1 1 1 0 0 0 1 1 1 0 0 0 0 0
+;->  0 0 0 1 1 1 1 1 0 0 0 1 1 1 0 0 0 0 0
+;->  0 0 0 1 1 1 1 1 0 0 0 1 1 1 0 0 0 0 0
+;->  0 0 0 1 1 1 2 2 1 1 1 2 2 2 1 0 0 0 0
+;->  0 0 0 1 1 1 2 2 1 1 1 2 2 2 1 0 0 0 0
+;->  0 0 0 1 1 1 1 1 0 0 0 1 1 1 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;-> 39
+
+Vediamo la velocità della funzione:
+
+1000 rettangoli (0..100):
+(silent
+  (setq coord (rand 101 4000))
+  (setq pts (explode coord 4)))
+(length pts)
+;-> 1000
+(time (println (area-rect pts)))
+;-> 10136
+;-> 58.963
+
+1000 rettangoli (0..1000):
+(silent
+  (setq coord (rand 1001 4000))
+  (setq pts (explode coord 4)))
+(length pts)
+;-> 1000
+(time (println (area-rect pts)))
+;-> 987341
+;-> 5747.871
+
+10000 rettangoli (0..100):
+(silent
+  (setq coord (rand 101 40000))
+  (setq pts (explode coord 4)))
+(length pts)
+;-> 10000
+(time (println (area-rect pts)))
+;-> 10201
+;-> 574.509
+
+10000 rettangoli (0..1000):
+(silent
+  (setq coord (rand 1001 40000))
+  (setq pts (explode coord 4)))
+(length pts)
+;-> 10000
+(time (println (area-rect pts)))
+;-> 1001032
+;-> 52985.638
+
+Nota: questo metodo permette anche di calcolare l'area delle sovrapposizioni multiple.
+
 =============================================================================
 

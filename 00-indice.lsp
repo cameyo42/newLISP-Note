@@ -1672,6 +1672,8 @@ NOTE LIBERE 14
   Five programming problems
   Numeri pandigitali quadrati
   Numeri pandigitali polidivisibili
+  La funzione "sgn"
+  Area di sovrapposizione di rettangoli
   
 APPENDICI
 =========

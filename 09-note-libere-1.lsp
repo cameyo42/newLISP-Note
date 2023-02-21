@@ -3747,7 +3747,21 @@ Il numero int-1 viene shiftato (spostato) aritmeticamente verso sinistra o verso
 
 Quando int-1 è l'unico argomento << e >> shifta int-1 di un bit.
 
-Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero  intero.
+Le operazioni di shift aritmetico possono essere utilizzate per dividere o moltiplicare un numero intero.
+
+Lutz:
+-----
+The left shift << in newLISP is a rotating shift: bits shifted out at the left come in in on the right side, to avoid this do a:
+
+(<< (& 0x7FFFFFFF x) 1) instaed of (<< x 1)
+
+this masks the most left bit to zero.
+
+If you shift 8 bits to the left do a:
+
+(<< (& 0x00FFFFFF crc) 8) instead (<< x 8)
+
+you have to mask all 8 bits on the left, not only 1 as now you are shifing 8 bits.
 
 Moltiplicazione con lo shift a sinistra
 ---------------------------------------
@@ -6839,6 +6853,23 @@ Nel forum di newLISP newBert ha proposto un altro metodo che utilizza la funzion
 ;-> 3
 (map set '(x y z) (list (+ x y z) (- z y x) (- x y z)))
 ;-> (6 0 -4)
+
+Fanda ha proposto una versione che scambia i valori di n simboli:
+
+(define-macro (exchange) (map set (args) (map eval (rotate (args) -1))))
+
+(set 'a 1 'b 2)
+(exchange a b)
+;-> (2 1)
+(list a b)
+;-> (2 1)
+
+(set 'a 1 'b 2 'c 3 'd 4)
+; a = b, b = c, c = d, d = a
+(exchange a b c d)
+;-> (2 3 4 1)
+(list a b c d)
+;-> (2 3 4 1)
 
 
 ----------------------------
