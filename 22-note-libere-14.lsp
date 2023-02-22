@@ -4763,6 +4763,19 @@ Some math functions
 
 ;Vector triple product of three vectors
 (define (vtriple u v w)(cross u (cross v w)))
+;
+; Functions to check numbers (by Lutz)
+;
+(define (octal? x) (= (eval-string x) (int x nil 8)))
+(define (decimal? x) (= (eval-string x) (int x nil 10)))
+(octal? "10")
+;-> nil
+(octal? "010")
+;-> true
+(decimal? "10")
+;-> true
+(decimal? "010")
+;-> nil
 
 
 ------------------------------
@@ -5773,6 +5786,151 @@ Vediamo la velocità della funzione:
 ;-> 52985.638
 
 Nota: questo metodo permette anche di calcolare l'area delle sovrapposizioni multiple.
+
+
+----------------------------------------------------------
+Network programming and distributed scripting with newLISP
+----------------------------------------------------------
+
+by Ax0n (2009-07-08)
+
+I'm not sure why I never re-posted this here, but alas, better late than never.  I should have an article published in the Summer 2009 issue of 2600 as well, but I haven't seen it yet.
+
+This initially showed up in 2600: The Hacker Quarterly Volume 23 Number 4 (Winter 2006-2007)
+
+newLISP (www.newlisp.org) is a relative newcomer to the interpreted language arena in terms of popularity. While it had its humble beginnings back in 1991 when Lutz Mueller started working on it, only in the last 4 years has development been consistently active.
+
+newLISP is everything that old-school LISP languages are, with a lot of modern features. First off, it's a scripting language that's extremely fast. It has networking ability that's powerful enough to write TCP or UDP client or server applications. Then, to top that off, it has a command called net-eval which makes newLISP stand out from the crowd by giving it the unique ability to easily distribute tasks to other nodes over a network connection.
+
+Binaries (under 200 kilobytes) are available for Windows, BSD, Linux, Mac OS X, Solaris and a host of other platforms. It is released under the GPL. Performance is also second to none. newLISP has been topping the charts on script interpreter benchmarks in several categories thanks to it's small size (under 200 kilobytes) and efficient C code. It outruns php, perl, and even ruby.
+
+newLISP also has some other tricks up its sleeve that make it an excellent system administration scripting language. It has decent filesystem support, so it can see if files or directories exist, determine if a file's permissions are acceptable for reading or writing, and it has very powerful text processing ability using PCRE (perl compatible regular expressions). Finally, it's also worth mentioning that newLISP can easily import whole functions from dynamic libraries such as libmysqlclient (instant MySQL access from within newLISP!), tcl/tk (for creating graphical applications in newLISP) and zlib (for compression and decompression) just to name a few. This makes newLISP one of the most robust and flexible languages around. As you can tell, newLISP is a formidable choice for hackers, geeks, network admins or security professionals wishing to create scripted programs to do network operations or distributed computing with minimal effort
+
+I am lucky to have been able to work directly with Lutz, the founder and creator of newLISP. I got a few direct lessons from him, and from there, started tinkering with it on my own. With that, the first thing I did was create a makeshift port scanner. I learn easiest by example, so here is what I came up with.
+
+Here is port.lsp:
+
+#!/usr/bin/newlisp
+(set 'params (main-args))
+(if (< (length params) 5) 
+  (begin 
+    (println "USAGE: port.lsp host begin-port end-port")
+    (exit)
+  )
+)
+(set 'host (nth 2 params))
+(set 'bport (int (nth 3 params)))
+(set 'eport (int (nth 4 params)))
+(for (port bport eport)
+  (begin
+   (set 'socket (net-connect host port))
+   (if socket (println port " open"))
+  )
+)
+(exit)
+
+The first part simply assigns the command line arguments into a list called params, then makes sure that 4 parameters were given (program name, host, begin port and ending port). If not, it displays a usage tip before exiting. The second part assigns elements of the list to appropriate variables, then uses a for loop to iterate through the ports, displaying open port numbers that are open. Note that on machines with packet filters that "drop" packets, this port scan will take a very long time. nmap is a much more robust port scanner, however this little script demonstrates the power of newLISP's network commands. We'll run this as a test just for fun:
+
+$ ./port.lsp 192.168.0.105 1 200
+21 open
+22 open
+23 open
+25 open
+79 open
+111 open
+
+Now, let's look into distributed computing, shall we? The core command behind newLISP's distributed computing power -- called "net-eval" -- operates on a list of lists (similar to a 3 dimensional array). The inner-most list is a list of host, port, and a string representing the command(s) you wish to run on the remote node. The outer-most list can contain as many host-port-command lists as your heart desires, allowing you to run many distributed processes at once, and get the results back all at the same time. Then, outside those lists is a timeout in milliseconds. If a result isn't returned in the timeout period, the operation returns "nil" (that is, false). To clarify, net-eval syntax is as follows:
+
+(net-eval (list (list "host" port-number command-string)) timeout)
+
+On each remote node, you must have a newLISP listener, which is simply started by running "newlisp -c -d port-number" from the command line. On UNIX environments, you may put an ampersand (&) at the end to launch it in the background, or you may even wish to use "set NOHUP" and log off to leave it running in the background indefinitely. In my example, I went to my Solaris box and launched it, listening on port 31337 as follows:
+
+$ newlisp -c -d 31337 &
+
+I also launched newLISP listeners on various other machines on my home network, including a few OpenBSD machines, and my wife's MUD/BBS server running Windows Server 2003 with the "Services for UNIX" tools installed.
+
+Now, care must be taken. It is a bad idea to have a newLISP listener running on a public IP address, because commands like process or exec can launch shell processes on the newLISP node, which is just as good as giving away an unprotected shell account on your network. I advise using newLISP listener nodes only behind a NAT or firewall, or on a segregated network.
+
+Let's run a test script, shall we? In LISP, boolean and math operations are always performed by placing the operator first, followed by the symbols to apply it to. In addition, the symbols are numbers, but they could easily be strings or lists with some operations. Adding 1 + 2 in LISP is as simple as (+ 1 2) I will start by running a quick addition operation on 1 remote node with a 3000ms (3 second) timeout.
+
+Here is net-eval-test.lsp:
+
+#!/usr/bin/newlisp
+(set 'evalstring "(+ 1 2)")
+(println (net-eval (list (list "192.168.0.55" 31337 evalstring)) 3000))
+(exit)
+
+When we run it, we get the answer to this mind-boggling math problem:
+$ ./net-eval-test.lsp
+
+(3)
+Now, to expand this even more, I have added three other nodes into the mix, which shows more clearly how the nested list syntax of net-eval works, and I'll demonstrate remote command execution at the same time, using the "exec" command. Notice how the quotes around the command to be run is escaped with backslashes. This is needed to keep from confusing the interpreter. To put quotes inside a quoted string, you need to escape them. This is almost universal to all programming languages. On UNIX-like platforms, uname is used to get information about the operating system and architecture. uname -s -n -m will list the OS that's running, the hostname, and the machine architecture.
+
+Here is uname.lsp:
+
+#!/usr/bin/newlisp
+(set 'evalstring "(exec \"uname -s -n -m\")")
+(println (net-eval (list 
+        (list "localhost" 31337 evalstring)
+        (list "192.168.0.55" 31337 evalstring)
+        (list "192.168.0.102" 31337 evalstring)
+        (list "192.168.0.127" 31337 evalstring)
+        ) 3000))
+(exit) 
+
+The result is a newLISP list of strings, containing the results of running the command:
+
+$ ./uname.lsp
+(("SunOS sparky sun4u") ("OpenBSD compy386 i386") ("OpenBSD bouncer sparc") ("Windows mudbbs x86"))
+
+The online documentation for newLISP is very extensive, and features a few rather advanced demonstration scripts, including a working web server written entirely in newLISP. While learning a new programming language is never easy, newLISP is more than mature enough in both implementation and documentation to make it a pretty easy language to add to your list.
+
+
+-------------------------------------
+Convertire una espressione in stringa
+-------------------------------------
+
+Per trasformare un simbolo/funzione/contesto in una stringa possiamo usare la funzione "source".
+
+*******************
+>>>funzione SOURCE
+*******************
+sintassi: (source)
+sintassi: (source sym-1 [sym-2 ... ])
+
+Funziona in modo quasi identico a save, tranne che i simboli e i contesti vengono serializzati su una stringa anziché essere scritti su un file. È possibile specificare più simboli variabili, definizioni e contesti. Se non viene fornito alcun argomento, source serializza l'intero spazio di lavoro di newLISP. Quando i simboli di contesto sono serializzati, anche i simboli contenuti in quel contesto saranno serializzati. I simboli di sistema che iniziano con il carattere $ (simbolo del dollaro) vengono serializzati solo quando menzionati esplicitamente.
+
+I simboli che non appartengono al contesto corrente sono scritti con il loro prefisso di contesto.
+
+(define (double x) (+ x x))
+
+(source 'double)
+;-> "(define (double x)\n  (+ x x))\n\n"
+
+Come con "save", la formattazione delle interruzioni di riga e degli spazi iniziali o delle tabulazioni può essere controllata usando la funzione pretty-print.
+
+Da una REPL nuova:
+
+(setq all (source))
+;-> "\r\n(context 'Class)\r\n\r\n(define (Class:Class )\r\n  (cons ..."
+(println all)
+;->
+;-> (context 'Class)
+;-> (define (Class:Class )
+;->   (cons (context) (args)))
+;->
+;-> (context MAIN)
+;->
+;-> (context 'Tree)
+;->
+;-> (context MAIN)
+;->
+;-> (define (module $x)
+;->   (load (append (env "NEWLISPDIR") "/modules/" $x)))
+;->
+;-> (global 'module)
+;->
+;-> (constant (global 'ostype) "Windows")
 
 =============================================================================
 

@@ -1674,6 +1674,8 @@ NOTE LIBERE 14
   Numeri pandigitali polidivisibili
   La funzione "sgn"
   Area di sovrapposizione di rettangoli
+  Network programming and distributed scripting with newLISP
+  Convertire una espressione in stringa
   
 APPENDICI
 =========
