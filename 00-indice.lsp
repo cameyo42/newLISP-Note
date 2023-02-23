@@ -1676,6 +1676,9 @@ NOTE LIBERE 14
   Area di sovrapposizione di rettangoli
   Network programming and distributed scripting with newLISP
   Convertire una espressione in stringa
+  Sequenze di interi con somma N
+  Numero successivo con cifre distinte
+  Differenza tra i caratteri "" e i caratteri {}
   
 APPENDICI
 =========

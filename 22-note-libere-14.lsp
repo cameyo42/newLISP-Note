@@ -5932,5 +5932,316 @@ Da una REPL nuova:
 ;->
 ;-> (constant (global 'ostype) "Windows")
 
+
+------------------------------
+Sequenze di interi con somma N
+------------------------------
+
+Scrivete un programma che trovi tutte le serie di interi positivi consecutivi la cui somma sia esattamente ad un numero intero N.
+
+Un possibile approccio consiste nell'utilizzare due cicli nidificati.
+Il più grande valore possibile in una serie di numeri interi positivi consecutivi che sommano a N vale N/2.
+Quindi il ciclo esterno va da 1 a N/2 (o (N/2 + 1) se N è dispari).
+Ad ogni passaggio, il secondo ciclo passa consecutivamente dal valore attuale al punto in cui la somma di quei numeri è uguale o superiore a N.
+Se la somma è uguale a N, abbiamo trovato una soluzione (inizio e fine della serie) e poi incrementiamo nuovamente il contatore del ciclo esterno.
+
+(define (seq-sum1 num)
+  (local (somma primo iter out)
+    (if (even? num)
+      (setq iter (/ num 2))
+      (setq iter (+ (/ num 2) 1))
+    )
+    (for (i 1 iter)
+      (setq somma 0)
+      (setq primo i)
+      (while (< somma num)
+        (setq somma (+ somma primo))
+        (++ primo)
+      )
+      (if (= somma num) (push (list i (- primo 1)) out -1))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(seq-sum1 10000)
+;-> ((18 142) (297 328) (388 412) (1998 2002))
+
+(seq-sum1 10001)
+;-> ((5 141) (101 173) (5000 5001))
+
+(seq-sum1 12345)
+;-> ((397 426) (816 830) (1230 1239) (2055 2060)
+;->  (2467 2471) (4114 4116) (6172 6173))
+
+Una funzione che controlla i risultati:
+
+(define (check lst)
+  (dolist (el lst)
+    (print (apply + (sequence (el 0) (el 1))) ", ")))
+
+(check (seq-sum1 10000))
+;-> 10000, 10000, 10000, 10000
+(check (seq-sum1 10001))
+;-> 10001, 10001, 10001
+(check (seq-sum1 12345))
+;-> 12345, 12345, 12345, 12345, 12345, 12345, 12345
+
+Vediamo la velocità di esecuzione:
+
+(time (println (setq a (seq-sum1 123456789))))
+;-> ((5117 16525) (5999 16819) (12429 20034) (13507 20720) (30562 34364) 
+;->  (32424 36030) (6858702 6858719) (13717417 13717425) (20576129 20576134)
+;->  (41152262 41152264) (61728394 61728395))
+;-> 103872.129
+
+(check a)
+;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789, 
+;-> 123456789, 123456789, 123456789, 123456789, 123456789
+
+Possiamo ottimizzare la funzione nel modo seguente.
+Utilizziamo un ciclo esterno che va da 1 a N. 
+Aumentiamo il valore della somma (somma) con il valore del contatore (i) del ciclo esterno e verifichiamo se supera N.
+Quando questo accade sottraiamo il valore dell'inizio della serie (primo) dil totale e quindi aumentiamo (primo) di 1. Alla fine, la somma diminuisce torna a N o meno, e quando ciò accade il programma esce da quel ciclo.
+Se la somma a quel punto è esattamente 10.000, abbiamo trovato una soluzione.
+In questo caso la fine della serie equivale al contatore del ciclo esterno, quindi continuiamo con il successivo valore fino a N/2.
+
+(define (seq-sum2 num)
+  (local (somma primo iter out)
+    (setq somma 0)
+    (setq primo 1)
+    (if (even? num)
+      (setq iter (/ num 2))
+      (setq iter (+ (/ num 2) 1))
+    )
+    (for (i 1 iter)
+      (setq somma (+ somma i))
+      (while (> somma num)
+        (setq somma (- somma primo))
+        (++ primo)
+      )
+      (if (= somma num) (push (list primo i) out -1))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(seq-sum2 10000)
+;-> ((18 142) (297 328) (388 412) (1998 2002))
+
+(seq-sum2 10001)
+;-> ((5 141) (101 173) (5000 5001))
+
+(seq-sum2 12345)
+;-> ((397 426) (816 830) (1230 1239) (2055 2060)
+;->  (2467 2471) (4114 4116) (6172 6173))
+
+(check (seq-sum2 10000))
+;-> 10000, 10000, 10000, 10000
+(check (seq-sum2 10001))
+;-> 10001, 10001, 10001
+(check (seq-sum2 12345))
+;-> 12345, 12345, 12345, 12345, 12345, 12345, 12345
+
+Vediamo la velocità di esecuzione:
+
+(time (println (setq b (seq-sum2 123456789))))
+;-> ((5117 16525) (5999 16819) (12429 20034) (13507 20720) (30562 34364) 
+;->  (32424 36030) (6858702 6858719) (13717417 13717425) (20576129 20576134)
+;->  (41152262 41152264) (61728394 61728395))
+;-> 11433.28
+
+Questa funzione è 9 volte più veloce.
+
+(check b)
+;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789, 
+;-> 123456789, 123456789, 123456789, 123456789, 123456789
+
+In Pascal (FreePascal Compiler 3.2.2):
+
+program main (input, output);
+var
+  num, i, primo, somma, iter: integer;
+begin
+  num := 10001;
+  somma := 0;
+  primo := 1;
+  if num mod 2 = 0 then 
+    iter := num div 2;
+    iter := num div 2 + 1;
+  for i := 1 to iter do
+    begin
+      somma := somma + i;
+      while somma > num do
+        begin
+          somma := somma - primo;
+          primo := primo + 1;
+        end;
+      if (somma = num) then
+        writeln ('(', primo, ',', i, ')');
+    end
+end.
+
+Free Pascal Compiler version 3.2.2
+Copyright (c) 1993-2021 by Florian Klaempfl and others
+Target OS: Windows for x86-64
+Compiling main.pas
+Linking a.out
+23 lines compiled, 0.0 sec
+(5,141)
+(101,173)
+(5000,5001)
+
+Un altro approccio è quello di tenere traccia della somma raggiunta e regolarla in base al confronto con la somma fissata.
+
+(define (seq-sum3 num)
+  (local (inizio fine somma out)
+    (set 'inizio 1 'fine 1 'somma 1 'out '())
+    (while (<= inizio (/ num 2))
+      (cond ((< somma num)
+              (++ fine)
+              (++ somma fine))
+            ((> somma num)
+              (-- somma inizio)
+              (++ inizio))
+            ((= somma num)
+              (push (list inizio fine) out -1)
+              (-- somma inizio)
+              (++ inizio))
+      )
+    )
+    out))
+
+(seq-sum3 10000)
+;-> ((18 142) (297 328) (388 412) (1998 2002))
+
+(seq-sum3 10001)
+;-> ((5 141) (101 173) (5000 5001))
+
+(seq-sum3 12345)
+;-> ((397 426) (816 830) (1230 1239) (2055 2060)
+;->  (2467 2471) (4114 4116) (6172 6173))
+
+(check (seq-sum3 10000))
+;-> 10000, 10000, 10000, 10000
+(check (seq-sum3 10001))
+;-> 10001, 10001, 10001
+(check (seq-sum3 12345))
+;-> 12345, 12345, 12345, 12345, 12345, 12345, 12345
+
+Vediamo la velocità di esecuzione:
+
+(time (println (setq c (seq-sum3 123456789))))
+;-> ((5117 16525) (5999 16819) (12429 20034) (13507 20720) (30562 34364)
+;->  (32424 36030) (6858702 6858719) (13717417 13717425) (20576129 20576134)
+;->  (41152262 41152264) (61728394 61728395))
+;-> 16898.714
+
+(check c)
+;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789,
+;-> 123456789, 123456789, 123456789, 123456789, 123456789
+
+Se invece vogliamo trovare solo il numero di modi di esprimere N come somma di numeri consecutivi, allora possiamo rappresentare la serie come una sequenza di lunghezza K+1 nel modo seguente:
+
+  N = a + (a+1) + (a+2) + .. + (a+K)
+  
+Adesso possiamo ricavare il valore di "a":
+
+  N = (K+1)*a + (K*(K+1))/2 
+  a = (N - K*(K+1)/2)/(K+1) 
+
+Sostituiamo i valori di K a partire da 1 fino a K*(K+1)/2 < N.
+Se otteniamo "a" come numero naturale allora abbiamo trovato una soluzione.
+
+(define (num-seq num)
+  (local (total K)
+    (setq total 0)
+    (setq K 1)
+    (while (< (* K (+ K 1)) (* 2 num))
+      (setq a (div (sub num (div (mul K (add K 1)) 2))
+                   (add K 1)))
+      ; (println K { } a { } (int a)) (read-line)
+      (if (= a (int a 0 10)) (++ total))
+      (++ K)
+    )
+    total))
+
+Facciamo alcune prove:
+
+(num-seq 10000)
+;-> 4
+(num-seq 10001)
+;-> 3
+(num-seq 12345)
+;-> 7
+
+(time (println (num-seq 123456789)))
+;-> 11
+;-> 5.984
+
+
+------------------------------------
+Numero successivo con cifre distinte
+------------------------------------
+
+Dato un numero intero N, trovare il numero successivo che ha cifre tutte distinte.
+
+(setq MAX-INT 9223372036854775807)
+
+(define (next-distinct num)
+  (local (totale distinte continua out)
+    (setq continua true)
+    (while (and (< num MAX-INT) continua)
+      (setq distinte (length (unique (explode (string (+ num 1))))))
+      (setq totale (length (+ num 1)))
+      ;(println num { } totale { } distinte) (read-line)
+      (if (= distinte totale)
+          (set 'out (+ num 1) 'continua nil)
+          ;else
+          (++ num)
+      )
+    )
+    out))
+
+(next-distinct 2023)
+;-> 2031
+
+
+----------------------------------------------
+Differenza tra i caratteri "" e i caratteri {}
+----------------------------------------------
+
+In newLISP i caratteri "" e {} vengono usati per delimitare le stringhe.
+La differenza tra i due metodi è la seguente:
+
+- i doppi apici "" pre-processano la stringa racchiusa per eventuali caratteri di escape (es. backslash "\\")
+
+- le parentesi graffe {} non pre-processano la stringa racchiusa, ma prende i caratteri letteralmente.
+
+Vediamo alcuni esempi:
+
+(println "\\newlisp")
+;-> \newlisp
+(println {\newlisp})
+;-> \newlisp
+
+In the first one, which is delimited by quotes you would have to escape the backslash with another backslash, which is not necessary in the second one, which is delimited by curly braces. Curly braces suppress pre-processing and take the characters literally.
+
+(set 't "       ; this is a comment")
+(find "(\s*)(;+?)(.*)" t 0)
+;-> 7 ; risultato corretto è 0
+(find {(\s*)(;+?)(.*)} t 0)
+;-> 0
+
+Nella prima, delimitata da virgolette, occorre usare il carattere di escape davanti al backslash
+Nella seconda, delimitata da parentesi graffe. questo non è necessario perchè i caratteri vengono presi alla lettera.
+
+; only single backslash needed
+(find {(\s*)(;+?)(.*)} t 0)
+;-> 0
+; double backslash necessary
+(find "(\\s*)(;+?)(.*)" t 0)
+;-> 0
+
 =============================================================================
 
