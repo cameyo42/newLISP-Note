@@ -1679,6 +1679,8 @@ NOTE LIBERE 14
   Sequenze di interi con somma N
   Numero successivo con cifre distinte
   Differenza tra i caratteri "" e i caratteri {}
+  Cryptography fun with newLISP
+  sym e context
   
 APPENDICI
 =========

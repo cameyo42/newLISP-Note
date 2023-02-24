@@ -81,7 +81,7 @@ Adesso scriviamo la funzione che calcola le frequenze:
 
 Un altro metodo è quello di utilizzare la funzione "count":
 
-(setq words '("one" "two" "two" "three" "three" "three" "four" "four" 
+(setq words '("one" "two" "two" "three" "three" "three" "four" "four"
               "four" "four" "five" "five" "five" "five" "five" "six" "six"))
 
 (define (frequencies lst)
@@ -94,7 +94,7 @@ Un altro metodo è quello di utilizzare la funzione "count":
 
 Un altro metodo è quello di utilizzare un contesto (by Cormullion):
 
-(setq words '("one" "two" "two" "three" "three" "three" "four" "four" 
+(setq words '("one" "two" "two" "three" "three" "three" "four" "four"
               "four" "four" "five" "five" "five" "five" "five" "six" "six"))
 
 (define C:C)
@@ -487,17 +487,17 @@ Lisp reader
 Un "Lisp reader" si riferisce a una procedura Lisp, vale a dire la funzione "read", che legge i caratteri da un flusso di input e li interpreta e li converte come rappresentazioni di oggetti Lisp (AST Abstract Syntax Tree).
 
 Dal manuale di XLISP:
-read an expression 
-(read [<stream> [<eofp> [<eof> [<rflag>]]]]) 
-<stream>	the input stream (default, or NIL, is *standard-input*, T is *terminal-io*) 
-<eofp>	When T, signal an error on end of file, when NIL return <eof> (default is T) 
-<eof>	the value to return on end of file (default is NIL) 
+read an expression
+(read [<stream> [<eofp> [<eof> [<rflag>]]]])
+<stream>	the input stream (default, or NIL, is *standard-input*, T is *terminal-io*)
+<eofp>	When T, signal an error on end of file, when NIL return <eof> (default is T)
+<eof>	the value to return on end of file (default is NIL)
 <rflag>	recursive read flag. The value is ignored
-returns	the expression read 
+returns	the expression read
 
-Actually the basic READ doesn't need any parameter, it uses the *standard-input* 
-READ is for getting a syntactically valid S-expresseion. Only that value is returned. The S-expression is not evaluated. 
-Its practical for reading in S-expression from a file, without evaluation. 
+Actually the basic READ doesn't need any parameter, it uses the *standard-input*
+READ is for getting a syntactically valid S-expresseion. Only that value is returned. The S-expression is not evaluated.
+Its practical for reading in S-expression from a file, without evaluation.
 
 In newLISP per valutare un file di testo possiamo usare due metodi:
 
@@ -2635,7 +2635,7 @@ Quindi il codice generato dalla funzione di salvataggio dovrebbe essere:
 Per inserire il tag in modo automatico possiamo usare il metodo seguente:
 
 (define (text str) (append "[text]" str "[/text]"))
-(text "hello") 
+(text "hello")
 ;-> "[text]hello[/text]"
 
 Usando la funzione interattivamente stringhe e tag vengono convertiti in un'unica stringa, ma se salviamo il risultato in un file è tutto corretto:
@@ -2647,7 +2647,7 @@ Possiamo utilizzare anche la seguente macro:
 (define-macro (text)
 (append "[text]" (join (map string (map eval (args)))) "[/text]"))
 
-(text "hi " "there") 
+(text "hi " "there")
 ;-> "[text]hi there[/text]"
 
 Oppure:
@@ -2658,7 +2658,7 @@ Oppure:
 (text hello there dude)
 ;-> "[text]hello there dude[/text]"
 
-Usando "string" invece di "term", viene anteposto il nome del contesto se chiamiamo la funzione da un contesto/spazio dei nomi diverso. 
+Usando "string" invece di "term", viene anteposto il nome del contesto se chiamiamo la funzione da un contesto/spazio dei nomi diverso.
 La funzione "term" prende semplicemente il nome di un simbolo senza l'eventuale prefisso del contesto.
 
 Nota: L'utilizzo di stringhe maggiori di 2047 caratteri rallenta la velocità di esecuzione dei programmi.
@@ -4593,8 +4593,47 @@ Nota: in realtà esiste un caso in cui il corpo del ciclo for non viene mai eseg
 (for (i 1 10 1 true) (println i))
 ;-> true
 
+Esempio 4
+---------
+Non possiamo modificare il valore dell'iteratore del ciclo.
+
+(for (i 1 10)
+  (if (= i 5)
+      ; questa espressione non cambia il valore del simbolo "i" del ciclo
+      (setq i 10)
+      ;else
+      (print i { })))
+;-> 1 2 3 4 6 7 8 9 10
+
+Esempio 5
+---------
+I valori/espressioni di inizio e fine del ciclo vengono valutati una sola volta all'inizio del ciclo.
+Non possiamo modificare i loro valori.
+
+(setq from 1)
+(setq to 3)
+
+(for (i from to)
+  (println "from: " from)
+  (println "to: " to)
+  ; questa espressione crea un nuovo simbolo "from"
+  ; il simbolo "from" del ciclo non è modificabile
+  (setq from 100)
+  ; questa espressione crea un nuovo simbolo "to"
+  ; il simbolo "to" del ciclo non è modificabile  
+  (setq to 200)
+)
+;-> from: 1
+;-> to: 3
+;-> from: 100
+;-> to: 200
+;-> from: 100
+;-> to: 200
+
 Nota: il modo in cui si comporta l'espressione "for" di newLISP è diversa da quello di altri linguaggi (C, C++, Java, python, ecc.).
 Infatti questi linguaggi non eseguono il corpo del ciclo "for" se num-from è maggiore di num-to (con passo positivo) oppure se num-from è minore di num-to (con passo negativo). Bisogna fare attenzione quando si vuole convertire codice di altri linguaggi in newLISP.
+
+Vedi anche "I limiti del ciclo for" su "Note libere 10".
 
 
 ------------------------------------------------------------------

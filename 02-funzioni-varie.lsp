@@ -1946,6 +1946,8 @@ Per criptare un file:
 Per decriptare un file:
 (cripta "testo.enc" "testo.out" "chiave")
 
+Vedere anche "Cryptography fun with newLISP" su "Note libere 14".
+
 
 -------------------------
 Funzioni per input utente

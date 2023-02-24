@@ -6243,5 +6243,204 @@ Nella seconda, delimitata da parentesi graffe. questo non è necessario perchè 
 (find "(\\s*)(;+?)(.*)" t 0)
 ;-> 0
 
+
+-----------------------------
+Cryptography fun with newLISP
+-----------------------------
+
+by Ax0n (2007-02-07)
+
+Some of you may have seen my article in the latest 2600 magazine about newLISP, a very fast scripting language based on LISP.
+
+Well, the HiR crew has, for the better part of a year, been kicking around cryptography concepts. We keep coming back to one-time pad cryptography. It's fascinating in its simplicity. It's so computationally trivial that a human can quickly encrypt or decrypt a simple modular addition one-time pad scheme with nothing but a pencil and paper. The other thing is that, when implemented properly, OTP is perfectly secret and highly resistant to all forms of cryptanalysis. To this day, OTP is one of the most powerful and feared crypto schemes in existance.
+
+Back here in computer world, we do a comparison on two numeric values assigned to the "cleartext" message. Since all ASCII characters have a decimal value in an 8-bit character space (256 distinct combinations), it's very easy to perform a bitwise Exclusive Or (XOR) on the cleartext and the key. XOR is simply "one or the other but not both". Let's try a cleartext of the letter A (binary 01000001) XOR against a key of "q" (binary 01110001). Comparing the bits vertically, the result will only have a "1" wherever either A or q have a differing bit at that location, but will have a "0" wherever both bits are the same.
+
+"A"=01000001
+"q"=01110001
+-----00110000 (as it turns out, this is an ASCII uppercase "O")
+
+newLISP, like all LISP based languages, handles lists and symbols very well. I just played around with this concept on the newLISP command line, and the result was fun, but not very practical as executed. I'll discuss ways to make this tinkering session a little more practical at the end of the article.
+
+Ideally, the key would not be a string, but a very solid random set of characters known by the parties who are encrypting messages to one another. This doesn't even need to be a string, it may be binary random data...
+
+A few things about this code. First, I'm a newbie at newLISP. Let me describe how some of this stuff works. The "explode" command turns a string variable into a list of characters. "char" turns a character into its ASCII decimal equivalent, or an ASCII decimal number back into a character. "map" simply takes the operation (such as "char") and uses that operation on a list. So (map char (explode cleartext)) would return the output of "char" for each individual character in the contents of the "cleartext" variable. Confusing enough? Okay, awesome!
+
+# newlisp
+#first, I'll assign a key and convert it to a list of ascii numbers.
+> (set 'key "Pa5$w0rd!")
+"Pa5$w0rd!"
+
+> (set 'kcharlist (map char (explode key)))
+(80 97 53 36 119 48 114 100 33)
+
+#Then, I'll assign a cleartext string and convert it to a list of ascii numbers as well.
+> (set 'cleartext "HiR ownz.")
+"HiR ownz."
+
+> (set 'ccharlist (map char (explode cleartext)))
+(72 105 82 32 111 119 110 122 46)
+
+#In many languages, newLISP included, the carat "^" is the symbol for XOR. This line outputs the XOR values for each character compared between the cleartext and key)
+> (set 'cryptcharlist (map ^ ccharlist kcharlist))
+(24 8 103 4 24 71 28 30 15)
+
+#Note that some of the characters from the XOR operation are non-printable, so their ASCII string notation /nnn is used instead.
+> (set 'cryptostring (join (map char cryptcharlist)))
+"\024\008g\004\024G\028\030\015"
+
+#Now on the receiving end, we take the known key character list and we XOR the crypto character list. In reality we'd have to generate these again but we'd already set the variables above. No sense repeating the process here.
+> (set 'decryptcharlist (map ^ cryptcharlist kcharlist))
+(72 105 82 32 111 119 110 122 46)
+
+#Finally, we take that string of numbers and join them after converting them from ASCII Decimal to characters again.
+> (set 'decryptstring (join (map char decryptcharlist)))
+"HiR ownz."
+
+Now, as I'd mentioned before, in order to be really practical, you'd need an actual one-time pad that was very random. What I made above was a variant of Vernam cipher to give you a taste of how simple XOR based encryption is, not a genuine one-time pad. A few things that would make the above more practical:
+A lot of the steps could have been consolidated. I broke it down to show how things worked. I could have simply put all of the logic in one line, but it would have been confusing.
+The key and cleartext should be able to be read from a file. As implemented above, this should work with binary data (executables, images, etc) and with a very random binary key (pad) file.
+In the code above, the key needs to be the exact same number of characters as the cleartext. If implemented practically, the program should read the length of the cleartext and use that many bytes of the random pad.
+In a true one-time pad scheme, the sender and recipient both possess the same random key data, but the sender must destroy the part of the key that was used as soon as the encryption is performed. That way, only the recipient(s) may decrypt the message, as they have the only existing copy of the key. In turn, the recipient must destroy the part of the key used to decrypt the message so that in the event the encrypted message was compromised, there is no existing copy of the key available to aid in decryption.
+The above inconveniences have been the main downfall to widespread use of OTP.
+OTP's strength relies heavily on protocol, not technology.
+As I get more free time, I will write a quick one-time pad newLISP script that can do most of the above things. I just got the craving to tinker and write a little bit, and thought I'd share it here.
+--------------------------------
+
+Ax0n:
+-----
+#!/usr/bin/newlisp
+(set 'params (main-args))
+(if (< (length params) 6)
+  (begin
+    (println "USAGE: crypt.lsp <pad> <file> <output> <padremainder>")
+    (exit)
+  )
+)
+(set 'pad (nth 2 params))
+(set 'file (nth 3 params))
+(set 'out (nth 4 params))
+(set 'padr (nth 5 params))
+(set 'padfh (open pad "read"))
+(set 'filefh (open file "read"))
+(set 'outfh (open out "write"))
+(set 'padrfh (open padr "write"))
+(while (set 'filechr (read-char filefh))
+  (set 'padchr (read-char padfh))
+  (set 'xor (^ filechr padchr))
+  (write-char outfh xor)
+)
+
+while (set 'padchr (read-char padfh))
+  (write-char padrfh padchr)
+)
+(close padfh)
+(close padrfh)
+(close filefh)
+(close outfh)
+(exit)
+
+Lutz:
+-----
+(set 'fname (main-args 2))
+(print "Passphrase:")
+(write-file (append fname ".enc") (encrypt (read-file fname) (read-line)))
+(exit)
+
+Because it is XOR based it works both ways for encryption and decryption.
+
+Ax0n:
+-----
+#!/usr/bin/newlisp
+(set 'pad (main-args 2))
+(set 'target (main-args 3))
+(write-file (append target ".enc") (encrypt (read-file target) (read-file pad)))
+(exit)
+
+resulting cipher is the same.
+
+~/test $ hexdump crypt.txt
+0000000 84fd 7697 3858 6738 1641 ee11 9008 c366
+0000010 5fdd 1b5e a3b5 b2f9 1079 144f 40ce 0029
+000001f
+
+~/test $ hexdump clear.txt.enc
+0000000 84fd 7697 3858 6738 1641 ee11 9008 c366
+0000010 5fdd 1b5e a3b5 b2f9 1079 144f 40ce 0029
+000001f
+
+So, it does the same thing my program does, but loops the key if it is shorter than the clear?
+
+Lutz:
+-----
+Yes, exactly. In your program that means, that there will only be a remainder when the pad is longer than the target, else 'encrypt' will apply the pad over and over. Allthough for the last piece in the file only part of the pad may be applied, if the clear-length is not an integer multiple of the pad-length.
+
+Ax0n:
+-----
+#!/usr/bin/newlisp
+(set 'params (main-args))
+(if (< (length params) 5)
+  (begin
+    (println "USAGE: crypt.lsp [pad] [file] [output] [pad-remainder]")
+    (exit)
+  )
+)
+(set 'pad (params 2))
+(set 'target (params 3))
+(set 'output (params 4))
+(set 'remainder (params 5))
+(write-file output (encrypt (read-file target) (read-file pad)))
+(write-file remainder (slice (read-file pad) (length (read-file target))))
+(exit)
+
+cormullion:
+-----------
+
+(cond
+  ((< (length (main-args)) 5)
+     (println "USAGE: crypt.lsp [pad] [file] [output] [pad-remainder]"))
+  (true
+     (map set '(pad target output remainder) (rest (rest (main-args))))
+     (write-file output (encrypt (read-file target) (read-file pad)))
+     (write-file remainder (slice (read-file pad) (length (read-file target))))))
+(exit)
+
+Vedere anche "Criptazione e decriptazione di un file" su "Funzioni varie"
+
+
+-------------
+sym e context
+-------------
+
+Possiamo creare simboli in un contesto con la funzione "sym":
+
+(while (read-line)
+  (dolist (word (parse (current-line)))
+    (sym word 'HT)))
+a b c  ; simboli inseriti nella prima riga
+d e f  ; simboli inseriti nella seconda riga
+^Z     ; premere Ctrl-Z per uscire dal ciclo
+;-> HT:f
+
+Vediamo i simboli creati nel contesto HT:
+
+(symbols HT)
+;-> (HT:a HT:b HT:c HT:d HT:e HT:f)
+
+Oppure:
+
+(context HT)
+;-> HT
+(symbols)
+;-> (a b c d e f)
+
+Se vogliamo estrarre, dal contesto MAIN, i nomi dei simboli di un contesto senza avere il nome del contesto (es. HT:a), possiamo usare la funzione "term":
+
+(map term (symbols HT))
+("a" "b" "c" "d" "e" "f")
+
+Nota: è consigliabile anteporre il carattere "_" nei simboli di un contesto per evitare conflitti con funzioni integrate.
+(sym (string "_" word) 'HT)
+
 =============================================================================
 

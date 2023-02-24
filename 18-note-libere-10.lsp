@@ -7538,6 +7538,8 @@ Tempi di esecuzione di funzioni con cicli "for" multipli.
 (time (five 100))
 ;-> 75553.391
 
+Vedi anche "Il ciclo for" su "Note libere 2".
+
 
 --------
 Topswops
