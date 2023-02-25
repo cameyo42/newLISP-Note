@@ -5812,8 +5812,8 @@ Here is port.lsp:
 
 #!/usr/bin/newlisp
 (set 'params (main-args))
-(if (< (length params) 5) 
-  (begin 
+(if (< (length params) 5)
+  (begin
     (println "USAGE: port.lsp host begin-port end-port")
     (exit)
   )
@@ -5870,13 +5870,13 @@ Here is uname.lsp:
 
 #!/usr/bin/newlisp
 (set 'evalstring "(exec \"uname -s -n -m\")")
-(println (net-eval (list 
+(println (net-eval (list
         (list "localhost" 31337 evalstring)
         (list "192.168.0.55" 31337 evalstring)
         (list "192.168.0.102" 31337 evalstring)
         (list "192.168.0.127" 31337 evalstring)
         ) 3000))
-(exit) 
+(exit)
 
 The result is a newLISP list of strings, containing the results of running the command:
 
@@ -5990,17 +5990,17 @@ Una funzione che controlla i risultati:
 Vediamo la velocità di esecuzione:
 
 (time (println (setq a (seq-sum1 123456789))))
-;-> ((5117 16525) (5999 16819) (12429 20034) (13507 20720) (30562 34364) 
+;-> ((5117 16525) (5999 16819) (12429 20034) (13507 20720) (30562 34364)
 ;->  (32424 36030) (6858702 6858719) (13717417 13717425) (20576129 20576134)
 ;->  (41152262 41152264) (61728394 61728395))
 ;-> 103872.129
 
 (check a)
-;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789, 
+;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789,
 ;-> 123456789, 123456789, 123456789, 123456789, 123456789
 
 Possiamo ottimizzare la funzione nel modo seguente.
-Utilizziamo un ciclo esterno che va da 1 a N. 
+Utilizziamo un ciclo esterno che va da 1 a N.
 Aumentiamo il valore della somma (somma) con il valore del contatore (i) del ciclo esterno e verifichiamo se supera N.
 Quando questo accade sottraiamo il valore dell'inizio della serie (primo) dil totale e quindi aumentiamo (primo) di 1. Alla fine, la somma diminuisce torna a N o meno, e quando ciò accade il programma esce da quel ciclo.
 Se la somma a quel punto è esattamente 10.000, abbiamo trovato una soluzione.
@@ -6046,7 +6046,7 @@ Facciamo alcune prove:
 Vediamo la velocità di esecuzione:
 
 (time (println (setq b (seq-sum2 123456789))))
-;-> ((5117 16525) (5999 16819) (12429 20034) (13507 20720) (30562 34364) 
+;-> ((5117 16525) (5999 16819) (12429 20034) (13507 20720) (30562 34364)
 ;->  (32424 36030) (6858702 6858719) (13717417 13717425) (20576129 20576134)
 ;->  (41152262 41152264) (61728394 61728395))
 ;-> 11433.28
@@ -6054,7 +6054,7 @@ Vediamo la velocità di esecuzione:
 Questa funzione è 9 volte più veloce.
 
 (check b)
-;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789, 
+;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789,
 ;-> 123456789, 123456789, 123456789, 123456789, 123456789
 
 In Pascal (FreePascal Compiler 3.2.2):
@@ -6066,7 +6066,7 @@ begin
   num := 10001;
   somma := 0;
   primo := 1;
-  if num mod 2 = 0 then 
+  if num mod 2 = 0 then
     iter := num div 2;
     iter := num div 2 + 1;
   for i := 1 to iter do
@@ -6144,11 +6144,11 @@ Vediamo la velocità di esecuzione:
 Se invece vogliamo trovare solo il numero di modi di esprimere N come somma di numeri consecutivi, allora possiamo rappresentare la serie come una sequenza di lunghezza K+1 nel modo seguente:
 
   N = a + (a+1) + (a+2) + .. + (a+K)
-  
+
 Adesso possiamo ricavare il valore di "a":
 
-  N = (K+1)*a + (K*(K+1))/2 
-  a = (N - K*(K+1)/2)/(K+1) 
+  N = (K+1)*a + (K*(K+1))/2
+  a = (N - K*(K+1)/2)/(K+1)
 
 Sostituiamo i valori di K a partire da 1 fino a K*(K+1)/2 < N.
 Se otteniamo "a" come numero naturale allora abbiamo trovato una soluzione.
@@ -6441,6 +6441,268 @@ Se vogliamo estrarre, dal contesto MAIN, i nomi dei simboli di un contesto senza
 
 Nota: è consigliabile anteporre il carattere "_" nei simboli di un contesto per evitare conflitti con funzioni integrate.
 (sym (string "_" word) 'HT)
+
+
+----------------
+Cifratura Atbash
+----------------
+
+La cifratura Atbash è un cifrario a sostituzione con una sola chiave specifica in cui tutte le lettere sono invertite, cioè un alfabeto dalla A alla Z e un altro dalla Z alla A (è stato usato per codificare gli alfabeti ebraici, ma può codificare anche altri alfabeti con opportune modifiche).
+
+La funzione permette anche di definire un altro alfabeto per la cifratura.
+
+(setq a1 '("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" " "))
+(setq a2 '("z" "y" "x" "w" "v" "u" "t" "s" "r" "q" "p" "o" "n" "m" "l" "k" "j" "i" "h" "g" "f" "e" "d" "c" "b" "a" " "))
+(setq alst '(("a" "z") ("b" "y") ("c" "x") ("d" "w") ("e" "v") ("f" "u")
+             ("g" "t") ("h" "s") ("i" "r") ("j" "q") ("k" "p") ("l" "o")
+             ("m" "n") ("n" "m") ("o" "l") ("p" "k") ("q" "j") ("r" "i")
+             ("s" "h") ("t" "g") ("u" "f") ("v" "e") ("w" "d") ("x" "c")
+             ("y" "b") ("z" "a")))
+
+(define (atbash msg alfa)
+  (local (a1 a2 alst cr out)
+    (setq a1 '("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" " "))
+    (setq a2 '("z" "y" "x" "w" "v" "u" "t" "s" "r" "q" "p" "o" "n" "m" "l" "k" "j" "i" "h" "g" "f" "e" "d" "c" "b" "a" " "))
+    (setq a2 (or alfa a2))
+    (setq alst (map list a1 a2))
+    (setq out "")
+    (dolist (ch (explode msg))
+      (setq cr (lookup ch alst))
+      (if cr
+        ; carattere conosciuto --> criptato
+        (extend out cr)
+        ; carattere sconosciuto --> non criptato
+        (extend out ch)
+      )
+    )
+    out))
+
+(atbash "newlisp is magic")
+;-> "mvdorhk rh nztrx"
+
+(setq a3 (randomize (explode "abcdefghijklmnopqrstuvwxyz")))
+;-> ("m" "a" "y" "u" "g" "r" "n" "d" "s" "i" "p" "e" "k" "j" "x" "h"
+;->  "z" "o" "b" "l" "f" "t" "w" "q" "v" "c")
+
+(atbash "newlisp is magic" a3)
+;-> "jgwesbh sb kmnsy"
+
+Nota: questo metodo di cifratura è facilmente decrittabile usando l'analisi della frequenze dei caratteri.
+
+
+----------------------------
+Cifrario quadrato di Polibio
+----------------------------
+
+Un quadrato (o scacchiera) di Polibio è una tabella che permette di convertire le lettere in numeri.
+Per rendere la crittografia un pò più sicura la tabella può essere randomizzata e condivisa con il destinatario. Per adattarsi alle 26 lettere dell'alfabeto nelle 25 celle create dalla tabella, le lettere "I" e "J" sono generalmente combinate in una singola cella. Inizialmente non vi era alcun problema perché l'antico alfabeto greco ha 24 lettere.
+Una tabella di dimensioni più grandi potrebbe essere utilizzata se un alfabeto ha più caratteri.
+Usando dei simboli al posto dei numeri il metodo diventa un semplice sistema stenografico.
+
+      +---+---+---+---+---+
+      | 1 | 2 | 3 | 4 | 5 |
+  +---+---+---+---+---+---+
+  | 1 | a | b | c | d | e |
+  +---+---+---+---+---+---+
+  | 2 | f | g | h |ij | k |
+  +---+---+---+---+---+---+
+  | 3 | l | m | n | o | p |
+  +---+---+---+---+---+---+
+  | 4 | q | r | s | t | u |
+  +---+---+---+---+---+---+
+  | 5 | v | w | x | y | z |
+  +---+---+---+---+---+---+
+
+Nota: l'implementazione non tratta i caratteri non codificati.
+
+Funzione di cifratura
+---------------------
+Creiamo una lista di associazione:
+
+(setq table '("a" "b" "c" "d" "e" "f" "g" "h" "ij" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"))
+(setq num '())
+(for (r 0 4) (for (c 0 4) (push (string (+ r 1) (+ c 1)) num -1)))
+(setq alst (map list table num))
+;-> (("a" "11") ("b" "12") ("c" "13") ("d" "14") ("e" "15") ("f" "21")
+;->  ("g" "22") ("h" "23") ("ij" "24") ("k" "25") ("l" "31") ("m" "32")
+;->  ("n" "33") ("o" "34") ("p" "35") ("q" "41") ("r" "42") ("s" "43")
+;->  ("t" "44") ("u" "45") ("v" "51") ("w" "52") ("x" "53") ("y" "54")
+;->  ("z" "55"))
+
+(setq crypt '(("a" "11") ("b" "12") ("c" "13") ("d" "14") ("e" "15")
+              ("f" "21") ("g" "22") ("h" "23") ("i" "24") ("j" "24")
+              ("k" "25") ("l" "31") ("m" "32") ("n" "33") ("o" "34")
+              ("p" "35") ("q" "41") ("r" "42") ("s" "43") ("t" "44")
+              ("u" "45") ("v" "51") ("w" "52") ("x" "53") ("y" "54")
+              ("z" "55") (" " "00")))
+
+(define (polibio msg alst)
+  (let (out "")
+    (setq out "")
+    (dolist (ch (explode msg))
+      (extend out (lookup ch alst))
+    )
+    out))
+
+(polibio "messaggio da cifrare" crypt)
+;-> "3215434311222224340014110013242142114215"
+
+Funzione di decifratura
+-----------------------
+Creiamo una lista di associazione:
+
+(setq decrypt (map (fn(x) (list (x 1) (x 0))) crypt))
+
+(setq decrypt '(("11" "a") ("12" "b") ("13" "c") ("14" "d") ("15" "e") 
+                ("21" "f") ("22" "g") ("23" "h") ("24" "i") ("24" "j")
+                ("25" "k") ("31" "l") ("32" "m") ("33" "n") ("34" "o")
+                ("35" "p") ("41" "q") ("42" "r") ("43" "s") ("44" "t")
+                ("45" "u") ("51" "v") ("52" "w") ("53" "x") ("54" "y")
+                ("55" "z") ("00" " ")))
+
+(define (anti-polibio msg alst)
+  (let (out "")
+    (setq out "")
+    (dolist (ch (explode msg 2))
+      (extend out (lookup ch alst))
+    )
+    out))
+
+(anti-polibio "3215434311222224340014110013242142114215" decrypt)
+;-> "messaggio da cifrare"
+
+Nota: questo metodo di cifratura è facilmente decrittabile usando l'analisi della frequenze dei caratteri.
+
+
+-----------------------------------------------
+I dischi crittografici di Leon Battista Alberti
+-----------------------------------------------
+
+Leon Battista Alberti è un famoso architetto del Rinascimento italiano, ma anche matematico, linguista, filosofo, musicista e archeologo.
+Per crittografare i propri messaggi inventò uno strumento semplice ed efficace che consiste in due dischi concentrici contenenti i caratteri dell'alfabeto scritti in modo diverso.
+Simuliamo i due cerchi con due liste che rappresentano i due alfabeti.
+La prima lista contiene il normale alfabeto di 26 lettere in cui le lettere j, k, x, y e w sono state sostituite rispettivamente con i numeri 1, 2, 3, 4 e 5 (questo perchè Alberti scriveva in latino e non aveva bisogno delle lettere anglosassoni):
+
+  (a b c d e f g h i 1 2 l m n o p q r s t u v 3 4 5 z)
+
+La seconda lista è una qualunque permutazione dell'alfabeto di 26 lettere:
+
+  (f b m k r o a v t z y c g n l x p q h j d i e u s w)
+
+Vediamo come funziona la criptazione di un messaggio:
+
+messaggio = "bonum3vesperum"
+
+Si legge il carattere corrente del messaggio e trasforma questo carattere dal disco esterno al carattere del disco interno:
+
+b --> b
+o --> l
+n --> n
+u --> d
+m --> g
+3 --> e
+
+Quando incontriamo un carattere numerico (1, 2, 3, 4 o 5) ruotiamo il disco interno in senso antiorario in modo da far combaciare la prima lettera del disco esterno con la lettera del disco interno associata al carattere numerico (in questo caso il carattere "e").
+In questo modo i dischi assumono la seguente posizione:
+
+  (a b c d e f g h i 1 2 l m n o p q r s t u v 3 4 5 z)
+
+La seconda lista è una qualunque permutazione dell'alfabeto di 26 lettere:
+
+  (e u s w f b m k r o a v t z y c g n l x p q h j d i)
+
+I restanti caratteri del messaggio vengono codificati con questa nuove posizione dei dischi:
+v --> q
+e --> f
+s --> l
+p --> c
+e --> f
+r --> n
+u --> p
+m --> t
+
+messaggio = "bonum3vesperum"
+criptato  = "blndgeqflcfnpt"
+
+Inserendo diversi caratteri numerici nel messaggio otteniamo un messaggio criptato che è impossibile da decriptare solo con l'analisi delle frequenze delle lettere.
+Inoltre il metodo si presta facilmente a modifiche personali.
+L'unico prerequisito è che il mittente e il ricevente si siano accordati sulla configurazione delle lettere nei due dischi.
+Il meccanismo di decriptazione è analogo a quello della criptazione.
+
+Vediamo le funzioni "crypta" e "decrypta" (l'implementazione non tratta i caratteri non codificati):
+
+(define (crypta msg)
+  (local (esterno interno crt rotazione)
+    ; disco esterno (caratteri del messaggio)
+    (setq esterno '("a" "b" "c" "d" "e" "f" "g" "h" "i" "1" "2" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "3" "4" "5" "z"))
+    ; disco interno (caratteri di criptazione)
+    (setq interno '("f" "b" "m" "k" "r" "o" "a" "v" "t" "z" "y" "c" "g" "n" "l" "x" "p" "q" "h" "j" "d" "i" "e" "u" "s" "w"))
+    ;(setq interno '("j" "o" "p" "q" "r" "i" "t" "c" "b" "a" "g" "w" "x" "k" "e" "y" "m" "z" "f" "l" "u" "d" "n" "s" "h" "v"))
+    ; lunghezza del messaggio
+    (setq len (length msg))
+    ; messaggio cryptato
+    (setq crt (dup " " len))
+    (dolist (ch (explode msg))
+      ; trasforma il carattere corrente del messaggio nel carattere criptato
+      ; usando la corrispondenza tra i due dischi (esterno --> interno)
+      (setq (crt $idx) (interno (find ch esterno)))
+      ; se il carattere del messaggio è un carattere speciale (1 2 3 4 5)...
+      (if (find ch '("1" "2" "3" "4" "5"))
+          ; allora ruotiamo il disco interno fino a far combaciare
+          ; la prima lettera del disco esterno
+          ; con la lettera del disco interno che corrisponde
+          ; al valore speciale ch
+          (begin
+            (setq rotazione (- (find ch esterno)))
+            (rotate interno rotazione)
+          )
+      )
+    )
+    crt))
+
+(crypta "bonum3vesperum")
+;-> "blndgeqflcfnpt"
+
+(crypta  "leon1battista2alberti")
+;-> "crlnzyzmmqbmzjjrduygb"
+
+(define (decrypta msg)
+  (local (esterno interno crt rotazione)
+    ; disco esterno (caratteri del messaggio criptato)
+    (setq esterno '("a" "b" "c" "d" "e" "f" "g" "h" "i" "1" "2" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "3" "4" "5" "z"))
+    ; disco interno (caratteri di decriptazione)
+    (setq interno '("f" "b" "m" "k" "r" "o" "a" "v" "t" "z" "y" "c" "g" "n" "l" "x" "p" "q" "h" "j" "d" "i" "e" "u" "s" "w"))
+    ; lunghezza del messaggio
+    (setq len (length msg))
+    ; messaggio decriptato
+    (setq crt (dup " " len))
+    (dolist (ch (explode msg))
+      ; trasforma il carattere corrente del messaggio criptato nel carattere
+      ; decriptato usando la corrispondenza tra i due dischi
+      ; (esterno --> interno)
+      (setq (crt $idx) (esterno (find ch interno)))
+      ; se il carattere decriptato è un carattere speciale (1 2 3 4 5)...
+      (if (find (crt $idx) '("1" "2" "3" "4" "5"))
+          ; allora ruotiamo il disco interno fino a far combaciare
+          ; la prima lettera del disco esterno
+          ; con la lettera del disco interno che corrisponde
+          ; al valore speciale ch
+          (begin
+            (setq rotazione (- (find ch interno)))
+            (rotate interno rotazione)
+          )
+      )
+    )
+    crt))
+
+(decrypta "blndgeqflcfnpt")
+;-> "bonum3vesperum"
+
+(decrypta "crlnzyzmmqbmzjjrduygb")
+;-> "leon1battista2alberti"
+
+(decrypta (crypta "leonardo1rinascimento2italiano"))
+;-> "leonardo1rinascimento2italiano"
 
 =============================================================================
 

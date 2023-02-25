@@ -1681,6 +1681,9 @@ NOTE LIBERE 14
   Differenza tra i caratteri "" e i caratteri {}
   Cryptography fun with newLISP
   sym e context
+  Cifratura Atbash
+  Cifrario quadrato di Polibio
+  I dischi crittografici di Leon Battista Alberti
   
 APPENDICI
 =========
