@@ -6704,5 +6704,155 @@ Vediamo le funzioni "crypta" e "decrypta" (l'implementazione non tratta i caratt
 (decrypta (crypta "leonardo1rinascimento2italiano"))
 ;-> "leonardo1rinascimento2italiano"
 
+
+-------------------------------------------------
+Cifrario di Vernam e algoritmo One Time Pad (OTP)
+-------------------------------------------------
+
+Il cifrario di Vernam è un metodo di crittografia per sostituzione che permette di convertire un testo in chiaro in un testo cifrato.
+Prima di tutto assegniamo un numero ad ogni carattere dell'alfabeto, come (a = 0, b = 1, c = 2, … z = 25).
+Nell'algoritmo di cifratura di Vernam, prendiamo una chiave per crittografare il testo in chiaro la cui lunghezza dovrebbe essere uguale alla lunghezza del testo in chiaro.
+
+L'algoritmo di crittografia opera nel modo seguente:
+  1) Assegnare un numero ad ogni carattere del testo in chiaro e alla chiave secondo l'ordine alfabetico.
+  2) Applicare il bitwise XOR ad ogni coppia due numeri (numero del carattere del testo normale e relativo numero del carattere della chiave).
+  3) Quando il numero risultante è maggiore o uguale a 26, allora sottrarre 26 dal numero.
+
+L'algoritmo One Time Pad (OTP) è un miglioramento del cifrario di Vernam, proposto da Joseph Mauborgne.
+È l'unico algoritmo disponibile infrangibile (completamente sicuro).
+
+I due requisiti per applicare l'algoritmo OTP sono:
+
+  a) La chiave deve essere lunga quanto il messaggio e deve essere generata in modo casuale
+  b) La chiave deve essere utilizzata per crittografare e decrittografare un singolo messaggio, quindi viene scartata.
+
+Quindi la crittografia di ogni nuovo messaggio richiede una nuova chiave.
+Il testo cifrato generato dal One-Time pad è completamente casuale, quindi non ha alcuna relazione statistica con il testo in chiaro.
+
+Sicurezza del One-Time Pad
+Se in qualche modo il crittoanalista trova queste due chiavi utilizzando le quali vengono prodotti due testi in chiaro, ma se la chiave è stata prodotta in modo casuale, il crittoanalista non può trovare quale chiave è più probabile dell'altra. Infatti, per qualsiasi testo in chiaro della dimensione del testo cifrato, esiste una chiave che produce quel testo in chiaro.
+
+Quindi, se un crittoanalista tenta l'attacco di forza bruta (prova a utilizzare tutte le chiavi possibili), si ritroverebbe con molti testi in chiaro legittimi, senza modo di sapere quale testo in chiaro sia legittimo. Pertanto, il codice è infrangibile.
+
+La sicurezza di questo metodo dipende interamente dalla casualità della chiave. Se i caratteri della chiave sono veramente casuali, allora i caratteri del testo cifrato saranno veramente casuali. Pertanto, non ci sono metodi o algoritmi che un crittoanalista può utilizzare per decriptare il testo cifrato.
+Infatti, per qualsiasi testo in chiaro della dimensione del testo cifrato, esiste una chiave che produce quel testo in chiaro. Quindi, se si tenta un attacco brute-force (cioè provare a utilizzare tutte le chiavi possibili), ci ritroviamo con molti testi in chiaro legittimi, senza modo di sapere quale testo in chiaro sia quello corretto.
+
+Vantaggi
+One-Time Pad è l'unico algoritmo veramente inattaccabile e può essere utilizzato per canali a bassa larghezza di banda che richiedono un'altissima sicurezza (es. per usi militari).
+
+Svantaggi
+C'è il problema pratico di creare grandi quantità di chiavi casuali. Per ogni messaggio da inviare, sia il mittente che il destinatario necessitano di una chiave di uguale lunghezza. Pertanto, esiste un problema nella distribuzione delle chiavi.
+
+Associazione lettere-numeri:
+
+(for (i 65 90) (print (char i) { }))
+;-> A B C D E F G H I J K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
+> (for (i 0 26) (print i { }))
+;-> 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+
+Funzione di criptazione:
+
+(define (otp-crypt text key)
+  (local (len-key crypt ordA val)
+    (setq len-key (length key))
+    (setq text (upper-case text))
+    (cond
+      ; text and key have different length --> exit ""
+      ((!= len-key (length text)) "")
+      ; text and/or key equal to empty string --> exit ""
+      ((zero? len-key) "")
+      (true ; crypt text with key
+        (setq crypt "")
+        (setq ordA (char "A"))
+        (for (i 0 (- len 1))
+          ; adding char of text and key
+          (setq val (+ (char (text i)) (- ordA) (char (key i)) (- ordA)))
+          ; correcting value
+          (if (> val 25) (-- val 26))
+          ; create crypted char
+          (extend crypt (char (+ val ordA)))
+        )
+        crypt))))
+
+(otp-crypt "HELLO" "MONEY")
+;-> "TSYPM"
+
+Funzione di decriptazione:
+
+(define (otp-decrypt text key)
+  (local (len-key crypt ordA val)
+    (setq len-key (length key))
+    (setq text (upper-case text))
+    (cond
+      ; text and key have different length --> exit ""
+      ((!= len-key (length text)) "")
+      ; text and/or key equal to empty string --> exit ""
+      ((zero? len-key) "")
+      (true ; crypt text with key
+        (setq crypt "")
+        (setq ordA (char "A"))
+        (for (i 0 (- len 1))
+          ; adding char of text and key
+          (setq val (- (char (text i)) ordA (- (char (key i)) ordA)))
+          ; correcting value
+          (if (< val 0) (++ val 26))
+          ; create crypted char
+          (extend crypt (char (+ val ordA)))
+        )
+        crypt))))
+
+(otp-decrypt "TSYPM" "MONEY")
+;-> "HELLO"
+
+newLISP ha la funzione integrata "encrypt" per criptare con l'algoritmo OTP.
+
+********************
+>>>funzione ENCRYPT
+********************
+sintassi: (encrypt str-source str-pad)
+
+Esegue una crittografia OTP (One Time Pad) di str-source utilizzando il pad di crittografia in str-pad. Più lungo è str-pad e più casuali sono i byte, più sicura è la crittografia. Se il pad è lungo quanto il testo di origine, è completamente casuale e viene utilizzato solo una volta, allora la crittografia one-time-pad è virtualmente impossibile da decifrare, poiché la crittografia sembra contenere solo dati casuali. Per recuperare l'originale, la stessa funzione e pad vengono applicati nuovamente al testo crittografato:
+
+(set 'secret
+  (encrypt "A secret message" "my secret key"))
+;-> ",YS\022\006\017\023\017TM\014\022\n\012\030E"
+
+(encrypt secret "my secret key")
+;->  "A secret message"
+
+Il secondo esempio cripta un file intero:
+
+(write-file "myfile.enc"
+  (encrypt (read-file "myfile") "29kH67*"))
+
+Nel nostro esempio:
+
+(encrypt "HELLO" "MONEY")
+;-> "\005\n\002\t\022"
+(encrypt (encrypt "HELLO" "MONEY") "MONEY")
+;-> "HELLO"
+
+In sostanza "encrypt" esegue la seguente operazione di XOR:
+
+(char (^ (char "H") (char "M")))
+;-> "\005"
+(char (^ (char "E") (char "O")))
+;-> "\n"
+(char (^ (char "L") (char "N")))
+;-> "\002"
+(char (^ (char "L") (char "E")))
+;-> "\t"
+(char (^ (char "O") (char "Y")))
+;-> "\022"
+
+Oppure, in maniera analoga:
+
+(map (fn(x y) (char (^ (char x) (char y)))) (explode "HELLO") (explode "MONEY")))
+;-> ("\005" "\n" "\002" "\t" "\022")
+(join (map (fn(x y) (char (^ (char x) (char y)))) (explode "HELLO") (explode "MONEY")))
+;-> "\005\n\002\t\022"
+(join (map (fn(x y) (char (^ (char x) (char y)))) (explode "\005\n\002\t\022") (explode "MONEY")))
+;-> "HELLO"
+
 =============================================================================
 

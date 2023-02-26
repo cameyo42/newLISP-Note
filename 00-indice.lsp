@@ -1684,6 +1684,7 @@ NOTE LIBERE 14
   Cifratura Atbash
   Cifrario quadrato di Polibio
   I dischi crittografici di Leon Battista Alberti
+  Cifrario di Vernam e algoritmo One Time Pad (OTP)
   
 APPENDICI
 =========
