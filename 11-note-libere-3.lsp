@@ -4167,6 +4167,12 @@ Numeri automorfici
 In matematica si dice numero automorfo o anche intero automorfo un intero positivo che nelle notazioni decimali ha il quadrato che presenta nella sua parte finale il numero stesso.
 Esempi: 5^2 = 25, 76^2 = 5776, 890625^2 = 793212890625.
 
+Sequenza OEIS A003226:
+  0, 1, 5, 6, 25, 76, 376, 625, 9376, 90625, 109376, 890625, 2890625, 
+  7109376, 12890625, 87109376, 212890625, 787109376, 1787109376, 8212890625,
+  18212890625, 81787109376, 918212890625, 9918212890625, 40081787109376, 
+  59918212890625, 259918212890625, 740081787109376, ...
+
 (define (automorfico? num)
 (catch
   (let (quadrato (* num num))
@@ -4189,6 +4195,47 @@ Vediamo i numeri automorfici fino a 100 milioni:
 (for (i 0 1e8) (if (automorfico? (bigint i)) (print i { })))
 ;-> 0 1 5 6 25 76 376 625 9376 90625 109376
 ;-> 890625 2890625 7109376 12890625 87109376
+
+Vediamo il tempo di calcolo fino a 1 milione:
+(time (for (i 0 1e6) (if (automorfico? (bigint i)) (print i { }))))
+;-> 0 1 5 6 25 76 376 625 9376 90625 109376 890625
+;-> 10206.118
+
+Versione alternativa:
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (automorfici iter)
+  (local (num out)
+    (setq out '())
+    (for (i 1 iter)
+      (setq num (bigint i))
+      (if (= num (% (* num num) (** 10 (length num))))
+          (push num out -1)
+      )
+    )
+    out))
+
+(time (println (automorfici 1e6)))
+;-> (1L 5L 6L 25L 76L 376L 625L 9376L 90625L 109376L 890625L)
+;-> 3705.84
+
+Nota: la proprietà dei numeri automorfici valgono anche per le potenze superiori, cioè se un numero è automorfico anche le sue potenze di ordine superiore a 2 terminano con il numero.
+Per esempio:
+(setq num 76L)
+(println num { } (* num num) { } (* num num num) { } (* num num num num) 
+             { } (* num num num num num))
+;-> 76L 5776L 438976L 33362176L 2535525376L
+
+(setq num 9376L)
+(println num { } (* num num) { } (* num num num) { } (* num num num num) 
+             { } (* num num num num num))
+;-> 9376L 87909376L 824238309376L 7728058388709376L 72458275452539109376L
 
 
 -----------------

@@ -1685,6 +1685,9 @@ NOTE LIBERE 14
   Cifrario quadrato di Polibio
   I dischi crittografici di Leon Battista Alberti
   Cifrario di Vernam e algoritmo One Time Pad (OTP)
+  La tabula recta
+  A trivial P2P file sharing
+  Prodotto minimo e massimo con 9 cifre
   
 APPENDICI
 =========

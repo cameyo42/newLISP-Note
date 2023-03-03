@@ -5999,7 +5999,7 @@ Vediamo la velocità di esecuzione:
 ;-> 123456789, 123456789, 123456789, 123456789, 123456789, 123456789,
 ;-> 123456789, 123456789, 123456789, 123456789, 123456789
 
-Possiamo ottimizzare la funzione nel modo seguente.
+Possiamo ottimizzare la funzione nel modo seguente:
 Utilizziamo un ciclo esterno che va da 1 a N.
 Aumentiamo il valore della somma (somma) con il valore del contatore (i) del ciclo esterno e verifichiamo se supera N.
 Quando questo accade sottraiamo il valore dell'inizio della serie (primo) dil totale e quindi aumentiamo (primo) di 1. Alla fine, la somma diminuisce torna a N o meno, e quando ciò accade il programma esce da quel ciclo.
@@ -6734,11 +6734,11 @@ Se in qualche modo il crittoanalista trova queste due chiavi utilizzando le qual
 
 Quindi, se un crittoanalista tenta l'attacco di forza bruta (prova a utilizzare tutte le chiavi possibili), si ritroverebbe con molti testi in chiaro legittimi, senza modo di sapere quale testo in chiaro sia legittimo. Pertanto, il codice è infrangibile.
 
-La sicurezza di questo metodo dipende interamente dalla casualità della chiave. Se i caratteri della chiave sono veramente casuali, allora i caratteri del testo cifrato saranno veramente casuali. Pertanto, non ci sono metodi o algoritmi che un crittoanalista può utilizzare per decriptare il testo cifrato.
+La sicurezza di questo metodo dipende interamente dalla casualità della chiave. Se i caratteri della chiave sono totalmente casuali, allora  non ci sono metodi o algoritmi per decriptare il testo cifrato.
 Infatti, per qualsiasi testo in chiaro della dimensione del testo cifrato, esiste una chiave che produce quel testo in chiaro. Quindi, se si tenta un attacco brute-force (cioè provare a utilizzare tutte le chiavi possibili), ci ritroviamo con molti testi in chiaro legittimi, senza modo di sapere quale testo in chiaro sia quello corretto.
 
 Vantaggi
-One-Time Pad è l'unico algoritmo veramente inattaccabile e può essere utilizzato per canali a bassa larghezza di banda che richiedono un'altissima sicurezza (es. per usi militari).
+One-Time Pad è l'unico algoritmo veramente inattaccabile (viene usato in ambito militare).
 
 Svantaggi
 C'è il problema pratico di creare grandi quantità di chiavi casuali. Per ogni messaggio da inviare, sia il mittente che il destinatario necessitano di una chiave di uguale lunghezza. Pertanto, esiste un problema nella distribuzione delle chiavi.
@@ -6756,6 +6756,7 @@ Funzione di criptazione:
   (local (len-key crypt ordA val)
     (setq len-key (length key))
     (setq text (upper-case text))
+    (setq key (upper-case key))
     (cond
       ; text and key have different length --> exit ""
       ((!= len-key (length text)) "")
@@ -6764,7 +6765,7 @@ Funzione di criptazione:
       (true ; crypt text with key
         (setq crypt "")
         (setq ordA (char "A"))
-        (for (i 0 (- len 1))
+        (for (i 0 (- len-key 1))
           ; adding char of text and key
           (setq val (+ (char (text i)) (- ordA) (char (key i)) (- ordA)))
           ; correcting value
@@ -6783,6 +6784,7 @@ Funzione di decriptazione:
   (local (len-key crypt ordA val)
     (setq len-key (length key))
     (setq text (upper-case text))
+    (setq key (upper-case key))
     (cond
       ; text and key have different length --> exit ""
       ((!= len-key (length text)) "")
@@ -6791,7 +6793,7 @@ Funzione di decriptazione:
       (true ; crypt text with key
         (setq crypt "")
         (setq ordA (char "A"))
-        (for (i 0 (- len 1))
+        (for (i 0 (- len-key 1))
           ; adding char of text and key
           (setq val (- (char (text i)) ordA (- (char (key i)) ordA)))
           ; correcting value
@@ -6853,6 +6855,333 @@ Oppure, in maniera analoga:
 ;-> "\005\n\002\t\022"
 (join (map (fn(x y) (char (^ (char x) (char y)))) (explode "\005\n\002\t\022") (explode "MONEY")))
 ;-> "HELLO"
+
+
+---------------
+La tabula recta
+---------------
+
+La tabula recta, è una matrice quadrata di righe dell'alfabeto.
+Le righe vengono costruite sfalsandole di una lettera (verso destra o verso sinistra).
+Fu creata nel 1508 da Johannes Trithemius che la utilizzò per definire un cifrario polialfabetico.
+
+(setq tabula '(
+ (A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+ (B C D E F G H I J K L M N O P Q R S T U V W X Y Z A)
+ (C D E F G H I J K L M N O P Q R S T U V W X Y Z A B)
+ (D E F G H I J K L M N O P Q R S T U V W X Y Z A B C)
+ (E F G H I J K L M N O P Q R S T U V W X Y Z A B C D)
+ (F G H I J K L M N O P Q R S T U V W X Y Z A B C D E)
+ (G H I J K L M N O P Q R S T U V W X Y Z A B C D E F)
+ (H I J K L M N O P Q R S T U V W X Y Z A B C D E F G)
+ (I J K L M N O P Q R S T U V W X Y Z A B C D E F G H)
+ (J K L M N O P Q R S T U V W X Y Z A B C D E F G H I)
+ (K L M N O P Q R S T U V W X Y Z A B C D E F G H I J)
+ (L M N O P Q R S T U V W X Y Z A B C D E F G H I J K)
+ (M N O P Q R S T U V W X Y Z A B C D E F G H I J K L)
+ (N O P Q R S T U V W X Y Z A B C D E F G H I J K L M)
+ (O P Q R S T U V W X Y Z A B C D E F G H I J K L M N)
+ (P Q R S T U V W X Y Z A B C D E F G H I J K L M N O)
+ (Q R S T U V W X Y Z A B C D E F G H I J K L M N O P)
+ (R S T U V W X Y Z A B C D E F G H I J K L M N O P S)
+ (S T U V W X Y Z A B C D E F G H I J K L M N O P Q R)
+ (T U V W X Y Z A B C D E F G H I J K L M N O P Q R S)
+ (U V W X Y Z A B C D E F G H I J K L M N O P Q R S T)
+ (V W X Y Z A B C D E F G H I J K L M N O P Q R S T U)
+ (W X Y Z A B C D E F G H I J K L M N O P Q R S T U V)
+ (X Y Z A B C D E F G H I J K L M N O P Q R S T U V W)
+ (Y Z A B C D E F G H I J K L M N O P Q R S T U V W X)
+ (Z A B C D E F G H I J K L M N O P Q R S T U V W X Y)))
+ 
+Algoritmo di criptazione:
+Per ogni lettera del testo da criptare, si localizza la riga con la lettera del testo e la colonna con la corrispondente lettera della chiave. 
+La lettera posizionata in quella linea e quella colonna è la lettera cifrata.
+
+Ogni posizione della tavola fornisce la somma modulo 26 dell'intero a inizio riga e dell'intero a inizio colonna.
+
+Funzione di criptazione:
+
+(define (recta-crypt text key)
+  (local (len-key crypt ordA row col)
+    (setq len-key (length key))
+    (setq text (upper-case text))
+    (setq key (upper-case key))
+    (cond
+      ; text and key have different length --> exit ""
+      ((!= len-key (length text)) "")
+      ; text and/or key equal to empty string --> exit ""
+      ((zero? len-key) "")
+      (true ; crypt text with key
+        (setq crypt "")
+        (setq ordA (char "A"))
+        (for (i 0 (- len-key 1))
+          (setq row (% (- (char (text i)) ordA) 26))
+          (setq col (% (- (char (key i)) ordA) 26))
+          ;(println row { } col { } (tabula row col))
+          (extend crypt (string (tabula row col)))
+        )
+        crypt))))
+
+(recta-crypt "pippos" "chiave")
+;-> "RPXPJW"
+
+Funzione di decriptazione:
+
+riga = 0
+colonna = (% (- (char (text i)) (char (key i))) 26)
+
+(define (recta-decrypt text key)
+  (local (len-key crypt ordA row col)
+    (setq len-key (length key))
+    (setq text (upper-case text))
+    (setq key (upper-case key))
+    (cond
+      ; text and key have different length --> exit ""
+      ((!= len-key (length text)) "")
+      ; text and/or key equal to empty string --> exit ""
+      ((zero? len-key) "")
+      (true ; crypt text with key
+        (setq crypt "")
+        (setq ordA (char "A"))
+        (for (i 0 (- len-key 1))
+          (setq row 0)
+          (setq col (% (- (char (text i)) (char (key i))) 26))
+          ;(println row { } col { } (tabula row col))
+          (extend crypt (string (tabula row col)))
+        )
+        crypt))))
+
+(recta-decrypt "RPXPJW" "CHIAVE")
+;-> "PIPPOS"
+
+(recta-crypt "OUAGADOUGOU" "kdjshetfduf")
+;-> "YXJYHHHZJIZ"
+(recta-decrypt "YXJYHHHZJIZ" "kdjshetfduf")
+;-> "OUAGADOUGOU"
+
+
+--------------------------
+A trivial P2P file sharing
+--------------------------
+
+by frontera000
+
+; a trivial P2P file sharing program written in newLISP for demo purpose
+;
+; based on ideas from http://www.freedom-to-tinker.com/tinyp2p.html
+; and http://ansuz.sooke.bc.ca/software/molester/ and
+; https://ansuz.sooke.bc.ca/software/molester/2005010301.php
+;
+; command reference
+; i/ advertise presence of your node to the peer
+; g<filename>/ requests a file
+; f<message> forward to peers
+; h/ gets list of all peers
+;
+; used internally
+; e<filename>/ expect a file
+; x sent after receiving a file to make sure
+;
+; the program below is a toy, not a serious p2p program.
+;
+; differences from original mole-ster:
+; use of 'x' -- to allow data receipt on receiving side when file is sent
+; data is read in 8k chunks at a time. this is to avoid having to read
+; the entire file into a buffer before writing. it allows larger files to be
+; transferred.
+;
+; more more information refer to the original mole-ster web sites.
+;
+
+(context 'P2P)
+
+(constant 'SIGINT 2)
+(define (interrupted)
+(println "interruted by user!")
+(exit))
+
+(signal SIGINT interrupted)
+
+(set 'my-address "")
+(set 'my-password "")
+(set 'peers '())
+
+(define (get-addr addr-and-port) (regex "(.*):(.*)" addr-and-port) $1)
+(define (get-port addr-and-port) (regex "(.*):(.*)" addr-and-port) (integer $2))
+
+(define (op-send dest-addr source-addr filename data)
+(if (set 'socket (net-connect (get-addr dest-addr) (get-port dest-addr)))
+(begin
+(net-send socket (format "%s %s %s/" my-password source-addr filename))
+(net-send socket data )
+(if (!= data "")
+(net-receive socket 'buf 1))
+(close socket))))
+
+(define (P2P:P2P my-password peer-address my-address commands )
+(set 'peers (append peers (list peer-address)))
+(dolist (cmd commands) (op-send peer-address my-address cmd ""))
+(set 'socket (net-listen (get-port my-address)))
+(while true
+(while (and (not (net-error)) (not (net-select socket "read" 1000)))
+(if (net-error) (print (net-error))))
+(set 'peer-socket (net-accept socket)) (net-receive peer-socket 'buf 1024 "/")
+(regex "^([a-zA-Z0-9]*) ([0-9:.]*) ([e-i])([^/]*)(/)" buf)
+(set 'peer-password $1)
+(set 'peer-address $2)
+(set 'peer-command $3)
+(set 'requested-filename $4)
+(set 'data $6)
+(if (= peer-password my-password)
+(case peer-command
+("e" (begin
+(set 'finished false)
+(while (not finished)
+(while (and (not (net-error)) (not (net-select peer-socket "read" 1000)))
+(if (net-error) (print (net-error))))
+(if (!= nil (net-receive peer-socket 'input-data 8192))
+(begin
+(append-file requested-filename input-data)
+(set 'finished true)))
+(net-send socket "x")))
+("f" (dolist (peer peers) (op-send peer my-address requested-filename data)))
+("g" (op-send peer-address my-address (append "e" requested-filename)
+(read-file requested-filename)))
+("h" (dolist (peer peers) (op-send peer-address peer "i" "")))
+("i" (append peers peer-address))))
+(close peer-socket)))
+
+(context 'MAIN)
+
+(P2P:P2P (main-args 2) (main-args 3) (main-args 4) (slice (main-args) 5 -1))
+
+I put some information in my blog http://sparebandwidth.blogspot.com
+
+
+-------------------------------------
+Prodotto minimo e massimo con 9 cifre
+-------------------------------------
+
+Usare tutte le cifre da 1 a 9 una volta ciascuna per trovare i tre numeri di tre cifre che producono il prodotto più alto.
+Usare tutte le cifre da 1 a 9 una volta ciascuna per trovare i tre numeri di tre cifre che producono il prodotto più basso.
+
+Prodotto più alto
+-----------------
+Usiamo le permutazioni.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(define (prodmax1)
+  (local (test nums nums-max val val-max)
+    (setq val-max 0)
+    (setq test (perm '("1" "2" "3" "4" "5" "6" "7" "8" "9")))
+    (dolist (el test)
+      (setq values (map join (explode el 3)))
+      (setq val (eval-string (append "(* "  (values 0) " " (values 1) " " (values 2) ")")))
+      (if (> val val-max)
+          (set 'val-max val 'nums-max values)
+      )
+    )
+    (list nums-max val-max)))
+
+(prodmax1)
+;-> (("852" "941" "763") 611721516)
+
+Per formare il prodotto più grande, i numeri più grandi devono essere tutti nella posizione delle centinaia. 
+Cioè, i numeri devono essere (9xx, 8xx, 7xx).
+
+(define (prodmax2)
+  (local (test nums nums-max val val-max)
+    (setq val-max 0)
+    (setq test (perm '("1" "2" "3" "4" "5" "6")))
+    (dolist (el test)
+      (setq values (map join (explode el 2)))
+      (setf (values 0) (append "9" (values 0)))
+      (setf (values 1) (append "8" (values 1)))
+      (setf (values 2) (append "7" (values 2)))
+      (setq val (eval-string (append "(* "  (values 0) " " (values 1) " " (values 2) ")")))
+      (if (> val val-max)
+          (set 'val-max val 'nums-max values)
+      )
+    )
+    (list nums-max val-max)))
+
+(prodmax2)
+;-> (("941" "852" "763") 611721516)
+
+È chiaro che i numeri più piccoli devono essere nella posizione delle unità.
+Il 3 può essere posizionato nei modi seguenti: (9xx, 8xx, 7x3) oppure (9xx, 8x3, 7xx) oppure (9x3, 8xx, 7xx).
+Poiché il 9 e l'8 causano il maggior cambiamento nel numero per il quale vengono moltiplicati, il 3 dovrebbe essere posizionato con il 7.
+Con la stessa logica, il 2 dovrebbe essere posizionato in modo tale da avere l'effetto maggiore successivo, cioè con l'8.
+Questo lascia l'1 con il 9.
+
+(define (prodmax3)
+  (local (test nums nums-max val val-max)
+    (setq val-max 0)
+    (setq test (perm '("4" "5" "6")))
+    (dolist (el test)
+      (setq values el)
+      (setf (values 0) (append "9" (values 0) "1"))
+      (setf (values 1) (append "8" (values 1) "2"))
+      (setf (values 2) (append "7" (values 2) "3"))
+      (setq val (eval-string (append "(* "  (values 0) " " (values 1) " " (values 2) ")")))
+      (if (> val val-max)
+          (set 'val-max val 'nums-max values)
+      )
+    )
+    (list nums-max val-max)))
+
+(prodmax3)
+;-> (("941" "852" "763") 611721516)
+
+Usando la stessa logica con i numeri rimanenti (4, 5 e 6), possiamo notare che il 6 ha l'effetto maggiore se moltiplicato per il 9 e l'8, e quindi deve far parte del numero che non ha quei due, che è il numero con il 7 nella posizione delle centinaia. Posizioniamo il 4 e il 5 nello stesso modo e abbiamo tropvato la soluzione (senza scrivere codice): i numeri con il prodotto più alto sono 941, 852 e 763.
+
+Prodotto più basso
+------------------
+Per trovare i numeri che hanno il prodotto più piccolo, invertiamo la logica precedente.
+I numeri più piccoli devono essere nella posizione delle centinaia e i numeri più grandi devono essere nella posizione delle unità. Inoltre, il 9 deve essere posizionato dove ha il minimo effetto, cioè dove verrà moltiplicato per 1 e 2. con questo ragionamento i numeri sono 147, 258 e 369.
+Facciamo una verifica:
+
+(define (prodmin1)
+  (local (test nums nums-min val val-min)
+    (setq val-min 999999999)
+    (setq test (perm '("1" "2" "3" "4" "5" "6" "7" "8" "9")))
+    (dolist (el test)
+      (setq values (map join (explode el 3)))
+      (setq val (eval-string (append "(* "  (values 0) " " (values 1) " " (values 2) ")")))
+      (if (< val val-min)
+          (set 'val-min val 'nums-min values)
+      )
+    )
+    (list nums-min val-min)))
+
+(prodmin1)
+;-> (("258" "147" "369") 13994694)
 
 =============================================================================
 

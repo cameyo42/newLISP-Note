@@ -4662,6 +4662,38 @@ Oltre alla funzione "catch", possiamo usare la funzione di "error-event" per ril
 
 La funzione "throw-error" può essere utilizzata per generare errori definiti dall'utente.
 
+Lutz:
+-----
+You can distinguish if a 'catch' returns because of an error or a 'throw' by its return value:
+
+(catch (+ 1 x) 'result) => nil
+
+result => "value expected in function + : x"
+
+(catch (throw "foo") 'result) => true
+
+result => "foo"
+
+Only on error conditions will 'catch' return 'nil'. You could use 'throw-error' for generating user-defined errors.
+
+To make the story complete see also the functions 'error-number' and 'error-text'. 
+So when 'catch' returns 'nil' you could use 'error-number' and do 'case' on the result and then use 'throw-error' if you don't want to handle the error in the program. 
+'throw-error' does not need a 'catch' but can have one.
+
+rickyboy:
+---------
+But I still don't think it is possible for the program (not the programmer) to detect if catch was thrown to or not. 
+Neither the return value of catch nor the value in result indicate this. 
+For instance, both of these values are the same in the following, yet one catch is thrown to and the other is not.
+
+(catch (throw 42) 'result) => true
+result => 42
+
+(catch 42 'result) => true
+result => 42
+
+Again, it's not possible for the program to detect this, even though I the programmer, in this instance, can plainly see that one throws yet the other does not.
+
 
 ======================================
  LAVORARE CON FILE DI DATI (FILE I/O)
