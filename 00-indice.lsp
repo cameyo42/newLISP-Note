@@ -1688,6 +1688,8 @@ NOTE LIBERE 14
   La tabula recta
   A trivial P2P file sharing
   Prodotto minimo e massimo con 9 cifre
+  Somma di cubi di frazioni
+  Coroutine
   
 APPENDICI
 =========

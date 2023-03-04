@@ -7183,5 +7183,282 @@ Facciamo una verifica:
 (prodmin1)
 ;-> (("258" "147" "369") 13994694)
 
+
+-------------------------
+Somma di cubi di frazioni
+-------------------------
+
+Trovare due frazioni per cui la somma dei loro cubi è uguale ad un determinato numero intero N.
+
+Algebricamente:
+
+  (x/a)^3 + (y/b)^3 = N
+
+Senza perdere di generalità possiamo porre a = b (cambiano i valori di x e y):
+
+  (x/a)^3 + (y/a)^3 = N
+
+oppure in modo equivalente:
+
+   (x + y)^3
+  ----------- = N
+      a^3
+
+Nota: i numeri x, y ed a possono avere al massimo 3 cifre
+
+Usiamo tre cicli per trovare x, y e a: il primo da 1 a 1000 per la x, il secondo da x a 1000 per la y.
+Nel secondo ciclo aggiungiamo il valore del cubo dell'incremento del primo ciclo al cubo dell'incremento del secondo ciclo per vedere se è un candidato per un ulteriore verifica
+Il valore dell'incremento del primo ciclo cambia solo dopo che abbiamo terminato il secondo ciclo.
+Ogni volta che sommiamo i cubi dei numeratori, verifichiamo se la loro somma è divisibile esattamente per N. 
+In caso contrario, i numeri non sono candidati per la soluzione e non è necessario entrare nel ciclo più interno, che analizza tutti i valori del denominatore "a" da 2 a 1000.
+Il terzo ciclo prende ogni valore dei due cicli più esterni e incrementa da 2 a metà della somma dei due incrementi più esterni. 
+Se il denominatore è maggiore della media dei numeratori, i cubi delle due frazioni non possono totalizzare N (o più), altrimenti abbiamo trovato una soluzione.
+
+(define (solve limit num)
+(catch
+  (local (numer iter x a y xymid x3)
+    (setq iter 0)
+    (for (x 1 limit)
+      (setq x3 (* x x x))
+      (for (y x limit)
+        (setq numer (+ x3 (* y y y)))
+        (setq xymid (/ (+ x y) 2))
+        (if (zero? (% numer num))
+            (for (a 2 (- xymid 1))
+              (++ iter)
+              (if (= numer (* num a a a))
+                  ;(throw (println x "/" a ", " y "/" a { : } iter)))
+                  (throw (list (list x a) (list y a) iter))))))))))
+
+Facciamo alcune prove:
+
+(solve 101 6)
+;-> ((17 21) (37 21) 7462)
+
+(solve 101 7)
+;-> ((4 3) (5 3) 3156)
+
+(solve 101 10)
+;-> nil
+
+(solve 101 12)
+;-> ((19 39) (89 39) 6445)
+
+Scriviamo una funzione che verifica che le soluzioni siano corrette:
+
+(define (check lst)
+  (if lst
+      (let ((x (lst 0 0)) (y (lst 1 0)) (a (lst 0 1)))
+        (/ (+ (* x x x) (* y y y)) (* a a a)))
+      ;else
+      nil))
+
+(check (solve 101 6))
+;-> 6
+(check (solve 101 7))
+;-> 7
+(check (solve 101 10))
+;-> nil
+(check (solve 101 12))
+;-> 12
+
+Vediamo i primi 20 numeri con 2 cifre e 3 cifre per i numeri delle frazioni:
+
+(for (i 1 20)                          (for (i 1 20)
+  (println i {: } (solve 101 i)))        (println i {: } (solve 1001 i)))
+;-> 1: nil                             ;-> 1: nil
+;-> 2: ((1 1) (1 1) 2)                 ;-> 2: ((1 1) (1 1) 2)
+;-> 3: nil                             ;-> 3: nil
+;-> 4: nil                             ;-> 4: nil
+;-> 5: nil                             ;-> 5: nil
+;-> 6: ((17 21) (37 21) 7462)          ;-> 6: ((17 21) (37 21) 674962)
+;-> 7: ((4 3) (5 3) 3156)              ;-> 7: ((4 3) (5 3) 320719)
+;-> 8: nil                             ;-> 8: nil
+;-> 9: ((1 1) (2 1) 2)                 ;-> 9: ((1 1) (2 1) 2)
+;-> 10: nil                            ;-> 10: nil
+;-> 11: nil                            ;-> 11: nil
+;-> 12: ((19 39) (89 39) 6445)         ;-> 12: ((19 39) (89 39) 570070)
+;-> 13: ((2 3) (7 3) 562)              ;-> 13: ((2 3) (7 3) 57657)
+;-> 14: nil                            ;-> 14: nil
+;-> 15: nil                         *  ;-> 15: ((397 294) (683 294) 8169098)
+;-> 16: ((2 1) (2 1) 158)              ;-> 16: ((2 1) (2 1) 15502)
+;-> 17: nil                            ;-> 17: nil
+;-> 18: nil                            ;-> 18: nil
+;-> 19: ((1 3) (8 3) 2)                ;-> 19: ((1 3) (8 3) 2)
+;-> 20: ((1 7) (19 7) 6)               ;-> 20: ((1 7) (19 7) 6)
+
+Vediamo i primi 100 numeri con 2 cifre e 3 cifre per i numeri delle frazioni:
+
+(for (i 1 100)                         (for (i 1 100)
+  (println i {: } (solve 101 i)))        (println i {: } (solve 1001 i)))
+;-> 1: nil                             ;-> 1: nil
+;-> 2: ((1 1) (1 1) 2)                 ;-> 2: ((1 1) (1 1) 2)
+;-> 3: nil                             ;-> 3: nil
+;-> 4: nil                             ;-> 4: nil
+;-> 5: nil                             ;-> 5: nil
+;-> 6: ((17 21) (37 21) 7462)          ;-> 6: ((17 21) (37 21) 674962)
+;-> 7: ((4 3) (5 3) 3156)              ;-> 7: ((4 3) (5 3) 320719)
+;-> 8: nil                             ;-> 8: nil
+;-> 9: ((1 1) (2 1) 2)                 ;-> 9: ((1 1) (2 1) 2)
+;-> 10: nil                            ;-> 10: nil
+;-> 11: nil                            ;-> 11: nil
+;-> 12: ((19 39) (89 39) 6445)         ;-> 12: ((19 39) (89 39) 570070)
+;-> 13: ((2 3) (7 3) 562)              ;-> 13: ((2 3) (7 3) 57657)
+;-> 14: nil                            ;-> 14: nil
+;-> 15: nil                         *  ;-> 15: ((397 294) (683 294) 8169098)
+;-> 16: ((2 1) (2 1) 158)              ;-> 16: ((2 1) (2 1) 15502)
+;-> 17: nil                            ;-> 17: nil
+;-> 18: nil                            ;-> 18: nil
+;-> 19: ((1 3) (8 3) 2)                ;-> 19: ((1 3) (8 3) 2)
+;-> 20: ((1 7) (19 7) 6)               ;-> 20: ((1 7) (19 7) 6)
+;-> 21: nil                            ;-> 21: nil
+;-> 22: nil                            ;-> 22: nil
+;-> 23: nil                            ;-> 23: nil
+;-> 24: nil                            ;-> 24: nil
+;-> 25: nil                            ;-> 25: nil
+;-> 26: ((53 28) (75 28) 17730)        ;-> 26: ((53 28) (75 28) 1486296)
+;-> 27: nil                            ;-> 27: nil
+;-> 28: ((1 1) (3 1) 2)                ;-> 28: ((1 1) (3 1) 2)
+;-> 29: nil                            ;-> 29: nil
+;-> 30: nil                         *  ;-> 30: ((107 57) (163 57) 962894)
+;-> 31: nil                            ;-> 31: nil
+;-> 32: nil                            ;-> 32: nil
+;-> 33: nil                            ;-> 33: nil
+;-> 34: nil                            ;-> 34: nil
+;-> 35: ((2 1) (3 1) 209)              ;-> 35: ((2 1) (3 1) 21276)
+;-> 36: nil                            ;-> 36: nil
+;-> 37: ((18 7) (19 7) 3810)           ;-> 37: ((18 7) (19 7) 350209)
+;-> 38: nil                            ;-> 38: nil
+;-> 39: nil                            ;-> 39: nil
+;-> 40: nil                            ;-> 40: nil
+;-> 41: nil                            ;-> 41: nil
+;-> 42: nil                            ;-> 42: nil
+;-> 43: ((1 2) (7 2) 1)                ;-> 43: ((1 2) (7 2) 1)
+;-> 44: nil                            ;-> 44: nil
+;-> 45: nil                            ;-> 45: nil
+;-> 46: nil                            ;-> 46: nil
+;-> 47: nil                            ;-> 47: nil
+;-> 48: ((34 21) (74 21) 5152)         ;-> 48: ((34 21) (74 21) 434274)
+;-> 49: nil                            ;-> 49: nil
+;-> 50: nil                            ;-> 50: nil
+;-> 51: nil                            ;-> 51: nil
+;-> 52: nil                            ;-> 52: nil
+;-> 53: nil                            ;-> 53: nil
+;-> 54: ((6 2) (6 2) 926)              ;-> 54: ((6 2) (6 2) 96751)
+;-> 55: nil                            ;-> 55: nil
+;-> 56: ((8 3) (10 3) 2030)            ;-> 56: ((8 3) (10 3) 205969)
+;-> 57: nil                            ;-> 57: nil
+;-> 58: nil                            ;-> 58: nil
+;-> 59: nil                            ;-> 59: nil
+;-> 60: nil                            ;-> 60: nil
+;-> 61: nil                            ;-> 61: nil
+;-> 62: ((7 3) (11 3) 691)             ;-> 62: ((7 3) (11 3) 73586)
+;-> 63: nil                         *  ;-> 63: ((127 65) (248 65) 4499740)
+;-> 64: nil                            ;-> 64: nil
+;-> 65: ((1 1) (4 1) 2)                ;-> 65: ((1 1) (4 1) 2)
+;-> 66: nil                            ;-> 66: nil
+;-> 67: nil                            ;-> 67: nil
+;-> 68: nil                            ;-> 68: nil
+;-> 69: nil                            ;-> 69: nil
+;-> 70: ((17 13) (53 13) 1728)         ;-> 70: ((17 13) (53 13) 159319)
+;-> 71: nil                            ;-> 71: nil
+;-> 72: ((4 2) (8 2) 650)              ;-> 72: ((4 2) (8 2) 62251)
+;-> 73: nil                            ;-> 73: nil
+;-> 74: nil                            ;-> 74: nil
+;-> 75: nil                            ;-> 75: nil
+;-> 76: nil                            ;-> 76: nil
+;-> 77: nil                            ;-> 77: nil
+;-> 78: nil                            ;-> 78: nil
+;-> 79: nil                            ;-> 79: nil
+;-> 80: nil                            ;-> 80: nil
+;-> 81: nil                            ;-> 81: nil
+;-> 82: nil                            ;-> 82: nil
+;-> 83: nil                            ;-> 83: nil
+;-> 84: nil                         *  ;-> 84: ((323 111) (433 111) 4741185)
+;-> 85: nil                            ;-> 85: nil
+;-> 86: ((5 3) (13 3) 388)             ;-> 86: ((5 3) (13 3) 34493)
+;-> 87: nil                            ;-> 87: nil
+;-> 88: nil                            ;-> 88: nil
+;-> 89: ((36 13) (53 13) 1482)         ;-> 89: ((36 13) (53 13) 101932)
+;-> 90: nil                            ;-> 90: nil
+;-> 91: ((6 2) (8 2) 1249)             ;-> 91: ((6 2) (8 2) 124251)
+;-> 92: nil                            ;-> 92: nil
+;-> 93: nil                            ;-> 93: nil
+;-> 94: nil                            ;-> 94: nil
+;-> 95: nil                            ;-> 95: nil
+;-> 96: nil                         *  ;-> 96: ((38 39) (178 39) 340360)
+;-> 97: nil                            ;-> 97: nil
+;-> 98: nil                         *  ;-> 98: ((355 152) (669 152) 3958957)
+;-> 99: nil                            ;-> 99: nil
+;-> 100: nil                           ;-> 100: nil
+
+
+---------
+Coroutine
+---------
+
+Le coroutine sono funzioni speciali che consentono di sospendere e riprendere l'esecuzione, generalizzando le subroutine per il multitasking cooperativo. Sono come "funzioni la cui esecuzione è possibile mettere in pausa".
+Il termine è stato usato per la prima volta da Melvin Conway nel 1958 per definire il funzionamento di alcune parti di un programma in Assembler.
+
+In newLISP per utilizzare il multithreading possiamo usare "fork" (una funzione che è non disponibile in Windows).
+I processi creati con "fork" possono essere programmati in modo tale da comportarsi come le coroutine.
+
+Vediamo cosa ha scritto Lutz sulle coroutine per newLISP:
+
+Lutz:
+-----
+
+When doing a complete implementation of coroutines things are much more involved. newLISP's result stack and environment stack would have to be replicated and switched for each instance of a coroutine. For other data structures like system variables, regex patterns, caches, etc. the same thing would have to be done. Without this one can only run simple coroutines which leave resources at exactly the same state at each switch point (yield) in the coroutine.
+
+If coroutines have several switch points with different states you have to implement the duplication and switching of much more data strcutures inside newLISP.
+
+For that reason forked UNIX processes were chosen, which do all the work of replicating stacks and data at the OS level. Coroutines would still be lighter during runtime, but much heavier to implement for a usable version.
+
+newLISP can model coroutines easily with forked process, which are pretty light in newLISP because it is so light itself. The following prodcons.lsp code from the source distribution models perfectly the producer/consumer example from http://en.wikipedia.org/wiki/Coroutine
+
+# prodcons.lsp -  Producer/consumer
+#
+# this program only runs on Linux/UNIX
+
+(constant 'wait -1 'signal 1 'release 0)
+
+(define (consumer n)
+        (set 'i 0)
+        (while (< i n)
+                (semaphore cons-sem wait)
+                (println (set 'i (share data)) " <-")
+                (semaphore prod-sem signal)) 
+        (exit))
+
+(define (producer n)
+        (for (i 1 n)
+                (semaphore prod-sem wait)
+                (println "-> " (share data i))
+                (semaphore cons-sem signal))   
+        (exit))
+
+(define (run n)
+        (set 'data (share))
+        (share data 0)
+
+        (set 'prod-sem (semaphore)) ; get semaphores
+        (set 'cons-sem (semaphore))
+
+        (set 'prod-pid (fork (producer n))) ; start threads
+        (set 'cons-pid (fork (consumer n)))
+        (semaphore prod-sem signal) ; get producer started
+
+        (wait-pid prod-pid) ; wait for threads to finish
+        (wait-pid cons-pid) ;
+        (semaphore cons-sem release) ; release semaphores
+        (semaphore prod-sem release))
+
+(run 10)
+
+(exit)
+
+On the Mac Mini OSX this code can do 100,000 producer/consumer switches in less in about 1.7 seconds (2006).
+One could do further work and write coroutine-switch/start/stop functions etc. to take care of configuring semaphores correctly, starting forks etc. This could be done using 'def-new' and named coroutines.
+
 =============================================================================
 
