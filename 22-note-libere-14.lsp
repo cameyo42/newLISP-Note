@@ -7460,5 +7460,239 @@ newLISP can model coroutines easily with forked process, which are pretty light 
 On the Mac Mini OSX this code can do 100,000 producer/consumer switches in less in about 1.7 seconds (2006).
 One could do further work and write coroutine-switch/start/stop functions etc. to take care of configuring semaphores correctly, starting forks etc. This could be done using 'def-new' and named coroutines.
 
+
+--------------------------------------
+Somma massima di elementi non contigui
+--------------------------------------
+
+Data una lista di numeri interi positivi, trovare la somma massima utilizzando solo elementi non contigui, cioè se prendiamo il valore in i-esima posizione, allora non possiamo prendere i valori nelle posizioni (i-1) e (i+1).
+Per esempio, data la lista (6 2 3 8), la somma massima vale 6 + 8 = 14.
+Definiamo una funzione f(i) che denota la somma massima dall'inizio alla i-esima posizione e v(i) come il valore della i-esima posizione. Quando raggiungiamo l'i-esima posizione, abbiamo due scelte: prendere il valore oppure non prenderlo.
+Pertanto, f(i) può essere definita nel modo seguente:
+
+         | max[v(i) + f(i-2)], quando viene preso il valore i-esimo
+  f(i) = |
+         | f(i-1), in tutti gli altri casi
+
+Per calcolare f(i), invece di utilizzare una funzione ricorsiva, memorizziamo solo i due valori di f(i-1) e f(i-2).
+
+(define (sum-jump lst)
+  (local (len val val1 val2)
+    (setq out '())
+    (setq len (length lst))
+    (cond
+      ((= len 0) 0)
+      ((= len 1) (lst 0))
+      ((= len 2) (max (lst 0) (lst 1)))
+      (true
+        (setq val1 (lst 0))
+        (setq val2 (max (lst 0) (lst 1)))
+        (for (i 2 (- len 1))
+          (setq val (max val2 (+ val1 (lst i))))
+          (setq val1 val2)
+          (setq val2 val)
+        ))
+    )
+    val))
+
+Facciamo alcune prove:
+
+(sum-jump '(6 2 3 8))
+;-> 14
+(sum-jump '(6 2 3 8 1 10 12 20))
+;-> 44
+(sum-jump '(5 6 7 3 8 1 10 12 20))
+;-> 50
+
+
+-------------------------------------
+Somma delle cifre dei numeri da 1 a N
+-------------------------------------
+
+Scrivere una funzione che calcola la somma delle cifre dei numeri da 1 a N.
+Per esempio con N = 12:
+
+(+ 1 2 3 4 5 6 7 8 9 (+ 1 0) (+ 1 1) (+ 1 2))
+;-> 51
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(digit-sum 1234)
+;-> 10
+
+Primo metodo: soluzione con la forza bruta
+
+Funzione che somma le cifre di tutti i numeri da start a end compresi:
+(nel nostro caso start vale 1)
+
+(define (somma-cifre start end)
+  (local (val somma)
+    (setq somma 0)
+    ; se invece vogliamo usare i big integer...
+    ;(setq somma 0L)
+    (for (i start end)
+      (++ somma (digit-sum i))
+    )
+    somma))
+
+Facciamo alcune prove:
+
+(somma-cifre 1 12)
+;-> 51
+(somma-cifre 2 4)
+;-> 9
+(somma-cifre 11 13)
+;-> 9
+(somma-cifre 1 1001)
+;-> 13503
+(somma-cifre 1 1e6)
+;-> 27000001
+
+Secondo metodo: analisi algebrica
+
+Possiamo notare che la somma delle cifre da 1 a (10^k - 1) vale: 45*k*10^(k-1).
+Infatti, accoppiando 0 con 10*k − 1, 1 con 10*k − 2, 2 con 10*k − 3, e così via, la somma delle cifre in ciascuna di queste coppie è uguale a
+9*k. Poiché ci sono (10^k)/2 di queste coppie, la somma è uguale a 9*k* (10^k)/2 = 45*k*10^(k−1).
+
+Funzione che calcola la somma delle cifre dai numeri da 1 a (- 10^k 1):
+
+(define (somma-coppie k) (* 45 k (pow 10 (- k 1))))
+
+(somma-coppie 6)
+;-> 27000000
+
+La nuova funzione calcola la somma delle cifre da 1 alla prima potenza di 10 inferiore al numero finale con la formula e poi aggiunge le cifre dei numeri rimanenti:
+
+(define (somma-cifre2 num)
+  (local (somma power new-start)
+    (setq somma 0)
+    ; se invece vogliamo usare i big integer...
+    ;(setq somma 0L)
+    (setq power (- (length num) 1))
+    (setq new-start (pow 10 power))
+    ;(println power { } new-start)
+    ; calcolo la somma da 1 a (10^power - 1)
+    (setq somma (somma-coppie power))
+    ; aggiunge alla somma le cifre dei numeri da 10^power a num
+    (for (i new-start num)
+      (++ somma (digit-sum i))
+    )
+    somma))
+
+Facciamo alcune prove:
+
+(somma-cifre2 12)
+;-> 51
+(somma-cifre2 1001)
+;-> 13503
+(somma-cifre2 1e6)
+;-> 27000001
+
+Problema:
+
+  1  1000 2000                               9000 10000
+  *----*----*----*----*----*----*----*----*----*----*
+
+Se il numero finale è 2000, allora calcoliamo la somma da 1 a 999 con la formula e poi aggiungiamo le cifre dei numeri da 1000 a 2000 uno per uno.
+Se il numero finale è 9000, allora calcoliamo la somma da 1 a 999 con la formula e poi aggiungiamo le cifre dei numeri da 1000 a 9000 uno per uno. In questo secondo caso sarebbe meglio calcolare la somma da 1 a 9999 con la formula e poi sottrarre le cifre dei numeri da 9999 a 9001 uno per uno.
+
+Possiamo vedere questo effetto in azione nei seguenti esempi:
+
+(time (somma-cifre 1 999999))
+;-> 919.14
+(time (somma-cifre 1 1000000))
+;-> 918.15
+; questa ci mette un pò perchè aggiunge i numeri da 100000 (centomila)
+(time (somma-cifre2 999999))
+;-> 840.07 
+; questa è immediata perchè aggiunge i numeri da 1000000 (1 milione)
+(time (somma-cifre2 1000001))
+;-> 0
+
+Per risolvere il problema prima calcoliamo la distanze del numero dalle prime potenze di 10 inferiori e superiori, poi calcoliamo la somma con la formula per l'intervallo di numeri più numeroso e infine aggiungiamo o togliamo i numeri in difetto o in eccesso.
+
+Funzione che calcola la prima potenza di 10 inferiore al numero:
+
+(define (previous-power num) (- (length num) 1))
+
+Funzione che calcola la prima potenza di 10 superiore al numero:
+
+(define (next-power num) (length num))
+
+(previous-power 999)
+;-> 2
+(next-power 999)
+;-> 3
+(previous-power 1000)
+;-> 3
+(next-power 1000)
+;-> 4
+
+Funzione di somma finale:
+
+(define (somma-cifre3 num)
+  (local (somma pow-up pow-down dist-up dist-down)
+    (setq somma 0)
+    ; se invece vogliamo usare i big integer...
+    ;(setq somma 0L)
+    ; prima potenza di 10 superiore al numero (10^pow-up > num)
+    (setq pow-up (next-power num))
+    ; prima potenza di 10 inferiore al numero (10^pow-down < num)
+    (setq pow-down (previous-power num))
+    ; distanza del numero dalla potenza superiore
+    (setq dist-up (- (pow 10 pow-up) num))
+    ; distanza del numero dalla potenza inferiore
+    (setq dist-down (- num (pow 10 pow-down)))
+    ;(println dist-up { } dist-down)
+    ; se la distanza inferiore è maggiore della distanza superiore...
+    (if (>= dist-down dist-up)
+       ; allora calcoliamo la somma con la potenza superiore e poi
+       ; sottraiamo i valori in più
+       (begin
+        (setq somma (somma-coppie pow-up))
+        (for (i (+ num 1) (- (pow 10 pow-up) 1))
+          (-- somma (digit-sum i))
+        )
+       )
+       ; altrimenti calcoliamo la somma con la potenza inferiore e poi
+       ; aggiungiamo i valori che mancano
+       (begin
+        (setq somma (somma-coppie pow-down))
+        (for (i (pow 10 pow-down) num)
+          (++ somma (digit-sum i))
+        )
+       )
+    )
+    somma))
+
+Facciamo alcune prove:
+
+(somma-cifre3 12)
+;-> 51
+(somma-cifre3 1001)
+;-> 13503
+(somma-cifre3 1e6)
+;-> 27000001
+
+; questa volta è immediata perchè toglie i numeri da 1000000 (1 milione)
+(time (somma-cifre3 999999))
+;-> 0
+; questa è immediata perchè aggiunge i numeri da 1000000 (1 milione)
+(time (somma-cifre2 1000001))
+;-> 0
+
+Verifichiamo se le funzioni somma-cifre e somma-cifre3 producono gli stessi risultati:
+
+(setq nums (rand 1e6 10))
+(= (map somma-cifre (dup 1 10) nums) (map somma-cifre3 nums))
+;-> true
+
 =============================================================================
 

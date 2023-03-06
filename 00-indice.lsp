@@ -1690,6 +1690,8 @@ NOTE LIBERE 14
   Prodotto minimo e massimo con 9 cifre
   Somma di cubi di frazioni
   Coroutine
+  Somma massima di elementi non contigui
+  Somma delle cifre dei numeri da 1 a N
   
 APPENDICI
 =========

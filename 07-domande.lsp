@@ -3475,6 +3475,7 @@ Proviamo con 100 porte stampando solo gli indici degli elementi che hanno valore
 ;-> 1 4 9 16 25 36 49 64 81 100 " "
 
 Si nota che rimangono solo i numeri che sono quadrati perfetti.
+Quindi con N porte rimangono aperte (ceil (sqrt(N)) porte.
 
 Spiegazione:
 Lo stato della porta n-esima cambia con lo studente k-esimo per tutti i valori in cui k è divisore di n. I divisori di un numero sono accoppiati (k e j) poichè risulta  n = k * j, cioè k = n / j e j = n / k. Quindi ogni coppia cambia due volte lo stato di una porta (una volta con lo studente k e una volta con lo studente j) lasciando lo stato finale invariato.
