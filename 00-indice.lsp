@@ -1692,7 +1692,14 @@ NOTE LIBERE 14
   Coroutine
   Somma massima di elementi non contigui
   Somma delle cifre dei numeri da 1 a N
-  
+  Funzione di aiuto per il debug
+  REPL e colori
+  Conversione colori RGB <--> HEX
+
+NOTE LIBERE 15
+==============
+  Potenze più vicine ad un numero
+
 APPENDICI
 =========
   The fifteen ideas characterizing LISP
@@ -1727,7 +1734,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (229 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (231 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

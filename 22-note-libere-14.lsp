@@ -6553,7 +6553,7 @@ Creiamo una lista di associazione:
 
 (setq decrypt (map (fn(x) (list (x 1) (x 0))) crypt))
 
-(setq decrypt '(("11" "a") ("12" "b") ("13" "c") ("14" "d") ("15" "e") 
+(setq decrypt '(("11" "a") ("12" "b") ("13" "c") ("14" "d") ("15" "e")
                 ("21" "f") ("22" "g") ("23" "h") ("24" "i") ("24" "j")
                 ("25" "k") ("31" "l") ("32" "m") ("33" "n") ("34" "o")
                 ("35" "p") ("41" "q") ("42" "r") ("43" "s") ("44" "t")
@@ -6892,9 +6892,9 @@ Fu creata nel 1508 da Johannes Trithemius che la utilizzò per definire un cifra
  (X Y Z A B C D E F G H I J K L M N O P Q R S T U V W)
  (Y Z A B C D E F G H I J K L M N O P Q R S T U V W X)
  (Z A B C D E F G H I J K L M N O P Q R S T U V W X Y)))
- 
+
 Algoritmo di criptazione:
-Per ogni lettera del testo da criptare, si localizza la riga con la lettera del testo e la colonna con la corrispondente lettera della chiave. 
+Per ogni lettera del testo da criptare, si localizza la riga con la lettera del testo e la colonna con la corrispondente lettera della chiave.
 La lettera posizionata in quella linea e quella colonna è la lettera cifrata.
 
 Ogni posizione della tavola fornisce la somma modulo 26 dell'intero a inizio riga e dell'intero a inizio colonna.
@@ -7112,7 +7112,7 @@ Usiamo le permutazioni.
 (prodmax1)
 ;-> (("852" "941" "763") 611721516)
 
-Per formare il prodotto più grande, i numeri più grandi devono essere tutti nella posizione delle centinaia. 
+Per formare il prodotto più grande, i numeri più grandi devono essere tutti nella posizione delle centinaia.
 Cioè, i numeri devono essere (9xx, 8xx, 7xx).
 
 (define (prodmax2)
@@ -7209,9 +7209,9 @@ Nota: i numeri x, y ed a possono avere al massimo 3 cifre
 Usiamo tre cicli per trovare x, y e a: il primo da 1 a 1000 per la x, il secondo da x a 1000 per la y.
 Nel secondo ciclo aggiungiamo il valore del cubo dell'incremento del primo ciclo al cubo dell'incremento del secondo ciclo per vedere se è un candidato per un ulteriore verifica
 Il valore dell'incremento del primo ciclo cambia solo dopo che abbiamo terminato il secondo ciclo.
-Ogni volta che sommiamo i cubi dei numeratori, verifichiamo se la loro somma è divisibile esattamente per N. 
+Ogni volta che sommiamo i cubi dei numeratori, verifichiamo se la loro somma è divisibile esattamente per N.
 In caso contrario, i numeri non sono candidati per la soluzione e non è necessario entrare nel ciclo più interno, che analizza tutti i valori del denominatore "a" da 2 a 1000.
-Il terzo ciclo prende ogni valore dei due cicli più esterni e incrementa da 2 a metà della somma dei due incrementi più esterni. 
+Il terzo ciclo prende ogni valore dei due cicli più esterni e incrementa da 2 a metà della somma dei due incrementi più esterni.
 Se il denominatore è maggiore della media dei numeratori, i cubi delle due frazioni non possono totalizzare N (o più), altrimenti abbiamo trovato una soluzione.
 
 (define (solve limit num)
@@ -7427,14 +7427,14 @@ newLISP can model coroutines easily with forked process, which are pretty light 
         (while (< i n)
                 (semaphore cons-sem wait)
                 (println (set 'i (share data)) " <-")
-                (semaphore prod-sem signal)) 
+                (semaphore prod-sem signal))
         (exit))
 
 (define (producer n)
         (for (i 1 n)
                 (semaphore prod-sem wait)
                 (println "-> " (share data i))
-                (semaphore cons-sem signal))   
+                (semaphore cons-sem signal))
         (exit))
 
 (define (run n)
@@ -7514,6 +7514,12 @@ Per esempio con N = 12:
 
 (+ 1 2 3 4 5 6 7 8 9 (+ 1 0) (+ 1 1) (+ 1 2))
 ;-> 51
+
+Sequenza OEIS A037123:
+  0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 46, 48, 51, 55, 60, 66, 73, 81, 90,
+  100, 102, 105, 109, 114, 120, 127, 135, 144, 154, 165, 168, 172, 177,
+  183, 190, 198, 207, 217, 228, 240, 244, 249, 255, 262, 270, 279, 289,
+  300, 312, 325, 330, 336, 343, 351, 360, 370, 381, ...
 
 (define (digit-sum num)
 "Calculates the sum of the digits of an integer"
@@ -7611,7 +7617,7 @@ Possiamo vedere questo effetto in azione nei seguenti esempi:
 ;-> 918.15
 ; questa ci mette un pò perchè aggiunge i numeri da 100000 (centomila)
 (time (somma-cifre2 999999))
-;-> 840.07 
+;-> 840.07
 ; questa è immediata perchè aggiunge i numeri da 1000000 (1 milione)
 (time (somma-cifre2 1000001))
 ;-> 0
@@ -7693,6 +7699,178 @@ Verifichiamo se le funzioni somma-cifre e somma-cifre3 producono gli stessi risu
 (setq nums (rand 1e6 10))
 (= (map somma-cifre (dup 1 10) nums) (map somma-cifre3 nums))
 ;-> true
+
+Verifichiamo la sequenza OEIS:
+
+(map somma-cifre (dup 0 51) (sequence 0 50))
+;-> (0 1 3 6 10 15 21 28 36 45 46 48 51 55 60 66 73 81 90 100 102 105 109
+;->  114 120 127 135 144 154 165 168 172 177 183 190 198 207 217 228 240
+;->  244 249 255 262 270 279 289 300 312 325 330)
+
+
+------------------------------
+Funzione di aiuto per il debug
+------------------------------
+
+In genere il debug di un programma viene iniziato con una serie di "print" per analizzare i valori di alcune variabili/simboli e verificare il funzionamento del programma.
+La seguente funzione permette di assegnare il valore ad una variabile/simbolo e stamparlo.
+
+(define (set-prt qsym expr)
+  (setq (eval qsym) expr)
+  (println (string qsym) { = } expr))
+
+(set-prt 'a (+ 2 3))
+;-> a = 5
+a
+;-> 5
+
+Passiamo alla funzione il simbolo quotato per usare il metodo call-by-reference, in questo modo viene modificato il valore del simbolo e non di una sua copia (come accade normalmente ai parametri che vengono passati ad una funzione).
+
+Vediamo un semplice utilizzo della funzione:
+
+(define (test str)
+  (local (ch a b)
+    (setq a 0 b 0)
+    (dostring (ord str)
+      (set-prt 'ch (char ord))
+      (set-prt 'a (+ a (- ord 2)))
+      (set-prt 'b (+ b (+ ord 2)))
+    )
+    (+ a b)))
+
+
+(test "newLISP")
+;-> ch = n
+;-> a = 108
+;-> b = 112
+;-> ch = e
+;-> a = 207
+;-> b = 215
+;-> ch = w
+;-> a = 324
+;-> b = 336
+;-> ch = L
+;-> a = 398
+;-> b = 414
+;-> ch = I
+;-> a = 469
+;-> b = 489
+;-> ch = S
+;-> a = 550
+;-> b = 574
+;-> ch = P
+;-> a = 628
+;-> b = 656
+;-> 1284
+
+
+-------------
+REPL e colori
+-------------
+
+Se il terminale in cui viene eseguita la REPL di newLISp supporta i codici ANSI Escape, allora possiamo modificare il colore dello sfondo (background) e il colre del testo (foreground).
+
+Funzione che modifica il colore di foreground (testo):
+
+(define (foreground color)
+  (let (f (string "\027[38;5;" color "m"))
+    ;(print f "\r" "")))
+    (print f)))
+
+Funzione che modifica il colore di background (sfondo):
+
+(define (background color)
+  (let (b (string "\027[48;5;" color "m"))
+    ;(print b "\r" "")))
+    (print b)))
+
+Espressione che stampa i 256 colori disponibili:
+
+;(for (i 0 255) (print (string "\027[38;5;" i "m") i { }))
+(for (i 0 255) (print (foreground i) i { }))
+;-> 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+;-> 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+;-> 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75
+;-> 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99
+;-> 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117
+;-> 118 119 120 121 122 123 124 125 126 127 128 129 130 131 132 133 134 135
+;-> 136 137 138 139 140 141 142 143 144 145 146 147 148 149 150 151 152 153
+;-> 154 155 156 157 158 159 160 161 162 163 164 165 166 167 168 169 170 171
+;-> 172 173 174 175 176 177 178 179 180 181 182 183 184 185 186 187 188 189
+;-> 190 191 192 193 194 195 196 197 198 199 200 201 202 203 204 205 206 207
+;-> 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225
+;-> 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243
+;-> 244 245 246 247 248 249 250 251 252 253 254 255
+
+(background 252)
+(foreground 0)
+
+Nota: vedere anche "Codici ANSI ESCape" su "newLISP in generale".
+
+
+-------------------------------
+Conversione colori RGB <--> HEX
+-------------------------------
+
+(define (dec-hex num)
+"Convert a decimal integer to hexadecimal string"
+  (if (zero? num) "0"
+      (reverse (dec-hex-aux num))))
+
+; routine di ausiliaria conversione
+(define (dec-hex-aux num)
+  (local (digit x y)
+    (setq digit "0123456789ABCDEF")
+    (setq x (% num 16))
+    (setq y (/ num 16))
+    (if (zero? y) (nth x digit)
+        (append (nth x digit) (dec-hex-aux y)))))
+
+(map dec-hex (sequence 0 255))
+
+(define (hex-dec str)
+"Convert a hexadecimal string to decimal integer"
+  (local (digit val)
+    (setq digit "0123456789ABCDEF")
+    (setq val 0)
+    ;(setq val 0L)
+    (dostring (c str)
+      (setq val (+ (* val 16) (find (char c) digit))))))
+
+Funzione di conversione RGB --> HEX:
+
+(define (rgb-hex lst)
+  (local (hex esa)
+    (setq hex "")
+    (dolist (el lst)
+      (setq esa (dec-hex el))
+      (if (= (length esa) 1) (setq esa (append "0" esa)))
+      (extend hex esa)
+    )
+    hex))
+
+(rgb-hex '(125 15 33))
+;-> "7D0F21"
+(rgb-hex '(16 24 255))
+;-> "1018FF"
+(rgb-hex '(255 215 0))
+;-> "FFD700"
+
+Funzione di conversione HEX --> RGB:
+
+(define (hex-rgb str)
+  (local (rgb val)
+    (dolist (el (explode str 2))
+      (push (hex-dec el) rgb -1)
+    )
+    rgb))
+
+(hex-rgb "7D0F21")
+;-> (125 15 33)
+(hex-rgb "1018FF")
+;-> (16 24 255)
+(hex-rgb "FFD700")
+;-> (255 215 0)
 
 =============================================================================
 
