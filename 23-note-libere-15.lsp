@@ -187,5 +187,150 @@ Dal punto di vista matematico, il numero di pesate nel caso peggiore è definito
  
 la cui soluzione è: W(n) = ceil(log2 n).
 
+
+-----------------------------
+Punto interno ad un triangolo
+-----------------------------
+
+Date le coordinate dei tre vertici di un triangolo e un altro punto P, scrivere una funzione per verificare se P si trova all'interno del triangolo oppure no.
+Esempi:
+  A = (0 0), B = (10 30), C = (20 0)
+  P = (10 15)
+  Il punto è interno.
+
+  A = (0 0), B = (10 30), C = (20 0)
+  P = (30 15)
+  Il punto è esterno.
+ 
+Algoritmo
+Siano (x1 y1), (x2 y2) e (x3 y3) le coordinate dei tre vertici del triangolo.
+Sia (x y) le coordinate del punto dato P.
+Calcolare l'area del triangolo ABC:
+  Area A = [x1(y2 – y3) + x2(y3 – y1) + x3(y1 - y2)]/2
+Calcolare l'area del triangolo PAB. Sia quest'area A1.
+Calcolare l'area del triangolo PBC. Sia quest'area A2.
+Calcolare l'area del triangolo PAC. Sia quest'area A3.
+Il punto P si trova all'interno del triangolo se e solo se:
+  (A1 + A2 + A3) è uguale ad A (+- epsilon).
+
+Funzione che calcola l'area di un triangolo dati i tre vertici:
+
+(define (area-triangle x1 y1 x2 y2 x3 y3)
+  (abs (div (add (mul x1 (sub y2 y3))
+                 (mul x2 (sub y3 y1))
+                 (mul x3 (sub y1 y2))) 2)))
+
+Funzione che verifica se un punto è interno ad un triangolo:
+
+(define (inside-triangle? x y x1 y1 x2 y2 x3 y3)
+  (local (eps a a1 a2 a3)
+    (setq eps 1e-6) ; compensate rounding errors
+    (setq a  (area-triangle x1 y1 x2 y2 x3 y3))
+    (setq a1 (area-triangle x y x2 y2 x3 y3))
+    (setq a2 (area-triangle x1 y1 x y x3 y3))
+    (setq a3 (area-triangle x1 y1 x2 y2 x y))
+    ;(println a { } (add a1 a2 a3) { } a1 { } a2 { } a3)
+    (> eps (abs (sub a (add a1 a2 a3))))))
+
+Facciamo alcune prove:
+
+(inside-triangle? 10 15 0 0 20 0 10 30 10 15)
+;-> true
+
+(inside-triangle? 0 2 0 0 4 0 0 4)
+;-> true
+
+(inside-triangle? 1 0 0 0 2 0 1 1)
+;-> true
+
+
+------------------------------
+Punto interno ad un rettangolo
+------------------------------
+
+Date le coordinate dei quattro vertici di un rettangolo e un altro punto P, scrivere una funzione per verificare se P si trova all'interno del rettangolo oppure no.
+
+Primo metodo
+------------
+Dividiamo il rettangolo in 4 triangoli e calcoliamo la somma delle loro aree.
+Se la somma dei triangoli è uguale all'area del rettangolo, allora il punto è interno al rettangolo.
+
+Funzione che calcola l'area di un triangolo dati i tre vertici:
+
+(define (area-triangle x1 y1 x2 y2 x3 y3)
+  (abs (div (add (mul x1 (sub y2 y3))
+                 (mul x2 (sub y3 y1))
+                 (mul x3 (sub y1 y2))) 2)))
+
+(define (dist2d x1 y1 x2 y2)
+"Calculates 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+
+Funzione che calcola l'area di un rettangolo dati i quattro vertici:
+
+(define (area-rectangle x1 y1 x2 y2 x3 y3 x4 y4)
+  (mul (dist2d x1 y1 x2 y2) (dist2d x2 y2 x3 y3)))
+
+Funzione che verifica se un punto è interno ad un rettangolo:
+
+(define (inside-rect? x y x1 y1 x2 y2 x3 y3 x4 y4)
+  (local (eps a a1 a2 a3 a4)
+    (setq eps 1e-6) ; compensate rounding errors
+    (setq a  (area-rectangle x1 y1 x2 y2 x3 y3 x4 y4))
+    (setq a1 (area-triangle x y x1 y1 x2 y2))
+    (setq a2 (area-triangle x y x2 y2 x3 y3))
+    (setq a3 (area-triangle x y x3 y3 x4 y4))
+    (setq a4 (area-triangle x y x1 y1 x4 y4))
+    ; (println a { } (add a1 a2 a3 a4) { } a1 { } a2 { } a3 { } a4)
+    (> eps (abs (sub a (add a1 a2 a3 a4))))))
+
+Vediamo alcuni esempi:
+
+(inside-rect? -1 -1 -2 -2 -2 8 10 8 10 -2)
+;-> true
+(inside-rect? 2 2 3.5 5 7.5 1 5.5 -1 1.5 3)
+;-> nil
+(inside-rect? 5.5 0.5 3.5 5 7.5 1 5.5 -1 1.5 3)
+;-> true
+
+Secondo metodo
+--------------
+Supponiamo di avere un rettangolo con punti in p1 = (x1, y1), p2 = (x2, y2), p3 = (x3, y3) e p4 = (x4, y4), procedendo in senso orario. 
+Se un punto p = (x, y) giace all'interno del rettangolo, allora il prodotto scalare (p - p1).(p2 - p1) sarà compreso tra 0 e |p2 - p1|^2, e (p - p1).(p4 - p1) sarà compreso tra 0 e |p4 - p1|^2. 
+Ciò equivale a prendere la proiezione del vettore p - p1 lungo la lunghezza e la larghezza del rettangolo, con p1 come origine.
+
+(define (inside-rect? x y x1 y1 x2 y2 x3 y3 x4 y4)
+  (local (p21x p21y p41x p41y p21mag-sq p41mag-sq px py v1 v2 out)
+    (setq p21x (sub x2 x1))
+    (setq p21y (sub y2 y1))
+    (setq p41x (sub x4 x1))
+    (setq p41y (sub y4 y1))
+    (setq p21mag-sq (add (mul p21x p21x) (mul p21y p21y)))
+    (setq p41mag-sq (add (mul p41x p41x) (mul p41y p41y)))
+    (setq px (sub x x1))
+    (setq py (sub y y1))
+    (setq v1 (add (mul px p21x) (mul py p21y)))
+    (setq v2 (add (mul px p41x) (mul py p41y)))
+    (if (and (>= v1 0) (<= v1 p21mag-sq))
+        (if (and (>= v2 0) (<= v2 p41mag-sq))
+          (setq out true)
+          ;else
+          (setq out nil)
+        )
+        ;else
+        (setq out nil)
+    )
+    out))
+
+Vediamo alcuni esempi:
+
+(inside-rect? -1 -1 -2 -2 -2 8 10 8 10 -2)
+;-> true
+(inside-rect? 2 2 3.5 5 7.5 1 5.5 -1 1.5 3)
+;-> nil
+(inside-rect? 5.5 0.5 3.5 5 7.5 1 5.5 -1 1.5 3)
+;-> true
+
 =============================================================================
 

@@ -1701,6 +1701,8 @@ NOTE LIBERE 15
   Potenze più vicine ad un numero
   Problemi di pesatura (con bilancia a due piatti)
   Problemi di pesatura (con bilancia a molla)
+  Punto interno ad un triangolo
+  Punto interno ad un rettangolo
 
 APPENDICI
 =========
