@@ -1703,6 +1703,8 @@ NOTE LIBERE 15
   Problemi di pesatura (con bilancia a molla)
   Punto interno ad un triangolo
   Punto interno ad un rettangolo
+  Ricerca in una lista di numeri adiacenti
+  Super primi
 
 APPENDICI
 =========

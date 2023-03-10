@@ -332,5 +332,110 @@ Vediamo alcuni esempi:
 (inside-rect? 5.5 0.5 3.5 5 7.5 1 5.5 -1 1.5 3)
 ;-> true
 
+
+----------------------------------------
+Ricerca in una lista di numeri adiacenti
+----------------------------------------
+
+Data una lista di numeri interi positivi in cui due elementi vicini sono adiacenti (con differenza assoluta 1), scrivere un algoritmo per cercare un elemento nella lista e restituirne la posizione.
+Se l'elemento appare più volte, restituire la prima occorrenza.
+
+Ad esempio:
+lista = (3 4 5 6 5 6 7 8 7 8 9) 
+numero = 8
+Il numero appare due volte nella lista e la prima occorrenza è nella posizione 7.
+
+Algoritmo
+Partiamo dalla posizione 0 dove si trova il numero 3.
+La differenza tra 3 e 8 vale 5, quindi ci spostiamo nella posizione 5. Perchè?
+Perché la differenza assoluta tra due elementi vicini è 1. 
+Se i numeri nella lista fossero ordinati in modo crescente, l'elemento in posizione 5 sarebbe 9. 
+Se alcuni elementi diminuiscono, allora 8 dovrebbe trovarsi a destra della posizione 5. 
+Pertanto, 5 è la posizione più a sinistra possibile per il numero 8.
+Alla posizione 5 troviamo il numero 6. La differenza tra 8 e 6 vale 2.
+Quindi ci spostiamo 2 posizioni in avanti (dalla posizione 5) nella posizione 7.
+Nella posizione 7 troviamo il numero 8.
+
+Proviamo a cercare un numero che non esiste nella lista, ad esempio 2.
+Alla posizione 0 troviamo il 3, la differenza 3 - 2 vale 1.
+Alla posizione 1 troviamo 4, 4 - 2 = 2.
+Alla posizione 3 (2+1) troviamo 6, 6 - 2 = 4.
+Alla posizione 7 (4+3) troviamo 8, 8 - 2 = 6.
+Alla posizione 13 (6+7) abbiamo supreato la lunghezza della lista e restituiamo nil.
+
+Possiamo riassumere la soluzione: iniziamo dal primo elemento dell'elemento e lo confrontiamo con il numero dato. 
+Se la differenza assoluta è K, ci spostiamo a destra della distanza K (partendo dalla posizione corrente). 
+Quindi confrontiamo l'elemento attualmente visitato. 
+Ripetere finché non viene trovato l'elemento specificato o la posizione è oltre la lunghezza della lista quando l'elemento cercato non si trova nella lista.
+
+(define (cerca val nums)
+  (local (len idx delta)
+    (setq len (length nums))
+    (setq idx 0)
+    (while (and (< idx len) (!= (nums idx) val))
+      ;(println idx { } (nums idx))
+      (setq delta (abs (sub val (nums idx))))
+      ;(println delta)
+      (++ idx delta)
+    )
+    (if (< idx len) idx nil)))
+
+(setq lst '(3 4 5 6 5 6 7 8 7 8 9))
+
+(cerca 7 lst)
+;-> 6
+
+(cerca 2 lst)
+;-> nil
+
+
+-----------
+Super primi
+-----------
+
+I numeri super primi sono la sottosequenza di numeri primi che occupano posizioni prime all'interno della sequenza di tutti i numeri primi.
+
+posizione:    (0)  1  2  3  4  5   6
+numeri primi: (1)  2  3  5  7  11  13
+super primi:          3  5     11
+
+Sequenza OEIS A006450:
+  3, 5, 11, 17, 31, 41, 59, 67, 83, 109, 127, 157, 179, 191, 211, 241, 277, 
+  283, 331, 353, 367, 401, 431, 461, 509, 547, 563, 587, 599, 617, 709, 739,
+  773, 797, 859, 877, 919, 967, 991, 1031, 1063, 1087, 1153, 1171, 1201, 1217,
+  1297, 1409, 1433, 1447, 1471, ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che genra tutti i super primi minori o uguali ad un dato numero:
+
+(define (super-primes-to num)
+  (let ( (primes (primes-to num)) (out '()) )
+    (push 1 primes)
+    (dolist (p primes)
+      (if (prime? $idx) (push p out -1))
+    )
+    out))
+
+(super-primes-to 1000)
+;-> (3 5 11 17 31 41 59 67 83 109 127 157 179 191 211 241 277 
+;->  283 331 353 367 401 431 461 509 547 563 587 599 617 709 739 
+;->  773 797 859 877 919 967 991)
+
 =============================================================================
 

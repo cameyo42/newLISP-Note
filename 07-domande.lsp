@@ -2566,6 +2566,9 @@ Esempio:
 (unisci-intervalli lst)
 ;-> ((1 10) (15 18))
 
+(unisci-intervalli '((5 13) (27 39) (8 19) (31 37)))
+;-> ((5 19) (27 39))
+
 
 -------------------------------
 Somma dei numeri unici (Google)
