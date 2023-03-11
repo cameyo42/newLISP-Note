@@ -1705,6 +1705,8 @@ NOTE LIBERE 15
   Punto interno ad un rettangolo
   Ricerca in una lista di numeri adiacenti
   Super primi
+  Candy crush
+  Primi con cifre prime univoche
 
 APPENDICI
 =========

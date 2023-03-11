@@ -422,7 +422,7 @@ Sequenza OEIS A006450:
    (if (< num 2) nil
        (= 1 (length (factor num)))))
 
-Funzione che genra tutti i super primi minori o uguali ad un dato numero:
+Funzione che genera tutti i super primi minori o uguali ad un dato numero:
 
 (define (super-primes-to num)
   (let ( (primes (primes-to num)) (out '()) )
@@ -436,6 +436,139 @@ Funzione che genra tutti i super primi minori o uguali ad un dato numero:
 ;-> (3 5 11 17 31 41 59 67 83 109 127 157 179 191 211 241 277 
 ;->  283 331 353 367 401 431 461 509 547 563 587 599 617 709 739 
 ;->  773 797 859 877 919 967 991)
+
+
+-----------
+Candy crush
+-----------
+
+Data una lista non vuota composta esclusivamente da cifre nell'intervallo [1-9], scrivere una funzione che applichi la regola "match-3" da sinistra a destra e genera la stringa risultante.
+Esempi:
+
+Input: (1 2 2 2 3) -> Output (1 3)
+Input: (1 3 2 2 2 3 2 2 2 3 2 2 2 3 1 1) -> Output (1 3 1 1)
+
+Vale a dire, mentre si analizza la stringa da sinistra a destra se si incontra la stessa cifra ripetuta 3 o più volte di seguito, l'intero gruppo di cifre deve "scomparire", risultando nella concatenazione della parte sinistra e destra della stringa rimanente.
+Ogni volta che abbiamo a che fare con un gruppo, dobbiamo ricominciare dall'estremità sinistra e ripetere lo stesso processo fino a quando la lista non cambia più (normalmente quando finalmente si raggiunge l'estremità destra).
+Se la lista diventa vuota alla fine del processo, restituire la lista vuota.
+
+(define (candycrush lst num)
+  (local (len idx palo palo-idx uguali)
+    (setq len (length lst))
+    (setq idx 1)
+    (setq palo-idx 0)
+    (setq palo (lst 0))
+    (setq uguali 1)
+    (while (< idx len)
+      (cond ((= palo (lst idx)) ; caratteri uguali
+              (++ uguali)
+              (++ idx))
+            ((!= palo (lst idx)) ; caratteri diversi
+              ; controllo se i caratteri precedenti erano uguali
+              ; in numero >= 3
+              (if (>= uguali 3)
+                (begin
+                  ; eliminazione dei caratteri uguali
+                  (for (i 1 uguali) (pop lst palo-idx))
+                  ; impostazione dall'inizio per una nuova ricerca
+                  (setq len (length lst))
+                  (setq idx 1)
+                  (setq palo-idx 0)
+                  (setq palo (lst 0))
+                  (setq uguali 1)
+                )
+                ;else
+                (begin
+                  ; nuovo palo
+                  (setq palo-idx idx)
+                  (setq palo (lst idx))
+                  (setq uguali 1)
+                  (++ idx)
+                )))
+      )
+   )
+   ; fine della stringa e 
+   ; controllo se i caratteri precedenti erano uguali in numero >= 3
+   (if (>= uguali 3) (for (i 1 uguali) (pop lst -1)))
+   lst))
+
+Facciamo alcune prove:
+
+(setq a '(1 2 3 3 3 1))
+(setq b '(1 3 2 2 2 3 2 2 2 3 1 1 1))
+(setq c '(1 3 2 2 3 3 3 2 2 2 3 1))
+(setq d '(1 3 2 2 3 3 3 2 2 2 3 3))
+
+(candycrush a)
+;-> (1 2 1)
+(candycrush b)
+;-> ()
+(candycrush c)
+;-> (1 3 3 1)
+(candycrush d)
+;-> (1)
+
+
+------------------------------
+Primi con cifre prime univoche
+------------------------------
+
+Scriver una funzione che genera tutti i numeri primi in cui ogni singola cifra è un numero primo e compare solo una volta.
+
+Sequenza OEIS A124674:
+  2, 3, 5, 7, 23, 37, 53, 73, 257, 523, 2357, 2753, 3257, 3527, 
+  5237, 5273, 7253, 7523.
+
+Le cifre prime sono 2, 3, 5 e 7.
+Il numero più grande che possiamo formare vale 7532.
+
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Come facciamo a verificare se un numero è composto solo dalle cifre 2, 3, 5 e 7 che compaiono solo una volta?
+Un metodo è il seguente:
+Convertire il numero in una lista ordinata --> lst
+Fare l'intersezione tra (2 3 5 7) e lst --> res
+Se lst = res allora il numero è composto solo dalle cifre 2, 3, 5 e 7 che compaiono solo una volta.
+
+(setq num 3256)
+(setq lst (sort (int-list num)))
+;-> (2 3 5 6)
+(setq res (intersect '(2 3 5 7) lst))
+;-> (2 3 5)
+res != lst --> numero non corretto
+
+(setq num 375)
+(setq lst (sort (int-list num)))
+;-> (3 5 7)
+(setq res (intersect '(2 3 5 7) lst))
+;-> (3 5 5)
+res = lst --> numero corretto
+
+Funzione che genera tutti i numeri primi in cui ogni singola cifra è un numero primo e compare solo una volta:
+
+(define (primis)
+  (let (out'())
+    (for (num 2 7532)
+      (if (and (prime? num)
+          (= (intersect '(2 3 5 7) (sort (int-list num))) (sort (int-list num))))
+          (push num out -1)
+      )
+    )
+    out))
+
+(primis)
+;-> (2 3 5 7 23 37 53 73 257 523 2357 2753 3257 3527 5237 5273 7253 7523)
 
 =============================================================================
 
