@@ -570,5 +570,283 @@ Funzione che genera tutti i numeri primi in cui ogni singola cifra è un numero 
 (primis)
 ;-> (2 3 5 7 23 37 53 73 257 523 2357 2753 3257 3527 5237 5273 7253 7523)
 
+Nota:
+  2357 è il numero primo più piccolo che contiene tutte le cifre prime.
+  22 + 33 + 55 + 77 è primo.
+  (2*3*5*7+2+3+5+7) e (2*3*5*7-2-3-5-7) sono entrambi primi.
+
+
+---------------------------------------------------------
+Polinomi generatori di sequenze - Metodo delle differenze
+---------------------------------------------------------
+
+Spesso è utile trovare una formula per una sequenza di numeri. Avere una tale formula ci consente di prevedere altri numeri nella sequenza, vedere quanto velocemente cresce la sequenza, esplorare le proprietà matematiche della sequenza e talvolta trovare relazioni tra una sequenza e un'altra.
+
+Se abbiamo una sequenza (parziale) di numeri, come possiamo ricavarne una formula?
+Non esiste un metodo che funzionerà sempre per tutte le sequenze, ma esistono metodi che funzioneranno per determinati tipi di sequenze. In questo caso vediamo un metodo per determinare una formula polinomiale per una sequenza.
+
+Esempio 1
+---------
+Supponiamo di avere la seguente sequenza:
+
+    n  = 1 2  3  4  5  6
+  S(n) = 4 7 10 13 16 19
+
+Vorremmo trovare una formula polinomiale per f(n) in termini di n.
+Calcoliamo le differenze tra numeri successivi nella sequenza, scrivendo questi valori in una riga sotto la riga f(n).
+
+  S(n) = 4 7 10 13 16 19
+          3 3  3  3  3
+
+Quando otteniamo valori tutti uguali per le differenze ci fermiamo.
+Poichè abbiamo calcolato solo una volte le differenze, allora la formula polinomiale avrà grado uno.
+In altre parole, il grado del polinomio è dato dal numero delle volte che abbiamo calcolato le differenze per arrivare a valori uguali.
+
+In questo esempio il polinomio è lineare (grado uno) e in generale vale:
+
+  P(n) = A*n + B
+
+Adesso dobbiamo calcolare i valori di A e B con un sistema di due equazioni e due incognite (A e B).
+Le equazioni vengono definite utilizzando i primi valori della sequenza:
+
+  P(1) = A + B = 4
+  P(2) = 2A + B = 7
+
+Risolvendo il sistema si ottengono i valori delle incognite:
+
+  A = 3, B = 1
+
+Che sostituite nel polinomio generico di primo grado produce il nostro polinomio generatore:
+
+  P(n) = 3*n + 1
+
+Verifichiamo i valori della sequenza e oltre:
+
+(define (p n) (+ (* 3 n) 1))
+(map p (sequence 1 10))
+;-> (4 7 10 13 16 19 22 25 28 31)
+
+Esempio 2
+---------
+Quante diagonali ha un poligono regolare di n lati? 
+Un poligono regolare è una figura geometrica con n lati uguali e n angoli uguali. 
+Una diagonale è una linea da un vertice all'altro del poligono, tranne per il fatto che i lati del poligono non contano.
+
+Vediamo i primi casi:
+
+  Lati    Figura        Diagonali
+    3     triangolo        0 (nessuna diagonale)
+    4     quadrato         2
+    5     pentagono        5 
+    6     esagono          9
+    7     ettagono        14 
+    8     ottagono        20
+
+Quindi la nostra sequenza è la seguente:
+
+    n  = 3 4 5 6 7  8
+  S(n) = 0 2 5 9 14 20
+
+Scriviamo la differenza di termini consecutivi della sequenza fino a quando non otteniamo una sequenza costante (non sempre si arriva ad una sequenza costante).
+Le righe che rappresentano le differenze costituiscono la "tavola delle differenze".
+
+Calcoliamo la tavola delle differenze con la seguente funzione:
+
+(define (pair-func lst func)
+"Produces a list applying a function to each pair of elements of a list"
+  (map func (rest lst) (chop lst)))
+
+(setq lst '(0 2 5 9 14 20))
+
+prima differenza:
+(setq a1 (pair-func lst -))
+;-> (2 3 4 5 6)
+seconda differenza:
+(setq a2 (pair-func a1 -))
+;-> (1 1 1 1)
+
+Per verificare se i numeri di una lista sono tutti uguali usiamo la seguente espressione:
+
+(apply = a1)
+;-> nil
+(apply = a2)
+;-> true
+
+Valori uguali dopo 2 differenze --> polinomio di secondo grado.
+
+  P(n) = A*n^2 + B*n + C
+
+Abbiamo 3 incognite che possiamo calcolare con un sistema di 3 equazioni.
+Dalla sequenza ricaviamo che:
+
+  P(3) = 0
+  P(4) = 2
+  P(5) = 5
+
+Sostituiamo i valori nella funzione:
+
+  P(n) = A*n^2 + B*n + C
+
+e otteniamo il seguente sistema:
+
+  9A + 3B + C = 0
+  16A + 4B + C = 2
+  25A + 5B + C = 5
+
+Le cui soluzioni sono:
+
+  A = 0.5, B = -1.5, C = 0
+
+Quindi il polinomio generatore della sequenza vale:
+
+  P(n) = 0.5*n^2 - 1.5*n
+
+Verifichiamo i valori della sequenza e oltre:
+
+(define (p n) (sub (mul 0.5 n n) (mul 1.5 n)))
+
+(map p (sequence 3 10))
+;-> (0 2 5 9 14 20 27 35)
+
+
+Esempio 3
+---------
+Abbiamo la seguente sequenza:
+
+  S(n) = 5 19 49 101 181 295 449
+
+(setq lst '(5 19 49 101 181 295 449))
+
+Calcoliamo la tavola delle differenze:
+
+prima differenza:
+(setq a1 (pair-func lst -))
+;-> (14 30 52 80 114 154)
+
+seconda differenza:
+(setq a2 (pair-func a1 -))
+;-> (16 22 28 34 40)
+
+terza differenza:
+(setq a3 (pair-func a2 -))
+;-> (6 6 6 6)
+
+Valori uguali dopo 3 differenze --> polinomio di terzo grado.
+In altre parole, la tavola delle differenze ha 3 righe.
+
+  P(n) = A*n^3 + B*n^2 + C*n + D
+
+Abbiamo 4 incognite che possiamo calcolare con un sistema di 4 equazioni.
+Dalla sequenza ricaviamo che:
+
+  P(1) = 5
+  P(2) = 19
+  P(3) = 49
+  P(4) = 101
+
+Sostituiamo i valori nella funzione:
+
+  P(n) = A*n^3 + B*n^2 + C*n + D
+
+e otteniamo il seguente sistema:
+
+  A + B + C + D = 5
+  8A + 4B + 2C + D = 19
+  27A + 9B + 3C + D = 49
+  64A + 16B + 4C + D = 101
+
+Le cui soluzioni sono:
+
+  A = 1, B = 2, C = 1, D = 1
+
+Quindi il polinomio generatore della sequenza vale:
+
+  P(n) = n^3 + 2*n^2 + n + 1
+
+Verifichiamo i valori della sequenza e oltre:
+
+(define (p n) (+ (* n n n) (* 2 n n ) n 1))
+(map p (sequence 1 10))
+;-> (5 19 49 101 181 295 449 649 901 1211)
+
+Nota: questo metodo afferma implicitamente che nella terza differenza la riga di 6 continuerà indefinitamente.
+Esistono formule che danno sequenze in cui i primi 7 valori corrispondono ai valori dati, ma in cui non tutti i valori successivi della terza differenza sarebbero 6.
+
+Esempio 4
+---------
+Sequenza:
+
+  S(n) = 1 4 13 40 121 364
+
+Tavola delle differenze:
+
+(setq lst '(1 4 13 40 121 364 1093))
+(setq a1 (pair-func lst -))
+;-> (3 9 27 81 243 729)
+(setq a2 (pair-func a1 -))
+;-> (6 18 54 162 486)
+(setq a3 (pair-func a2 -))
+;-> (12 36 108 324)
+(setq a4 (pair-func a3 -))
+;-> (24 72 216)
+(setq a5 (pair-func a4 -))
+;-> (48 144)
+
+Non sembra che si possa ottenere una riga con valori tutti uguali.
+Comunque possiamo notare che la prima riga della tavola:
+
+  3 9 27 81 243 729
+
+rappresentano le potenze di 3:
+
+  3^1 3^2 3^3 3^4 3^5 3^6
+
+Ma la prima riga rappresenta:
+
+  s(n) - s(n-1)
+
+Quindi risulta:
+
+  s(n) - s(n-1) = 3^(n-1)  -->  s(n) = 3^(n-1) + s(n-1)
+  con s(1) = 1
+
+In definitiva abbiamo trovato una formula ricorsiva per la sequenza:
+
+  s(1) = 1
+  s(n) = 3^(n-1) + s(n-1)
+
+Scriviamo la funzione e verifichiamo i valori della serie e oltre:
+
+(define (s n)
+  (cond ((= n 1) 1)
+        (true
+          (+ (pow 3 (- n 1)) (s (- n 1))))))
+
+(map s (sequence 1 10))
+;-> (1 4 13 40 121 364 1093 3280 9841 29524)
+
+Nota:
+I valori della nostra funzione sono uguali a quelli della funzione:
+
+  s(n) = (3^n - 1)/2
+
+Sequenza OEIS A003462:
+  0, 1, 4, 13, 40, 121, 364, 1093, 3280, 9841, 29524, 88573, 265720,
+  797161, 2391484, 7174453, 21523360, 64570081, 193710244, 581130733,
+  1743392200, 5230176601, 15690529804, 47071589413, 141214768240,
+  423644304721, 1270932914164, ...
+
+(define (a003462 n) (/ (pow 3 n) 2))
+
+(map a003462 (sequence 1 10))
+;-> (1 4 13 40 121 364 1093 3280 9841 29524)
+
+Verifichiamo i primi 25 valori:
+
+(= (map s (sequence 1 25)) (map a003462 (sequence 1 25)))
+;-> true
+
+Nota: questa sequenza è esponenziale (non è polinomiale).
+
 =============================================================================
 

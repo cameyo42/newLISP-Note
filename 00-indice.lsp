@@ -1707,6 +1707,7 @@ NOTE LIBERE 15
   Super primi
   Candy crush
   Primi con cifre prime univoche
+  Polinomi generatori di sequenze - Metodo delle differenze
 
 APPENDICI
 =========
