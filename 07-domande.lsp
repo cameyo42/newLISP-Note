@@ -188,7 +188,7 @@ Vediamo ora un altro metodo proposto da Brian Kernighan (autore insieme a Dennis
       ; In questo modo arriviamo al prossimo bit impostato (successivo 1)
       ; invece di eseguire il loop per ogni bit e controllare se vale 1
       ; quindi il loop non verrà eseguito 32 volte,
-      ; ma verrà eseguito solo quanti sono gli "1".
+      ; ma verrà eseguito solo tante volte quanti sono gli "1".
       (setq n (& n (- n 1)))
       (++ conta)
     )
@@ -201,6 +201,16 @@ Vediamo ora un altro metodo proposto da Brian Kernighan (autore insieme a Dennis
 ;-> 181.513
 
 Questo metodo è il più veloce.
+
+Un altro metodo usando le primitive di newLISP:
+
+(define (bit2 n) (length (find-all "1" (bits n))))
+
+(bit2 123456789)
+;-> 16
+
+(time (bit2 123456789) 100000)
+;-> 288.228
 
 
 ---------------------------------------------

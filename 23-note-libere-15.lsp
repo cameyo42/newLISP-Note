@@ -513,7 +513,7 @@ Facciamo alcune prove:
 Primi con cifre prime univoche
 ------------------------------
 
-Scriver una funzione che genera tutti i numeri primi in cui ogni singola cifra è un numero primo e compare solo una volta.
+Scrivere una funzione che genera tutti i numeri primi in cui ogni singola cifra è un numero primo e compare solo una volta.
 
 Sequenza OEIS A124674:
   2, 3, 5, 7, 23, 37, 53, 73, 257, 523, 2357, 2753, 3257, 3527, 
@@ -521,7 +521,6 @@ Sequenza OEIS A124674:
 
 Le cifre prime sono 2, 3, 5 e 7.
 Il numero più grande che possiamo formare vale 7532.
-
 
 (define (prime? num)
 "Check if a number is prime"
@@ -572,8 +571,20 @@ Funzione che genera tutti i numeri primi in cui ogni singola cifra è un numero 
 
 Nota:
   2357 è il numero primo più piccolo che contiene tutte le cifre prime.
-  22 + 33 + 55 + 77 è primo.
+  2^2 + 3^3 + 5^5 + 7^7 è primo.
+  (+ (* 2 2) (* 3 3 3) (* 5 5 5 5 5) (* 7 7 7 7 7 7 7))
+  ;-> 826699
+  (prime? 826699)
+  ;-> true
   (2*3*5*7+2+3+5+7) e (2*3*5*7-2-3-5-7) sono entrambi primi.
+  (+ (* 2 3 5 7) 2 3 5 7)
+  ;-> 227
+  (prime? 227)
+  ;-> true
+  (- (* 2 3 5 7) 2 3 5 7)
+  ;-> 193
+  (prime? 193)
+  ;-> true
 
 
 ---------------------------------------------------------
@@ -591,6 +602,10 @@ Supponiamo di avere la seguente sequenza:
 
     n  = 1 2  3  4  5  6
   S(n) = 4 7 10 13 16 19
+
+La sequenza è generata da n quadrati possibilmente sovrapposti che condividono esattamente un vertice (angolo).
+In altre parole, c'è un punto che è un vertice di ciascuno dei quadrati, ma nessun altro punto è un vertice di più di un quadrato.
+Vedi immagine "quad-vertici.png" nella cartella "data".
 
 Vorremmo trovare una formula polinomiale per f(n) in termini di n.
 Calcoliamo le differenze tra numeri successivi nella sequenza, scrivendo questi valori in una riga sotto la riga f(n).
@@ -625,6 +640,32 @@ Verifichiamo i valori della sequenza e oltre:
 (define (p n) (+ (* 3 n) 1))
 (map p (sequence 1 10))
 ;-> (4 7 10 13 16 19 22 25 28 31)
+
+È importante notare che questo metodo produce solo un'ipotesi per una formula, in realtà non dimostra che la formula sia corretta in generale.
+Come sappiamo che un'ipotesi è corretta?
+Come facciamo a sapere che è sempre vera?
+La risposta sta nel concetto di prova matematica.
+Quando indoviamo una formula per f (n), abbiamo creato una congettura.
+Trovare una prova per una congettura può essere difficile e può richiedere un modo molto creativo di esaminare il problema.
+
+Proviamo a dimostrare la nostra congettura, cioè che il numero totale di vertici nel problema dei quadrati è dato dalla formula f(n) = 3n + 1. 
+Potremmo prima chiederci: perché la formula termina con "+1"? Che significato ha? A cosa corrisponde?
+Vediamo se esiste un singolo oggetto che potrebbe darci il "+1" nella formula. 
+Poiché la formula conta i vertici, il "+1" sembra indicare uno speciale vertice "extra" che deve essere aggiunto alla fine. Osservando l'immagine, potremmo ipotizzare che il “+1” corrisponda al singolo vertice condiviso da tutti i quadrati. 
+In tal caso, i vertici rimanenti dovrebbero essere contabilizzati dal "3n". 
+Quindi la variabile n rappresenta il numero di quadrati e ogni quadrato ha 3 vertici non condivisi che sono suoi e non appartengono a nessun altro quadrato, allora il numero totale di questi vertici non condivisi è dato da 3n. 
+A questo dobbiamo aggiungere 1 per il vertice condiviso, per un totale di 3n + 1 vertici in tutto, che è la formula che abbiamo indovinato.
+
+Una volta individuata l'idea di una dimostrazione, in genere si riscrive la dimostrazione in una forma più succinta e raffinata.
+Nel nostro caso potrebbe essere:
+
+Teorema 
+Il numero totale di vertici per n quadrati che condividono esattamente un vertice comune è dato dalla formula f(n) = 3n + 1.
+
+Prova 
+Ciascuno degli n quadrati ha 3 vertici che non sono condivisi con nessun altro quadrato, questo dà 3n vertici non condivisi in tutto. Inoltre c'è un solo vertice condiviso tra tutti i quadrati. Quindi il numero totale di vertici è 3n + 1.
+
+Ora che abbiamo una dimostrazione di questo teorema, sappiamo che la formula f(n) = 3n + 1 funziona sempre.
 
 Esempio 2
 ---------
@@ -707,7 +748,6 @@ Verifichiamo i valori della sequenza e oltre:
 
 (map p (sequence 3 10))
 ;-> (0 2 5 9 14 20 27 35)
-
 
 Esempio 3
 ---------
@@ -847,6 +887,312 @@ Verifichiamo i primi 25 valori:
 ;-> true
 
 Nota: questa sequenza è esponenziale (non è polinomiale).
+
+
+----------------------------------------
+Prima e ultima cifra di un numero intero
+----------------------------------------
+
+Dato un numero intero positivo scrivere due funzioni che restituiscono la prima e l'ultima cifra del numero.
+Esempio: numero = 3728 --> prima cifra = 3, ultima cifra = 8.
+
+Vediamo come estrarre l'ultima cifra.
+
+Un metodo comune è quello di calcolare il modulo 10 del numero:
+
+  (modulo abc..xyz 10) = z
+
+(% 3728 10)
+;-> 8
+
+(define (last-digit num) (% num 10))
+
+(last-digit 3728)
+;-> 8
+
+Per trattare anche i numeri negativi:
+
+(define (last-digit num)
+  (if (< num 0)
+      (% (abs num) 10)
+      ;else
+      (% num 10)))
+
+(last-digit 3728)
+;-> 8
+(last-digit 0)
+;-> 0
+(last-digit -3728)
+;-> 8
+
+Un altro metodo è quello di convertire il numero in stringa e poi estrarre il primo carattere (a destra):
+
+(define (ultima-cifra num) (int ((string num) -1)))
+
+(ultima-cifra 3728)
+;-> 8
+
+In questo caso per trattare anche i numeri negativi:
+
+(define (ultima-cifra num) (int ((string (abs num)) -1)))
+
+(ultima-cifra 3728)
+;-> 8
+(ultima-cifra 0)
+;-> 0
+(ultima-cifra -3728)
+;-> 8
+
+Per estrarre la prima cifra abbiamo diverse possibilità:
+
+Un metodo matematico è quello di dividere il numero per 10 fino a che il numero è maggiore o uguale a 10.
+Al termine delle divisioni rimaniamo con la prima cifra.
+
+(define (first-digit1 num) (while (or (< num -9) (> num 9)) (setq num (/ num 10))) num)
+
+oppure in modo simile:
+
+(define (first-digit2 num) (until (zero? (/ num 10)) (setq num (/ num 10))) num)
+
+(first-digit1 3728)
+;-> 3
+(first-digit2 3728)
+;-> 3
+
+In modo ricorsivo:
+
+(define (first-digit3 num)
+  (if (zero? (/ num 10))
+      num
+      ;else
+      (first-digit3 (/ num 10))))
+
+(first-digit3 3728)
+;-> 3
+
+Queste funzioni trattano anche il numero 0 e i numeri interi negativi:
+
+(first-digit1 0)
+;-> 0
+(first-digit2 0)
+;-> 0
+(first-digit3 0)
+;-> 0
+(first-digit1 -3728)
+;-> -3
+(first-digit2 -3728)
+;-> -3
+(first-digit3 -3728)
+;-> -3
+
+Un altro metodo è quello di convertire il numero in stringa e poi estrarre l'ultimo carattere (a sinistra):
+
+(define (prima-cifra num) (int ((string num) 0)))
+
+(prima-cifra 3728)
+;-> 3
+
+Per gestire anche i numeri negativi:
+
+(define (prima-cifra num)
+  (if (< num 0)
+      (- (int ((string (abs num)) 0)))
+      ;else
+      (int ((string num) 0))))
+
+(prima-cifra 3728)
+;-> 3
+(prima-cifra 0)
+;-> 0
+(prima-cifra -3728)
+;-> -3
+
+Altri metodi matematici utilizzano le funzioni "log" e "pow".
+
+(define (first-digit4 num)
+  ; (int (log num 10)) = (- (length num) 1)
+  ;(/ num (pow 10 (- (length num) 1))))
+  (/ num (pow 10 (int (log num 10)))))
+
+(first-digit4 3728)
+;-> 3
+(first-digit4 0)
+;-> ERR: division by zero
+;-> called from user function (first-digit4 0)
+(first-digit4 -3728)
+;-> -3728 ; ?? risposta errata
+
+Per gestire anche i numeri negativi:
+
+(define (first-digit4 num)
+  ; (int (log num 10)) = (- (length num) 1)
+  ;(/ num (pow 10 (int (log num 10)))))
+  (/ num (pow 10 (- (length num) 1))))
+
+(first-digit4 3728)
+;-> 3
+(first-digit4 0)
+;-> 0
+(first-digit4 -3728)
+;-> -3
+
+Vediamo se le funzioni producono gli stessi risultati.
+
+(setq test (rand 1e8 100))
+
+(= (map last-digit test) (map ultima-cifra test))
+;-> true
+
+(= (map first-digit1 test) (map prima-cifra test)
+   (map first-digit2 test) (map first-digit3 test)
+   (map first-digit4 test))
+;-> true
+
+Vediamo la velocità di tutte queste funzioni.
+
+(silent (setq test (rand 1e20 1e5)))
+
+(time (map last-digit test) 100)
+;-> 997.245
+(time (map ultima-cifra test) 100)
+;-> 8792.958
+
+(time (map first-digit1 test) 100)
+;-> 18650.935
+(time (map first-digit2 test) 100)
+;-> 15138.27
+(time (map first-digit3 test) 100)
+;-> 22498.514
+(time (map prima-cifra test) 100)
+;-> 9074.222
+(time (map first-digit4 test) 100)
+;-> 2511.418
+
+
+------------------
+Numeri unprimeable
+------------------
+
+I numeri "unpribeable" sono i numeri composti che rimangono sempre composti quando viene modificata una singola cifra decimale del numero, cioè numeri composti che non possono essere trasformati in numeri primi cambiando una singola cifra.
+Unprimeable numbers are composite numbers which cannot be turned into a prime by changing a single digit.
+
+Sequenza OEIS A118118:
+
+  200, 204, 206, 208, 320, 322, 324, 325, 326, 328, 510, 512, 514, 515,
+  516, 518, 530, 532, 534, 535, 536, 538, 620, 622, 624, 625, 626, 628,
+  840, 842, 844, 845, 846, 848, 890, 892, 894, 895, 896, 898, 1070, 1072,
+  1074, 1075, 1076, 1078, 1130, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che verifica se un numero intero è unprimeable:
+
+(define (unprimeable? num)
+(catch
+  (cond ((prime? num) nil)
+    (true
+      (local (str len digit tmp)
+        (setq str (string num))
+        (setq len (length str))
+        (setq digit '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
+        ; per ogni carattere/cifra del numero...
+        (for (i 0 (- len 1))
+          (setq tmp str)
+          ; ... sostituisce la cifra con 0,1,2,3,4,5,6,7,8 e 9
+          ; e controlla se il nuovo numero è primo
+          (dolist (d digit)
+            (setf (tmp i) d)
+            ;(print (int tmp 0 10)) (read-line)
+            (if (prime? (int tmp 0 10)) (throw nil))
+          )
+        )
+        true)))))
+
+(unprimeable? 200)
+;-> true
+
+Verifichiamo la sequenza OEIS:
+
+(filter unprimeable? (sequence 1 1130))
+;-> (200 204 206 208 320 322 324 325 326 328 510 512 514 515 516 518 530 532
+;->  534 535 536 538 620 622 624 625 626 628 840 842 844 845 846 848 890 892
+;->  894 895 896 898 1070 1072 1074 1075 1076 1078 1130)
+
+(length (filter unprimeable? (sequence 1 100000)))
+;-> 19188
+
+(time (filter unprimeable? (sequence 1 100000)))
+;-> 2834.279
+
+Funzione che calcola i primi numeri unprimable che terminano con 0,1,2,3,4,5,6,7,8,9:
+
+(define (unprimeable-ending)
+  (local (nums full)
+    (setq nums (dup 0 10))
+    (setq full nil)
+    (setq i 200)
+    (until full
+      (if (and (= (nums (% i 10)) 0) ; primo test: valore trovato?
+               (unprimeable? i))     ; secondo test: numero unprimeable?
+          (setf (nums (% i 10)) i)
+      )
+      ;(print i { } (% i 10) { } (nums (% i 10))) (read-line)
+      (setq full (nil? (ref 0 nums)))
+      (++ i)
+    )
+    nums))
+
+(time (println (unprimeable-ending)))
+;-> (200 595631 322 1203623 204 325 206 872897 208 212159)
+;-> 3370.765
+
+Nota: scambiando di posto il primo test con il secondo test nell'espressione "and" il tempo di calcolo diventa 57830.631 millisecondi (invece che 3370.765).
+
+Funzione che calcola i primi numeri unprimable che iniziano con 1,2,3,4,5,6,7,8,9:
+
+(define (unprimeable-starting)
+  (local (nums full prima)
+    (setq nums (dup 0 10))
+    (setf (nums 0) -1)
+    (setq full nil)
+    (setq i 200)
+    (until full
+      ; estrae la prima cifra del numero
+      (setq prima (int ((string i) 0)))
+      (if (and (= (nums prima) 0) ; primo test: valore trovato?
+               (unprimeable? i))     ; secondo test: numero unprimeable?
+          (setf (nums prima) i)
+      )
+      ;(print i { } prima { } (nums prima)) (read-line)
+      (setq full (nil? (ref 0 nums)))
+      (++ i)
+    )
+    nums))
+
+(time (println (unprimeable-starting)))
+;-> (-1 1070 200 320 4030 510 620 7080 840 9030)
+;-> 7.067
+
+Nota: la funzione "length" può essere usata con un numero intero o con una stringa.
+In caso di una stringa l'eventuale segno "-" viene contato come un carattere:
+
+(length 10)
+;-> 2
+(length (string -10))
+;-> 3
+
+Inoltre la funzione length è leggermente più veloce con le stringhe:
+
+(silent
+(setq tnum (rand 1e12 1e4))
+(setq tstr (map string tnum)))
+(time (map length tnum) 10000)
+;-> 8685.683000000001
+(time (map length tstr) 10000)
+;-> 7418.195
 
 =============================================================================
 

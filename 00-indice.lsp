@@ -1708,6 +1708,8 @@ NOTE LIBERE 15
   Candy crush
   Primi con cifre prime univoche
   Polinomi generatori di sequenze - Metodo delle differenze
+  Prima e ultima cifra di un numero intero
+  Numeri unprimeable
 
 APPENDICI
 =========
