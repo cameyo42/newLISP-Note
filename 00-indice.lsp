@@ -1710,6 +1710,12 @@ NOTE LIBERE 15
   Polinomi generatori di sequenze - Metodo delle differenze
   Prima e ultima cifra di un numero intero
   Numeri unprimeable
+  Numeri Gilda
+  Numeri upside-down
+  Primi di Honaker
+  Numeri plaindrome
+  Coppie di primi Ormiston
+  Numeri Rhonda
 
 APPENDICI
 =========
@@ -1727,6 +1733,7 @@ APPENDICI
   F-expression - FEXPR
   newLISP - Lisp per tutti (Krzysztof Kliś)
   Ricorsione avanzata in newLISP (Krzysztof Kliś)
+  A Look at newLISP (Alexandru Lazar)
   Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)
   Chiusure, contesti e funzioni con stato (Lutz Mueller)
   Creazione di funzioni con ambito lessicale in newLISP (Lutz Mueller)

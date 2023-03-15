@@ -39,8 +39,8 @@ Dobbiamo solo stare attenti quando N è una potenza perfetta di K (perchè i num
     )
     (list a b)))
 
-Facciamo alcune prove:  
-  
+Facciamo alcune prove:
+
 (close-power 8 3)
 ;-> (3 9)
 (close-power 81 3)
@@ -88,18 +88,18 @@ Abbiamo nove monete dal peso uguale tranne una, che è più leggera delle altre.
 
 Soluzione
 Il numero massimo di monete tra le quali è possibile trovare quella più leggera in una sola pesata vale 3.
-Infatti, per trovare quella più leggera, possiamo confrontare due monete qualsiasi, escludendo la terza. 
-Se le due monete hanno lo stesso peso, allora la moneta più leggera deve essere una di quelle non sulla bilancia. 
+Infatti, per trovare quella più leggera, possiamo confrontare due monete qualsiasi, escludendo la terza.
+Se le due monete hanno lo stesso peso, allora la moneta più leggera deve essere una di quelle non sulla bilancia.
 Altrimenti è quello indicata come più leggera dalla bilancia.
-Adesso consideriamo le nove monete in tre pile di tre monete ciascuna. 
-In una sola mossa possiamo trovare quale delle tre pile è più leggera (ovvero quella contenente la moneta più leggera). 
-Ci vuole quindi solo un'altra mossa per identificare la moneta leggera dall'interno di quella pila più leggera. 
+Adesso consideriamo le nove monete in tre pile di tre monete ciascuna.
+In una sola mossa possiamo trovare quale delle tre pile è più leggera (ovvero quella contenente la moneta più leggera).
+Ci vuole quindi solo un'altra mossa per identificare la moneta leggera dall'interno di quella pila più leggera.
 Quindi, in due pesate, possiamo trovare una singola moneta leggera da un insieme di 3 * 3 = 9.
 Per estensione, basterebbero solo 3 pesate per trovare la moneta più leggera tra 27 monete e 4 pesate per trovarla da 81 monete.
 
 Problema delle dodici monete (Grossman, Howard (1945). Scripta Mathematica XI)
 ------------------------------------------------------------------------------
-Un problema più complesso consiste in 12 monete, in cui 11 o dodici sono uguali. Se una è diversa, non sappiamo se è più pesante o più leggera delle altre. In questo caso bastano 3 pesate per determinare se esiste una moneta unica e, in tal caso, per isolarla e determinarne il peso rispetto alle altre. 
+Un problema più complesso consiste in 12 monete, in cui 11 o dodici sono uguali. Se una è diversa, non sappiamo se è più pesante o più leggera delle altre. In questo caso bastano 3 pesate per determinare se esiste una moneta unica e, in tal caso, per isolarla e determinarne il peso rispetto alle altre.
 
 Soluzione
 La soluzione proposta è facilmente scalabile a un numero maggiore di monete utilizzando la numerazione in base tre: etichettando ogni moneta con un diverso numero di tre cifre in base tre e posizionando all'n-esima pesatura di tutte le monete etichettate con l'n-esima cifra identica all'etichetta del piatto (con tre piatti, uno su ciascun lato della scala etichettati 0 e 2, e uno al centro scala (pareggio) etichettato 1). Per questo problema la seconda e la terza pesatura potrebbero dipendere da ciò che è accaduto in precedenza.
@@ -136,7 +136,7 @@ Quindi sceglere quelli in cui le prime due cifre disuguali sono uguali a 01, 12 
 Come prima pesatura le monete con la prima cifra 2 vanno a destra e quelle con la prima cifra 0 a sinistra:
 
   001       200
-  010       201   
+  010       201
   011       202
   012       220
 
@@ -157,8 +157,8 @@ Infine, facciamo di nuovo la stessa cosa, ora con la terza cifra delle monete:
   220       202
 
 È così che finalmente otteniamo il numero della moneta contraffatta.
-Possiamo capire dai pesi se la moneta era troppo leggera o troppo pesante. 
-La moneta è troppo pesante se il numero trovato era anche il numero usato della moneta. 
+Possiamo capire dai pesi se la moneta era troppo leggera o troppo pesante.
+La moneta è troppo pesante se il numero trovato era anche il numero usato della moneta.
 Se la moneta era troppo leggera, troviamo l'altro numero che appartiene alla moneta.
 
 Nota: questo problema ha una variante più semplice con 3 monete in 2 pesate, e una variante più complessa con 39 monete in 4 pesate.
@@ -168,8 +168,8 @@ Nota: questo problema ha una variante più semplice con 3 monete in 2 pesate, e 
 Problemi di pesatura (con bilancia a molla)
 -------------------------------------------
 
-Ci sono N monete dall'aspetto identico. N − 1 sono autentiche con un peso noto P e una, di un peso sconosciuto diverso da P, è falsa. 
-Determinare il numero minimo di pesate, con una bilancia a molla, necessarie per identificare la moneta falsa. 
+Ci sono N monete dall'aspetto identico. N − 1 sono autentiche con un peso noto P e una, di un peso sconosciuto diverso da P, è falsa.
+Determinare il numero minimo di pesate, con una bilancia a molla, necessarie per identificare la moneta falsa.
 La bilancia a molla indica il peso esatto delle monete pesate.
 
 Soluzione
@@ -177,14 +177,14 @@ Soluzione
 Il numero minimo di pesate necessarie per garantire l'identificazione della moneta falsa è ceil(log2 N).
 Si consideri un sottoinsieme arbitrario S di M ≥ 1 monete selezionate tra le N monete fornite.
 Se il suo peso totale T è uguale a P*M, tutte le monete in S sono autentiche, altrimenti una delle monete in S è falsa.
-Possiamo quindi procedere alla ricerca del falso tra le monete non in S nel primo caso e tra le monete in S nel secondo caso. 
-Se S contiene la metà (o quasi la metà) delle monete date, dopo una pesatura possiamo procedere alla ricerca del falso in un insieme grande la metà. 
+Possiamo quindi procedere alla ricerca del falso tra le monete non in S nel primo caso e tra le monete in S nel secondo caso.
+Se S contiene la metà (o quasi la metà) delle monete date, dopo una pesatura possiamo procedere alla ricerca del falso in un insieme grande la metà.
 Dovremo ripetere questa operazione di dimezzamento e pesatura ceil(log2 N) volte prima che N, la dimensione dell'insieme originale, possa essere sicuramente ridotto a 1.
 Dal punto di vista matematico, il numero di pesate nel caso peggiore è definito dalla funzione ricorsiva:
 
    W(n) = W(ceil(n/2)) + 1 per n > 1,
    W(1) = 0
- 
+
 la cui soluzione è: W(n) = ceil(log2 n).
 
 
@@ -201,7 +201,7 @@ Esempi:
   A = (0 0), B = (10 30), C = (20 0)
   P = (30 15)
   Il punto è esterno.
- 
+
 Algoritmo
 Siano (x1 y1), (x2 y2) e (x3 y3) le coordinate dei tre vertici del triangolo.
 Sia (x y) le coordinate del punto dato P.
@@ -296,8 +296,8 @@ Vediamo alcuni esempi:
 
 Secondo metodo
 --------------
-Supponiamo di avere un rettangolo con punti in p1 = (x1, y1), p2 = (x2, y2), p3 = (x3, y3) e p4 = (x4, y4), procedendo in senso orario. 
-Se un punto p = (x, y) giace all'interno del rettangolo, allora il prodotto scalare (p - p1).(p2 - p1) sarà compreso tra 0 e |p2 - p1|^2, e (p - p1).(p4 - p1) sarà compreso tra 0 e |p4 - p1|^2. 
+Supponiamo di avere un rettangolo con punti in p1 = (x1, y1), p2 = (x2, y2), p3 = (x3, y3) e p4 = (x4, y4), procedendo in senso orario.
+Se un punto p = (x, y) giace all'interno del rettangolo, allora il prodotto scalare (p - p1).(p2 - p1) sarà compreso tra 0 e |p2 - p1|^2, e (p - p1).(p4 - p1) sarà compreso tra 0 e |p4 - p1|^2.
 Ciò equivale a prendere la proiezione del vettore p - p1 lungo la lunghezza e la larghezza del rettangolo, con p1 come origine.
 
 (define (inside-rect? x y x1 y1 x2 y2 x3 y3 x4 y4)
@@ -341,16 +341,16 @@ Data una lista di numeri interi positivi in cui due elementi vicini sono adiacen
 Se l'elemento appare più volte, restituire la prima occorrenza.
 
 Ad esempio:
-lista = (3 4 5 6 5 6 7 8 7 8 9) 
+lista = (3 4 5 6 5 6 7 8 7 8 9)
 numero = 8
 Il numero appare due volte nella lista e la prima occorrenza è nella posizione 7.
 
 Algoritmo
 Partiamo dalla posizione 0 dove si trova il numero 3.
 La differenza tra 3 e 8 vale 5, quindi ci spostiamo nella posizione 5. Perchè?
-Perché la differenza assoluta tra due elementi vicini è 1. 
-Se i numeri nella lista fossero ordinati in modo crescente, l'elemento in posizione 5 sarebbe 9. 
-Se alcuni elementi diminuiscono, allora 8 dovrebbe trovarsi a destra della posizione 5. 
+Perché la differenza assoluta tra due elementi vicini è 1.
+Se i numeri nella lista fossero ordinati in modo crescente, l'elemento in posizione 5 sarebbe 9.
+Se alcuni elementi diminuiscono, allora 8 dovrebbe trovarsi a destra della posizione 5.
 Pertanto, 5 è la posizione più a sinistra possibile per il numero 8.
 Alla posizione 5 troviamo il numero 6. La differenza tra 8 e 6 vale 2.
 Quindi ci spostiamo 2 posizioni in avanti (dalla posizione 5) nella posizione 7.
@@ -363,9 +363,9 @@ Alla posizione 3 (2+1) troviamo 6, 6 - 2 = 4.
 Alla posizione 7 (4+3) troviamo 8, 8 - 2 = 6.
 Alla posizione 13 (6+7) abbiamo supreato la lunghezza della lista e restituiamo nil.
 
-Possiamo riassumere la soluzione: iniziamo dal primo elemento dell'elemento e lo confrontiamo con il numero dato. 
-Se la differenza assoluta è K, ci spostiamo a destra della distanza K (partendo dalla posizione corrente). 
-Quindi confrontiamo l'elemento attualmente visitato. 
+Possiamo riassumere la soluzione: iniziamo dal primo elemento dell'elemento e lo confrontiamo con il numero dato.
+Se la differenza assoluta è K, ci spostiamo a destra della distanza K (partendo dalla posizione corrente).
+Quindi confrontiamo l'elemento attualmente visitato.
 Ripetere finché non viene trovato l'elemento specificato o la posizione è oltre la lunghezza della lista quando l'elemento cercato non si trova nella lista.
 
 (define (cerca val nums)
@@ -400,7 +400,7 @@ numeri primi: (1)  2  3  5  7  11  13
 super primi:          3  5     11
 
 Sequenza OEIS A006450:
-  3, 5, 11, 17, 31, 41, 59, 67, 83, 109, 127, 157, 179, 191, 211, 241, 277, 
+  3, 5, 11, 17, 31, 41, 59, 67, 83, 109, 127, 157, 179, 191, 211, 241, 277,
   283, 331, 353, 367, 401, 431, 461, 509, 547, 563, 587, 599, 617, 709, 739,
   773, 797, 859, 877, 919, 967, 991, 1031, 1063, 1087, 1153, 1171, 1201, 1217,
   1297, 1409, 1433, 1447, 1471, ...
@@ -433,8 +433,8 @@ Funzione che genera tutti i super primi minori o uguali ad un dato numero:
     out))
 
 (super-primes-to 1000)
-;-> (3 5 11 17 31 41 59 67 83 109 127 157 179 191 211 241 277 
-;->  283 331 353 367 401 431 461 509 547 563 587 599 617 709 739 
+;-> (3 5 11 17 31 41 59 67 83 109 127 157 179 191 211 241 277
+;->  283 331 353 367 401 431 461 509 547 563 587 599 617 709 739
 ;->  773 797 859 877 919 967 991)
 
 
@@ -487,7 +487,7 @@ Se la lista diventa vuota alla fine del processo, restituire la lista vuota.
                 )))
       )
    )
-   ; fine della stringa e 
+   ; fine della stringa e
    ; controllo se i caratteri precedenti erano uguali in numero >= 3
    (if (>= uguali 3) (for (i 1 uguali) (pop lst -1)))
    lst))
@@ -516,7 +516,7 @@ Primi con cifre prime univoche
 Scrivere una funzione che genera tutti i numeri primi in cui ogni singola cifra è un numero primo e compare solo una volta.
 
 Sequenza OEIS A124674:
-  2, 3, 5, 7, 23, 37, 53, 73, 257, 523, 2357, 2753, 3257, 3527, 
+  2, 3, 5, 7, 23, 37, 53, 73, 257, 523, 2357, 2753, 3257, 3527,
   5237, 5273, 7253, 7523.
 
 Le cifre prime sono 2, 3, 5 e 7.
@@ -648,29 +648,29 @@ La risposta sta nel concetto di prova matematica.
 Quando indoviamo una formula per f (n), abbiamo creato una congettura.
 Trovare una prova per una congettura può essere difficile e può richiedere un modo molto creativo di esaminare il problema.
 
-Proviamo a dimostrare la nostra congettura, cioè che il numero totale di vertici nel problema dei quadrati è dato dalla formula f(n) = 3n + 1. 
+Proviamo a dimostrare la nostra congettura, cioè che il numero totale di vertici nel problema dei quadrati è dato dalla formula f(n) = 3n + 1.
 Potremmo prima chiederci: perché la formula termina con "+1"? Che significato ha? A cosa corrisponde?
-Vediamo se esiste un singolo oggetto che potrebbe darci il "+1" nella formula. 
-Poiché la formula conta i vertici, il "+1" sembra indicare uno speciale vertice "extra" che deve essere aggiunto alla fine. Osservando l'immagine, potremmo ipotizzare che il “+1” corrisponda al singolo vertice condiviso da tutti i quadrati. 
-In tal caso, i vertici rimanenti dovrebbero essere contabilizzati dal "3n". 
-Quindi la variabile n rappresenta il numero di quadrati e ogni quadrato ha 3 vertici non condivisi che sono suoi e non appartengono a nessun altro quadrato, allora il numero totale di questi vertici non condivisi è dato da 3n. 
+Vediamo se esiste un singolo oggetto che potrebbe darci il "+1" nella formula.
+Poiché la formula conta i vertici, il "+1" sembra indicare uno speciale vertice "extra" che deve essere aggiunto alla fine. Osservando l'immagine, potremmo ipotizzare che il “+1” corrisponda al singolo vertice condiviso da tutti i quadrati.
+In tal caso, i vertici rimanenti dovrebbero essere contabilizzati dal "3n".
+Quindi la variabile n rappresenta il numero di quadrati e ogni quadrato ha 3 vertici non condivisi che sono suoi e non appartengono a nessun altro quadrato, allora il numero totale di questi vertici non condivisi è dato da 3n.
 A questo dobbiamo aggiungere 1 per il vertice condiviso, per un totale di 3n + 1 vertici in tutto, che è la formula che abbiamo indovinato.
 
 Una volta individuata l'idea di una dimostrazione, in genere si riscrive la dimostrazione in una forma più succinta e raffinata.
 Nel nostro caso potrebbe essere:
 
-Teorema 
+Teorema
 Il numero totale di vertici per n quadrati che condividono esattamente un vertice comune è dato dalla formula f(n) = 3n + 1.
 
-Prova 
+Prova
 Ciascuno degli n quadrati ha 3 vertici che non sono condivisi con nessun altro quadrato, questo dà 3n vertici non condivisi in tutto. Inoltre c'è un solo vertice condiviso tra tutti i quadrati. Quindi il numero totale di vertici è 3n + 1.
 
 Ora che abbiamo una dimostrazione di questo teorema, sappiamo che la formula f(n) = 3n + 1 funziona sempre.
 
 Esempio 2
 ---------
-Quante diagonali ha un poligono regolare di n lati? 
-Un poligono regolare è una figura geometrica con n lati uguali e n angoli uguali. 
+Quante diagonali ha un poligono regolare di n lati?
+Un poligono regolare è una figura geometrica con n lati uguali e n angoli uguali.
 Una diagonale è una linea da un vertice all'altro del poligono, tranne per il fatto che i lati del poligono non contano.
 
 Vediamo i primi casi:
@@ -678,9 +678,9 @@ Vediamo i primi casi:
   Lati    Figura        Diagonali
     3     triangolo        0 (nessuna diagonale)
     4     quadrato         2
-    5     pentagono        5 
+    5     pentagono        5
     6     esagono          9
-    7     ettagono        14 
+    7     ettagono        14
     8     ottagono        20
 
 Quindi la nostra sequenza è la seguente:
@@ -814,6 +814,10 @@ Esistono formule che danno sequenze in cui i primi 7 valori corrispondono ai val
 
 Esempio 4
 ---------
+In alcuni casi il calcolo delle differenze non arriva mai a valori tutti uguali.
+Questo significa che la funzione generatrice non è un polinomio.
+Comunque il calcolo delle differenze può aiutarci lo stesso (qualche volta) a risolvere il problema.
+
 Sequenza:
 
   S(n) = 1 4 13 40 121 364
@@ -900,7 +904,7 @@ Vediamo come estrarre l'ultima cifra.
 
 Un metodo comune è quello di calcolare il modulo 10 del numero:
 
-  (modulo abc..xyz 10) = z
+  (modulo abc...xyz 10) = z
 
 (% 3728 10)
 ;-> 8
@@ -1068,6 +1072,8 @@ Vediamo la velocità di tutte queste funzioni.
 (time (map first-digit4 test) 100)
 ;-> 2511.418
 
+Nel caso migliore (con le funzioni "last-digit" e "first-digit4"), ci vuole un tempo T per calcolare l'ultima cifra e ci vuole un tempo 2.5*T per calcolare la prima cifra.
+
 
 ------------------
 Numeri unprimeable
@@ -1194,5 +1200,412 @@ Inoltre la funzione length è leggermente più veloce con le stringhe:
 (time (map length tstr) 10000)
 ;-> 7418.195
 
+
+------------
+Numeri Gilda
+------------
+
+Dato un numero n > 9 con le cifre d1, d2, ... dk, definiamo una sequenza di tipo Fibonacci dove:
+
+   a(1) = |d1 - d2 - ... - dk|
+
+   a(2) = d1 + d2 + ... + dk
+
+   a(i) = a(i-1) + a(i-2) per i>2.
+
+Se il numero n compare nella sequenza delle a(i), allora n è un numero di Gilda.
+
+Ad esempio, con n = 152 abbiamo la successione che parte da |1 - 5 - 2| = 6, 1 + 5 + 2 = 8, poi 14, 22, 36, 58, 94 e infine 152.
+
+Sequenza OEIS A042947:
+  0, 29, 49, 78, 110, 152, 220, 314, 330, 364, 440, 550, 628, 660, 683,
+  770, 880, 990, 997, 2207, 5346, 13064, 30254, 35422, 37862, 38006,
+  65676, 73805, 143662, 202196, 933138, 977909, 3120796, 3242189, 3363582,
+  3606368, 3727761, 3849154, 3970547, 4484776, 4848955, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Fibonacci di un numero n con valori iniziali a1 a2:
+
+(define (fibo-like num a1 a2)
+  (local (a b c)
+    (setq a a1 b a2 c 0L)
+    (for (i 0 (- num 1))
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a))
+
+(fibo-like 2 6 8)
+;-> 14
+(fibo-like 3 6 8)
+;-> 22
+
+(define (gilda? num)
+  (local (out a1 a2 digits)
+    ;(print num { })
+    (setq out '())
+    (setq digits (int-list num))
+    ; calcolo di a1
+    (setq a1 (abs (- (digits 0) (apply + (rest digits)))))
+    ; calcolo di a2
+    (setq a2 (apply + digits))
+    (setq fibo 0)
+    (setq i 2) ; indice iniziale
+    (setq continua true)
+    ; ciclo per calcolare i numeri di Fibonacci minori o uguali a num
+    (while (and (> num fibo) continua)
+      (setq fibo (fibo-like i a1 a2))
+      (if (= num fibo) (setq continua nil))
+      ;(print fibo { })
+      (++ i)
+    )
+    (not continua)))
+
+Facciamo alcune prove:
+
+(gilda? 152)
+;-> true
+(gilda? 10)
+;-> nil
+
+(filter gilda? (sequence 10 1e4))
+;-> (29 49 78 110 152 220 314 330 364 440 550
+;->  628 660 683 770 880 990 997 2207 5346)
+
+(time (println (filter gilda? (sequence 10 1e5))))
+;-> (29 49 78 110 152 220 314 330 364 440 550 628 660 683 770 880 990
+;->  997 2207 5346 13064 30254 35422 37862 38006 65676 73805)
+;-> 2092.654
+
+(time (println (filter gilda? (sequence 10 1e6))))
+;-> (29 49 78 110 152 220 314 330 364 440 550 628 660 683 770 880 990
+;->  997 2207 5346 13064 30254 35422 37862 38006 65676 73805
+;->  143662 202196 933138 977909)
+;-> 29632.406
+
+
+------------------
+Numeri upside-down
+------------------
+
+La seguente definizione è stata creata da R.E.Kennedy e C.N.Cooper.
+
+Un numero n è "upside-down" se la sua i-esima cifra più a sinistra e la sua i-esima cifra più a destra sommano a 10.
+Ad esempio, 42586 è un numero upside-down perché 4 + 6 = 2 + 8 = 5 + 5 = 10.
+
+Dalla definizione segue che i numeri upside-down sono senza la cifra "0" (zero) e se hanno un numero dispari di cifre, allora la cifra centrale è 5.
+
+Sequenza OEIS A299539:
+  5, 19, 28, 37, 46, 55, 64, 73, 82, 91, 159, 258, 357, 456, 555, 654,
+  753, 852, 951, 1199, 1289, 1379, 1469, 1559, 1649, 1739, 1829, 1919,
+  2198, 2288, 2378, 2468, 2558, 2648, 2738, 2828, 2918, 3197, 3287, 3377,
+  3467, 3557, 3647, 3737, 3827, 3917, 4196, 4286, ...
+
+(define (upside-down? num)
+  (local (out str len)
+    (setq out true)
+    (setq str (string num))
+    (setq len (length num))
+    ; verifica che la somma di ogni coppia i e -(i+1) vale 10
+    (for (i 0 (- (/ len 2) 1) 1 (not out))
+      ;(println (str i) { } (str (- (+ i 1))))
+      (if (!= (+ (int (str i) 0 10) (int (str (- (+ i 1))) 0 10)) 10)
+        (setq out nil))
+    )
+    ; verifica "5" al centro per numeri di lunghezza dispari
+    ; (solo per quelli che sono potenzialmente upside-down)
+    (if (and out (odd? len) (!= (str (/ len 2)) "5")) (setq out nil))
+    out))
+
+Facciamo alcune prove:
+
+(upside-down? 1379)
+;-> true
+(upside-down? 951)
+;-> true
+(upside-down? 921)
+;-> nil
+
+(filter upside-down? (sequence 1 5000))
+;-> (5 19 28 37 46 55 64 73 82 91 159 258 357 456 555 654 753 852 951
+;->  1199 1289 1379 1469 1559 1649 1739 1829 1919 2198 2288 2378 2468
+;->  2558 2648 2738 2828 2918 3197 3287 3377 3467 3557 3647 3737 3827
+;->  3917 4196 4286 4376 4466 4556 4646 4736 4826 4916)
+
+(time (println (length (filter upside-down? (sequence 1 1e6)))))
+;-> 910
+;-> 2044.835
+
+
+----------------
+Primi di Honaker
+----------------
+
+Un numero primo p(n) è un numero primo di Honaker se il suo indice n e p(n) hanno la stessa somma di cifre.
+Si definisce p(1) = 2
+Ad esempio, p(32) = 131 è un numero primo di Honaker perché 3 + 2 = 1 + 3 + 1.
+
+Sequenza OEIS A033548:
+  131, 263, 457, 1039, 1049, 1091, 1301, 1361, 1433, 1571, 1913, 1933,
+  2141, 2221, 2273, 2441, 2591, 2663, 2707, 2719, 2729, 2803, 3067, 3137,
+  3229, 3433, 3559, 3631, 4091, 4153, 4357, 4397, 4703, 4723, 4903, 5009,
+  5507, 5701, 5711, 5741, 5801, 5843, ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(ref 2 (primes-to 10))
+;-> (0)
+
+(ref 131 (primes-to 200))
+;-> 31
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+Funzione che calcola tutti i numeri primi di Honeker fino ad un determinato valore:
+
+(define (honaker-to num)
+  (local (out primes)
+    (setq out '())
+    (setq primes (primes-to num))
+    (dolist (p primes)
+      (if (= (digit-sum p) (digit-sum (+ $idx 1)))
+        (push p out -1)
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(honaker-to 500)
+;-> (131 263 457)
+
+(honaker-to 1e4)
+;-> (131 263 457 1039 1049 1091 1301 1361 1433 1571 1913 1933 2141 2221
+;->  2273 2441 2591 2663 2707 2719 2729 2803 3067 3137 3229 3433 3559
+;->  3631 4091 4153 4357 4397 4703 4723 4903 5009 5507 5701 5711 5741
+;->  5801 5843 5927 6301 6311 6343 6353 6553 6563 6653 6737 6827 6971
+;->  7013 7213 7283 7411 7481 7523 7741 8011 8821 9103)
+
+(time (println (length (honaker-to 1e6))))
+;-> 2949
+;-> 268.329
+
+
+-----------------
+Numeri plaindrome
+-----------------
+
+Un numero è "plaindrome" in una data base b, se le sue cifre sono in ordine non decrescente in quella base.
+Ad esempio, 1234, 2222, 25667 e 2468 sono tutti plaindrome in base 10.
+
+Chiaramente un numero plaindrome non può contenere la cifra 0, a meno che non sia il numero 0 stesso.
+
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22
+
+Sequenza OEIS A009994:
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22,
+  23, 24, 25, 26, 27, 28, 29, 33, 34, 35, 36, 37, 38, 39, 44, 45, 46,
+  47, 48, 49, 55, 56, 57, 58, 59, 66, 67, 68, 69, 77, 78, 79, 88, 89,
+  99, 111, 112, 113, 114, 115, 116, 117, 118, 119, 122, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che verifica se un numero è plaindrome:
+
+(define (plaindrome? num)
+  (if (< num 10)
+      true
+      ;else
+      (apply <= (int-list num))))
+
+(filter plaindrome? (sequence 1 122))
+;-> (1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 22 23 24 25 26 27 28
+;->  29 33 34 35 36 37 38 39 44 45 46 47 48 49 55 56 57 58 59 66 67 68
+;->  69 77 78 79 88 89 99 111 112 113 114 115 116 117 118 119 122)
+
+
+------------------------
+Coppie di primi Ormiston
+------------------------
+
+Due numeri primi consecutivi le cui cifre sono uguali, ordine a parte, formano una coppia di Ormiston.
+Le prime due di queste coppie sono (1913, 1931) e (18379, 18397), mentre la prima tripa, quadrupla e quintupla sono (11117123, 11117213, 11117321), 6607882000+(123,213,231,321) e 208479425600009+(0791,0917,0971,1097).
+Ogni numero maggiore di 119639 può essere scritto come somma di numeri di Ormiston.
+
+Sequenza OEIS A072274:
+
+  1913, 1931, 18379, 18397, 19013, 19031, 25013, 25031, 34613, 34631,
+  35617, 35671, 35879, 35897, 36979, 36997, 37379, 37397, 37813, 37831,
+  40013, 40031, 40213, 40231, 40639, 40693, 45613, 45631, 48091, 48109,
+  49279, 49297, 51613, 51631, ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Funzione che verifica se due numeri hanno le stesse cifre:
+
+(define (same-digit num1 num2)
+  (= (sort (int-list num1)) (sort (int-list num2))))
+
+Funzione che calcola le coppie di Ormiston fino ad un dato valore:
+
+(define (ormiston-to num)
+  (let ( (out '()) (primi (primes-to num)) (a 0) (b 0) )
+    (for (i 0 (- (length primi) 2))
+      (setq a (primi i))
+      (setq b (primi (+ i 1)))
+      (if (same-digit a b)
+          (push (list a b) out -1)
+      )
+    )
+    (flat out)))
+
+Facciamo alcune prove:
+
+(ormiston-to 5000)
+;-> (1913 1931)
+
+Vediamo la velocità:
+
+(time (println (length (ormiston-to 1e6))))
+;-> 764
+;-> 9224.614
+
+Proviamo con un altro metodo.
+
+(define (pair-func lst func)
+"Produces a list applying a function to each pair of elements of a list"
+  (map func (rest lst) (chop lst)))
+
+(pair-func '(314 413 589 456 654) same-digit)
+;-> (true nil nil true)
+
+Funzione che calcola le coppie di Ormiston fino ad un dato valore:
+
+(define (ormiston num)
+  (local (primi bool indici)
+    (setq primi (primes-to num))
+    ; crea una lista true/nil
+    ; true --> (primi $idx) e (primi (+ $idx 1)) hanno le stesse cifre
+    (setq bool (pair-func primi same-digit))
+    (setq indici '())
+    ; crea la lista degli indici
+    (dolist (b bool) (if b (push (list $idx (+ $idx 1)) indici -1)))
+    ; seleziona le coppie di Ormiston
+    (select primi (flat indici))))
+
+(ormiston 5000)
+;-> (1913 1931)
+
+Vediamo se le due funzioni producono risultati uguali:
+
+(= (ormiston-to 1e5) (ormiston 1e5))
+;-> true
+
+Vediamo la velocità:
+
+(time (println (length (ormiston 1e6))))
+;-> 764
+;-> 319.53
+
+Questa funzione è 30 volte più veloce della funzione precedente.
+
+(time (println (length (ormiston 1e7))))
+;-> 7444
+;-> 3374.716
+
+
+-------------
+Numeri Rhonda
+-------------
+
+Un numero n è un numero di Rhonda in base b se il prodotto delle sue cifre, quando rappresentato in base b, è uguale a b moltiplicato per la somma dei suoi fattori primi.
+
+Ad esempio, 1568 = 2^5*7^2 è un numero Rhonda in base 10 perché:
+
+  1*5*6*8 = 10 * (2+2+2+2+2+7+7)
+
+I numeri di Rhonda esistono solo nelle basi composite. Infatti, il prodotto delle cifre di un numero in una base prima b non può essere divisibile per b, poiché ogni cifra è minore di b.
+
+Kevin Brown ha dimostrato che esistono infiniti numeri di Rhonda:
+
+https://www.mathpages.com/home/kmath007/kmath007.htm
+
+Sequenza OEIS A099542:
+  1568, 2835, 4752, 5265, 5439, 5664, 5824, 5832, 8526, 12985, 15625, 
+  15698, 19435, 25284, 25662, 33475, 34935, 35581, 45951, 47265, 47594,
+  52374, 53176, 53742, 54479, 55272, 56356, 56718, 95232, 118465, 133857,
+  148653, 154462, 161785, ...
+
+(define (digit-prod num)
+"Calculates the product of the digits of an integer"
+  (if (zero? num)
+      0
+      (let (out 1)
+        (while (!= num 0)
+          (setq out (* out (% num 10)))
+          (setq num (/ num 10))
+        )
+    out)))
+
+Funzione che verifica se un numero è di Rhonda (base 10):
+
+(define (rhonda? num)
+  (= (digit-prod num) (* 10 (apply + (factor num)))))
+
+(rhonda? 1568)
+;-> true
+
+(time (println (filter rhonda? (sequence 1 1e6))))
+;-> (1568 2835 4752 5265 5439 5664 5824 5832 8526 12985 15625 15698 19435
+;->  25284 25662 33475 34935 35581 45951 47265 47594 52374 53176 53742
+;->  54479 55272 56356 56718 95232 118465 133857 148653 154462 161785
+;->  172577 178754 185614 194526 196355 224256 226953 232356 242352 245579
+;->  254254 254334 254624 256973 259333 272952 285359 295412 315288 316285
+;->  334359 339521 342225 365313 392533 415275 456841 457346 512278 513744
+;->  516817 518668 521356 531729 534391 547682 562696 563125 625275 643528
+;->  668185 671865 681265 733125 733495 749425 754682 765371 826754 844185
+;->  859341 885521 954664)
+;-> 1891.899
+
 =============================================================================
+
 

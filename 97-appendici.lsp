@@ -4091,6 +4091,37 @@ Buon divertimento!
 Un "thunk" è una subroutine usata per iniettare un calcolo addizionale in un'altra subroutine. I thunk vengono principalmente utilizzati per ritardare un calcolo finché non è necessario il risultato o per inserire operazioni all'inizio o alla fine di un'altra subroutine. Può semplicemente essere pensato come una funzione che non accetta argomenti, in attesa di essere chiamata a fare il suo lavoro.
 
 
+===================================
+A Look at newLISP (Alexandru Lazar)
+===================================
+
+by Alexandru Lazar
+2009-01-05
+
+Working with newLISP is a fairly pleasant experience, although it does depend a lot on what you want to do with it. Although the developer tools are not very complex, nor very powerful, they are sufficient for typical scripting needs.
+
+As mentioned earlier, newLISP comes with a very useful documentation. Unlike Hyperspec, which is extremely complete but rather unpleasant to work with, newLISP’s documentation is a lot leaner and cleaner, although not as detailed. This is a double-edged sword. On one hand, if you are looking for the gory details of the implementation, you have to look at the source. On the other hand, the documentation works very well not only when working with newLISP, but also as a reference.
+
+newLISP sports a reasonable IDE, which offers most of the things you would expect from it — a friendly syntax-highlighting editor and a REPL prompt (an interactive prompt which allows you to evaluate LISP expressions on the fly and to debug your program). Although it’s quite far from being particularily complete, we should point out the fact that most other LISP dialects offer only one other alternative in the shape of Emacs and SLIME, ILM, ILISP and so on. Again, this is double-edged, although Emacs is a wonderful tool (and before burning me to the stake in the comments, my editor of choice), it is quite a turnoff for most beginners. There is a newLISP Emacs mode floating on the Internet, but it does not offer the same range of features as SLIME, meaning that seasoned Emacs and SLIME users will be left without their favorite LISP development environment. While it can be argued that the typical newLISP program does not require all the features SLIME offers, newLISP’s IDE does lack a number of features. There are no documentation-related features, there is no code completion and no support for managing projects.
+
+Adjusting to newLISP is not very difficult if you have used some LISP dialect before. In fact, compared to Common LISP, newLISP will feel like quite a breeze, being a lot simpler, although arguably less complete and/or fast. Furthermore, most differences are there to simplify things, not complicate them any further, so learning newLISP will essentially feel like learning a more intuitive subset of Common LISP.
+
+Although (being a fairly experienced Common LISP user) I cannot objectively judge this, learning newLISP does not seem to be particularly difficult for a newcomer to LISP. Furthermore, a very detailed tutorial is also available, written in the same no-frills manner as the rest of the documentation, making it easy for LISP beginners to make their first steps.
+
+The matter is further simplified by the fact that newLISP is an already mature and robust platform, already at its tenth incarnation. The basic API is here to stay, and the system is tightly integrated and robustly documented.
+
+SUMMING UP
+Although newLISP is not as complete, nor possibly as fast and efficient as its cousins Common LISP and Scheme, the overall impression that it has left me was positive to say the least. It is very clean, unobtrusive, and it does allow you to get things done with relative ease. It is well suited for scripting and some web development, and the enthusiasm displayed by its authors is entirely deserved. It also has a small, but helpful and enjoyable community, not to mention the CAPTCHA on their forums being absolutely unbeatable.
+
+newLISP does have a handful of downsides. The GUI server is somewhat arcane to deal with (although it’s an otherwise sufficient solution given its ease of use and portability), and an IDE with a few additional functions, like some extra set of debugging features and some basic project management functions would make a good start for a wislist. The modules are fairly broad but some of them are rather superficial, so anything extremely serious is likely to imply some extra work on your side. However, one could always point out that newLISP wasn’t meant for anything “extremely serious” — but it can incidentally do a lot of “extremely serious work”, some of it being displayed on newLISP’s homepage under the Apps section.
+
+Whether this is a better option than another LISP dialect (or another programming language, for that matter) will obviously depend on a lot of issues. Despite some optimistic claims, I am rather reluctant recommending newLISP for scientific or statistical applications, and I haven’t tried using it as an environment for full-blown application development. Nevertheless, I would wholeheartedly recommend that you try having a look at it before writing your next Python script. You never know how much you may like it.
+
+newLISP is distributed under a GPL license and you can find it at http://www.newlisp.org/. Happy coding!
+
+About me: I’m a freelancer studying Electrical Engineering betweem deadlines, and a quiet but active LISP user for the last couple of years.
+
+
 ============================================================================
  Differenze tra newLISP, Scheme e Common LISP (Lutz Mueller)
 ============================================================================
@@ -4115,7 +4146,7 @@ http://www.newLISP.org/index.cgi?page=Links
 
 Apertura e trasparenza
 ----------------------
-newLISP è completamente aperto. Non ci sono stati nascosti. Tutti gli oggetti del linguaggio e i dati sono di primo ordine (classe). Sebbene newLISP inizialmente compili il sorgente del programma in un albero di s-espressioni, ogni oggetto può essere riportato in ogni momento in una forma comprensibile. Questo vale sia per gli spazi dei nomi (namespaces/context) sia per le espressioni lambda. Questa apertura facilita il funzionamento e il debug interattivo e facilita la comprensione del linguaggiolingua. I programmi newLISP sono completamente auto-riflessivi e possono essere ispezionati e modificati in ogni momento (anche a quando sono in esecuzione).
+newLISP è completamente aperto. Non ci sono stati nascosti. Tutti gli oggetti del linguaggio e i dati sono di primo ordine (classe). Sebbene newLISP inizialmente compili il sorgente del programma in un albero di s-espressioni, ogni oggetto può essere riportato in ogni momento in una forma comprensibile. Questo vale sia per gli spazi dei nomi (namespaces/context) sia per le espressioni lambda. Questa apertura facilita il funzionamento e il debug interattivo e facilita la comprensione del linguaggio. I programmi newLISP sono completamente auto-riflessivi e possono essere ispezionati e modificati in ogni momento (anche a quando sono in esecuzione).
 newLISP è in grado di gestire le risorse di rete per quanto riguarda i file in modo trasparente. Nella maggior parte dei casi dove vengono usati dei file, si possono usare anche gli indirizzi URL.
 I file possono essere letti, scritti e aggiornati, i programmi possono essere caricati o salvato utilizzando lo stesso codice per sia per l'accesso locale che quello di rete. Questo facilita la scrittura di applicazioni distribuite.
 

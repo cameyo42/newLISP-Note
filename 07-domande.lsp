@@ -1606,6 +1606,15 @@ Usiamo la funzione apply per applicare tutti gli operatori di confronto alla lis
 (order? '(-1 -2 3 -1))
 ;-> nil
 
+Nota: la lista deve avere almeno 2 elementi,
+
+(order? '(2))
+;-> >
+(order? '(1))
+;-> >
+(order? '(0))
+;-> =
+
 
 ----------------
 Caramelle (Visa)
