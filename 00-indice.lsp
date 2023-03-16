@@ -1716,6 +1716,9 @@ NOTE LIBERE 15
   Numeri plaindrome
   Coppie di primi Ormiston
   Numeri Rhonda
+  Numeri Sastry
+  Hamming weight
+  Primo carattere meno frequente in una stringa
 
 APPENDICI
 =========

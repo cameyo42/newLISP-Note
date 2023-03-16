@@ -1606,6 +1606,225 @@ Funzione che verifica se un numero è di Rhonda (base 10):
 ;->  859341 885521 954664)
 ;-> 1891.899
 
+
+-------------
+Numeri Sastry
+-------------
+
+Un numero n è un numero Sastry se concatenato con (n + 1) dà un quadrato. 
+Ad esempio, 183 è un numero Sastry perché 183184 è il quadrato di 428.
+
+Sequenza OEIS A030465:
+  183, 328, 528, 715, 6099, 13224, 40495, 106755, 453288, 2066115, 
+  2975208, 22145328, 28027683, 110213248, 110667555, 147928995, 178838403, 
+  226123528, 275074575, 333052608, 378698224, 445332888, 446245635, ...
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(define (sastry? num)
+  (square? (int (string num (+ num 1)) 0 10)))
+
+(sastry? 183)
+;-> true
+
+(time (println (filter sastry? (sequence 1 1e5))))
+;-> (183 328 528 715 6099 13224 40495)
+;-> 109.862
+
+(time (println (filter sastry? (sequence 1 1e6))))
+;-> (183 328 528 715 6099 13224 40495 106755 453288)
+;-> 1107.91
+
+(time (println (filter sastry? (sequence 1 1e7))))
+;-> (183 328 528 715 6099 13224 40495 106755 453288 2066115 2975208)
+;-> 12295.323
+
+
+--------------
+Hamming weight
+--------------
+
+L'Hamming weight (peso di Hamming) di una stringa è il numero di simboli diversi dal simbolo zero dell'alfabeto utilizzato. 
+È quindi equivalente alla distanza di Hamming dalla stringa composta da tutti zeri della stessa lunghezza. 
+Per il caso più tipico, cioè una stringa di bit, questo è il numero di 1 nella stringa o la somma delle cifre della rappresentazione binaria di un dato numero.
+
+Stringa         Hamming weight
+ 11101           4
+ 11101000        4
+ 00000000        0
+ 678012340567    10
+
+Esistono diversi algoritmi ottimizzati (generalmente scritti in C) per trattare stringhe/numeri binari di 8,16,32 e 64 bit.
+Vediamo alcuni metodi che contano il numero di caratteri "0" in una stringa.
+
+(define (h-weigth1 str)
+  (replace "0" str "0")
+  (- (length str) $count))
+
+(h-weigth1 "11029")
+;-> 4
+
+(define (h-weight2 str)
+  (let (conta 0)
+    (dostring (ord str)
+      ; (char "0") = 48
+      (if (!= ord 48) (++ conta))
+    )
+    conta))
+
+(h-weight2 "11029")
+;-> 4
+
+(define (h-weight3 str)
+  (- (length str) (first (count '("0") (explode str)))))
+
+(h-weight3 "11029")
+;-> 4
+
+La seguente espressione trova tutti i caratteri diversi da "0" di una stringa e li mette in una lista:
+(find-all {[^0]} "108100")
+;-> ("1" "8" "1")
+
+(define (h-weight4 num)
+  (length (find-all {[^0]} num)))
+
+(h-weight4 "11029")
+;-> 4
+
+(setq str (join (map string (rand 2 100))))
+
+Vediamo se le funzioni producono risultati identici:
+
+(= (h-weight1 str) (h-weight2 str) (h-weight3 str) (h-weight4 str))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(time (h-weight1 str) 1e5)
+;-> 538.147
+(time (h-weight2 str) 1e5)
+;-> 537.583
+(time (h-weight3 str) 1e5)
+;-> 1616.936
+(time (h-weight4 str) 1e5)
+;-> 887.011
+
+
+---------------------------------------------
+Primo carattere meno frequente in una stringa
+---------------------------------------------
+
+Data una stringa ASCII, scrivere una funzione per trovare il primo carattere meno frequente.
+Ad esempio: 
+- stringa = "abaccdeff" 
+  output  = "b" (primo carattere con 1 occorrenza)
+- stringa = "abbaccddeeff" 
+  output "a" (primo carattere con 2 occorrenze, infatti non esiste nessun carattere che compare solo 1 volta)
+
+Caratteri ascii standard
+                   char   ord 
+primo carattere:    "1"    49
+ultimo carattere:   "~"   126
+
+Usiamo un vettore per contare le occorrenze di larghezza (126 - 49 + 1):
+
+(+ (- 126 49) 1)
+;-> 78
+
+(define (find-min-freq str)
+  (local (alpha found freq idx out)
+    ; vettore delle frequenze/occorrenze dei caratteri
+    (setq alpha (dup 0 78))
+    ; calcola i valori delle frequenze/occorrenze dei caratteri
+    (dostring (ord str)
+      (++ (alpha (- ord 49)))
+    )
+    ; ciclo per la ricerca del carattere meno frequente
+    ; prima frequenza/occorrenza da ricercare
+    (setq freq 1)
+    (setq found nil)
+    (until found
+      ; primo indice con valore freq
+      (setq idx (find freq alpha))
+      ;(println freq { } idx)
+      (cond
+        ; se non esiste indice con valore freq,
+        ; allora aumenta freq di 1
+        ((nil? idx) (++ freq))
+        ; indice con valore freq trovato
+        (true
+          (setq found true)
+          (setq out (char (+ idx 49))))
+      )
+    )
+    (list out freq)))
+
+Facciamo alcune prove:
+
+(find-min-freq "abaccdeff")
+;-> ("b" 1)
+
+(find-min-freq "abbaccddeeff")
+;-> ("a" 2)
+
+(setq str "")
+(for (i 1 2000) (extend str (char (+ (rand 77) 49))))
+(find-min-freq str)
+;-> ("G" 15)
+
+Ripensandoci, possiamo trovare direttamente il valore minimo di freq invece di cercare per freq = 1,2,3... in successione.
+
+(define (find-min-freq2 str)
+  (local (alpha lst freq idx)
+    ; vettore delle frequenze/occorrenze dei caratteri
+    (setq alpha (dup 0 78))
+    ; calcola i valori delle frequenze/occorrenze dei caratteri
+    (dostring (ord str)
+      (++ (alpha (- ord 49)))
+    )
+    ; ordina le frequenze
+    (setq lst (sort (copy alpha)))
+    ; trova la prima frequenza maggiore di 0
+    (find 0 lst <)
+    (setq freq $0)
+    ; trova il primo indice con valore freq
+    (setq idx (find freq alpha))
+    (list (char (+ idx 49)) freq)))
+
+Facciamo alcune prove:
+
+(setq str "abaccdeff")
+(find-min-freq2 "abaccdeff")
+;-> ("b" 1)
+
+(find-min-freq2 "abbaccddeeff")
+;-> ("a" 2)
+
+(setq str "")
+(for (i 1 2000) (extend str (char (+ (rand 77) 49))))
+(find-min-freq str)
+;-> ("N" 16)
+(find-min-freq2 str)
+;-> ("N" 16)
+
+Vediamo la velocità delle due funzioni:
+
+(setq str "")
+(for (i 1 50) (extend str (char (+ (rand 77) 49))))
+(time (find-min-freq str) 1e5)
+;-> 593.358
+(time (find-min-freq2 str) 1e5)
+;-> 1248.525
+
+(setq str "")
+(for (i 1 5000) (extend str (char (+ (rand 77) 49))))
+(time (find-min-freq str) 1e4)
+;-> 4655.602
+(time (find-min-freq2 str) 1e4)
+;-> 4491.533
+
 =============================================================================
 
 
