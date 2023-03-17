@@ -1825,6 +1825,132 @@ Vediamo la velocità delle due funzioni:
 (time (find-min-freq2 str) 1e4)
 ;-> 4491.533
 
-=============================================================================
 
+-----------
+Numeri nudi
+-----------
+
+Y.Katagiri chiama un numero nudo se è divisibile per tutte le sue cifre (che dovrebbero essere diverse da zero).
+Per esempio, 672 = 6*112 = 7*96 = 2*336.
+(Il numero è chiamato "nudo" perché espone alcuni dei suoi fattori).
+
+Sequenza OEIS A034838:
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22, 24, 33, 36, 44, 48, 55, 
+  66, 77, 88, 99, 111, 112, 115, 122, 124, 126, 128, 132, 135, 144, 
+  155, 162, 168, 175, 184, 212, 216, 222, 224, 244, 248, 264, 288, 
+  312, 315, 324, 333, 336, 366, 384, 396, 412, 424, 432, 444, 448, ...
+
+(define (nudo? num)
+  (local (tmp continua d)
+    (setq tmp num)
+    (setq continua true)
+    (while (and (!= tmp 0) continua)
+      ; cifra corrente
+      (setq d (% tmp 10))
+      (if (or (zero? d) 
+              (!= (/ num d) (div num d)))
+          (setq continua nil)
+      )
+      (setq tmp (/ tmp 10))
+    )
+    continua))
+
+Facciamo alcune prove:
+
+(nudo? 10)
+;-> nil
+
+(nudo? 432)
+;-> true
+
+(filter nudo? (sequence 1 1e3))
+;-> (1 2 3 4 5 6 7 8 9 11 12 15 22 24 33 36 44 48 55 66 77 88 99 111 112
+;->  115 122 124 126 128 132 135 144 155 162 168 175 184 212 216 222 224
+;->  244 248 264 288 312 315 324 333 336 366 384 396 412 424 432 444 448
+;->  488 515 555 612 624 636 648 666 672 728 735 777 784 816 824 848 864
+;->  888 936 999)
+
+
+-------------------
+Numeri di Zuckerman
+-------------------
+
+I numeri di Zuckerman (definizione di Tattersall) sono numeri interi positivi che sono divisibili per il prodotto delle loro cifre.
+Tattersall, James "Elementary Number Theory in Nine Chapters" 2ed (2005).
+
+Sequenza OEIS A007602:
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 24, 36, 111, 112, 115, 128,
+  132, 135, 144, 175, 212, 216, 224, 312, 315, 384, 432, 612, 624, 672,
+  735, 816, 1111, 1112, 1113, 1115, 1116, 1131, 1176, 1184, 1197, 1212,
+  1296, 1311, 1332, 1344, 1416, 1575, 1715, 2112, 2144, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (zuckerman? num)
+  (let (prod (apply * (int-list num)))
+    (and (!= prod 0) (= (/ num prod) (div num prod)))))
+
+Facciamo alcune prove:
+
+(zuckerman? 1311)
+;-> true
+(zuckerman? 1322)
+;-> nil
+
+(filter zuckerman? (sequence 1 2200))
+;-> (1 2 3 4 5 6 7 8 9 11 12 15 24 36 111 112 115 128 132 135 144 175
+;->  212 216 224 312 315 384 432 612 624 672 735 816 1111 1112 1113 1115
+;->  1116 1131 1176 1184 1197 1212 1296 1311 1332 1344 1416 1575 1715
+;->  2112 2144)
+
+Nota: i numeri di Zuckerman sono un sottoinsieme dei numeri nudi.
+
+
+--------------------
+Numeri di O'Halloran
+--------------------
+
+Un numero pari n è un numero di O'Halloran se non esiste un cuboide (parallelepipedo) di dimensione a*b*c la cui superficie è uguale a n.
+In altre parole, i numeri di O'Halloran sono quei numeri pari che non possono essere espressi come 2(a*b + b*c + c*a).
+La superficie minima che può avere un parallelepipedo è 6, quello in cui le misure l, w e h sono tutte 1.
+
+   2*(l*w + w*h + h*l)
+   2*(1*1 + 1*1 + 1*1) = 6
+
+Diverse configurazioni cuboidi (possono) produrre diverse aree superficiali, ma l'area della superficie è sempre un numero intero ed è sempre pari.
+Esistono 16 valori pari inferiori a 1000 che non possono essere un'area della superficie di nessun cuboide intero.
+Si ipotizza, sebbene non sia stato ancora dimostrato, che non ne esistano altri.
+
+(define (ohalloran)
+  (local (max-area half-max-area lst out)
+    (setq out '())
+    (setq max-area 1000)
+    (setq half-max-area 500)
+    (setq lst (array half-max-area '(true)))
+    (for (l 1 (- max-area 1))
+      ;(print l { })
+      (for (w 1 (- half-max-area 1))
+        (for (h 1 (- half-max-area 1))
+          (setq somma (+ (* l w) (* l h) (* w h)))
+          (if (< somma half-max-area)
+            (setf (lst somma) nil)
+          )
+        )
+      )
+    )
+    (for (i 3 (- half-max-area 1))
+      (if (lst i) (push (* i 2) out -1))
+    )
+    out))
+
+(time (println (ohalloran)))
+;-> (8 12 20 36 44 60 84 116 140 156 204 260 380 420 660 924)
+;-> 34810.863
+
+=============================================================================
 

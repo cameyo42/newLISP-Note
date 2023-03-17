@@ -1719,6 +1719,9 @@ NOTE LIBERE 15
   Numeri Sastry
   Hamming weight
   Primo carattere meno frequente in una stringa
+  Numeri nudi
+  Numeri di Zuckerman
+  Numeri di O'Halloran
 
 APPENDICI
 =========
