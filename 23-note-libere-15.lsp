@@ -1952,5 +1952,161 @@ Si ipotizza, sebbene non sia stato ancora dimostrato, che non ne esistano altri.
 ;-> (8 12 20 36 44 60 84 116 140 156 204 260 380 420 660 924)
 ;-> 34810.863
 
+
+--------------------
+Coppie di Ruth-Aaron
+--------------------
+
+Due numeri consecutivi n e n+1 formano una coppia Ruth-Aaron se condividono la stessa somma di fattori primi.
+Esistono due diverse sequenze ottenute tenendo conto o meno delle molteplicità dei numeri primi.
+
+Se si contano solo numeri primi distinti, allora (104, 105) è una coppia, poiché 104 = 2^3*13 e 105 = 3*5*7 e 2+13 = 3+5+7.
+
+Se invece si contano i numeri primi ripetuti, (125 = 5^3, 126 = 2*3^2*7) è una coppia poiché 5+5+5 = 2+3+3+7.
+
+Numeri di Ruth-Aaron (tipo 1): somma dei divisori primi di n = somma dei divisori primi di n+1.
+Sequenza OEIS A006145:
+  5, 24, 49, 77, 104, 153, 369, 492, 714, 1682, 2107, 2299, 2600, 2783,
+  5405, 6556, 6811, 8855, 9800, 12726, 13775, 18655, 21183, 24024, 24432,
+  24880, 25839, 26642, 35456, 40081, 43680, 48203, 48762, 52554, 61760,
+  63665, 64232, 75140, 79118, 95709, 106893, 109939, ...
+
+
+Numeri di Ruth-Aaron (tipo 2): somma dei divisori primi di n = somma dei divisori primi di n+1 (entrambi presi con molteplicità).
+Sequenza OEIS A039752:
+  5, 8, 15, 77, 125, 714, 948, 1330, 1520, 1862, 2491, 3248, 4185, 4191,
+  5405, 5560, 5959, 6867, 8280, 8463, 10647, 12351, 14587, 16932, 17080,
+  18490, 20450, 24895, 26642, 26649, 28448, 28809, 33019, 37828, 37881,
+  41261, 42624, 43215, 44831, 44891, 47544, 49240, ...
+
+Funzione che verifica se un numero è Ruth-Aaron di tipo 1:
+
+(define (ruth1? num)
+  (= (apply + (unique (factor num)))
+     (apply + (unique (factor (+ num 1))))))
+
+(ruth1? 104)
+;-> true
+(ruth1? 105)
+;-> nil
+
+(filter ruth1? (sequence 2 110000))
+;-> (5 24 49 77 104 153 369 492 714 1682 2107 2299 2600 2783 5405 6556
+;->  6811 8855 9800 12726 13775 18655 21183 24024 24432 24880 25839 26642
+;->  35456 40081 43680 48203 48762 52554 61760 63665 64232 75140 79118
+;->  95709 106893 109939)
+
+Funzione che verifica se un numero è Ruth-Aaron di tipo 2:
+
+(define (ruth2? num)
+  (= (apply + (factor num))
+     (apply + (factor (+ num 1)))))
+
+(ruth2? 125)
+;-> true
+(ruth2? 126)
+;-> nil
+
+(filter ruth2? (sequence 2 50000))
+;-> (5 8 15 77 125 714 948 1330 1520 1862 2491 3248 4185 4191 5405 5560
+;->  5959 6867 8280 8463 10647 12351 14587 16932 17080 18490 20450 24895
+;->  26642 26649 28448 28809 33019 37828 37881 41261 42624 43215 44831
+;->  44891 47544 49240)
+
+Funzione che verifica se un numero è Ruth-Aaron di tipo 1 e 2:
+
+(define (ruth12? num)
+  (= (apply + (factor num))
+     (apply + (factor (+ num 1)))
+     (apply + (unique (factor num)))
+     (apply + (unique (factor (+ num 1))))))
+
+(filter ruth12? (sequence 1 1e5))
+;-> (5 77 714 5405 26642 52554 95709)
+
+
+---------------------------------
+Stack con valori minimo e massimo
+---------------------------------
+
+Definire uno stack, in cui possiamo ottenere il suo numero minimo e massimo con una funzione "min-stack" e "max-stack".
+La complessità temporale di "min-stack", "max-stack", "push-stack" e "pop-stack" deve essere O(1).
+
+Un metodo è quello utilizzare come elemento dello stack una lista del tipo:
+
+  (valore valore-minimo valore-massimo)
+
+Poi facciamo in modo che il valore minimo e il valore massimo si trovino sempre sul primo elemento dello stack (l'elemento che si trova alla posizione 0).
+
+(setq stack '())
+
+(define (push-stack val)
+  (local (low high)
+    (if (!= stack '())
+      (begin
+        ; stack is not empty
+        ; copy minimum value and maximum value from first element of stack
+        ; and compare both numbers to value
+        ; eventually update min and max value
+        (setq low (stack 0 1))
+        (setq high (stack 0 2))
+        (setq low (min low val))
+        (setq high (max high val))
+        ; insert new element on stack
+        ;(println val { } low { } high)
+        (push (list val low high) stack))
+        ;else
+        ; stack is empty
+        ; minimum value = maximum value = value
+        (push (list val val val) stack))))
+
+(define (pop-stack)
+  (if (= stack '())
+      nil
+      ;else
+      (stack 0 0)))
+
+(define (min-stack) (stack 0 1))
+(define (max-stack) (stack 0 2))
+
+Facciamo una prova:
+
+stack
+;-> ()
+(push-stack 20)
+;-> ((20 20 20))
+(push-stack 15)
+;-> ((15 15 20) (20 20 20))
+(push-stack 20)
+;-> ((20 15 20) (15 15 20) (20 20 20))
+(push-stack 30)
+;-> ((30 15 30) (20 15 20) (15 15 20) (20 20 20))
+(min-stack)
+;-> 15
+(max-stack)
+;-> 30
+(push-stack 5)
+;-> ((5 5 30) (30 15 30) (20 15 20) (15 15 20) (20 20 20))
+(min-stack)
+;-> 5
+(max-stack)
+;-> 30
+(push-stack 45)
+;-> ((45 5 45) (5 5 30) (30 15 30) (20 15 20) (15 15 20) (20 20 20))
+(pop-stack)
+;-> 45
+(pop-stack)
+;-> 45
+(min-stack)
+;-> 5
+(max-stack)
+;-> 45
+(push-stack 2)
+;-> ((2 2 45) (45 5 45) (5 5 30) (30 15 30) (20 15 20) (15 15 20) (20 20 20))
+(min-stack)
+;-> 2
+(max-stack)
+;-> 45
+
 =============================================================================
 

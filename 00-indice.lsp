@@ -1722,6 +1722,8 @@ NOTE LIBERE 15
   Numeri nudi
   Numeri di Zuckerman
   Numeri di O'Halloran
+  Coppie di Ruth-Aaron
+  Stack con valori minimo e massimo
 
 APPENDICI
 =========
