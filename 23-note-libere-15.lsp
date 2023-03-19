@@ -2108,5 +2108,279 @@ stack
 (max-stack)
 ;-> 45
 
+
+-----------------
+Numeri di Leyland
+-----------------
+
+Un numero n è un numero di Leyland se può essere scritto come a^b b^a, con a,b > 1. Ad esempio, 368 è un numero di Leyland perché 368 = 5^3 3^5.
+
+Sequenza OEIS A076980:
+  3, 8, 17, 32, 54, 57, 100, 145, 177, 320, 368, 512, 593, 945, 1124,
+  1649, 2169, 2530, 4240, 5392, 6250, 7073, 8361, 16580, 18785, 20412,
+  23401, 32993, 60049, 65792, 69632, 93312, 94932, 131361, 178478, 262468,
+  268705, 397585, 423393, 524649, 533169, ...
+
+Il programma esegue due cicli, uno per x e l'altro per y. 
+Il ciclo esterno inizia da 2 a n, il ciclo interno da 2 a x. 
+Memorizza x^y + y^x in una lista. 
+Dopo aver calcolato tutti i valori li ordina e poi li restituisce.
+
+(define (leyland limit)
+  (let (out '())
+    (for (a 2 limit)
+      (for (b 2 a)
+        (push (+ (pow a b) (pow b a)) out)
+      )
+    )
+    (sort out <)))
+
+(leyland 8)
+;-> (8 17 32 54 57 100 145 177 320 368 512 945 1649 2530 5392 6250 7073
+;->  18785 23401 69632 93312 94932 397585 423393 1647086 1941760 7861953
+;->  33554432)
+
+Scriviamo una funzione che usa i big-integer.
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (leyland-i limit)
+  (let (out '())
+    (for (a 2 limit)
+      (for (b 2 a)
+        (push (+ (** a b) (** b a)) out)
+      )
+    )
+    (sort out <)))
+
+(leyland-i 8)
+;-> (8L 17L 32L 54L 57L 100L 145L 177L 320L 368L 512L 945L 1649L 2530L
+;->  5392L 6250L 7073L 18785L 23401L 69632L 93312L 94932L 397585L 423393L
+;->  1647086L 1941760L 7861953L 33554432L)
+
+(leyland-i 20)
+;-> (8L 17L 32L 54L 57L 100L 145L 177L 320L 368L 512L 593L 945L 1124L
+;->  1649L 2169L 2530L 4240L 5392L 6250L 7073L 8361L 16580L 18785L 20412L
+;->  23401L 32993L 60049L 65792L 69632L 93312L 94932L 131361L 178478L
+;->  ...
+;->  244552822542936127033092L 332558441007965087890625L 
+;->  812362695653248917890473L 1209581179614629174706176L 
+;->  3956839311320627178247958L 4077338606647572522401601L
+;->  13010380216396078174437376L 42832853457545958193355601L 
+;->  209715200000000000000000000L)
+
+
+-------------------
+Numeri apocalittici
+-------------------
+
+Un numero n della forma 2^k è detto apocalittico se le sue cifre contengono "666" come sottostringa.
+In questo caso il numero k viene chiamato potenza apocalittica, cioè 2^k contiene 666.
+Il più piccolo numero apocalittico è 2^157, che è uguale a:
+
+  182687704{666}362864775460604089535377456991567872
+
+Sequenza OEIS A007356:
+  157, 192, 218, 220, 222, 224, 226, 243, 245, 247, 251, 278, 285, 286, 
+  287, 312, 355, 361, 366, 382, 384, 390, 394, 411, 434, 443, 478, 497,
+  499, 506, 508, 528, 529, 539, 540, 541, 564, 578, 580, 582, 583, 610, 
+  612, 614, 620, 624, 635, 646, 647, 648, 649, 650, ...
+
+(define (pow-i num power)
+"Calculates the integer power of an integer"
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))
+        )
+    )
+    out))
+
+(define (apocalittici pow-max)
+  (let (out '())
+    (for (p 1L pow-max)
+      ;(println (pow-i 2L p))
+      (if (find "666" (string (pow-i 2L p)))
+          (push p out -1)
+      )
+    )
+    out))
+(pretty-print 65)
+(apocalittici 1000L)
+;-> (157 192 218 220 222 224 226 243 245 247 251 278 285 286 287 312 355
+;->  361 366 382 384 390 394 411 434 443 478 497 499 506 508 528 529 539
+;->  540 541 564 578 580 582 583 610 612 614 620 624 635 646 647 648 649
+;->  650 660 662 664 666 667 669 671 684 686 693 700 702 704 714 718 720
+;->  723 747 748 749 787 800 807 819 820 822 823 824 826 828 836 838 840
+;->  841 842 844 846 848 850 857 859 861 864 865 866 867 868 869 871 873
+;->  875 882 884 894 898 920 922 924 925 927 928 929 931 937 970 972 975
+;->  977 979 981 983 985 994)
+
+
+---------------------------
+Numeri fattoriali alternati
+---------------------------
+
+Il fattoriale alternato a(n) di un intero n>0, è uguale a
+
+  n! - (n-1)! + (n-2)! - (n-3)! + ... +-1!
+ 
+dove il segno dell'ultimo termine dipende dalla parità di n.
+Per definizione, a(0) = 0.
+
+Ad esempio, a(5) = 5! - 4! + 3! - 2! + 1! = 101 
+e a(4) = 4! - 3! + 2! - 1! = 19
+
+Sequenza OEIS A005165:
+  0, 1, 1, 5, 19, 101, 619, 4421, 35899, 326981, 3301819, 36614981, 
+  442386619, 5784634181, 81393657019, 1226280710981, 19696509177019,
+  335990918918981, 6066382786809019, 115578717622022981,
+  2317323290554617019, 48773618881154822981, ...
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+Funzione che calcola il fattoriale alternato di un numero n:
+
+(define (fatalt n)
+  (local (fa)
+    (cond ((zero? n) 0L)
+          ((= n 1) 1L)
+      (true
+        (setq fa 0L)
+        (setq k 1)
+        (for (i n 1)
+          (setq fa (+ fa (* k (fact-i i))))
+          (setq k (* k -1))
+        )
+        fa))))
+
+Facciamo alcune prove:
+
+(map fatalt (sequence 0 5))
+;-> (0L 1L 1L 5L 19L 101L)
+(map fatalt (sequence 0 20))
+;-> (0L 1L 1L 5L 19L 101L 619L 4421L 35899L 326981L 3301819L 36614981L
+;->  442386619L 5784634181L 81393657019L 1226280710981L 19696509177019L
+;->  335990918918981L 6066382786809019L 115578717622022981L 
+;->  2317323290554617019L)
+
+
+-------------------
+Derivata aritmetica
+-------------------
+
+La derivata aritmetica di un numero intero (più specificamente, la derivata aritmetica di Lagarias) è una funzione basata sulla scomposizione in fattori primi, per analogia con la regola del prodotto per la derivata di una funzione utilizzata nell'analisi matematica. Di conseguenza, per i numeri naturali n, la derivata aritmetica D(n) è definita come segue:
+
+D(0) = D(1) = 0.
+D(p) = 1 per ogni numero primo p.
+D(mn) = D(m)*n + m*D(n) per ogni m,n in N. (regola di Leibniz per le derivate).
+
+Inoltre, per numeri interi negativi la derivata aritmetica può essere definita come -D(-n) (n < 0).
+
+Esempi:
+
+  D(2) = 1 e D(3) = 1 (entrambi sono primi) quindi se m*n = 2 * 3, D(6) = (1)(3) + (1)(2) = 5.
+  D(9) = D(3)(3) + D(3)(3) = 6
+  D(27) = D(3)*9 + D(9)*3 = 9 + 18 = 27
+  D(30) = D(5)(6) + D(6)(5) = 6 + 5 * 5 = 31.
+
+Sequenza OEIS A003415 (0..n):
+  0, 0, 1, 1, 4, 1, 5, 1, 12, 6, 7, 1, 16, 1, 9, 8, 32, 1, 21, 1, 24, 
+  10, 13, 1, 44, 10, 15, 27, 32, 1, 31, 1, 80, 14, 19, 12, 60, 1, 21, 
+  16, 68, 1, 41, 1, 48, 39, 25, 1, 112, 14, 45, 20, 56, 1, 81, 16, 92,
+  22, 31, 1, 92, 1, 33, 51, 192, 18, 61, 1, 72, 26, 59, 1, 156, 1, 39,
+  55, 80, 18, 71, ...
+
+(define (factor-group num)
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+(factor-group 21)
+;-> ((3 1) (7 1))
+
+(factor-group 245)
+;-> ((5 1) (7 2))
+
+(factor-group 1)
+;-> ((1 1))
+
+Funzione cha calcola la derivata aritmetica di un numero intero:
+
+(define (derive num)
+  (cond ((< num 0) (- (derive (- num))))
+        ; se num è uguale a 0 o 1, allora restituisce 0
+        ((< num 2) 0)
+        (true
+          (setq fattori (factor-group num))
+          ; se num è primo restituisce 1
+          (if (and (= (length fattori) 1) (= (fattori 0 1) 1))
+              1
+              ;else
+              ; altrimenti clcola la derivata aritmetica
+              (begin
+                (setq sum 0)
+                (dolist (f fattori)
+                  (setq sum (+ sum (/ (* num (f 1)) (f 0))))
+                )
+              )
+          ))))
+
+Facciamo alcune prove:
+
+(derive 2)
+;-> 1
+(derive 9)
+;-> 6
+(derive 27)
+;-> 27
+(derive 30)
+;-> 31
+
+Calcoliamo le derivate da 0 a 20:
+
+(map derive (sequence 0 20))
+;-> (0 0 1 1 4 1 5 1 12 6 7 1 16 1 9 8 32 1 21 1 24)
+
+Calcoliamo le derivate dei numeri da -99 a 100:
+
+(explode (map derive (sequence -99 100)) 10)
+;-> ((-75 -77 -1 -272 -24 -49 -34 -96 -20 -123) 
+;-> (-1 -140 -32 -45 -22 -124 -1 -43 -108 -176)
+;->  (-1 -71 -18 -80 -55 -39 -1 -156 -1 -59)
+;->  (-26 -72 -1 -61 -18 -192 -51 -33 -1 -92)
+;->  (-1 -31 -22 -92 -16 -81 -1 -56 -20 -45)
+;->  (-14 -112 -1 -25 -39 -48 -1 -41 -1 -68)
+;->  (-16 -21 -1 -60 -12 -19 -14 -80 -1 -31)
+;->  (-1 -32 -27 -15 -10 -44 -1 -13 -10 -24)
+;->  (-1 -21 -1 -32 -8 -9 -1 -16 -1 -7)
+;->  (-6 -12 -1 -5 -1 -4 -1 -1 0 0)
+;->  (0 1 1 4 1 5 1 12 6 7)
+;->  (1 16 1 9 8 32 1 21 1 24)
+;->  (10 13 1 44 10 15 27 32 1 31)
+;->  (1 80 14 19 12 60 1 21 16 68)
+;->  (1 41 1 48 39 25 1 112 14 45)
+;->  (20 56 1 81 16 92 22 31 1 92)
+;->  (1 33 51 192 18 61 1 72 26 59)
+;->  (1 156 1 39 55 80 18 71 1 176)
+;->  (108 43 1 124 22 45 32 140 1 123)
+;->  (20 96 34 49 24 272 1 77 75 140))
+
 =============================================================================
 

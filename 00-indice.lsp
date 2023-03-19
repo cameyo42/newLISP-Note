@@ -1724,6 +1724,10 @@ NOTE LIBERE 15
   Numeri di O'Halloran
   Coppie di Ruth-Aaron
   Stack con valori minimo e massimo
+  Numeri di Leyland
+  Numeri apocalittici
+  Numeri fattoriali alternati
+  Derivata aritmetica
 
 APPENDICI
 =========
