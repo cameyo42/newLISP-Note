@@ -1570,7 +1570,7 @@ Kevin Brown ha dimostrato che esistono infiniti numeri di Rhonda:
 https://www.mathpages.com/home/kmath007/kmath007.htm
 
 Sequenza OEIS A099542:
-  1568, 2835, 4752, 5265, 5439, 5664, 5824, 5832, 8526, 12985, 15625, 
+  1568, 2835, 4752, 5265, 5439, 5664, 5824, 5832, 8526, 12985, 15625,
   15698, 19435, 25284, 25662, 33475, 34935, 35581, 45951, 47265, 47594,
   52374, 53176, 53742, 54479, 55272, 56356, 56718, 95232, 118465, 133857,
   148653, 154462, 161785, ...
@@ -1611,12 +1611,12 @@ Funzione che verifica se un numero è di Rhonda (base 10):
 Numeri Sastry
 -------------
 
-Un numero n è un numero Sastry se concatenato con (n + 1) dà un quadrato. 
+Un numero n è un numero Sastry se concatenato con (n + 1) dà un quadrato.
 Ad esempio, 183 è un numero Sastry perché 183184 è il quadrato di 428.
 
 Sequenza OEIS A030465:
-  183, 328, 528, 715, 6099, 13224, 40495, 106755, 453288, 2066115, 
-  2975208, 22145328, 28027683, 110213248, 110667555, 147928995, 178838403, 
+  183, 328, 528, 715, 6099, 13224, 40495, 106755, 453288, 2066115,
+  2975208, 22145328, 28027683, 110213248, 110667555, 147928995, 178838403,
   226123528, 275074575, 333052608, 378698224, 445332888, 446245635, ...
 
 (define (square? n)
@@ -1646,8 +1646,8 @@ Sequenza OEIS A030465:
 Hamming weight
 --------------
 
-L'Hamming weight (peso di Hamming) di una stringa è il numero di simboli diversi dal simbolo zero dell'alfabeto utilizzato. 
-È quindi equivalente alla distanza di Hamming dalla stringa composta da tutti zeri della stessa lunghezza. 
+L'Hamming weight (peso di Hamming) di una stringa è il numero di simboli diversi dal simbolo zero dell'alfabeto utilizzato.
+È quindi equivalente alla distanza di Hamming dalla stringa composta da tutti zeri della stessa lunghezza.
 Per il caso più tipico, cioè una stringa di bit, questo è il numero di 1 nella stringa o la somma delle cifre della rappresentazione binaria di un dato numero.
 
 Stringa         Hamming weight
@@ -1717,14 +1717,14 @@ Primo carattere meno frequente in una stringa
 ---------------------------------------------
 
 Data una stringa ASCII, scrivere una funzione per trovare il primo carattere meno frequente.
-Ad esempio: 
-- stringa = "abaccdeff" 
+Ad esempio:
+- stringa = "abaccdeff"
   output  = "b" (primo carattere con 1 occorrenza)
-- stringa = "abbaccddeeff" 
+- stringa = "abbaccddeeff"
   output "a" (primo carattere con 2 occorrenze, infatti non esiste nessun carattere che compare solo 1 volta)
 
 Caratteri ascii standard
-                   char   ord 
+                   char   ord
 primo carattere:    "1"    49
 ultimo carattere:   "~"   126
 
@@ -1835,9 +1835,9 @@ Per esempio, 672 = 6*112 = 7*96 = 2*336.
 (Il numero è chiamato "nudo" perché espone alcuni dei suoi fattori).
 
 Sequenza OEIS A034838:
-  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22, 24, 33, 36, 44, 48, 55, 
-  66, 77, 88, 99, 111, 112, 115, 122, 124, 126, 128, 132, 135, 144, 
-  155, 162, 168, 175, 184, 212, 216, 222, 224, 244, 248, 264, 288, 
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22, 24, 33, 36, 44, 48, 55,
+  66, 77, 88, 99, 111, 112, 115, 122, 124, 126, 128, 132, 135, 144,
+  155, 162, 168, 175, 184, 212, 216, 222, 224, 244, 248, 264, 288,
   312, 315, 324, 333, 336, 366, 384, 396, 412, 424, 432, 444, 448, ...
 
 (define (nudo? num)
@@ -1847,7 +1847,7 @@ Sequenza OEIS A034838:
     (while (and (!= tmp 0) continua)
       ; cifra corrente
       (setq d (% tmp 10))
-      (if (or (zero? d) 
+      (if (or (zero? d)
               (!= (/ num d) (div num d)))
           (setq continua nil)
       )
@@ -2121,9 +2121,9 @@ Sequenza OEIS A076980:
   23401, 32993, 60049, 65792, 69632, 93312, 94932, 131361, 178478, 262468,
   268705, 397585, 423393, 524649, 533169, ...
 
-Il programma esegue due cicli, uno per x e l'altro per y. 
-Il ciclo esterno inizia da 2 a n, il ciclo interno da 2 a x. 
-Memorizza x^y + y^x in una lista. 
+Il programma esegue due cicli, uno per x e l'altro per y.
+Il ciclo esterno inizia da 2 a n, il ciclo interno da 2 a x.
+Memorizza x^y + y^x in una lista.
 Dopo aver calcolato tutti i valori li ordina e poi li restituisce.
 
 (define (leyland limit)
@@ -2168,10 +2168,10 @@ Scriviamo una funzione che usa i big-integer.
 ;->  1649L 2169L 2530L 4240L 5392L 6250L 7073L 8361L 16580L 18785L 20412L
 ;->  23401L 32993L 60049L 65792L 69632L 93312L 94932L 131361L 178478L
 ;->  ...
-;->  244552822542936127033092L 332558441007965087890625L 
-;->  812362695653248917890473L 1209581179614629174706176L 
+;->  244552822542936127033092L 332558441007965087890625L
+;->  812362695653248917890473L 1209581179614629174706176L
 ;->  3956839311320627178247958L 4077338606647572522401601L
-;->  13010380216396078174437376L 42832853457545958193355601L 
+;->  13010380216396078174437376L 42832853457545958193355601L
 ;->  209715200000000000000000000L)
 
 
@@ -2186,9 +2186,9 @@ Il più piccolo numero apocalittico è 2^157, che è uguale a:
   182687704{666}362864775460604089535377456991567872
 
 Sequenza OEIS A007356:
-  157, 192, 218, 220, 222, 224, 226, 243, 245, 247, 251, 278, 285, 286, 
+  157, 192, 218, 220, 222, 224, 226, 243, 245, 247, 251, 278, 285, 286,
   287, 312, 355, 361, 366, 382, 384, 390, 394, 411, 434, 443, 478, 497,
-  499, 506, 508, 528, 529, 539, 540, 541, 564, 578, 580, 582, 583, 610, 
+  499, 506, 508, 528, 529, 539, 540, 541, 564, 578, 580, 582, 583, 610,
   612, 614, 620, 624, 635, 646, 647, 648, 649, 650, ...
 
 (define (pow-i num power)
@@ -2233,15 +2233,15 @@ Numeri fattoriali alternati
 Il fattoriale alternato a(n) di un intero n>0, è uguale a
 
   n! - (n-1)! + (n-2)! - (n-3)! + ... +-1!
- 
+
 dove il segno dell'ultimo termine dipende dalla parità di n.
 Per definizione, a(0) = 0.
 
-Ad esempio, a(5) = 5! - 4! + 3! - 2! + 1! = 101 
+Ad esempio, a(5) = 5! - 4! + 3! - 2! + 1! = 101
 e a(4) = 4! - 3! + 2! - 1! = 19
 
 Sequenza OEIS A005165:
-  0, 1, 1, 5, 19, 101, 619, 4421, 35899, 326981, 3301819, 36614981, 
+  0, 1, 1, 5, 19, 101, 619, 4421, 35899, 326981, 3301819, 36614981,
   442386619, 5784634181, 81393657019, 1226280710981, 19696509177019,
   335990918918981, 6066382786809019, 115578717622022981,
   2317323290554617019, 48773618881154822981, ...
@@ -2276,7 +2276,7 @@ Facciamo alcune prove:
 (map fatalt (sequence 0 20))
 ;-> (0L 1L 1L 5L 19L 101L 619L 4421L 35899L 326981L 3301819L 36614981L
 ;->  442386619L 5784634181L 81393657019L 1226280710981L 19696509177019L
-;->  335990918918981L 6066382786809019L 115578717622022981L 
+;->  335990918918981L 6066382786809019L 115578717622022981L
 ;->  2317323290554617019L)
 
 
@@ -2300,8 +2300,8 @@ Esempi:
   D(30) = D(5)(6) + D(6)(5) = 6 + 5 * 5 = 31.
 
 Sequenza OEIS A003415 (0..n):
-  0, 0, 1, 1, 4, 1, 5, 1, 12, 6, 7, 1, 16, 1, 9, 8, 32, 1, 21, 1, 24, 
-  10, 13, 1, 44, 10, 15, 27, 32, 1, 31, 1, 80, 14, 19, 12, 60, 1, 21, 
+  0, 0, 1, 1, 4, 1, 5, 1, 12, 6, 7, 1, 16, 1, 9, 8, 32, 1, 21, 1, 24,
+  10, 13, 1, 44, 10, 15, 27, 32, 1, 31, 1, 80, 14, 19, 12, 60, 1, 21,
   16, 68, 1, 41, 1, 48, 39, 25, 1, 112, 14, 45, 20, 56, 1, 81, 16, 92,
   22, 31, 1, 92, 1, 33, 51, 192, 18, 61, 1, 72, 26, 59, 1, 156, 1, 39,
   55, 80, 18, 71, ...
@@ -2361,7 +2361,7 @@ Calcoliamo le derivate da 0 a 20:
 Calcoliamo le derivate dei numeri da -99 a 100:
 
 (explode (map derive (sequence -99 100)) 10)
-;-> ((-75 -77 -1 -272 -24 -49 -34 -96 -20 -123) 
+;-> ((-75 -77 -1 -272 -24 -49 -34 -96 -20 -123)
 ;-> (-1 -140 -32 -45 -22 -124 -1 -43 -108 -176)
 ;->  (-1 -71 -18 -80 -55 -39 -1 -156 -1 -59)
 ;->  (-26 -72 -1 -61 -18 -192 -51 -33 -1 -92)
@@ -2381,6 +2381,192 @@ Calcoliamo le derivate dei numeri da -99 a 100:
 ;->  (1 156 1 39 55 80 18 71 1 176)
 ;->  (108 43 1 124 22 45 32 140 1 123)
 ;->  (20 96 34 49 24 272 1 77 75 140))
+
+
+---------------------------------------------------
+Numeri metadrome plaindrome, nialpdrome e katadrome
+---------------------------------------------------
+
+Un numero è "metadrome" se le sue cifre sono in ordine strettamente crescente.
+Ad esempio, 1234, 68 e 12789 sono tutti metadrome.
+
+Un numero è "plaindrome" se le sue cifre sono in ordine non decrescente.
+Ad esempio, 1334558 e 2222 sono tutti plaindrome.
+
+Un numero è "katadrome" se le sue cifre sono in ordine strettamente decrescente.
+Ad esempio, 4321, 86 e 98721 sono tutti katadrome.
+
+Un numero è "nialpdrome" se le sue cifre sono in ordine non crescente.
+Ad esempio, 8554331 e 2222 sono tutti nialpdrome.
+
+Sequenza OEIS A009993: (metadrome)
+Numeri con cifre in ordine strettamente crescente.
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18, 19, 23, 24,
+  25, 26, 27, 28, 29, 34, 35, 36, 37, 38, 39, 45, 46, 47, 48, 49, 56, 57,
+  58, 59, 67, 68, 69, 78, 79, 89, ...
+
+Sequenza OEIS A009994: (plaindrome)
+Numeri con cifre in ordine non decrescente.
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23,
+  24, 25, 26, 27, 28, 29, 33, 34, 35, 36, 37, 38, 39, 44, 45, 46, 47, 48,
+  49, 55, 56, 57, 58, 59, 66, 67, 68, 69, 77, 78, 79, 88, 89, 99, ...
+
+Sequenza OEIS A009995: (katadrome)
+Numeri con cifre in ordine strettamente decrescente.
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21, 30, 31, 32, 40, 41, 42, 43, 50,
+  51, 52, 53, 54, 60, 61, 62, 63, 64, 65, 70, 71, 72, 73, 74, 75, 76, 80,
+  81, 82, 83, 84, 85, 86, 87, 90, 91, 92, 93, 94, 95, 96, 97, 98, ...
+
+Sequenza OEIS A009996: (nialpdrome)
+Numeri con cifre in ordine non crescente.
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41,
+  42, 43, 44, 50, 51, 52, 53, 54, 55, 60, 61, 62, 63, 64, 65, 66, 70, 71,
+  72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91, 92,
+  93, 94, 95, 96, 97, 98, 99, 100, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che cataloga un numero:
+
+(define (drome? num)
+  (local (lst)
+    (setq lst (int-list num))
+          ; lista con elementi uguali =
+    (cond ((apply = lst) "plain-nial")
+          ((and (apply > lst) (apply >= lst)) "kata-nial")
+          ((and (apply < lst) (apply <= lst)) "meta-plain")
+          ; lista strettamente decrescente >
+          ((apply > lst) "kata")
+          ; lista strettamente crescente <
+          ((apply < lst) "meta")
+          ; lista decrescente >=
+          ((apply >= lst) "nial")
+          ; lista crescente <=
+          ((apply <= lst) "plain")
+          ; lista non ordinata
+          (true ""))))
+
+(drome? 10)
+;-> "nial-kata"
+(drome? 11)
+;-> "plain-nial"
+(drome? 1342)
+;-> ""
+
+Funzione che cataloga i numeri fino ad un dato limite:
+
+(define (drome-to limit)
+  (local (tipo mata plain nial kata)
+    (setq meta (sequence 0 9))
+    (setq plain (sequence 0 9))
+    (setq nial (sequence 0 9))
+    (setq kata (sequence 0 9))
+    (for (num 10 limit)
+      (setq tipo (drome? num))
+            ; lista con elementi uguali =
+      (cond ((= tipo "plain-nial")
+              (push num plain -1)
+              (push num nial -1))
+            ((= tipo "kata-nial")
+              (push num kata -1)
+              (push num nial -1))
+            ((= tipo "meta-plain")
+              (push num meta -1)
+              (push num plain -1))
+            ; lista strettamente decrescente >
+            ((= tipo "nial")
+              (push num nial -1))
+            ; lista strettamente crescente <
+            ((= tipo "meta")
+              (push num meta -1))
+            ; lista decrescente >=
+            ((= tipo "kata")
+              (push num kata -1))
+            ; lista crescente <=
+            ((= tipo "plain")
+              (push num plain)
+            ; lista non ordinata
+            (true nil))
+      )
+    )
+    (println "metadrome") (println meta)
+    (println "plaindrome") (println plain)
+    (println "katadrome") (println kata)
+    (println "nialpdrome") (println nial)))
+
+(drome-to 100)
+;-> metadrome
+;-> (0 1 2 3 4 5 6 7 8 9 12 13 14 15 16 17 18 19 23 24 25 26 27 28 29
+;->  34 35 36 37 38 39 45 46 47 48 49 56 57 58 59 67 68 69 78 79 89)
+;-> plaindrome
+;-> (0 1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 22 23 24 25 26 27
+;->  28 29 33 34 35 36 37 38 39 44 45 46 47 48 49 55 56 57 58 59 66 67
+;->  68 69 77 78 79 88 89 99)
+;-> katadrome
+;-> (0 1 2 3 4 5 6 7 8 9 10 20 21 30 31 32 40 41 42 43 50 51 52 53 54
+;->  60 61 62 63 64 65 70 71 72 73 74 75 76 80 81 82 83 84 85 86 87 90
+;->  91 92 93 94 95 96 97 98)
+;-> nialpdrome
+;-> (0 1 2 3 4 5 6 7 8 9 10 11 20 21 22 30 31 32 33 40 41 42 43 44 50
+;->  51 52 53 54 55 60 61 62 63 64 65 66 70 71 72 73 74 75 76 77 80 81
+;->  82 83 84 85 86 87 88 90 91 92 93 94 95 96 97 98 99 100)
+
+
+----------------
+Numeri zigodromi
+----------------
+
+Un numero è "zigodromo" se è composto da sequenze non banali di cifre identiche, cioè numeri che non hanno serie di cifre con lunghezza minore di 2.
+Ad esempio, 112277, 44444333 e 55500111 sono tutti zigodromi
+Il nome deriva dal fatto che la radice greca per coppia è "zigo".
+
+Sequenza OEIS A033023:
+  11, 22, 33, 44, 55, 66, 77, 88, 99, 111, 222, 333, 444, 555, 666, 777,
+  888, 999, 1100, 1111, 1122, 1133, 1144, 1155, 1166, 1177, 1188, 1199,
+  2200, 2211, 2222, 2233, 2244, 2255, 2266, 2277, 2288, 2299, 3300, 3311,
+  3322, 3333, ...
+
+Algoritmo
+Attraversiamo la lista analizzando il valore precedente, quello corrente e quello successivo.
+Se (corrente != precedente) e (corrente != successivo), allora il numero non è zigodromo.
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che verifica se un numero è zigodromo:
+
+(define (zigo? num)
+  (local (str stop)
+    (setq str (string " " num " "))
+    (setq stop nil)
+    (for (i 1 (- (length str) 2) 1 stop)
+      (if (and (!= (str i) (str (- i 1)))
+               (!= (str i) (str (+ i 1))))
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+Facciamo alcune prove:
+
+(zigo? 0)
+;-> nil
+(zigo? 999)
+;-> true
+
+(filter zigo? (sequence 1 3335))
+;-> (11 22 33 44 55 66 77 88 99 111 222 333 444 555 666 777 888 999 1100
+;->  1111 1122 1133 1144 1155 1166 1177 1188 1199 2200 2211 2222 2233
+;->  2244 2255 2266 2277 2288 2299 3300 3311 3322 3333)
 
 =============================================================================
 

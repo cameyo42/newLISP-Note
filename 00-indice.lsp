@@ -1728,6 +1728,8 @@ NOTE LIBERE 15
   Numeri apocalittici
   Numeri fattoriali alternati
   Derivata aritmetica
+  Numeri metadrome plaindrome, nialpdrome e katadrome
+  Numeri zigodromi
 
 APPENDICI
 =========
