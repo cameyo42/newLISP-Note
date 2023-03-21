@@ -1730,6 +1730,11 @@ NOTE LIBERE 15
   Derivata aritmetica
   Numeri metadrome plaindrome, nialpdrome e katadrome
   Numeri zigodromi
+  Numeri modesti
+  Attraversamento di liste e stringhe (numeri palindromi)
+  Tipi di numeri primoriali
+  Quanti numeri primi ci sono?
+  
 
 APPENDICI
 =========

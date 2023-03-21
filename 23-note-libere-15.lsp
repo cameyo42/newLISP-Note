@@ -2451,6 +2451,8 @@ Funzione che cataloga un numero:
           ; lista non ordinata
           (true ""))))
 
+Facciamo alcune prove:
+
 (drome? 10)
 ;-> "nial-kata"
 (drome? 11)
@@ -2498,6 +2500,8 @@ Funzione che cataloga i numeri fino ad un dato limite:
     (println "plaindrome") (println plain)
     (println "katadrome") (println kata)
     (println "nialpdrome") (println nial)))
+
+Cataloghiamo i numeri da 1 a 100:
 
 (drome-to 100)
 ;-> metadrome
@@ -2567,6 +2571,361 @@ Facciamo alcune prove:
 ;-> (11 22 33 44 55 66 77 88 99 111 222 333 444 555 666 777 888 999 1100
 ;->  1111 1122 1133 1144 1155 1166 1177 1188 1199 2200 2211 2222 2233
 ;->  2244 2255 2266 2277 2288 2299 3300 3311 3322 3333)
+
+
+--------------
+Numeri modesti
+--------------
+
+Un numero n si dice modesto se le sue cifre possono essere separate in due numeri a e b tali che n diviso b dà a come resto.
+
+Sequenza OEIS A054986:
+  13, 19, 23, 26, 29, 39, 46, 49, 59, 69, 79, 89, 103, 109, 111, 133, 199,
+  203, 206, 209, 211, 218, 222, 233, 266, 299, 309, 311, 327, 333, 399,
+  406, 409, 411, 412, 418, 422, 433, 436, 444, 466, 499, 509, 511, 515,
+  533, 545, 555, 599, 609, 611, 618, 622, 627, ...
+
+(define (modest? num)
+  (if (< num 10) 
+      nil
+      ;else
+      (local (p10 a b)
+        (setq p10 10)
+        (setq continua true)
+        (while (and continua (< p10 num))
+          (setq a (/ num p10))
+          (setq b (% num p10))
+          ;(println a { } b)
+          (if (and (> b 0) (= (% num b) a))
+            (setq continua nil)
+          )
+          (setq p10 (* p10 10))
+        )
+        (not continua))))
+
+Facciamo alcune prove:
+
+(modest? 13)
+;-> true
+(modest? 42)
+;-> nil
+
+(filter modest? (sequence 1 630))
+;-> (13 19 23 26 29 39 46 49 59 69 79 89 103 109 111 133 199 203 206 209
+;->  211 218 222 233 266 299 309 311 327 333 399 406 409 411 412 418 422
+;->  433 436 444 466 499 509 511 515 533 545 555 599 609 611 618 622 627)
+
+
+-------------------------------------------------------
+Attraversamento di liste e stringhe (numeri palindromi)
+-------------------------------------------------------
+
+Qualche volta dobbiamo attraversare una lista o una stringa in modo diverso da "dolist" e "dostring".
+In questi casi utilizziamo un ciclo "for" (o "while", "until", ecc.).
+Vediamo se è più veloce attraversare una stringa o una lista.
+Supponiamo di dover verificare se un numero intero è palindromo.
+L'algoritmo consiste nel verificare se le coppie di numeri di inizio e fine sono uguali e continuando per tutto il numero.
+
+Esempio: 12346321
+primo confronto:   (1)234632(1) --> cifre uguali  --> prossima coppia
+secondo confronto: 1(2)3463(2)1 --> cifre uguali  --> prossima coppia
+terzo confronto:   12(3)46(3)21 --> cifre uguali  --> prossima coppia
+quarto confronto:  123(4)(6)321 --> cifre diverse --> numero non palindromo
+
+Esempio: 12512
+primo confronto:   (1)252(1) --> cifre uguali  --> prossima coppia
+secondo confronto: 1(2)5(2)1 --> cifre uguali  --> prossima coppia
+terzo confronto:   12(5)21   --> cifra uguale  --> numero palindromo
+
+Sequenza OEIS A002113:
+	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101,
+  111, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 222, 232, 242, 
+  252, 262, 272, 282, 292, 303, 313, 323, 333, 343, 353, 363, 373, 383, 
+  393, 404, 414, 424, 434, 444, 454, 464, 474, 484, 494, 505, 515, ...
+
+Scriviamo due funzioni identiche che operano una su una lista e l'altra su una stringa:
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (palin1? num)
+  (if (< num 10)
+      true
+      ;else
+      (local (len half)
+        (setq len (length num))
+        (setq half (- (/ len 2) 1))
+        (setq lst (int-list num))
+        (setq out nil)
+        (for (i 0 half 1 out)
+          (if (!= (lst i) (lst (- len 1 i)))
+              (setq out true)
+          )
+        )
+        (not out))))
+
+(palin1? 2)
+;-> true
+(palin1? 12346321)
+;-> nil
+(palin1? 12521)
+;-> true
+(filter palin1? (sequence 0 1000))
+;-> (0 1 2 3 4 5 6 7 8 9 11 22 33 44 55 66 77 88 99 101 111 121 131 141
+;->  151 161 171 181 191 202 212 222 232 242 252 262 272 282 292 303 313
+;->  323 333 343 353 363 373 383 393 404 414 424 434 444 454 464 474 484
+;->  494 505 515 525 535 545 555 565 575 585 595 606 616 626 636 646 656
+;->  666 676 686 696 707 717 727 737 747 757 767 777 787 797 808 818 828
+;->  838 848 858 868 878 888 898 909 919 929 939 949 959 969 979 989 999)
+
+(define (palin2? num)
+  (if (< num 10)
+      true
+      ;else
+      (local (len half)
+        (setq len (length num))
+        (setq half (- (/ len 2) 1))
+        (setq str (string num))
+        (setq out nil)
+        (for (i 0 half 1 out)
+          (if (!= (str i) (str (- len 1 i)))
+              (setq out true)
+          )
+        )
+        (not out))))
+
+(palin2? 2)
+;-> true
+(palin2? 12346321)
+;-> nil
+(palin2? 12521)
+;-> true
+(filter palin2? (sequence 0 1000))
+;-> (0 1 2 3 4 5 6 7 8 9 11 22 33 44 55 66 77 88 99 101 111 121 131 141
+;->  151 161 171 181 191 202 212 222 232 242 252 262 272 282 292 303 313
+;->  323 333 343 353 363 373 383 393 404 414 424 434 444 454 464 474 484
+;->  494 505 515 525 535 545 555 565 575 585 595 606 616 626 636 646 656
+;->  666 676 686 696 707 717 727 737 747 757 767 777 787 797 808 818 828
+;->  838 848 858 868 878 888 898 909 919 929 939 949 959 969 979 989 999)
+
+Vediamo la velocità delle due funzioni:
+
+(time (filter palin1? (sequence 0 1e6)))
+;-> 1803.993
+(time (filter palin2? (sequence 0 1e6)))
+;-> 1552.972
+
+La funzione sulle stringhe è leggermente più veloce, ma la conversione da numero a lista (int-list) è più lenta della conversione da numero a stringa (string num).
+
+Scriviamo una test specifico.
+
+(define (test1 lst)
+  (local (len half)
+    (setq len (length lst))
+    (setq half (- (/ len 2) 1))
+    (setq out 0)
+    (for (i 0 half)
+      (if (= (lst i) (lst (- len 1 i)))
+          (++ out)
+      )
+    )
+    out))
+
+(define (test2 str)
+  (local (len half)
+    (setq len (length str))
+    (setq half (- (/ len 2) 1))
+    (setq out 0)
+    (for (i 0 half)
+      (if (= (str i) (str (- len 1 i)))
+          (++ out)
+      )
+    )
+    out))
+
+Prova con stringa/lista corta (65 caratteri/elementi):
+
+(setq s "32857135987190358719803571890235718935712985376819235761125078393")
+(setq l (explode s))
+
+(time (test1 l) 1e5)
+;-> 795.167
+(time (test2 s) 1e5)
+;-> 1153.354
+
+Prova con stringa/lista lunga (2000 caratteri/elementi):
+
+(setq s (join (map string (rand 10 2000))))
+(setq l (explode s))
+
+(time (test1 l) 1e3)
+;-> 2480.59
+(time (test2 s) 1e3)
+;-> 3716.341
+
+Quindi attraversare liste è più veloce che attraversare stringhe (con il ciclo "for").
+
+
+-------------------------
+Tipi di numeri primoriali
+-------------------------
+
+Esistono due tipi di numeri primoriali.
+
+Primo tipo
+----------
+I numeri primoriali p(n) sono il prodotto dei primi n numeri primi:
+
+  p(0) = 1
+  p(1) = 2
+  p(2) = 2 * 3 = 6
+
+Sequenza OEIS A002110:
+  1, 2, 6, 30, 210, 2310, 30030, 510510, 9699690, 223092870, 6469693230,
+  200560490130, 7420738134810, 304250263527210, 13082761331670030,
+  614889782588491410, 32589158477190044730, 1922760350154212639070,
+  117288381359406970983270, 7858321551080267055879090, ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (primoriale1 num)
+  (let (primi (primes-to 1000))
+    ;(setq primi (primes-to 100)) ; 25 primi in 0 millisec)
+    ;(setq primi (primes-to 1e4)) ; 1229 primi in 2 millisec)
+    ;(setq primi (primes-to 1e6)) ; 78498 primi in 133 millisec)
+    (apply * (slice primi 0 num)))
+
+Facciamo alcune prove:
+
+(primoriale1 4)
+;-> 210
+
+(map primoriale1 (sequence 1 15))
+;-> (2 6 30 210 2310 30030 510510 9699690 223092870 6469693230 200560490130
+;->  7420738134810 304250263527210 13082761331670030 614889782588491410)
+
+Il massimo valore che possiamo calcolare per i numeri primoriali di primo tipo è p(15) perchè non abbiamo usato i numeri big integer.
+
+Secondo tipo
+------------
+I numeri primoriali N(n) di un numero N sono il prodotto di tutti gli n numeri primi minori o uguali a N:
+
+ N(0) = 0
+ N(1) = 0
+ N(2) = 2
+ N(3) = 6
+ N(4) = 6
+
+Sequenza OEIS A034386:
+  1, 1, 2, 6, 6, 30, 30, 210, 210, 210, 210, 2310, 2310, 30030, 30030,
+  30030, 30030, 510510, 510510, 9699690, 9699690, 9699690, 9699690,
+  223092870, 223092870, 223092870, 223092870, 223092870, 223092870,
+  6469693230, 6469693230, 200560490130, 200560490130, ...
+
+(define (primoriale2 num)
+  (let (primi (primes-to num))
+  (apply * primi)))
+
+Facciamo alcune prove:
+
+(primoriale2 4)
+;-> 6
+
+(map primoriale2 (sequence 1 15))
+;-> (1 2 6 6 30 30 210 210 210 210 2310 2310 30030 30030 30030)
+
+
+----------------------------
+Quanti numeri primi ci sono?
+----------------------------
+
+Oltre 2.300 anni fa Euclide dimostrò che il numero di numeri primi è infinito, quindi mi viene in mente una possibile domanda:
+Dato un numero reale positivo x, quanti numeri primi hanno un valore minore o uguale a x?
+
+  π(x) = il numero di numeri primi minori o uguali a x.
+
+I numeri primi sotto 25 sono 2, 3, 5, 7, 11, 13, 17, 19 e 23 quindi π(3) = 2, π(10) = 4 e π(25) = 9.
+
+Tabella 1: Valori di π(x)
+
+  n                                   x                                π(x)
+  -------------------------------------------------------------------------
+  1                                  10                                  4
+  2                                 100                                 25
+  3                               1,000                                168
+  4                              10,000                              1,229
+  5                             100,000                              9,592
+  6                           1,000,000                             78,498
+  7                          10,000,000                            664,579
+  8                         100,000,000                          5,761,455
+  9                       1,000,000,000                         50,847,534
+  10                     10,000,000,000                        455,052,511
+  11                    100,000,000,000                      4,118,054,813
+  12                  1,000,000,000,000                     37,607,912,018
+  13                 10,000,000,000,000                    346,065,536,839
+  14                100,000,000,000,000                  3,204,941,750,802
+  15              1,000,000,000,000,000                 29,844,570,422,669
+  16             10,000,000,000,000,000                279,238,341,033,925
+  17            100,000,000,000,000,000              2,623,557,157,654,233
+  18          1,000,000,000,000,000,000             24,739,954,287,740,860
+  19         10,000,000,000,000,000,000            234,057,667,276,344,607
+  20        100,000,000,000,000,000,000          2,220,819,602,560,918,840
+  21      1,000,000,000,000,000,000,000         21,127,269,486,018,731,928
+  22     10,000,000,000,000,000,000,000        201,467,286,689,315,906,290
+  23    100,000,000,000,000,000,000,000      1,925,320,391,606,803,968,923
+  24  1,000,000,000,000,000,000,000,000     18,435,599,767,349,200,867,866
+  25 10,000,000,000,000,000,000,000,000    176,846,309,399,143,769,411,680
+
+Molti matematici hanno provato a definire una formula per calcolare π(x) e hanno trovato diverse soluzioni complesse (e non definitive).
+Dal punto di vista pratico possiamo approssimare π(x) con le seguenti funzioni:
+
+            x
+  π(x) ≈ -------,  per x piccoli
+          ln(x)
+
+              x
+  π(x) ≈ -----------, per x grandi
+          ln(x) - 1
+
+(define (primi-low x) (int (div x (log x))))
+
+(map primi-low '(10 1e2 1e3 1e4 1e5 1e6 1e7 1e8 1e9 1e10))
+;-> (4 21 144 1085 8685 72382 620420 5428681 48254942 434294481)
+
+(define (primi-high x) (int (div x (sub (log x) 1))))
+(map primi-high '(10 1e2 1e3 1e4 1e5 1e6 1e7 1e8 1e9 1e10))
+;-> (7 27 169 1217 9512 78030 661458 5740303 50701542 454011971)
+
+Tabella 1: Valori di π(x)-low, π(x)-high e π(x)
+
+               x      π(x)-low     π(x)-high          π(x)
+----------------------------------------------------------
+              10             4             7             4
+             100            21            27            25
+           1,000           144           169           168
+          10,000          1085          1217          1229
+         100,000          8685          9512          9592
+       1,000,000         72382         78030         78498
+      10,000,000        620420        661458        664579
+     100,000,000       5428681       5740303       5761455
+   1,000,000,000      48254942      50701542      50847534
+  10,000,000,000     434294481     454011971     455052511
+
+Vedere anche "Teorema di Euclide (infinità dei numeri primi)" su "Note libere 2".
 
 =============================================================================
 
