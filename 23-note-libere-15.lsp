@@ -2586,7 +2586,7 @@ Sequenza OEIS A054986:
   533, 545, 555, 599, 609, 611, 618, 622, 627, ...
 
 (define (modest? num)
-  (if (< num 10) 
+  (if (< num 10)
       nil
       ;else
       (local (p10 a b)
@@ -2639,8 +2639,8 @@ terzo confronto:   12(5)21   --> cifra uguale  --> numero palindromo
 
 Sequenza OEIS A002113:
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101,
-  111, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 222, 232, 242, 
-  252, 262, 272, 282, 292, 303, 313, 323, 333, 343, 353, 363, 373, 383, 
+  111, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 222, 232, 242,
+  252, 262, 272, 282, 292, 303, 313, 323, 333, 343, 353, 363, 373, 383,
   393, 404, 414, 424, 434, 444, 454, 464, 474, 484, 494, 505, 515, ...
 
 Scriviamo due funzioni identiche che operano una su una lista e l'altra su una stringa:
@@ -2890,7 +2890,7 @@ Tabella 1: Valori di π(x)
   24  1,000,000,000,000,000,000,000,000     18,435,599,767,349,200,867,866
   25 10,000,000,000,000,000,000,000,000    176,846,309,399,143,769,411,680
 
-Molti matematici hanno provato a definire una formula per calcolare π(x) e hanno trovato diverse soluzioni complesse (e non definitive).
+Molti matematici hanno provato a definire una formula per calcolare π(x) e hanno trovato soluzioni abbastanza complesse.
 Dal punto di vista pratico possiamo approssimare π(x) con le seguenti funzioni:
 
             x
@@ -2907,10 +2907,11 @@ Dal punto di vista pratico possiamo approssimare π(x) con le seguenti funzioni:
 ;-> (4 21 144 1085 8685 72382 620420 5428681 48254942 434294481)
 
 (define (primi-high x) (int (div x (sub (log x) 1))))
+
 (map primi-high '(10 1e2 1e3 1e4 1e5 1e6 1e7 1e8 1e9 1e10))
 ;-> (7 27 169 1217 9512 78030 661458 5740303 50701542 454011971)
 
-Tabella 1: Valori di π(x)-low, π(x)-high e π(x)
+Tabella 2: Valori di π(x)-low, π(x)-high e π(x)
 
                x      π(x)-low     π(x)-high          π(x)
 ----------------------------------------------------------
@@ -2926,6 +2927,311 @@ Tabella 1: Valori di π(x)-low, π(x)-high e π(x)
   10,000,000,000     434294481     454011971     455052511
 
 Vedere anche "Teorema di Euclide (infinità dei numeri primi)" su "Note libere 2".
+
+
+------------------------------------
+Somma degli inversi dei numeri primi
+------------------------------------
+
+La somma degli inversi dei numeri primi è una serie convergente o divergente?
+
+  1/2 + 1/3 + 1/5 + 1/7 + 1/11 + 1/13 + ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Funzioni per il calcolo della somma di due frazioni (big-integer):
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+
+(define (+rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (+ (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1L) (r2 1L))))
+
+(+rat '(1 2) '(1 3))
+;-> (5L 6L)
+(+rat '(1 2) '(1 2))
+;-> (1L 1L)
+(+rat '(0 1) '(1 2))
+;-> (1L 2L)
+
+Funzione che calcola la somma degli inversi dei primi N numeri primi:
+
+(define (serie nprimi)
+  (local (s)
+    (setq primi (primes-to nprimi))
+    (setq s '(0 1))
+    (dolist (p primi)
+      (setq s (+rat s (list 1 p)))
+    )
+    (println (div (s 0) (s 1)))
+    (println (/ (s 0) (s 1)))
+    s))
+
+(serie 10)
+;-> 1.176190476190476
+;-> 1L
+;-> (247L 210L)
+(serie 50)
+;-> 1.661646517015796
+;-> 1L
+;-> (1021729465586766997L 614889782588491410L)
+(serie 100)
+;-> 1.802817201048871
+;-> 1L
+;-> (4156517583588203716343221884611037839L
+;->  2305567963945518424753102147331756070L)
+(serie 200)
+;-> 1.949034074928571
+;-> 1L
+;-> (15202313841027497739047080375538859939135
+;->  227730139536997746371469607707132833646367L
+;->  77999220416834615532491991063298138766879
+;->  96789903550945093032474868511536164700810L)
+(serie 1000)
+;-> -1.#IND
+;-> 2L
+;-> ...
+> (serie 2000)
+;-> -1.#IND
+;-> 2L
+;-> ...
+
+Nota: Non eseguire (serie 5000)...la memoria finisce e newLISP va in crash.
+
+Purtroppo l'operatore "div" va in overflow perchè i numeratori e denominatori sono numeri molto grandi.
+
+Comunque per confrontare due frazioni possiamo utilizzare il seguente metodo.
+Consideriamo due frazioni:
+
+        num1            num2
+  f1 = ------,    f2 = ------
+        den1            den2
+
+Calcoliamo i seguenti due valori:
+
+  val1 = num1 * den2
+  val2 = num2 * den1
+
+Se val1 > val2, allora f1 > f2
+Se val1 = val2, allora f1 = f2
+Se val1 < val2, allora f1 < f2
+
+(define (confronta f1 f2)
+  (local (num1 den1 num2 den2 val1 val2)
+    (setq num1 (f1 0))
+    (setq den1 (f1 1))
+    (setq num2 (f2 0))
+    (setq den2 (f2 1))
+    (setq val1 (* num1 den2))
+    (setq val2 (* num2 den1))
+    (cond ((> val1 val2) "f1")
+          ((< val1 val2) "f2")
+          ((= val1 val2) "="))))
+
+Adesso possiamo confrontare le frazioni di due serie:
+
+(confronta (serie 100) (serie 200))
+;-> 1.802817201048871
+;-> 1.949034074928571
+;-> "f2"
+
+(confronta (serie 1000) (serie 2000))
+;-> -1.#IND
+;-> -1.#IND
+;-> "f2"
+
+Le prove fatte mostrano che la serie cresce, ma non possiamo affermare che è divergente.
+Comunque è stato dimostrato matematicamente che la serie diverge.
+
+Per maggiori informazioni: https://t5k.org/infinity.html.
+
+È interessante notare che esiste un limite per le somme degli inversi dei numeri primi:
+sia S(x) la somma degli inversi dei primi minori di x, per x > 1 risulta:
+
+ log(log x) < S(x) < log(log x) + B + 1/(log x)^2
+
+dove B vale circa 0.261497.
+
+
+---------------------
+Numeri k-iperperfetti
+---------------------
+
+Un numero k-iperperfetto è un numero naturale n per il quale vale l'uguaglianza n = 1 + k(sigma(n) − n − 1), dove sigma(n) è la funzione divisore (cioè la somma di tutti i divisori positivi di N). Un numero iperperfetto è un numero k-iperperfetto per qualche intero k. I numeri iperperfetti generalizzano i numeri perfetti, che sono 1-iperperfetti.
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (< num 2) nil
+      (letn ((out '()) (lst (factor num)) (cur-val (first lst)) (cur-count 0))
+        (dolist (el lst)
+          (if (= el cur-val) (++ cur-count)
+              (begin
+                (push (list cur-val cur-count) out -1)
+                (setq cur-count 1 cur-val el))))
+        (push (list cur-val cur-count) out -1))))
+
+(define (divisors-sum num)
+"Sum all the divisors of integer number"
+  (local (sum out)
+    (if (= num 1)
+        1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+(divisors-sum 3)
+;-> 4
+(divisors-sum 6)
+;-> 12
+
+Funzione che verifica se un numero è hyper-k per un dato k:
+
+(define (hyper-k? k num)
+  (= num (+ 1 (* k (- (divisors-sum num) num 1)))))
+
+(hyper-k? 1 28)
+;-> true
+
+Numeri hyper-1 (cioè hyper-k con k = 1) fino a 50:
+
+(filter (curry hyper-k? 1) (sequence 1 50))
+;-> (6 28)
+
+Funzione che genera tutti i numeri hyper-k sotto un certo limite per un dato k:
+
+(define (hyper-k-to k limit)
+  (filter (curry hyper-k? k) (sequence 1 limit)))
+
+(hyper-k-to 1 1e6)
+;-> (6 28 496 8128)
+
+Vediamo tutti i numeri hyper-k fino ad 1 milione con k che va da 1 a 10:
+
+(for (k 1 10)
+  (println "k = " k)
+  (println (hyper-k-to k 1e6))
+)
+;-> k = 1
+;-> (6 28 496 8128)
+;-> k = 2
+;-> (21 2133 19521 176661)
+;-> k = 3
+;-> (325)
+;-> k = 4
+;-> ()
+;-> k = 5
+;-> ()
+;-> k = 6
+;-> (301 16513)
+;-> k = 7
+;-> ()
+;-> k = 8
+;-> ()
+;-> k = 9
+;-> ()
+;-> k = 10
+;-> (159841)
+
+Scriviamo una funzione ottimizzata (che calcola sigma(num) solo una volta):
+
+(define (test kmax limite)
+  (let (out '())
+    (for (num 1 limite)
+      (setq sigma (divisors-sum num))
+      (for (k 1 kmax)
+        (if (= num (+ 1 (* k (- sigma num 1))))
+            (push (list k num) out -1)
+        )
+      )
+    )
+    (sort out)))
+
+Facciamo alcune prove:
+
+(time (println (test 4 1e6)))
+;-> ((1 6) (1 28) (1 496) (1 8128) (2 21) (2 2133) (2 19521) (2 176661) (3 325))
+;-> 3235.131
+
+(time (println (test 1 1e6)))
+;-> ((1 6) (1 28) (1 496) (1 8128))
+;-> 2855.905
+
+(time (println (test 1 1e7)))
+((1 6) (1 28) (1 496) (1 8128))
+;-> 38082.981
+
+Per ottimizzare il calcolo possiamo precalcolare la somma dei divisori di tutti i numeri da 1 a 1e8.
+
+(define (crea-sigma limite)
+  (let (out '(0))
+    (for (num 1 limite) (push (divisors-sum num) out -1))))
+
+(time (setq sum-div (crea-sigma 1e6)))
+;-> 2716.346
+
+Lista con le somme dei divisori di tutti i numeri da 1 a 1e8 (100 milioni):
+
+(time (setq sum-div (crea-sigma 1e8)))
+;-> 616166.762 ;10 minuti e 16 secondi 
+
+(save "sum-div.lsp" 'sum-div)
+;-> true 
+Ci mette alcuni minuti a salvare un file con 100 milioni di numeri...
+sum-div.lsp --> 950 Mbyte circa
+
+;(load "sum-div.lsp")
+
+Per fare una prova:
+
+(silent (setq sdiv (slice sum-div 0 1e5)))
+
+(define (test2 kmax)
+  (let (out '())
+    (dolist (sd sum-div)
+    ;(dolist (sd sdiv)
+      (setq num $idx)
+      (for (k 1 kmax)
+        (if (= num (+ 1 (* k (- sd num 1))))
+            (push (list k num) out -1)
+        )
+      )
+    )
+    (sort out)))
+
+(time (println (test2 20)))
+;-> ((1 0) (1 6) (1 28) (1 496) (1 8128) (1 33550336) 
+;->  (2 21) (2 2133) (2 19521) (2 176661)
+;->  (3 325)
+;->  (4 1950625)
+;->  (6 301) (6 16513) (6 60110701)
+;->  (10 159841)
+;->  (11 10693)
+;->  (12 697) (12 2041) (12 1570153) (12 62722153)
+;->  (18 1333) (18 1909) (18 2469601)
+;->  (19 51301))
+;-> 254203.221
 
 =============================================================================
 

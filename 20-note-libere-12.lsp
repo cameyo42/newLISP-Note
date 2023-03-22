@@ -711,6 +711,7 @@ MCM(18 8) = 72
 Poichè 44 < 45, allora 11/8 è minore di 5/8.
 
 Possiamo usare un metodo più rapido.
+
 Consideriamo le due frazioni:
 
         num1            num2

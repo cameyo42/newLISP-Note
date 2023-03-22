@@ -1734,6 +1734,8 @@ NOTE LIBERE 15
   Attraversamento di liste e stringhe (numeri palindromi)
   Tipi di numeri primoriali
   Quanti numeri primi ci sono?
+  Somma degli inversi dei numeri primi
+  Numeri k-iperperfetti
   
 
 APPENDICI
