@@ -1736,6 +1736,7 @@ NOTE LIBERE 15
   Quanti numeri primi ci sono?
   Somma degli inversi dei numeri primi
   Numeri k-iperperfetti
+  Tagli simultanei di un bastone
   
 
 APPENDICI

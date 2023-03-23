@@ -2475,7 +2475,7 @@ Ricordiamo che anche la funzione "curry" crea delle funzioni:
 hayashi produce --> (lambda (_x) (+ _x 10))
 curry produce   --> (lambda ($x) (+ 10 $x))
 
-Le funzioni sono simili, infatti i prametri sono scambiati (+ _x 10) e (+ 10 $x).
+Le funzioni sono simili, infatti solo i parametri sono scambiati (+ _x 10) e (+ 10 $x).
 
 Vediamo la differenza in pratica:
 
@@ -2871,6 +2871,7 @@ Funzione che prende una stringa e un valore e crea il simbolo dalla stringa e as
 (sets "a" 10)
 ;-> 10
 (println a)
+;-> 10
 
 Adesso per risolvere il nostro problema possiamo scrivere:
 
@@ -2894,6 +2895,16 @@ Che viene chiamata nel modo seguente:
 ;-> 11
 (println vv { } aa { } cc)
 ;-> 3.14 10 11
+
+Facciamo un'altra prova:
+
+(define (test)
+  (vars "a" 1 "b" 2 "c" 3)
+  (println a { } b { } c)
+)
+
+(test)
+;-> (1 2 3)
 
 
 --------------------------------------------------------
@@ -2985,7 +2996,7 @@ Esempi:
 Condividere un numero segreto (Shamir Secret Sharing)
 -----------------------------------------------------
 
-Nel suo articolo del 1979 "How to Sahre a Secret", Adi Shamir (la S in RSA) ha proposto uno schema crittografico che consente a n persone di condividere un numero segreto S in modo tale che ci vogliono almeno k di loro che mettono in comune le proprie risorse (chiavi) per ricostruire S.
+Nel suo articolo del 1979 "How to Share a Secret", Adi Shamir (la S in RSA) ha proposto uno schema crittografico che consente a n persone di condividere un numero segreto S in modo tale che ci vogliono almeno k di loro che mettono in comune le proprie risorse (chiavi) per ricostruire S.
 Questo schema di soglia (k n) utilizza i polinomi e l'aritmetica modulare per fornire a ciascuno degli n partecipanti 1/k delle informazioni necessarie.
 Articolo originale di Adi Shamir: https://www.cs.tau.ac.il/~bchor/Shamir.html
 
@@ -3327,7 +3338,7 @@ Nota: logN x = log x / log N
 Dobble (Spot It) Game
 ---------------------
 
-Nel gioco "Dobble" (o "Spot it"), utilizza un mazzo di 55 carte da gioco, ciascuna con 8 simboli diversi su di esse. Ciò che è notevole (matematicamente) è che due carte scelte a caso dal mazzo avranno uno e un solo simbolo in comune.
+Nel gioco "Dobble" (o "Spot it"), si utilizza un mazzo di 55 carte da gioco, ciascuna con 8 simboli diversi su di esse. Ciò che è notevole (matematicamente) è che due carte scelte a caso dal mazzo avranno uno e un solo simbolo in comune.
 Possiamo trovare la soluzione matematica al seguente indirizzo web:
 https://math.stackexchange.com/questions/36798/what-is-the-math-behind-the-game-spot-it
 
@@ -3335,7 +3346,7 @@ In definitiva, se il numero di simboli su ogni carta è N, allora il numero mass
 
   C = N^2 - N + 1
 
-Ecco un algoritmo per generare un piano proiettivo per ogni N primo. Funziona per ogni N che è potenza di un primo primo se il calcolo del "(I*K + J) modulo N" viene effettuato nel "campo" corretto.
+Ecco un algoritmo per generare un piano proiettivo per ogni N primo. Funziona per ogni N che è potenza di un primo se il calcolo del "(I*K + J) modulo N" viene effettuato nel "campo" corretto.
 
 Pseudocode:
 
@@ -3768,7 +3779,7 @@ Creazione dell'espressione:
 (select "rnmteiv dop" '(10 4 0 7 8 5 6 4 0 3 5 2 4 1 3 9))
 ;-> "per divertimento"
 
-Scriviamo una funzione che restituisce una funzione che esegue la nostra esepressione:
+Scriviamo una funzione che restituisce una funzione che esegue la nostra espressione:
 (setq sign "massimo")
 
 (define (genera-firma sign)

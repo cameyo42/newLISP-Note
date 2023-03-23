@@ -3233,5 +3233,86 @@ Per fare una prova:
 ;->  (19 51301))
 ;-> 254203.221
 
+
+------------------------------
+Tagli simultanei di un bastone
+------------------------------
+
+Un bastone lungo N unità deve essere tagliato in N pezzi da 1 unità.
+Qual è il numero minimo di tagli richiesto se si possono tagliare più pezzi di bastoncini contemporaneamente?
+Scrivere una funzione che restituisce il numero minimo di tagli per un bastone di N unità di lunghezza.
+
+Poiché possiamo tagliare contemporaneamente più pezzi, dobbiamo trovare un algoritmo di taglio che riduce la dimensione del pezzo più lungo fino a 1.
+Ad ogni iterazione dobbiamo tagliare il pezzo più lungo, e contemporaneamente tutti gli altri pezzi la cui dimensione è maggiore di 1), della metà (o il più vicino possibile alla metà).
+In altre parole, se la lunghezza l di un pezzo è pari, viene tagliato in due pezzi di lunghezza l/2,
+se l è dispari e maggiore di 1, viene tagliato in due pezzi di lunghezza l/2 = (l + 1)/2 e l/2 = (l − 1)/2.
+Il processo di taglio si ferma quando il più lungo (e quindi tutti gli altri pezzi del bastone) ha lunghezza 1.
+Il numero di tagli (iterazioni) che vengono effettuati per un bastone lungo N è uguale a ceil(log2(n)), che è il minimo k tale che 2^k >= n.
+
+(define (cut num view)
+  (local (pezzi tagli tmp p1 p2)
+    (setq pezzi (list num))
+    (setq tagli 0) ; numero tagli contemporanei
+    ; ciclo fino a che tutti i pezzi hanno lunghezza 1
+    ; cioè fino a che nella lista pezzi non ci sono num pezzi lunghi 1.
+    (until (= (length (ref-all 1 pezzi)) num)
+      ; lista temporanea per i pezzi del taglio corrente
+      (setq tmp '())
+      ; ciclo che taglia tutti i pezzi maggiori di 1
+      (dolist (p pezzi)
+        (cond ((and (odd? p) (> p 1)) ; pezzo lungo dispari
+               ; taglio dei pezzi
+               (setq p1 (/ (+ p 1) 2))
+               (setq p2 (/ (- p 1) 2))
+               ; inserimento pezzi tagliati nella lista temporanea
+               (push p1 tmp -1)
+               (push p2 tmp -1))
+              ((even? p)              ; pezzo lungo pari
+               ; taglio dei pezzi
+               (setq p1 (/ p 2))
+               (setq p2 (/ p 2))
+               ; inserimento pezzi tagliati nella lista temporanea
+               (push p1 tmp -1)
+               (push p2 tmp -1))
+              (true                   ; pezzo lungo 1
+               (push 1 tmp -1))
+        )
+      )
+      (++ tagli)
+      ; ad ogni taglio i nuovi pezzi si trovano nella lista temporanea
+      (setq pezzi tmp)
+      (if view (println "Taglio: " tagli "\n" pezzi))
+    )
+    ; (ceil(log num 2)) = tagli
+    (list tagli (ceil(log num 2)))))
+
+(cut 10 true)
+;-> Taglio: 1
+;-> (5 5)
+;-> Taglio: 2
+;-> (3 2 3 2)
+;-> Taglio: 3
+;-> (2 1 1 1 2 1 1 1)
+;-> Taglio: 4
+;-> (1 1 1 1 1 1 1 1 1 1)
+;-> (4 4)
+
+(cut 20 true)
+;-> Taglio: 1
+;-> (10 10)
+;-> Taglio: 2
+;-> (5 5 5 5)
+;-> Taglio: 3
+;-> (3 2 3 2 3 2 3 2)
+;-> Taglio: 4
+;-> (2 1 1 1 2 1 1 1 2 1 1 1 2 1 1 1)
+;-> Taglio: 5
+;-> (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+;-> (5 5)
+
+(cut 100)
+;-> (7 7)
+ceil(log2(100)) = 7, infatti 2^6 < 100 e 2^7 > 100.
+
 =============================================================================
 
