@@ -1737,7 +1737,8 @@ NOTE LIBERE 15
   Somma degli inversi dei numeri primi
   Numeri k-iperperfetti
   Tagli simultanei di un bastone
-  
+  Sequenze a somma zero  
+  Circonferenza con copertura massima di una lista di punti interi
 
 APPENDICI
 =========

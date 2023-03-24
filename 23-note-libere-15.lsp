@@ -3286,6 +3286,8 @@ Il numero di tagli (iterazioni) che vengono effettuati per un bastone lungo N è
     ; (ceil(log num 2)) = tagli
     (list tagli (ceil(log num 2)))))
 
+Facciamo alcune prove:
+
 (cut 10 true)
 ;-> Taglio: 1
 ;-> (5 5)
@@ -3313,6 +3315,160 @@ Il numero di tagli (iterazioni) che vengono effettuati per un bastone lungo N è
 (cut 100)
 ;-> (7 7)
 ceil(log2(100)) = 7, infatti 2^6 < 100 e 2^7 > 100.
+
+
+---------------------
+Sequenze a somma zero
+---------------------
+
+Abbiamo una sequenza di numeri interi consecutivi da 1 a N.
+Utilizzando solo le operazioni "+" e "-", dobbiamo scrivere un espressione che utilizza tutti i numeri da 1 a N la cui valutazione (somma) vale zero.
+Ad esempio con la sequenza (1 2 3) la soluzione è 1 + 2 - 3 = 0.
+Non tutte le sequenze possono generare un'espressione con somma zero.
+Per esempio la sequenza 1 2 non ha soluzione.
+Inoltre una sequenza può avere più soluzioni.
+
+Il problema ha una soluzione se e solo se N o N+1 è divisibile per 4.
+Poiché S = 1+2+...+N = N*(N+1)/2, la somma dei numeri in ciascuno dei sottoinsiemi deve essere uguale a esattamente metà di S.
+Ciò implica che N*(N + 1)/2 deve essere pari come condizione necessaria per avere una soluzione.
+Notiamp che N*(N + 1)/2 è pari se e solo se N è un multiplo di 4 o N + 1 è un multiplo di 4.
+Infatti, se N*(N + 1)/2 = 2k, allora N*(N + 1) = 4k e poiché N o N + 1 è dispari, l'altro deve essere divisibile per 4.
+Al contrario, se N o N + 1 è un multiplo di 4, N (N + 1)/2 è ovviamente pari.
+
+Se N è divisibile per 4, una soluzione è quella di dividere la sequenza di numeri da 1 a N in N/4 gruppi di quattro numeri interi consecutivi e quindi mettere dei "+" prima del primo e del quarto numero e dei "-" prima del secondo e terzo numero in ognuno di questi gruppi:
+
+  (1 − 2 − 3 + 4) + ··· + ((n−3) − (n−2) − (n−1) + n) = 0       (1)
+
+Se n + 1 è divisibile per 4, allora n = 4k - 1 = 3 + 4 (k - 1) e possiamo usare lo stesso metodo dopo aver trattato i primi tre numeri come segue:
+
+  (1+2−3) + (4−5−6+7) + ··· + ((n−3) − (n−2) − (n−1) + n) = 0   (2)
+
+Algoritmo:
+Calcolare resto = N % 4 (il resto della divisione di N di 4).
+Se resto è uguale a 0, inserire i segni "+" e "-" come nella formula (1)
+Se resto è uguale a 3, inserire i segni "+" e "-" come nella formula (2)
+Altrimenti, restituire una lista vuota.
+
+(define (pari num)
+  (local (out tipo)
+    (setq out '())
+    (setq tipo (% num 4))
+    (cond
+      ((= tipo 0)
+        (setq lst (explode (sequence 1 num) 4))
+        (dolist (el lst)
+          (push (list (el 0) '- (el 1) '- (el 2) '+ (el 3)) out -1)
+          (push '+ out -1)
+        )
+        (pop out -1)) ; rimuove l'ultimo +
+      ((= tipo 3)
+        (setq lst (explode (sequence 4 num) 4))
+        (dolist (el lst)
+          (push '+ out -1)
+          (push (list (el 0) '- (el 1) '- (el 2) '+ (el 3)) out -1)
+        )
+        (push (list 1 '+ 2 '- 3) out)) ; aggiunge i primi 3 numeri
+      (true nil) ; impossibile trovare somma 0
+    )
+    out))
+
+Facciamo alcune prove:
+
+(pari 12)
+;-> ((1 - 2 - 3 + 4) + (5 - 6 - 7 + 8) + (9 - 10 - 11 + 12))
+
+Nota: la funzione "xlate" si trova nel file "yo.lsp".
+
+(eval (xlate (string (pari 12))))
+;-> 0
+
+(pari 23)
+;-> ((1 + 2 - 3) + (4 - 5 - 6 + 7) + (8 - 9 - 10 + 11) + 
+;->  (12 - 13 - 14 + 15) + (16 - 17 - 18 + 19) + (20 - 21 - 22 + 23))
+
+(eval (xlate (string (pari 23))))
+;-> 0
+
+(pari 25)
+;-> ()
+
+
+----------------------------------------------------------------
+Circonferenza con copertura massima di una lista di punti interi
+----------------------------------------------------------------
+
+Dato una lista di punti interi, trovare il centro di un cerchio di dimensioni predeterminate che contiene il maggior numero di punti.
+Esempio: 1000 punti, in un reticolo 500x500 e un cerchio di 50 di diametro.
+
+Per un'area rettangolare MxN, numero di punti P e raggio R:
+1) Inizializzare una matrice 2D di interi di dimensione MxN con tutti zeri
+2) Per ognuno dei punti P:
+  incrementare di 1 tutti i punti della mappa entro il raggio R
+3) Trovare l'elemento della matrice con il valore massimo: questo è il centro del cerchio che contiene il maggir numero di punti.
+
+(define (dist2d-2 x1 y1 x2 y2)
+"Calculates the square of 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (add (mul (sub x1 x2) (sub x1 x2))
+       (mul (sub y1 y2) (sub y1 y2))))
+
+(define (dist2d-2 x1 y1 x2 y2)
+"Calculates the square of 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (+ (* (- x1 x2) (- x1 x2))
+     (* (- y1 y2) (- y1 y2))))
+
+(define (circle-points radius pts)
+  (local (grid r2 cx cy xmin xmax ymin ymax lst)
+    (setq grid (array 501 501 '(0)))
+    (setq r2 (mul radius radius))
+    (dolist (p pts)
+      (setq cx (p 0))
+      (setq cy (p 1))
+      ; ricerca dei punti solo nel quadrato con centro cx,cy e lato 2*radius
+      ; (ottimale: analizzare un solo quadrante)
+      (setq xmin (- radius cx))
+      (setq xmax (+ radius cx))
+      (setq ymin (- radius cy))
+      (setq ymax (+ radius cy))
+      ; punto interno al cerchio?
+      (for (m xmin xmax 1)
+        (for (n ymin ymax 1)
+          (if (<= (dist2d-2 m n cx cy) r2) (++ (grid m n)))
+        )
+      )
+    )
+    ; ricerca nella matrice del punto con valore massimo
+    (setq lst (array-list grid))
+    (ref (apply max (flat lst)) lst)))
+
+(setq punti '((1 1) (3 3) (4 1) (4 3) (5 3)))
+(circle-points 2 punti)
+;-> (4 2)
+
+10 punti:
+(setq x (rand 499 10))
+(setq y (rand 499 10))
+(setq punti1 (map list x y))
+(time (println (circle-points 50 punti1)))
+;-> (22 420)
+;-> 758.945
+
+100 punti:
+(setq x (rand 499 100))
+(setq y (rand 499 100))
+(setq punti2 (map list x y))
+(time (println (circle-points 50 punti2)))
+(431 50)
+;-> 6758.597
+
+1000 punti:
+(setq x (rand 499 1000))
+(setq y (rand 499 1000))
+(setq punti3 (map list x y))
+(time (println (circle-points 50 punti3)))
+;-> (275 256)
+;-> 70624.953
+
+Nota: questo algoritmo è molto lento. Questo problema può essere risolto in mdo efficiente con l'algoritmo Angular Sweep.
 
 =============================================================================
 

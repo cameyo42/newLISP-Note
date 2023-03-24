@@ -2015,7 +2015,7 @@ Funzione che calcola il numero punti lattice inclusi in un cerchio centrato in (
 
 (define (circle-points r)
   (local (num r2)
-    (set 'num 0 'r2 (mul r r))
+    (set 'num 0 'r2 (* r r))
     (for (m (- r) r 1)
       (for (n (- r) r 1)
         (if (<= (+ (* m m) (* n n)) r2)
@@ -2029,6 +2029,10 @@ Funzione che calcola il numero punti lattice inclusi in un cerchio centrato in (
 ;-> 441
 
 Sequenza OEIS A000328:
+;-> 1, 5, 13, 29, 49, 81, 113, 149, 197, 253, 317, 377, 441, 529, 613, 709,
+;-> 797, 901, 1009, 1129, 1257, 1373, 1517, 1653, 1793, 1961, 2121, 2289, 
+;-> 2453, 2629, 2821, 3001, 3209, 3409, 3625, 3853, 4053, 4293, 4513, 4777,
+;-> 5025, 5261, 5525, 5789, 6077, 6361, 6625, ...
 
 (map circle-points (sequence 0 20))
 ;-> (1 5 13 29 49 81 113 149 197 253 317 377 441
@@ -2036,6 +2040,49 @@ Sequenza OEIS A000328:
 
 (circle-points (sqrt 17))
 ;-> 57
+
+Funzione che calcola il numero punti lattice inclusi in un cerchio centrato in (0,0) di raggio r.
+(ottimizzata calcolando i punti di un solo quadrante)
+
+(define (circle-points4 r)
+  (if (zero? r) 1
+    (begin
+      (local (num r2)
+        (set 'num 0 'r2 (mul r r))
+        ; i cicli partono da 1 per non considerare i punti sugli assi
+        (for (m 1 r 1)
+          (for (n 1 r 1)
+            (if (<= (+ (* m m) (* n n)) r2) (++ num))
+          )
+        )
+        ; num = numero di punti interni ad un quadrante del cerchio
+        ; tranne i punti che giacciono sugli assi (che sono r per ogni semiasse)
+        ;(println num)
+        ; 1 --> (0,0) 
+        ; (* 4 r) --> tutti i punti sugli assi
+        ; (* 4 num) per 4 quadranti
+        (+ 1 (* 4 r) (* 4 num))))))
+
+(circle-points4 12)
+;-> 441
+
+Vediamo se le funzioni producono gli stessi risultati:
+
+(circle-points 25)
+;-> 1961
+(circle-points4 25)
+;-> 1961
+
+(= (map circle-points (sequence 1 1e2))
+   (map circle-points4 (sequence 1 1e2)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(time (map circle-points (sequence 0 100)) 10)
+;-> 1709.847
+(time (map circle-points4 (sequence 0 100)) 10)
+;-> 429.919
 
 Funzione che calcola l'area di un cerchio con centro in (0,0) e raggio r (integer):
 
@@ -2107,6 +2154,8 @@ Adesso vediamo quali sono le coordinate dei punti interni al cerchio.
 ;->  (0 4) (1 -3) (1 -2) (1 -1) (1 0) (1 1) (1 2) (1 3) (2 -3) (2 -2)
 ;->  (2 -1) (2 0) (2 1) (2 2) (2 3) (3 -2) (3 -1) (3 0) (3 1) (3 2) (4 0))
 
+Nota: anche questa funzione potrebbe essere ottimizzata calcolando i punti di un solo quadante.
+
 
 --------------------
 Confronto tra numeri
@@ -2134,7 +2183,7 @@ bool definitelyLessThan(float a, float b, float epsilon)
   return (b - a) > ( (fabs(a) < fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
 
-Ovviamente, la scelta di epsilon dipende dal contesto e determina quanto vuoi che siano uguali i numeri.
+Ovviamente, la scelta di epsilon dipende dal contesto e determina quanto voglaimo che siano uguali i numeri.
 
 
 ------------------------------------------------------------------
@@ -2201,11 +2250,11 @@ A3: Posso usare una soluzione del tipo bit-set. Attraverso la lista e imposto a 
 (manca-uno3 a)
 ;-> 51
 
-Q4: Bene. Adesso la complessità temporale vale O(n) e la complessità spaziale vale O(N) perchè abbiamo usato un vettore temporaneo. Sapresti risolvere il problema con una complessità spaziale O(1)?
+Q4: Bene. Adesso la complessità temporale vale O(N) e la complessità spaziale vale O(N) perchè abbiamo usato un vettore temporaneo. Sapresti risolvere il problema con una complessità temporale e spaziale O(1)?
 
 A4: Idea: posso usare la formula della somma di N numeri.
 La somma di N numeri vale: (N + 1)*N/2. Per N=100 la somma vale 5050.
-Quindi, se tutti i numeri sono presenti nel sacchetto, la somma sarà esattamente 5050. Poiché manca un numero, la somma sarà inferiore a questo, e la differenza è quel numero. Quindi possiamo trovare quel numero mancante nel tempo O(N) e nello spazio O(1).
+Quindi, se tutti i numeri sono presenti nel sacchetto, la somma sarà esattamente 5050. Poiché manca un numero, la somma sarà inferiore a questo, e la differenza è quel numero. Quindi possiamo trovare quel numero mancante nel tempo O(1) e nello spazio O(1).
 
 A questo punto il programmatore pensava di aver risolto il problema, ma all'improvviso ecco una domanda inaspettata:
 
@@ -2954,7 +3003,7 @@ Vediamo se c'è qualche "collisione" (numeri ripetuti) fino a 10 milioni:
   )
   'end
 )
-;-> end
+;-> end ;nessuna collisione
 (delete 'hash)
 
 
