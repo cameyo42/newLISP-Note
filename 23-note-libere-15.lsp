@@ -3468,7 +3468,180 @@ Per un'area rettangolare MxN, numero di punti P e raggio R:
 ;-> (275 256)
 ;-> 70624.953
 
-Nota: questo algoritmo è molto lento. Questo problema può essere risolto in mdo efficiente con l'algoritmo Angular Sweep.
+Nota: questo algoritmo è molto lento. Questo problema può essere risolto in modo efficiente con l'algoritmo Angular Sweep.
+
+
+-------------------------------
+Teorema di Polya (Random Walks)
+-------------------------------
+
+Il teorema di ricorrenza di Polya afferma che una passeggiata casuale è ricorrente in reticoli (lattice) a 1 e 2 dimensioni ed è transitoria per reticoli con più di 2 dimensioni. Polya ha definito una passeggiata casuale come ricorrente se attraversa ogni singolo punto su un reticolo con probabilità 1, altrimenti la passeggiata è transitoria.
+
+Nel libro "An Introduction to Probability Theory and its Applications", Feller fornisce la seguente formulazione del teorema di Polya:
+
+Teorema
+Nelle passeggiate aleatorie simmetriche in una e due dimensioni c'è probabilità 1 che la particella prima o poi (e
+quindi infinitamente spesso) ritorna alla sua posizione iniziale.
+In tre dimensioni, tuttavia, questa probabilità è < 1.
+(La probabilità di ritorno in tre dimensioni è di circa 0.35).
+
+In generale:
+In 1D la particella ritorna allo posizione iniziale con probabilità 1.
+Distanza attesa dopo n passi: sqrt(n).
+
+In 2D la particella ritorna allo posizione iniziale con probabilità 1.
+Distanza attesa dopo n passi: sqrt(n).
+
+In 3D la particella ritorna allo posizione iniziale con probabilità 0.34.
+Distanza attesa dopo n passi: sqrt(n)*c(D), dove c(D) è una costante che dipende dalla dimensione D.
+
+Per le dimensioni superiori:
+In 4D la particella ritorna allo posizione iniziale con probabilità 0.19.
+In 5D la particella ritorna allo posizione iniziale con probabilità 0.14.
+In 6D la particella ritorna allo posizione iniziale con probabilità 0.10.
+In 7D la particella ritorna allo posizione iniziale con probabilità 0.09.
+In 8D la particella ritorna allo posizione iniziale con probabilità 0.07.
+
+Vediamo di simulare il processo di random walk in 1, 2 e 3 dimensioni.
+
+(define (go-1d iter)
+  (local (stop pos k)
+    (setq stop nil)
+    (setq pos 0)
+    (setq k 0)
+    (until (or stop (>= k iter))
+      (setq coord (rand 2))
+      (if (zero? coord)
+        (++ pos)
+        (-- pos)
+      )
+      (++ k)
+      ;(print pos) (read-line)
+      (if (= pos 0) (setq stop true ))
+    )
+    (list k pos)))
+
+(go-1d 1e5)
+;-> (2 0)
+
+(define (go-2d iter)
+  (local (stop pos k)
+    (setq stop nil)
+    (setq pos '(0 0))
+    (setq k 0)
+    (until (or stop (>= k iter))
+      (setq coord (rand 4))
+      (case coord
+        (0 (++ (pos 0)))
+        (1 (-- (pos 0)))
+        (2 (++ (pos 1)))
+        (3 (-- (pos 1)))
+      )
+      (++ k)
+      ;(print pos) (read-line)
+      (if (= pos '(0 0)) (setq stop true ))
+    )
+    (list k pos)))
+
+(go-2d 1e5)
+;-> (100000 (-15 -73))
+
+(define (go-3d iter)
+  (local (stop pos k)
+    (setq stop nil)
+    (setq pos '(0 0 0))
+    (setq k 0)
+    (until (or stop (>= k iter))
+      (setq coord (rand 6))
+      (case coord
+        (0 (++ (pos 0)))
+        (1 (-- (pos 0)))
+        (2 (++ (pos 1)))
+        (3 (-- (pos 1)))
+        (4 (++ (pos 2)))
+        (5 (-- (pos 2)))
+      )
+      (++ k)
+      ;(print pos) (read-line)
+      (if (= pos '(0 0 0)) (setq stop true ))
+    )
+    (list k pos)))
+
+(go-3d 1e5)
+;-> (100000 (-228 52 18))
+
+(define (return prove iter)
+  (setq r1 0 r2 0 r3 0)
+  (for (i 1 prove)
+    (if (!= iter ((go-1d iter) 0)) (++ r1))
+    (if (!= iter ((go-2d iter) 0)) (++ r2))
+    (if (!= iter ((go-3d iter) 0)) (++ r3))
+  )
+  (println r1 { } r2 { } r3)
+  (list (div r1 prove) (div r2 prove) (div r3 prove)))
+
+Facciamo alcune prove:
+
+Con 10 prove il risultato non è affidabile (solo per definire i tempi di esecuzione).
+(time (println (return 10 1e6)))
+;-> 10 5 4
+;-> (1 0.5 0.4)
+;-> 2214.077
+(time (println (return 10 1e7)))
+;-> 10 7 6
+;-> (1 0.7 0.6)
+;-> 14161.079
+(time (println (return 10 1e8)))
+;-> 10 7 5
+;-> (1 0.7 0.5)
+;-> 161621.354
+
+100 prove:
+(time (println (return 100 1e5)))
+;-> 100 75 36
+;-> (1 0.75 0.36)
+;-> 1837.259
+(time (println (return 100 1e6)))
+;-> 100 84 39
+;-> (1 0.84 0.39)
+;-> 15879.205
+(time (println (return 100 1e7)))
+;-> 100 83 29
+;-> (1 0.83 0.29)
+;-> 179723.59
+(time (println (return 100 1e8)))
+;-> 100 89 31
+;-> (1 0.89 0.31)
+;-> 1650074.581
+
+1000 prove:
+(time (println (return 1000 1e4)))
+;-> 995 741 336
+;-> (0.995 0.741 0.336)
+;-> 1978.672
+(time (println (return 1000 1e5)))
+;-> 998 764 357
+;-> (0.998 0.764 0.357)
+;-> 18442.772
+(time (println (return 1000 1e6)))
+;-> 997 813 337
+;-> (0.997 0.8129999999999999 0.337)
+;-> 177252.735
+
+10000 prove:
+(time (println (return 10000 1e4)))
+;-> 9930 7407 3376
+;-> (0.993 0.7407 0.3376)
+;-> 19414.774
+(time (println (return 10000 1e5)))
+;-> 9972 7836 3406
+;-> (0.9972 0.7836 0.3406)
+;-> 182199.293
+
+Le simulazioni hanno prodotto i seguenti risultati:
+  1D: quasi il 100% ritorna al punto 0 (congruente con il teorema)
+  2D: dal 74% al 89% ritorna al punto 0,0 (in "direzione" con il teorema)
+  3D: circa il 35% ritorna al punto 0,0,0 (congruente con il teorema)
 
 =============================================================================
 
