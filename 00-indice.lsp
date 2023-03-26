@@ -1740,6 +1740,7 @@ NOTE LIBERE 15
   Sequenze a somma zero  
   Circonferenza con copertura massima di una lista di punti interi
   Teorema di Polya (Random Walks)
+  Scrivere numeri
 
 APPENDICI
 =========

@@ -3643,5 +3643,243 @@ Le simulazioni hanno prodotto i seguenti risultati:
   2D: dal 74% al 89% ritorna al punto 0,0 (in "direzione" con il teorema)
   3D: circa il 35% ritorna al punto 0,0,0 (congruente con il teorema)
 
+
+---------------
+Scrivere numeri
+---------------
+
+Vogliamo scrivere una lista di numeri interi positivi 1, 2, 3,... usando il computer.
+Tuttavia, puoi premere ciascun tasto 0–9 al massimo N volte durante il processo.
+Qual è l'ultimo numero che riesci a scrivere in funzione di N?
+Esempio:
+N = 5 --> output = 12
+
+Sequenza: 1 2 3 4 5 6 7 8 9 10 11 12 13
+N di 1:   1                 2  34 5  6
+
+Possiamo scrivere i numeri 1,2,...,12 premendo il tasto "1" per 5 volte.
+Non possiamo scrivere 13 perchè premeremmo "1" per la sesta volta.
+
+(define (num-1 num)
+  (length (find-all "1" (join (map string (sequence 1 num))))))
+
+(map list (sequence 1 50) (map num-1 (sequence 1 50)))
+;-> ((1 1) (2 1) (3 1) (4 1) (5 1) (6 1) (7 1) (8 1) (9 1) (10 2) (11 4)
+;->  (12 5) (13 6) (14 7) (15 8) (16 9) (17 10) (18 11) (19 12) (20 12)
+;->  (21 13) (22 13) (23 13) (24 13) (25 13) (26 13) (27 13) (28 13) (29 13)
+;->  (30 13) (31 14) (32 14) (33 14) (34 14) (35 14) (36 14) (37 14) (38 14)
+;->  (39 14) (40 14) (41 15) (42 15) (43 15) (44 15) (45 15) (46 15) (47 15)
+;->  (48 15) (49 15) (50 15))
+
+(13 6) significa che nella sequenza 1..13 il numero "1" compare 6 volte.
+
+(test 13)
+
+(elenco 30)
+
+Algoritmo
+Per ogni numero in successione partendo da 1,
+  inserire ogni cifra del numero nella lista lunga 10 (0..9)
+  se la lista ha qualunque valore superiore a num, allora la sequenza ha superato il limite delle cifre prestabilito
+
+(define (test n)
+  ; lista delle occorrenze delle cifre
+  (setq digit (dup 0 10))
+  (setq stop nil)
+  (setq k 1)
+  (until stop
+    ; ciclo sulle cifre del numero-stringa
+    ; per aggiornare le occorrenze
+    (dostring (c (string k))
+      (++ (digit (- c 48)))
+    )
+    ; controllo numero occorrenze
+    (if (find (+ n 1) digit <=)
+        (setq stop true)
+        ;else
+        (++ k)
+    )
+  )
+  (-- k))
+
+(test 1)
+;-> 9
+(test 2)
+;-> 10
+(test 5)
+;-> 12
+
+(map test (sequence 1 22))
+;-> (9 10 10 11 12 13 14 15 16 17 18 20 30 40 50 60 70 80 90 99 100 100)
+
+(time (println (test 1e6)))
+;-> 1199999
+;-> 1806.034
+
+Funzione simile alla precedente:
+
+(define (test1 n)
+(let ( (digit (dup 0 10)) (k 1) )
+  (until (find (+ n 1) digit <=)
+    ;(print k { })
+    (dostring (c (string k))
+      (++ (digit (- c 48)))
+    )
+    (++ k)
+  )
+  (- k 2)))
+
+(test1 1)
+;-> 9
+(test1 2)
+;-> 10
+(test1 5)
+;-> 12
+
+(map test1 (sequence 1 22))
+;-> (9 10 10 11 12 13 14 15 16 17 18 20 30 40 50 60 70 80 90 99 100 100)
+
+(time (println (test1 1e6)))
+;-> 1199999
+;-> 1792.705
+
+(= (map test (sequence 1 101)) (map test1 (sequence 1 101)))
+;-> true
+
+Funzione simile alla precedente, ma attravera il numero dividendolo:
+
+(define (test2 n)
+  (let ( (digit (dup 0 10)) (k 1) (tmp 0))
+    (until (find (+ n 1) digit <=)
+      ;(print k { })
+      (setq tmp k)
+      (until (zero? tmp)
+        (++ (digit (% tmp 10)))
+        (setq tmp (/ tmp 10))
+      )
+      (++ k)
+    )
+    (- k 2)))
+
+(test2 1)
+;-> 9
+(test2 2)
+;-> 10
+(test2 5)
+;-> 12
+
+(map test2 (sequence 1 22))
+;-> (9 10 10 11 12 13 14 15 16 17 18 20 30 40 50 60 70 80 90 99 100 100)
+
+(time (println (test2 1e6)))
+;-> 1199999
+;-> 1780.264
+
+(= (map test (sequence 1 101)) (map test1 (sequence 1 101))
+   (map test2 (sequence 1 101)))
+;-> true
+
+Analizziamo quali numeri superano il limite e con quante occorrenze:
+
+(define (demo n)
+  (let ( (digit (dup 0 10)) (k 1) (tmp 0))
+    (until (find (+ n 1) digit <=)
+      ;(print k { })
+      (setq tmp k)
+      (until (zero? tmp)
+        (++ (digit (% tmp 10)))
+        (setq tmp (/ tmp 10))
+      )
+      (++ k)
+    )
+    (dolist (d digit) (println $idx " : " d))
+    (- k 2)))
+
+(demo 1)
+;-> 0 : 1
+;-> 1 : 2
+;-> 2 : 1
+;-> 3 : 1
+;-> 4 : 1
+;-> 5 : 1
+;-> 6 : 1
+;-> 7 : 1
+;-> 8 : 1
+;-> 9 : 1
+;-> 9
+(demo 100)
+;-> 0 : 26
+;-> 1 : 101
+;-> 2 : 37
+;-> 3 : 37
+;-> 4 : 36
+;-> 5 : 36
+;-> 6 : 30
+;-> 7 : 26
+;-> 8 : 26
+;-> 9 : 26
+;-> 162
+(demo 1000)
+;-> 0 : 391
+;-> 1 : 1001
+;-> 2 : 500
+;-> 3 : 500
+;-> 4 : 500
+;-> 5 : 401
+;-> 6 : 400
+;-> 7 : 400
+;-> 8 : 400
+;-> 9 : 400
+;-> 1499
+
+Notiamo che è sempre la cifra "1" che supera il limite impostato.
+
+(define (num-1 num)
+  (length (find-all "1" (join (map string (sequence 1 num))))))
+
+(map list (sequence 1 50) (map num-1 (sequence 1 50)))
+;-> ((1 1) (2 1) (3 1) (4 1) (5 1) (6 1) (7 1) (8 1) (9 1) (10 2) (11 4)
+;->  (12 5) (13 6) (14 7) (15 8) (16 9) (17 10) (18 11) (19 12) (20 12)
+;->  (21 13) (22 13) (23 13) (24 13) (25 13) (26 13) (27 13) (28 13) (29 13)
+;->  (30 13) (31 14) (32 14) (33 14) (34 14) (35 14) (36 14) (37 14) (38 14)
+;->  (39 14) (40 14) (41 15) (42 15) (43 15) (44 15) (45 15) (46 15) (47 15)
+;->  (48 15) (49 15) (50 15))
+
+Esempio:
+(13 6) significa che nella sequenza 1..13 il numero "1" compare 6 volte.
+
+Scriviamo una funzione che controlla solo il numero di "1".
+
+(define (test3 n)
+  (let ( (uno 0) (k 1) (tmp 0) )
+    (until (> uno n)
+      ;(print k { })
+      (setq tmp k)
+      (until (zero? tmp)
+        (if (= (% tmp 10) 1) (++ uno))
+        (setq tmp (/ tmp 10))
+      )
+      (++ k)
+    )
+    (-- k 2)))
+
+(test3 1)
+;-> 9
+(test3 2)
+;-> 10
+(test3 5)
+;-> 12
+
+(map test3 (sequence 1 22))
+;-> (9 10 10 11 12 13 14 15 16 17 18 20 30 40 50 60 70 80 90 99 100 100)
+
+(time (println (test3 1e6)))
+;-> 1199999
+;-> 968.746
+
+(= (map test (sequence 1 101)) (map test1 (sequence 1 101))
+   (map test2 (sequence 1 101)) (map test3 (sequence 1 101)))
+;-> true
+
 =============================================================================
 
