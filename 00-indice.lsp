@@ -1728,7 +1728,7 @@ NOTE LIBERE 15
   Numeri apocalittici
   Numeri fattoriali alternati
   Derivata aritmetica
-  Numeri metadrome plaindrome, nialpdrome e katadrome
+  Numeri metadrome, plaindrome, nialpdrome e katadrome
   Numeri zigodromi
   Numeri modesti
   Attraversamento di liste e stringhe (numeri palindromi)
@@ -1741,6 +1741,7 @@ NOTE LIBERE 15
   Circonferenza con copertura massima di una lista di punti interi
   Teorema di Polya (Random Walks)
   Scrivere numeri
+  Funzione "exists" e "for-all"
 
 APPENDICI
 =========

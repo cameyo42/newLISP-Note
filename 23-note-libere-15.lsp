@@ -1830,7 +1830,7 @@ Vediamo la velocità delle due funzioni:
 Numeri nudi
 -----------
 
-Y.Katagiri chiama un numero nudo se è divisibile per tutte le sue cifre (che dovrebbero essere diverse da zero).
+Y. Katagiri chiama un numero nudo se è divisibile per tutte le sue cifre (che dovrebbero essere diverse da zero).
 Per esempio, 672 = 6*112 = 7*96 = 2*336.
 (Il numero è chiamato "nudo" perché espone alcuni dei suoi fattori).
 
@@ -2383,9 +2383,9 @@ Calcoliamo le derivate dei numeri da -99 a 100:
 ;->  (20 96 34 49 24 272 1 77 75 140))
 
 
----------------------------------------------------
-Numeri metadrome plaindrome, nialpdrome e katadrome
----------------------------------------------------
+----------------------------------------------------
+Numeri metadrome, plaindrome, nialpdrome e katadrome
+----------------------------------------------------
 
 Un numero è "metadrome" se le sue cifre sono in ordine strettamente crescente.
 Ad esempio, 1234, 68 e 12789 sono tutti metadrome.
@@ -3194,10 +3194,10 @@ Per ottimizzare il calcolo possiamo precalcolare la somma dei divisori di tutti 
 Lista con le somme dei divisori di tutti i numeri da 1 a 1e8 (100 milioni):
 
 (time (setq sum-div (crea-sigma 1e8)))
-;-> 616166.762 ;10 minuti e 16 secondi 
+;-> 616166.762 ;10 minuti e 16 secondi
 
 (save "sum-div.lsp" 'sum-div)
-;-> true 
+;-> true
 Ci mette alcuni minuti a salvare un file con 100 milioni di numeri...
 sum-div.lsp --> 950 Mbyte circa
 
@@ -3221,7 +3221,7 @@ Per fare una prova:
     (sort out)))
 
 (time (println (test2 20)))
-;-> ((1 0) (1 6) (1 28) (1 496) (1 8128) (1 33550336) 
+;-> ((1 0) (1 6) (1 28) (1 496) (1 8128) (1 33550336)
 ;->  (2 21) (2 2133) (2 19521) (2 176661)
 ;->  (3 325)
 ;->  (4 1950625)
@@ -3383,7 +3383,7 @@ Nota: la funzione "xlate" si trova nel file "yo.lsp".
 ;-> 0
 
 (pari 23)
-;-> ((1 + 2 - 3) + (4 - 5 - 6 + 7) + (8 - 9 - 10 + 11) + 
+;-> ((1 + 2 - 3) + (4 - 5 - 6 + 7) + (8 - 9 - 10 + 11) +
 ;->  (12 - 13 - 14 + 15) + (16 - 17 - 18 + 19) + (20 - 21 - 22 + 23))
 
 (eval (xlate (string (pari 23))))
@@ -3880,6 +3880,83 @@ Scriviamo una funzione che controlla solo il numero di "1".
 (= (map test (sequence 1 101)) (map test1 (sequence 1 101))
    (map test2 (sequence 1 101)) (map test3 (sequence 1 101)))
 ;-> true
+
+
+-----------------------------
+Funzione "exists" e "for-all"
+-----------------------------
+
+*******************
+>>>funzione EXISTS
+*******************
+sintassi: (exists func-condition list)
+
+Successivamente applica "func-condition" agli elementi di list e restituisce il primo elemento che soddisfa la condizione in "func-condition". Se nessun elemento soddisfa la condizione, viene restituito nil.
+
+(exists string? '(2 3 4 6 "hello" 7))
+;-> "hello"
+
+(exists string? '(3 4 2 -7 3 0))
+;-> nil
+
+(exists zero? '(3 4 2 -7 3 0))
+;-> 0 ; check for 0 or 0.0
+
+(exists < '(3 4 2 -7 3 0))
+;-> -7 ; check for negative
+
+(exists (fn (x) (> x 3)) '(3 4 2 -7 3 0))
+;-> 4
+
+(exists (fn (x) (= x 10)) '(3 4 2 -7 3 0))  → nil
+
+Se "func-condition" è "nil?", il risultato nil è ambiguo. In questo caso "index" o "find" sono il metodo migliore quando si cerca nil.
+
+Utilizzare la funzione "for-all" per verificare se una condizione è soddisfatta per tutti gli elementi in un elenco.
+
+********************
+>>>funzione FOR-ALL
+********************
+sintassi: (for-all func-condition list)
+
+Applica la funzione in "func-condition" a tutti gli elementi in list. Se tutti gli elementi soddisfano la condizione in "func-condition", il risultato è true, in caso contrario, viene restituito nil.
+
+(for-all number? '(2 3 4 6 7))
+;-> true
+
+(for-all number? '(2 3 4 6 "hello" 7))
+;-> nil
+
+(for-all (fn (x) (= x 10)) '(10 10 10 10 10))
+;-> true
+
+Utilizzare la funzione "exists" per verificare se almeno un elemento in un elenco soddisfa una condizione.
+
+Vediamo alcuni esempi:
+
+(exists integer? '())
+;-> nil
+(exists integer? '(a b 3 t 7))
+;-> 3
+(for-all integer? '(a b 3 t 7))
+;-> nil
+
+
+(for-all integer? '())
+;-> true
+(for-all float? '())
+;-> true
+
+Il risultato delle ultime due espressioni lascia un pò perplessi.
+Comunque è corretto dal punto di vista matematico, infatti il rapporto tra la quantificazione esistenziale e universale è abbastanza chiaro:
+
+(not (for-all integer? L)) è equivalente a (exists (fn(x) (not (integer? x))) L)
+
+e viceversa
+
+(not (exists integer? L)) è equivalente a (for-all (fn(x) (not integer? x))) L)
+
+Quindi, una volta deciso che (exists) su una lista vuota restituisce nil (il che ha senso), (for-all) per una lista vuota deve restituire true.
 
 =============================================================================
 
