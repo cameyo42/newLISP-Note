@@ -3958,5 +3958,218 @@ e viceversa
 
 Quindi, una volta deciso che (exists) su una lista vuota restituisce nil (il che ha senso), (for-all) per una lista vuota deve restituire true.
 
+
+----------------------------
+Scheme style e newLISP style
+----------------------------
+
+Jeff:
+-----
+Returns the first item that satisfies a predicate. 
+Unlike find and ref, this returns the entire element, rather than its index.
+
+(define (first-that lambda-p lst)
+  "Returns first item in list that satisfies lambda-p."
+  (if (lambda-p (first lst))
+    (first lst)
+    (first-that lambda-p (rest lst))))
+
+(first-that integer? '(a r 4 t 2))
+;-> 4
+
+Nota: questa funzione è analoga alla funzione integrata "exists".
+
+Lutz:
+-----
+Beyond the fact that the built-in 'exists' does the same functionality, I wanted to make some other comments about this code:
+
+(define (first-that lambda-p lst)
+  "Returns first item in list that satisfies lambda-p."
+  (if (lambda-p (first lst))
+    (first lst)
+    (first-that lambda-p (rest lst))))
+
+This is the kind of algorithm people use who have learned Scheme or have been teached other older LISP dialects favouring recursion and trying to avoid iteration.
+
+The principle used here is iterating through a list by applying an operation to the first element and then recursing the function with the rest of the list.
+
+newLISP has many built-in function to make this type of problem easier to code and much faster in execution:
+
+(define (first-that lambda-p lst)
+   (first (filter lambda-p lst)))
+
+or to retrieve all for that lambda-p is not true:
+
+(define (first-that-not lambda-p lst)
+   (first (clean lambda-p lst)))
+
+ps: this is not to criticize Jeff's code but to point out differences between programming in newLISP versus what is normally teached when learning Lisp ;-)
+
+Jeff:
+-----
+Good point, Lutz. I do tend toward recursion and older lispy techniques. 
+And we should always try the existing solution first before writing our own.
+
+I did not use filter because (filter lambda-p lst) first expands by applying lambda-p to each item in lst. 
+My solution short-circuits when it hits the first non-nil evaluation.
+
+I did not imagine that filter would be faster since it is applying a lambda as well and does not short-circuit. Is there a fault in that logic?
+
+ps: I of course don't take offense Lutz. Code doesn't get better if it doesn't get comments :)
+
+rickyboy:
+---------
+Jeff,
+Love the recursion! ;-) It's missing the base case, but looks beautiful anyway.
+
+Lutz,
+Your version, of course, doesn't need a base case, but Jeff is right about the short-circuiting logic. 
+If he rewrote his short-circuiting version iteratively, it would probably be the most efficient lambda implementation. 
+Your version would be pretty much be the most efficient way to implement it, if newLISP's evaluator was non-eager, then filter would only need to return its output's head to first, and not bother to process the rest of its input -- like UNIX pipelines, naturally short-circuiting!
+
+Jeff:
+-----
+Rickyboy,
+The base case is nil because it is technically a predicate. 
+If nothing in the list evaluates as t, it should simply not return any elements - an empty list.
+
+rickyboy:
+---------
+Here's why the base case (which checks for the end of list) is needed:
+
+(rest '())
+;-> ()
+(first '())
+;-> nil
+
+So, something like (first-that string? '(a-symbol 42)) will cause a stack overflow.
+
+Jeff:
+-----
+Ah, I assumed that it would return nil. 
+I wasn't thinking and got sloppy :). I should have done:
+
+(if (rest lst) (first-that lambda-p (rest lst)) nil)
+
+or something on the last line there.
+
+
+--------------------
+Funzioni statistiche
+--------------------
+
+Nell'ambito della statistica, della simulazione e della modellistica, newLISP ha le seguenti funzione integrate:
+
+amb           randomly selects an argument and evaluates it
+bayes-query   calculates Bayesian probabilities for a data set
+bayes-train   counts items in lists for Bayesian or frequency analysis
+corr          calculates the product-moment correlation coefficient
+crit-chi2     calculates the Chi^2 statistic for a given probability
+crit-f        calculates the F statistic for a given probability
+crit-t        calculates the Student's t statistic for a given probability
+crit-z        calculates the normal distributed Z for a given probability
+kmeans-query  calculates distances to cluster centroids or other data points
+kmeans-train  partitions a data set into clusters
+normal        makes a list of normal distributed floating point numbers
+prob-chi2     calculates the tail probability of a Chi^2 distribution value
+prob-f        calculates the tail probability of a F distribution value
+prob-t        calculates the tail probability of a Student t distribution value
+prob-z        calculates the cumulated probability of a Z distribution value
+rand          generates random numbers in a range
+random        generates a list of evenly distributed floats
+randomize     shuffles all of the elements in a list
+seed          seeds the internal random number generator
+stats         calculates some basic statistics for a data vector
+t-test        compares means of data samples using the Student's t statistic
+
+Inoltre c'è un modulo di statistiche "stat.lsp" nella cartella "modules" dove è installato newLISP.
+La documentazione si trova al seguente indirizzo:
+
+http://newlisp.org/code/modules/stat.lsp.html
+
+Per utilizzare questo modulo deve essere prima caricarlo:
+
+(load (append (env "NEWLISPDIR") "/modules/stat.lsp"))
+; oppure
+(module "stat.lsp")
+
+Tutte le funzioni funzionano su numeri interi e float o su una combinazione di entrambi.
+Le liste sono normali liste LISP. Le matrici sono liste di liste, una lista per ogni riga nella matrice dati bidimensionale.
+Vedere la funzione stat:matrix su come creare matrici da liste.
+
+Esempio:
+(module "stat.lsp")
+(set 'lst '(4 5 2 3 7 6 8 9 4 5 6 9 2))
+(stat:sdev lst)
+;-> 2.39925202
+
+Elenco delle funzioni del modulo "stats.lsp":
+---------------------
+
+General uni-variate and bi-variate statistics
+---------------------------------------------
+  stat:sum         - sum of a vector of numbers
+                     (see also built-in stats since 10.4.2)
+  stat:mean        - arithmetic mean of a vector of numbers
+                     (see also built-in stats since 10.4.2)
+  stat:var         - estimated variance of numbers in a vector sample
+  stat:sdev        - estimated standard deviation of numbers in a vector
+                     (see also built-in stats since 10.4.2)
+  stat:sum-sq      - sum of squares of a data vector
+  stat:sum-xy      - sum of products of a two data vectors
+  stat:corr        - correlation coefficient between two vectors
+                     (see also corr built-in since 10.4.2)
+  stat:cov         - covariance of two number vectors
+  stat:sum-d2      - sum of squared differences of a vector from its mean
+  stat:sum-d2xy    - sum of squared differences of two vectors
+  stat:regression  - calculates the intecept and slope of a regression estimate
+  stat:fit         - return the fitted line using regression coefficients
+  stat:moments     - calculates 1st to 3rd moments from a vector of numbers
+
+Multi variate statistics
+------------------------
+  stat:multiple-reg  - calculates a multiple regression
+  stat:cov-matrix    - calculates a covariance matrix
+  stat:corr-matrix   - calculates a correlation matrix
+
+Time series
+-----------
+  stat:smooth    - smoothes a vector of numbers
+  stat:lag       - calculates a difference list with specified lag
+  stat:cumulate  - cumulate a data vector
+  stat:power     - calculates the power spectrum of a time series
+
+Matrix and list utilities
+-------------------------
+  stat:matrix      - make a matrix from column vectors
+  stat:diagonal    - make a diagonal matrix
+  stat:get-diagonal - return the diagonal of a matrix in a vector
+  stat:mat-map       - map a binary function on to matrices
+
+Vedere anche:
+
+  "Varianza e deviazione standard, (N-1) oppure N?" su "Note libere 10"
+  "Medie statistiche" su "Note libere 10"
+  "I cinque numeri di Tukey (Tukey's fivenum)" su "Note libere 10"
+  "Quantili, quartili, percentili" su "Note libere 13"
+  "Box-plot e valori anomali (outlier)" su "Note libere 13"
+  "Statistica: Skewness e Kurtosis" su "Note libere 13"
+
+Funzioni per il calcolo dei due tipi di deviazione standard:
+
+1) Deviazione Standard con (N-1):
+
+(define (sdev lst) 
+(sqrt (div (sub (apply add (map mul lst lst))
+                (div (mul (apply add lst) (apply add lst)) (length lst)))
+           (sub (length lst) 1))))
+
+2) Deviazione Standard con N:
+
+(define (stdev lst) 
+(sqrt (div (sub (apply add (map mul lst lst)) 
+                (div (mul (apply add lst) (apply add lst)) (length lst)))
+           (length lst))))
+
 =============================================================================
 

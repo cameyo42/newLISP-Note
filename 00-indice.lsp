@@ -1742,6 +1742,8 @@ NOTE LIBERE 15
   Teorema di Polya (Random Walks)
   Scrivere numeri
   Funzione "exists" e "for-all"
+  Scheme style e newLISP style
+  Funzioni statistiche
 
 APPENDICI
 =========
