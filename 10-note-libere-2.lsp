@@ -6070,9 +6070,15 @@ Somma dei divisori
 ;-> 178422816
 
 
--------------------
-Sequenza di Collatz
--------------------
+-----------------------------
+Sequenza di Collatz/Hailstone
+-----------------------------
+
+La sequenza di numeri di Collatz (o Hailstone) può essere generata da un numero intero positivo iniziale, n da:
+
+   se n è 1, la sequenza termina.
+   se n è pari anche allora il successivo n della sequenza vale n / 2
+   se n è dispari allora il successivo n della sequenza vale (3 * n) + 1
 
 Vediamo alcune funzioni per giocare con la sequenza di collatz:
 
@@ -6142,6 +6148,35 @@ Test di correttezza:
 ;-> nil
 (for (i 1 10000) (if (!= (collatzf-length i) (collatzi-length i)) (println i)))
 ;-> nil
+
+Vediamo le versioni ricorsive e funzionali proposte da Lutz:
+
+; recursive solution
+(define (collatz n)
+    (let (result '())
+        (if (= n 1)
+            (append result '(1))
+            (begin
+                (set 'k (if (= (% n 2) 0)
+                    (/ n 2)
+                    (+ 1 (* 3 n))))
+                (set 'result (cons n (collr k)))))))
+
+(collatz 9)
+;-> (9 28 14 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1)
+
+; non-recursive solution
+(define (collatz n)
+    (let (result (list n))
+        (do-until (= n 1)
+            (set 'n (push (if (= (% n 2) 0)
+                        (/ n 2)
+                        (+ 1 (* 3 n))) result -1)))
+        result))
+
+(collatz 9)
+;-> (9 28 14 7 22 11 34 17 52 26 13 40 20 10 5 16 8 4 2 1)
+
 
 
 ----------

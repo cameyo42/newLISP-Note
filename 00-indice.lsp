@@ -1744,6 +1744,10 @@ NOTE LIBERE 15
   Funzione "exists" e "for-all"
   Scheme style e newLISP style
   Funzioni statistiche
+  Property List in LISP
+  Error handling
+  Character counter, import C demo
+  Codice come parametro di una funzione
 
 APPENDICI
 =========

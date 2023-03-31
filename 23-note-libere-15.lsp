@@ -2638,7 +2638,7 @@ secondo confronto: 1(2)5(2)1 --> cifre uguali  --> prossima coppia
 terzo confronto:   12(5)21   --> cifra uguale  --> numero palindromo
 
 Sequenza OEIS A002113:
-	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101,
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101,
   111, 121, 131, 141, 151, 161, 171, 181, 191, 202, 212, 222, 232, 242,
   252, 262, 272, 282, 292, 303, 313, 323, 333, 343, 353, 363, 373, 383,
   393, 404, 414, 424, 434, 444, 454, 464, 474, 484, 494, 505, 515, ...
@@ -3965,7 +3965,7 @@ Scheme style e newLISP style
 
 Jeff:
 -----
-Returns the first item that satisfies a predicate. 
+Returns the first item that satisfies a predicate.
 Unlike find and ref, this returns the entire element, rather than its index.
 
 (define (first-that lambda-p lst)
@@ -4007,10 +4007,10 @@ ps: this is not to criticize Jeff's code but to point out differences between pr
 
 Jeff:
 -----
-Good point, Lutz. I do tend toward recursion and older lispy techniques. 
+Good point, Lutz. I do tend toward recursion and older lispy techniques.
 And we should always try the existing solution first before writing our own.
 
-I did not use filter because (filter lambda-p lst) first expands by applying lambda-p to each item in lst. 
+I did not use filter because (filter lambda-p lst) first expands by applying lambda-p to each item in lst.
 My solution short-circuits when it hits the first non-nil evaluation.
 
 I did not imagine that filter would be faster since it is applying a lambda as well and does not short-circuit. Is there a fault in that logic?
@@ -4023,14 +4023,14 @@ Jeff,
 Love the recursion! ;-) It's missing the base case, but looks beautiful anyway.
 
 Lutz,
-Your version, of course, doesn't need a base case, but Jeff is right about the short-circuiting logic. 
-If he rewrote his short-circuiting version iteratively, it would probably be the most efficient lambda implementation. 
+Your version, of course, doesn't need a base case, but Jeff is right about the short-circuiting logic.
+If he rewrote his short-circuiting version iteratively, it would probably be the most efficient lambda implementation.
 Your version would be pretty much be the most efficient way to implement it, if newLISP's evaluator was non-eager, then filter would only need to return its output's head to first, and not bother to process the rest of its input -- like UNIX pipelines, naturally short-circuiting!
 
 Jeff:
 -----
 Rickyboy,
-The base case is nil because it is technically a predicate. 
+The base case is nil because it is technically a predicate.
 If nothing in the list evaluates as t, it should simply not return any elements - an empty list.
 
 rickyboy:
@@ -4046,7 +4046,7 @@ So, something like (first-that string? '(a-symbol 42)) will cause a stack overfl
 
 Jeff:
 -----
-Ah, I assumed that it would return nil. 
+Ah, I assumed that it would return nil.
 I wasn't thinking and got sloppy :). I should have done:
 
 (if (rest lst) (first-that lambda-p (rest lst)) nil)
@@ -4159,17 +4159,286 @@ Funzioni per il calcolo dei due tipi di deviazione standard:
 
 1) Deviazione Standard con (N-1):
 
-(define (sdev lst) 
+(define (sdev lst)
 (sqrt (div (sub (apply add (map mul lst lst))
                 (div (mul (apply add lst) (apply add lst)) (length lst)))
            (sub (length lst) 1))))
 
 2) Deviazione Standard con N:
 
-(define (stdev lst) 
-(sqrt (div (sub (apply add (map mul lst lst)) 
+(define (stdev lst)
+(sqrt (div (sub (apply add (map mul lst lst))
                 (div (mul (apply add lst) (apply add lst)) (length lst)))
            (length lst))))
+
+
+---------------------
+Property List in LISP
+---------------------
+
+In Lisp, ogni simbolo ha una property list (lista delle proprietà: plist).
+Quando viene creato un simbolo, inizialmente la sua lista delle proprietà è vuota.
+Una lista di proprietà è costituita da elementi in cui ognuno di essi è costituito da una chiave chiamata "indicatore" e da un valore chiamato "proprietà".
+Non ci sono duplicati tra gli indicatori.
+A differenza delle liste di associazione, le operazioni per aggiungere e rimuovere voci di plist alterano il plist piuttosto che crearne uno nuovo.
+
+Esempio:
+
+;using setf (which understands get as a place description)
+;to create indicator age with value 20 of symbol simbolo.
+(setf (get 'simbolo 'age ) 20)
+
+;using setf (which understands get as a place description)
+;to create indicator occupation with value doctor of symbol simbolo.
+(setf (get 'simbolo 'occupation ) 'doctor)
+
+;using setf (which understands get as a place description)
+;to create indicator book with value math of symbol simbolo.
+(setf (get 'simbolo 'book ) 'math)
+
+;using symbol-plist to return simbolo(symbol's) plist .
+(write (symbol-plist 'simbolo))
+;-> (book math occupation doctor age 20)
+
+;using remprop to remove property of symbol simbolo
+;which has indicator book
+(terpri)
+(remprop 'simbolo 'book)
+
+(write (symbol-plist 'simbolo))
+;-> (occupation doctor age 20)
+(terpri)
+(setq x '())
+(setf (getf x 'height ) 20)
+
+;using setf along with getf to set property of
+;indicator height as 20 at place x
+(write(eq(getf x 'height) 20))
+;-> t
+
+;using eq to check if property of
+;indicator height at place x is 20
+(terpri)
+(remf x 'height)
+
+;using remf to remove property
+;of indicator height at place x
+(write(eq(getf x 'height) 20))
+;-> n
+
+In newLISP non esistono le plist, ma è possibile creare qualcosa di simile.
+
+(define-macro (plist)
+  (map rest (explode (args) 3)))
+
+(plist :foo "bar" :baz "bat")
+;-> ((foo "bar") (baz "bat"))
+
+
+--------------
+Error handling
+--------------
+
+Dal manuale "Code Patterns in newLISP":
+
+Several conditions during evaluation of a newLISP expression can cause error exceptions. For a complete list of errors see the Appendix in the newLISP Reference Manual.
+
+newLISP errors
+--------------
+newLISP errors are caused by the programmer using the wrong syntax when invoking functions, supplying the wrong number of parameters or parameters with the wrong data type, or by trying to evaluate nonexistent functions.
+
+; examples of newLISP errors
+;
+(foo foo)
+;-> ERR: invalid function : (foo foo)
+(+ "hello")
+;-> ERR: value expected in function + : "hello"
+
+User defined errors
+-------------------
+User errors are error exceptions thrown using the function throw-error:
+
+; user defined error
+;
+(define (double x)
+    (if (= x 99) (throw-error "illegal number"))
+    (+ x x)
+)
+
+(double 8)
+;-> 16
+(double 10)
+;-> 20
+(double 99)
+;-> ERR: user error : illegal number
+;-> called from user function (double 99)
+
+Error event handlers
+--------------------
+newLISP and user defined errors can be caught using the function error-event to define an event handler.
+
+; define an error event handler
+;
+(define (MyHandler)
+    (println  (last (last-error))  " has occurred"))
+
+(error-event 'MyHandler)
+
+(foo)
+;-> ERR: invalid function : (foo) has occurred
+
+Catching errors
+---------------
+A finer grained and more specific error exception handling can be achieved using a special syntax of the function catch.
+
+(define (double x)
+    (if (= x 99) (throw-error "illegal number"))
+    (+ x x))
+
+catch with a second parameter can be used to catch both system and user-defined errors:
+
+(catch (double 8) 'result)
+;-> true
+result
+;-> 16
+(catch (double 99) 'result)
+;-> nil
+(print result)
+;-> ERR: user error : illegal number
+;-> called from user function (double 99)
+;-> "ERR: user error : illegal number\r\ncalled from user function (double 99)"
+
+(catch (double "hi") 'result)
+;-> nil
+(print result)
+;-> ERR: value expected in function + : "hi"
+;-> called from user function (double "hi")
+;-> "ERR: value expected in function + : \"hi\"\r\ncalled from user function (double \"hi\")"
+
+The catch expression returns true when no error exception occurred, and the result of the expression is found in the symbol result specified as a second parameter.
+
+If an error exception occurs, it is caught and the catch clause returns nil. In this case the symbol result contains the error message.
+
+Operating system errors
+-----------------------
+Some errors originating at operating system level are not caught by newLISP, but can be inspected using the function sys-error. For example the failure to open a file could have different causes:
+
+; trying to open a nonexistent file
+(open "blahbla" "r")
+;-> nil
+(sys-error)
+;-> (2 "No such file or directory")
+
+; to clear errno specify 0
+(sys-error 0)
+;-> (0 "No error")
+
+Numbers returned may be different on different Unix platforms. Consult the file /usr/include/sys/errno.h on your platform.
+
+Simple error handling in newLisp (by Jeff Ober)
+-----------------------------------------------
+http://artfulcode.nfshost.com/files/simple-error-handling-in-newlisp.html
+
+When I first began to program newLisp, I was concerned that it lacked the structured error handling syntax of the imperative languages I was used to. As my software begins to mature and I add more sophisticated error handling, I find that newLisp's simple functions result in cleaner, more expressive code.
+
+When I write Python or PHP, I often find myself spending as much time writing complicated chains of exception handling code, trying to anticipate all possible types of errors ahead of time. The majority of the software I write is for the web. In reality, the vast majority of errors that can happen are due to programmer error, whether it be a forgotten semi-colon (in the case of PHP), or an unexpected input type from a form. What is more important than handling every type of error is that the problem can be quickly defined and located so that the end user does not experience an excessive outage.
+
+newLisp's simple functions are not only adequate for these tasks, they make them trivial. In Python or PHP, I must write a long series of catch/except structures to allow different handling of each type of error. With newLisp, it is as simple as a cond expression. Take this example, where I cause an error condition using the function, throw-error:
+
+(define (error-prone) (throw-error "Hello from the error!"))
+
+(catch (error-prone) 'caught)
+
+Now, the error message generated by the (error-prone) expression lives in 'caught. Not only that, but the catch expression will return either true or nil, so that we can write:
+
+(if (catch (error-prone) 'caught)
+  (println "We won't ever get here, because error-prone always
+    throws an error")
+  (cond
+    ((some condition) (some response))
+    ((some other condition) (some other response))
+    (true (catch-all response for unhandled errors))))
+
+In truth, I was surprised by how effective this was. I was so accustomed to defining my own exceptions and sending them up the chain to the appropriate handlers that I got lost in the syntax, so to speak. Error call-backs can be defined as lambdas within the cond statement or simply passed to the cond expression by value.
+
+For global errors, (error-event 'lambda) allows the definition of a general error handler. All uncaught errors will trigger this function, which accepts no arguments, but can access error information through functions like (error-text) and (error-number).
+
+Imperative languages tend toward overly verbose solutions. This is due to the fact that the language attempts to speak human, rather than computer. Unfortunately, humans do not favor the concise, definitive syntax a computer demands. To solve this, strict, wordy structures are needed to express something that is neither as efficient or eloquent as a similar expression in a more logically formulated language like lisp.
+
+Vedere anche "Gestione degli errori" su "Note libere 2".
+
+
+--------------------------------
+Character counter, import C demo
+--------------------------------
+
+A short C program:
+
+#include <stdio.h>
+#include <memory.h>
+
+int cnts[128];
+
+int * count_characters(char * str, int length)
+   {
+   int i;
+
+   memset((void *)cnts, 0, 128 * sizeof(int));
+
+   for(i = 0; i < length; i++)
+       cnts[str[i]] += 1;
+
+   return(cnts);
+   }
+
+Compile it to a shared library:
+
+on macOS:
+   gcc count-characters.c -bundle -o count-characters.dylib
+
+on other UNIX
+   gcc count-characters.c -shared -o count-characters.so
+
+Now use it:
+
+newLISP v.9.2.0 on OSX UTF-8, execute 'newlisp -h' for more info.
+
+(define count-chars (import "count-characters.dylib" "count_characters"))
+;-> count_characters <8CEF0>
+
+(unpack (dup "lu" 128) (count-chars (read-file "war_and_peace.txt") 3217389))
+;-> (0 0 0 0 0 0 0 0 0 0 67418 0 0 0 0 0 0 0 0 0 0 
+;->  0 0 0 0 0 0 0 0 0 0 0 511976 3938 17974 2 1 3 0 
+;->  7526 640 640 339 1 39921 5850 30686 26 230 348 
+;->  163 55 25 49 51 38 169 54 1003 1148 1 2 1 3138 
+;->  2 6204 3638 1783 2021 1867 1908 1247 4016 7404 
+;->  320 1191 687 3288 3627 1638 6117 35 2704 2974 
+;->  6464 278 939 2896 348 1265 108 47 0 47 0 1 0 
+;->  199012 30984 59225 116122 312451 52818 49877 
+;->  162871 166004 2214 19194 95740 58261 180228 
+;->  190868 38854 2300 144967 159746 219083 65006 
+;->  25940 56197 3719 44945 2282 0 0 0 1 0)
+
+
+-------------------------------------
+Codice come parametro di una funzione
+-------------------------------------
+
+(define (take func lst exp-cond)
+  (let ((done nil) (out '()) (res nil))
+    (dolist (el lst done)
+      (setq res (func el))
+      (if (eval exp-cond)
+          (push res out -1)
+          (setq done true)
+      )
+    )
+    out))
+
+(define (f x) (* x x))
+
+(take f (sequence 1 100) '(< res 145))
+;-> (1 4 9 16 25 36 49 64 81 100 121 144)
 
 =============================================================================
 
