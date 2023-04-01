@@ -7184,7 +7184,7 @@ Questo operatore è molto utile quando abbiamo bisogno di estrarre informazioni 
 
 Se assegniamo un nome ai gruppi (usando (?<nome> ...)) saremo in grado di recuperare i valori del gruppo usando il risultato della corrispondenza come un dizionario in cui le chiavi saranno il nome di ciascun gruppo.
 
-Espressioni con parentesi: "[]"
+Espressioni con parentesi: "[]"
 -------------------------------
 [abc]
 matches a string that has either an a or a b or a c -> is the same as a|b|c
@@ -7304,6 +7304,8 @@ str  → "---bxa---bya---"
 str    → "xxxAxxxB"
 
 $count → 2
+
+Nota: le variabili globali $n ($0, $1, $2, ...) non vengono reimpostate su nil ogni volta che vengono utilizzate "regex" o "replace". Basta impostare le variabili $n su nil prima di chiamare la funzione successiva che le imposta. Per ovviare a questo comportamento possiamo definire una funzione che imposta tutte le variabili $n su nil.
 
 Un'altra funzione che può usare le espressioni regolari è "search".
 

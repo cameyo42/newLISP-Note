@@ -1748,6 +1748,7 @@ NOTE LIBERE 15
   Error handling
   Character counter, import C demo
   Codice come parametro di una funzione
+  Addizioni e sottrazioni alternate in una lista
 
 APPENDICI
 =========

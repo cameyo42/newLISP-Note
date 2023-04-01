@@ -5421,7 +5421,7 @@ Adesso vediamo la differenza di velocità tra le funzioni:
 ;-> -500000
 ;-> 110.02
 (time (println (sub-add (sequence 1 1e6))))
-;-> 500002
+;-> -500000
 ;-> 83.355
 
 In questo caso le funzioni iterative sono più veloci delle funzioni in stile LISP.

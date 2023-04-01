@@ -3153,13 +3153,13 @@ Ad esempio se inizia con:
 
 [<- ... ]
 
-significa che è appena uscito dalla procedura evidenziata con l'ultimo clic.
+significa che è appena uscito dalla espressione evidenziata con l'ultimo clic.
 
 Se appare:
 
 [-> ..]
 
-significa che è appena entrato nella procedura evidenziata.
+significa che è appena entrato nella espressione evidenziata.
 
 Vediamo una sessione completa di debug con delle funzioni annidate. Definiamo le funzioni "pari" e "dispari" (in stile LISP):
 

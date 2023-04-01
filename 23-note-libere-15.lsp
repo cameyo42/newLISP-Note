@@ -4424,10 +4424,15 @@ newLISP v.9.2.0 on OSX UTF-8, execute 'newlisp -h' for more info.
 Codice come parametro di una funzione
 -------------------------------------
 
-(define (take func lst exp-cond)
+Utilizzando "eval" o "eval-string" possiamo passare pezzi di codice come parametri che poi verranno valutati dalla funzione chiamata.
+Vediamo come esempio una funzione che applica una funzione agli elementi di una lista e si ferma quando una condizione (passata come parametro) diventa nil:
+
+(define (take-while func lst exp-cond)
   (let ((done nil) (out '()) (res nil))
     (dolist (el lst done)
       (setq res (func el))
+      ; espansione della condizione senza valutazione
+      ; (println (expand exp-cond 'res))
       (if (eval exp-cond)
           (push res out -1)
           (setq done true)
@@ -4437,8 +4442,146 @@ Codice come parametro di una funzione
 
 (define (f x) (* x x))
 
-(take f (sequence 1 100) '(< res 145))
+Calcoliamo il quadrato dei numeri numeri da 1 a 100 fino a che il valore è inferiore a 145:
+
+(take-while f (sequence 1 100) '(< res 145))
 ;-> (1 4 9 16 25 36 49 64 81 100 121 144)
+
+Nota: la seguente espressione produce lo stesso risultato, ma calcola il quadrato di tutti i numeri da 1 a 100:
+; eager function
+(filter (fn(x) (< x 145)) (map f (sequence 1 100)))
+;-> (1 4 9 16 25 36 49 64 81 100 121 144)
+
+Altro esempio di una funzione che applica una funzione agli elementi di una lista e prende solo quelli che verificano una condizione (passata come parametro):
+
+(define (take-filter func lst exp-cond)
+  (let ((done nil) (out '()) (res nil))
+    (dolist (el lst)
+      (setq res (func el))
+      ; espansione della condizione senza valutazione
+      ; (println (expand exp-cond 'res))
+      (if (eval exp-cond)
+          (push res out -1)
+      )
+    )
+    out))
+
+Calcoliamo il quadrato de numeri da 1 a 100 che sono pari:
+
+(take-filter f (sequence 1 100) '(even? res))
+;-> (4 16 36 64 100 144 196 256 324 400 484 576 676 784 900 1024 1156
+;->  1296 1444 1600 1764 1936 2116 2304 2500 2704 2916 3136 3364 3600
+;->  3844 4096 4356 4624 4900 5184 5476 5776 6084 6400 6724 7056 7396
+;->  7744 8100 8464 8836 9216 9604 10000)
+
+
+----------------------------------------------
+Addizioni e sottrazioni alternate in una lista
+----------------------------------------------
+
+Data una lista di numeri vogliamo applicare l'addizione e la sottrazione in modo alternato dal primo all'ultimo elemento della lista.
+Si presentano 2 casi:
+
+Caso 1:
+(a b c d e ...) --> Somma1 = a - b + c - d + e - ...
+
+Caso 2:
+(a b c d e ...) --> Somma2 = - a + b - c + d - e + ...
+
+Poichè a - b + c - d + e - ... = - (- a + b - c + d - e + ...) risulta:
+
+  abs(Somma1) = abs(Somma2)
+  Somma1 = Somma2 * (-1)
+
+cioè Somma1 e Somma2 sono uguali e di segno opposto.
+
+Versione funzionale:
+
+(define (add-sub lst)
+  (apply add (map mul lst (series 1 -1 (length lst)))))
+
+(add-sub (sequence 1 5))
+;-> 3
+(add-sub (sequence 1 4))
+;-> -2
+
+(define (sub-add lst)
+  (sub (apply add (map mul lst (series 1 -1 (length lst))))))
+
+(sub-add (sequence 1 5))
+;-> -3
+(sub-add (sequence 1 4))
+;-> 2
+
+Proviamo con le sequenze fino ai primi 10 numeri:
+
+(setq seq '())
+(for (i 1 10) (push (sequence 1 i) seq -1))
+
+(map add-sub seq)
+;-> (1 -1 2 -2 3 -3 4 -4 5 -5)
+(map sub-add seq)
+;-> (-1 1 -2 2 -3 3 -4 4 -5 5)
+
+Versione iterativa:
+
+(define (add-sub-i lst)
+  (let (out 0)
+    (dolist (el lst)
+      (if (even? $idx)
+          (++ out el)
+          (-- out el)
+      )
+    )
+    out))
+
+(add-sub-i (sequence 1 5))
+;-> 3
+(add-sub-i (sequence 1 4))
+;-> -2
+
+(define (sub-add-i lst)
+  (let (out 0)
+    (dolist (el lst)
+      (if (odd? $idx)
+          (++ out el)
+          (-- out el)
+      )
+    )
+    out))
+
+(sub-add-i (sequence 1 5))
+;-> -3
+(sub-add-i (sequence 1 4))
+;-> 2
+
+(map add-sub-i seq)
+;-> (1 -1 2 -2 3 -3 4 -4 5 -5)
+(map sub-add-i seq)
+;-> (-1 1 -2 2 -3 3 -4 4 -5 5)
+
+Vediamo la velocità delle funzioni:
+
+(silent
+  (setq test '())
+  (for (i 1 1000) (push (sequence 1 i) test -1))
+)
+
+(time (map add-sub test) 100)
+;-> 5018.124
+(time (map sub-add test) 100)
+;-> 5008.254
+
+(time (map add-sub-i test) 100)
+;-> 4409.318
+(time (map sub-add-i test) 100)
+;-> 4410.572
+
+Note: Use fake (err) function to reset timing before each test.
+(err)
+;-> ERR: invalid function : (err)
+
+
 
 =============================================================================
 
