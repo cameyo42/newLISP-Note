@@ -2562,9 +2562,9 @@ Possiamo usare "filter" per estrarre solo i record che ci interessano:
 Nota: Miller ha anche la possibilità di utilizzare una sintassi simile a quella di un linguaggio di programmazione.
 
 
----------------------------
-La funzione labels del LISP
----------------------------
+-----------------------------
+La funzione "labels" del LISP
+-----------------------------
 
 Vediamo una macro (scritta da johu) che simula la funzione LABELS del LISP.
 
@@ -2871,9 +2871,9 @@ Vediamo la velocità dei due metodi:
 La seconda funzione è più lenta perchè usare "map" con funzioni anonime ne rallenta l'esecuzione.
 
 
----------------------------
-La funzione juxt di Clojure
----------------------------
+-----------------------------
+La funzione "juxt" di Clojure
+-----------------------------
 
 Il linguaggio clojure ha la funzione juxtaposition ("juxt") che prende un insieme di funzioni e restituisce una fn che è la giustapposizione di quelle fn. La fn restituita accetta un numero variabile di argomenti e restituisce una lista contenente il risultato dell'applicazione di ciascun fn agli argomenti (da sinistra a destra).
 Esempio:
@@ -2898,9 +2898,9 @@ Vediamo l'implementazione in newLISP di rickyboy:
 ;-> 0.6483608274590866
 
 
-------------------
-La funzione if-not
-------------------
+--------------------
+La funzione "if-not"
+--------------------
 
 Dal manuale della versione 10.7.5:
 
@@ -4758,9 +4758,9 @@ Numero 5555:
   ■■■■■■■■■■■
 
 
------------------
-La funzione match
------------------
+-------------------
+La funzione "match"
+-------------------
 
 ******************
 >>>funzione MATCH

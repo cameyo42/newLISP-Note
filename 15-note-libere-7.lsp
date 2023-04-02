@@ -10629,9 +10629,9 @@ Vediamo un esempio di come è possibile creare una finestra grafica e disegnare 
 ;; eof
 
 
-------------------------
-La funzione memcmp del C
-------------------------
+--------------------------
+La funzione "memcmp" del C
+--------------------------
 
 Nel linguaggio di programmazione C, la funzione "memcmp" restituisce un numero intero negativo, zero o positivo a seconda che i primi n caratteri (bytes) della stringa s1 siano minori, uguali o maggiori dei primi n caratteri (byutes) della stringa s2. In realtà "memcmp" confronta i byte come caratteri senza segno di due blocchi di memoria, ma in questo caso considereremo un byte come un carattere, cioè scriveremo una funzione "memcmp" per applicarla alle stringhe.
 Quindi nel nestro caso, la funzione "memcmp" restituirà un numero intero negativo, zero o positivo a seconda che i primi n caratteri della stringa da s1 siano minori, uguali o maggiori dei primi n caratteri della stringa s2.
@@ -10774,9 +10774,9 @@ I migliori algoritmi di string-matching (senza preprocessing) hanno un complessi
 Comunque le funzioni integrate (es. find) sono sicuramente più veloci di qualunque implementazione di questi algoritmi in newLISP.
 
 
-------------------------
-La funzione assert del C
-------------------------
+--------------------------
+La funzione "assert" del C
+--------------------------
 
 Quando si effettua il debug di un programma, è spesso utile sapere che una condizione o un insieme di condizioni è vera. Prima di eseguire una determinata elaborazione, vengono dichiarate alcune "asserzioni" che devono essere verificate. Il linguaggio C fornisce la macro "assert()" per definire queste asserzioni. Se un'asserzione fallisce, la macro provvede alla stampa di un messaggio diagnostico che descrive la condizione che avrebbe dovuto essere vera, ma non lo era, quindi termina il programma.
 

@@ -1116,9 +1116,9 @@ Reaumur
 ;-> 514.1700000000001
 
 
--------------------------------
-La funzione append e append-nil
--------------------------------
+---------------------------------
+La funzione "append" e append-nil
+---------------------------------
 
 ********************
 >>> funzione APPEND
@@ -1260,9 +1260,9 @@ Vediamo un altro esempio:
 Vedi anche "Il problema dello zaino (Knapsack)" su "Note libere 3" e "Problema dello zaino (Knapsack)" su "Rosetta Code".
 
 
---------------------
-La funzione read-key
---------------------
+----------------------
+La funzione "read-key"
+----------------------
 
 **********************
 >>> funzione READ-KEY
@@ -2004,9 +2004,9 @@ Vediamo come possiamo modificare una riga o una colonna di una matrice:
 ;-> ((1 0 3 4) (5 0 7 8) (0 0 0 0))
 
 
-------------------------------------------
-La funzione count (per stringhe e vettori)
-------------------------------------------
+--------------------------------------------
+La funzione "count" (per stringhe e vettori)
+--------------------------------------------
 
 newLISP ha una funzione di conteggio molto utile per le liste: "count". Vediamo la definizione dal manuale:
 
@@ -3852,9 +3852,9 @@ Fattoriale e funzione Y
 ;-> 3628800
 
 
--------------------
-La funzione explode
--------------------
+---------------------
+La funzione "explode"
+---------------------
 
 ********************
 >>>funzione EXPLODE
@@ -5686,9 +5686,9 @@ Data una lista con un solo elemento, scrivere una funzione che permette di aggiu
 ...
 
 
-----------------
-La funzione sort
-----------------
+------------------
+La funzione "sort"
+------------------
 
 Definizione dal manuale di riferimento:
 
@@ -6325,9 +6325,9 @@ Altra versione di Mandelbrot:
 (mandelbrot)
 
 
---------------------
-La funzione constant
---------------------
+----------------------
+La funzione "constant"
+----------------------
 
 *********************
 >>>funzione CONSTANT
@@ -6409,10 +6409,9 @@ Anche il metodo seguente genera errore:
 ;-> 123
 
 
-
-------------------
-La funzione global
-------------------
+--------------------
+La funzione "global"
+--------------------
 
 *******************
 >>>funzione GLOBAL
@@ -6966,9 +6965,9 @@ theList
 Nota che "reverse" deve essere reso non distruttivo usando "copy".
 
 
----------------------------------
-Le funzioni set-ref e set-ref-all
----------------------------------
+-------------------------------------
+Le funzioni "set-ref" e "set-ref-all"
+-------------------------------------
 
 *********************
 >>> funzione SET-REF

@@ -5214,9 +5214,9 @@ Potremmo usare anche una macro:
 ;-> x = 1, y = 2
 
 
--------------------------
-la funzione command-event
--------------------------
+---------------------------
+la funzione "command-event"
+---------------------------
 
 **************************
 >>>funzione COMMAND-EVENT

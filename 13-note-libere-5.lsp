@@ -1425,9 +1425,9 @@ pippo
 ;-> true
 
 
------------------
-La funzione curry
------------------
+-------------------
+La funzione "curry"
+-------------------
 
 Prima di tutto vediamo la definizione del manuale:
 
@@ -9337,9 +9337,9 @@ Sequenza OEIS A056792:
 ;->  9 10 7 8 8)
 
 
---------------------------
-Funzione substring di Java
---------------------------
+----------------------------
+Funzione "substring" di Java
+----------------------------
 
 In Java il metodo substring(int beginIndex, int endIndex) della classe String restituisce una nuova stringa che è una sottostringa di questa stringa. La sottostringa inizia dall'indice beginIndex e si estende fino al carattere con l'indice (endIndex - 1). Pertanto, la lunghezza della sottostringa è (endIndex - beginIndex).
 

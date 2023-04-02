@@ -172,8 +172,8 @@ FUNZIONI VARIE
   Prodotto vettoriale (cross-product)
   Angolo tra due direzioni (bearing)
   URL encoder/decoder
-  Funzione gamma-ln
-  select per i vettori
+  Funzione "gamma-ln"
+  La funzione "select" per i vettori
   Lunghezza di un numero intero
   Normalizzazione
   Papersize
@@ -585,7 +585,7 @@ NOTE LIBERE 1
   Un motore per espressioni regolari
   Insiemi (set) senza reinserimento
   Funzioni con parametri nominali
-  La funzione command-event
+  La funzione "command-event"
   Massimo Comun Divisore (MCD)
   Indicizzazione implicita
   nil come valore e nil come risultato
@@ -885,7 +885,7 @@ NOTE LIBERE 5
   Anti-primi
   Numeri altamente abbondanti
   Creazione dinamica di variabili
-  La funzione curry
+  La funzione "curry"
   Algoritmo evolutivo
   Nome del programma
   loop e recur macro
@@ -940,7 +940,7 @@ NOTE LIBERE 5
   Estrazione codice sorgente da eseguibile newLISP
   Algoritmo Boyer Moore (Voto di maggioranza - Majority element)
   Convertire 0 in N (+1 o *2)
-  Funzione substring di Java
+  Funzione "substring" di Java
   Clojure-style Tail Recursion in newLISP
   Sviluppo di una funzione
   Closures (chiusure)
@@ -1105,9 +1105,9 @@ NOTE LIBERE 7
   CriptoAritmetica
   Centroide di un insieme di punti
   guiserver.lsp
-  La funzione memcmp del C
+  La funzione "memcmp" del C
   Algoritmi di string matching
-  La funzione assert del C
+  La funzione "assert" del C
   Rappresentazione dei grafi: Lista di Adiacenza <--> Matrice di Adiacenza
   Attraversamento di grafi - Algoritmo BFS (Breadth-First Search)
   Attraversamento di grafi - Algoritmo DFS (Depth-First Search)
@@ -1129,9 +1129,9 @@ NOTE LIBERE 8
   Metodo delle secanti
   Metodo di Newton
   Conversioni tra unità di misura
-  La funzione append e append-nil
+  La funzione "append" e append-nil
   Knapsack 0-1
-  La funzione read-key
+  La funzione "read-key"
   Problema del cambio delle monete
   Interesse semplice e composto
   Massima sottostringa comune (longest common substring)
@@ -1143,7 +1143,7 @@ NOTE LIBERE 8
   Algoritmo Round-Robin
   Lettura di righe o colonne di una matrice
   Modifica di righe o colonne di una matrice
-  La funzione count (per stringhe e vettori)
+  La funzione "count" (per stringhe e vettori)
   Onesti e Bugiardi
   I tre prigionieri
   Primi Home
@@ -1165,7 +1165,7 @@ NOTE LIBERE 8
   Creare file di testo Windows e Unix
   Radicale di un numero
   Fattoriale e funzione Y
-  La funzione explode
+  La funzione "explode"
   Formula di Faulhaber
   Numeri piramidali quadrati
   Numeri potenti
@@ -1183,19 +1183,19 @@ NOTE LIBERE 8
   Colorazione di un grafo (m Coloring Problem)
   Memoization
   Auto-replicazione di una lista
-  La funzione sort
+  La funzione "sort"
   Algoritmo K-Means
   Comportamento Lazy
   SBCL Mandelbrot
-  La funzione constant
-  La funzione global
+  La funzione "constant"
+  La funzione "global"
   map e curry
   Trasformare la struttura di una lista
   Elementi duplicati/multipli di una lista
   Nome della funzione
   Complessità di una lista
   Eliminare sottoliste da una lista annidata
-  Le funzioni set-ref e set-ref-all
+  Le funzioni "set-ref" e "set-ref-all"
   set-ref-all: differenze tra $0 e $it
 
 NOTE LIBERE 9
@@ -1230,11 +1230,11 @@ NOTE LIBERE 9
   Crittografia one-time pad (OTP)
   Fern: il frattale di Barnsley
   Miller: gestione CSV,TSV,JSON
-  La funzione labels del LISP
+  La funzione "labels" del LISP
   A LISP programming exercise
   Formattazione di nil
-  La funzione juxt di Clojure
-  La funzione if-not
+  La funzione "juxt" di Clojure
+  La funzione "if-not"
   Simulare un iteratore python
   Modifica/aggiornamento di una lista annidata
   Algoritmo del punteggio (Scoring algorithm)
@@ -1255,7 +1255,7 @@ NOTE LIBERE 9
   Numeri causali e numero di eulero
   Funzioni come liste
   Numeri cistercensi
-  La funzione match
+  La funzione "match"
   Analisi DNA
   Caratteri a matrice di punti
   Importazione di funzioni di libreria in linguaggio C
@@ -1379,7 +1379,7 @@ NOTE LIBERE 11
   Massimo sottoinsieme con MCD = 1
   Coppie di cubi
   MCD delle cifre di un numero
-  La funzione DEFUN del Common LISP
+  La funzione "DEFUN" del Common LISP
   Spirale di Ulam
   Coefficiente di correlazione
   Numeri frugali
@@ -1434,7 +1434,7 @@ NOTE LIBERE 11
   Partizioni di sequenze di interi
   Punteggi scacchistici
   Addizioni e sottrazioni esatte di numeri in virgola mobile
-  Funzione slice di python
+  Funzione "slice" di python
   Coefficienti multinomiali
   Sicurezza delle password
   Cattura di pagine web
@@ -1463,7 +1463,7 @@ NOTE LIBERE 12
   Radice quadrata di numeri complessi
   Distributore d'acqua difettoso
   Dado con 100 facce
-  La funzione bind
+  La funzione "bind"
   Lattine ottimizzate
   Il gatto e il topo
   Palle da biliardo
@@ -1488,8 +1488,8 @@ NOTE LIBERE 12
   Il numero 0 è pari o dispari?
   Rapporto tra numeri casuali
   Definizione di funzioni all'interno di funzioni
-  La funzione for-all
-  La funzione random
+  La funzione "for-all"
+  La funzione "random"
   Freccette
   Lights Out Game
   Risiko!
@@ -1527,7 +1527,7 @@ NOTE LIBERE 12
   Unione di sotto-matrici
   La leggenda della nascita degli scacchi
   Quante cifre ha x^y^z?
-  La funzione unget del C
+  La funzione "unget" del C
   Cartella corrente/lavoro - Current/Working directory
 
 NOTE LIBERE 13
@@ -1737,7 +1737,7 @@ NOTE LIBERE 15
   Somma degli inversi dei numeri primi
   Numeri k-iperperfetti
   Tagli simultanei di un bastone
-  Sequenze a somma zero  
+  Sequenze a somma zero
   Circonferenza con copertura massima di una lista di punti interi
   Teorema di Polya (Random Walks)
   Scrivere numeri
@@ -1749,6 +1749,11 @@ NOTE LIBERE 15
   Character counter, import C demo
   Codice come parametro di una funzione
   Addizioni e sottrazioni alternate in una lista
+  Forum: Mixed radix numbers
+  Nuovi tipi in newLISP?
+  Ricerca del simbolo associato ad un valore
+  Funzione "sequence" e "series"
+  Forum: Templates
 
 APPENDICI
 =========

@@ -3907,8 +3907,11 @@ Successivamente applica "func-condition" agli elementi di list e restituisce il 
 
 (exists (fn (x) (> x 3)) '(3 4 2 -7 3 0))
 ;-> 4
+(exists (curry < 3) '(3 4 2 -7 3 0))
+;-> 4
 
-(exists (fn (x) (= x 10)) '(3 4 2 -7 3 0))  → nil
+(exists (fn (x) (= x 10)) '(3 4 2 -7 3 0))
+;-> nil
 
 Se "func-condition" è "nil?", il risultato nil è ambiguo. In questo caso "index" o "find" sono il metodo migliore quando si cerca nil.
 
@@ -4407,16 +4410,16 @@ newLISP v.9.2.0 on OSX UTF-8, execute 'newlisp -h' for more info.
 ;-> count_characters <8CEF0>
 
 (unpack (dup "lu" 128) (count-chars (read-file "war_and_peace.txt") 3217389))
-;-> (0 0 0 0 0 0 0 0 0 0 67418 0 0 0 0 0 0 0 0 0 0 
-;->  0 0 0 0 0 0 0 0 0 0 0 511976 3938 17974 2 1 3 0 
-;->  7526 640 640 339 1 39921 5850 30686 26 230 348 
-;->  163 55 25 49 51 38 169 54 1003 1148 1 2 1 3138 
-;->  2 6204 3638 1783 2021 1867 1908 1247 4016 7404 
-;->  320 1191 687 3288 3627 1638 6117 35 2704 2974 
-;->  6464 278 939 2896 348 1265 108 47 0 47 0 1 0 
-;->  199012 30984 59225 116122 312451 52818 49877 
-;->  162871 166004 2214 19194 95740 58261 180228 
-;->  190868 38854 2300 144967 159746 219083 65006 
+;-> (0 0 0 0 0 0 0 0 0 0 67418 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 511976 3938 17974 2 1 3 0
+;->  7526 640 640 339 1 39921 5850 30686 26 230 348
+;->  163 55 25 49 51 38 169 54 1003 1148 1 2 1 3138
+;->  2 6204 3638 1783 2021 1867 1908 1247 4016 7404
+;->  320 1191 687 3288 3627 1638 6117 35 2704 2974
+;->  6464 278 939 2896 348 1265 108 47 0 47 0 1 0
+;->  199012 30984 59225 116122 312451 52818 49877
+;->  162871 166004 2214 19194 95740 58261 180228
+;->  190868 38854 2300 144967 159746 219083 65006
 ;->  25940 56197 3719 44945 2282 0 0 0 1 0)
 
 
@@ -4581,7 +4584,464 @@ Note: Use fake (err) function to reset timing before each test.
 (err)
 ;-> ERR: invalid function : (err)
 
+Vedere anche "Addizioni e sottrazioni alternate" su "Note libere 7".
 
+
+--------------------------
+Forum: Mixed radix numbers
+--------------------------
+
+Nota: questa è una vera "chicca".
+
+rickyboy (λx. x x) (λx. x x):
+-----------------------------
+Have you heard of this: Wikipedia:Mixed Radix?
+https://en.wikipedia.org/wiki/Mixed_radix
+
+It turns out that it is not uncommon that I use these, so I wrote a newLISP module which helps the newLISP programmer to make and use them.
+Here are usage examples.
+
+(load "mixed-radix.lsp")
+;-> MAIN
+(load "f:\\Lisp-Scheme\\newLisp\\MAX\\mixed-radix.lsp")
+;-> MAIN
+(mixed-radix:new HHMMSS (hours minutes seconds) (1 60 60))
+;-> HHMMSS
+(HHMMSS:to-minutes '(3 34 42))
+;-> 214.7
+(HHMMSS:to-seconds '(3 34 42))
+;-> 12882
+(HHMMSS:from-minutes 214.7)
+;-> (3 34 42)
+(HHMMSS:from-seconds 12882)
+;-> (3 34 42)
+(HHMMSS:+ '(3 34 42) '(1 54 59))
+;-> (5 29 41)
+(HHMMSS:- '(3 34 42) '(1 54 59))
+;-> (1 39 43)
+
+(symbols 'HHMMSS)
+;-> (HHMMSS:+ HHMMSS:- HHMMSS:M HHMMSS:N HHMMSS:acc HHMMSS:add HHMMSS:bases
+;->  HHMMSS:basesL HHMMSS:basesR HHMMSS:butlast HHMMSS:component-wise-operator
+;->  HHMMSS:compose HHMMSS:ctx HHMMSS:digitsL HHMMSS:digitsR HHMMSS:f
+;->  HHMMSS:from-hours HHMMSS:from-minutes HHMMSS:from-seconds HHMMSS:fsym
+;->  HHMMSS:g HHMMSS:high-units<-mixrad HHMMSS:i HHMMSS:kurry HHMMSS:label
+;->  HHMMSS:labels HHMMSS:low-units<-mixrad HHMMSS:mid HHMMSS:mid+1 HHMMSS:mid-units<-mixrad
+;->  HHMMSS:mixrad<-high-units HHMMSS:mixrad<-low-units HHMMSS:mixrad<-mid-units
+;->  HHMMSS:mrn-bases HHMMSS:mrn-labels HHMMSS:mrn-symbol HHMMSS:new HHMMSS:normalize
+;->  HHMMSS:op HHMMSS:p HHMMSS:post HHMMSS:res0 HHMMSS:s HHMMSS:sub HHMMSS:symb
+;->  HHMMSS:to-hours HHMMSS:to-minutes HHMMSS:to-seconds HHMMSS:unfold
+;->  HHMMSS:unqualify HHMMSS:xs)
+
+Recently, my real estate agent wanted to know the square footage of the finished portions of my basement, so I thought "Perfect job for newLISP!" :-)
+
+When the following is loaded in newLISP
+
+;;--------------------------------------
+;; Application: Floor plan lengths
+
+(load "mixed-radix.lsp")
+
+(mixed-radix:new ftin (feet inches) (1 12))
+
+(define rawdims '((laundry ((5 5) (2 11) (4 6.5))
+                           ((7 1.5)))
+                  (bath ((4 10.5))
+                        ((7 1)))
+                  (family-room ((10 4.5) (8 11.5) (0 1))
+                               ((12 1) (10 0) (0 1)))))
+
+(define (dim<-rawdim rawdim)
+  (list (rawdim 0)
+        (apply ftin:add (rawdim 1))
+        (apply ftin:add (rawdim 2))))
+
+(define dims (map dim<-rawdim rawdims))
+
+(define (sqft<-dim dim)
+  (list (dim 0)
+        (mul (ftin:to-feet (dim 1))
+             (ftin:to-feet (dim 2)))))
+
+;; Show and tell.
+(println "Dimensions:")
+(println dims)
+(define sqftages (map sqft<-dim dims))
+(println "SQ FTages:")
+(println sqftages)
+(println "Total SQ FT = " (apply add (map last sqftages)))
+
+it yields
+
+Dimensions:
+((laundry (12 10.5) (7 1.5)) (bath (4 10.5) (7 1)) (family-room (
+   19 5)
+  (22 2)))
+SQ FTages:
+((laundry 91.734375) (bath 34.53125) (family-room 430.4027778))
+Total SQ FT = 556.6684028
+
+Hmm ... Not a large area, but nonetheless correct.
+Incidently, the reason why there are multiple ftins for the width or breadth dimensions of a room was because I couldn't measure the room straight across in one shot (either the length was too long for the tape measure or I had to measure around obstacles like cases or door frames) -- I figured to let newLISP due the adding. :-)
+
+Here is the module's code from mixed-radix.lsp.
+Enjoy (as Norman would say)! --Ricky
+
+;; mixed-radix.lsp -- Mixed radix numbers for newLISP
+;; Author: Rick Hanson
+;; Date: 9 June 2007
+
+(context 'mixed-radix)
+
+;;-------------------------------------
+;; Slots and Constructor
+
+(define labels '())
+(define bases '())
+
+(define-macro (mixed-radix:new mrn-symbol mrn-labels mrn-bases)
+  (letex (mrn-labels mrn-labels mrn-bases mrn-bases)
+    (MAIN:new 'mixed-radix mrn-symbol)
+    (let (ctx (eval mrn-symbol)
+          unqualify (lambda (symb) (replace ".*:" (string symb) "" 0)))
+      (setq ctx:labels (quote mrn-labels))
+      (setq ctx:bases (quote mrn-bases))
+
+      ;; Setup the conversion functions for new instances.
+      (dolist (label ctx:labels)
+        (set (sym (append "to-" (unqualify label)) ctx)
+             (letex ($$idx $idx fsym (sym 'mid-units<-mixrad ctx))
+               (curry fsym $$idx)))
+        (set (sym (append "from-" (unqualify label)) ctx)
+             (letex ($$idx $idx fsym (sym 'mixrad<-mid-units ctx))
+               (curry fsym $$idx))))
+      mrn-symbol)))
+
+;;-------------------------------------
+;; Utilities used in this context.
+
+(define (compose)
+  (apply (lambda (f g) (expand (lambda () (f (apply g (args)))) 'f 'g))
+         (args) 2))
+
+(define-macro (kurry f)
+  (letex ($f (eval f)
+          $cargs (map eval (args)))
+    (lambda () (apply $f (append (quote $cargs) (args))))))
+
+(define (butlast xs) (0 (- (length xs) 1) xs))
+
+;; This version of `unfold' uses `while' and `setq' (for reasons of
+;; time and space efficiency) -- "don't pay any attention to the man
+;; behind the curtain!" :-)
+(define (unfold p f g s post)
+  (let (acc '())
+    (while (not (p s))
+      (push (f s) acc -1)
+      (setq s (g s)))
+    (post p f g s acc)))
+
+;;-------------------------------------
+;; Method Definitions
+
+(define (low-units<-mixrad M (bases bases))
+  "Convert a mixrad `M' to a scalar in low-order units with respect
+to the list of bases `bases'."
+  (rotate bases -1)
+  (apply MAIN:add
+    (map (lambda (i) (mul (M i) (apply mul (i bases))))
+         (sequence 0 (- (length M) 1)))))
+
+(define (high-units<-mixrad M (bases bases))
+  "Convert a mixrad `M' to a scalar in high-order units with
+respect to the list of bases `bases'."
+  (div (low-units<-mixrad M) (apply mul bases)))
+
+(define (mid-units<-mixrad mid M)
+  "Convert a mixrad `M' to a scalar in `mid'-order units with
+respect to the list of bases `bases'.  `mid' is zero-based.  This
+function acts as if the radix point of `M' were after the
+`mid'-th digit (from the left).  For instance to convert 3 hours,
+34 minutes, 42 seconds into minutes, say
+    (mixed-radix:new HHMMSS (hours minutes seconds) (1 60 60))
+    (HHMMSS:mid-units<-mixrad 1 '(3 34 42))
+which yields 214.7, as expected."
+  (letn (mid+1 (+ mid 1)
+         basesL (0 mid+1 bases)
+         digitsL (0 mid+1 M)
+         basesR (cons 1 (mid+1 bases))
+         digitsR (cons 0 (mid+1 M)))
+    (MAIN:add (low-units<-mixrad digitsL basesL)
+              (high-units<-mixrad digitsR basesR))))
+
+(define (mixrad<-low-units N (bases bases))
+  "Convert `N', which is a scalar in low-order units, to a mixrad,
+with respect to the list of bases 'bases'."
+  (rotate bases -1)
+  (unfold (lambda (s) (>= (s 1) (length bases)))
+          (lambda (s) (/ (s 0) (apply mul ((s 1) bases))))
+          (lambda (s) (list (mod (s 0) (apply mul ((s 1) bases))) (+ (s 1) 1)))
+          ;; In the seed, keep track of the latest remainder AND an
+          ;; incrementing index with which we use to slice `bases':
+          (list N 0)
+          ;; In the post-processor, add the last remainder into the
+          ;; last entry in the accumulated list:
+          (lambda (p f g s res0)
+            (append (butlast res0) (list (MAIN:add (s 0) (last res0)))))))
+
+;; This is not used by any method or instance conversion function, but
+;; is here for completion sake.
+(define (mixrad<-high-units N (bases bases))
+  "Convert `N', which is a scalar in high-order units, to a mixrad,
+with respect to the list of bases 'bases'."
+  (mixrad<-low-units (apply mul (cons N bases))))
+
+(define (mixrad<-mid-units mid N)
+  "Convert `N', which is a scalar in mid-order units, to a mixrad,
+with respect to the list of bases 'bases'."
+  (mixrad<-low-units (apply mul (cons N ((+ mid 1) bases)))))
+
+;; Now it's easy to define a normalization function.
+(define (normalize M)
+  "Return the canonical representation of mixrad `M' with respect to
+the list of bases `bases'."
+  (mixrad<-low-units (low-units<-mixrad M)))
+
+(define (component-wise-operator op) (compose normalize (kurry map op)))
+(define mixed-radix:add (component-wise-operator MAIN:add))
+(define mixed-radix:sub (component-wise-operator MAIN:sub))
+(define mixed-radix:+ mixed-radix:add)
+(define mixed-radix:- mixed-radix:sub)
+(define mixed-radix:mul (component-wise-operator MAIN:mul))
+(define mixed-radix:div (component-wise-operator MAIN:div))
+
+(context MAIN)
+;eof
+
+Nota: (set 'ctx (eval ctx)) ; get context out of symbol
+
+
+----------------------
+Nuovi tipi in newLISP?
+----------------------
+
+È possibile definire nuovi tipi in newlisp?
+
+No. Non ci sono due simboli in newLISP che puntano allo stesso, tranne quando puntano a simboli.
+Quindi se scriviamo:
+
+(set 'x "hello")
+;-> "hello"
+(set 'y x)
+;-> "hello"
+
+quelli sono due diversi pezzi di memoria contenenti "hello".
+
+Ma quando scriviamo:
+
+(set 's "content of s")
+;-> "content of s"
+(set 'x 's)
+;-> s
+(set 'y x)
+;-> s
+
+(eval x)
+;-> "content of s"
+(eval y)
+;-> "content of s"
+
+Le due stringhe sono nello stesso pezzo di memoria, infatti:
+
+(pop s)
+;-> "c"
+(eval x)
+;-> "ontent of s"
+(eval y)
+;-> "ontent of s"
+
+(pop (eval x))
+;-> "o"
+(eval y)
+;-> "ntent of s"
+
+
+------------------------------------------
+Ricerca del simbolo associato ad un valore
+------------------------------------------
+
+Supponiamo di aere un certo valore e di voler conoscere a quale simbolo è associato.
+Per esempio:
+
+(set 'x "hello")
+(set 'y "hello")
+
+(filter (fn (s) (= "hello" (eval s))) (symbols))
+;-> (x y)
+
+questa è solo una ricerca lineare, infatti non viene indicizzato nulla.
+
+Possiamo anche utilizzare una sorta di "reverse lookup" creando un indice invertito:
+
+(set 'x "hello")
+(set 'y 123)
+
+; crea un indice invertito (valore simbolo) nel contesto Idx
+(map (fn (s) (set (sym (string (eval s)) 'Idx) s )) (symbols))
+
+Adesso possiamo interrogare il contesto Idx:
+
+(context Idx "hello")
+;-> x
+(context Idx "123")
+;-> y
+
+
+------------------------------
+Funzione "sequence" e "series"
+------------------------------
+
+*********************
+>>>funzione SEQUENCE
+*********************
+sintassi: (sequence num-start num-end [num-step])
+
+Genera una sequenza di numeri da "num-start" a "num-end" con una dimensione passo facoltativa di "num-step". Quando "num-step" viene omesso, si assume il valore 1 (uno). I numeri generati sono di tipo intero (quando non è specificata alcuna dimensione del passo opzionale) o virgola mobile (quando è presente la dimensione del passo opzionale).
+
+(sequence 10 5)
+;-> (10 9 8 7 6 5)
+(sequence 0 1 0.2)
+;-> (0 0.2 0.4 0.6 0.8 1)
+(sequence 2 0 0.3)
+;-> (2 1.7 1.4 1.1 0.8 0.5 0.2)
+
+Si noti che la dimensione del passo deve essere un numero positivo, anche se si crea una sequenza da un numero maggiore ad un numero minore.
+
+Usare la funzione "series" per generare sequenze geometriche.
+
+Possiamo avere dei piccoli "inconvenienti" quando usiamo i numeri floating point (che dipendono anche dal tipo di s.o. usato):
+
+(sequence -1 1 0.2)
+;-> (-1 -0.8 -0.6 -0.3999999999999999 -0.2 0 0.2000000000000002
+;->  0.4000000000000001 0.6000000000000001 0.8 1)
+
+Che possono essere superati utilizzando la funzione "round":
+
+(map (fn (x) (round x -1)) (sequence -1 1 0.2))
+;-> (-1 -0.8 -0.6 -0.4 -0.2 0 0.2 0.4 0.6 0.8 1)
+
+*******************
+>>>funzione SERIES
+*******************
+sintassi: (series num-start num-factor num-count)
+sintassi: (series exp-start func num-count)
+
+Nella prima sintassi, "series" crea una sequenza geometrica con elementi "num-count" che iniziano con l'elemento in "num-start".
+Ogni elemento successivo viene moltiplicato per il fattore "num".
+I numeri generati sono sempre numeri in virgola mobile.
+
+Quando "num-count" è minore di 1, la serie restituisce una lista vuota.
+
+(series 2 2 5)
+;-> (2 4 8 16 32)
+(series 1 1.2 6)
+;-> (1 1.2 1.44 1.728 2.0736 2.48832)
+(series 10 0.9 4)
+;-> (10 9 8.1 7.29)
+(series 0 0 10)
+;-> (0 0 0 0 0 0 0 0 0 0)
+(series 99 1 5)
+;-> (99 99 99 99 99)
+
+Nella seconda sintassi, "series" utilizza una funzione specificata in "func" per trasformare l'espressione precedente nell'espressione successiva:
+
+; embed the function Phi: f(x) = 1 / (1 + x)
+; see also http://en.wikipedia.org/wiki/Golden_ratio
+
+(series 1 (fn (x) (div (add 1 x))) 20)
+
+;-> (1 0.5 0.6666666 0.6 0.625 0.6153846 0.619047 0.6176470 0.6181818
+;->  0.6179775 0.6180555 0.6180257 0.6180371 0.6180327 0.6180344
+;->  0.6180338 0.6180340 0.6180339 0.6180339 0.6180339)
+
+; pre-define the function
+(define (oscillate x)
+  (if (< x)
+    (+ (- x) 1)
+    (- (+ x 1)))
+)
+
+(series 1 oscillate 20)
+;-> (1 -2 3 -4 5 -6 7 -8 9 -10 11 -12 13 -14 15 -16 17 -18 19 -20)
+
+; any data type is accepted as a start expression
+(series "a" (fn (c) (char (inc (char c)))) 5)
+;-> ("a" "b" "c" "d" "e")
+
+; dependency of the two previous values in this fibonacci generator
+(let (x 1) (series x (fn (y) (+ x (swap y x))) 10))
+;-> (1 2 3 5 8 13 21 34 55 89)
+
+Il primo esempio mostra una serie convergente al rapporto aureo, φ (per qualsiasi valore iniziale). 
+Il secondo esempio mostra come "func" può essere definita in precedenza per una migliore leggibilità dell'espressione.
+
+La funzione "series" aggiorna anche il valore dell'indice interno della lista $idx, che può essere utilizzato all'interno di "func".
+
+Utilizzare la funzione di "sequence" per generare sequenze aritmetiche.
+
+
+----------------
+Forum: Templates
+----------------
+
+Jeff:
+-----
+One thing that I feel newLisp lacks is templates. In common lisp, you can use backticks to create form templates to simplify metaprogramming. I wrote a quick macro to permit something similar using underscores in newLisp:
+
+(define-macro (template)
+  (let ((form (args 0)) (syms (rest (args))))
+       (if (symbol? form) (set 'form (eval form)))
+       (cond ((empty? syms) form)
+             (true
+               ;(begin (nth-set (form (ref '_ form)) (eval (first syms)))
+               (begin (setf (form (ref '_ form)) (eval (first syms)))
+                      (if (rest syms)
+                          (eval (cons 'template (cons form (rest syms))))
+                          form))))))
+
+(set 'test-fn '(define (_) (println _)))
+;-> (define (_) (println _))
+
+(set 'some-var "hello")
+;-> "hello"
+
+(set 'expanded
+  (template test-fn (sym (format "print-%s" some-var))
+                    some-var))
+;-> (define (print-hello)
+;->  (println "hello"))
+
+(println expanded)
+;-> (define (print-hello) (println "hello"))
+
+(eval expanded)
+;-> (lambda () (println "hello"))
+
+(print-hello)
+;-> hello
+
+'test-fn is an example of a function template. 
+Using (template 'form 'expr-1 'expr-2 'expr-3 ...), the macro expands the template by replacing the left-most '_ with the evaluated 'expr-n. It then returns the unevaluated form.
+
+It is almost completely untested but it sure looks pretty :)
+
+Lutz:
+-----
+look into 'expand' and 'letex' to do similar things.
+
+Jeff:
+-----
+Yes, I have used them quite a bit. But they are not very concise and require that the symbols match. In practical use, that is not often convenient. Having a simple template syntax makes it easier to visualize what I am doing.
 
 =============================================================================
 

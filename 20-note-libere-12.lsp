@@ -1332,9 +1332,9 @@ Facciamo alcune prove:
 I valori della simulazione sono congruenti con i risultati matematici.
 
 
-----------------
-La funzione bind
-----------------
+------------------
+La funzione "bind"
+------------------
 
 Vediamo la definizione dal manuale:
 
@@ -3910,9 +3910,9 @@ dafunc
 ;-> (lambda () (println "Doing something completely different"))
 
 
--------------------
-La funzione for-all
--------------------
+---------------------
+La funzione "for-all"
+---------------------
 
 Vediamo la definizione dal manuale:
 
@@ -3997,9 +3997,9 @@ Le seguenti funzioni svolgono attività simili:
 ;-> nil
 
 
-------------------
-La funzione random
-------------------
+--------------------
+La funzione "random"
+--------------------
 
 Vediamo la definizione dal manuale:
 
@@ -8811,9 +8811,9 @@ Quindi:
   8^8^8 ≈ 10^15151336 è un numero con 15151336 cifre (più di 15 milioni).
 
 
------------------------
-La funzione unget del C
------------------------
+-------------------------
+La funzione "unget" del C
+-------------------------
 
 Nella programmazione C prendere il carattere successivo di un file file viene eseguita la funzione "gets":
 

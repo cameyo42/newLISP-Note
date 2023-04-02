@@ -1281,9 +1281,9 @@ Calcoliamo la sequenza:
 ;->  1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2)
 
 
----------------------------------
-La funzione DEFUN del Common LISP
----------------------------------
+-----------------------------------
+La funzione "DEFUN" del Common LISP
+-----------------------------------
 
 La funzione DEFUN del Common LISP è l'analoga della funzione "define" di newLISP.
 La funzione DEFUN ha la seguente sintassi:
@@ -7221,9 +7221,9 @@ Facciamo alcune prove:
 ;->  0.0002686947002373125
 
 
-------------------------
-Funzione slice di python
-------------------------
+--------------------------
+Funzione "slice" di python
+--------------------------
 
 The syntax of slice in python is:
 

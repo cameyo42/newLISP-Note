@@ -6812,9 +6812,9 @@ Esempi
 ;-> "google.com/search?q=`Abdu'l-Bah├í"
 
 
------------------
-Funzione gamma-ln
------------------
+-------------------
+Funzione "gamma-ln"
+-------------------
 
 newLISP fornisce una funzione predefinita per la funzione Gamma.
 
@@ -6877,9 +6877,9 @@ Come al solito la funzione predefinita è molto più veloce:
 ;-> 2410.738
 
 
---------------------
-select per i vettori
---------------------
+----------------------------------
+La funzione "select" per i vettori
+----------------------------------
 
 La funzione primitiva "select" funziona solo con le liste e le stringhe. Scriviamo una funzione analoga per i vettori:
 
