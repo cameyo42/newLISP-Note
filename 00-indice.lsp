@@ -1754,6 +1754,10 @@ NOTE LIBERE 15
   Ricerca del simbolo associato ad un valore
   Funzione "sequence" e "series"
   Forum: Templates
+  Paradosso di Braess
+  Distanza tra vettori (Minkowski)
+  Indice/similarità di Jaccard e distanza di Jaccard
+  Cosine similarity (Somiglianza del coseno)
 
 APPENDICI
 =========

@@ -5043,5 +5043,348 @@ Jeff:
 -----
 Yes, I have used them quite a bit. But they are not very concise and require that the symbols match. In practical use, that is not often convenient. Having a simple template syntax makes it easier to visualize what I am doing.
 
+
+-------------------
+Paradosso di Braess
+-------------------
+
+Supponiamo di avere due città A e B che sono unite da due strade diverse:
+
+          A
+          /\
+      p1 /  \ r1
+   (20) /    \ (N/10)
+       /      \
+       \      /
+ (N/10) \    / (20)
+      p2 \  / r2
+          \/
+           B
+
+La strada di sinistra è composta dai tratti p1 e p2.
+Il tratto p1 viene percorso in 20 minuti.
+Il tratto p2 viene percorso in N/10 minuti (dove N è il numero di macchine che ci sono nel percorso).
+La strada di destra è composta dai tratti r1 e r2.
+Il tratto r1 viene percorso in N/10 minuti (dove N è il numero di macchine che ci sono nel percorso).
+Il tratto r2 viene percorso in 20 minuti.
+
+Calcoliamo il percorso per le due strade nel caso ci siano 200 veicoli.
+
+(define (time-sx n) (add 20 (div n 10)))
+(define (time-dx n) (add (div n 10) 20))
+
+Poichè il tempo impiegato per percorrere le due strade è lo stesso, allora 100 veicoli prendono la strada sinistra e 100 veicoli prendono la strada destra (non essendoci un percorso preferenziale i veicoli di distribuiranno in modo casuale).
+
+(time-sx 100)
+;-> 30
+(time-dx 100)
+;-> 30
+
+Note: se tutti prendono la stessa strada otteniamo un tempo di percorrenza maggiore:
+
+(time-sx 200)
+;-> 40
+(time-dx 200)
+;-> 40
+
+Adesso supponiamo che venga creata una strada che unisce i due percorsi nel modo seguente:
+
+          A
+          /\
+      p1 /  \ r1
+   (20) /    \ (N/10)
+       /  u   \
+       --------
+       \ (0)  /
+ (N/10) \    / (20)
+      p2 \  / r2
+          \/
+           B
+
+La nuova strada u ha un tempo di percorrenza nullo, cioè può essere attraversata in tempo 0.
+
+Quale percorso è quello ottimale (quello che impiega meno tempo)?
+Abbiamo 4 possibilità:
+
+1) (r1-u-p2)
+2) (p1-u-r2)
+3) (p1-p2)
+4) (r1-r2)
+
+(define (time-1 n) (add (div n 10) 0 (div n 10)))
+(define (time-2 n) (add 20 0 20))
+
+Il tempo impiegato per percorrere il persorso 1) dipende dal numero di veicoli n e varia da 0 a 40 minuti:
+
+(time-1 0)
+;-> 0
+(time-1 200)
+;-> 40
+
+Il tempo impiegato per percorrere il percorso 2) non dipende dal numero di veicoli n (è un valore costante e vale 40 minuti):
+(time-2 0)
+;-> 40
+(time-2 200)
+;-> 40
+
+Il tempo dei percorsi 3) e 4) sono quelli visti prima e variano da 20 a 40 minuti:
+
+(time-dx 0)
+;-> 20
+(time-dx 200)
+;-> 40
+
+(time-sx 0)
+;-> 20
+(time-sx 200)
+;-> 40
+
+Sembra che sia conveniente prendere la strada di destra perchè il tempo di percorrenza varia da 0 a 40 minuti...
+Comunque questo è il ragionamento di tutti i 200 veicoli, quindi tutti passeranno per la strada di destra, con la conseguenza che il tempo di percorrenza per tutti i veicoli sarà di 40 minuti.
+Ma nel primo caso (senza il percorso u) il tempo di percorrenza era di 30 minuti.
+Il paradosso di Braess consiste proprio in questo:
+"aprire nuove strade può, controintuitivamente, peggiorare il traffico".
+
+Questo è dovuto al fatto nei giochi non collaborativi, dove ogni agente del sistema tende a ottenere il massimo guadagno incurante degli altri giocatori (comportamento egoistico), può risultare in un equilibrio, o stato stabile, il cui valore può essere lontano dal valore ottimo.
+
+
+--------------------------------
+Distanza tra vettori (Minkowski)
+--------------------------------
+
+Dati due vettori X e Y con n elementi una metrica generica della loro distanza è data dalla seguente espressione:
+
+  || X - Y ||(p) = ( Sum[i, 0..n-1](|(x(i) - y(i)|^p) )^(1/p)
+
+Questa metrica prende il nome di distanza di "Minkowski".
+
+Le distanze cambiano in base ai valori di p (1, 2,...).
+
+Per esempio:
+con p = 1, abbiamo la distanza di "manhattan"
+con p = 2, abbiamo la distanza "euclidea"
+...
+con p = infinito, abbiamo la distanza di "chebyshev"
+
+La distanza di Chebyshev tra due vettori P e Q è il valore massimo della differenza delle loro coordinate:
+
+  P = (p1, p2, ..., pn)
+  Q = (q1, q2, ..., qn)
+
+Quindi la distanza di Chebyshev tra due vettori P e Q vale:
+
+  d(P,Q) = max(|pi - qi|), dove 1<=i<=n
+
+(define (dist2d x1 y1 x2 y2)
+"Calculates 2D Cartesian distance of two points"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+(dist2d 1 2 5 5)
+;-> 5
+
+(define (dist-manh4 x1 y1 x2 y2)
+"Calculates Manhattan distance (4 directions - rook) of two points"
+  (add (abs (sub x1 x2)) (abs (sub y1 y2))))
+(dist-manh4 1 2 5 5)
+;-> 7
+
+(define (dist-cheby P Q)
+  (apply max (map (fn(x y) (abs (sub x y))) P Q)))
+(dist-cheby '(1 2) '(5 5))
+;-> 4
+
+Funzione che calcola la distanza tra due vettori nella metrica di ordine p:
+
+(define (dist-vec v1 v2 p)
+  (pow (apply add (map (fn(x y) (pow (abs (sub x y)) p)) v1 v2)) (div p)))
+
+Facciamo alcune prove (verifichiamo i valori calcolati sopra):
+
+(dist-vec '(1 2) '(5 5) 2)
+;-> 5
+(dist-vec '(1 2) '(5 5) 1)
+;-> 7
+
+Proviamo a calcolare la distanza di chebyshev aumentando progressivamente il valore di p:
+
+(dist-vec '(1 2) '(5 5) 10)
+;-> 4.021974149822332
+(dist-vec '(1 2) '(5 5) 50)
+;-> 4.00000004530572
+(dist-vec '(1 2) '(5 5) 100)
+;-> 4.000000000000013
+
+Il valore si avvicina alla distanza corretta che vale 4.
+
+
+--------------------------------------------------
+Indice/similarità di Jaccard e distanza di Jaccard
+--------------------------------------------------
+
+La similarità/indice di Jaccard viene utilizzato in statistica per la misurazione della somiglianza e della diversità tra insiemi di dati e file di testo.
+Matematicamente, il calcolo della somiglianza di Jaccard è il rapporto tra la dimensione dell'intersezione degli insiemi e la dimensione dell'unione degli insiemi:
+
+            || A intersezione B ||            || A intersezione B ||
+  J(A,B) = ------------------------ = ----------------------------------------
+               || A unione B ||        ||A|| + ||B|| - || A intersezione B ||
+
+(define (jaccard lst1 lst2)
+  (let (inter (length (intersect lst1 lst2)))
+      (div inter
+       (+ (length lst1) (length lst2) (- inter)))))
+
+(setq l1 '(1 2 3 5 7))
+(setq l2 '(1 2 4 8 9))
+(jaccard l1 l2)
+;-> 0.25
+
+L'indice di Jaccard varia da 0 a 1.
+
+Se gli insiemi sono uguali l'indice di Jaccard vale 1:
+
+(setq l1 '(1 2 3 4 5))
+(setq l2 '(1 2 3 4 5))
+(jaccard l1 l2)
+;-> 1
+
+Se gli insiemi sono totalmente diversi l'indice di Jaccard vale 0:
+(setq l1 '(1 2 3 4 5))
+(setq l2 '(6 7 8 9 10))
+(jaccard l1 l2)
+;-> 0
+
+La distanza di Jaccard misura la diversità tra due insiemi e si calcola con la seguente formula:
+
+  dJ(A,B = 1 - J(A,B)
+
+La somiglianza di Jaccard può essere utilizzata per calcolare la somiglianza tra due variabili binarie asimmetriche.
+Supponiamo che una variabile binaria abbia solo uno dei due stati "0" e "1", dove "0" significa che l'attributo è assente e "1" significa che è presente.
+Mentre ogni stato è ugualmente importante per gli attributi binari simmetrici, i due stati non sono ugualmente importanti nelle variabili binarie asimmetriche.
+
+Esempio:
+Supponiamo di voler calcolare la somiglianza dei clienti di un negozio. 
+Potremmo avere un attributo binario che corrisponde a un articolo acquistato, dove "1" indica che è stato acquistato un articolo specifico e "0" indica che lo stesso articolo non è stato acquistato.
+
+Poiché potrebbero esserci migliaia di prodotti nel negozio, il numero di prodotti non acquistati da nessun cliente è molto superiore al numero di prodotti acquistati. 
+Quando calcoliamo la somiglianza tra i clienti, vogliamo tenere conto solo degli acquisti di articoli. 
+Ciò significa che l'articolo acquistato è una variabile binaria asimmetrica, rendendo il valore "1" più importante di "0".
+
+Nella prima fase di una misurazione della somiglianza di Jaccard per due clienti che consistono in attributi binari, vengono calcolate le seguenti quattro quantità (ovvero le frequenze) per i dati binari forniti:
+
+  a = il numero di attributi uguali a "1" per entrambi gli oggetti i e j
+  b = il numero di attributi uguali a "0" per l'oggetto i ma uguali a "1" per l'oggetto j
+  c = il numero di attributi uguali a "1" per l'oggetto i ma uguali a "0" per l'oggetto j
+  d = il numero di attributi uguali a "0" per entrambi gli oggetti i e j
+
+Quindi, la somiglianza di Jaccard per questi attributi viene calcolata dalla seguente equazione:
+
+                a
+  J(i,j) = -----------
+            a + b + c
+
+(define (jac lst1 lst2)
+  (local (a b c)
+    (setq a 0 b 0 c 0)
+    (for (i 0 (- (length lst1) 1))
+      (cond ((and (= (lst1 i) 1) (= (lst2 i) 1)) (++ a))
+            ((and (= (lst1 i) 0) (= (lst2 i) 1)) (++ b))
+            ((and (= (lst1 i) 1) (= (lst2 i) 0)) (++ c))
+      )
+    )
+    (println a { } b { } c)
+    (div a (+ a b c))))
+
+Supponiamo di avere i seguenti dati:
+
+Cliente  art1  art2  art2  art4  art5  art6  art7  art8  art9
+  L1      0     1     0     0     0     1     0     0     1
+  L2      0     0     1     0     0     0     0     0     1
+  L3      1     1     0     0     0     1     0     0     0
+
+Calcoliamo l'indice di somiglianza di Jaccard per i clienti:
+
+(setq l1 '(0 1 0 0 0 1 0 0 1))
+(setq l2 '(0 0 1 0 0 0 0 0 1))
+(setq l3 '(1 1 0 0 0 1 0 0 0))
+
+(jac l1 l2)
+;-> 1 1 2
+;-> 0.25
+
+(jac l1 l3)
+;-> 2 1 1
+;-> 0.5
+
+(jac l2 l3)
+;-> 0 3 2
+;-> 0
+
+La funzione "jac" può essere scritta anche nel modo seguente:
+
+(define (jac01 lst1 lst2)
+  (local (inter uni)
+    ; calcola a
+    (setq inter (length (clean zero? (map & lst1 lst2))))
+    ; calcola a + b + c
+    (setq uni (length (clean zero? (map | lst1 lst2))))
+    (println inter { } uni)
+    (div inter uni)))
+
+(jac01 l1 l2)
+;-> 1 4
+;-> 0.25
+(jac01 l1 l3)
+;-> 2 4
+;-> 0.5
+(jac01 l2 l3)
+;-> 0 5
+;-> 0
+
+
+------------------------------------------
+Cosine similarity (Somiglianza del coseno)
+------------------------------------------
+
+La Cosine similarity (somiglianza del coseno) è una metrica per determinare quanto sono simili gli oggetti di dati indipendentemente dalle loro dimensioni. 
+In questa metrica gli oggetti di dati vengono trattati come un vettore. 
+La formula per trovare la somiglianza del coseno tra due vettori è la seguente:
+
+                                dot-product(x,y)
+     sim(x,y) = cos(θ) = -------------------------------
+                           cross-product(||x||, ||y||)
+
+dove ||x|| = sqrt(sum[i, 1..n]x(i)^2)
+dove ||y|| = sqrt(sum[i, 1..n]y(i)^2)
+
+La somiglianza del coseno tra due vettori è misurata in "θ".
+Se θ = 0°, i vettori "x" e "y"' si sovrappongono, dimostrando così che sono simili.
+Se θ = 90°, i vettori "x" e "y" sono diversi.
+
+(define (rad-deg rad)
+"Convert radiants to decimal degrees"
+  (div (mul rad 180) 3.141592653589793))
+
+(define (sim v1 v2)
+  (local (dot norm1 norm2 s theta)
+    (setq dot 0 norm1 0 norm2 0)
+    (for (i 0 (- (length v1) 1))
+      (setq dot (add dot (mul (v1 i) (v2 i))))
+      (setq norm1 (add norm1 (mul (v1 i) (v1 i))))
+      (setq norm2 (add norm2 (mul (v2 i) (v2 i))))
+    )
+    (setq s (div dot (mul (sqrt norm1) (sqrt norm2))))
+    (setq theta (rad-deg (acos s)))
+    (list s theta)))
+
+(setq l1 '(1 1 1 1 1 0 0))
+(setq l2 '(0 0 1 1 0 1 1))
+
+(sim l1 l2)
+;-> (0.4472135954999579 63.43494882292201)
+
+La somiglianza del coseno è utile quando vogliamo sapere se due insiemi di dati sono simili indipendentemente dalla loro dimensione (questo perché anche se i due oggetti di dati sono distanti con la distanza euclidea a causa delle dimensioni, potrebbero comunque avere un angolo più piccolo tra di loro ed essere simili).
+La somiglianza del coseno cattura l'orientamento (l'angolo) degli oggetti dati e non la grandezza.
+Questa metrica viene usata per confrontare la verosimiglianza tra testi e tra immagini.
+
 =============================================================================
 
