@@ -5154,7 +5154,7 @@ Distanza tra vettori (Minkowski)
 
 Dati due vettori X e Y con n elementi una metrica generica della loro distanza è data dalla seguente espressione:
 
-  || X - Y ||(p) = ( Sum[i, 0..n-1](|(x(i) - y(i)|^p) )^(1/p)
+  || X - Y ||(p) = (Sum[i, 0..n-1](|(x(i) - y(i)|^p)))^(1/p)
 
 Questa metrica prende il nome di distanza di "Minkowski".
 
@@ -5386,5 +5386,759 @@ La somiglianza del coseno è utile quando vogliamo sapere se due insiemi di dati
 La somiglianza del coseno cattura l'orientamento (l'angolo) degli oggetti dati e non la grandezza.
 Questa metrica viene usata per confrontare la verosimiglianza tra testi e tra immagini.
 
+
+-------------
+Gridlock Game
+-------------
+
+Dal libro "Math Game with Bad Drawings" di Ben Orlin.
+
+Il gioco richiede due dadi standard e una griglia 10x10 per ogni giocatore.
+L'obiettivo: riempire il più possibile la griglia prima che il gioco giunga al termine.
+Ad ogni turno, vengono lanciati i due dadi. 
+Supponiamo di ottenere 4 e 5: occorre riempire un rettangolo alto 4 e largo 5 in qualsiasi punto della griglia.
+Se il rettangolo non può essere inserito nella griglia, il giocatore passa il tuo turno.
+Quando entrambi i giocatori passano il turno uno dopo l'altro, il gioco finisce e vince chi ha più caselle riempite sulla propria griglia.
+
+Regola opzionale: il giocatore può scegliere di inserire il rettangolo sulla griglia dell'avversario invece che sulla propria.
+Perché mettere il rettangolo nella griglia dell'avversario?
+Alle volte, un piccolo rettangolo al centro della griglia può sventare il loro piano di riempire la griglia in modo simile al Tetris.
+Il gioco è stato ideato dallo Stanford education center.
+
+Implementiamo il gioco base senza regola opzionale.
+
+Funzione che gestisce il gioco:
+
+(define (gridlock)
+  (local (p1 p2 grid1 grid2 pass1 pass2)
+    ; creazione griglie 10x10
+    (setq grid1 (explode (dup 0 100) 10))
+    (setq grid2 (explode (dup 0 100) 10))
+    (setq pass1 nil pass2 nil)
+    ; ciclo di gioco
+    (until (and pass1 pass2)
+      ; player 1
+      (println "\nPLAYER 1")
+      (print-grid grid1)
+      (user-move grid1 1)
+      (print-grid grid1)
+      ; player 2
+      (println "\nPLAYER 2")
+      (print-grid grid2)
+      (user-move grid2 2)
+      (print-grid grid2)
+    )
+    ; controllo vincitore
+    (setq p1 (first (count '(1) (flat grid1))))
+    (setq p2 (first (count '(1) (flat grid2))))
+    (cond ((> p1 p2)
+            (setq s1 (string "Player 1: " p1 " WINNER"))
+            (setq s2 (string "Player 2: " p2)))
+          ((< p1 p2)
+            (setq s1 (string "Player 1: " p1))
+            (setq s2 (string "Player 2: " p2 " WINNER")))
+          ((= p1 p2)
+            (setq s1 (string "Player 1: " p1))
+            (setq s2 (string "Player 2: " p2)))
+    )
+    (println s1 "\n" s2)
+    'game-over))
+
+Funzione che verifica se è possibile inserire un rettangolo alto y e largo x in una data griglia:
+
+(define (fillable? grid y x)
+  (local (fill)
+    (setq fill nil)
+    (for (r 0 9 1 fill)
+      (for (c 0 9 1 fill)
+        (setq this true)
+        (for (riga r (+ r y (- 1)))
+          (for (colonna c (+ c x (- 1)))
+            (if (or (> riga 9) (> colonna 9) (= (grid riga colonna) 1))
+                (setq this nil))
+          )
+        )
+        (setq fill this)
+      )
+    )
+    fill))
+
+Funzione che gestisce la mossa dei due giocatori:
+
+(define (user-move grid player)
+  (local (x y ok ru cu poss)
+    (setq y (+ (rand 6) 1))
+    (setq x (+ (rand 6) 1))
+    ; controllo se possibile inserire rettangolo di y righe per x colonne
+    ; nella griglia del giocatore corrente
+    (cond
+      ((not (fillable? grid y x))
+        (println "PASSA: Impossibile inserire rettangolo alto " y " e largo " x)
+        (read-line)
+        (if (= player 1) 
+            (setq pass1 true)
+            ;else
+            (setq pass2 true)))
+      (true ; mossa possibile
+        (println "Posiziona rettangolo alto " y " (righe) e largo " x " (colonne)")
+        (setq ok nil)
+        (until ok
+          ; input utente
+          (print "riga: ") (setq ru (int (read-line)))
+          (print "colonna: ") (setq cu (int (read-line)))
+          ;(println (+ ru y) { } (+ cu x))
+          ; controllo 
+          (cond ((or (> ru 9) (< ru 0))
+                  (println "Riga inesistente"))
+                ((or (> cu 9) (< cu 0))
+                  (println "Colonna inesistente"))
+                ((> (+ ru y) 10)
+                  (println "Impossibile da inserire dalla riga " ru))
+                ((> (+ cu x) 10)
+                  (println "Impossibile da inserire dalla colonna " cu))
+                (true ; controllo possibile posizionamento del rettangolo di y righe per x colonne
+                  (setq poss true)
+                  (for (riga ru (+ ru y (- 1)))
+                    (for (colonna cu (+ cu x (- 1)))
+                      (if (= (grid riga colonna) 1) (setq poss nil))
+                    )
+                  )
+                  ;(println "poss: " poss)
+                  (setq ok poss)
+                  (if poss ; se possibile aggiorna griglia
+                    (begin
+                      (for (riga ru (+ ru y (- 1)))
+                        (for (colonna cu (+ cu x (- 1)))
+                          (setf (grid riga colonna) 1)))
+                      ; mossa terminata (il giocatore non è "passato")
+                      ; aggiorna la griglia del giocatore corrente
+                      (if (= player 1) 
+                          (setq pass1 nil grid1 grid)
+                          ;else
+                          (setq pass2 nil grid2 grid)
+                      )
+                    )
+                    ;else
+                    (println "Impossibile posizionare il rettangolo alto " y " e largo " x " da (" ru "," cu")")
+                  ))
+          )
+        ))
+    )))
+
+Funzione che stampa la griglia:
+
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    (println "  " (join (map string (sequence 0 (- row 1))) " "))
+    ;(println "  0 1 2 3 4 5 6 7 8 9")
+    (for (i 0 (- row 1))
+      (print i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid i j) 1) (print "■ ")) ; occupata
+              ((= (grid i j) 0) (print "· ")) ; libera
+              (true (println "ERROR"))
+        )
+      )
+      (println))))
+
+(gridlock)
+;-> PLAYER 1
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 · · · · · · · · · ·
+;-> 1 · · · · · · · · · ·
+;-> 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> Posiziona rettangolo alto 1 (righe) e largo 4 (colonne)
+;-> riga: 0
+;-> colonna: 0
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ · · · · · ·
+;-> 1 · · · · · · · · · ·
+;-> 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> 
+;-> PLAYER 2
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 · · · · · · · · · ·
+;-> 1 · · · · · · · · · ·
+;-> 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> Posiziona rettangolo alto 2 (righe) e largo 5 (colonne)
+;-> riga: 0
+;-> colonna: 0
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ ■ · · · · ·
+;-> 1 ■ ■ ■ ■ ■ · · · · ·
+;-> 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> 
+;-> PLAYER 1
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ · · · · · ·
+;-> 1 · · · · · · · · · ·
+;-> 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> Posiziona rettangolo alto 4 (righe) e largo 3 (colonne)
+;-> riga: 4
+;-> colonna: 0
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ · · · · · ·
+;-> 1 · · · · · · · · · ·
+;-> 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · ·
+;-> 4 ■ ■ ■ · · · · · · ·
+;-> 5 ■ ■ ■ · · · · · · ·
+;-> 6 ■ ■ ■ · · · · · · ·
+;-> 7 ■ ■ ■ · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> 
+;-> PLAYER 2
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ ■ · · · · ·
+;-> 1 ■ ■ ■ ■ ■ · · · · ·
+;-> 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> Posiziona rettangolo alto 3 (righe) e largo 6 (colonne)
+;-> riga: 2
+;-> colonna: 0
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ ■ · · · · ·
+;-> 1 ■ ■ ■ ■ ■ · · · · ·
+;-> 2 ■ ■ ■ ■ ■ ■ · · · ·
+;-> 3 ■ ■ ■ ■ ■ ■ · · · ·
+;-> 4 ■ ■ ■ ■ ■ ■ · · · ·
+;-> 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · ·
+;-> 
+;-> ...
+;-> 
+;-> PLAYER 1
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ ■ ■ ■ ■ ■ ·
+;-> 1 ■ ■ ■ · ■ ■ ■ ■ ■ ·
+;-> 2 · · · · ■ ■ ■ ■ ■ ·
+;-> 3 · · · · ■ ■ ■ ■ ■ ·
+;-> 4 ■ ■ ■ · ■ ■ ■ ■ ■ ·
+;-> 5 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 6 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 7 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 8 ■ ■ ■ ■ ■ ■ ■ · · ·
+;-> 9 · · · ■ ■ ■ ■ · · ·
+;-> PASSA: Impossibile inserire rettangolo alto 6 e largo 5
+;-> 
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ ■ ■ ■ ■ ■ ·
+;-> 1 ■ ■ ■ · ■ ■ ■ ■ ■ ·
+;-> 2 · · · · ■ ■ ■ ■ ■ ·
+;-> 3 · · · · ■ ■ ■ ■ ■ ·
+;-> 4 ■ ■ ■ · ■ ■ ■ ■ ■ ·
+;-> 5 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 6 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 7 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 8 ■ ■ ■ ■ ■ ■ ■ · · ·
+;-> 9 · · · ■ ■ ■ ■ · · ·
+;-> 
+;-> PLAYER 2
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 1 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 2 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 3 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 4 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 5 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 6 ■ ■ ■ ■ ■ ■ ■ ■ · ·
+;-> 7 ■ · · · · · ■ ■ · ·
+;-> 8 ■ · · · · · ■ ■ · ·
+;-> 9 · · · · · · ■ ■ · ·
+;-> PASSA: Impossibile inserire rettangolo alto 6 e largo 6
+;-> 
+;->   0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 1 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 2 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 3 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 4 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 5 ■ ■ ■ ■ ■ ■ ■ ■ ■ ■
+;-> 6 ■ ■ ■ ■ ■ ■ ■ ■ · ·
+;-> 7 ■ · · · · · ■ ■ · ·
+;-> 8 ■ · · · · · ■ ■ · ·
+;-> 9 · · · · · · ■ ■ · ·
+;-> Player 1: 76
+;-> Player 2: 76
+;-> game-over
+
+Vediamo ora la versione con la regola opzionale (scelta della griglia da riempire):
+
+(define (user-move grid player)
+  (local (x y ok ru cu poss)
+    (setq y (+ (rand 6) 1))
+    (setq x (+ (rand 6) 1))
+    ; scelta della griglia da riempire
+    (println "Rettangolo alto " y " (righe) e largo " x " (colonne)")
+    (print "Quale griglia (1 o 2): ") (setq g (int (read-line)))
+    (cond ((= g 1) (setq grid grid1))
+          ((= g 2) (setq grid grid2)))
+    ; controllo se possibile inserire rettangolo di y righe per x colonne
+    ; nella griglia selezionata
+    (cond
+      ((not (fillable? grid y x))
+        (println "PASSA: Impossibile inserire rettangolo alto " y " e largo " x)
+        (read-line)
+        (if (= player 1) 
+            (setq pass1 true)
+            ;else
+            (setq pass2 true)))
+      (true ; mossa possibile
+        (println "Posiziona rettangolo alto " y " (righe) e largo " x " (colonne)")
+        (setq ok nil)
+        (until ok
+          ; input utente
+          (print "riga: ") (setq ru (int (read-line)))
+          (print "colonna: ") (setq cu (int (read-line)))
+          ;(println (+ ru y) { } (+ cu x))
+          ; controllo 
+          (cond ((or (> ru 9) (< ru 0))
+                  (println "Riga inesistente"))
+                ((or (> cu 9) (< cu 0))
+                  (println "Colonna inesistente"))
+                ((> (+ ru y) 10)
+                  (println "Impossibile da inserire dalla riga " ru))
+                ((> (+ cu x) 10)
+                  (println "Impossibile da inserire dalla colonna " cu))
+                (true ; controllo possibile posizionamento del rettangolo di y righe per x colonne
+                  (setq poss true)
+                  (for (riga ru (+ ru y (- 1)))
+                    (for (colonna cu (+ cu x (- 1)))
+                      (if (= (grid riga colonna) 1) (setq poss nil))
+                    )
+                  )
+                  ;(println "poss: " poss)
+                  (setq ok poss)
+                  (if poss ; se possibile aggiorna griglia
+                    (begin
+                      (for (riga ru (+ ru y (- 1)))
+                        (for (colonna cu (+ cu x (- 1)))
+                          (setf (grid riga colonna) 1)))
+                      ; mossa terminata (il giocatore non è "passato")
+                      (if (= player 1) 
+                          (setq pass1 nil)
+                          ;else
+                          (setq pass2 nil)
+                      )
+                      ; aggiorna la griglia selezionata
+                      (if (= g 1) 
+                          (setq grid1 grid)
+                          ;else
+                          (setq grid2 grid)
+                      )
+                    )
+                    ;else
+                    (println "Impossibile posizionare il rettangolo alto " y " e largo " x " da (" ru "," cu")")
+                  ))
+          )
+        ))
+    )))
+
+(define (print-grid grid1 grid2)
+  (local (row col)
+    (setq row (length grid1))
+    (setq col (length (first grid1)))
+    (print "  " (join (map string (sequence 0 (- row 1))) " "))
+    (println "  " (join (map string (sequence 0 (- row 1))) " "))
+    (for (i 0 (- row 1))
+      (print i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid1 i j) 1) (print "■ ")) ; occupata
+              ((= (grid1 i j) 0) (print "· ")) ; libera
+              (true (println "ERROR"))
+        )
+      )
+      (print i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid2 i j) 1) (print "■ ")) ; occupata
+              ((= (grid2 i j) 0) (print "· ")) ; libera
+              (true (println "ERROR"))
+        )
+      )      
+      (println))))
+
+(define (gridlock)
+  (local (p1 p2 grid1 grid2 pass1 pass2)
+    ; creazione griglie 10x10
+    (setq grid1 (explode (dup 0 100) 10))
+    (setq grid2 (explode (dup 0 100) 10))
+    (setq pass1 nil pass2 nil)
+    ; ciclo di gioco
+    (until (and pass1 pass2)
+      ; player 1
+      (println "\nPLAYER 1")
+      (print-grid grid1 grid2)
+      (user-move grid1 1)
+      (print-grid grid1 grid2)
+      ; player 2
+      (println "\nPLAYER 2")
+      (print-grid grid2 grid1)
+      (user-move grid2 2)
+      (print-grid grid2 grid1)
+    )
+    ; controllo vincitore
+    (setq p1 (first (count '(1) (flat grid1))))
+    (setq p2 (first (count '(1) (flat grid2))))
+    (cond ((> p1 p2)
+            (setq s1 (string "Player 1: " p1 " WINNER"))
+            (setq s2 (string "Player 2: " p2)))
+          ((< p1 p2)
+            (setq s1 (string "Player 1: " p1))
+            (setq s2 (string "Player 2: " p2 " WINNER")))
+          ((= p1 p2)
+            (setq s1 (string "Player 1: " p1))
+            (setq s2 (string "Player 2: " p2)))
+    )
+    (println s1 "\n" s2)
+    'game-over))
+
+(gridlock)
+;-> PLAYER 1
+;->   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8 9
+;-> 0 · · · · · · · · · · 0 · · · · · · · · · ·
+;-> 1 · · · · · · · · · · 1 · · · · · · · · · ·
+;-> 2 · · · · · · · · · · 2 · · · · · · · · · ·
+;-> 3 · · · · · · · · · · 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · · 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · · 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · · 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · · 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · · 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · · 9 · · · · · · · · · ·
+;-> Rettangolo alto 4 (righe) e largo 1 (colonne)
+;-> Quale griglia (1 o 2): 2
+;-> Posiziona rettangolo alto 4 (righe) e largo 1 (colonne)
+;-> riga: 0
+;-> colonna: 0
+;->   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8 9
+;-> 0 · · · · · · · · · · 0 ■ · · · · · · · · ·
+;-> 1 · · · · · · · · · · 1 ■ · · · · · · · · ·
+;-> 2 · · · · · · · · · · 2 ■ · · · · · · · · ·
+;-> 3 · · · · · · · · · · 3 ■ · · · · · · · · ·
+;-> 4 · · · · · · · · · · 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · · 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · · 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · · 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · · 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · · 9 · · · · · · · · · ·
+;-> 
+;-> PLAYER 2
+;->   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ · · · · · · · · · 0 · · · · · · · · · ·
+;-> 1 ■ · · · · · · · · · 1 · · · · · · · · · ·
+;-> 2 ■ · · · · · · · · · 2 · · · · · · · · · ·
+;-> 3 ■ · · · · · · · · · 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · · 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · · 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · · 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · · 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · · 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · · 9 · · · · · · · · · ·
+;-> Rettangolo alto 3 (righe) e largo 2 (colonne)
+;-> Quale griglia (1 o 2): 2
+;-> Posiziona rettangolo alto 3 (righe) e largo 2 (colonne)
+;-> riga: 0
+;-> colonna: 1
+;->   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8 9
+;-> 0 ■ ■ ■ · · · · · · · 0 · · · · · · · · · ·
+;-> 1 ■ ■ ■ · · · · · · · 1 · · · · · · · · · ·
+;-> 2 ■ ■ ■ · · · · · · · 2 · · · · · · · · · ·
+;-> 3 ■ · · · · · · · · · 3 · · · · · · · · · ·
+;-> 4 · · · · · · · · · · 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · · 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · · 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · · 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · · 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · · 9 · · · · · · · · · ·
+;-> 
+;-> PLAYER 1
+;->   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8 9
+;-> 0 · · · · · · · · · · 0 ■ ■ ■ · · · · · · ·
+;-> 1 · · · · · · · · · · 1 ■ ■ ■ · · · · · · ·
+;-> 2 · · · · · · · · · · 2 ■ ■ ■ · · · · · · ·
+;-> 3 · · · · · · · · · · 3 ■ · · · · · · · · ·
+;-> 4 · · · · · · · · · · 4 · · · · · · · · · ·
+;-> 5 · · · · · · · · · · 5 · · · · · · · · · ·
+;-> 6 · · · · · · · · · · 6 · · · · · · · · · ·
+;-> 7 · · · · · · · · · · 7 · · · · · · · · · ·
+;-> 8 · · · · · · · · · · 8 · · · · · · · · · ·
+;-> 9 · · · · · · · · · · 9 · · · · · · · · · ·
+;-> Rettangolo alto 6 (righe) e largo 2 (colonne)
+;-> Quale griglia (1 o 2):
+;-> ...
+
+
+--------------------------------
+Taxman Game (Il Gioco del Fisco)
+--------------------------------
+
+"The Taxman Game" di Robert K. Moniot, Fordham University
+https://www.maa.org/sites/default/files/pdf/Mathhorizons/pdfs/feb_2007_Moniot.pdf
+
+Ecco come si gioca: si inizia con una lista composto dalla sequenza di tutti i numeri interi positivi da 1 a N.
+Ad ogni turno scegliamo un numero e il fisco prende tutti gli altri che lo dividono esattamente.
+Il numero che abbiamo scelto viene aggiunto al nostro punteggio e i numeri presi dal fisco vengono aggiunti al suo punteggio.
+Questo processo viene ripetuto fino a quando non rimane più niente da prendere nella lista.
+Ciò che rende il gioco interessante è che il fisco deve prendere qualcosa ad ogni turno, quindi non possiamo scegliere un numero che non ha divisori negli altri numeri della lista. 
+E quando i numeri rimasti nella lista non hanno più divisori tra loro, il fisco li prende tutti!
+
+Funzione che restituisce la lista per il prossimo turno.
+La funzione prende la lista corrente e un numero della lista (quello scelto da noi).
+(Il numero scelto deve essere presente nella lista).
+
+(define (modify lst num)
+  (let (fisco '())
+    ; aggiorna il nostro punteggio (dynamyc scope)
+    (setq io (+ io num))
+    ; toglie il numero scelto
+    (replace num lst)
+    ; crea lista dei numeri presi dal fisco
+    (dolist (el lst)
+      (if (zero? (% num el)) (push el fisco))
+    )
+    (println "Fisco prende: " fisco)
+    ; aggiorna il punteggio del fisco (dynamyc scope)
+    (setq tax (+ tax (apply + fisco))) 
+    ; restituisce la lista per il prossimo turno
+    (difference lst fisco)))
+
+Funzione che verifica se il gioco è finito, cioè se nella lista passata non esiste alcun numero che divide esattamente almeno uno degli altri numeri.
+
+(define (endgame? lst)
+  (let (divide nil)
+    (for (i 0 (- (length lst) 1) 1 divide)
+      (for (j 0 (- (length lst) 1) 1 divide)
+        (if (!= (lst i) (lst j))
+            (if (zero? (% (lst i) (lst j))) (setq divide true))
+        )
+      )
+    )
+    (not divide)))
+
+(setq io 0)
+(setq tax 0)
+(setq a (sequence 1 10))
+;-> (1 2 3 4 5 6 7 8 9 10)
+(setq a (modify a 10))
+;-> Fisco prende: (5 2 1)
+;-> (3 4 6 7 8 9)
+(endgame? a)
+;-> nil
+(setq a (modify a 9))
+;-> Fisco prende: (3)
+;-> (4 6 7 8)
+(endgame? a)
+;-> nil
+(setq a (modify a 8))
+;-> Fisco prende: (4)
+;-> (6 7)
+(endgame? a)
+;-> true
+
+Funzione che verifica se il numero scelto è valido, cioè se il numero scelto lascia prendere almeno un numero al fisco.
+
+(define (possible-choice? lst num)
+  (let (out '())
+    ; toglie il numero scelto
+    (replace num lst)
+    ; crea lista dei numeri presi dal fisco
+    (dolist (el lst)
+      (if (zero? (% num el)) (push el out))
+    )
+    ; se la lista del fisco è vuota, allora non è possibile scegliere num
+    (!= out '())))
+
+(possible-choice? '(2 4 5 6 7 8 10 11) 5)
+;-> nil
+(possible-choice? '(2 4 5 6 7 8 10 11) 8)
+;-> true
+
+Funzione che gestisce il gioco:
+
+(define (tax-collector limite)
+  (local (io tax lista ok val)
+    (setq io 0)
+    (setq tax 0)
+    (setq lista (sequence 1 limite))
+    ; ciclo del gioco
+    (until (or (= lista '()) (endgame? lista))
+      (setq ok nil)
+      ; input utente
+      (until ok
+        (println "Lista numeri: " lista)
+        (print "Numero scelto: ") (setq val (int (read-line)))
+        (if (and (find val lista) (possible-choice? lista val))
+            (setq ok true)
+            ;else
+            (println "Numero non presente o fisco senza numeri.")
+        )
+      )
+      ; crea lista per il prossimo turno
+      (setq lista (modify lista val))
+      (println "Io: " io ", Fisco: " tax)
+    )
+    ; aggiunge i numeri rimasti nella lista al punteggio del fisco
+    (setq tax (+ tax (apply + lista)))
+    (println "------------------------------------")
+    (println "Fisco prende " lista " = " (apply + lista))
+    (println "------------------------------------")
+    (println "Io: " io ", Fisco: " tax)
+    (cond ((> io tax) (println "Vinco Io"))
+          ((< io tax) (println "Vince il Fisco"))
+          ((= io tax) (println "Pareggio"))
+    )
+    'game-over))
+
+Facciamo una partita:
+
+(tax-collector 10)
+;-> Lista numeri: (1 2 3 4 5 6 7 8 9 10)
+;-> Numero scelto: 10
+;-> Fisco prende: (5 2 1)
+;-> Io: 10, Fisco: 8
+;-> Lista numeri: (3 4 6 7 8 9)
+;-> Numero scelto: 9
+;-> Fisco prende: (3)
+;-> Io: 19, Fisco: 11
+;-> Lista numeri: (4 6 7 8)
+;-> Numero scelto: 8
+;-> Fisco prende: (4)
+;-> Io: 27, Fisco: 15
+;-> ------------------------------------
+;-> Fisco prende (6 7) = 13
+;-> ------------------------------------
+;-> Io: 27, Fisco: 28
+;-> Vince il Fisco
+;-> game-over
+
+Dopo alcune partite ci accorgiamo che non è facile battere il Fisco.
+Il problema principale è che al termine del gioco rimangono molti numeri che non sono diovisibili tra loro e che vanno a finire tutti nelle mani del Fisco.
+Comunque, giocando meglio, è possibile battere il fisco.
+
+(tax-collector 10)
+;-> Lista numeri: (1 2 3 4 5 6 7 8 9 10)
+;-> Numero scelto: 7
+;-> Fisco prende: (1)
+;-> Io: 7, Fisco: 1
+;-> Lista numeri: (2 3 4 5 6 8 9 10)
+;-> Numero scelto: 9
+;-> Fisco prende: (3)
+;-> Io: 16, Fisco: 4
+;-> Lista numeri: (2 4 5 6 8 10)
+;-> Numero scelto: 6
+;-> Fisco prende: (2)
+;-> Io: 22, Fisco: 6
+;-> Lista numeri: (4 5 8 10)
+;-> Numero scelto: 8
+;-> Fisco prende: (4)
+;-> Io: 30, Fisco: 10
+;-> Lista numeri: (5 10)
+;-> Numero scelto: 10
+;-> Fisco prende: (5)
+;-> Io: 40, Fisco: 15
+;-> ------------------------------------
+;-> Fisco prende () = 0
+;-> ------------------------------------
+;-> Io: 40, Fisco: 15
+;-> Vinco Io
+;-> game-over
+
+Esiste una strategia vincente?
+
+In questo gioco, ad ogni mossa, abbiamo lasciato al fisco un solo numero e alla fine nessun numero è rimasto nella lista.
+Non è sempre possibile giocare in questo modo, ma generalmente è possibile vincere.
+Vediamo alcune strategie per fare buone mosse.
+
+La somma dei due punteggi vale N*(N + 1)/2. Pertanto, maggiore è il punteggio del fisco, minore è il nostro punteggio e viceversa.
+Questo tipo di gioco è chiamato "gioco a somma zero", perché la somma dei punteggi finali dei due giocatori, meno una costante nota all'inizio del gioco, è uguale a zero.
+
+Il fisco ottiene sempre il numero 1 e tutti i numeri primi che sono inizialmente nella lista (tranne uno).
+Questo è perché il numero 1 non può mai essere scelto e l'unico turno in cui il giocatore può scegliere un numero primo è il primo turno, quando il il numero 1 è ancora nella lista. 
+Questo dà al fisco un vantaggio iniziale. Utilizzando l'approssimazione per la densità di numeri primi vicini a x di 1/ln(x) è garantito che il fisco otterrà circa 1/ln(N) della lista solo dai numeri primi rimanenti. 
+Questa frazione diminuisce lentamente come N aumenta: è di circa il 30% per N = 30, e di circa il 15% per N = 1000.
+
+Dal momento che il fisco deve ottenere qualcosa ad ogni turno, il meglio che possiamo sperare è prendere tanti numeri quanti ne prende il fisco. Questo può essere fatto solo per pari N. 
+In tal caso, il miglior punteggio che puoi ottenere è se prendiamo tutti i numeri più grandi e lasciamo i più piccoli per il fisco. (vedi la seconda partita giocata sopra, con N = 10.) 
+Quindi, per N pari,il giocatore prende tutti i numeri da (N/2 + 1) a N,
+lasciando al fisco i numeri da 1 a N/2. Questo mostra che il punteggio del fisco sarà N(N + 2)/8. 
+Poichè il piatto è N(N + 1)/2, quello che prende il fisco come frazione della lista vale:
+  (1/4)*(N + 2)/(N + 1). 
+Questa frazione è sempre un po' più grande di 1/4.
+Ciò significa che il meglio che possiamo fare è ottenere quasi il 75% della lista.
+
+Si può dimostrare che alla prima mossa la scelta migliore è quella di prendere il numero primo più grande della lista.
+
+Dopo la prima mossa, non sembrano esserci regole semplici per seguire la strategia ottimale. Possiamo solo utilizzare qualche tipo di euristica.
+
+Nella prima partita abbiamo usato un'euristica "greedy": prendere sempre il numero più grande possibile dalla lista.
+Questa è una cattiva euristica perché ignora quello che resta al fisco.
+Il gioco è a somma zero, quindi la vera misura da considerare non è il valore assoluto della nostra vincita, ma la differenza tra la nostra vincita (il valore del numero che scegliamo) e la vincita del fisco (la somma dei rimanenti divisori del numero).
+Pertanto, una migliore euristica è quella di scegliere ad ogni turno il numero che massimizza la differenza tra la nostra scelta e quello che prende il fisco per quella scelta. 
+Questa euristica è facile da calcolare (almeno per un computer) e generalmente produce buoni risultati.
+Comunque seguendo questo metodo possiamo lasciare alcuni "omaggi" (freebie) per strada.
+Vediamo cosa è un "omaggio" con un esempio:
+
+lista = (1 2 3 4 5 6 7 8 9 10 11 12 13 15)
+Prima mossa: prendiamo il 13
+lista = (2 3 4 5 6 7 8 9 10 11 12 14 15)
+Seconda mossa: prendiamo il 15 (basandoci sulla nostra euristica di massimizzazione della differenza)
+lista = (2 4 6 7 8 9 10 11 12 14)
+Con la seconda mossa il fisco ha preso i divisori del 15: (3 e 5)
+Se alla seconda mossa prendiamo il 9, allora il fisco prende (3).
+Poi alla terza mossa prendiamo il 15 e il fisco prende il (5).
+In questo esempio il numero 9 è un "omaggio", cioè abbiamo prendendo 9 e 15 abbiamo lasciato al fisco 3 e 5, lo stesso valore che avrebbe preso se avessimo scelto prima il 15.
+Da notare che, dopo aver scelto il 15, il numero 9 non si può prendere perchè non ha divisori nella lista e quindi lo prenderà il fisco alla fine del gioco.
+
+Quindi l'euristica "greedy" (massimizzazione della differenza) può essere migliorata cercando gli eventuali "omaggi" prima di ogni mossa e inserendoli nella sequenza.
+Questa strategia non è ottimale, ma è stato verificato con un computer che sconfigge sempre il fisco fino a N=1000.
+
+Implementazione dell'euristica...(prossimente).
 =============================================================================
 

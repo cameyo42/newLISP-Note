@@ -1758,6 +1758,8 @@ NOTE LIBERE 15
   Distanza tra vettori (Minkowski)
   Indice/similarità di Jaccard e distanza di Jaccard
   Cosine similarity (Somiglianza del coseno)
+  Gridlock Game
+  Taxman Game (Il Gioco del Fisco)
 
 APPENDICI
 =========
