@@ -1760,6 +1760,7 @@ NOTE LIBERE 15
   Cosine similarity (Somiglianza del coseno)
   Gridlock Game
   Taxman Game (Il Gioco del Fisco)
+  Paradosso dei Corvi
 
 APPENDICI
 =========

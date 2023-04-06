@@ -6059,7 +6059,7 @@ Facciamo una partita:
 ;-> game-over
 
 Dopo alcune partite ci accorgiamo che non è facile battere il Fisco.
-Il problema principale è che al termine del gioco rimangono molti numeri che non sono diovisibili tra loro e che vanno a finire tutti nelle mani del Fisco.
+Il problema principale è che al termine del gioco rimangono molti numeri che non sono divisibili tra loro e che vanno a finire tutti nelle mani del Fisco.
 Comunque, giocando meglio, è possibile battere il fisco.
 
 (tax-collector 10)
@@ -6090,9 +6090,22 @@ Comunque, giocando meglio, è possibile battere il fisco.
 ;-> Vinco Io
 ;-> game-over
 
-Esiste una strategia vincente?
+Per valori di N fino a 10 possiamo trovare una strategia per battere il fisco (mediante calcoli matematici o per tentativi):
 
-In questo gioco, ad ogni mossa, abbiamo lasciato al fisco un solo numero e alla fine nessun numero è rimasto nella lista.
+ N  Lista                   Sequenza vincente
+ 2  (1,2)                   (2)
+ 3  (1,2,3)                 (3)
+ 4  (1,2,3,4)               (3,4)
+ 5  (1,2,3,4,5)             (5,4)
+ 6  (1,2,3,4,5,6)           (5,4,6)
+ 7  (1,2,3,4,5,6,7)         (7,4,6)
+ 8  (1,2,3,4,5,6,7,8)       (5,6,8)
+ 9  (1,2,3,4,5,6,7,8,9)     (5,9,6,8)
+10  (1,2,3,4,5,6,7,8,9,10)  (9,6,10,8)
+
+Esiste una strategia generale vincente?
+
+Nell'ultima partita, ad ogni mossa, abbiamo lasciato al fisco un solo numero e alla fine nessun numero è rimasto nella lista.
 Non è sempre possibile giocare in questo modo, ma generalmente è possibile vincere.
 Vediamo alcune strategie per fare buone mosse.
 
@@ -6139,6 +6152,279 @@ Da notare che, dopo aver scelto il 15, il numero 9 non si può prendere perchè 
 Quindi l'euristica "greedy" (massimizzazione della differenza) può essere migliorata cercando gli eventuali "omaggi" prima di ogni mossa e inserendoli nella sequenza.
 Questa strategia non è ottimale, ma è stato verificato con un computer che sconfigge sempre il fisco fino a N=1000.
 
-Implementazione dell'euristica...(prossimente).
+Un'altra euristica è quella di scegliere dalla lista il numero più grande che ha un solo divisore.
+Implementiamo questa euristica "greedy-numeroMax-con-singolo-divisore".
+
+(define (heuristic lst)
+  (local (num max-num divisor min-div)
+    (reverse lst)
+    (setq num 0)
+    (setq max-num 0)
+    (setq min-div 9999)
+    (for (i 0 (- (length lst) 1))
+      (setq num (lst i))
+      (setq divisor 0)
+      (for (j 0 (- (length lst) 1))
+        (if (!= (lst i) (lst j))
+            (if (zero? (% (lst i) (lst j))) (++ divisor))
+        )
+      )
+      ;(println (lst i) ": " divisor)
+      (if (and (> divisor 0) (< divisor min-div)) 
+        (setq max-num num min-div divisor)
+      )  
+    )
+    (list max-num min-div)))
+
+Proviamo questa euristica per N=10:
+
+(setq a (sequence 1 10))
+;-> (1 2 3 4 5 6 7 8 9 10)
+(setq io 0)
+;-> 0
+(setq tax 0)
+;-> 0
+(setq a (sequence 1 10))
+;-> (1 2 3 4 5 6 7 8 9 10)
+(heuristic a)
+;-> 10: 3
+;-> 9: 2
+;-> 8: 3
+;-> 7: 1
+;-> 6: 3
+;-> 5: 1
+;-> 4: 2
+;-> 3: 1
+;-> 2: 1
+;-> 1: 0
+;-> (7 1)
+(setq a (modify a 7))
+;-> Fisco prende: (1)
+;-> (2 3 4 5 6 8 9 10)
+(endgame? a)
+;-> nil
+(heuristic a)
+;-> 10: 2
+;-> 9: 1
+;-> 8: 2
+;-> 6: 2
+;-> 5: 0
+;-> 4: 1
+;-> 3: 0
+;-> 2: 0
+;-> (9 1)
+(setq a (modify a 9))
+;-> Fisco prende: (3)
+;-> (2 4 5 6 8 10)
+(endgame? a)
+;-> nil
+(heuristic a)
+;-> 10: 2
+;-> 8: 2
+;-> 6: 1
+;-> 5: 0
+;-> 4: 1
+;-> 2: 0
+;-> (6 1)
+(setq a (modify a 6))
+;-> Fisco prende: (2)
+;-> (4 5 8 10)
+(endgame? a)
+;-> nil
+(heuristic a)
+;-> 10: 1
+;-> 8: 1
+;-> 5: 0
+;-> 4: 0
+;-> (10 1)
+(setq a (modify a 10))
+;-> Fisco prende: (5)
+;-> (4 8)
+(endgame? a)
+;-> nil
+(heuristic a)
+;-> 8: 1
+;-> 4: 0
+;-> (8 1)
+(setq a (modify a 8))
+;-> Fisco prende: (4)
+;-> ()
+io
+;-> 40
+tax
+;-> 15
+
+(define (tax-test limite)
+  (local (io tax lista ok val)
+    (setq io 0)
+    (setq tax 0)
+    (setq lista (sequence 1 limite))
+    ; ciclo del gioco
+    (until (or (= lista '()) (endgame? lista))
+      (setq val (first (heuristic lista)))
+      (println "Io prendo : " val)
+      ; crea lista per il prossimo turno
+      (setq lista (modify lista val))
+      (println "Io: " io ", Fisco: " tax)
+    )
+    ; aggiunge i numeri rimasti nella lista al punteggio del fisco
+    (setq tax (+ tax (apply + lista)))
+    (println "------------------------------------")
+    (println "Fisco prende " lista " = " (apply + lista))
+    (println "------------------------------------")
+    (println "Io: " io ", Fisco: " tax)
+    (cond ((> io tax) (println "Vinco Io"))
+          ((< io tax) (println "Vince il Fisco"))
+          ((= io tax) (println "Pareggio"))
+    )
+    'game-over))
+
+Facciamo un paio di prove:
+
+(tax-test 10)
+;-> Io prendo : 7
+;-> Fisco prende: (1)
+;-> Io: 7, Fisco: 1
+;-> Io prendo : 9
+;-> Fisco prende: (3)
+;-> Io: 16, Fisco: 4
+;-> Io prendo : 6
+;-> Fisco prende: (2)
+;-> Io: 22, Fisco: 6
+;-> Io prendo : 10
+;-> Fisco prende: (5)
+;-> Io: 32, Fisco: 11
+;-> Io prendo : 8
+;-> Fisco prende: (4)
+;-> Io: 40, Fisco: 15
+;-> ------------------------------------
+;-> Fisco prende () = 0
+;-> ------------------------------------
+;-> Io: 40, Fisco: 15
+;-> Vinco Io
+;-> game-over
+
+(tax-test 20)
+;-> Io prendo : 19
+;-> Fisco prende: (1)
+;-> Io: 19, Fisco: 1
+;-> Io prendo : 9
+;-> Fisco prende: (3)
+;-> Io: 28, Fisco: 4
+;-> Io prendo : 15
+;-> Fisco prende: (5)
+;-> Io: 43, Fisco: 9
+;-> Io prendo : 10
+;-> Fisco prende: (2)
+;-> Io: 53, Fisco: 11
+;-> Io prendo : 20
+;-> Fisco prende: (4)
+;-> Io: 73, Fisco: 15
+;-> Io prendo : 18
+;-> Fisco prende: (6)
+;-> Io: 91, Fisco: 21
+;-> Io prendo : 16
+;-> Fisco prende: (8)
+;-> Io: 107, Fisco: 29
+;-> Io prendo : 14
+;-> Fisco prende: (7)
+;-> Io: 121, Fisco: 36
+;-> ------------------------------------
+;-> Fisco prende (11 12 13 17) = 53
+;-> ------------------------------------
+;-> Io: 121, Fisco: 89
+;-> Vinco Io
+;-> game-over
+
+Facciamo un test su M partite:
+
+(define (modify lst num)
+  (let (fisco '())
+    ; aggiorna il nostro punteggio (dynamyc scope)
+    (setq io (+ io num))
+    ; toglie il numero scelto
+    (replace num lst)
+    ; crea lista dei numeri presi dal fisco
+    (dolist (el lst)
+      (if (zero? (% num el)) (push el fisco))
+    )
+    ; aggiorna il punteggio del fisco (dynamyc scope)
+    (setq tax (+ tax (apply + fisco))) 
+    ; restituisce la lista per il prossimo turno
+    (difference lst fisco)))
+
+(define (tax-M M)
+  (local (io tax lista ok val win lose out)
+    (setq out '())
+    (setq win 0 lose 0)
+    (for (limite 10 M)
+      (setq io 0)
+      (setq tax 0)
+      (setq lista (sequence 1 limite))
+      ; ciclo del gioco
+      (until (or (= lista '()) (endgame? lista))
+        (setq val (first (heuristic lista)))
+        (setq lista (modify lista val))
+      )
+      (setq tax (+ tax (apply + lista)))
+      (cond ((> io tax) (push 1 out -1))
+            ((< io tax) (push 0 out -1))
+            ((= io tax) (push 2 out -1))
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(tax-M 20)
+;-> (1 1 1 1 1 1 1 1 1 1 1)
+
+Contiamo le sconfitte con N da 10 a 100:
+
+(time (println (count '(0) (tax-M 100))))
+;-> (0)
+;-> 991.348
+
+Contiamo le sconfitte con N da 10 a 500:
+
+(time (println (count '(0) (tax-M 500))))
+;-> (0)
+;-> 1731364.393 ;28m 51s 364ms
+
+Nessuna sconfitta... ma ci mette tanto tempo per calcolare.
+
+
+-------------------
+Paradosso dei Corvi
+-------------------
+
+Il paradosso dei corvi è un paradosso logico sviluppato negli anni '40 da Carl Hempel per dimostrare i limiti del procedimento logico induttivo:
+
+"Vedere una mela rossa ci dà in qualche modo una conferma che tutti i corvi sono neri."
+
+Per il principio induttivo l'acquisizione di un nuovo riscontro positivo di una teoria rende più probabile che questa teoria sia vera (Teoria della confermabilità).
+
+Tutti i corvi che possiamo esaminare (non tutti i corvi) sono neri. Dopo ogni osservazione, perciò, la teoria che tutti i corvi siano neri diviene sempre più "probabilmente" vera, coerentemente col principio induttivo. Quindi l'affermazione "tutti i corvi ssono neri" aumenta la probabilità di essere vera ad ogni osservazione di un nuovo corvo nero.
+
+Ma l'assunto "i corvi sono tutti neri" è logicamente equivalente all'affermazione "tutte le cose che non sono nere, non sono corvi".
+Quest'ultima affermazione diventa più probabilmente vera se osserviamo una mela rossa: infatti verifichiamo che una cosa non nera  non è un corvo.
+
+Esistono molte risposte filosofiche e matematiche a questo paradosso, e una delle soluzioni più famosa consiste nell'accettare che l'osservazione di una mela rossa costituisce una prova che tutti i corvi sono neri, ma aggiungendo che l'effettiva conferma che questa prova fornisce è molto piccola, vista la grande differenza fra il numero di corvi e il numero di oggetti non neri.
+
+Versione analoga
+----------------
+
+"Se è un corvo, allora è nero"
+
+"Se A allora B" è equivalente a "Se Non B allora Non A"
+
+A = corvo
+B = nero
+
+non A = non corvo
+non B = non nero
+
+"Se non è nero allora non è un corvo."
+
 =============================================================================
 
