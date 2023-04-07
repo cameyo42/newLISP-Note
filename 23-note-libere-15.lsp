@@ -6426,5 +6426,68 @@ non B = non nero
 
 "Se non è nero allora non è un corvo."
 
+
+-------------------------------
+Funzioni di ricerca per vettori
+-------------------------------
+
+Le funzioni di ricerca sulle liste (find, ref, ref-all, ecc.) non sono utilizzabili con i vettori (array).
+Se vogliamo ricercare qualcosa in un vettore possiamo prima convertire il vettore in lista e poi utilizzare le funzioni di ricerca proprie delle liste.
+Per esempio:
+
+(setq a (array 10 (randomize (sequence 1 10))))
+;-> (1 7 4 9 8 5 6 10 2 3)
+
+Non possiamo applicare "find":
+
+(find 4 a)
+;-> ERR: list or string expected in function find : (1 7 4 9 8 5 6 10 2 3)
+
+Però possiamo scrivere:
+
+(find 4 (array-list a))
+;-> 2
+
+Possiamo anche scrivere una macro che prende l'espressione di ricerca scritta utilizzando un vettore, sostituisce il vettore con la lista relativa e poi valuta l'espressione.
+Nelle funzioni di ricerca la lista in cui ricercare è il secondo parametro.
+
+(define-macro (vector)
+  (local (expr lst)
+    ; espressione
+    (setq expr (args 0))
+    ; converte il vettore in lista
+    (setq lst (array-list (eval (expr 2))))
+    ; inserisce il simbolo 'lst nell'espressione
+    (setf (expr 2) 'lst)
+    ; valuta l'espressione
+    (eval expr)))
+
+(vector (find 4 a))
+;-> 2
+
+(vector (ref 3 a))
+;-> (9)
+
+(setf (a 0) 2)
+a
+;-> (2 7 4 9 8 5 6 10 2 3)
+(vector (ref-all 2 a))
+;-> ((0) (8))
+
+Vediamo la velocità dei due metodi:
+
+(silent (setq a6 (array 1e6 (randomize (sequence 1 1e6)))))
+(time (find 123 (array-list a6)) 10)
+;-> 105.013
+
+(time (vector (find 123 a6)) 10)
+;-> 1463.227
+
+Invece la ricerca su una lista uguale ad a6:
+
+(silent (setq lst (array-list a6)))
+(time (find 123 lst) 10)
+;-> 14.089
+
 =============================================================================
 

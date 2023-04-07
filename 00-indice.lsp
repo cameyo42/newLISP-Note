@@ -1761,6 +1761,7 @@ NOTE LIBERE 15
   Gridlock Game
   Taxman Game (Il Gioco del Fisco)
   Paradosso dei Corvi
+  Funzioni di ricerca per vettori
 
 APPENDICI
 =========
