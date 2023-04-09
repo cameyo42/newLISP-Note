@@ -1762,6 +1762,8 @@ NOTE LIBERE 15
   Taxman Game (Il Gioco del Fisco)
   Paradosso dei Corvi
   Funzioni di ricerca per vettori
+  Primi nelle stringhe
+  Indovina la permutazione
 
 APPENDICI
 =========

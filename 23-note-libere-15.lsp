@@ -6489,5 +6489,166 @@ Invece la ricerca su una lista uguale ad a6:
 (time (find 123 lst) 10)
 ;-> 14.089
 
+
+--------------------
+Primi nelle stringhe
+--------------------
+
+Data una stringa di cifre trovare tutti i numeri primi che si trovano nella stringa.
+Per esempio:
+la stringa 25741 contiene i numeri primi 2, 5, 7, 41, 257 e 5741 e 25741.
+La stringa di cifre è lunga al massimo 18 caratteri/cifre.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (all-prime str)
+  (local (out len val)
+    (setq out '())
+    (setq len (length str))
+    (for (i 0 (- len 2))
+      (for (j (+ i 1) len)
+        (setq val (int (slice str i (- j i)) 0 10))
+        ;(println "(" i { } j ") " val)
+        (if (prime? val) (push val out -1)
+        )
+      )
+    )
+    (unique (sort out))))
+
+Facciamo alcune prove:
+
+(all-prime "10234")
+;-> (0 1) 1
+;-> (0 2) 10
+;-> (0 3) 102
+;-> (0 4) 1023
+;-> (0 5) 10234
+;-> (1 2) 0
+;-> (1 3) 2
+;-> (1 4) 23
+;-> (1 5) 234
+;-> (2 3) 2
+;-> (2 4) 23
+;-> (2 5) 234
+;-> (3 4) 3
+;-> (3 5) 34
+;-> (2 3 23)
+
+(all-prime "25741")
+
+(setq s (join (map string (rand 10 18))))
+;-> "164306785387995142"
+
+(all-prime s)
+;-> (3 5 7 43 53 67 79 643 853 3067 5387 7853 43067 67853 538799 53879951 
+;->  306785387 3067853879 164306785387 1643067853879)
+
+(time (all-prime s))
+;-> 592.013
+
+
+------------------------
+Indovina la permutazione
+------------------------
+
+Abbiamo un sistema con una permutazione nascosta dei numeri 1,2,3...,n.
+Il compito è quello di indovinare questa permutazione ponendo al sistema una serie di domande.
+Ogni domanda consiste nel fornire al sistema una permutazione dei numeri 1,2,3,...,n.
+Il sistema risponderà con la lunghezza della sottosequenza comune più lunga (longest common subsequence) tra la nostra permutazione e la permutazione nascosta.
+Per indovinare la permutazione nascosta possiamo usare al massimo n^2 domande.
+
+Una sottosequenza è definita come una sequenza che può essere derivata da un'altra sequenza eliminando alcuni o nessun elemento senza modificare l'ordine degli elementi rimanenti. Ad esempio, (1,2) verrebbe considerata una sottosuccessione di (1,3,2).
+
+Funzione che calcola la sottosequenza comune più lunga di x in y:
+
+(define (lcs x y)
+  (local (m n L equal seq i j)
+    (setq m (length x))
+    (setq n (length y))
+    (setq L (array (+ m 1) (+ n 1) '(0)))
+      (for (i 1 m)
+        (for (j 1 n)
+          (if (= (x (- i 1)) (y (- j 1)))
+              (setq equal 1)
+              (setq equal 0)
+          )
+          (setf (L i j) (max (L (- i 1) j) (L i (- j 1)) (+ (L (- i 1) (- j 1)) equal)))
+        )
+      )
+      (setq seq "")
+      (setq i m)
+      (setq j n)
+      (while (and (> i 0) (> j 0))
+        (if (= (x (- i 1)) (y (- j 1)))
+                (setq equal 1)
+                (setq equal 0)
+        )
+        (cond ((= (L i j) (+ (L (- i 1) (- j 1)) equal))
+               (if (= equal 1) (setf seq (append (x (- i 1)) seq)))
+               (-- i)
+               (-- j))
+              ((= (L i j) (L (- i 1) j))
+               (-- i))
+              (true (-- j))
+        )
+     )
+     (list (L m n) seq)))
+
+Vediamo un paio di esempi:
+
+(lcs "abfh" "abcdefgh")
+;-> (4 "abfh")
+
+(lcs "AGXGTAB" "GXXTXAYB")
+;-> (5 "GXTAB")
+
+(lcs "123456789" "12367845")
+;-> (6 "123678")
+
+(define (guess n)
+  (local (limit secret mosse seq guessed out)
+    (setq secret (join (map string (randomize (sequence 1 n)))))
+    ;(println secret)
+    (setq limit (* n n))
+    (setq mosse 0)
+    (setq guessed nil)
+    (until (or (> mosse limit) guessed)
+      ; nessun controllo sulla correttezza della sequenza inserita
+      ; es. 14367
+      (println "Sequenza: " (setq seq (read-line)))
+      (cond ((= secret seq) (setq guessed true))
+            (true
+              (println "lcs: "(first (lcs seq secret))))
+      )
+      (++ mosse)
+    )
+    (if guessed
+        (println "Sequenza indovinata: " secret " in " mosse " mosse")
+        (println "Sequenza sconosciuta")
+    )
+    'game-over))
+
+Facciamo una prova:
+
+(guess 3)
+;-> Sequenza: 123
+;-> 123
+;-> lcs: 2
+;-> Sequenza: 321
+;-> 321
+;-> lcs: 2
+;-> Sequenza: 213
+;-> 213
+;-> lcs: 2
+;-> Sequenza: 231
+;-> 231
+;-> Sequenza indovinata: 231 in 4 mosse
+;-> game-over
+
+Con l'aumentare di n la sequenza diventa difficile da indovinare.
+
 =============================================================================
 

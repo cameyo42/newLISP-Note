@@ -1508,6 +1508,12 @@ Vediamo un paio di esempi:
 (longest-common-substring "DZZZA" "BAJADHADCZZZBABCABCEA")
 ;-> "ZZZ"
 
+(longest-common-substring "123456789" "123564789")
+;-> "123" 
+
+(longest-common-substring "123456789" "1236789")
+;-> "6789"
+
 
 ---------------------------------------------------------
 Massima sottosequenza comune (longest common subsequence)
