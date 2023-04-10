@@ -6650,5 +6650,173 @@ Facciamo una prova:
 
 Con l'aumentare di n la sequenza diventa difficile da indovinare.
 
+
+------------------------------
+Rock Paper Scissors 25 (RPS25)
+------------------------------
+
+https://www.umop.com/rps25.htm
+
+RPS 25 è una versione di Rock Paper Scissors (Sasso Carta Forbici) che ha 25 simboli invece di 3.
+Ogni simbolo sconfigge 12 simboli e viene sconfitto da altri 12. Ecco un collegamento a un grafico che mostra quali simboli sconfiggono quali.
+Quanto segue descrive tutti i possibili risultati.
+Ogni simbolo è seguito da due punti, quindi una lista di tutti i simboli che sconfigge.
+
+GUN: ROCK SUN FIRE SCISSORS AXE SNAKE MONKEY WOMAN MAN TREE COCKROACH WOLF
+DRAGON: DEVIL LIGHTNING NUKE DYNAMITE GUN ROCK SUN FIRE SCISSORS AXE SNAKE MONKEY
+MOON: AIR BOWL WATER ALIEN DRAGON DEVIL LIGHTNING NUKE DYNAMITE GUN ROCK SUN
+TREE: COCKROACH WOLF SPONGE PAPER MOON AIR BOWL WATER ALIEN DRAGON DEVIL LIGHTNING
+AXE: SNAKE MONKEY WOMAN MAN TREE COCKROACH WOLF SPONGE PAPER MOON AIR BOWL
+DYNAMITE: GUN ROCK SUN FIRE SCISSORS AXE SNAKE MONKEY WOMAN MAN TREE COCKROACH
+ALIEN: DRAGON DEVIL LIGHTNING NUKE DYNAMITE GUN ROCK SUN FIRE SCISSORS AXE SNAKE
+PAPER: MOON AIR BOWL WATER ALIEN DRAGON DEVIL LIGHTNING NUKE DYNAMITE GUN ROCK
+MAN: TREE COCKROACH WOLF SPONGE PAPER MOON AIR BOWL WATER ALIEN DRAGON DEVIL
+SCISSORS: AXE SNAKE MONKEY WOMAN MAN TREE COCKROACH WOLF SPONGE PAPER MOON AIR
+NUKE: DYNAMITE GUN ROCK SUN FIRE SCISSORS SNAKE AXE MONKEY WOMAN MAN TREE
+WATER: ALIEN DRAGON DEVIL LIGHTNING NUKE DYNAMITE GUN ROCK SUN FIRE SCISSORS AXE
+SPONGE: PAPER MOON AIR BOWL WATER ALIEN DRAGON DEVIL LIGHTNING NUKE DYNAMITE GUN
+WOMAN: MAN TREE COCKROACH WOLF SPONGE PAPER MOON AIR BOWL WATER ALIEN DRAGON
+LIGHTNING: NUKE DYNAMITE GUN ROCK SUN FIRE SCISSORS AXE SNAKE MONKEY WOMAN MAN
+BOWL: WATER ALIEN DRAGON DEVIL LIGHTNING NUKE DYNAMITE GUN ROCK SUN FIRE SCISSORS
+WOLF: SPONGE PAPER MOON AIR BOWL WATER ALIEN DRAGON DEVIL LIGHTNING NUKE DYNAMITE
+MONKEY: WOMAN MAN TREE COCKROACH WOLF SPONGE PAPER MOON AIR BOWL WATER ALIEN
+SUN: FIRE SCISSORS AXE SNAKE MONKEY WOMAN MAN TREE COCKROACH WOLF SPONGE PAPER
+DEVIL: LIGHTNING NUKE DYNAMITE GUN ROCK SUN FIRE SCISSORS AXE SNAKE MONKEY WOMAN
+AIR: BOWL WATER ALIEN DRAGON DEVIL LIGHTNING NUKE DYNAMITE GUN ROCK SUN FIRE
+COCKROACH: WOLF SPONGE PAPER MOON AIR BOWL WATER ALIEN DRAGON DEVIL LIGHTNING NUKE
+SNAKE: MONKEY WOMAN MAN TREE COCKROACH WOLF SPONGE PAPER MOON AIR BOWL WATER
+ROCK: SUN FIRE SCISSORS AXE SNAKE MONKEY WOMAN MAN TREE COCKROACH WOLF SPONGE
+FIRE: SCISSORS AXE SNAKE MONKEY WOMAN MAN TREE COCKROACH WOLF SPONGE PAPER MOON
+
+Scriviamo un programma che gioca contro il computer.
+
+Funzione che imposta le variabili:
+
+(define (set-values)
+  (setq figure '("GUN" "DRAGON" "MOON" "TREE" "AXE"
+                  "DYNAMITE" "ALIEN" "PAPER" "MAN" "SCISSORS"
+                  "NUKE" "WATER" "SPONGE" "WOMAN" "LIGHTNING"
+                  "BOWL" "WOLF" "MONKEY" "SUN" "DEVIL"
+                  "AIR" "COCKROACH" "SNAKE" "ROCK" "FIRE"))
+  (setq table '(
+  ("GUN" ("ROCK" "SUN" "FIRE" "SCISSORS" "AXE" "SNAKE" "MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH" "WOLF"))
+  ("DRAGON" ("DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK" "SUN" "FIRE" "SCISSORS" "AXE" "SNAKE" "MONKEY"))
+  ("MOON" ("AIR" "BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK" "SUN"))
+  ("TREE" ("COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON" "AIR" "BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING"))
+  ("AXE" ("SNAKE" "MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON" "AIR" "BOWL"))
+  ("DYNAMITE" ("GUN" "ROCK" "SUN" "FIRE" "SCISSORS" "AXE" "SNAKE" "MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH"))
+  ("ALIEN" ("DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK" "SUN" "FIRE" "SCISSORS" "AXE" "SNAKE"))
+  ("PAPER" ("MOON" "AIR" "BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK"))
+  ("MAN" ("TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON" "AIR" "BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL"))
+  ("SCISSORS" ("AXE" "SNAKE" "MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON" "AIR"))
+  ("NUKE" ("DYNAMITE" "GUN" "ROCK" "SUN" "FIRE" "SCISSORS" "SNAKE" "AXE" "MONKEY" "WOMAN" "MAN" "TREE"))
+  ("WATER" ("ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK" "SUN" "FIRE" "SCISSORS" "AXE"))
+  ("SPONGE" ("PAPER" "MOON" "AIR" "BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN"))
+  ("WOMAN" ("MAN" "TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON" "AIR" "BOWL" "WATER" "ALIEN" "DRAGON"))
+  ("LIGHTNING" ("NUKE" "DYNAMITE" "GUN" "ROCK" "SUN" "FIRE" "SCISSORS" "AXE" "SNAKE" "MONKEY" "WOMAN" "MAN"))
+  ("BOWL" ("WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK" "SUN" "FIRE" "SCISSORS"))
+  ("WOLF" ("SPONGE" "PAPER" "MOON" "AIR" "BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE"))
+  ("MONKEY" ("WOMAN" "MAN" "TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON" "AIR" "BOWL" "WATER" "ALIEN"))
+  ("SUN" ("FIRE" "SCISSORS" "AXE" "SNAKE" "MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER"))
+  ("DEVIL" ("LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK" "SUN" "FIRE" "SCISSORS" "AXE" "SNAKE" "MONKEY" "WOMAN"))
+  ("AIR" ("BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE" "DYNAMITE" "GUN" "ROCK" "SUN" "FIRE"))
+  ("COCKROACH" ("WOLF" "SPONGE" "PAPER" "MOON" "AIR" "BOWL" "WATER" "ALIEN" "DRAGON" "DEVIL" "LIGHTNING" "NUKE"))
+  ("SNAKE" ("MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON" "AIR" "BOWL" "WATER"))
+  ("ROCK" ("SUN" "FIRE" "SCISSORS" "AXE" "SNAKE" "MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH" "WOLF" "SPONGE"))
+  ("FIRE" ("SCISSORS" "AXE" "SNAKE" "MONKEY" "WOMAN" "MAN" "TREE" "COCKROACH" "WOLF" "SPONGE" "PAPER" "MOON"))))
+  (setq choice
+"   1: GUN        2: DRAGON      3: MOON     4: TREE    5: AXE
+   6: DYNAMITE   7: ALIEN       8: PAPER    9: MAN    10: SCISSORS
+  11: NUKE      12: WATER      13: SPONGE  14: WOMAN  15: LIGHTNING
+  16: BOWL      17: WOLF       18: MONKEY  19: SUN    20: DEVIL
+  21: AIR       22: COCKROACH  23: SNAKE   24: ROCK   25: FIRE")
+)
+
+Come viene determinato il vincitore:
+
+(setq player "ROCK")
+(setq pc "SUN")
+(if (find player (lookup "SUN" table)) (println "computer batte player"))
+(if (find pc (lookup "ROCK" table)) (println "player batte computer"))
+
+Funzione che gestisce il gioco:
+
+(define (rps25 games)
+  (local (figure table choice player pc score-player score-pc)
+    ; imposta variabili
+    (set-values)
+    (setq game 0 score-player 0 score-pc 0)
+    ; ciclo di gioco
+    (until (= game games)
+      (setq ok nil)
+      (println "TURNO: " (+ game 1))
+      (println choice)
+      ; giocatore seleziona figura
+      (until ok
+        (print "Seleziona una figura (1..25): ")
+        (setq val (int (read-line)))
+        (if (and (> val 0) (< val 26)) (setq ok true))
+      )
+      (++ game)
+      ; figura scelta dal giocatore
+      (setq player (figure (- val 1)))
+      ; figura scelta dal computer
+      (setq pc (figure (rand 25)))
+      ; calcolo del vincitore
+      (cond ((= pc player)
+              (println "player (" player ")" "vs pc (" pc "): pareggio"))
+            ; la figura del giocatore si trova nella
+            ; lista delle figure sconfitte dalla figura del computer
+            ((find player (lookup pc table))
+              (println "player (" player ")" "vs pc (" pc "): vince computer")
+              (++ score-pc))
+            ; la figura del computer si trova nella
+            ; lista delle figure sconfitte dalla figura del giocatore
+            ((find pc (lookup player table))
+              (println "player (" player ") vs pc (" pc "): vince player")
+              (++ score-player))
+      )
+      (println)
+    )
+    (println "Partite: " game)
+    (println "player: " score-player)
+    (println "pc: " score-pc)
+    'game-over))
+
+Facciamo una partita:
+
+(rps25 3)
+;-> TURNO: 1
+;->    1: GUN        2: DRAGON      3: MOON     4: TREE    5: AXE
+;->    6: DYNAMITE   7: ALIEN       8: PAPER    9: MAN    10: SCISSORS
+;->   11: NUKE      12: WATER      13: SPONGE  14: WOMAN  15: LIGHTNING
+;->   16: BOWL      17: WOLF       18: MONKEY  19: SUN    20: DEVIL
+;->   21: AIR       22: COCKROACH  23: SNAKE   24: ROCK   25: FIRE
+;-> Seleziona una figura (1..25): 6
+;-> player (DYNAMITE) vs pc (AXE): vince player
+;-> 
+;-> TURNO: 2
+;->    1: GUN        2: DRAGON      3: MOON     4: TREE    5: AXE
+;->    6: DYNAMITE   7: ALIEN       8: PAPER    9: MAN    10: SCISSORS
+;->   11: NUKE      12: WATER      13: SPONGE  14: WOMAN  15: LIGHTNING
+;->   16: BOWL      17: WOLF       18: MONKEY  19: SUN    20: DEVIL
+;->   21: AIR       22: COCKROACH  23: SNAKE   24: ROCK   25: FIRE
+;-> Seleziona una figura (1..25): 14
+;-> player (WOMAN) vs pc (COCKROACH): vince player
+;-> 
+;-> TURNO: 3
+;->    1: GUN        2: DRAGON      3: MOON     4: TREE    5: AXE
+;->    6: DYNAMITE   7: ALIEN       8: PAPER    9: MAN    10: SCISSORS
+;->   11: NUKE      12: WATER      13: SPONGE  14: WOMAN  15: LIGHTNING
+;->   16: BOWL      17: WOLF       18: MONKEY  19: SUN    20: DEVIL
+;->   21: AIR       22: COCKROACH  23: SNAKE   24: ROCK   25: FIRE
+;-> Seleziona una figura (1..25): 20
+;-> player (DEVIL) vs pc (MONKEY): vince player
+;-> 
+;-> Partite: 3
+;-> player: 3
+;-> pc: 0
+;-> game-over
+
 =============================================================================
 

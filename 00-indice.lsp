@@ -1764,6 +1764,7 @@ NOTE LIBERE 15
   Funzioni di ricerca per vettori
   Primi nelle stringhe
   Indovina la permutazione
+  Rock Paper Scissors 25 (RPS25)
 
 APPENDICI
 =========
