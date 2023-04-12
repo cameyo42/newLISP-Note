@@ -1765,6 +1765,8 @@ NOTE LIBERE 15
   Primi nelle stringhe
   Indovina la permutazione
   Rock Paper Scissors 25 (RPS25)
+  Plottaggio di segnali binari
+  Addizione, sottrazione, moltiplicazione e divisione di numeri binari
 
 APPENDICI
 =========

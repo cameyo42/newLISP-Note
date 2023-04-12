@@ -6818,5 +6818,106 @@ Facciamo una partita:
 ;-> pc: 0
 ;-> game-over
 
+
+----------------------------
+Plottaggio di segnali binari
+----------------------------
+
+100101  -->  --____--__--
+
+dove 1 = "--" e 0 = "__"
+
+(define (plot-signal str uno zero)
+  (setq zero (or zero "__"))
+  (setq uno (or uno "--"))
+  (replace "1" str uno)
+  (replace "0" str zero)
+  str)
+
+(setq s "100101")
+(plot-signal s)
+;-> "--____--__--"
+
+(plot-signal s "~~")
+;-> "~~____~~__~~"
+
+(plot-signal s "^^")
+;-> "^^____^^__^^"
+
+(plot-signal s "++" "--")
+;-> "++----++--++"
+
+
+--------------------------------------------------------------------
+Addizione, sottrazione, moltiplicazione e divisione di numeri binari
+--------------------------------------------------------------------
+
+Funzioni di addizione, sottrazione, moltiplicazione e divisione di numeri binari
+
+(int "101" 0 2)
+;-> 5
+
+Addizione:
+
+(define (add-bin a b)
+  (bits (+ (int (string a) 0 2) (int (string b) 0 2))))
+
+(add-bin "101" "101")
+;-> "1010"
+(add-bin 101 101)
+;-> "1010"
+
+Sottrazione:
+
+(define (sub-bin a b)
+  (bits (- (int (string a) 0 2) (int (string b) 0 2))))
+
+(sub-bin "101" "101")
+;-> "0"
+(sub-bin 101 101);-> "0"
+
+Moltiplicazione:
+
+(define (mul-bin a b)
+  (bits (* (int (string a) 0 2) (int (string b) 0 2))))
+
+(mul-bin "101" "101")
+;-> "11001"
+(mul-bin 101 101)
+;-> "11001"
+
+(int "11001" 0 2)
+;-> 25
+
+Divisione (intera):
+
+(define (div-bin a b)
+  (bits (/ (int (string a) 0 2) (int (string b) 0 2))))
+  
+(div-bin "101" "101")
+;-> "1"
+(div-bin 101 101)
+;-> "1"
+
+7 diviso 2:
+(int "111" 0 2)
+;-> 7
+(int "10" 0 2)
+;-> 2
+(div-bin "111" "10")
+;-> "11"
+(int "11" 0 2)
+;-> 3
+
+7 diviso 4:
+(int "111" 0 2)
+;-> 7
+(int "100" 0 2)
+;-> 4
+(div-bin "111" "100")
+;-> "1"
+(int "1" 0 2)
+;-> 1
+
 =============================================================================
 

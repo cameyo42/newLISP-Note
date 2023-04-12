@@ -2021,7 +2021,7 @@ Numeri Brasiliani
 -----------------
 
 I numeri Brasiliani sono così chiamati come furono presentati formalmente per la prima volta durante le Olimpiadi IberoAmericane di matematica nel 1994 a Fortaleza, in Brasile.
-I numeri Brasiliani sono definiti come tutti i numeri interi positivi in ​​cui ogni numero N ha almeno un numero naturale B dove 1<B<N-1 dove la rappresentazione di N in base B ha tutte le cifre uguali.
+I numeri Brasiliani sono definiti come tutti i numeri interi positivi in cui ogni numero N ha almeno un numero naturale B dove 1<B<N-1 dove la rappresentazione di N in base B ha tutte le cifre uguali.
 
 Per esempio:
 1, 2 e 3 non possono essere brasiliani: non esiste una base B che soddisfi la condizione 1<B<N-1.
@@ -3017,6 +3017,7 @@ Proviamo:
 -------
 Yahtzee
 -------
+
 Yahtzee è un gioco di strategia che si svolge con 5 dadi. Si gioca da soli cercando di fare il punteggio migliore o contro uno o più avversari.
 
 Sono previste diverse combinazioni che ogni giocatore deve realizzare lanciando i dadi. Ottenuta la combinazione il giocatore guadagna il punteggio previsto per la combinazione. Una combinazione non può essere ripetuta quindi il gioco termina dopo 13 turni di lancio dei dadi, anche quando non sono state realizzate tutte le combinazioni.
