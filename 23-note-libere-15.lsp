@@ -6919,5 +6919,340 @@ Divisione (intera):
 (int "1" 0 2)
 ;-> 1
 
+
+-------------------------------
+Frequenze dei numeri con N dadi
+-------------------------------
+
+Abbiamo N dadi (non truccati) ognuno numerato da 1 al numero di facce del dado.
+Ad esempio, se un dado ha 4 facce, allora è numerato da 1 a 4.
+
+Quali numeri possono uscire dal lancio di tutti gli N dadi?
+E quali sono le frequenze di questi numeri?
+
+Rappresentiamo i dadi con una lista di numeri:
+
+  dice = (f0 f1 ... fn) dove f(i) è il numero di facce dal dado i-esimo.
+
+Ad esempio:
+ (4 6 8)
+ f(0) = 4 significa che il dado 0 ha 4 facce numerate da 1 a 4.
+ f(1) = 6 significa che il dado 1 ha 6 facce numerate da 1 a 6.
+ f(2) = 8 significa che il dado 2 ha 8 facce numerate da 1 a 8.
+
+Il numero più piccolo della sequenza dei numeri è rappresentato dal numero di dadi N, infatti N è dato dalla somma di N volte 1.
+Il numero più grande della sequenza dei numeri è dato dalla somma del valore massimo di tutti i dadi (f0 + f1 + ... + fn).
+Quindi i numeri possibili sono tutti i numeri interi da N a (f0 + f1 + ... + fn).
+
+Caso 1: dadi con lo stesso numero di facce
+------------------------------------------
+Se i dadi hanno tutti lo stesso numero di facce, allora la probabilità di ottenere una certa somma "p" lanciando "n" dadi, ciascuno con "s" facce vale:
+
+             1
+P(p,n,s) = ----- * sum[k=0..floor((p-n)/s)] (-1)^k * binom(n k) * binom((p - s*k - 1) (p - s*k - n))
+            s^n
+
+Nel caso di dadi comuni s = 6.
+
+Per la dimostrazione vedi:
+
+https://www.lucamoroni.it/the-dice-roll-sum-problem/
+https://www.lucamoroni.it/lancio-dadi-con-una-data-somma/
+
+Implementiamo questa formula:
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (freq-dice p n s)
+  (setq kmax (int (/ (- p n) s)))
+  (setq sum 0)
+  (for (k 0 kmax)
+    ;(setq sum (+ sum (* (pow -1 k) (binom n k) (binom (- p (* s k) 1) (- p (* s k) n)))))
+    (setq sum (+ sum (* (pow -1 k) (binom n k) (binom (- p (* s k) 1) (- n 1)))))
+  )
+  (div sum (pow s n)))
+
+Facciamo una prova con 2 dadi da 6 facce (numeri da 2 a 12):
+
+(for (i 2 12)
+ (println (format "%4d  %8.2f%%" i (mul 100 (freq-dice i 2 6))))
+)
+
+;->    2      2.78% ; la somma 2 ha probabilità del 2.78%
+;->    3      5.56%
+;->    4      8.33%
+;->    5     11.11%
+;->    6     13.89%
+;->    7     16.67% ; la somma 2 ha probabilità del 16.67%
+;->    8     13.89%
+;->    9     11.11%
+;->   10      8.33%
+;->   11      5.56%
+;->   12      2.78%
+
+Facciamo una prova con 6 dadi da 4 facce (numeri da 6 a 24):
+
+(for (i 6 24)
+ (println (format "%4d  %8.2f%%" i (mul 100 (freq-dice i 6 4))))
+)
+;->    6      0.02%
+;->    7      0.15%
+;->    8      0.51%
+;->    9      1.37%
+;->   10      2.93%
+;->   11      5.27%
+;->   12      8.20%
+;->   13     11.13%
+;->   14     13.33%
+;->   15     14.16%
+;->   16     13.33%
+;->   17     11.13%
+;->   18      8.20%
+;->   19      5.27%
+;->   20      2.93%
+;->   21      1.37%
+;->   22      0.51%
+;->   23      0.15%
+;->   24      0.02%
+
+Facciamo una prova con 8 dadi da 4 facce (numeri da 8 a 32):
+
+(for (i 8 32)
+ (println (format "%4d  %8.4f%%" i (mul 100 (freq-dice i 8 4))))
+)
+;->   8    0.0015%
+;->   9    0.0122%
+;->  10    0.0549%
+;->  11    0.1831%
+;->  12    0.4913%
+;->  13    1.1108%
+;->  14    2.1790%
+;->  15    3.7720%
+;->  16    5.8334%
+;->  17    8.1299%
+;->  18   10.2661%
+;->  19   11.7920%
+;->  20   12.3474%
+;->  21   11.7920%
+;->  22   10.2661%
+;->  23    8.1299%
+;->  24    5.8334%
+;->  25    3.7720%
+;->  26    2.1790%
+;->  27    1.1108%
+;->  28    0.4913%
+;->  29    0.1831%
+;->  30    0.0549%
+;->  31    0.0122%
+;->  32    0.0015%
+
+Caso 2: dadi con numero di facce diverse
+----------------------------------------
+Se almeno un dado ha un numero fi facce diverse, allora non possiamo utilizzare la formula vista sopra.
+Il primo approccio è quello di generare tutti i casi possibili con il prodotto cartesiano.
+
+Funzioni per calcolare il prodotto cartesiano tra liste:
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        '()
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+Lancio di due dadi da 4 e 6 facce:
+
+(cp '(1 2 3 4) '(1 2 3 4 5 6))
+;-> ((1 1) (1 2) (1 3) (1 4) (1 5) (1 6) (2 1) (2 2) (2 3) (2 4) (2 5) (2 6)
+;->  (3 1) (3 2) (3 3) (3 4) (3 5) (3 6) (4 1) (4 2) (4 3) (4 4) (4 5) (4 6))
+
+(define (prodotto-cartesiano lst-lst)
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1)
+    )
+    out))
+
+Lancio di 3 dadi da 2 facce:
+
+(prodotto-cartesiano '((1 2) (1 2) (1 2)))
+;-> ((1 1 1) (1 1 2) (1 2 1) (1 2 2) (2 1 1) (2 1 2) (2 2 1) (2 2 2))
+
+Funzione che calcola le frequenze dei numeri data una lista di dadi:
+
+(define (freq-numbers dice show)
+  ; vettore delle frequenze
+  (setq freq (array (+ (apply + dice) 1) '(0)))
+  ; numero di eventi possibili (è il prodotto di tutte )
+  (setq eventi (apply * dice))
+  (setq lst '())
+  ; crea la lista delle sequenze di tutti i dadi
+  (dolist (d dice)
+    (setq seq (sequence 1 d))
+    (push seq lst -1)
+  )
+  ; crea la lista di tutti i possibili eventi (prodotto cartesiano)
+  (setq all (prodotto-cartesiano lst))
+  ; calcola le frequenze di tutti i numeri generati dai dadi
+  (dolist (el all)
+    (++ (freq (apply + el)))
+  )
+  ; stampa le frequenze (con show = true)
+  (if show (begin
+      (println "Eventi possibili: " eventi)
+      (println (format "%10s  %10s"  "Numero:" "Frequenza:"))
+      (dolist (f freq)
+        (println (format "%8d %8d %8.2f%%" $idx f (mul 100 (div f eventi))))
+      )))
+  (list freq eventi))
+
+Facciamo alcune prove:
+
+(freq-numbers '(6 6) true)
+;-> Eventi possibili: 36
+;->    Numero:  Frequenza:
+;->        0        0     0.00%
+;->        1        0     0.00%
+;->        2        1     2.78%
+;->        3        2     5.56%
+;->        4        3     8.33%
+;->        5        4    11.11%
+;->        6        5    13.89%
+;->        7        6    16.67%
+;->        8        5    13.89%
+;->        9        4    11.11%
+;->       10        3     8.33%
+;->       11        2     5.56%
+;->       12        1     2.78%
+;-> ((0 0 1 2 3 4 5 6 5 4 3 2 1) 36)
+
+(freq-numbers '(4 4 4 4 4 4) true)
+;-> Eventi possibili: 4096
+;->    Numero:  Frequenza:
+;->        0        0     0.00%
+;->        1        0     0.00%
+;->        2        0     0.00%
+;->        3        0     0.00%
+;->        4        0     0.00%
+;->        5        0     0.00%
+;->        6        1     0.02%
+;->        7        6     0.15%
+;->        8       21     0.51%
+;->        9       56     1.37%
+;->       10      120     2.93%
+;->       11      216     5.27%
+;->       12      336     8.20%
+;->       13      456    11.13%
+;->       14      546    13.33%
+;->       15      580    14.16%
+;->       16      546    13.33%
+;->       17      456    11.13%
+;->       18      336     8.20%
+;->       19      216     5.27%
+;->       20      120     2.93%
+;->       21       56     1.37%
+;->       22       21     0.51%
+;->       23        6     0.15%
+;->       24        1     0.02%
+;-> ((0 0 0 0 0 0 1 6 21 56 120 216 336 456 546 580 546 456 336 216 120
+;->   56 21 6 1) 4096)
+
+Questi ultimi due esempi confermano i calcoli fatti prima con la formula.
+
+(freq-numbers '(2 2 2) true)
+;-> Eventi possibili: 8
+;->    Numero:  Frequenza:
+;->        0        0     0.00%
+;->        1        0     0.00%
+;->        2        0     0.00%
+;->        3        1    12.50%
+;->        4        3    37.50%
+;->        5        3    37.50%
+;->        6        1    12.50%
+;-> ((0 0 0 1 3 3 1) 8)
+
+Vediamo un esempio con dadi con facce diverse:
+
+(freq-numbers '(4 4 6 6 8 8))
+;-> ((0 0 0 0 0 0 1 6 21 56 124 240 418 668 992 1380 1810 2248 2653 2982 3197
+;->   3272 3197 2982 2653 2248 1810 1380 992 668 418 240 124 56 21 6 1) 36864)
+
+Comunque questa soluzione è abbastanza lenta:
+
+(time (println (freq-numbers '(4 4 4 6 6 6 8 8 8) true)))
+;-> ((0 0 0 0 0 0 0 0 0 1 9 45 165 492 1260 2865 5913 11250 19954 33273
+;->   52497 78767 112839 154836 204036 258744 316296 373218 425538 469218
+;->   500642 517086 517086 500642 469218 425538 373218 316296 258744 204036
+;->   154836 112839 78767 52497 33273 19954 11250 5913 2865 1260 492 165
+;->   45 9 1) 7077888)
+;-> 13007.589
+
+In pratica si tratta di eseguire N cicli annidati (dove N è il numero di dadi):
+
+(define (test)
+  (setq lst '(4 4 4 6 6 6 8 8 8))
+  (apply + lst) ;-> 54
+  (setq freq (array 55 '(0)))
+  (for (i 1 4)
+  (for (j 1 4)
+  (for (k 1 4)
+  (for (i1 1 6)
+  (for (j1 1 6)
+  (for (k1 1 6)
+  (for (i2 1 8)
+  (for (j2 1 8)
+  (for (k2 1 8)
+    (setq val (+ i j k i1 j1 k1 i2 j2 k2))
+    (++ (freq val))
+  )))))))))
+  freq)
+
+(test)
+;-> (0 0 0 0 0 0 0 0 0 1 9 45 165 492 1260 2865 5913 11250 19954 33273
+;->  52497 78767 112839 154836 204036 258744 316296 373218 425538 469218
+;->  500642 517086 517086 500642 469218 425538 373218 316296 258744 204036
+;->  154836 112839 78767 52497 33273 19954 11250 5913 2865 1260 492 165
+;->  45 9 1)
+
+(time (test))
+;-> 827.81
+
+(define (test1)
+  (setq lst '(4 5 6))
+  (apply + lst) ;-> 15
+  (setq freq (array 16 '(0)))
+  (for (i 1 4)
+  (for (j 1 5)
+  (for (k 1 6)
+    (setq val (+ i j k))
+    (++ (freq val))
+  )))
+  freq)
+
+(test1)
+;-> (0 0 0 1 3 6 10 14 17 18 17 14 10 6 3 1)
+
+Vedere anche:
+  "Lancio di dadi" su "Problemi vari"
+  "Dadi e probabilità (Visa)" su "Domande Programmatori"
+  "Dadi e probabilità" su "Note libere 1"
+  "Dadi non transitivi (intransitivi)" su "Note libere 3"
+  "Dadi" su "Note libere 4"
+  "Dadi e somme" su "Note libere 5"
+  "Simulazione del lancio di dadi" su "Note libere 7"
+  "Probabilità della somma dei dadi in un intervallo" su "Note libere 11"
+  "Dadi e funzioni generatrici" su "Note libere 13"
+
 =============================================================================
 

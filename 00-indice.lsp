@@ -1767,6 +1767,7 @@ NOTE LIBERE 15
   Rock Paper Scissors 25 (RPS25)
   Plottaggio di segnali binari
   Addizione, sottrazione, moltiplicazione e divisione di numeri binari
+  Frequenze dei numeri con N dadi
 
 APPENDICI
 =========
