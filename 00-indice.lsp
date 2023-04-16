@@ -1769,6 +1769,10 @@ NOTE LIBERE 15
   Addizione, sottrazione, moltiplicazione e divisione di numeri binari
   Frequenze dei numeri con N dadi
 
+PROBLEMI SUI DADI
+=================
+  Problemi 1..6, 8..23
+
 APPENDICI
 =========
   The fifteen ideas characterizing LISP

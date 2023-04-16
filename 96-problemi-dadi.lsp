@@ -1,10 +1,3 @@
-
-(define (die s) (+ (rand s) 1))
-(define (die6) (+ (rand 6) 1))
-(define (dice n s) (+ n (apply + (rand s n))))
-(define (dice6 n) (+ n (apply + (rand 6 n))))
-(define (dice6-lst n) (map (curry + 1) (rand 6 n)))
-
 ===================
  Problemi sui Dadi
 ===================
@@ -12,7 +5,7 @@
               A Collection of Dice Problems
            with solutions and useful appendices
              (a work continually in progress)
-                   version July 3, 2022
+            version July 3, 2022 (76 problems)
 
                      Matthew M. Conroy
             doctormatt "at" madandmoonly dot com
@@ -31,12 +24,12 @@ Problem solving status
 + = solved
 - = unsolved
 
-  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
-  +  +  +  +  +  +  -  +  +  +  +  +  +  +  +  +  -  -  -  -  -  -  -  -  -
- 
- 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 
+  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+  +  +  +  +  +  +  -  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  -  -
+
+ 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
- 
+
  51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75
   -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
  76
@@ -72,6 +65,14 @@ General functions
 (define (dice6-lst n) (map (curry + 1) (rand 6 n)))
 (dice6-lst 5)
 ;-> (1 3 2 6 2)
+
+; Functions
+(define (die s) (+ (rand s) 1))
+(define (die6) (+ (rand 6) 1))
+(define (dice n s) (+ n (apply + (rand s n))))
+(define (dice6 n) (+ n (apply + (rand 6 n))))
+(define (dice-lst n s) (map (curry + 1) (rand s n)))
+(define (dice6-lst n) (map (curry + 1) (rand 6 n)))
 
 Number of iterations (minimum) = 1e6 (if possible)
 
@@ -168,7 +169,7 @@ What if we roll until there are two rolls in a row that differ by no more than 1
 Solution 1 = 4.68627450980
 Solution 2 = 3.278260869565
 
-(define (p4 iter)
+(define (p4-1 iter)
   (local (sum trial prev differ1 val)
     (setq sum 0)
     (for (i 1 iter)
@@ -186,8 +187,7 @@ Solution 2 = 3.278260869565
     )
     (div sum iter)))
 
-(time (println (p4 1e6)))
-(p4 1e6)
+(time (println (p4-1 1e6)))
 ;-> 4.68883
 ;-> 1093.942
 
@@ -197,13 +197,10 @@ Solution 2 = 3.278260869565
     (for (i 1 iter)
       (setq trial 0)
       (setq prev -99)
-      (setq differ1 0)
-      (until (= differ1 2)
+      (setq differ1 nil)
+      (until differ1
         (setq val (die6))
-        (cond ((= (abs (- val prev)) 1)
-                (++ differ1)
-                ;(setq prev val)) ; continue search with val as prev
-                (setq prev -99))  ; start new search
+        (cond ((<= (abs (- val prev)) 1) (setq differ1 true))
               (true (setq prev val))
         )
         (++ trial)
@@ -212,17 +209,9 @@ Solution 2 = 3.278260869565
     )
     (div sum iter)))
 
-; continue search
 (time (println (p4-2 1e6)))
-;-> 8.279043
-;-> 2056.942
-
-; start new search
-(time (println (p4-2 1e6)))
-;-> 9.376621
-;-> 2298.065
-
-Note: the second simulation result is different from mathematical result
+;-> 3.27747
+;-> 803.129
 
 
 ---------
@@ -230,28 +219,28 @@ Problem 5
 ---------
 We roll a 6-sided die n times. What is the probability that all faces have appeared?
 Solution =
-  n  Exact values                 Approximate values
-  1  0                            0
-  2  0                            0
-  3  0                            0
-  4  0                            0
-  5  0                            0
-  6  5/324                        0.01543210
-  7  35/648                       0.05401235
-  8  665/5832                     0.11402606
-  9  245/1296                     0.18904321
- 10  38045/139968                 0.27181213
- 11  99715/279936                 0.35620642
- 12  1654565/3779136              0.43781568
- 13  485485/944784                0.51385819
- 14  317181865/544195584          0.58284535
- 15  233718485/362797056          0.64421274
- 16  2279105465/3265173504        0.69800440
- 17  4862708305/6530347008        0.74463245
- 18  553436255195/705277476864    0.78470712
- 19  1155136002965/1410554953728  0.81892308
- 20  2691299309615/3173748645888  0.84798754
- 36                               0.99154188
+   n  Exact values                 Approximate values
+   1  0                            0
+   2  0                            0
+   3  0                            0
+   4  0                            0
+   5  0                            0
+   6  5/324                        0.01543210
+   7  35/648                       0.05401235
+   8  665/5832                     0.11402606
+   9  245/1296                     0.18904321
+  10  38045/139968                 0.27181213
+  11  99715/279936                 0.35620642
+  12  1654565/3779136              0.43781568
+  13  485485/944784                0.51385819
+  14  317181865/544195584          0.58284535
+  15  233718485/362797056          0.64421274
+  16  2279105465/3265173504        0.69800440
+  17  4862708305/6530347008        0.74463245
+  18  553436255195/705277476864    0.78470712
+  19  1155136002965/1410554953728  0.81892308
+  20  2691299309615/3173748645888  0.84798754
+  36                               0.99154188
 
 (define (p5 n iter)
   (local (sum faces)
@@ -314,37 +303,28 @@ Solution =
 
 
 ---------
-Problem 6
+Problem 6 (rivedere)
 ---------
 We roll a 6-sided die n times. What is the probability that all faces have appeared in order, in some six consecutive rolls (i.e., what is the probability that the subsequence 123456 appears among the n rolls)?
 Solution =
-     n   prob
-     6   0.00002143347051
-    10   0.0001071673525
-    20   0.0003214813850
-    50   0.0009641479102
-   100   0.002034340799
-   200   0.004171288550
-   500   0.01055471585
-  1000   0.02110296021
-  2000   0.04186329068
-  5000   0.1015397384
- 10000   0.1928556782
-
-(setq lst (rand 10 20))
-;-> (8 6 9 5 0 9 2 1 4 6 1 2 8 8 9 6 5 3 5 7)
-
-(define (dice-lst n s) (map (curry + 1) (rand s n)))
-
-(match '(* 1 2 *) '(1 3))
-
-(length (match '(* 1 2 3 4 5 6 *) (dice6-lst 100000)))
+      n   prob
+      6   0.00002143347051
+     10   0.0001071673525
+     20   0.0003214813850
+     50   0.0009641479102
+    100   0.002034340799
+    200   0.004171288550
+    500   0.01055471585
+   1000   0.02110296021
+   2000   0.04186329068
+   5000   0.1015397384
+  10000   0.1928556782
 
 (define (p6 n iter)
   (local (sum)
     (setq sum 0)
     (for (i 1 iter)
-      (if (> (length (match '(* 1 2 3 4 5 6 *) (dice6-lst n))) 0)
+      (if (match '(* 1 2 3 4 5 6 *) (dice6-lst n))
         (++ sum)
       )
     )
@@ -394,10 +374,10 @@ For (n > 1000) the following expression is a quite good approximation:
 ---------
 Problem 7
 ---------
-We roll a 6-sided die n times. 
+We roll a 6-sided die n times.
 What is the probability that all faces have appeared in some order in some six consecutive rolls?
 What is the expected number of rolls until such a sequence appears?
-Solution = 
+Solution =
 (6 rolls) prob = 0.0154320987654321...
 E = 83.2
 
@@ -537,25 +517,25 @@ Solution = 24.1338692...
 
 Calculate the probability that after j rolls all sides have appeared at least twice.
 Solution =
-    j   prob
-   11   0
-   12   0.003438285
-   13   0.014899238
-   14   0.037661964
-   15   0.072748752
-   16   0.119155589
-   17   0.174576398
-   18   0.236147670
-   19   0.301007601
-   20   0.366633348
-   21   0.430995652
-   22   0.492589321
-   23   0.550391734
-   30   0.828548154
-   34   0.906280939
-   39   0.957121359
-   49   0.991461443
-   62   0.999009173
+   j   prob
+  11   0
+  12   0.003438285
+  13   0.014899238
+  14   0.037661964
+  15   0.072748752
+  16   0.119155589
+  17   0.174576398
+  18   0.236147670
+  19   0.301007601
+  20   0.366633348
+  21   0.430995652
+  22   0.492589321
+  23   0.550391734
+  30   0.828548154
+  34   0.906280939
+  39   0.957121359
+  49   0.991461443
+  62   0.999009173
 
 This problem is an example of what is often referred to as a Coupon Collector’s problem.
 
@@ -1052,14 +1032,286 @@ Solution =
 ----------
 Problem 17
 ----------
-How many dice should be rolled to maximize the probability of rolling exactly one six? 
+How many dice should be rolled to maximize the probability of rolling exactly one six?
 two sixes? n sixes?
 Solution =
+The probability that exactly one is a six rolling n dice is:
+  n   prob
+  1 = 0.1666...
+  2 = 0.2777...
+  3 = 0.3472...
+  4 = 0.3858...
+  5 = 0.4018...
+  6 = 0.4018...
+
+  (6) (max prob for n=5 or n=6)
+  (6 6) (max prob for n=11 or n=12)
+  (6 ... 6) (max prob for n=6*n-1 or n=6*n)
+
+(define (p17 n six iter)
+  (local (sum roll)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq roll (dice6-lst n))
+      (if (= (first (count '(6) roll)) six) (++ sum))
+    )
+    (div sum iter)))
+
+(time (for (d 1 10) (println d { } (p17 d 1 1e6))))
+;-> 1 0.167077
+;-> 2 0.278159
+;-> 3 0.347116
+;-> 4 0.386928
+;-> 5 0.401902 ; max prob
+;-> 6 0.401668 ; max prob
+;-> 7 0.391217
+;-> 8 0.371749
+;-> 9 0.34952
+;-> 10 0.322343
+;-> 13195.512
+
+(time (for (d 1 15) (println d { } (p17 d 2 1e6))))
+;-> 1 0
+;-> 2 0.027667
+;-> 3 0.069857
+;-> 4 0.116078
+;-> 5 0.160673
+;-> 6 0.20077
+;-> 7 0.234401
+;-> 8 0.260995
+;-> 9 0.278521
+;-> 10 0.290484
+;-> 11 0.295599 ; max prob
+;-> 12 0.295339 ; max prob
+;-> 13 0.291402
+;-> 14 0.283797
+;-> 15 0.271698
+;-> 25814.935
+
+(time (for (d 10 20) (println d { } (p17 d 3 1e6))))
+
 
 ----------
 Problem 18
 ----------
-Suppose we roll a fair die 100 times. 
+Suppose we roll a fair die 100 times.
 What is the probability of a run of at least 10 sixes?
+Solution = 0.00000125690042984...
+
+(define (p18 iter)
+  (for (i 1 iter)
+    (if (true? (match '(* 6 6 6 6 6 6 6 6 6 6 *) (dice6-lst 100)))
+        (++ sum)
+    )
+  )
+  (div sum iter))
+
+(time (println (format "%4.12f" (p18 1e7))))
+;-> 0.000005500000
+;-> 96381.60400000001
+
+
+----------
+Problem 19
+----------
+Suppose we roll a fair die until some face has appeared twice. For instance, we might have a run of rolls 12545 or 636.
+How many rolls on average would we make?
+What if we roll until a face has appeared three times?
 Solution =
+  (2 faces) (3.7746913580246...)
+  (3 faces) (7.2955443387059899...)
+
+(define (p19 faces iter)
+  (local (sum stop rolled trial)
+    (for (i 1 iter)
+      (setq stop nil)
+      (setq rolled '())
+      (setq trial 0)
+      (until stop
+        (push (die6) rolled -1)
+        (if (ref faces (count '(1 2 3 4 5 6) rolled))
+            (setq stop true)
+        )
+        (++ trial)
+      )
+      (++ sum trial)
+    )
+    (div sum iter)))
+
+(p19 2 1e6)
+;-> 3.773871
+
+(p19 3 1e6)
+;-> 7.291689
+
+
+----------
+Problem 20
+----------
+Suppose we roll a fair die 10 times.
+What is the probability that the sequence of rolls is non-decreasing (i.e., the next roll is never less than the current roll)?
+Solution = 0.0000496641295788...
+ n   prob
+ 1 = 1
+ 2 = 0.5833333333
+ 3 = 0.259259259
+ 4 = 0.0972
+ 5 = 0.032407
+ 6 = 0.00990226...
+ 7 = 0.00282921...
+ 8 = 0.000766246...
+ 9 = 0.000198656...
+10 = 0.0000496641...
+
+(define (p20 dice iter)
+  (local (sum)
+    (for (i 1 iter)
+      (if (apply <= (dice6-lst dice)) (++ sum))
+    )
+    (div sum iter)))
+
+(time (for (d 2 10) (println d { } (format "%4.8f" (p20 d 1e6)))))
+;->  2 0.58238200
+;->  3 0.25966200
+;->  4 0.09732000
+;->  5 0.03231500
+;->  6 0.00982500
+;->  7 0.00282900
+;->  8 0.00080900
+;->  9 0.00020600
+;-> 10 0.00004700
+;-> 6929.942
+
+
+----------
+Problem 21
+----------
+Suppose a pair of dice are thrown, and then thrown again. What is the probability that the faces
+appearing on the second throw are the same as the first?
+What if three dice are used? Or six?
+Solution =
+
+  (2) 0.0509259...
+  (3) 0.02134773662551...
+  (6) 0:004064823502...
+
+(define (p21 dice iter)
+  (local (sum)
+    (for (i 1 iter)
+      (if (= (sort (dice6-lst dice)) (sort (dice6-lst dice))) (++ sum))
+    )
+    (div sum iter)))
+
+(time (for (d 2 6) (println d { } (p21 d 1e6))))
+;-> 2 0.050996
+;-> 3 0.021266
+;-> 4 0.010841
+;-> 5 0.00642
+;-> 6 0.004006
+;-> 6953.273
+
+
+----------
+Problem 22
+----------
+What is the most probable: rolling at least one six with six dice, at least two sixes with twelve dice,
+or at least three sixes with eighteen dice? (This is an old problem, frequently connected with Isaac
+Newton.)
+Solution =
+
+  (1 6)  0.66510202331961591221...
+  (2 12) 0.61866737373230871348...
+  (3 18) 0.59734568594772319497...
+
+(define (p22 iter)
+  (local (s1 s2 s3)
+    (setq s1 0 s2 0 s3 0)
+    (for (i 1 iter)
+      (if (ref 6 (dice6-lst 6)) (++ s1))
+      (if (>= (length (ref-all 6 (dice6-lst 12))) 2) (++ s2))
+      (if (>= (length (ref-all 6 (dice6-lst 18))) 3) (++ s3))
+    )
+    (list (div s1 iter) (div s2 iter) (div s3 iter))))
+
+(time (println (p22 1e6)))
+;-> (0.665893 0.618825 0.597801)
+;-> 4049.654
+
+
+----------
+Problem 23
+----------
+Suppose we roll n dice, remove all the dice that come up 1, and roll the rest again.
+If we repeat this process, eventually all the dice will be eliminated. 
+How many rolls, on average, will we make? 
+Show, for instance, that on average fewer than O(log n) throws occur.
+Solution = 
+
+   n   Expect rolls
+   1   6
+   2   8.72727272727273
+   3   10.5554445554446
+   4   11.9266962545651
+   5   13.0236615075553
+   6   13.9377966973204
+   7   14.7213415962620
+   8   15.4069434778816
+   9   16.0163673664838
+  10   16.5648488612594
+  15   18.6998719821123
+  20   20.2329362496041
+  30   22.4117651317294
+  40   23.9670168145374
+  50   25.1773086926527
+
+(define (p23 n iter)
+  (local (sum len trial dice)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq len n)
+      (setq trial 0)
+      (while (> len 0)
+        (setq dice (dice6-lst len))
+        (setq dice (clean (fn(x) (= x 1)) dice))
+        (setq len (length dice))
+        (++ trial)
+      )
+      (++ sum trial)
+    )
+    (div sum iter)))
+
+(time (for (d 1 10) (println d { } (p23 d 1e6))))
+;->  1 6.002214
+;->  2 8.727068
+;->  3 10.564767
+;->  4 11.916275
+;->  5 13.019453
+;->  6 13.933349
+;->  7 14.710539
+;->  8 15.394792
+;->  9 16.018595
+;-> 10 16.548994
+;-> 114707.608
+
+(time (println 50 { } (p23 50 1e6)))
+;-> 50 25.17865
+;-> 72227.549
+
+
+----------
+Problem 24
+----------
+Suppose we roll a die 6k times. 
+What is the probability that each possible face comes up an equal number of times (i.e., k times)? 
+Find an asymptotic expression for this probability in terms of k.
+Solution =
+
+
+----------
+Problem 25
+----------
+Call a "consecutive difference" the absolute value of the difference between two consecutive rolls of a die. 
+For example, the sequence of rolls 14351 has the corresponding sequence of consecutive differences 3, 1, 2, 4. 
+What is the expected number of times we need to roll a die until all 6 consecutive differences have appeared?
+Solution = 25.84844128587580155492288439...
 
