@@ -1768,10 +1768,11 @@ NOTE LIBERE 15
   Plottaggio di segnali binari
   Addizione, sottrazione, moltiplicazione e divisione di numeri binari
   Frequenze dei numeri con N dadi
+  Ricerca degli elementi di una lista in un'altra lista
 
 PROBLEMI SUI DADI
 =================
-  Problemi 1..6, 8..23
+  Problemi 1..6, 8..32
 
 APPENDICI
 =========

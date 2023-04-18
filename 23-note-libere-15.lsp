@@ -7254,5 +7254,53 @@ Vedere anche:
   "Probabilità della somma dei dadi in un intervallo" su "Note libere 11"
   "Dadi e funzioni generatrici" su "Note libere 13"
 
+
+-----------------------------------------------------
+Ricerca degli elementi di una lista in un'altra lista
+-----------------------------------------------------
+
+Supponiamo di avere le due liste seguenti:
+
+(setq pat '(1 4 6))
+(setq lst '(2 2 2 1 4 6 2 2 2 1 4 6 2 2 1))
+
+Vogliamo ricercare gli elementi della lista "pat" nella lista "lst".
+Il problema può essere specificato in due modi:
+1) ricercare tutti gli elementi di "pat" in "lst", cioè vogliamo cercare 1 e 4 e 6 nella lista "lst".
+2) ricercare la sequenza di elementi di "pat" in "lst", cioè vogliamo trovare la sequenza 1 4 6 nella lista "lst".
+
+Primo caso (by ralph.ronnquist)
+----------
+
+(find pat lst (fn (needles item) (member item needles)))
+;-> 3
+
+find-all doesn't work for that though
+
+(ref pat lst (fn (needles item) (member item needles)))
+;-> (3)
+
+(ref-all pat lst (fn (needles item) (member item needles)))
+;-> ((3) (4) (5) (9) (10) (11) (14))
+
+It might need "flat" on the ref-all but ref/ref-all also traverses the lst recursively if it's deeper.
+
+Secondo caso (by ralph.ronnquist)
+------------
+(filter (fn (i) (= pat (i (length pat) lst))) (flat (ref-all (pat 0) lst)))
+;-> (3 9)
+
+Altro esempio:
+(setq pat '(1 4 5))
+(setq lst '(2 2 2 1 4 6 2 2 2 1 4 6 2 2 1))
+(find pat lst (fn (needles item) (member item needles)))
+;-> 3
+(ref pat lst (fn (needles item) (member item needles)))
+;-> (3)
+(ref-all pat lst (fn (needles item) (member item needles)))
+;-> ((3) (4) (9) (10) (14))
+(filter (fn (i) (= pat (i (length pat) lst))) (flat (ref-all (pat 0) lst)))
+;-> ()
+
 =============================================================================
 
