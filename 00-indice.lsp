@@ -1772,7 +1772,7 @@ NOTE LIBERE 15
 
 PROBLEMI SUI DADI
 =================
-  Problemi 1..6, 8..32
+  Problemi 1..6, 8..38
 
 APPENDICI
 =========
