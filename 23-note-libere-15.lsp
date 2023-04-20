@@ -7302,5 +7302,180 @@ Altro esempio:
 (filter (fn (i) (= pat (i (length pat) lst))) (flat (ref-all (pat 0) lst)))
 ;-> ()
 
+
+--------------------------------------
+Frequenza dei caratteri in una stringa
+--------------------------------------
+
+Vediamo alcuni metodi per calcolare la frequenza dei caratteri in una stringa.
+
+Per i test utilizziamo il file "war_and_peace.txt" (utf-8).
+https://www.gutenberg.org/ebooks/2600.txt.utf-8
+
+(silent (setq str (read-file "war_and_peace.txt")))
+
+Primo metodo
+------------
+Utilizzo di "get-char" per ottenere l'indirizzo della stringa come puntatore.
+Il carattere successivo si ottiene usando (get-char (+ 1 (address string))).
+
+(define (count-chars1 str show , ptr chars c)
+  (setq chars (array 128 '(0)))
+  (setq ptr (address str))
+  (for (i 0 (- (length str) 1))
+       (setq c (get-char (+ ptr i)))
+       (setf (chars c) (+ 1 (chars c))))
+  ; stampa le frequenze dei caratteri ascii stampabili (32..126)
+  (if show (for (i 32 126) (print (list (char i) (chars i)) " ")))
+  (apply + chars))
+
+(count-chars1 str)
+;-> 3359372
+(time (count-chars1 str))
+;-> 400.598
+(count-chars1 str true)
+;-> (" " 516991) ("!" 6977) ("\"" 34) ("#" 1) ("$" 8) ("%" 1) ("&" 1)
+;-> ("'" 14) ("(" 934) (")" 1792) ("*" 311) ("+" 240) ("," 39889) ("-" 3811)
+;-> ("." 30880) ("/" 48) ("0" 170) ("1" 390) ("2" 144) ("3" 2824) ("4" 27)
+;-> ("5" 51) ("6" 88) ("7" 38) ("8" 191) ("9" 32) (":" 1983) (";" 1145)
+;-> ("<" 58) ("=" 34) (">" 0) ("?" 3136) ("@" 0) ("A" 6561) ("B" 3607)
+;-> ("C" 12778) ("D" 2012) ("E" 2256) ("F" 1945) ("G" 1303) ("H" 4377)
+;-> ("I" 7928) ("J" 308) ("K" 1200) ("L" 710) ("M" 3267) ("N" 3611) ("O" 1634)
+;-> ("P" 6515) ("Q" 35) ("R" 3058) ("S" 2991) ("T" 6811) ("U" 290) ("V" 1115)
+;-> ("W" 2883) ("X" 673) ("Y" 1265) ("Z" 108) ("[" 2) ("\\" 0) ("]" 2) ("^" 0)
+;-> ("_" 0) ("`" 0) ("a" 196151) ("b" 58639) ("c" 59514) ("d" 116280)
+;-> ("e" 311356) ("f" 52949) ("g" 50025) ("h" 163046) ("i" 164304) ("j" 2267)
+;-> ("k" 19237) ("l" 95811) ("m" 58374) ("n" 180574) ("o" 188470) ("p" 39007)
+;-> ("q" 2296) ("r" 145386) ("s" 159904) ("t" 219633) ("u" 64111) ("v" 25968)
+;-> ("w" 56348) ("x" 3711) ("y" 44985) ("z" 2279) ("{" 0) ("|" 0) ("}" 0)
+;-> ("~" 0)
+;-> 3359372
+
+Secondo metodo
+--------------
+Utilizzo di "unpack" per creare un vettore di numeri ASCII dalla stringa.
+
+(define (count-chars2 str show , nums chars ascii)
+  (setq chars (array 128 '(0)))
+  (setq nums (unpack (dup "c" (length str)) str))
+  (dolist (c nums) (++ (chars c)))
+  ; stampa le frequenze dei caratteri ascii stampabili (32..126)
+  (if show (for (i 32 126) (print (list (char i) (chars i)) " ")))
+  (apply + chars))
+
+(count-chars2 str)
+;-> 3359372
+(time (count-chars2 str))
+;-> 217.218
+(count-chars2 str true)
+;-> (" " 516991) ("!" 6977) ("\"" 34) ("#" 1) ("$" 8) ("%" 1) ("&" 1)
+;-> ("'" 14) ("(" 934) (")" 1792) ("*" 311) ("+" 240) ("," 39889) ("-" 3811)
+;-> ("." 30880) ("/" 48) ("0" 170) ("1" 390) ("2" 144) ("3" 2824) ("4" 27)
+;-> ("5" 51) ("6" 88) ("7" 38) ("8" 191) ("9" 32) (":" 1983) (";" 1145)
+;-> ("<" 58) ("=" 34) (">" 0) ("?" 3136) ("@" 0) ("A" 6561) ("B" 3607)
+;-> ("C" 12778) ("D" 2012) ("E" 2256) ("F" 1945) ("G" 1303) ("H" 4377)
+;-> ("I" 7928) ("J" 308) ("K" 1200) ("L" 710) ("M" 3267) ("N" 3611) ("O" 1634)
+;-> ("P" 6515) ("Q" 35) ("R" 3058) ("S" 2991) ("T" 6811) ("U" 290) ("V" 1115)
+;-> ("W" 2883) ("X" 673) ("Y" 1265) ("Z" 108) ("[" 2) ("\\" 0) ("]" 2) ("^" 0)
+;-> ("_" 0) ("`" 0) ("a" 196151) ("b" 58639) ("c" 59514) ("d" 116280)
+;-> ("e" 311356) ("f" 52949) ("g" 50025) ("h" 163046) ("i" 164304) ("j" 2267)
+;-> ("k" 19237) ("l" 95811) ("m" 58374) ("n" 180574) ("o" 188470) ("p" 39007)
+;-> ("q" 2296) ("r" 145386) ("s" 159904) ("t" 219633) ("u" 64111) ("v" 25968)
+;-> ("w" 56348) ("x" 3711) ("y" 44985) ("z" 2279) ("{" 0) ("|" 0) ("}" 0)
+;-> ("~" 0) 3359372
+
+Terzo metodo
+------------
+Utilizzo della funzione "dostring".
+
+(define (count-chars3 str show, nums chars c)
+  (setq chars (array 65537 '(0)))
+  (dostring (c str) (++ (chars c)))
+  ; stampa le frequenze dei caratteri ascii stampabili (32..126)
+  (if show (for (i 32 126) (print (list (char i) (chars i)) " ")))
+  (apply + chars))
+
+(count-chars3 str)
+;-> 3293519
+(time (count-chars3 str))
+;-> 138.083
+(count-chars3 str true)
+;-> (" " 516963) ("!" 3926) ("\"" 22) ("#" 1) ("$" 2) ("%" 1) ("&" 0) ("'" 7)
+;-> ("(" 667) (")" 667) ("*" 288) ("+" 0) ("," 39889) ("-" 1832) ("." 30877)
+;-> ("/" 9) ("0" 170) ("1" 390) ("2" 144) ("3" 59) ("4" 23) ("5" 51) ("6" 53)
+;-> ("7" 38) ("8" 191) ("9" 32) (":" 1006) (";" 1144) ("<" 0) ("=" 2) (">" 0)
+;-> ("?" 3135) ("@" 0) ("A" 6561) ("B" 3607) ("C" 2112) ("D" 2012) ("E" 2253)
+;-> ("F" 1945) ("G" 1303) ("H" 4377) ("I" 7928) ("J" 308) ("K" 1200)
+;-> ("L" 710) ("M" 3267) ("N" 3611) ("O" 1634) ("P" 6515) ("Q" 35) ("R" 3058)
+;-> ("S" 2991) ("T" 6811) ("U" 290) ("V" 1115) ("W" 2883) ("X" 673) ("Y" 1265)
+;-> ("Z" 108) ("[" 2) ("\\" 0) ("]" 2) ("^" 0) ("_" 0) ("`" 0) ("a" 196151)
+;-> ("b" 31048) ("c" 59514) ("d" 116280) ("e" 311356) ("f" 52949) ("g" 50025)
+;-> ("h" 163046) ("i" 164304) ("j" 2267) ("k" 19237) ("l" 95811) ("m" 58374)
+;-> ("n" 180574) ("o" 188469) ("p" 39007) ("q" 2296) ("r" 145386) ("s" 159904)
+;-> ("t" 219633) ("u" 64111) ("v" 25968) ("w" 56348) ("x" 3711) ("y" 44985)
+;-> ("z" 2279) ("{" 0) ("|" 0) ("}" 0) ("~" 0) 3293519
+
+Il numero di caratteri totali è diverso perchè per "dostring" tutti i caratteri utf-8 hanno lunghezza 1 (anche quelli multi-byte).
+Se abbiamo solo caratteri ASCII, allora il risultato è identico:
+
+(setq s "1512684523410hjwsfnmxcbasnb/gd\fg\haef!@@#$%@%$%&&^[_[]+_{P}PJKL~~")
+(length s)
+;-> 64
+
+(count-chars1 s)
+;-> 64
+(count-chars2 s)
+;-> 64
+(count-chars3 s)
+;-> 64
+
+Quarto metodo (by Lutz)
+-----------------------
+Here a small C program for the character counter:
+
+#include <stdio.h>
+#include <memory.h>
+
+int cnts[128];
+
+int * count_characters(char * str, int length)
+   {
+   int i;
+
+   memset((void *)cnts, 0, 128 * sizeof(int));
+
+   for(i = 0; i < length; i++)
+       cnts[str[i]] += 1;
+
+   return(cnts);
+   }
+
+Compile it to a shared library:
+
+on Mac OS X:
+   gcc count-characters.c -bundle -o count-characters.so
+
+on other UNIX
+   gcc count-characters.c -shared -o count-characters.so
+
+Now use it:
+
+newLISP v.9.2.0 on OSX UTF-8, execute 'newlisp -h' for more info.
+
+(define count-chars (import "count-characters.so" "count_characters"))
+;-> count_characters <8CEF0>
+
+(unpack (dup "lu" 128) (count-chars (read-file "war-and-piece.txt") 3217389))
+;-> (0 0 0 0 0 0 0 0 0 0 67418 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 511976 3938 17974 2 1 3 0 7526 640 640 339 1 39921 5850 30686
+;->  26 230 348 163 55 25 49 51 38 169 54 1003 1148 1 2 1 3138 2 6204
+;->  3638 1783 2021 1867 1908 1247 4016 7404 320 1191 687 3288 3627 1638
+;->  6117 35 2704 2974 6464 278 939 2896 348 1265 108 47 0 47 0 1 0 199012
+;->  30984 59225 116122 312451 52818 49877 162871 166004 2214 19194 95740
+;->  58261 180228 190868 38854 2300 144967 159746 219083 65006 25940
+;->  56197 3719 44945 2282 0 0 0 1 0)
+
+does it on my MacMini/PPC in 0.129 seconds.
+
 =============================================================================
 

@@ -1769,6 +1769,7 @@ NOTE LIBERE 15
   Addizione, sottrazione, moltiplicazione e divisione di numeri binari
   Frequenze dei numeri con N dadi
   Ricerca degli elementi di una lista in un'altra lista
+  Frequenza dei caratteri in una stringa
 
 PROBLEMI SUI DADI
 =================

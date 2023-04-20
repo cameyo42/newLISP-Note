@@ -42,7 +42,7 @@ Problem solving status
 
 2. Dice Sums (27..45)
 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45
-+  +  +  +  +  +  +  +  +  +  +  +  -  -  -  -  -  -  -
++  +  +  +  +  +  +  +  +  +  +  +  +  +  -  -  -  -  -
 
 3. Non-standard Dice (46..55)
 46 47 48 49 50 51 52 53 54 55
@@ -413,7 +413,13 @@ What is the probability that all faces have appeared in some order in some six c
 What is the expected number of rolls until such a sequence appears?
 
 the probability that we have had a run of six distinct faces in six consecutive rolls after rolling n times.
+
 la probabilità che abbiamo avuto una serie di sei facce distinte in sei tiri consecutivi dopo aver tirato n volte.
+
+We are interested in how long it takes to get to state 6: six distinct rolls in a row, like 
+142623153135443231645
+which has 6 distinct faces only for the final 6 rolls (i.e., no other six consecutive
+rolls are all distinct).
 
 Solution =
 (6 rolls) prob = 0.0154320987654321...
@@ -2406,7 +2412,7 @@ Roll N dice once and sum them: call the result M.
 Roll M dice once and sum.
 What's the distribution of the sum, expected value, most likely value?
 
-Solution = 
+Solution =
 
   (N)   E = 12.25, Most likely value = 6
   (N,M) E = 42.875, Most likely value = 20
@@ -2471,15 +2477,14 @@ Solution =
 ;-> 6           ; most likely value
 ;-> 4539.027
 
-(define (p39-1 iter)
-  (local (sum freq N cur-sum fmax fmax-val)
+(define (p39-2 iter)
+  (local (sum freq N M cur-sum fmax fmax-val)
     (setq sum 0)
-    (setq freq (dup '0 37))
+    (setq freq (dup '0 217))
     (for (i 1 iter)
       (setq N (die6))
-      (setq cur-sum (dice6 N))
-      ;(setq roll (dice6-lst N))
-      ;(setq cur-sum (apply + (dice6 N))
+      (setq M (dice6 N))
+      (setq cur-sum (dice6 M))
       (++ (freq cur-sum))
       (++ sum cur-sum)
     )
@@ -2490,3 +2495,329 @@ Solution =
     )
     (println (div sum iter)
     (println fmax-val))))
+
+(time (p39-2 1e7))
+;-> 0 0
+;-> 1 46219
+;-> 2 54959
+;-> 3 66104
+;-> 4 78648
+;-> 5 93992
+;-> 6 112223
+;-> 7 88072
+;-> 8 96253
+;-> 9 104770
+;-> 10 111935
+;-> 11 117849
+;-> 12 122149
+;-> 13 123319
+;-> 14 129465
+;-> 15 135139
+;-> 16 139165
+;-> 17 142710
+;-> 18 144276
+;-> 19 145548
+;-> 20 146197
+;-> 21 145638
+;-> 22 143760
+;-> 23 142137
+;-> 24 139213
+;-> 25 137685
+;-> 26 135662
+;-> 27 134431
+;-> 28 133199
+;-> 29 132668
+;-> 30 132217
+;-> 31 133467
+;-> 32 133282
+;-> 33 134198
+;-> 34 134766
+;-> 35 135407
+;-> 36 135358
+;-> 37 135258
+;-> 38 135685
+;-> 39 135987
+;-> 40 135501
+;-> 41 135493
+;-> 42 134336
+;-> 43 134473
+;-> 44 133845
+;-> 45 133250
+;-> 46 132443
+;-> 47 131845
+;-> 48 130435
+;-> 49 130780
+;-> 50 129651
+;-> 51 128239
+;-> 52 126315
+;-> 53 126027
+;-> 54 124912
+;-> 55 123805
+;-> 56 121941
+;-> 57 121131
+;-> 58 119215
+;-> 59 117155
+;-> 60 115155
+;-> 61 113549
+;-> 62 112286
+;-> 63 109526
+;-> 64 106819
+;-> 65 104716
+;-> 66 101802
+;-> 67 99559
+;-> 68 97079
+;-> 69 93946
+;-> 70 91381
+;-> 71 88075
+;-> 72 85329
+;-> 73 82043
+;-> 74 79117
+;-> 75 75183
+;-> 76 72590
+;-> 77 69566
+;-> 78 66301
+;-> 79 63811
+;-> 80 60174
+;-> 81 57081
+;-> 82 53586
+;-> 83 51134
+;-> 84 47725
+;-> 85 45264
+;-> 86 42692
+;-> 87 39881
+;-> 88 36875
+;-> 89 34548
+;-> 90 31956
+;-> 91 29687
+;-> 92 27507
+;-> 93 25384
+;-> 94 23192
+;-> 95 21239
+;-> 96 19829
+;-> 97 17905
+;-> 98 16186
+;-> 99 14894
+;-> 100 13219
+;-> 101 12073
+;-> 102 10911
+;-> 103 9723
+;-> 104 8782
+;-> 105 7848
+;-> 106 6947
+;-> 107 6083
+;-> 108 5381
+;-> 109 4884
+;-> 110 4228
+;-> 111 3639
+;-> 112 3265
+;-> 113 2729
+;-> 114 2382
+;-> 115 2096
+;-> 116 1883
+;-> 117 1533
+;-> 118 1369
+;-> 119 1176
+;-> 120 945
+;-> 121 808
+;-> 122 638
+;-> 123 535
+;-> 124 461
+;-> 125 371
+;-> 126 317
+;-> 127 276
+;-> 128 209
+;-> 129 181
+;-> 130 154
+;-> 131 123
+;-> 132 104
+;-> 133 83
+;-> 134 65
+;-> 135 47
+;-> 136 37
+;-> 137 25
+;-> 138 22
+;-> 139 20
+;-> 140 13
+;-> 141 12
+;-> 142 5
+;-> 143 10
+;-> 144 3
+;-> 145 4
+;-> 146 1
+;-> 147 1
+;-> 148 1
+;-> 149 1
+;-> 150 0
+;-> 151 1
+;-> 152 1
+;-> 153 0
+;-> 154 0
+;-> 155 1
+;-> 156 0
+;-> ...
+;-> 42.87629420 ; expected value
+;-> 20          ; most likely value
+;-> 10049.618
+
+
+----------
+Problem 40
+----------
+A die is rolled once. Call the result N.
+Then, the die is rolled N times, and those rolls which are equal to or greater than N are summed (other rolls are not summed).
+What is the distribution of the resulting sum?
+What is the expected value of the sum?
+
+Solution =
+
+  E = 133/18 = 7.388888888888889
+  Most likely value = 6
+
+(define (p40 iter)
+  (local (sum freq N roll cur-sum fmax fmax-val)
+    (setq sum 0)
+    (setq freq (dup '0 37))
+    (for (i 1 iter)
+      (setq N (die6))
+      (setq roll (dice6-lst N))
+      (setq cur-sum (apply + (filter (fn(x) (>= x N)) roll)))
+      (++ (freq cur-sum))
+      (++ sum cur-sum)
+    )
+    (setq fmax 0 fmax-val 0)
+    (dolist (f freq)
+      (println $idx { } f)
+      (if (> f fmax) (setq fmax f fmax-val $idx))
+    )
+    (println (div sum iter)
+    (println fmax-val))))
+
+(time (p40 1e7))
+;-> 0 989821
+;-> 1 277782
+;-> 2 370955
+;-> 3 461758
+;-> 4 648390
+;-> 5 967940
+;-> 6 1731882
+;-> 7 277839
+;-> 8 439540
+;-> 9 517415
+;-> 10 645901
+;-> 11 646320
+;-> 12 727520
+;-> 13 138394
+;-> 14 184885
+;-> 15 219149
+;-> 16 242663
+;-> 17 177763
+;-> 18 159267
+;-> 19 20678
+;-> 20 28556
+;-> 21 37584
+;-> 22 38629
+;-> 23 22231
+;-> 24 19158
+;-> 25 222
+;-> 26 1051
+;-> 27 2120
+;-> 28 2179
+;-> 29 1079
+;-> 30 1302
+;-> 31 0
+;-> 32 0
+;-> 33 0
+;-> 34 0
+;-> 35 0
+;-> 36 27
+;-> 7.38890086 ; expected value
+;-> 6          ; most likely value
+;-> 12324.912
+
+
+----------
+Problem 41
+----------
+Suppose n six-sided dice are rolled and summed.
+For each six that appears, we sum the six, and reroll that die and sum, and continue to reroll and sum until we roll something other than a six with that die.
+What is the expected value of the sum?
+What is the distribution of the sum?
+
+n = 4
+
+roll 4 dice = (1 3 2 6 4 6)
+
+sum = 1 + 3 + 2 + 6 + 4 + 6 = 22
+
+For first 6: 
+reroll --> (1 3 5 6)
+partial-sum = 6 + (1 3 5) = 15
+sum = sum + partial-sum = 22 + 15 = 37
+
+For second 6: 
+reroll --> (4 6)
+partial-sum = 6 + (4) = 10
+sum = sum + partial-sum = 37 + 10 = 47
+
+Solution =
+
+  E(n) = 4.2*n
+
+Each die is independent, so we can work out the distribution for a single die, and get everything we
+need from that.
+
+(seed 1)
+(define (reroll num)
+  (if (= num 6)
+      6
+      (+ num (reroll (die6)))))
+
+(seed 1)
+(reroll 0)
+
+(define (re-roll)
+  (setq stop nil)
+  (setq sum 0)
+  (until stop
+    (setq val (die6))
+    ;(print val " + ")
+    (if (= val 6)
+        (setq stop true)
+        (++ sum val)
+    )
+  )
+  sum)
+
+(seed 1)
+(re-roll)
+
+(setq sum 0)
+(for (i 1 1e3) (setq sum (+ sum (re-roll))))
+
+(define (p41 n iter)
+  (local (sum freq cur-sum roll sixes fmax fmax-val)
+    (setq sum 0)
+    (setq sixes 0)
+    (setq freq (dup '0 500))
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq roll (dice6-lst n))
+      (setq cur-sum (apply + roll))
+      (setq sixes (filter (fn(x) (= x 6)) roll))
+      ;(++ cur-sum (* 6 (length sixes)))
+      (dolist (six sixes)
+        (++ cur-sum (re-roll))
+      )
+      (++ (freq cur-sum))
+      (++ sum cur-sum)
+    )
+    (setq fmax 0 fmax-val 0)
+    (dolist (f freq)
+      (println $idx { } f)
+      (if (> f fmax) (setq fmax f fmax-val $idx))
+    )
+    (println (div sum iter))
+    (println fmax-val)))
+
+(p41 1 1e6)
+
