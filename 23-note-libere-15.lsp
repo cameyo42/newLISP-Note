@@ -7477,5 +7477,94 @@ newLISP v.9.2.0 on OSX UTF-8, execute 'newlisp -h' for more info.
 
 does it on my MacMini/PPC in 0.129 seconds.
 
+
+--------------------------------------
+Funzioni che restituiscono espressioni
+--------------------------------------
+
+Supponiamo di avere una funzione del tipo:
+
+(define (task1 x)
+  (if (= x 3)
+    (setq action '(* x x))
+    (setq action '(* x x x)))
+  (eval (expand action 'x)))
+  ;(eval action)))
+
+Quando viene invocata restituisce il risultato della valutazione dell'espressione "action".
+
+(task1 2)
+;-> 8
+(task1 3)
+;-> 9
+
+Se vogliamo restituire l'espressione che assume "action" (senza l'espansione della variabile/simbolo "x") possiamo scrivere:
+
+(define (task2 x)
+  (if (= x 3)
+    (setq action '(* x x))
+    (setq action '(* x x x)))
+    action)
+
+(task2 2)
+;-> (* x x x)
+(task2 3)
+;-> (* x x)
+
+Se vogliamo restituire l'espressione che assume "action" (con l'espansione della variabile/simbolo "x") possiamo scrivere:
+
+(define (task3 x)
+  (if (= x 3)
+    (setq action '(* x x))
+    (setq action '(* x x x)))
+  (expand action 'x))
+
+(task3 2)
+;-> (* 2 2 2)
+(task3 3)
+;-> (* 3 3)
+
+Questo metodo è utile quando vogliamo valutare le espressioni successivamente.
+
+
+-------------------
+Non serious theorem
+-------------------
+
+Teorema
+Gli unici numeri interi inferiori a 10000 che sono multipli delle loro "inversioni" sono 8712 = 4 * 2178 e 9801 = 9 * 1089.
+
+Nel libro "A Mathematician's Apology" l'autore G. H. Hardy descrive questo problema come se non avesse "nulla in [esso] che possa piacere molto a un matematico." ("nothing in [it] which appeals much to a mathematician.")
+
+Si tratta dei numeri che sono multipli interi delle loro inversioni, esclusi i numeri palindromi e i multipli di 10.
+
+Sequenza OEIS: A031877
+  8712, 9801, 87912, 98901, 879912, 989901, 8799912, 9899901, 87128712, 
+  87999912, 98019801, 98999901, 871208712, 879999912, 980109801, 989999901,
+  8712008712, 8791287912, 8799999912, 9801009801, 9890198901, 9899999901,
+  87120008712, 87912087912, 87999999912, ...
+
+(define (nonserious limit)
+  (local (out s1 s2)
+    (setq out '())
+    (for (num 1 limit)
+      (if (not (zero? (% num 10))) ; not multiple of 10?
+        (begin
+          (setq s1 (string num))
+          (setq s2 (reverse (string num)))
+          (if (and (!= s1 s2) ; not palindrome?
+                   (zero? (% num (int s2 0 10)))) ; integer multiples?
+              (push num out -1)
+          )
+        )
+      )
+    )
+    out))
+
+(time (println (nonserious 1e8)))
+;-> (8712 9801 87912 98901 879912 989901 8799912 
+;->  9899901 87128712 87999912 98019801 98999901)
+;-> 103011.474
+
 =============================================================================
 

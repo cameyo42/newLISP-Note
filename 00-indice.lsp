@@ -1770,10 +1770,12 @@ NOTE LIBERE 15
   Frequenze dei numeri con N dadi
   Ricerca degli elementi di una lista in un'altra lista
   Frequenza dei caratteri in una stringa
+  Funzioni che restituiscono espressioni
+  Non serious theorem
 
 PROBLEMI SUI DADI
 =================
-  Problemi 1..6, 8..38
+  Problemi 1..47
 
 APPENDICI
 =========

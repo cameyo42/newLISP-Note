@@ -9,10 +9,20 @@
 (define (dice-lst-freq n s) (count (sequence 1 s) (dice-lst n s)))
 (define (dice6-lst-freq n) (count '(1 2 3 4 5 6) (dice6-lst n)))
 (define (one-in prob) (int (add 0.5 (div prob))))
+(define (rand-pick lst)
+  (local (rnd stop out)
+    (while (= (setq rnd (random)) 1))
+    (setq stop nil)
+    (dolist (p lst stop)
+      (setq rnd (sub rnd p))
+      (if (< rnd 0) (set 'out $idx 'stop true))
+    )
+    out))
 
-===================
- PROBLEMI SUI DADI
-===================
+
+                   ===================
+                    PROBLEMI SUI DADI
+                   ===================
 
               A Collection of Dice Problems
            with solutions and useful appendices
@@ -29,33 +39,33 @@ Conroy solves the problems mathematically (very informative and interesting).
 Here, I try solve the problems with simulations (if I am able...).
 
 
-======================
-Problem solving status
-======================
+========================
+ Problem Solving Status
+========================
 
 + = solved
 - = unsolved
 
 1. Standard Dice (1..26)
 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
-+  +  +  +  +  +  -  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +
++  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +
 
 2. Dice Sums (27..45)
 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45
-+  +  +  +  +  +  +  +  +  +  +  +  +  +  -  -  -  -  -
++  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +
 
 3. Non-standard Dice (46..55)
 46 47 48 49 50 51 52 53 54 55
--  -  -  -  -  -  -  -  -  -
++  +  -  -  -  -  -  -  -  -
 
 4. Game with Dice (56..76)
 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76
 -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 
 
-=================
-General functions
-=================
+===================
+ General Functions
+===================
 
 ; roll a die with S sides
 (define (die s) (+ (rand s) 1))
@@ -98,13 +108,66 @@ General functions
 (one-in 0.5)
 ;-> 2
 
-Number of iterations (minimum) = 1e6 (if possible)
+; simulate a non-fair dice
+; get a list of N probabilities (one prob for each faces)
+; and return a random number (0..N-1) with the distribution
+; of the probabilities predefined
+(define (rand-pick lst)
+  (local (rnd stop out)
+    ; generiamo un numero random diverso da 1
+    ; (per evitare errori di arrotondamento)
+    (while (= (setq rnd (random)) 1))
+    (setq stop nil)
+    (dolist (p lst stop)
+      ; sottraiamo la probabilità corrente al numero random...
+      (setq rnd (sub rnd p))
+      ; se il risultato è minore di zero,
+      ; allora restituiamo l'indice della probabilità corrente
+      (if (< rnd 0)
+          (set 'out $idx 'stop true)
+      )
+    )
+    out))
 
-The function "time" return the time elapsed in milliseconds.
+(setq dice4-prob '(0.05 0.15 0.35 0.45))
 
-========================
-1. Standard Dice (1..26)
-========================
+Nota: la somma delle probabilità deve valere 1.
+(apply add dice4-prob)
+;-> 1
+
+(rand-pick dice4-prob)
+;-> 2
+
+Facciamo alcune prove per verificare la correttezza della funzione:
+
+(setq dice4-prob '(0.05 0.15 0.35 0.45))
+(apply add dice4-prob)
+;-> 1
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick dice4-prob))))
+vet
+;-> (50087 150175 349614 450124)
+(apply + vet)
+;-> 1000000
+
+(setq dice6-prob '(0.01 0.01 0.01 0.77 0.1 0.1))
+(apply add dice6-prob)
+;-> 1
+(setq vet (array 6 '(0)))
+;-> (0 0 0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick dice6-prob))))
+vet
+;-> (9821 10070 9923 770122 100288 99776)
+
+Note: Number of iterations (minimum) = 1e6 (if possible)
+
+Note: The function "time" return the time elapsed in milliseconds.
+
+
+==========================
+ 1. Standard Dice (1..26)
+==========================
 
 ---------
 Problem 1
@@ -412,46 +475,92 @@ We roll a 6-sided die n times.
 What is the probability that all faces have appeared in some order in some six consecutive rolls?
 What is the expected number of rolls until such a sequence appears?
 
-the probability that we have had a run of six distinct faces in six consecutive rolls after rolling n times.
-
-la probabilità che abbiamo avuto una serie di sei facce distinte in sei tiri consecutivi dopo aver tirato n volte.
-
-We are interested in how long it takes to get to state 6: six distinct rolls in a row, like 
-142623153135443231645
-which has 6 distinct faces only for the final 6 rolls (i.e., no other six consecutive
-rolls are all distinct).
-
 Solution =
-(6 rolls) prob = 0.0154320987654321...
-E = 83.2
 
-(define (p7 n iter)
-  (local (sum)
+The probability that we have had a run of six distinct faces in six consecutive rolls after rolling n times:
+
+    n  prob(n)
+    6  0.015432098765432
+    7  0.028292181069958
+    8  0.040723593964334
+    9  0.052940672153635
+   10  0.065002953055936
+   11  0.076924328735457
+   12  0.088693222472014
+   13  0.100311784227929
+   14  0.111782118026154
+   15  0.123106206915980
+   16  0.134285932624874
+   17  0.145323126219390
+   18  0.156219603871238
+   19  0.166977159634352
+   20  0.177597564757422
+  ...
+  544  0.999011257908158
+
+The expect number of rolls until six distinct faces appear in six consecutive rolls:
+
+  E = 83.2
+
+(define (p7-1 n iter)
+  (local (success roll found)
+    (setq success 0)
     (for (i 1 iter)
-      ;(println "ITERAZIONE: " i)
-      (setq sum 0)
+      (setq roll (dice6-lst n))
       (setq found nil)
-      (for (j 1 n 1 found)
-        (setq found nil)
-        ;(println "Evento: " j)
-        (for (i 1 6 1 found)
-          (setq roll (dice6-lst 6))
-          ;(println roll)
-          (if (= (sort roll) '(1 2 3 4 5 6)) (setq found true))
-        )
-        ;(println found) (read-line)
-        (if found (++ sum))
+      (for (k 0 (- n 6) 1 found)
+        (if (= (sort (slice roll k 6)) '(1 2 3 4 5 6)) (setq found true))
       )
+      (if found (++ success))
+    )
+    (div success iter)))
+
+(time (for (n 6 20) (println n { } (p7-1 n 1e6))))
+
+;->  6 0.015528
+;->  7 0.028403
+;->  8 0.040712
+;->  9 0.05272
+;-> 10 0.064964
+;-> 11 0.077047
+;-> 12 0.088167
+;-> 13 0.100323
+;-> 14 0.11155
+;-> 15 0.123212
+;-> 16 0.134386
+;-> 17 0.145571
+;-> 18 0.155803
+;-> 19 0.167233
+;-> 20 0.17747
+;-> 70120.217
+
+(time (println "544" { } (p7-1 544 1e6)))
+;-> 544 0.999043
+;-> 74985.561
+
+(define (p7-2 iter)
+  (local (sum found trial roll nums)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq found nil)
+      ; at least 6 dice are needed to find the sequence
+      (setq trial 5)
+      ; first roll
+      (setq roll (dice6-lst 6))
+      (until found
+        ; check unique digits on current sequence
+        (if (= (sort (copy roll)) '(1 2 3 4 5 6)) (setq found true))
+        (++ trial)
+        ; new roll
+        (pop roll) (push (die6) roll -1)
+      )
+      (++ sum trial)
     )
     (div sum iter)))
 
-(println (format "%4.12f" (p7 20 1e5)))
-
-(setq sum 0)
-(for (i 1 1e5)
-(if (filter (fn(x) (= 6 (length (unique x)))) (explode (dice6-lst 36) 6)) (++ sum))
-)
-(div sum 1e5)
+(time (println (p7-2 1e6)))
+;-> 83.30385
+;-> 37709.552
 
 
 ---------
@@ -1284,7 +1393,7 @@ Solution =
 
   (2) 0.0509259...
   (3) 0.02134773662551...
-  (6) 0:004064823502...
+  (6) 0.004064823502...
 
 (define (p21 dice iter)
   (local (sum)
@@ -1524,9 +1633,9 @@ Solution = 31.008483737975263
 ;-> 57661.46
 
 
-=====================
-2. Dice Sums (27..45)
-=====================
+=======================
+ 2. Dice Sums (27..45)
+=======================
 
 ----------
 Problem 27
@@ -2436,16 +2545,16 @@ Solution =
     (println fmax-val))))
 
 (time (p39-1 1e7))
-;-> 0 0
-;-> 1 277432
-;-> 2 323936
-;-> 3 377471
-;-> 4 441298
-;-> 5 514295
-;-> 6 600149  ; max
-;-> 7 422978
-;-> 8 446170
-;-> 9 465949
+;->  0 0
+;->  1 277432
+;->  2 323936
+;->  3 377471
+;->  4 441298
+;->  5 514295
+;->  6 600149 ; max
+;->  7 422978
+;->  8 446170
+;->  9 465949
 ;-> 10 482192
 ;-> 11 487162 ; local max
 ;-> 12 481005
@@ -2497,106 +2606,106 @@ Solution =
     (println fmax-val))))
 
 (time (p39-2 1e7))
-;-> 0 0
-;-> 1 46219
-;-> 2 54959
-;-> 3 66104
-;-> 4 78648
-;-> 5 93992
-;-> 6 112223
-;-> 7 88072
-;-> 8 96253
-;-> 9 104770
-;-> 10 111935
-;-> 11 117849
-;-> 12 122149
-;-> 13 123319
-;-> 14 129465
-;-> 15 135139
-;-> 16 139165
-;-> 17 142710
-;-> 18 144276
-;-> 19 145548
-;-> 20 146197
-;-> 21 145638
-;-> 22 143760
-;-> 23 142137
-;-> 24 139213
-;-> 25 137685
-;-> 26 135662
-;-> 27 134431
-;-> 28 133199
-;-> 29 132668
-;-> 30 132217
-;-> 31 133467
-;-> 32 133282
-;-> 33 134198
-;-> 34 134766
-;-> 35 135407
-;-> 36 135358
-;-> 37 135258
-;-> 38 135685
-;-> 39 135987
-;-> 40 135501
-;-> 41 135493
-;-> 42 134336
-;-> 43 134473
-;-> 44 133845
-;-> 45 133250
-;-> 46 132443
-;-> 47 131845
-;-> 48 130435
-;-> 49 130780
-;-> 50 129651
-;-> 51 128239
-;-> 52 126315
-;-> 53 126027
-;-> 54 124912
-;-> 55 123805
-;-> 56 121941
-;-> 57 121131
-;-> 58 119215
-;-> 59 117155
-;-> 60 115155
-;-> 61 113549
-;-> 62 112286
-;-> 63 109526
-;-> 64 106819
-;-> 65 104716
-;-> 66 101802
-;-> 67 99559
-;-> 68 97079
-;-> 69 93946
-;-> 70 91381
-;-> 71 88075
-;-> 72 85329
-;-> 73 82043
-;-> 74 79117
-;-> 75 75183
-;-> 76 72590
-;-> 77 69566
-;-> 78 66301
-;-> 79 63811
-;-> 80 60174
-;-> 81 57081
-;-> 82 53586
-;-> 83 51134
-;-> 84 47725
-;-> 85 45264
-;-> 86 42692
-;-> 87 39881
-;-> 88 36875
-;-> 89 34548
-;-> 90 31956
-;-> 91 29687
-;-> 92 27507
-;-> 93 25384
-;-> 94 23192
-;-> 95 21239
-;-> 96 19829
-;-> 97 17905
-;-> 98 16186
-;-> 99 14894
+;->   0 0
+;->   1 46219
+;->   2 54959
+;->   3 66104
+;->   4 78648
+;->   5 93992
+;->   6 112223
+;->   7 88072
+;->   8 96253
+;->   9 104770
+;->  10 111935
+;->  11 117849
+;->  12 122149
+;->  13 123319
+;->  14 129465
+;->  15 135139
+;->  16 139165
+;->  17 142710
+;->  18 144276
+;->  19 145548
+;->  20 146197
+;->  21 145638
+;->  22 143760
+;->  23 142137
+;->  24 139213
+;->  25 137685
+;->  26 135662
+;->  27 134431
+;->  28 133199
+;->  29 132668
+;->  30 132217
+;->  31 133467
+;->  32 133282
+;->  33 134198
+;->  34 134766
+;->  35 135407
+;->  36 135358
+;->  37 135258
+;->  38 135685
+;->  39 135987
+;->  40 135501
+;->  41 135493
+;->  42 134336
+;->  43 134473
+;->  44 133845
+;->  45 133250
+;->  46 132443
+;->  47 131845
+;->  48 130435
+;->  49 130780
+;->  50 129651
+;->  51 128239
+;->  52 126315
+;->  53 126027
+;->  54 124912
+;->  55 123805
+;->  56 121941
+;->  57 121131
+;->  58 119215
+;->  59 117155
+;->  60 115155
+;->  61 113549
+;->  62 112286
+;->  63 109526
+;->  64 106819
+;->  65 104716
+;->  66 101802
+;->  67 99559
+;->  68 97079
+;->  69 93946
+;->  70 91381
+;->  71 88075
+;->  72 85329
+;->  73 82043
+;->  74 79117
+;->  75 75183
+;->  76 72590
+;->  77 69566
+;->  78 66301
+;->  79 63811
+;->  80 60174
+;->  81 57081
+;->  82 53586
+;->  83 51134
+;->  84 47725
+;->  85 45264
+;->  86 42692
+;->  87 39881
+;->  88 36875
+;->  89 34548
+;->  90 31956
+;->  91 29687
+;->  92 27507
+;->  93 25384
+;->  94 23192
+;->  95 21239
+;->  96 19829
+;->  97 17905
+;->  98 16186
+;->  99 14894
 ;-> 100 13219
 ;-> 101 12073
 ;-> 102 10911
@@ -2693,16 +2802,16 @@ Solution =
     (println fmax-val))))
 
 (time (p40 1e7))
-;-> 0 989821
-;-> 1 277782
-;-> 2 370955
-;-> 3 461758
-;-> 4 648390
-;-> 5 967940
-;-> 6 1731882
-;-> 7 277839
-;-> 8 439540
-;-> 9 517415
+;->  0 989821
+;->  1 277782
+;->  2 370955
+;->  3 461758
+;->  4 648390
+;->  5 967940
+;->  6 1731882
+;->  7 277839
+;->  8 439540
+;->  9 517415
 ;-> 10 645901
 ;-> 11 646320
 ;-> 12 727520
@@ -2743,56 +2852,20 @@ For each six that appears, we sum the six, and reroll that die and sum, and cont
 What is the expected value of the sum?
 What is the distribution of the sum?
 
-n = 4
-
-roll 4 dice = (1 3 2 6 4 6)
-
-sum = 1 + 3 + 2 + 6 + 4 + 6 = 22
-
-For first 6: 
-reroll --> (1 3 5 6)
-partial-sum = 6 + (1 3 5) = 15
-sum = sum + partial-sum = 22 + 15 = 37
-
-For second 6: 
-reroll --> (4 6)
-partial-sum = 6 + (4) = 10
-sum = sum + partial-sum = 37 + 10 = 47
-
 Solution =
 
   E(n) = 4.2*n
 
-Each die is independent, so we can work out the distribution for a single die, and get everything we
-need from that.
-
-(seed 1)
-(define (reroll num)
-  (if (= num 6)
-      6
-      (+ num (reroll (die6)))))
-
-(seed 1)
-(reroll 0)
-
 (define (re-roll)
-  (setq stop nil)
-  (setq sum 0)
-  (until stop
-    (setq val (die6))
-    ;(print val " + ")
-    (if (= val 6)
-        (setq stop true)
-        (++ sum val)
+  (local (stop sum val)
+    (setq stop nil)
+    (setq sum 0)
+    (until stop
+      (setq val (die6))
+      (if (!= val 6) (setq stop true))
+      (++ sum val)
     )
-  )
-  sum)
-
-(seed 1)
-(re-roll)
-
-(setq sum 0)
-(for (i 1 1e3) (setq sum (+ sum (re-roll))))
+    sum))
 
 (define (p41 n iter)
   (local (sum freq cur-sum roll sixes fmax fmax-val)
@@ -2802,22 +2875,344 @@ need from that.
     (for (i 1 iter)
       (setq cur-sum 0)
       (setq roll (dice6-lst n))
+      ;(println "roll = " roll)
       (setq cur-sum (apply + roll))
+      ;(println "cur-sum = " cur-sum)
       (setq sixes (filter (fn(x) (= x 6)) roll))
-      ;(++ cur-sum (* 6 (length sixes)))
+      ;(println "sixes = " sixes)
+      ; rerolling sixes
       (dolist (six sixes)
         (++ cur-sum (re-roll))
+        ;(println "six " $idx)
       )
+      ;(println "cur-sum (after sixes) = " cur-sum)
       (++ (freq cur-sum))
+      ;(println "sum (prima) = " sum)
       (++ sum cur-sum)
+      ;(println "sum (dopo) = " sum)
+      ;(read-line)
     )
     (setq fmax 0 fmax-val 0)
     (dolist (f freq)
-      (println $idx { } f)
+      ;(println $idx { } f)
       (if (> f fmax) (setq fmax f fmax-val $idx))
     )
-    (println (div sum iter))
-    (println fmax-val)))
+    (println (format "%4d %4.8f %4.8f %4d" n (div sum iter) (mul n 4.2) fmax-val))))
 
-(p41 1 1e6)
+(time (for (n 1 10) (p41 n 1e6)))
+       n  E(n)        4.2*n        Max probability value
+;->    1  4.19778900  4.20000000    1
+;->    2  8.39903500  8.40000000    6
+;->    3 12.59932900 12.60000000    9
+;->    4 16.78503600 16.80000000   13
+;->    5 20.99763400 21.00000000   17
+;->    6 25.19698300 25.20000000   22
+;->    7 29.39231900 29.40000000   26
+;->    8 33.58248900 33.60000000   30
+;->    9 37.79898100 37.80000000   34
+;->   10 41.99001500 42.00000000   39
+;-> 21665.655
 
+
+----------
+Problem 42
+----------
+A die is rolled until all sums from 1 to x are attainable from some subset of rolled faces.
+For example, if x = 3, then we might roll until a 1 and 2 are rolled, or until three 1s appear, or until two 1s and a 3.
+What is the expected number of rolls?
+
+Solution =
+
+   x   E(x)
+   2   7.5
+   3   7.72222...
+   4   7.93316...
+   5   7.96387...
+   6   7.99487...
+   7   8.03103...
+   8   8.07630...
+   9   8.10442...
+  10   8.15177...
+  11   8.20726...
+
+(define (subset-sum lst sum)
+  (local (dp j)
+    (setq dp (array (+ sum 1) '(nil)))
+    ; l'inizializzazione con 1 perchè somma 0 è sempre possibile
+    (setf (dp 0) true)
+    ; ciclo per ogni elemento della lista
+    (dolist (el lst)
+      ; per modificare il valore di tutti i possibili valori di somma in True
+      (setq j sum)
+      (while (> j (- el 1))
+        (if (dp (- j el)) (setf (dp j) true))
+        (-- j)
+      )
+    )
+    (dp sum)))
+
+(define (p42 x iter)
+  (local (sum roll found trial wrong)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq roll '())
+      (setq filled (array (+ x 1) '(0)))
+      (setf (filled 0) 1)
+      (setq trial 0)
+      (setq found nil)
+      (until found
+        (push (die6) roll)
+        (for (i 1 x)
+          (if (and (!= (filled i) 1)
+                   (subset-sum roll i))
+              (setf (filled i) 1))
+        )
+        (if (= (apply + filled) (+ x 1)) (setq found true))
+        (++ trial)
+      )
+      (++ sum trial)
+    )
+    (div sum iter)))
+
+(time (for (x 2 11) (println x { } (p42 x 1e6))))
+;->  2 7.505095
+;->  3 7.716187
+;->  4 7.931494
+;->  5 7.971391
+;->  6 8.0105
+;->  7 8.029393
+;->  8 8.071361
+;->  9 8.104572
+;-> 10 8.148847
+;-> 11 8.209016
+;-> 517855.895
+
+
+----------
+Problem 43
+----------
+How long, on average, do we need to roll a die and sum the rolls until the sum is a perfect square (1, 4, 9, 16, ...)?
+
+Solution =
+
+  E = 7.079764237551105103895
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(define (p43 iter)
+  (local (total success trial sum)
+    (setq total 0)
+    (setq success 0)
+    (for (i 1 iter)
+      (setq sum (die6))
+      (setq trial 1)
+      (until (square? sum)
+        (++ sum (die6))
+        (++ trial)
+      )
+      (++ total trial)
+    )
+    (div total iter)))
+
+(time (println (p43 1e7)))
+;-> 7.082254
+;-> 19181.145
+
+
+----------
+Problem 44
+----------
+How long, on average, do we need to roll a die and sum the rolls until the sum is prime?
+What if we roll until the sum is composite?
+
+Solution =
+
+  E(prime) = 2.428497913693504230366081906...
+  E(composite) = 2.12848699151757507022715820...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (p44-1 iter)
+  (local (total success trial sum)
+    (setq total 0)
+    (setq success 0)
+    (for (i 1 iter)
+      (setq sum (die6))
+      (setq trial 1)
+      (until (prime? sum)
+        (++ sum (die6))
+        (++ trial)
+      )
+      (++ total trial)
+    )
+    (div total iter)))
+
+(time (println (p44-1 1e7)))
+;-> 2.4286145
+;-> 7089.412
+
+(define (p44-2 iter)
+  (local (total success trial sum)
+    (setq total 0)
+    (setq success 0)
+    (for (i 1 iter)
+      (setq sum (die6))
+      (setq trial 1)
+      ; number 1 is not composite
+      (until (and (!= sum 1) (not (prime? sum)))
+        (++ sum (die6))
+        (++ trial)
+      )
+      (++ total trial)
+    )
+    (div total iter)))
+
+(time (println (p44-2 1e7)))
+;-> 2.1282056
+;-> 7237.64
+
+
+----------
+Problem 45
+----------
+What is the probability that, if we roll two dice, the product of the faces will start with the digit '1'?
+What if we roll three dice, or, ten dice?
+What is going on?
+
+Solution =
+
+   n   prob(n)
+   1   0.1666666666...
+   2   0.3333333333...
+   3   0.300925925...
+   4   0.2924382716...
+   5   0.2979681069...
+   6   0.2978395061...
+   7   0.2999042638...
+   8   0.3013867455...
+   9   0.3020477101...
+  10   0.3021776836...
+
+(define (p45 n iter)
+  (local (success digit)
+    (setq success 0)
+    (for (i 1 iter)
+      (setq val (string (apply * (dice6-lst n))))
+      (if (= (val 0) "1") (++ success))
+    )
+    (div success iter)))
+
+(time (for (n 1 10) (println n { } (p45 n 1e6))))
+;->  1 0.166148
+;->  2 0.334088
+;->  3 0.301635
+;->  4 0.292251
+;->  5 0.298389
+;->  6 0.298034
+;->  7 0.299466
+;->  8 0.301169
+;->  9 0.301953
+;-> 10 0.302202
+;-> 11839.709
+
+
+===============================
+ 3. Non-standard Dice (46..55)
+===============================
+
+----------
+Problem 46
+----------
+Show that the probability of rolling doubles with a non-fair (“fixed”) die is greater than with a fair die.
+
+(define (p46 prob iter)
+  (local (die-fair1 die-fair2 die-not1 sum-not2 sum-fair sum-not)
+    (setq sum-fair 0 sum-not 0)
+    (for (i 1 iter)
+      (if (= (die6) (die6)) (++ sum-fair))
+      (if (= (rand-pick prob) (rand-pick prob)) (++ sum-not))
+    )
+    (list sum-fair sum-not)))
+
+(setq prob8 '(0.1 0.1 0.15 0.2 0.2 0.25)))
+(apply add prob8)
+(time (println (p46 prob8 1e6)))
+;-> (166260 185267)
+;-> 1721.195
+
+(setq prob6 '(0.1 0.12 0.15 0.18 0.2 0.25))
+(apply add prob6)
+;-> 1
+(time (println (p46 prob6 1e6)))
+;-> (166444 182700)
+;-> 1730.433
+
+With a fair dice:
+(setq prob6 (list (div 6) (div 6) (div 6) (div 6) (div 6) (div 6)))
+(apply add prob6)
+;-> 0.9999999999999999
+(time (println (p46 prob6 1e6)))
+;-> (166441 166271)
+;-> 1634.85
+
+
+----------
+Problem 47
+----------
+Is it possible to have a non-fair six-sided die such that the probability of rolling 2, 3, 4, 5 and 6 is the same whether we roll it once or twice (and sum)?
+What about for other numbers of sides?
+
+Solution =
+
+  pf1 = 0.3833276422504671918282678397
+  pf2 = 0.1469400813133021601465169741
+  pf3 = 0.1126523898438400996320617058
+  pf4 = 0.1079569374817992533848329781
+  pf5 = 0.1158720592665417507230810930
+  pf6 = 0.1332508898440495442852394095
+
+(apply add
+  (setq p6 '(0.3833276422504672 0.1469400813133022 0.1126523898438401
+            0.1079569374817993 0.1158720592665418 0.1332508898440495))
+)
+;-> 1
+
+(define (p47 prob face iter)
+  (local (sum1 sum2)
+    (setq sum1 0 sum2 0)
+    (for (i 1 iter)
+      (if (= (+ (rand-pick prob) 1) face) (++ sum1))
+      (if (= (+ (+ (rand-pick prob) 1) (+ (rand-pick prob) 1)) face) (++ sum2))
+    )
+    (list (div sum1 iter) (div sum2 iter))))
+
+(for (f 2 6) (println f { } (p47 p6 f 1e6)))
+;-> 2 (0.147239 0.146712)
+;-> 3 (0.111974 0.112795)
+;-> 4 (0.108161 0.10761)
+;-> 5 (0.116093 0.116102)
+;-> 6 (0.133684 0.133972)
+
+
+----------
+Problem 48
+----------
+Find a pair of 6-sided dice, labelled with positive integers differently from the standard dice, so that the sum probabilities are the same as for a pair of standard dice.
+
+
+----------
+Problem 49
+----------
+Is it possible to have two non-fair n-sided dice, with sides numbered 1 through n, with the property that their sum probabilities are the same as for two fair n-sided dice?
+
+
+----------
+Problem 50
+----------
+Is it possible to have two non-fair 6-sided dice, with sides numbered 1 through 6, with a uniform sum probability? 
+What about n-sided dice?

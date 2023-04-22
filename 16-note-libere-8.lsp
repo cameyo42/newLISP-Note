@@ -6708,6 +6708,41 @@ Vediamo la velocità delle funzioni:
 ;-> 463.329
 
 
+Se invece vogliamo eliminare tutti gli elementi multipli possiamo usare la seguente funzione:
+
+(define (delete-multiple lst)
+  (local (out uniq conta)
+    (setq out '())
+    ; calcola gli elementi unici
+    (setq uniq (unique lst))
+    ; conta gli elementi
+    (setq conta (count uniq lst))
+    ; ciclo per estrarre gli elementi con conteggio
+    ; maggiore di 1
+    (dolist (el conta)
+      (if (= el 1)
+        ; inserisce il valore dell'elemento singolo (non-multiplo) corrente
+        (push (uniq $idx) out -1))
+    )
+    out))
+
+(setq lst '(1 1 2 3 4 4 5 6))
+(delete-multiple lst)
+;-> (2 3 5 6)
+
+(setq lst '(5 7 1 3 5 2 9 12 6 4 8 5 10 5 5 5 6 6))
+(delete-multiple lst)
+;-> (7 1 3 2 9 12 4 8 10)
+
+Il risultato è diverso da quello della funzione "unique":
+
+(unique lst)
+;-> (5 7 1 3 2 9 12 6 4 8 10)
+
+(difference (unique lst) (delete-multiple lst))
+;-> (5 6)
+
+
 -------------------
 Nome della funzione
 -------------------
