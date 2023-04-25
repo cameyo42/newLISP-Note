@@ -1772,10 +1772,12 @@ NOTE LIBERE 15
   Frequenza dei caratteri in una stringa
   Funzioni che restituiscono espressioni
   Non serious theorem
+  Cosa restituiscono le funzioni "print" e "println"?
+  Simulazione di un dado con una moneta
 
 PROBLEMI SUI DADI
 =================
-  Problemi 1..47
+  Problemi 1..63
 
 APPENDICI
 =========

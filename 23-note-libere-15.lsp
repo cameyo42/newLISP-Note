@@ -7566,5 +7566,161 @@ Sequenza OEIS: A031877
 ;->  9899901 87128712 87999912 98019801 98999901)
 ;-> 103011.474
 
+
+---------------------------------------------------
+Cosa restituiscono le funzioni "print" e "println"?
+---------------------------------------------------
+
+In newLISP ogni espressione restituisce un valore.
+Vediamo cosa restituisce l'espressione print/println:
+
+(setq str "abc")
+(= (println str) str)
+;-> abc
+;-> true
+
+Quindi "print" restituisce una stringa.
+Quando una stringa risulta true?
+
+(true? (println "42"))
+;-> 42
+;-> true
+(true? (println "nil"))
+;-> nil
+;-> true
+(true? (println nil))
+;-> nil
+;-> nil
+(true? (println aaa))
+;-> nil
+;-> nil
+(true? (println 'aaa))
+;-> aaa
+;-> true
+(true? (println '()))
+;-> ()
+;-> nil
+
+Il risultato di "print" è sempre true tranne quando stampa nil o un simbolo associato a nil.
+
+
+-------------------------------------
+Simulazione di un dado con una moneta
+-------------------------------------
+
+Numero di facce = N, numerate da 1 a N
+Numero di monete = ceil(log2 N))
+
+(ceil (log 15 2))
+(ceil (log 16 2))
+(ceil (log 17 2))
+
+1) Moneta equa
+--------------
+
+Supponiamo di voler simulare con una moneta un dado a 6 facce.
+Possiamo usare la seguente associazione tra le sequenze di tre lanci della moneta e il valore delle facce del dado:
+
+  Sequenza  Faccia
+  T T T     1
+  T T C     2
+  T C T     3
+  T C C     4
+  C T T     5
+  C T C     6
+  C C T     scartare
+  C C C     scartare
+
+In generale abbiamo:
+
+  Numero di facce = N, numerate da 1 a N
+  Numero di monete = ceil(log2 N))
+
+(define (cartesian-product lst-lst)
+"Calculates the cartesian product of a list of lists"
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1)
+    )
+    out))
+; auxiliary function: cartesian product of two list
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        '()
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(cartesian-product '((T C) (T C) (T C)))
+;-> ((T T T) (T T C) (T C T) (T C C) (C T T) (C T C) (C C T) (C C C))
+
+Funzione che stampa l'associazione per un dado di N facce (sides):
+
+(define (coins-die sides)
+  (local (num-coins coins)
+    (setq num-coins (ceil (log sides 2)))
+    (setq coins (cartesian-product (dup '(T C) num-coins)))
+    (setq len (length coins))
+    (dolist (c coins)
+      (if (< $idx sides)
+        (println c " = " (+ $idx 1))
+        (println c " = nil")))'---))
+
+(coins-die 6)
+;-> (T T T) = 1
+;-> (T T C) = 2
+;-> (T C T) = 3
+;-> (T C C) = 4
+;-> (C T T) = 5
+;-> (C T C) = 6
+;-> (C C T) = nil
+;-> (C C C) = nil
+
+(coins-die 10)
+;-> (T T T T) = 1
+;-> (T T T C) = 2
+;-> (T T C T) = 3
+;-> (T T C C) = 4
+;-> (T C T T) = 5
+;-> (T C T C) = 6
+;-> (T C C T) = 7
+;-> (T C C C) = 8
+;-> (C T T T) = 9
+;-> (C T T C) = 10
+;-> (C T C T) = nil
+;-> (C T C C) = nil
+;-> (C C T T) = nil
+;-> (C C T C) = nil
+;-> (C C C T) = nil
+;-> (C C C C) = nil
+
+2) Moneta non-equa
+------------------
+
+prob(T) = p
+prob(C) = (1 - p)
+
+Per ottenere una moneta equa con una moneta non-equa possiamo utilizzare il metodo di Von Neumann (applicabile per qualunqe p diverso da 0 e 1):
+
+Passo 1. Lanciare/girare la moneta due volte.
+Passo 2. Se i due risultati sono diversi,
+         prendere come evento il primo risultato:
+         TC diventa l'evento "testa",
+         CT diventa l'evento "croce".
+         La procedura è terminata.
+Passo 3. Se i due risultati sono gli stessi (TT o CC),
+         scartare la prova e tornare al passo 1.
+
+In questo modo i risultati TC e CT sono simmetrici e quindi hanno uguale probabilità.
+(vedere "Lancio di una moneta" su "Note libere 2").
+
+(define (fair-coin)
+  (let ((a (rand 2)) (b (rand 2)))
+    (if (= a b) (fair-coin) a)))
+
+(fair-coin)
+;-> 1
+
 =============================================================================
 

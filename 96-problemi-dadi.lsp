@@ -1,14 +1,23 @@
 
 ; Functions
 (define (die s) (+ (rand s) 1))
+;
 (define (die6) (+ (rand 6) 1))
+;
 (define (dice n s) (+ n (apply + (rand s n))))
+;
 (define (dice6 n) (+ n (apply + (rand 6 n))))
+;
 (define (dice-lst n s) (map (curry + 1) (rand s n)))
+;
 (define (dice6-lst n) (map (curry + 1) (rand 6 n)))
+;
 (define (dice-lst-freq n s) (count (sequence 1 s) (dice-lst n s)))
+;
 (define (dice6-lst-freq n) (count '(1 2 3 4 5 6) (dice6-lst n)))
+;
 (define (one-in prob) (int (add 0.5 (div prob))))
+;
 (define (rand-pick lst)
   (local (rnd stop out)
     (while (= (setq rnd (random)) 1))
@@ -18,6 +27,11 @@
       (if (< rnd 0) (set 'out $idx 'stop true))
     )
     out))
+;
+(define (rand-lst lst) (lst (rand (length lst))))
+;
+(define (prime? num) (if (< num 2) nil (= 1 (length (factor num)))))
+
 
 
                    ===================
@@ -36,14 +50,14 @@ https://www.madandmoonly.com/doctormatt/mathematics/dice1.pdf
 http://www.matthewconroy.com/
 
 Conroy solves the problems mathematically (very informative and interesting).
-Here, I try solve the problems with simulations (if I am able...).
+Here, I try solve the problems (and/or verify the results) with simulations (if I am able...).
 
 
 ========================
  Problem Solving Status
 ========================
 
-+ = solved
++ = solved/verified
 - = unsolved
 
 1. Standard Dice (1..26)
@@ -56,62 +70,70 @@ Here, I try solve the problems with simulations (if I am able...).
 
 3. Non-standard Dice (46..55)
 46 47 48 49 50 51 52 53 54 55
-+  +  -  -  -  -  -  -  -  -
++  +  +  +  +  +  +  +  +  +
 
 4. Game with Dice (56..76)
 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76
--  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
++  +  +  +  +  +  +  -  -  -  -  -  -  -  -  -  -  -  -  -  -
+
+Note: Number of iterations (minimum) = 1e6 (if possible)
+
+Note: The function "time" return the time elapsed in milliseconds.
 
 
 ===================
  General Functions
 ===================
 
-; roll a die with S sides
+; Check if a positive integer number is prime. Return true or nil.
+(define (prime? num) (if (< num 2) nil (= 1 (length (factor num)))))
+
+; Roll a die with S sides
 (define (die s) (+ (rand s) 1))
 
-; roll a die with 6 sides
+; Roll a die with 6 sides
 (define (die6) (+ (rand 6) 1))
 
-; roll N die with S sides and return the sum of numbers
+; Roll N die with S sides and return the sum of numbers
 (define (dice n s) (+ n (apply + (rand s n))))
 (dice 10 4)
 ;-> 19
 
-; roll N die with 6 sides and return the sum of numbers
+; Roll N die with 6 sides and return the sum of numbers
 (define (dice6 n) (+ n (apply + (rand 6 n))))
 (dice6 10)
 ;-> 38
 
-; roll N die with S sides and return the list of numbers
+; Roll N die with S sides and return the list of numbers
 (define (dice-lst n s) (map (curry + 1) (rand s n)))
 (dice-lst 4 8)
 ;-> (7 7 5 3)
 
-; roll N die with 6 sides and return the list of numbers
+; Roll N die with 6 sides and return the list of numbers
 (define (dice6-lst n) (map (curry + 1) (rand 6 n)))
 (dice6-lst 5)
 ;-> (1 3 2 6 2)
 
-; roll N die with s sides and return a list with the frequency of all faces
+; Roll N die with s sides and return a list with the frequency of all faces
 (define (dice-lst-freq n s) (count (sequence 1 s) (dice-lst n s)))
 (dice-lst-freq 20 8)
 ;-> (3 3 3 4 0 5 1 1)
 
-; roll N die with 6 sides and return a list with the frequency of all faces
+; Roll N die with 6 sides and return a list with the frequency of all faces
 (define (dice6-lst-freq n) (count '(1 2 3 4 5 6) (dice6-lst n)))
 (dice6-lst-freq 12)
 ;-> (1 3 0 4 3 1)
 
-; convert probability (0..1) to "1 in x events"
+; Convert probability (0..1) to "1 in x events"
 (define (one-in prob) (int (add 0.5 (div prob))))
 (one-in 0.5)
 ;-> 2
 
-; simulate a non-fair dice
-; get a list of N probabilities (one prob for each faces)
+; Roll a non-fair dice with N sides
+; Get a list of N probabilities (one prob for each sides)
 ; and return a random number (0..N-1) with the distribution
 ; of the probabilities predefined
+; Nota: the sum of probabilities must be 1.
 (define (rand-pick lst)
   (local (rnd stop out)
     ; generiamo un numero random diverso da 1
@@ -129,16 +151,13 @@ Here, I try solve the problems with simulations (if I am able...).
     )
     out))
 
-(setq dice4-prob '(0.05 0.15 0.35 0.45))
+Tests:
 
-Nota: la somma delle probabilità deve valere 1.
+(setq dice4-prob '(0.05 0.15 0.35 0.45))
 (apply add dice4-prob)
 ;-> 1
-
 (rand-pick dice4-prob)
 ;-> 2
-
-Facciamo alcune prove per verificare la correttezza della funzione:
 
 (setq dice4-prob '(0.05 0.15 0.35 0.45))
 (apply add dice4-prob)
@@ -160,9 +179,53 @@ vet
 vet
 ;-> (9821 10070 9923 770122 100288 99776)
 
-Note: Number of iterations (minimum) = 1e6 (if possible)
+(setq dice6-prob '(0.1 0.0 0.2 0.3 0.0 0.4))
+(apply add dice6-prob)
+;-> 1
+(setq vet (array 6 '(0)))
+;-> (0 0 0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick dice6-prob))))
+vet
+;-> (100015 0 200371 300148 0 399466)
 
-Note: The function "time" return the time elapsed in milliseconds.
+; Roll a die with N sides with non-standard numeration
+; Get a list with the values of each face
+; Return an element of the list
+(define (rand-lst lst) (lst (rand (length lst))))
+
+(setq d1 '(1 2 2 3 3 4))
+(setq d2 '(1 3 4 5 6 8))
+
+(rand-lst d1)
+;-> 3
+(rand-lst d2)
+;-> 6
+
+Probability for d1:
+
+(setq freq (array 5 '(0)))
+(for (i 1 1e6) (++ (freq (rand-lst d1))))
+(dolist (f freq) (println $idx { } (div f 1e6)))
+;-> 0 0
+;-> 1 0.166152
+;-> 2 0.334015
+;-> 3 0.332892
+;-> 4 0.166941
+
+Probability for d2:
+
+(setq freq (array 9 '(0)))
+(for (i 1 1e6) (++ (freq (rand-lst d2))))
+(dolist (f freq) (println $idx { } (div f 1e6)))
+;-> 0 0
+;-> 1 0.166818
+;-> 2 0
+;-> 3 0.166644
+;-> 4 0.167115
+;-> 5 0.166344
+;-> 6 0.166272
+;-> 7 0
+;-> 8 0.166807
 
 
 ==========================
@@ -3032,11 +3095,6 @@ Solution =
   E(prime) = 2.428497913693504230366081906...
   E(composite) = 2.12848699151757507022715820...
 
-(define (prime? num)
-"Check if a number is prime"
-   (if (< num 2) nil
-       (= 1 (length (factor num)))))
-
 (define (p44-1 iter)
   (local (total success trial sum)
     (setq total 0)
@@ -3204,15 +3262,839 @@ Problem 48
 ----------
 Find a pair of 6-sided dice, labelled with positive integers differently from the standard dice, so that the sum probabilities are the same as for a pair of standard dice.
 
+Solution =
+
+dice 1: 1,2,2,3,3,4 and dice 2: 1,3,4,5,6,8
+These dice are known as Sicherman dice, named for George Sicherman who communicated with Martin Gardner about them in the 1970s.
+
+(setq d1 '(1 2 2 3 3 4))
+(setq d2 '(1 3 4 5 6 8))
+
+(define (p48 d1 d2 iter)
+  (local (sum1 sum2)
+    (setq sum1 0 sum2 0)
+    (for (i 1 iter)
+      (++ sum1 (+ (rand-lst d1) (rand-lst d2)))
+      (++ sum2 (+ (die6) (die6)))
+    )
+    (list (div sum1 iter) (div sum2 iter))))
+
+(time (println (p48 d1 d2 1e7)))
+;-> (7.000902 7.0004783)
+;-> 5649.916
+
 
 ----------
 Problem 49
 ----------
 Is it possible to have two non-fair n-sided dice, with sides numbered 1 through n, with the property that their sum probabilities are the same as for two fair n-sided dice?
 
+Solution = you can sometimes, depending on the value of n.
+
+Example with n = 10:
+  prob dice 1 =
+  (0.07236 0.14472 0.1 0.055279 0.127639 0.127639 0.055279 0.1 0.14472 0.07236)
+  prob dice 2 =
+  (0.13847 0.0 0.2241 0.0 0.13847 0.13847 0.0 0.2241 0.0 0.13847)
+
+(setq p1 '(0.07236 0.14472 0.1 0.055279 0.127639 0.127639 0.055279 0.1 0.14472 0.07236))
+(apply add p1)
+;-> 0.9999959999999999
+(setq p2 '(0.13847 0.0 0.2241 0.0 0.13847 0.13847 0.0 0.2241 0.0 0.13847))
+(apply add p2)
+;-> 1.002084
+
+First method:
+
+(define (p49-1 p1 p2 iter)
+  (local (sum1 sum2)
+    (setq sum1 0 sum2 0)
+    (for (i 1 iter)
+      (++ sum1 (+ (+ (rand-pick p1) 1) (+ (rand-pick p2) 1)))
+      (++ sum2 (+ (die 10) (die 10)))
+    )
+    (list (div sum1 iter) (div sum2 iter))))
+
+(time (println (p49-1 p1 p2 1e7)))
+;-> (10.9931278 10.9978537)
+;-> 22000.378
+
+Second method:
+
+Convert probabilities to relative dice:
+(setq o1 (map one-in p1))
+;-> (14 7 10 18 8 8 18 10 7 14)
+(setq o2 (map one-in p2))
+;-> (7 9223372036854775807 4 9223372036854775807 7 7
+;->  9223372036854775807 4 9223372036854775807 7)
+(replace 9223372036854775807 o2 1)
+;-> (7 1 4 1 7 7 1 4 1 7)
+
+(setq l1 (apply lcm o1))
+;-> 2520
+(setq l2 (apply lcm o2))
+;-> 28
+(setq freq1 (map (fn(x) (div l1 x)) o1))
+;-> (180 360 252 140 315 315 140 252 360 180)
+(setq freq2 (map (fn(x) (div l2 x)) o2))
+(replace l2 freq2 0)
+;-> (4 0 7 0 4 4 0 7 0 4)
+
+(define (make-die lst-freq)
+  (setq out '())
+  (dolist (el lst)
+    (extend out (dup (+ $idx 1) el))))
+
+(setq d1 (make-die freq1))
+;-> (1 1 1 1 1 1 ...
+;->  ... 10 10 10 10 10 10)
+(setq d2 (make-die freq2))
+;-> (1 1 1 1 3 3 3 3 3 3 3 5 5 5 5 6 6 6 6 8 8 8 8 8 8 8 10 10 10 10)
+
+(define (p49 d1 d2 iter)
+  (local (sum1 sum2)
+    (setq sum1 0 sum2 0)
+    (for (i 1 iter)
+      (++ sum1 (+ (rand-lst d1) (rand-lst d2)))
+      (++ sum2 (+ (die 10) (die 10)))
+    )
+    (list (div sum1 iter) (div sum2 iter))))
+
+(time (println (p49a d1 d2 1e6)))
+;-> (10.998034 11.00234)
+;-> 18078.842
+
 
 ----------
 Problem 50
 ----------
-Is it possible to have two non-fair 6-sided dice, with sides numbered 1 through 6, with a uniform sum probability? 
+Is it possible to have two non-fair 6-sided dice, with sides numbered 1 through 6, with a uniform sum probability?
 What about n-sided dice?
+
+Solution = impossible
+
+
+----------
+Problem 51
+----------
+
+Suppose that we renumber three fair 6-sided dice (A,B,C) as follows:
+  A = (2, 2, 4, 4, 9, 9),
+  B = (1, 1, 6, 6, 8, 8),
+  C = (3, 3, 5, 5, 7, 7).
+(a) Find the probability that die A beats die B, die B beats die C, die C beats die A.
+(b) Discuss.
+
+Solution =
+
+  P(A>B) = 5/9 = 0.555555555555555...
+  P(B>C) = 5/9 = 0.555555555555555...
+  P(C>A) = 5/9 = 0.555555555555555...
+
+This is a set of non-transitive dice.
+
+(setq a '(2 2 4 4 9 9))
+(setq b '(1 1 6 6 8 8))
+(setq c '(3 3 5 5 7 7))
+
+(define (p51 d1 d2 d3 iter)
+  (local (sum1 sum2 sum3 v1 v2 v3)
+    (setq sum1 0 sum2 0 sum3 0)
+    (for (i 1 iter)
+      (setq v1 (rand-lst d1))
+      (setq v2 (rand-lst d2))
+      (setq v3 (rand-lst d3))
+      (if (> v1 v2) (++ sum1))
+      (if (> v2 v3) (++ sum2))
+      (if (> v3 v1) (++ sum3))
+    )
+    (list (div sum1 iter) (div sum2 iter) (div sum3 iter))))
+
+(time (println (p51 a b c 1e7)))
+;-> (0.5554282 0.5556569 0.5556225)
+;-> 5958.57
+
+
+----------
+Problem 52
+----------
+Find every six-sided die with sides numbered from the set (1,2,3,4,5,6) such that rolling the die twice and summing the values yields all values between 2 and 12 (inclusive).
+For instance, the die numbered 1,2,4,5,6,6 is one such die.
+Consider the sum probabilities of these dice.
+Do any of them give sum probabilities that are "more uniform" than the sum probabilities for a standard die?
+What if we renumber two dice differently - can we get a uniform (or more uniform than standard) sum probability?
+
+Solution =
+
+  Dice         Error
+  1,2,4,5,6,6  0.0232884399551066
+  1,2,4,5,5,6  0.0325476992143659
+  1,2,4,4,5,6  0.0294612794612795
+  1,2,3,5,6,6  0.0232884399551066
+  1,2,3,5,5,6  0.026374859708193
+  1,2,3,4,5,6  0.0217452300785634
+  1,2,3,3,5,6  0.0294612794612795
+  1,2,2,4,5,6  0.026374859708193
+  1,2,2,3,5,6  0.0325476992143659
+  1,1,2,4,5,6  0.0232884399551066
+  1,1,2,3,5,6  0.0232884399551066
+
+The error here is the sum of the square of the difference between 1/11 and the actual probability of rolling each of the sums 2 through 12 (the probability we would have for each sum if we had a uniform distribution).
+
+(define (p52 d iter)
+  (local (freq prob err)
+    (setq freq (array 13 '(0)))
+    (for (i 1 iter)
+      (++ (freq (+ (rand-lst d) (rand-lst d))))
+    )
+    (setq freq (slice freq 2))
+    (setq prob (map (fn(x) (div x iter)) freq))
+    (setq err (apply add
+              (map (fn(x) (mul (sub (div 11) x) (sub (div 11) x))) prob)))))
+
+(setq all '(
+  (1 2 4 5 6 6)
+  (1 2 4 5 5 6)
+  (1 2 4 4 5 6)
+  (1 2 3 5 6 6)
+  (1 2 3 5 5 6)
+  (1 2 3 4 5 6)
+  (1 2 3 3 5 6)
+  (1 2 2 4 5 6)
+  (1 2 2 3 5 6)
+  (1 1 2 4 5 6)
+  (1 1 2 3 5 6)))
+
+(time (dolist (el all) (println el { } (p52 el 1e7))))
+;-> (1 2 4 5 6 6) 0.0232782519392491
+;-> (1 2 4 5 5 6) 0.03254526711120909
+;-> (1 2 4 4 5 6) 0.02947838086894909
+;-> (1 2 3 5 6 6) 0.02323915858480909
+;-> (1 2 3 5 5 6) 0.02640085162370909
+;-> (1 2 3 4 5 6) 0.02172639759238909
+;-> (1 2 3 3 5 6) 0.02940071870290909
+;-> (1 2 2 4 5 6) 0.02640630275332909
+;-> (1 2 2 3 5 6) 0.03252402835806909
+;-> (1 1 2 4 5 6) 0.02331041926534909
+;-> (1 1 2 3 5 6) 0.02328162272266909
+;-> 39659.406
+
+
+----------
+Problem 53
+----------
+If we roll a standard die twice and sum, the probability that the sum is prime is 15/36 = 5/12.
+If we renumber the faces of the die, with all faces being different, what is the largest probability of a prime sum that can be achieved?
+
+Solution =
+
+  die = (1, 2, 3, 4, 9, 10) with prob = 19/36
+
+(div 5 12)
+;-> 0.4166666666666667
+
+(define (p53-1 iter)
+  (local (total success)
+    (setq success 0)
+    (for (i 1 iter)
+      (if (prime? (+ (die6) (die6))) (++ success))
+    )
+    (div success iter)))
+
+(time (println (p53-1 1e7)))
+;-> 0.4165748
+;-> 3624.193
+
+(div 19 36)
+;-> 0.5277777777777778
+(setq die '(1 2 3 4 9 10))
+
+(define (p53-1 d iter)
+  (local (total success)
+    (setq success 0)
+    (for (i 1 iter)
+      (if (prime? (+ (rand-lst d) (rand-lst d))) (++ success))
+    )
+    (div success iter)))
+
+(time (println (p53-1 die 1e7)))
+;-> 0.5280959
+;-> 4791.631
+
+
+----------
+Problem 54
+----------
+Let’s make pairs of dice that only sum to prime values.
+If we minimize the sum of all the values on the faces, what dice do we get for 2-sided dice, 3-sided dice, etc.?
+
+Solution =
+
+Two sides dice:
+set1 = (1 3) (3 9) (1 7)
+set2 = (3 5) (1 7) (1 7)
+set3 = (9 11) (5 17) (3 15)
+set4 = (2 4) (2 8) (1 7)
+set5 = (2 6) (4 10) (1 7)
+
+Three sides dice:
+set1 = (1 7 37) (1 7 37) (9 15 29)
+set2 = (1 31 37) (3 9 39) (13 27 33)
+
+We could also try a greedy method of creating the dice. Start with 1 on die A, and 2 on die B.
+Then add the next smallest integer to each die in turn that maintains the prime sum requirement.
+This results in the two sets:
+
+  A = (1, 3, 9, 27, 57, 267, 1227, 1479, 3459...)
+and
+  B = (2, 4, 10, 70, 100, 1060, 27790, 146380, 2508040...)
+
+and, in particular, the six-sided dice with sides (1, 3, 9, 27, 57, 267) and (2, 4, 10, 70, 100, 1060).
+
+(define (check num lst)
+  (let (out true)
+    (dolist (el lst (not out))
+      (if (not (prime? (+ el num))) (setq out nil))
+    )
+    out))
+
+(define (p54 sides)
+  (local (d1 d2 cur turn)
+    (setq d1 '(1))
+    (setq d2 '(2))
+    (setq cur 3)
+    (setq turn 1)
+    (until (and (>= (length d1) sides) (>= (length d2) sides))
+      (cond ((and (odd? cur)
+                  (<= (length d1) (+ (length d2) 1))
+                  (check cur d2))
+              (push cur d1 -1))
+            ((and (even? cur)
+                  (<= (length d2) (+ (length d1) 1))
+                  (check cur d1))
+              (push cur d2 -1))
+      )
+      ;(print cur { } d1 { } d2) (read-line)
+      ;(if (zero? (% cur 1e6)) (print cur { }))
+      (++ cur)
+    )
+    (list (slice d1 0 sides) (slice d2 0 sides))))
+
+(time (println (p54 7)))
+;-> ((1 3 9 27 57 267 1227) (2 4 10 70 100 1060 27790))
+;-> 21.042
+
+
+----------
+Problem 55
+----------
+Show that you cannot have a pair of dice with more than two sides that only gives sums that are
+Fibonacci numbers.
+
+Solution =
+
+Two-sided dice with sums that are Fibonacci = (0, F(b) - 1) (F(b-2), F(b)) for b > 1.
+Example:
+set1 = (0 3) (2 5)
+set2 = (0 8) (5 13)
+
+Three or more sides dice whose sums are all Fibonacci are impossible.
+
+
+============================
+ 4. Game with Dice (56..76)
+============================
+
+----------
+Problem 56
+----------
+
+Two players each roll two standard dice, first player A, then player B.
+If player A rolls a sum of 6, they win.
+If player B rolls a sum of 7, they win.
+They take turns, back and forth, until someone wins.
+What is the probability that player A wins?
+
+Solution = prob(A) = 30/61 = 0.4918032786885246...
+
+(define (p56 iter)
+  (local (winA winB end-turn)
+    (setq winA 0 winB 0)
+    (for (i 1 iter)
+      (setq end-turn nil)
+      (until end-turn
+        (cond ((= (dice6 2) 6) (++ winA) (setq end-turn true))
+              ((= (dice6 2) 7) (++ winB) (setq end-turn true))
+        )
+      )
+    )
+    (list (div winA iter) (div winB iter))))
+
+(time (println (p56 1e7)))
+;-> (0.4916672 0.5083328)
+;-> 17661.87
+
+----------
+Problem 57
+----------
+In the previous problem, we find out that the game is not fair.
+Are there sum targets for player A and player B that would make the game fair?
+What about using a different number of dice, or allowing targets to include more than one sum?
+
+Solution =
+
+Two dice:
+  There is no choice of target sums that would make this game fair.
+  The game is fair if the first player’s target is a sum of 4 or 5, and the second player’s target is a sum of 8, 9 or 10.
+  In this case prob(4 or 5) = prob(8 or 9 or 10) = 1/3.
+Three dice:
+  If the players throw three dice, and player A’s target is a sum of 4 or 8 while player B’s target is a sum
+  of 11, then the game is fair (prob(4 or 8) = prob(11)).
+
+(define (p57-1 iter)
+  (local (winA winB end-turn a b)
+    (setq winA 0 winB 0)
+    (for (i 1 iter)
+      (setq end-turn nil)
+      (until end-turn
+        (setq a (dice6 2))
+        (setq b (dice6 2))
+        (cond ((or (= a 5) (= a 6))
+                (++ winA) (setq end-turn true))
+              ((or (= b 8) (= b 9) (= b 10))
+                (++ winB) (setq end-turn true))
+        )
+      )
+    )
+    (list (div winA iter) (div winB iter))))
+
+(time (println (p57-1 1e7)))
+;-> (0.4997299 0.5002701000000001)
+;-> 12995.46
+
+(define (p57-2 iter)
+  (local (winA winB end-turn a b)
+    (setq winA 0 winB 0)
+    (for (i 1 iter)
+      (setq end-turn nil)
+      (until end-turn
+        (setq a (dice6 2))
+        (setq b (dice6 2))
+        (cond ((or (= a 5) (= a 6))
+                (++ winA) (setq end-turn true))
+              ((or (= b 8) (= b 9) (= b 10))
+                (++ winB) (setq end-turn true))
+        )
+      )
+    )
+    (list (div winA iter) (div winB iter))))
+
+(time (println (p57-2 1e7)))
+;-> (0.5001118 0.4998882)
+;-> 12963.13
+
+(define (p57-3 iter)
+  (local (winA winB end-turn a b)
+    (setq winA 0 winB 0)
+    (for (i 1 iter)
+      (setq end-turn nil)
+      (until end-turn
+        (setq a (dice6 3))
+        (setq b (dice6 3))
+        (cond ((or (= a 4) (= a 8))
+                (++ winA) (setq end-turn true))
+              ((= b 11)
+                (++ winB) (setq end-turn true))
+        )
+      )
+    )
+    (list (div winA iter) (div winB iter))))
+
+(time (println (p57-3 1e7)))
+;-> (0.5000294 0.4999706)
+;-> 28849.649
+
+
+----------
+Problem 58
+----------
+Two players each roll two dice. Player A is trying to roll a sum of 6, player B is trying to roll a sum of 7.
+Player A starts, and rolls once.
+Then Player B rolls twice, then Player A rolls twice, and they repeat, both players rolling twice in succession until someone rolls their target sum.
+What is the probability of winning for each player?
+
+Solution =
+
+  prob(A) = 10355/22631 = 0.4575582166055411...
+  prob(B) = 12276/22631 = 0.5424417833944589...
+
+(define (p58 iter)
+  (local (winA winB end-turn a1 a2 b1 b2)
+    (setq winA 0 winB 0)
+    (for (i 1 iter)
+      (setq end-turn nil)
+      (setq a (dice6 2))
+      (if (= a 6) (begin (++ winA) (setq end-turn true)))
+      (until end-turn
+        (setq b1 (dice6 2))
+        (setq b2 (dice6 2))
+        (setq a1 (dice6 2))
+        (setq a2 (dice6 2))
+        (cond ((or (= b1 7) (= b2 7))
+                (++ winB) (setq end-turn true))
+              ((or (= a1 6) (= a2 6))
+                (++ winA) (setq end-turn true))
+        )
+      )
+    )
+    (list (div winA iter) (div winB iter))))
+
+(time (println (p58 1e7)))
+;-> (0.4575554 0.5424446000000001)
+;-> 21491.455
+
+
+----------
+Problem 59
+----------
+Two players each roll a die.
+Player 1 rolls a fair m-sided die, while player 2 rolls a fair n sided die, with m > n.
+The winner is the one with the higher roll.
+What is the probability that Player 1 wins?
+What is the probability that Player 2 wins?
+What is the probability of a tie?
+If the players continue rolling in the case of a tie until they do not tie, which player has the higher probability of winning? If the tie means a win for Player 1 (or player 2), what is their probability of winning?
+
+Solution =
+
+                 n + 1
+  prob(A) = 1 - -------,
+                  2*m
+
+  prob(draw) = 1/m
+
+             n - 1
+  prob(B) = -------
+              2*m
+
+Due giocatori lanciano ciascuno un dado.
+Il giocatore 1 lancia un dado con m facce discrete, mentre il giocatore 2 tira un dado con n facce discrete, con m > n.
+Il vincitore è quello con il tiro più alto.
+Qual è la probabilità che il giocatore 1 vinca?
+Qual è la probabilità che il giocatore 2 vinca?
+Qual è la probabilità di un pareggio?
+Se i giocatori continuano a tirare in caso di pareggio fino a quando non lo fanno, quale giocatore ha la maggiore probabilità di vincere? Se il pareggio significa una vittoria per il giocatore 1 (o il giocatore 2), qual è la loro probabilità di vittoria?
+
+(define (p59-exact m n)
+  (local (pA pB pD)
+    (setq pA (sub 1 (div (+ n 1) (* 2 m))))
+    (setq pB (div (- n 1) (* 2 m)))
+    (setq pD (div m))
+    (list pA pB pD)))
+
+(for (n 6 10)
+  (for (m (+ n 1) 15)
+   (println (format "%3d %3d  " m n) (format "%+4.4f %+4.4f %+4.4f" (p59-exact m n)))))
+;->   7   6  +0.5000 +0.3571 +0.1429
+;->   8   6  +0.5625 +0.3125 +0.1250
+;->   9   6  +0.6111 +0.2778 +0.1111
+;->  10   6  +0.6500 +0.2500 +0.1000
+;->  11   6  +0.6818 +0.2273 +0.0909
+;->  12   6  +0.7083 +0.2083 +0.0833
+;->  13   6  +0.7308 +0.1923 +0.0769
+;->  14   6  +0.7500 +0.1786 +0.0714
+;->  15   6  +0.7667 +0.1667 +0.0667
+;->   8   7  +0.5000 +0.3750 +0.1250
+;->   9   7  +0.5556 +0.3333 +0.1111
+;->  10   7  +0.6000 +0.3000 +0.1000
+;->  11   7  +0.6364 +0.2727 +0.0909
+;->  12   7  +0.6667 +0.2500 +0.0833
+;->  13   7  +0.6923 +0.2308 +0.0769
+;->  14   7  +0.7143 +0.2143 +0.0714
+;->  15   7  +0.7333 +0.2000 +0.0667
+;->   9   8  +0.5000 +0.3889 +0.1111
+;->  10   8  +0.5500 +0.3500 +0.1000
+;->  11   8  +0.5909 +0.3182 +0.0909
+;->  12   8  +0.6250 +0.2917 +0.0833
+;->  13   8  +0.6538 +0.2692 +0.0769
+;->  14   8  +0.6786 +0.2500 +0.0714
+;->  15   8  +0.7000 +0.2333 +0.0667
+;->  10   9  +0.5000 +0.4000 +0.1000
+;->  11   9  +0.5455 +0.3636 +0.0909
+;->  12   9  +0.5833 +0.3333 +0.0833
+;->  13   9  +0.6154 +0.3077 +0.0769
+;->  14   9  +0.6429 +0.2857 +0.0714
+;->  15   9  +0.6667 +0.2667 +0.0667
+;->  11  10  +0.5000 +0.4091 +0.0909
+;->  12  10  +0.5417 +0.3750 +0.0833
+;->  13  10  +0.5769 +0.3462 +0.0769
+;->  14  10  +0.6071 +0.3214 +0.0714
+;->  15  10  +0.6333 +0.3000 +0.0667
+
+(define (p59 m n iter)
+  (local (winA winB draw a b)
+    (setq winA 0 winB 0 draw 0)
+    (for (i 1 iter)
+      (setq a (die m))
+      (setq b (die n))
+      (cond ((> a b) (++ winA))
+            ((< a b) (++ winB))
+            ((= a b) (++ draw))
+      )
+    )
+    (list (div winA iter) (div winB iter) (div draw iter))))
+
+(for (n 6 10)
+  (for (m (+ n 1) 15)
+   (println (format "%3d %3d  " m n) (format "%+4.4f %+4.4f %+4.4f" (p59 m n 1e6)))))
+;->   7   6  +0.5000 +0.3570 +0.1430
+;->   8   6  +0.5628 +0.3121 +0.1251
+;->   9   6  +0.6109 +0.2777 +0.1114
+;->  10   6  +0.6505 +0.2494 +0.1001
+;->  11   6  +0.6815 +0.2274 +0.0911
+;->  12   6  +0.7086 +0.2081 +0.0832
+;->  13   6  +0.7311 +0.1919 +0.0770
+;->  14   6  +0.7500 +0.1786 +0.0714
+;->  15   6  +0.7669 +0.1664 +0.0667
+;->   8   7  +0.4994 +0.3753 +0.1253
+;->   9   7  +0.5563 +0.3326 +0.1111
+;->  10   7  +0.5999 +0.3001 +0.1000
+;->  11   7  +0.6372 +0.2720 +0.0908
+;->  12   7  +0.6666 +0.2501 +0.0834
+;->  13   7  +0.6920 +0.2308 +0.0772
+;->  14   7  +0.7143 +0.2145 +0.0712
+;->  15   7  +0.7333 +0.1999 +0.0667
+;->   9   8  +0.5000 +0.3892 +0.1108
+;->  10   8  +0.5501 +0.3500 +0.0999
+;->  11   8  +0.5911 +0.3182 +0.0907
+;->  12   8  +0.6245 +0.2918 +0.0837
+;->  13   8  +0.6538 +0.2695 +0.0767
+;->  14   8  +0.6787 +0.2499 +0.0713
+;->  15   8  +0.6999 +0.2332 +0.0669
+;->  10   9  +0.4996 +0.4005 +0.0999
+;->  11   9  +0.5456 +0.3631 +0.0913
+;->  12   9  +0.5831 +0.3335 +0.0834
+;->  13   9  +0.6157 +0.3073 +0.0769
+;->  14   9  +0.6422 +0.2866 +0.0713
+;->  15   9  +0.6666 +0.2670 +0.0663
+;->  11  10  +0.5000 +0.4085 +0.0915
+;->  12  10  +0.5421 +0.3750 +0.0829
+;->  13  10  +0.5775 +0.3458 +0.0767
+;->  14  10  +0.6070 +0.3215 +0.0715
+;->  15  10  +0.6335 +0.2999 +0.0666
+
+
+----------
+Problem 60
+----------
+Two players each start with 12 tokens.
+They roll three dice until the sum is either 14 or 11.
+If the sum is 14, player A gives a token to player B
+If the sum is 11, player B gives a token to player A.
+They repeat this process until one player, the winner, has all the tokens.
+What is the probability that player A wins?
+
+Solution =
+
+  prob(A) = 282429536481/282673677106 = 0.9991363163790152...
+
+  prob(B) = 244140625/282673677106 = 0.0008636836209848062...
+
+(define (p60 iter)
+  (local (winA winB tokenA tokenB end-turn ab)
+    (setq winA 0 winB 0)
+    (for (i 1 iter)
+      (setq tokenA 12 tokenB 12)
+      (setq end-turn nil)
+      (until end-turn
+        (setq ab (dice6 3))
+        (cond ((= ab 14) (-- tokenA) (++ tokenB))
+              ((= ab 11) (++ tokenA) (-- tokenB))
+        )
+        (if (zero? tokenA) (setq winB (+ winB 1) end-turn true))
+        (if (zero? tokenB) (setq winA (+ winA 1) end-turn true))
+      )
+    )
+    (list (div winA iter) (div winB iter))))
+
+(time (println (p60 1e6)))
+;-> (0.999135 0.000865)
+;-> 77783.01700000001
+
+
+----------
+Problem 61
+----------
+Two players each start a game with a score of zero, and they alternate rolling dice once to add to their scores.
+Player A rolls three six-sided dice on each turn, while player B always gets 11 points on their turn.
+If the starting player is chosen by the toss of a coin, what is the probability that player A will be the first to 100 points?
+
+Solution =
+
+prob(A) = (2752158142349325632513/5458615301746502664192) = 0.5041861333347237...
+
+(define (p61 iter)
+  (local (winA winB scoreA scoreB end-turn)
+    (setq winA 0 winB 0)
+    (for (i 1 iter)
+      (setq scoreA 0 scoreB 0)
+      (setq end-turn nil)
+      (setq start (rand 2))
+      (until end-turn
+        (cond ((= start 0) ; first A
+                (++ scoreA (dice6 3))
+                (++ scoreB 11)
+                (cond ((>= scoreA 100)
+                       (setq winA (+ winA 1) end-turn true))
+                      ((>= scoreB 100)
+                       (setq winB (+ winB 1) end-turn true))
+                ))
+              ((= start 1) ; first B
+                (++ scoreB 11)
+                (++ scoreA (dice6 3))
+                (cond ((>= scoreB 100)
+                       (setq winB (+ winB 1) end-turn true))
+                      ((>= scoreA 100)
+                       (setq winA (+ winA 1) end-turn true))
+                ))
+        )
+      )
+    )
+    (list (div winA iter) (div winB iter))))
+
+(time (println (p61 1e7)))
+;-> (0.5039937 0.4960063)
+;-> 42292.122
+
+
+----------
+Problem 62
+----------
+Craps:
+The game of craps is perhaps the most famous of all dice games.
+The player begin by throwing two standard dice.
+If the sum of these dice is 7 or 11, the player wins.
+If the sum is 2,3 or 12, the player loses.
+Otherwise, the sum becomes the player’s "point".
+The player continues to roll until either the "point" comes up again, in which case the player wins, or the player throws 7, in which case they lose.
+The natural question is: what is a player’s probability of winning?
+
+Solution = 0.49(29)...
+
+(define (p62 iter)
+  (local (win lose)
+    (setq win 0 lose 0)
+    (for (i 1 iter)
+      (setq end-turn nil)
+      (until end-turn
+        (setq roll (dice6 2))
+        (cond ((or (= roll 7) (= roll 11))
+                (++ win)
+                (setq end-turn true))
+              ((or (= roll 2) (= roll 3) (= roll 12))
+                (++ lose)
+                (setq end-turn true))
+              (true ; current roll is player's "point"
+                (setq point roll)
+                (until end-turn
+                  (setq roll (dice6 2))
+                  (cond ((= roll point)
+                          (++ win)
+                          (setq end-turn true))
+                        ((= roll 7)
+                          (++ lose)
+                          (setq end-turn true))
+                  )
+                ))
+        )
+      )
+    )
+    (list (div win iter) (div lose iter))))
+
+(time (println (p62 1e7)))
+;-> (0.4927017 0.5072983)
+;-> 12070.984
+
+
+----------
+Problem 62
+----------
+Non-Standard Craps:
+We can generalize the games of craps to allow dice with other than six sides.
+Suppose we use two (fair) n-sided dice.
+Then we can define a game analogous to craps in the following way.
+The player rolls two n-sided dice.
+If the sum of these dice is n + 1 or 2n + 1, the player wins.
+If the sum of these dice is 2, 3 or 2n the player loses.
+Otherwise the sum becomes the player’s point, and they win if they roll that sum again before rolling n + 1.
+We may again ask: what is the player’s probability of winning?
+
+Solution = 
+
+        n  p(n)
+        3  0.55555...
+        4  0.535714...
+        5  0.512222...
+        6  0.492929...
+        7  0.477841...
+        8  0.4660214...
+        9  0.456634...
+       10  0.449057...
+       20  0.415459...
+       30  0.404973...
+       50  0.397067...
+      100  0.391497...
+     1000  0.386796...
+    10000  0.386344...
+   100000  0.386299...
+  1000000  0.38629486...
+
+(define (p63 n iter)
+  (local (win lose)
+    (setq win 0 lose 0)
+    (for (i 1 iter)
+      (setq end-turn nil)
+      (until end-turn
+        (setq roll (dice 2 n))
+        (cond ((or (= roll (+ n 1)) (= roll (- (* 2 n) 1)))
+                (++ win)
+                (setq end-turn true))
+              ((or (= roll 2) (= roll 3) (= roll (* 2 n)))
+                (++ lose)
+                (setq end-turn true))
+              (true ; current roll is player's "point"
+                (setq point roll)
+                (until end-turn
+                  (setq roll (dice 2 n))
+                  (cond ((= roll point)
+                          (++ win)
+                          (setq end-turn true))
+                        ((= roll (+ n 1))
+                          (++ lose)
+                          (setq end-turn true))
+                  )
+                ))
+        )
+      )
+    )
+    (div win iter)))
+
+(time (for (n 3 10) (println (format "%4d %4.4f" n (p63 n 1e6)))))
+;->    3 0.5548
+;->    4 0.5366
+;->    5 0.5120
+;->    6 0.4932
+;->    7 0.4784
+;->    8 0.4657
+;->    9 0.4574
+;->   10 0.4489
+;-> 11368.186
+
+(time (println (format "%4d %4.4f" 100 (p63 100 1e6))))
+;->  100 0.3909
+;-> 19439.007
+
+(time (println (format "%4d %4.4f" 1000 (p63 1000 1e6))))
+;-> 1000 0.3871
+;-> 190088.359
+
