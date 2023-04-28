@@ -3140,9 +3140,9 @@ Scriviamo una funzione che calcola i valori di tutte le combinazioni per un dete
 ;----------------------------------------------
 (define (scala-piccola? lst)
   (let (tmp (sort (copy lst)))
-    (if (or (= (count '(1 2 3 4) tmp) '(1 1 1 1))
-            (= (count '(2 3 4 5) tmp) '(1 1 1 1))
-            (= (count '(3 4 5 6) tmp) '(1 1 1 1)))
+    (if (or (and (find 1 lst) (find 2 lst) (find 3 lst) (find 4 lst))
+            (and (find 2 lst) (find 3 lst) (find 4 lst) (find 5 lst))
+            (and (find 3 lst) (find 4 lst) (find 5 lst) (find 6 lst)))
         30
         0)))
 (scala-piccola? '(1 3 2 4 6))

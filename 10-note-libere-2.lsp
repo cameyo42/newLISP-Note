@@ -4470,9 +4470,9 @@ La funzione in newLISP è semplice:
 ;-> 79
 
 
-------------
-Il ciclo for
-------------
+--------------
+Il ciclo "for"
+--------------
 
 Vediamo la definizione della funzione "for" dal manuale di riferimento:
 
@@ -4592,6 +4592,31 @@ Nota: in realtà esiste un caso in cui il corpo del ciclo for non viene mai eseg
 
 (for (i 1 10 1 true) (println i))
 ;-> true
+
+Possiamo sfruttare questo fatto per eseguire il ciclo "for" solo quando la partenza e l'arrivo sono congruenti con il passo (cioè quando il passo è negativo deve essere partenza >= arrivo e quando il passo è positivo deve essere partenza <= arrivo:
+
+(setq n 3)
+(for (i 1 n 1 (> i n)) (print i { }))
+;-> 1 2 3
+(setq n -5)
+(for (i 1 n 1 (> i n)) (print i { }))
+;-> true
+
+(setq n -3)
+(for (i 0 n -1 (< i n)) (print i { }))
+;-> 0 -1 -2 -3
+(setq n 3)
+(for (i 0 n -1 (< i n)) (print i { }))
+;-> true
+
+(setq n 1)
+(for (i 1 n -1 (< i n)) (print i { }))
+;-> 1
+
+(setq n 0)
+(for (i 0 n -1 (< i n)) (print i { }))
+;-> 0
+
 
 Esempio 4
 ---------

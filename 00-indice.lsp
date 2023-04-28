@@ -670,7 +670,7 @@ NOTE LIBERE 2
   Common LISP Quicksort
   Ambito dinamico e parametri delle funzioni
   Torte e tagli
-  Il ciclo for
+  Il ciclo "for"
   Perché uno specchio inverte destra e sinistra invece che su e giù?
   Treni e mosche
   Gestione degli errori
@@ -1777,7 +1777,7 @@ NOTE LIBERE 15
 
 PROBLEMI SUI DADI
 =================
-  Problemi 1..63
+  Problemi 1..76
 
 APPENDICI
 =========

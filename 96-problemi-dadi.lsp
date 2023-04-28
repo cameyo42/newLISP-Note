@@ -1,5 +1,6 @@
 
-; Functions
+;; Module: dice.lsp
+;; Dice Functions
 (define (die s) (+ (rand s) 1))
 ;
 (define (die6) (+ (rand 6) 1))
@@ -31,8 +32,7 @@
 (define (rand-lst lst) (lst (rand (length lst))))
 ;
 (define (prime? num) (if (< num 2) nil (= 1 (length (factor num)))))
-
-
+; eof
 
                    ===================
                     PROBLEMI SUI DADI
@@ -74,7 +74,7 @@ Here, I try solve the problems (and/or verify the results) with simulations (if 
 
 4. Game with Dice (56..76)
 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76
-+  +  +  +  +  +  +  -  -  -  -  -  -  -  -  -  -  -  -  -  -
++  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +  +
 
 Note: Number of iterations (minimum) = 1e6 (if possible)
 
@@ -378,6 +378,7 @@ Problem 5
 We roll a 6-sided die n times. What is the probability that all faces have appeared?
 
 Solution =
+
    n  Exact values                 Approximate values
    1  0                            0
    2  0                            0
@@ -467,6 +468,7 @@ Problem 6
 We roll a 6-sided die n times. What is the probability that all faces have appeared in order, in some six consecutive rolls (i.e., what is the probability that the subsequence 123456 appears among the n rolls)?
 
 Solution =
+
       n   prob
       6   0.00002143347051
      10   0.0001071673525
@@ -633,6 +635,7 @@ Person A rolls n dice and person B rolls m dice.
 What is the probability that they have a common face showing (e.g., person A rolled a 2 and person B also rolled a 2, among all their dice)?
 
 Solution =
+
    n   m   prob.
    1   1   0.1666666
    1   2   0.3055555
@@ -765,6 +768,7 @@ Solution = 24.1338692...
 Calculate the probability that after j rolls all sides have appeared at least twice.
 
 Solution =
+
    j   prob
   11   0
   12   0.003438285
@@ -886,6 +890,7 @@ Suppose we roll n dice.
 What is the expected number of distinct faces that appear?
 
 Solution =
+
     n   E
     1   1
     2   1.833333
@@ -1172,6 +1177,7 @@ What about a one, a two, and a three?
 What about a one, a two, a three, a four, a five and a six?
 
 Solution =
+
   (1,2) (n >= 21)
   (1,2,3) (n >= 23)
   (1,2,3,4,5,6) (n >= 27)
@@ -1290,6 +1296,7 @@ How many dice should be rolled to maximize the probability of rolling exactly on
 two sixes? n sixes?
 
 Solution =
+
 The probability that exactly one is a six rolling n dice is:
   n   prob
   1 = 0.1666...
@@ -1379,6 +1386,7 @@ How many rolls on average would we make?
 What if we roll until a face has appeared three times?
 
 Solution =
+
   (2 faces) (3.7746913580246...)
   (3 faces) (7.2955443387059899...)
 
@@ -1413,17 +1421,18 @@ Suppose we roll a fair die 10 times.
 What is the probability that the sequence of rolls is non-decreasing (i.e., the next roll is never less than the current roll)?
 
 Solution = 0.0000496641295788...
- n   prob
- 1 = 1
- 2 = 0.5833333333
- 3 = 0.259259259
- 4 = 0.0972
- 5 = 0.032407
- 6 = 0.00990226...
- 7 = 0.00282921...
- 8 = 0.000766246...
- 9 = 0.000198656...
-10 = 0.0000496641...
+
+   n   prob
+   1   1
+   2   0.5833333333
+   3   0.259259259
+   4   0.0972
+   5   0.032407
+   6   0.00990226...
+   7   0.00282921...
+   8   0.000766246...
+   9   0.000198656...
+  10   0.0000496641...
 
 (define (p20 dice iter)
   (local (sum)
@@ -1813,6 +1822,7 @@ Suppose we roll n dice and sum the highest 3.
 What is the probability that the sum is 18?
 
 Solution =
+
   n  prob
   1  0
   2  0
@@ -3931,7 +3941,7 @@ If the starting player is chosen by the toss of a coin, what is the probability 
 
 Solution =
 
-prob(A) = (2752158142349325632513/5458615301746502664192) = 0.5041861333347237...
+prob(A) = (2752158142349325632513/5458615301746502664192) = 0.5041861333347...
 
 (define (p61 iter)
   (local (winA winB scoreA scoreB end-turn)
@@ -4017,7 +4027,7 @@ Solution = 0.49(29)...
 
 
 ----------
-Problem 62
+Problem 63
 ----------
 Non-Standard Craps:
 We can generalize the games of craps to allow dice with other than six sides.
@@ -4029,7 +4039,7 @@ If the sum of these dice is 2, 3 or 2n the player loses.
 Otherwise the sum becomes the player’s point, and they win if they roll that sum again before rolling n + 1.
 We may again ask: what is the player’s probability of winning?
 
-Solution = 
+Solution =
 
         n  p(n)
         3  0.55555...
@@ -4097,4 +4107,885 @@ Solution =
 (time (println (format "%4d %4.4f" 1000 (p63 1000 1e6))))
 ;-> 1000 0.3871
 ;-> 190088.359
+
+
+----------
+Problem 64
+----------
+Yahtzee.
+There are many probability questions we may ask with regard to the game of Yahtzee.
+For starters, what is the probability of rolling, in a single roll,
+  a) Yahtzee
+  b) Four of a kind (but not Yahtzee)
+  c) A full house
+  d) Three of a kind (but not Yahtzee, four of a kind or full house)
+  e) A long straight
+  f) A small straight
+
+Solution =
+
+  a) Yahtzee          = 1/1296  = 0.000771604938271...
+  b) Four of a kind   = 25/1296 = 0.019290123456790...
+  c) A full house     = 25/648  = 0.038580246913580...
+  d) Three of a kind  = 25/162  = 0.154320987654321...
+  e) A long straight  = 5/162   = 0.030864197530864...
+  f) A small straight = 10/81   = 0.123456790123456...
+
+(define (p64 iter)
+  (local (freq roll roll-u res)
+    (setq freq (array 6 '(0)))
+    (for (i 1 iter)
+      (setq roll (sort (dice6-lst 5)))
+      (setq res (count '(1 2 3 4 5 6) roll))
+      (cond
+        ; Yahtzee: All five dice the same (ex. 1-1-1-1-1, 4-4-4-4-4)
+        ((find 5 res) (++ (freq 0)))
+        ; Four of a kind: At least four dice the same (es. 2-2-2-2, 4-4-4-4)
+        ((find 4 res) (++ (freq 1)))
+        ; Full house: Three of one number and two of another (ex. 2-2-2-6-6)
+        ((and (find 3 res) (find 2 res)) (++ (freq 2)))
+        ; Three of a kind: At least three dice the same (es. 2-2-2, 3-3-3)
+        ((find 3 res) (++ (freq 3)))
+        ; Long straight: five sequential dice (1-2-3-4-5 or 2-3-4-5-6)
+        ((or (= res '(1 1 1 1 1 0)) ; (1 2 3 4 5)
+             (= res '(0 1 1 1 1 1))) ; (2 3 4 5 6)
+          (++ (freq 4)))
+        ; Small straight: four sequential dice (1-2-3-4 or 2-3-4-5 or 3-4-5-6)
+        ((or (and (find 1 roll) (find 2 roll) (find 3 roll) (find 4 roll))
+             (and (find 2 roll) (find 3 roll) (find 4 roll) (find 5 roll))
+             (and (find 3 roll) (find 4 roll) (find 5 roll) (find 6 roll)))
+         (++ (freq 5)))
+      )
+    )
+    (dolist (f freq) (println (format "%2.6f" (div f iter))))))
+
+(time (p64 1e7))
+;-> 0.000776
+;-> 0.019359
+;-> 0.038599
+;-> 0.154357
+;-> 0.030750
+;-> 0.123650
+;-> 21359.485
+
+
+----------
+Problem 65
+----------
+More Yahtzee.
+What is the probability of getting Yahtzee, assuming that we are trying just to get Yahtzee, we make reasonable choices about which dice to re-roll, and we have three rolls?
+That is, if we’re in the situation where all we have left to get in a game of Yahtzee is Yahtzee, so all other outcomes are irrelevant.
+
+Solution = 347897/7558272 = 0.04602864252569899...
+
+(define (p65 iter)
+  (local (dadi roll res val-count val roll-out done success))
+    (setq success 0)
+    (for (i 1 iter)
+      (setq val-count 0)
+      (setq roll-out '())
+      (setq dadi 5)
+      (setq done nil)
+      ;(println "ITER: " i)
+      (for (i 1 3 1 done)
+        ;(println "Roll: " i)
+        (setq dadi (- 5 val-count))
+        (setq roll (dice6-lst dadi))
+        (setq roll (sort (append roll roll-out)))
+        ;(if (!= (length roll) 5) (println "ERROR"))
+        (setq res (count '(1 2 3 4 5 6) roll))
+        ; select max values
+        (setq val-count 0)
+        (setq val 0)
+        (dolist (r res)
+          (if (> r val-count) (set 'val-count r 'val (+ $idx 1)))
+        )
+        ; create result of current roll
+        (setq roll-out (dup val val-count))
+        ; check if Yahtzee
+        (if (= val-count 5) (set 'done true 'success (+ success 1)))
+      )
+    )
+    (div success iter))
+
+(time (println (p65 1e7)))
+
+(p65 1e6)
+;-> 0.0459954
+;-> 62990.475
+
+(one-in 0.0459954)
+;-> 22
+
+
+----------
+Problem 66
+----------
+Drop Dead.
+In the game of Drop Dead, the player starts by rolling five standard dice.
+If there are no 2’s or 5’s among the five dice, then the dice are summed and this is the player’s score.
+If there are 2’s or 5’s, these dice become "dead" and the player gets no score.
+In either case, the player continues by rolling all non-dead dice, adding points onto the score, until all dice are dead.
+For example, the player might roll (1, 3, 3, 4, 6) and score 17.
+Then they roll all the dice again and get (1, 1, 2, 3, 5) which results in no points and two of the dice dying.
+Rolling the three remaining dice, they might get (2, 3, 6) for again no score, and one more dead die.
+Rolling the remaining two they might get (4, 6) which gives them 10 points, bringing the score to 27.
+They roll the two dice again, and get (2, 3) which gives no points and another dead die.
+Rolling the remaining die, they might get (3) which brings the score to 30.
+Rolling again, they get (5) which brings this player’s round to an end with 30 points.
+Some natural questions to ask are:
+(a) What is the expected value of a player’s score?
+(b) What is the probability of getting a score of 0? 1? 10? 20? etc.
+
+Solution =
+
+    n   E(n)
+    1   7
+    2   11.2
+    3   13.70526
+    4   15.19028
+    5   16.06466
+    6   16.57583
+   10   17.19556
+   20   17.26399
+   30   17.26412371400800701809841213
+  100   17.26412423601867057324993502
+  250   17.26412422187783220247082379
+
+(define (p66-1 n iter)
+  (local (sum cur-sum stop dice freq)
+    (setq sum 0)
+    (setq freq (array 400 '(0)))
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq stop nil)
+      (setq dice n)
+      (until stop
+        (setq roll (dice6-lst dice))
+        (cond
+          ((or (find 2 roll) (find 5 roll))
+            (setq dice (- dice (+ (length (ref-all 2 roll))
+                                  (length (ref-all 5 roll))))))
+          (true
+            (++ cur-sum (apply + roll)))
+        )
+        (if (zero? dice) (setq stop true))
+      )
+      (++ sum cur-sum)
+      (++ (freq cur-sum))
+    )
+    (div sum iter)))
+
+(time (for (n 1 6) (println n { } (p66-1 n 1e6))))
+;-> 1  7.01086
+;-> 2 11.204745
+;-> 3 13.716989
+;-> 4 15.200795
+;-> 5 16.06293
+;-> 6 16.591312
+;-> 19830.116
+
+(time (println (p66-1 10 1e6)))
+;-> 17.208222
+;-> 6640.889
+(time (println (p66-1 100 1e6)))
+;-> 17.263307
+;-> 36982.736
+(time (println (p66-1 250 1e6)))
+
+(define (slice-last lst value)
+  (local (idx)
+    (dolist (el lst) (if (!= el value) (setq idx (+ $idx 1))))
+    (if idx (slice lst 0 idx) '())))
+
+(slice-last '(1 3 4 5 0 8 6 0 0 0))
+;-> (1 3 4 5 0 8 6 0 0 0)
+(slice-last '(0 0 0) 0)
+;-> ()
+
+(define (p66-2 n iter)
+  (local (sum cur-sum stop dice freq)
+    (setq sum 0)
+    (setq freq (array 400 '(0)))
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq stop nil)
+      (setq dice n)
+      (until stop
+        (setq roll (dice6-lst dice))
+        (cond
+          ((or (find 2 roll) (find 5 roll))
+            (setq dice (- dice (+ (length (ref-all 2 roll))
+                                  (length (ref-all 5 roll))))))
+          (true
+            (++ cur-sum (apply + roll)))
+        )
+        (if (zero? dice) (setq stop true))
+      )
+      (++ sum cur-sum)
+      (++ (freq cur-sum))
+    )
+    (slice-last freq 0)))
+
+;-> (time (for (n 1 6) (println n { } (p66-2 n 1e6))))
+;-> 1 (333100 55762 9314 57101 74017 23233 69737 42789 24793 29344 36344
+;->  21165 24459 22080 17443 15372 16630 12800 11663 11082 9685 8227 7985
+;->  7023 6196 5445 5066 4285 4024 3458 3184 2739 2477 2278 2059 1853
+;->  1608 1472 1334 1170 1068 966 890 746 710 597 588 516 411 364 306
+;->  342 281 258 238 187 168 147 150 129 105 113 99 78 79 63 68 52 55
+;->  45 33 36 28 27 23 26 12 14 18 18 16 9 10 13 11 10 4 8 8 4 8 7 4 5
+;->  1 6 0 3 3 1 1 3 2 3 1 2 0 2 0 2 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 1)
+;-> 2 (259719 24816 11397 26148 48009 26739 41832 51472 26639 35525 41032
+;->  24357 30730 25653 24908 21147 23025 20839 17858 18540 15809 14652
+;->  14084 12558 11902 10943 10281 9309 8480 7902 7077 6507 6030 5543
+;->  5060 4778 4256 3824 3651 3249 2874 2678 2581 2290 2116 1861 1700
+;->  1598 1444 1319 1217 1101 959 897 819 766 738 625 549 503 516 379
+;->  390 337 329 282 293 244 234 207 184 168 145 128 111 111 97 82 88
+;->  80 71 59 57 38 45 36 29 37 22 32 17 17 24 16 15 16 15 11 10 9 12
+;->  12 5 7 8 5 4 8 5 5 5 3 4 1 0 3 3 3 1 2 1 0 1 0 1 1 1 0 0 0 1 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1)
+;-> 3 (226820 23342 6950 25718 37649 20278 38008 35848 27462 28607 37824
+;->  28767 28389 30729 25148 23045 24881 21187 20252 19679 17904 16901
+;->  16559 15443 14475 13551 12954 11674 10990 10424 9492 8841 8226 7849
+;->  7261 6753 6239 5770 5376 4967 4629 4193 3811 3583 3405 3089 2788
+;->  2664 2493 2233 2033 1932 1688 1561 1477 1333 1241 1131 1075 955 894
+;->  855 751 714 615 555 556 460 417 414 374 311 311 261 242 260 212 181
+;->  187 168 136 150 124 132 89 83 79 82 66 70 60 66 45 43 50 29 32 21
+;->  29 24 27 35 21 14 21 21 21 9 8 14 13 10 6 15 8 4 6 6 4 6 6 2 3 2
+;->  4 2 0 0 0 2 0 2 4 0 2 3 0 0 0 2 0 0 0 0 0 0 1 0 0 0 1 0 1)
+;-> 4 (211532 22120 7139 23431 36634 18546 34723 34389 22281 27473 32620
+;->  25194 27831 26661 26630 23004 25417 23340 20475 21250 18793 17733
+;->  17264 16096 15212 14420 14088 13079 12213 11529 10766 10176 9561
+;->  8899 8352 7735 7442 6915 6434 6008 5653 5115 4833 4456 4217 3948
+;->  3601 3555 3209 2825 2719 2564 2357 2149 1947 1869 1706 1616 1459
+;->  1248 1236 1128 1030 955 886 875 771 693 595 619 536 486 479 494 402
+;->  365 337 299 285 267 240 216 173 182 179 156 147 128 115 117 108 86
+;->  91 76 61 58 57 62 54 53 39 22 35 26 32 20 23 26 22 16 17 8 19 13
+;->  14 8 12 10 13 6 6 6 4 2 7 5 4 3 2 2 1 1 4 2 2 2 0 0 2 0 2 0 1 1 1
+;->  0 2 1 2 2 1 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 1)
+;-> 5 (204528 21060 6960 22658 35471 18246 33929 33838 21961 26025 32291
+;->  23057 26122 25311 23835 22318 24177 22358 21164 20854 19981 18464
+;->  17813 17255 15686 14805 14242 13287 12411 12131 11254 10709 9994
+;->  9689 8881 8449 7980 7530 7223 6662 6105 5900 5406 5077 4728 4490
+;->  4163 3766 3677 3394 3124 2960 2753 2542 2354 2106 1980 1867 1775
+;->  1576 1450 1370 1321 1175 1157 1095 938 865 845 747 660 665 593 577
+;->  476 478 411 393 324 370 272 273 242 224 226 189 184 177 177 143 141
+;->  125 103 101 86 88 83 76 66 60 51 46 49 48 42 32 42 31 29 17 25 24
+;->  27 25 23 18 14 13 16 14 9 5 9 8 7 7 7 4 9 5 2 5 1 2 3 5 3 4 2 1 0
+;->  0 3 0 1 2 0 2 0 0 1 3 0 0 0 0 0 1 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 1)
+;-> 6 (201746 21067 6883 22432 34688 17703 33234 32973 21600 25472 31640
+;->  23064 25085 25429 23448 21127 23672 21295 20057 20374 18986 18426
+;->  17794 17320 16197 15295 15057 13764 13212 12388 11674 11153 10414
+;->  9916 9340 8747 8317 7856 7371 7023 6535 6024 5766 5302 5052 4797
+;->  4384 4169 3930 3517 3273 3156 2882 2787 2543 2337 2214 2157 1920
+;->  1804 1661 1499 1469 1281 1220 1106 1076 996 906 840 854 737 673 577
+;->  511 520 471 433 403 349 366 317 322 311 245 229 249 198 188 154 177
+;->  151 151 135 130 107 101 92 83 79 59 66 68 63 50 46 36 39 37 38 24
+;->  16 28 27 26 27 12 9 20 8 11 6 11 13 10 10 7 11 4 5 5 6 2 5 1 1 1
+;->  1 1 2 5 4 0 3 0 2 1 2 4 2 1 1 1 1 0 0 1 2 0 0 0 1 0 0 0 1 0 0 0 0
+;->  0 0 1)
+;-> 19803.82
+
+
+----------
+Problem 67
+----------
+Threes.
+In the game of Threes, the player starts by rolling five standard dice.
+In the game, the threes count as zero, while the other faces count normally.
+The goal is to get as low a sum as possible.
+On each roll, at least one die must be kept, and any dice that are kept are added to the player’s sum.
+The game lasts at most five rolls, and the score can be anywhere from 0 to 30.
+For example a game might go like this:
+On the first roll the player rolls 2 - 3 - 3 - 4 - 6.
+The player decides to keep the 3s, and so has a score of zero.
+The other three dice are rolled, and the result is 1 - 5 - 5.
+Here the player keeps the 1, so their score is 1, and re-rolls the other two dice.
+The result is 1 - 2.
+Here, the player decides to keep both dice, and their final score is 4.
+If a player plays optimally (i.e., using a strategy which minimizes the expected value of their score), what is the expected value of their score?
+
+Solution =
+
+  E = 6.253978525...
+
+Implement the following simple strategy (different from the optimal (complex) strategy of the author):
+1) Turn 1 and Turn 2: Take only 3 or minimum value
+2) Turn 3 and Turn 4: Take only 3,2,1 or minimum value
+3) Turn 5: Take 3 or minimum value
+
+(define (p67 iter debugger)
+  (local (sum cur-sum dice stop one two three)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq dice 5)
+      (setq stop nil)
+      (for (turn 1 5 1 stop)
+        (if debugger (println "TURN: " turn))
+        (cond
+          ; Turn 1 or 2: take 3 or minimum value
+          ((or (= turn 1) (= turn 2))
+            (if (and (= turn 1) (!= dice 5)) (println "ERROR: turn-dice " turn { } dice))
+            (if (and (= turn 2) (> dice 4)) (println "ERROR: turn-dice " turn { } dice))
+            (setq roll (dice6-lst dice))
+            (if (not (find 3 roll))
+              (begin
+                (setq cur-sum (+ cur-sum (apply min roll)))
+                (setq dice (- dice 1))
+              )
+              (begin
+                (setq dice (- dice (length (ref-all 3 roll))))
+              )
+            )
+          )
+          ; Turn 3 or 4: take (3, 2 and 1) or minimum value
+          ((or (= turn 3) (= turn 4))
+            (if (and (= turn 3) (> dice 3)) (println "ERROR: turn-dice " turn { } dice))
+            (if (and (= turn 4) (> dice 2)) (println "ERROR: turn-dice " turn { } dice))
+            (setq roll (dice6-lst dice))
+            (setq one (length (ref-all 1 roll)))
+            (setq cur-sum (+ cur-sum one))
+            (setq dice (- dice one))
+            (setq two (length (ref-all 2 roll)))
+            (setq cur-sum (+ cur-sum (* two 2)))
+            (setq dice (- dice two))
+            (setq three (length (ref-all 3 roll)))
+            (setq dice (- dice three))
+            (if (and (zero? one) (zero? two) (zero? three))
+              (begin
+                ;(println one { } two { } three) (read-line)
+                (setq cur-sum (+ cur-sum (apply min roll)))
+                (setq dice (- dice 1))
+              )
+            )            
+          )
+          ; take value
+          ((= turn 5)
+            (if (!= dice 1) (println "ERROR: turn-dice " turn { } dice))
+            (setq roll (die6))
+            (setq dice (- dice 1))
+            (if (!= roll 3) (setq cur-sum (+ cur-sum roll)))
+          )
+        );end cond
+        ; end of turn?
+        (if (zero? dice) (setq stop true))
+        (if debugger (println "roll: " roll))
+        (if debugger (println "dice: " dice))
+        (if debugger (println "cur-sum: " cur-sum))
+        (if debugger (read-line))
+      );end-for
+      ; check for errors
+      (if (!= dice 0) (println "ERROR: dice = " dice))
+      (if (< cur-sum 0) (println "ERROR: cur-sum = " cur-sum))
+      (if (> cur-sum 30) (println "ERROR: cur-sum = " cur-sum))
+      ; update sum value
+      (setq sum (+ sum cur-sum))
+    )
+    (div sum iter)))
+
+; For debugging:
+;(p67 10 true)
+
+(p67 1e6)
+;-> 6.479533
+
+(time (println (p67 1e7)))
+;-> 6.478153
+;-> 51216.747
+
+
+----------
+Problem 68
+----------
+Pig.
+In the game of Pig, two players take turns rolling a die.
+On a turn, a player may roll the die as many times as they like, provided they have not thrown a one.
+If they end their turn before rolling a one, their turn score is the sum of rolls for that turn.
+If they roll a one, their turn score is zero.
+At the end of the turn, their turn score is added to the player’s total score.
+The first player to reach 100 points wins.
+Let's consider the strategy for playing this game in which the player will roll until their turn score is at least M.
+What value of M will maximize their expected turn score?
+What is the expected value?
+
+Solution =
+
+  M = 20
+  E(20) = 8.1417948937...
+
+(define (p68 m iter)
+  (local (sum cur-sum stop val)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq stop nil)
+      (until stop
+        (setq val (die6))
+        (cond ((= val 1)
+                (setq cur-sum 0)
+                (setq stop true))
+              (true
+                (++ cur-sum val))
+        )
+        ;strategy
+        (if (> cur-sum m) (setq stop true))
+      )
+      (++ sum cur-sum)
+    )
+    (div sum iter)))
+
+(time (for (m 1 30) (println m { } (p68 m 1e6))))
+;->  1 3.333214
+;->  2 3.834163
+;->  3 4.30442
+;->  4 4.82513
+;->  5 5.376769
+;->  6 5.969663
+;->  7 6.243424
+;->  8 6.583904
+;->  9 6.87643
+;-> 10 7.153637
+;-> 11 7.374755
+;-> 12 7.567411
+;-> 13 7.722721
+;-> 14 7.83665
+;-> 15 7.943226
+;-> 16 8.042275
+;-> 17 8.103108000000001
+;-> 18 8.113595999999999
+;-> 19 8.127162
+;-> 20 8.146909000000001
+;-> 21 8.123663000000001
+;-> 22 8.099558
+;-> 23 8.049823999999999
+;-> 24 7.990075
+;-> 25 7.933913
+;-> 26 7.834727
+;-> 27 7.74729
+;-> 28 7.683295
+;-> 29 7.572569
+;-> 30 7.490728
+;-> 20895.358
+
+Nota: Considering also the score of the opponent, a good strategy is to set M at each turn with the formula
+  M = 21 + round((PuntiB - PuntiA)/8)
+
+See "The Game of Pig" in "Problemi vari" and "Il gioco del Pig" in "Note libere 3".
+
+
+----------
+Problem 69
+----------
+Suppose we play a game with a die where we roll and sum our rolls.
+We can stop any time and take the sum as our score, but if we roll a face we’ve rolled before then we lose everything.
+What strategy will maximize our expected score?
+
+Solution =
+
+  Roll until C*(S + 1) > 21.
+  where, C is our current sum and S is the set of faces that have been rolled already.
+
+  Strategy:
+  Roll twice. If the second roll is not the same as the first and the sum is less than 7, roll again
+  and stop, otherwise, stop.
+
+  E(score) = 6.19(4)
+  p(0) = 0.2(7)
+
+(define (p69 iter)
+  (local (sum zero cur-sum va1 val2 val3 stop)
+    (setq sum 0)
+    (setq zero 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq val1 (die6))
+      (setq val2 (die6))
+      (setq val3 (die6))
+      (cond ((= val1 val2)
+              (setq cur-sum 0)
+              (++ zero))
+            ((and (!= val1 val2) (>= (+ val1 val2) 7))
+              (setq cur-sum (+ val1 val2)))
+            ((and (!= val1 val2) (< (+ val1 val2) 7))
+              (if (and (!= val3 val1) (!= val3 val2))
+                  (setq cur-sum (+ val1 val2 val3))
+                  ;else
+                  (set 'cur-sum 0 'zero (+ zero 1))
+              ))
+      )
+      (++ sum cur-sum)
+    )
+    (list (div sum iter) (div zero iter))))
+
+(time (println (p69 1e7)))
+;-> (6.1959964 0.277585)
+;-> 5209.803
+
+
+----------
+Problem 70
+----------
+(Same as previous game, but with two dice.)
+Suppose we play a game with two dice where we roll and sum our rolls.
+We can stop any time and take the sum as our score, but if we roll a sum we’ve rolled before then we lose everything.
+What strategy will maximize our expected score?
+
+Solution =
+
+  E(complex) = 14.67161065386374...
+  E(simple) = 14.6...
+
+Complex Strategy:
+We should always roll at least three times (if we can).
+
+After rolling three times, there are many S for which we should stop.
+We should stop after three rolls if any of the following are true:
+a) (6, 7), (7, 8), (7, 9), (7, 10), or (8, 9) in S.
+b) 2 not in S and (6, 8), (6, 9), (6, 10), (7, 11), (7, 12), (8, 10), (8, 11) in S.
+c) current score is 28 or greater and S != (5, 11, 12)
+d) S in ((3, 9, 10), (4, 5, 7), (4, 5, 8), (4, 5, 9), (4, 6, 11), (4, 8, 12), (4, 9, 10), (4, 9, 11),
+(4, 9, 12), (4, 10, 11), (5, 6, 11), (5, 6, 12), (5, 8, 12), (5, 9, 10), (5, 9, 11), (5, 9, 12), (5, 10, 11),
+(5, 10, 12))
+
+After rolling four times, we should stop unless one of the following is true:
+1) (2, 3, 4) in S and 7 not in S
+2) S equals one of (2, 3, 5, 6), (2, 3, 5, 11), (2, 3, 5, 12), (2, 3, 10, 12), (2, 3, 11, 12), (2, 4, 11, 12).
+
+If we are lucky enough to roll five times, we should stop.
+
+Simple Strategy:
+Always roll at least three times (if we can) and stop if our score is 16 or greater.
+
+(define (p70 iter)
+  (local (sum cur-sum val1 val2 val3 val4)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq stop nil)
+      (setq val1 (dice6 2))
+      (setq val2 (dice6 2))
+      (setq val3 (dice6 2))
+      (setq val4 (dice6 2))
+      (if (and (!= val1 val2) (!= val1 val3) (!= val2 val3))
+          (setq cur-sum (+ val1 val2 val3))
+          (setq cur-sum 0)
+      )
+      (cond ((and (!= cur-sum 0) (< cur-sum 16))
+              (setq val4 (dice6 2))
+              (if (and (!= val4 val1) (!= val4 val2) (!= val4 val3))
+                  (++ cur-sum val4)
+                  (setq cur-sum 0)))
+      )
+      (++ sum cur-sum)
+    )
+    (div sum iter)))
+
+(time (println (p70 1e7)))
+;-> 14.6003762
+;-> 11992.483
+
+
+----------
+Problem 71
+----------
+Suppose we play a game with a die where we roll and sum our rolls.
+We can stop any time and take the sum as our score, but if we roll the same face twice in a row we lose everything.
+What strategy will maximize our expected score?
+
+Solution =
+
+    E(sum) = 8.7
+    p(0) = 56%
+
+Strategy:
+  Roll until (r + S) > 21
+  where r is last rolled face and S is our current sum.
+  Generalizing to m-sided dice, we should stop if the current sum plus the last roll exceeds the sum of all faces of the die.
+
+(define (p70 iter)
+  (local (sum zero stop prev cur-sum)
+    (setq sum 0)
+    (setq zero 0)
+    (for (i 1 iter)
+      (setq stop nil)
+      (setq prev 0)
+      (setq cur-sum 0)
+      (until stop
+        (setq val (die6))
+        (cond ((= val prev)
+                (setq cur-sum 0)
+                (setq prev val)
+                (setq stop true)
+                (++ zero))
+              ((!= val prev)
+                (++ cur-sum val)
+                (setq prev val)
+                (if (> (+ val cur-sum) 21) (setq stop true)))
+        )
+      )
+      (++ sum cur-sum)
+    )
+    (list (div sum iter) (div zero iter))))
+
+(time (println (p70 1e7)))
+;-> (8.663689 0.5569268000000001)
+;-> 11654.338
+
+
+----------
+Problem 72
+----------
+Suppose we play a game with a die where we roll and sum our rolls as long as we keep rolling larger values.
+For instance, we might roll a sequence like 1-3-4 and then roll a 2, so our sum would be 8.
+If we roll a 6 first, then we’re through and our sum is 6. Three questions about this game:
+(a) What is the expected value of the sum?
+(b) What is the expected value of the number of rolls?
+(c) If the game is played with an n-sided die, what happens to the expected number of rolls as n approaches infinity?
+
+Solution =
+
+  E(sum) = 6
+
+  E(roll) = 1.521626371742112...
+
+  lim [E(n)] = e - 1 = 1.718281828459...
+ n->inf
+
+(define (p72 n iter)
+  (local (sum cur-sum num-rolls cur-rolls stop prev val)
+    (setq sum 0)
+    (setq num-rolls 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq cur-rolls -1)
+      (setq stop nil)
+      (setq prev 0)
+      (until stop
+        (setq val (die n))
+        (++ cur-rolls)
+        (cond
+          ((> val prev)
+            (++ cur-sum val)
+            (setq prev val))
+          ((<= val prev)
+            (setq stop true))
+        )
+      )
+      (++ sum cur-sum)
+      (++ num-rolls cur-rolls)
+    )
+    (list (div sum iter) (div num-rolls iter))))
+
+(time (println (p72 6 1e7)))
+;-> (5.9997993 1.521597)
+;-> 6952.703
+
+(time (dolist (n '(1e2 1e3 1e4 1e5 1e6 1e7)) (println n { } ((p72 n 1e7) 1))))
+;-> 100 1.7048834
+;-> 1000 1.7168343
+;-> 10000 1.7177737
+;-> 100000 1.7182439
+;-> 1000000 1.7179985
+;-> 10000000 1.7183557
+;-> 44202.02
+
+
+----------
+Problem 73
+----------
+Suppose we play a game with a die where we roll and add our rolls to our total when the face that appears has not occurred before, and subtract it from our total if it has.
+For example, if we rolled the sequence 1, 3, 4, 3, our corresponding totals would be 1, 4, 8, 5.
+We can stop any time and take the total as our score.
+What strategy should we employ to maximize our expected score?
+
+Solution = 8.7
+
+To maximize the expected value of our score, we should keep rolling until the sum of distinct faces thrown is 11 or more.
+
+(define (p73 iter)
+  (local (sum cur-sum stop rolled val)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq stop nil)
+      (setq rolled '())
+      (until stop
+        (setq val (die6))
+        (cond
+          ((find val rolled)
+            (-- cur-sum val))
+          (true ;(not (find val rolled))
+            (++ cur-sum val)
+            (push val rolled))
+        )
+        (if (>= (apply + rolled) 11) (setq stop true))
+      )
+      (++ sum cur-sum)
+    )
+    (div sum iter)))
+
+(time (println (p73 1e7)))
+;-> 8.7322159
+;-> 15561.306
+
+
+----------
+Problem 74
+----------
+Suppose we roll a single die, repeatedly if we like, and sum.
+We can stop at any point, and the sum becomes our score.
+However, if we exceed 10, our score is zero.
+What should our strategy be to maximize the expected value of our score?
+What is the expected score with this optimal strategy?
+What about limits besides 10?
+
+Solution =
+
+The optimal strategy is: roll again if the score is 5 or less, and stick otherwise.
+
+  E = 6.99879972565157...
+
+(define (p74 iter)
+  (local (sum cur-sum stop val)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq stop nil)
+      (until stop
+        (setq val (die6))
+        (++ cur-sum val)
+        (if (> cur-sum 5) (setq stop true))
+        (if (> cur-sum 10) (setq cur-sum 0))
+      )
+      (++ sum cur-sum)
+    )
+    (div sum iter)))
+
+(time (println (p74 1e7)))
+;-> (6.9979525)
+;-> 5213.654000000001
+
+
+----------
+Problem 75
+----------
+Suppose we play a game with a die where we roll and sum our rolls.
+We can stop any time, and the sum is our score.
+However, if our sum is ever a multiple of 10, our score is zero, and our game is over.
+What strategy will yield the greatest expected score?
+What about the same game played with values other than 10?
+
+Solution =
+
+We should roll unless the sum is 24 or 25 or greater than 33.
+
+  E = 13.21711859042473...
+
+(define (p75 iter)
+  (local (sum cur-sum stop val)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq stop nil)
+      (until stop
+        (setq val (die6))
+        (++ cur-sum val)
+        (if (or (= cur-sum 24) (= cur-sum 25) (> cur-sum 33)) (setq stop true))
+        (if (zero? (% cur-sum 10)) (set 'cur-sum 0 'stop true))
+      )
+      (++ sum cur-sum)
+    )
+    (div sum iter)))
+
+(time (println (p75 1e7)))
+;-> 13.2154769
+;-> 17725.157
+
+
+----------
+Problem 76
+----------
+Suppose we play a game with a die in which we use two rolls of the die to create a two-digit number.
+The player rolls the die once and decides which of the two digits they want that roll to represent.
+Then, the player rolls a second time and this determines the other digit.
+For instance, the player might roll a 5, and decide this should be the "tens" digit, and then roll a 6, so their resulting number is 56.
+What strategy should be used to create the largest number on average?
+What about the three digit version of the game?
+
+Solution =
+
+2 rolls
+If the first roll is 4, 5 or 6, the player should use it for the "tens" digit.
+
+  E = 45.25
+
+3 rolls
+If the first roll is at least 5, put it in the "hundreds" digit
+If it is 3 or 4, put it in the "tens" digit
+Otherwise, put it in the ones digit.
+If the second roll is 4, 5, or 6, place it in the largest available digit.
+
+  E = 504
+
+(define (p76-1 iter)
+  (local (sum cur-sum val)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (setq val (die6))
+      (cond ((or (= val 4) (= val 5) (= val 6))
+              (setq cur-sum (* 10 val))
+              (++ cur-sum (die6)))
+            (true
+              (setq cur-sum (* 10 (die6)))
+              (++ cur-sum val))
+      )
+      (++ sum cur-sum)
+    )
+    (div sum iter)))
+
+(time (println (p76-1 1e7)))
+;-> 45.2536001
+;-> 3915.429
+
+(define (p76-2 iter)
+  (local (sum cur-sum val d100 d10 d1)
+    (setq sum 0)
+    (for (i 1 iter)
+      (setq cur-sum 0)
+      (set 'd100 0 'd10 0 'd1 0)
+      (setq val (die6))
+      (cond ((or (= val 5) (= val 6)) (setq d100 val))
+            ((or (= val 3) (= val 4)) (setq d10 val))
+            ((or (= val 2) (= val 1)) (setq d1 val))
+      )
+      (setq val (die6))
+      (cond ((or (= val 4) (= val 5) (= val 6))
+              (if (zero? d100)
+                  (setq d100 val)
+                  (setq d10 val)))
+            ((or (= val 1) (= val 2) (= val 3))
+              (if (zero? d1)
+                  (setq d1 val)
+                  (setq d10 val)))
+      )
+      (setq val (die6))
+      (cond ((zero? d100) (setq d100 val))
+            ((zero? d10) (setq d10 val))
+            ((zero? d1) (setq d1 val))
+      )
+      (if (and (zero? d100) (zero? d10) (zero? d1) (println "ERROR")))
+      (setq cur-sum (+ (* d100 100) (* d10 10) d1))
+      (++ sum cur-sum)
+    )
+    (div sum iter)))
+
+(time (println (p76-2 1e7)))
+;-> 504.0006572
+;-> 8746.623
+
+=============================================================================
 

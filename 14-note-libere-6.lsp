@@ -5675,7 +5675,7 @@ Quanti sono?
 
 Una persona ferma sul ciglio della strada guarda una corsa campestre. Vede passare 6 concorrenti con i seguenti numeri 5, 10, 35 42, 63, 21. Quanti sono, presumibilmente, gli N partecipanti alla corsa?
 
-Si può dimostrare che la media (valore atteso) del valore massimo di una serie (X1, X2, ...Xn) abbastanza ampia di n elementi osservati è data da:
+Si può dimostrare che la media (valore atteso) del valore massimo di una serie (X1, X2, ..., XN) abbastanza ampia di n elementi osservati è data da:
 
                 n*(N + 1)
   max(X(i)) = -------------

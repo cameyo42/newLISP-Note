@@ -3985,7 +3985,9 @@ affronta il gioco matematicamente e raggiunge le stesse conclusioni: il numero 2
 1) se il punteggio di A è maggiore o uguale a 71, allora deve lanciare i dadi per raggiungere 100.
 2) altrimenti deve lanciare i dadi per raggiungere il valore:
 
-  21 + int((PuntiB - PuntiA)/8)
+  21 + round((PuntiB - PuntiA)/8)
+
+Vedi anche il "Problema 68" su "Problemi sui Dadi".
 
 
 ------------------
