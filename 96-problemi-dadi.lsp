@@ -1058,7 +1058,7 @@ Solution =
   f(n) = ---------------*f(n-1) + Sum[j=floor(f(n-1))+1..s] (j/s)
                s
 
-Valore atteso 1 dado
+Valore atteso 1 dado:
 (div (apply + (sequence 1 6)) 6)
 ;-> 3.5
 (div (dice6 1e6) 1e6)
@@ -1111,6 +1111,7 @@ How many dice must be rolled to have at least a 95% chance of rolling a six?
 99%? 99.9%?
 
 Solution =
+
   95% for (n >= 17)
   99% for (n >= 26)
   99.9% for (n >= 38)
@@ -1938,9 +1939,9 @@ Solution =
 
 The expected value of the sum is:
 
-                 n^2 + n
- ESum(n,k) = ---------------
-              2*n - 2*k + 2
+                  n^2 + n
+  ESum(n,k) = ---------------
+               2*n - 2*k + 2
 
 (define (p32-exact n k) (div (+ n (* n n)) (+ (* 2 n) (* -2 k) 2)))
 
@@ -4697,8 +4698,8 @@ What strategy will maximize our expected score?
 
 Solution =
 
-    E(sum) = 8.7
-    p(0) = 56%
+  E(sum) = 8.7
+  p(0) = 56%
 
 Strategy:
   Roll until (r + S) > 21
@@ -4748,11 +4749,9 @@ If we roll a 6 first, then we’re through and our sum is 6. Three questions abo
 Solution =
 
   E(sum) = 6
-
   E(roll) = 1.521626371742112...
-
   lim [E(n)] = e - 1 = 1.718281828459...
- n->inf
+  n->inf
 
 (define (p72 n iter)
   (local (sum cur-sum num-rolls cur-rolls stop prev val)
@@ -4923,8 +4922,8 @@ If the first roll is 4, 5 or 6, the player should use it for the "tens" digit.
   E = 45.25
 
 3 rolls
-If the first roll is at least 5, put it in the "hundreds" digit
-If it is 3 or 4, put it in the "tens" digit
+If the first roll is at least 5, put it in the "hundreds" digit.
+If it is 3 or 4, put it in the "tens" digit.
 Otherwise, put it in the ones digit.
 If the second roll is 4, 5, or 6, place it in the largest available digit.
 

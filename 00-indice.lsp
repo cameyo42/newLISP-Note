@@ -1773,7 +1773,12 @@ NOTE LIBERE 15
   Funzioni che restituiscono espressioni
   Non serious theorem
   Cosa restituiscono le funzioni "print" e "println"?
+  3025
   Simulazione di un dado con una moneta
+  Quante facce ha un dado?
+  Anagrammi di numeri
+  Serializzazione di funzioni
+  
 
 PROBLEMI SUI DADI
 =================

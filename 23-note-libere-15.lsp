@@ -7604,6 +7604,34 @@ Quando una stringa risulta true?
 Il risultato di "print" è sempre true tranne quando stampa nil o un simbolo associato a nil.
 
 
+----
+3025
+----
+
+Trovare tutti i numeri che hanno le seguenti proprietà:
+a) Ha quattro cifre
+b) Tutte e quattro le cifre sono diverse
+c) Se prendiamo il numero composto dalle prime due cifre e le sommiamo con il numero composto dalle ultime due cifre, il suo quadrato è il numero originale: (es. 3025 = (30 + 25)^2).
+
+(define (n3025)
+  (local (a b s d)
+    (for (i 1000 9999)
+      (setq s (string i))
+      (setq a (int (slice s 0 2) 0 10))
+      (setq b (int (slice s 2 2) 0 10))
+      (setq d (explode (string i)))
+      (if (and (= (* (+ a b) (+ a b)) i) 
+               (= (length d) (length (unique d))))
+      (print i { })))))
+
+(n3025)
+;-> 3025 9801
+
+Nota: 3025 è il quadrato della somma dei primi dieci numeri naturali:
+
+  (1 + 2 + ... + 10)^2 = 55^2 = 3025
+
+
 -------------------------------------
 Simulazione di un dado con una moneta
 -------------------------------------
@@ -7721,6 +7749,174 @@ In questo modo i risultati TC e CT sono simmetrici e quindi hanno uguale probabi
 
 (fair-coin)
 ;-> 1
+
+
+------------------------
+Quante facce ha un dado?
+------------------------
+
+Abbiamo una dado regolare, ma non sappiamo quante facce ha. 
+Tiriamo il dado n volte (per esempio 5 volte). 
+Stimare il numero di facce del dado in base al risultato dei tiri.
+
+Possiamo usare la seguente formula:
+
+          (n + 1)
+ facce = ---------*max(valori) - 1
+             n
+
+dove  'facce' è la stima del numero di facce del dado
+       'n' è il numero di tiri effettuati
+       max(valori) è il valore massimo dei valori ottenuti dai tiri
+
+Per la dimostrazione vedi "Quanti sono?" in "Note libere 6".
+
+Scriviamo una funzione per calcolare questo valore e facciamo alcune prove.
+
+(define (stima lst)
+  (let (oss (length lst))
+    (sub (div (mul (add oss 1) (apply max lst)) oss) 1)))
+
+(stima '(1 1 2 2 3 3 4 4 5 6))
+;-> 5.6
+
+Scriviamo una funzione che calcola l'errore medio percentuale di un certo numero (iter) di applicazioni della formula:
+
+(define (test maxN num-roll iter)
+  (local (numbers guesses N roll guess err e)
+    (setq numbers '())
+    (setq guesses '())
+    (setq err 0)
+    (for (i 1 iter)
+        (setq N (+ (rand maxN) 1))
+        (setq roll (dice-lst num-roll N))
+        (setq guess (int (add 0.5 (stima roll))))
+        (if (zero? guess) (setq guess 1))
+        (setq e (abs (div (sub N guess) N)))
+        ;(setq err (+ err (abs (div (sub N guess) guess))))
+        ;(println (println "N = " N { } "roll = " roll { } "stima = " guess { } "e = " e))
+        ;(read-line)
+        (setq err (add err e))
+    )
+    (div err iter)))
+
+Genera 1e6 eventi con un numero di facce casuale tra 1 e 100 e 10 tiri e calcola l'errore percentuale medio:
+
+(test 100 10 1e6)
+;-> 0.07440060925119964
+
+Genera 1e6 eventi con un numero di facce casuale tra 1 e 20 e 5 tiri e calcola l'errore percentuale medio:
+
+(test 20 5 1e6)
+;-> 0.1322282819228868
+
+
+-------------------
+Anagrammi di numeri
+-------------------
+
+Trovare tutti i numeri interi positivi n tali che n e (k*n +- 1) (con k = 1,2,3,...) sono anagrammi.
+In altre parole n e (k*n +- 1) hanno le stesse cifre (in ordine diverso).
+
+Utilizziamo una funzione che prende come parametro una espressione esplicita di (k*n +- 1):
+
+(define (gen limit expr)
+  (local (a b out)
+    (setq out '())
+    (for (i 1 limit)
+      (setq a (explode (string i)))
+      (setq b (explode (string (eval expr))))
+      (if (= (sort a) (sort b))
+          (push i out -1)
+      )
+    )
+    out))
+
+(gen 1e6 '(* 2 i))
+;-> (125874 128574 142587 142857 258714 258741 285714 285741 412587 412857 425871 428571)
+(gen 1e6 '(* 2 i))
+;-> (125874 128574 142587 142857 258714 258741 285714 285741 412587 412857 425871 428571)
+(gen 1e6 '(* 3 i) 1)
+;-> (1035 2475 10035 10350 12375 14247 14724 23751 24147 24714 24750 24876 24975 27585
+;->  28575 100035 100350 102375 103428 103500 107235 113724 114237 123507 123714 123750
+;->  123876 123975 124137 128034 134505 135045 137124 137241 138456 138546 140247 141237
+;->  142371 142470 142497 142857 143505 143793 143856 145035 145386 147024 147240 149724
+;->  150345 150435 153846 154386 157284 158427 172575 175257 175725 189657 196587 206793
+;->  206856 207693 230679 230769 235071 235107 237114 237141 237501 237510 238761 239751
+;->  240147 241137 241371 241470 241497 242748 247014 247140 247428 247500 248274 248760
+;->  248976 249714 249750 249876 249975 251757 257175 257517 271584 274248 274824 275850
+;->  275886 275985 276489 280341 281034 282474 284157 285714 285750 285876 285975 287586
+;->  287649 288576 297585 298575 306792 307692 314379 320679 320769)
+(gen 1e6 '(- (* 2 i) 1))
+;-> (1 37 316 397 3016 3196 3367 3997 12574 25714 30016 30196 30367 31996 33166 33697
+;->  33967 39997 102574 105274 107254 107524 120754 124579 124759 125074 125632 125704
+;->  125749 125974 127054 127459 129574 132562 145729 147259 157438 158743 174358 185743
+;->  207514 210754 214579 214759 250714 251074 256132 256312 257014 257104 257149 259714
+;->  270514 271054 271459 295714 300016 300196 300367 301996 303166 303697 303967 312562
+;->  319996 325612 330166 331696 331966 333667 336997 339697 339967 357418 374158 399997
+;->  415738 415873 417358 418573 435718 437158 457129 471259)
+(gen 1e6 '(+ (* 2 i) 1))
+;-> (125 1025 1052 1250 1259 1295 2510 10025 10052 10250 10259 10295 10502 10529 10952
+;->  12500 12509 12599 12950 12959 12995 13256 13265 15632 16325 25010 25100 25109 25631
+;->  26315 29510 31256 31265 31562 31625 32561 32615 100025 100052 100250 100259 100295
+;->  100502 100529 100952 102500 102509 102599 102950 102959 102995 103256 103265 105002
+;->  105029 105299 105326 106532 109502 109529 109952 125000 125009 125099 125306 125999
+;->  126530 129500 129509 129599 129950 129959 129995 130256 130265 130526 130652 132506
+;->  132569 132596 132650 132659 132695 132956 132965 150632 152630 153062 153260 156032
+;->  156302 156329 159632 160325 160532 162530 163025 163052 163250 163259 163295 195632
+;->  196325 250010 250100 250109 250631 251000 251009 251099 251306 251630 253061 253106
+;->  253160 256031 256301 256319 259631 260315 260531 261530 263015 263051 263150 263159
+;->  263195 265130 265310 295010 295100 295109 295631 296315 299510 301256 301265 301562
+;->  301625 302561 302615 305126 305162 305261 306152 306251 306512 310256 310265 310526
+;->  310652 312506 312569 312596 312650 312659 312695 312956 312965 315062 315260 315602
+;->  315629 315962 316025 316052 316250 316259 316295 319562 319625 325061 325106 325160
+;->  325601 325619 325961 326015 326051 326150 326159 326195 326510 329561 329615)
+(gen 1e6 '(- (* 3 i) 1))
+;-> (14 2471 2507 2876 12371 14639 16439 23711 24701 24971 25007 25097 26087 28571 28976
+;->  29876 102371 103514 103649 105134 106349 113504 115034 123701 123971 130469 135104
+;->  143690 144383 146399 147524 148964 151034 152474 164399 164894 172571 195638 196538
+;->  206690 213746 214376 220676 237011 237101 239711 240827 242807 247001 247514 247649
+;->  249701 249971 250007 250097 250997 251474 257171 260087 260897 260987 264749 274856
+;->  275486 282407 284756 285476 285701 285971 289976 298571 298976 299876 310469)
+(gen 1e6 '(+ (* 3 i) 1))
+;-> (103 247 1003 1237 2497 2758 2857 10003 10237 10723 12397 13450 13504 14350 14503
+;->  15034 15043 17257 17572 24997 25717 27598 28597 29758 29857 100003 100237 100723
+;->  102397 107023 109723 123997 134500 135004 137452 137524 138946 138964 143500 143752
+;->  143896 145003 145237 146389 150034 150043 152374 152437 163894 164389 170257 172597
+;->  175702 175972 197257 197572 206752 206896 208696 225067 237451 237514 243751 245137
+;->  249997 251374 251437 252067 257017 257197 259717 275998 285997 297598 298597 299758
+;->  299857)
+
+
+---------------------------
+Serializzazione di funzioni
+---------------------------
+
+Creiamo una funzione che applica in serie le funzioni ad un valore iniziale o ad una lista di valori iniziali.
+
+(define (apply-func fn-list values)
+  (cond ((list? values)
+          (dolist (f fn-list) (setq values (map (eval f) values))))
+        (true
+          (dolist (f fn-list) (setq values ((eval f) values))))
+  )
+  values)
+
+Con un valore iniziale
+(cos (sin 0.5))
+;-> 0.8872600507176526
+(apply-func '(sin cos) 0.5)
+;-> 0.8872600507176526
+(apply-func '(sin cos) 0.2)
+;-> 0.9803300732314021
+(cos (sin 0.2))
+;-> 0.9803300732314021
+
+Con una lista di valori iniziali:
+(apply-func '(sin cos) '(0.5 0.2))
+;-> (0.8872600507176526 0.9803300732314021)
+
+Vedere anche "Composizione multipla di funzioni" in "Note libere 7" e "Composizione di funzioni" su "Rosetta code".
 
 =============================================================================
 

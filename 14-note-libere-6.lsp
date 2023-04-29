@@ -5675,17 +5675,20 @@ Quanti sono?
 
 Una persona ferma sul ciglio della strada guarda una corsa campestre. Vede passare 6 concorrenti con i seguenti numeri 5, 10, 35 42, 63, 21. Quanti sono, presumibilmente, gli N partecipanti alla corsa?
 
-Si può dimostrare che la media (valore atteso) del valore massimo di una serie (X1, X2, ..., XN) abbastanza ampia di n elementi osservati è data da:
+Dal punto di vista matematico abbiamo una lista di oggetti 1,2,3,...N con il valore di N sconosciuto.
+Da un campione casuale X1, X2, X3, ... , Xn di dimensione n senza sostituzione da questa popolazione, consideriamo come stimare N.
+Si può dimostrare, infatti, che se si osserva un gran numero di tali campioni, ciascuno di dimensione n, il valore medio (il valore atteso) di
+tutti i massimi Xi presi da ciascun campione sono dati da
 
-                n*(N + 1)
-  max(X(i)) = -------------
-                 (n + 1)
+                   n*(N + 1)
+  E[max(X(i))] = -------------
+                    (n + 1)
 
-Se poniamo max(X(i)) = max(n), cioè supponiamo che il valore atteso sia uguale al valore massimo osservato, allora possiamo stimare il numero risulta:
+Se poniamo E[max(X(i))] = max(X(i)), cioè supponiamo che il valore atteso sia uguale al valore massimo osservato, allora possiamo stimare il numero N: 
 
-             n*(N + 1)              (n + 1)
-  max(n) = -------------  ==>  N = ---------*max(n) - 1
-              (n + 1)                  n
+                               n*(N + 1)              (n + 1)
+  E[max(X(i))] = max(X(i)) = -------------  ==>  N = ---------*max(X(i)) - 1
+                                (n + 1)                  n
 
 Scriviamo una funzione per calcolare questo valore e facciamo alcune prove.
 
