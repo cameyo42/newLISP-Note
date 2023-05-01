@@ -529,6 +529,7 @@ LIBRERIE
   Operazioni con gli insiemi
   Funzioni winapi
   Operazioni con gli alberi binari
+  Simulazione dadi
   funlisp.lsp (by Dmitry Chernyak)
   The Little newLISPER (newlisper.lsp)
   MessageBox (by Dexter Santucci)
@@ -1778,7 +1779,11 @@ NOTE LIBERE 15
   Quante facce ha un dado?
   Anagrammi di numeri
   Serializzazione di funzioni
-  
+
+NOTE LIBERE 16
+==============  
+  Lancio di una moneta e probabilità (Fibonacci)
+  Probabilità a Monopoli
 
 PROBLEMI SUI DADI
 =================

@@ -7916,6 +7916,9 @@ Con una lista di valori iniziali:
 (apply-func '(sin cos) '(0.5 0.2))
 ;-> (0.8872600507176526 0.9803300732314021)
 
+(println (apply-func (list reverse upper-case explode) "newLISP"))
+;-> ("P" "S" "I" "L" "W" "E" "N")
+
 Vedere anche "Composizione multipla di funzioni" in "Note libere 7" e "Composizione di funzioni" su "Rosetta code".
 
 =============================================================================

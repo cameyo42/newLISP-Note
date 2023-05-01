@@ -2327,6 +2327,152 @@ Per caricare la libreria nella REPL:
 (load "tree-library.lsp")
 
 
+==================
+ SIMULAZIONE DADI
+==================
+
+Alcune funzioni per simulare il lancio di dadi generici.
+
+; Roll a die with S sides
+(define (die s) (+ (rand s) 1))
+
+; Roll a die with 6 sides
+(define (die6) (+ (rand 6) 1))
+
+; Roll N die with S sides and return the sum of numbers
+(define (dice n s) (+ n (apply + (rand s n))))
+(dice 10 4)
+;-> 19
+
+; Roll N die with 6 sides and return the sum of numbers
+(define (dice6 n) (+ n (apply + (rand 6 n))))
+(dice6 10)
+;-> 38
+
+; Roll N die with S sides and return the list of numbers
+(define (dice-lst n s) (map (curry + 1) (rand s n)))
+(dice-lst 4 8)
+;-> (7 7 5 3)
+
+; Roll N die with 6 sides and return the list of numbers
+(define (dice6-lst n) (map (curry + 1) (rand 6 n)))
+(dice6-lst 5)
+;-> (1 3 2 6 2)
+
+; Roll N die with s sides and return a list with the frequency of all faces
+(define (dice-lst-freq n s) (count (sequence 1 s) (dice-lst n s)))
+(dice-lst-freq 20 8)
+;-> (3 3 3 4 0 5 1 1)
+
+; Roll N die with 6 sides and return a list with the frequency of all faces
+(define (dice6-lst-freq n) (count '(1 2 3 4 5 6) (dice6-lst n)))
+(dice6-lst-freq 12)
+;-> (1 3 0 4 3 1)
+
+; Convert probability (0..1) to "1 in x events"
+(define (one-in prob) (int (add 0.5 (div prob))))
+(one-in 0.5)
+;-> 2
+
+; Roll a non-fair dice with N sides
+; Get a list of N probabilities (one prob for each sides)
+; and return a random number (0..N-1) with the distribution
+; of the probabilities predefined
+; Nota: the sum of probabilities must be 1.
+(define (rand-pick lst)
+  (local (rnd stop out)
+    ; generiamo un numero random diverso da 1
+    ; (per evitare errori di arrotondamento)
+    (while (= (setq rnd (random)) 1))
+    (setq stop nil)
+    (dolist (p lst stop)
+      ; sottraiamo la probabilità corrente al numero random...
+      (setq rnd (sub rnd p))
+      ; se il risultato è minore di zero,
+      ; allora restituiamo l'indice della probabilità corrente
+      (if (< rnd 0)
+          (set 'out $idx 'stop true)
+      )
+    )
+    out))
+
+Tests:
+
+(setq dice4-prob '(0.05 0.15 0.35 0.45))
+(apply add dice4-prob)
+;-> 1
+(rand-pick dice4-prob)
+;-> 2
+
+(setq dice4-prob '(0.05 0.15 0.35 0.45))
+(apply add dice4-prob)
+;-> 1
+(setq vet (array 4 '(0)))
+;-> (0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick dice4-prob))))
+vet
+;-> (50087 150175 349614 450124)
+(apply + vet)
+;-> 1000000
+
+(setq dice6-prob '(0.01 0.01 0.01 0.77 0.1 0.1))
+(apply add dice6-prob)
+;-> 1
+(setq vet (array 6 '(0)))
+;-> (0 0 0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick dice6-prob))))
+vet
+;-> (9821 10070 9923 770122 100288 99776)
+
+(setq dice6-prob '(0.1 0.0 0.2 0.3 0.0 0.4))
+(apply add dice6-prob)
+;-> 1
+(setq vet (array 6 '(0)))
+;-> (0 0 0 0 0 0)
+(for (i 0 999999) (++ (vet (rand-pick dice6-prob))))
+vet
+;-> (100015 0 200371 300148 0 399466)
+
+; Roll a die with N sides with non-standard numeration
+; Get a list with the values of each face
+; Return an element of the list
+(define (rand-lst lst) (lst (rand (length lst))))
+
+(setq d1 '(1 2 2 3 3 4))
+(setq d2 '(1 3 4 5 6 8))
+
+(rand-lst d1)
+;-> 3
+(rand-lst d2)
+;-> 6
+
+Probability for d1:
+
+(setq freq (array 5 '(0)))
+(for (i 1 1e6) (++ (freq (rand-lst d1))))
+(dolist (f freq) (println $idx { } (div f 1e6)))
+;-> 0 0
+;-> 1 0.166152
+;-> 2 0.334015
+;-> 3 0.332892
+;-> 4 0.166941
+
+Probability for d2:
+
+(setq freq (array 9 '(0)))
+(for (i 1 1e6) (++ (freq (rand-lst d2))))
+(dolist (f freq) (println $idx { } (div f 1e6)))
+;-> 0 0
+;-> 1 0.166818
+;-> 2 0
+;-> 3 0.166644
+;-> 4 0.167115
+;-> 5 0.166344
+;-> 6 0.166272
+;-> 7 0
+;-> 8 0.166807
+
+
 =========
  FUNLISP
 =========
