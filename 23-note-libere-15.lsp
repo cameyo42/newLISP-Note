@@ -7287,6 +7287,8 @@ It might need "flat" on the ref-all but ref/ref-all also traverses the lst recur
 
 Secondo caso (by ralph.ronnquist)
 ------------
+(filter (fn (i) (= pat (i (length pat) lst))) (flat (ref (pat 0) lst)))
+;-> (3)
 (filter (fn (i) (= pat (i (length pat) lst))) (flat (ref-all (pat 0) lst)))
 ;-> (3 9)
 

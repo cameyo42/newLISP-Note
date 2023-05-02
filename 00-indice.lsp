@@ -1784,6 +1784,8 @@ NOTE LIBERE 16
 ==============  
   Lancio di una moneta e probabilità (Fibonacci)
   Probabilità a Monopoli
+  Forum: Macro version of define that prints args when func is called
+  Cattura Numeri (gioco)
 
 PROBLEMI SUI DADI
 =================
@@ -1824,7 +1826,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (231 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (234 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

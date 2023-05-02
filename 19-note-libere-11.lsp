@@ -2495,6 +2495,9 @@ Quindi "hayashi" può essere usato in modo simile a "curry" in base al modo con 
 
 Comunque "hayashi" permette di "passare" più parametri alla funzione da applicare.
 
+(hayashi + 1 2)
+;-> (lambda (_x) (+ _x 1 2))
+
 Per esempio, supponiamo di avere la seguente funzione:
 
   f(k x y) = k*(x + y)
@@ -2509,7 +2512,13 @@ Per esempio, supponiamo di avere la seguente funzione:
 ;-> 10
 
 Se vogliamo conoscere i valori assunti da f(k x y) per x = 1, y = 1 e k che varia da 0 a 10, possiamo scrivere:
-
+(f 0 1 1)
+;-> 0
+(f 1 1 1)
+;-> 2
+(f 2 1 1)
+;-> 4
+...
 (map (hayashi f 1 1) (sequence 0 10))
 ;-> (0 2 4 6 8 10 12 14 16 18 20)
 
@@ -2536,6 +2545,30 @@ Se vogliamo passare più parametri dobbiamo usare "curry-ext":
 
 (map (curry-ext + 10 20) (sequence 1 10))
 ;-> (31 32 33 34 35 36 37 38 39 40)
+
+Nel caso della funzione f(k x y) definita sopra, "curry-ext" calcola i valori per k = 1, x = 1 e y cha varia da 0 a 10:
+
+(f 1 1 0) 
+;-> 1
+(f 1 1 1) 
+;-> 2
+(f 1 1 2)
+;-> 3
+...
+(map (curry-ext f 1 1) (sequence 0 10))
+;-> (1 2 3 4 5 6 7 8 9 10 11)
+
+Vediamo una funzione che si comporta come "curry-ext" (by Cyril):
+
+(define (cu fun)
+  (letex (Fun fun Args (args))
+    (lambda () (apply Fun (append 'Args (args))))))
+
+(cu + 1 2 3)
+;-> (lambda () (apply +@41493E (append '(1 2 3) (args))))
+
+((cu + 1 2 3) 4 5)
+;-> 15
 
 
 -----------------------------------

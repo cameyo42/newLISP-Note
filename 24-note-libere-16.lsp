@@ -313,55 +313,444 @@ Funzione di simulazione per calcolare la frequenza di visita di tutte le caselle
       )
     )
     (setq tot (apply + freq))
-    (dolist (f freq) (println (format "%24s %5.4f" (lookup $idx caselle) (mul 100 (div f tot)))))
+    (dolist (f freq) (println (format "%24s %5.4f%%" (lookup $idx caselle) (mul 100 (div f tot)))))
     (println "Numero lanci:" iter)
     (println "Numero spostamenti: " tot)))
 
 Eseguiamo la simulazione:
 
 (monopoli 1e7)
-;->                     VIA! 2.2357
-;->             Vicolo Corto 2.2573
-;->              Probabilità 2.2600
-;->           Vicolo Stretto 2.2931
-;->       Tassa patrimoniale 2.2639
-;->             Stazione Sud 2.2410
-;->      Bastioni Gran Sasso 2.2320
-;->               Imprevisti 2.2365
-;->          Viale Monterosa 2.2436
-;->            Viale Vesuvio 2.2538
-;->        Prigione/Transito 4.8627
-;->            Via Accademia 2.2522
-;->        Società Elettrica 2.3206
-;->             Corso Ateneo 2.3955
-;->        Piazza Università 2.4551
-;->           Stazione Ovest 2.5482
-;->                Via Verdi 2.6275
-;->              Probabilità 2.7298
-;->          Corso Raffaello 2.6792
-;->             Piazza Dante 2.6506
-;->       Posteggio gratuito 2.6364
-;->           Via Marco Polo 2.6208
-;->               Imprevisti 2.5947
-;->          Corso Magellano 2.5751
-;->            Largo Colombo 2.6124
-;->            Stazione Nord 2.6270
-;->         Viale Costantino 2.6378
-;->            Viale Traiano 2.6358
-;->   Società Acqua Potabile 2.6263
-;->     Piazza Giulio Cesare 2.6288
-;->             In prigione! 2.6133
-;->                 Via Roma 2.6111
-;->             Corso Impero 2.5460
-;->              Probabilità 2.4788
-;->            Largo Augusto 2.4049
-;->             Stazione Est 2.3185
-;->               Imprevisti 2.2404
-;->       Viale dei Giardini 2.1504
-;->          Tassa del lusso 2.1896
-;->     Parco della Vittoria 2.2135
+;->                     VIA! 2.2357%
+;->             Vicolo Corto 2.2573%
+;->              Probabilità 2.2600%
+;->           Vicolo Stretto 2.2931%
+;->       Tassa patrimoniale 2.2639%
+;->             Stazione Sud 2.2410%
+;->      Bastioni Gran Sasso 2.2320%
+;->               Imprevisti 2.2365%
+;->          Viale Monterosa 2.2436%
+;->            Viale Vesuvio 2.2538%
+;->        Prigione/Transito 4.8627%
+;->            Via Accademia 2.2522%
+;->        Società Elettrica 2.3206%
+;->             Corso Ateneo 2.3955%
+;->        Piazza Università 2.4551%
+;->           Stazione Ovest 2.5482%
+;->                Via Verdi 2.6275%
+;->              Probabilità 2.7298%
+;->          Corso Raffaello 2.6792%
+;->             Piazza Dante 2.6506%
+;->       Posteggio gratuito 2.6364%
+;->           Via Marco Polo 2.6208%
+;->               Imprevisti 2.5947%
+;->          Corso Magellano 2.5751%
+;->            Largo Colombo 2.6124%
+;->            Stazione Nord 2.6270%
+;->         Viale Costantino 2.6378%
+;->            Viale Traiano 2.6358%
+;->   Società Acqua Potabile 2.6263%
+;->     Piazza Giulio Cesare 2.6288%
+;->             In prigione! 2.6133%
+;->                 Via Roma 2.6111%
+;->             Corso Impero 2.5460%
+;->              Probabilità 2.4788%
+;->            Largo Augusto 2.4049%
+;->             Stazione Est 2.3185%
+;->               Imprevisti 2.2404%
+;->       Viale dei Giardini 2.1504%
+;->          Tassa del lusso 2.1896%
+;->     Parco della Vittoria 2.2135%
 ;-> Numero lanci:10000000
 ;-> Numero spostamenti: 10268355
+
+
+-------------------------------------------------------------------
+Forum: Macro version of define that prints args when func is called
+-------------------------------------------------------------------
+
+cormullion:
+-----------
+Hi. I'm trying to make a new version of define, such that when the function it defines is called, it prints its arguments (eg to a log file).
+I think it should be possible.
+
+Here's how far I've got:
+
+(define-macro (my-define)
+  (set (args 0 0)
+    (append (lambda)
+      (list
+        (rest (first (args))))
+        (println {call } (first (args)))
+        (rest (args)))))
+
+(my-define (p2 a1 a2) (println a1) (println a2))
+;-> call (p2 a1 a2)
+;-> (lambda (a1 a2) p2 a1 a2 (println a1) (println a2))
+
+(p2 "bill" "bob")
+;-> bill
+;-> bob
+
+But this prints the arguments when the function is first defined, not when it's subsequently called. Is there a way of delaying that 'print' till later on?
+
+Fanda:
+------
+'define' creates a lambda function/list. 
+You need to include your 'print' functions into the newly created function:
+
+Try if this works:
+
+(define-macro (my-define @farg)
+   (set (@farg 0)
+      (letex (@arg (rest @farg)
+                  @arg-p (cons 'list (map (fn (@x) (if (list? @x) (first @x) @x)) (rest @farg)))
+                  @body (args))
+         (append (lambda @arg
+            (println "params: " @arg-p)
+            (println "args: " (args)))
+            '@body))))
+
+(constant (global 'define) my-define)
+
+Example:
+
+(define (f x) (+ x x))
+;-> (lambda (x) (println "params: " (list x)) (println "args: " (args)) (+ x x))
+f
+;-> (lambda (x) (println "params: " (list x)) (println "args: " (args)) (+ x x))
+(f 2)
+;-> params: (2)
+;-> args: ()
+;-> 4
+(f 2 3 4)
+;-> params: (2)
+;-> args: (3 4)
+;-> 4
+
+(define (f (x 10)) (+ x x))
+;-> (lambda ((x 10)) (println "params: " (list x)) (println "args: " (args))
+;->  (+ x x))
+f
+;-> (lambda ((x 10)) (println "params: " (list x)) (println "args: " (args))
+;->  (+ x x))
+(f)
+;-> params: (10)
+;-> args: ()
+;-> 20
+(f 3)
+;-> params: (3)
+;-> args: ()
+;-> 6
+(f 3 4 5)
+;-> params: (3)
+;-> args: (4 5)
+;-> 6
+
+Lutz:
+-----
+Fanda wrote: (constant (global 'define) my-define)
+Nice idea.
+
+cormullion:
+-----------
+
+Wicked cool, Fanda! You've done the clever bit for me...
+I might change those @ signs to something else - I find them visually distracting... Underscores appear to work...
+thanks!
+
+Could this be easily modified so that the function name is also printed?
+Edit: oh yes, i see:
+
+(define-macro (my-define @farg)
+   (set @fn (@farg 0)) ; that's the function name
+   (set (@farg 0)
+      (letex....
+
+Edit 2: Ah, that doesn't work properly because it's global... Hmm
+
+Fanda:
+-----
+
+Again, you need to put the function name inside the 'println' inside the 'lambda fn'.
+
+(define-macro (my-define @farg)
+  (set (@farg 0)
+    (letex (@fn (@farg 0)
+            @arg (rest @farg)
+            @arg-p (cons 'list (map (fn (@x) (if (list? @x) (first @x) @x)) (rest @farg)))
+            @body (args))
+      (append
+           (lambda @arg (println "[" '@fn "] params: " @arg-p " args: " (args)))
+        '@body))))
+
+(constant (global 'define) my-define)
+
+Example:
+
+(define (f x) (+ x x))
+;-> (lambda (x) (println "[" 'f "] params: " (list x) " args: " (args)) (+ x x))
+f
+;-> (lambda (x) (println "[" 'f "] params: " (list x) " args: " (args)) (+ x x))
+(f 2)
+;-> [f] params: (2) args: ()
+;-> 4
+
+(define (f (x 10) y) (+ x y))
+;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: " (args))
+ ;-> (+ x y))
+(f 2 3)
+;-> [f] params: (2 3) args: ()
+;-> 5
+(f 2 3 4 5)
+;-> [f] params: (2 3) args: (4 5)
+;-> 5
+
+PS: I am using @ sign as an other-than-underscore sign, because some functions can be macro-like and use underscores for their variables.
+
+One more version returning result of a function:
+
+(define-macro (my-define @farg)
+  (set (@farg 0)
+    (letex (@fn (@farg 0)
+            @arg (rest @farg)
+            @arg-p (cons 'list (map (fn (@x) (if (list? @x) (first @x) @x)) (rest @farg)))
+            @body (cons 'begin (args)))
+       (lambda @arg
+         (println "[" '@fn "] params: " @arg-p " args: " (args))
+         (println "[" '@fn "] result: " @body)))))
+
+(constant (global 'define) my-define)
+
+Example:
+
+(define (f (x 10) y) (+ x y))
+;-> (lambda ((x 10) y) (println "[" 'f "] params: " (list x y) " args: "
+;->   (args))
+;->  (println "[" 'f "] result: "
+;->   (begin
+;->    (+ x y))))
+(f 2 3)
+;-> [f] params: (2 3) args: ()
+;-> [f] result: 5
+;-> 5
+(f 2 3 4 5)
+;-> [f] params: (2 3) args: (4 5)
+;-> [f] result: 5
+;-> 5
+
+cormullion:
+-----------
+
+Aha - that looks like the one.
+I find these constructions really difficult to conjure up, and so I'm really glad for your help. Perhap's it's something to do with the hypothetical nature of things that are going to be evaluated sometime in the future but now now...
+thanks!
+
+
+----------------------
+Cattura Numeri (gioco)
+----------------------
+
+Questo gioco utilizza una griglia NxN, dove N è un numero pari.
+Ogni cella della griglia contiene un numero. 
+I numeri vanno da 1 a N^2, ogni numero appare esattamente una volta.
+A turno, due giocatori scelgono un numero dalla griglia.
+Il numero scelto viene rimosso dalla griglia e viene aggiunto al punteggio del relativo giocatore.
+Si possono scegliere solo i numeri che hanno una cella adiacente vuota (cioè quei numeri che hanno una cella vuota immediatamente sopra, sotto o direttamente alla sua sinistra o destra).
+Poiché all'inizio non ci sono caselle vuote, il primo giocatore, alla sua prima mossa, può scegliere una qualsiasi delle N^2 caselle possibili che non abbia un valore superiore al 40% del valore massimo (40% di N^2).
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    (setq digit (+ 1 lenmax))
+    (setq fmtstr (append "%" (string digit) "s"))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Per simulare il gioco supponiamo che la strategia dei giocatori sia quella di selezionare dalla griglia il massimo valore possibile.
+
+Funzione che trova in una matrice il valore massimo che ha uno 0 adiacente:
+
+(define (find-max)
+  (let (val-max 0)
+    (for (i 0 (- n 1))
+      (for (j 0 (- n 1))
+        (if (!= (grid i j) 0)
+          (if (or (and (> i 0) (= (grid (- i 1) j) 0))
+                  (and (< i (- n 1)) (= (grid (+ i 1) j) 0))
+                  (and (> j 0) (= (grid i (- j 1)) 0))
+                  (and (< j (- n 1)) (= (grid i (+ j 1)) 0)))
+              (setq val-max (max (grid i j) val-max))))))
+    val-max))
+
+Funzionamento del gioco:
+
+(setq n 6)
+(setq grid (array n n (randomize (sequence 1 (* n n)))))
+(print-matrix grid)
+;->   7 35 10 26 15 12
+;->  13  9 18 29  3 30
+;->  34 32 24 25  2 19
+;->  11  6 36 22 20 14
+;->   8  1 16 33 23  4
+;->  28 17  5 31 21 27
+(setf (grid 0 1) 0) ;select 35
+(print-matrix grid)
+;->   7  0 10 26 15 12
+;->  13  9 18 29  3 30
+;->  34 32 24 25  2 19
+;->  11  6 36 22 20 14
+;->   8  1 16 33 23  4
+;->  28 17  5 31 21 27
+(find-max) ; max value in grid with adjacent 0
+;-> 10
+(setf (grid 0 2) 0) ;select 10
+(print-matrix grid)
+;->   7  0  0 26 15 12
+;->  13  9 18 29  3 30
+;->  34 32 24 25  2 19
+;->  11  6 36 22 20 14
+;->   8  1 16 33 23  4
+;->  28 17  5 31 21 27
+(find-max) ; max value in grid with adjacent 0
+;-> 26
+...
+
+Funzione che effettua una partita tra due giocatori:
+
+(define (game n start)
+  (local (p1 p2 grid res)
+    (setq p1 0) (setq p2 0)
+    (setq grid (array-list (array n n (randomize (sequence 1 (* n n))))))
+    ; p1 first move
+    ; Rimuovere il commento relativo per calcolare le probabilità
+    ; con varie scelte della casella iniziale:
+    ;(setq res (+ (rand (* n n)) 1)) ; random
+    ;(setq res (* n n) ; highest
+    ;(setq res 1) ; lowest
+    ;(setq res (div (* n n) 2)) ; middle
+    (setq res start)
+    (++ p1 res)
+    (set-ref res grid 0)
+    ;(print-matrix grid)
+    ;(println res)
+    ;(read-line)
+    ; p2 first move
+    (setq res (find-max))
+    (++ p2 res)
+    (set-ref res grid 0)
+    ;(print-matrix grid)
+    ;(println res)
+    ;(read-line)
+    (for (i 1 (- (div (* n n) 2) 1))
+      ; i-th move for p1
+      (setq res (find-max))
+      (++ p1 res)
+      (set-ref res grid 0)
+      ;(print-matrix grid)
+      ;(println res)
+      ;(read-line)
+      ; i-th move for p2
+      (setq res (find-max))
+      (++ p2 res)
+      (set-ref res grid 0)
+      ;(print-matrix grid)
+      ;(println res)
+      ;(read-line)
+    )
+    (if (= p1 p2) 0
+        (> p1 p2) 1
+        (< p1 p2) 2
+    )))
+
+Facciamo alcune prove con valori diversi di N e con diversi modi di scegliere il primo numero:
+
+; random
+(setq freq (array 3 '(0)))
+(time (for (i 1 1e6) (++ (freq (game 2)))))
+;-> 6410.919
+freq
+;-> (401652 424337 174011)
+
+(setq freq (array 3 '(0)))
+(time (for (i 1 1e6) (++ (freq (game 6)))))
+;-> 410404.958
+freq
+;-> (24902 539798 435300)
+
+; lowest (1)
+(time (for (i 1 1e6) (++ (freq (game 2)))))
+;-> 6322.021
+freq
+;-> (304802 0 695198)
+
+(setq freq (array 3 '(0)))
+(time (for (i 1 1e6) (++ (freq (game 6)))))
+;-> 410130.575
+freq
+;-> (24114 307738 668148)
+
+; middle (N*N)/2
+(setq freq (array 3 '(0)))
+(time (for (i 1 1e6) (++ (freq (game 2)))))
+;-> 5751.165
+freq
+;-> (651766 348234 0)
+
+(setq freq (array 3 '(0)))
+(time (for (i 1 1e6) (++ (freq (game 6)))))
+;-> 391872.938
+freq
+;-> (25996 536356 437648)
+
+Funzione che effettua un numero di partite predefinito:
+
+(define (test n start iter)
+  (local (freq)
+    (setq freq (array 3 '(0)))
+    (for (i 1 iter) (++ (freq (game n start))))
+    (println "n: " n { } "start: " start { } "freq: " freq)))
+
+Vediamo quale scelta alla prima mossa rende la partita equa:
+
+60% N^2
+(test 10 60 1e3)
+;-> n: 10 start: 60 freq: (7 546 447)
+
+50% N^2
+(test 10 50 1e3)
+;-> n: 10 start: 50 freq: (5 525 470)
+
+40% N^2
+(test 10 40 1e3)
+;-> n: 10 start: 40 freq: (6 491 503)
+(test 10 40 1e4)
+
+(test 10 40 1e5)
+;-> n: 10 start: 40 freq: (639 50255 49106)
+(test 8 26 1e3)
+;-> n: 8 start: 26 freq: (13 493 494)
+(test 8 26 1e4)
+;-> n: 8 start: 26 freq: (108 4958 4934)
+(test 6 14 1e3)
+;-> n: 6 start: 14 freq: (20 491 489)
+(test 6 14 1e4)
+;-> n: 6 start: 14 freq: (252 4756 4992)
+(test 12 58 1e3)
+;-> n: 12 start: 58 freq: (3 496 501)
+(test 12 58 1e4)
+;-> n: 12 start: 58 freq: (43 5057 4900)
+
+Sembra che l'opzione del 40% di N^2 come prima scelta sia abbastanza equa.
+Comunque anche l'opzione di prima scelta casuale rende il gioco interessante.
+
+Nota: la strategia di scegliere sempre il valore massimo tra quelli possibili non è la migliore in tutte le posizioni. Bisogna anche considerare quali numeri si mettono a disposizione dell'avversario con la nostra mossa.
 
 =============================================================================
 
