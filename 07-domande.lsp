@@ -1959,10 +1959,10 @@ L'algoritmo è il seguente:
 
 A. Inizialmente parità = 0
 B. Ciclo while n! = 0
-       1. Invertire la parità
-          parità = not parità
-       2. Annullare il bit 1 più a destra del numero con l'operatore bitwise AND "&"
-          n = n & (n-1)
+       1. Invertire la parità
+          parità = not parità
+       2. Annullare il bit 1 più a destra del numero con l'operatore bitwise AND "&"
+          n = n & (n-1)
 C. Restituire parità (pari o dispari)
 
 Scriviamo la funzione:
@@ -3950,8 +3950,8 @@ Il problema può essere risolto anche con la programmazione dinamica.
 
 (define (conta monete num cifra)
   ; vett[i] memorizza il numero di soluzioni per il valore i.
-  ; Servono (n + 1) righe perchè la tabella viene costruita
-  ; in modo bottom-up usando il caso base (n = 0).
+  ; Servono (n + 1) righe perchè la tabella viene costruita
+  ; in modo bottom-up usando il caso base (n = 0).
   (let ((vett (array (+ cifra 1) '(0)))
         (i 0)
         (j 0))
@@ -4808,7 +4808,7 @@ Dirichlet ha dimostrato che questa probabilità vale:
 
 ----------
 Vediamo la dimostrazione a grandi linee:
-la probabilità che 2 numeri condividano un divisore primo è 1/p^2. Ciò significa che la probabilità che 2 numeri non condividano un fattore primo vale  (1 - 1/p^2). Allora, 1/2 di tutti i numeri hanno un fattore 2, 1/3 hanno un fattore 3, 1/4 hanno un fattore 4, ecc. Due numeri con fattore 2 sono entrambi (1/2)^2, entrambi con 3 è (1/3)^2, ecc. Questi sono eventi indipendenti quindi possiamo sommare tutte le p.
+la probabilità che 2 numeri condividano un divisore primo è 1/p^2. Ciò significa che la probabilità che 2 numeri non condividano un fattore primo vale  (1 - 1/p^2). Allora, 1/2 di tutti i numeri hanno un fattore 2, 1/3 hanno un fattore 3, 1/4 hanno un fattore 4, ecc. Due numeri con fattore 2 sono entrambi (1/2)^2, entrambi con 3 è (1/3)^2, ecc. Questi sono eventi indipendenti quindi possiamo sommare tutte le p.
 
 Verifichiamo l'equazione sopra ponendo A = B(n).
 
@@ -5233,10 +5233,10 @@ Complessità temporale dell'algoritmo: O(n^2).
 Pseudocodice:
 1. Ordinare tutti gli elementi dell'lista
 2. Eseguire il loop da i = 0 a n-2.
-     Inizializza due variabili indice l = i + 1 e r = n-1
+     Inizializza due variabili indice l = i + 1 e r = n-1
 4. while (l < r)
-     Controlla se la somma di lst[i], lst[l], lst[r] è uguale al valore Somma,
-     allora memorizza il risultato e aggiorna gli indici (l++) e (r--).
+     Controlla se la somma di lst[i], lst[l], lst[r] è uguale al valore Somma,
+     allora memorizza il risultato e aggiorna gli indici (l++) e (r--).
 5. Se la somma è inferiore alla somma indicata, allora l++
 6. Se la somma è maggiore della somma data, allora r--
 7. Se non esiste nella lista, soluzione non trovata.
@@ -6284,7 +6284,7 @@ La seguente funzione utilizza un algoritmo simile al precedente:
 (define (unique-substr str)
   (local (last-index len res-num res-str max-char idx cur-idx)
     (setq max-char 256)
-    ; Initialize the last index array as -1,
+    ; Initialize the last index array as -1,
     ; -1 is used to store last index of every character
     (setq last-index (array max-char '(-1)))
     (setq len (length str))
@@ -6292,10 +6292,10 @@ La seguente funzione utilizza un algoritmo simile al precedente:
     (setq res-str "")
     (setq idx 0)
     (for (j 0 (- len 1))
-      ; Find the last index of str[j]
-      ; Update i - starting index of current window -
-      ; as maximum of current value of i and last
-      ; index plus 1
+      ; Find the last index of str[j]
+      ; Update i - starting index of current window -
+      ; as maximum of current value of i and last
+      ; index plus 1
       (setq cur-idx (char (str j) 0 true)) ; for UTF-8
       (setq idx (max idx (+ (last-index cur-idx) 1)))
       ; Update result if we get a larger window

@@ -769,7 +769,7 @@ NUMERI DI HAMMING
 
 I numeri di Hamming sono numeri della forma:
 
-        H = 2^i × 3^j × 5^k
+        H = 2^i × 3^j × 5^k
 
 dove: i, j, k ≥ 0
 
@@ -1563,9 +1563,9 @@ SEQUENZA DI COLLATZ
 
 La sequenza di numeri di Collatz (o Hailstone) può essere generata da un numero intero positivo iniziale, n da:
 
-   se n è 1, la sequenza termina.
-   se n è pari anche allora il successivo n della sequenza vale n / 2
-   se n è dispari allora il successivo n della sequenza vale (3 * n) + 1
+   se n è 1, la sequenza termina.
+   se n è pari anche allora il successivo n della sequenza vale n / 2
+   se n è dispari allora il successivo n della sequenza vale (3 * n) + 1
 
 (define (collatz n)
   (if (= n 1) '(1)
@@ -4125,8 +4125,8 @@ Il mazzo dovrebbe contenere 54 carte uniche.
 Le funzioni devono includere la capacità di:
 
 1) crea un nuovo mazzo
-2) mischiare il mazzo (shuffle)
-3) Estrarre una carta dal mazzo
+2) mischiare il mazzo (shuffle)
+3) Estrarre una carta dal mazzo
 4) Stampare il contenuto del mazzo
 
 Ogni carta deve avere un valore e un seme che costituiscono il codice univoco della carta.
@@ -6175,12 +6175,12 @@ I passi da seguire sono i seguenti:
 
 1) Inizializza il risultato come num
 2) Considera ogni numero 'p' (dove 'p' varia da 2 a num).
-    Se p divide n, procedi come segue
-    a) Sottrai tutti i multipli di p da 1 a n (tutti i multipli di p
-       hanno gcd maggiore di 1 (almeno p) con num)
-    b) Aggiorna n dividendolo ripetutamente per p.
+    Se p divide n, procedi come segue
+    a) Sottrai tutti i multipli di p da 1 a n (tutti i multipli di p
+       hanno gcd maggiore di 1 (almeno p) con num)
+    b) Aggiorna n dividendolo ripetutamente per p.
 3) Se il valore ridotto di num è superiore a 1, rimuovi tutti i multipli
-    di num dal risultato.
+    di num dal risultato.
 
 (define (toziente-factor-int num)
   (let ((result num) (i 2))
@@ -6424,7 +6424,7 @@ Sia mod l'operatore modulo binario e d(x) la somma delle cifre decimali di x.
 È noto che d(x) mod 9 = x mod 9, per tutti i valori di x.
 Supponiamo che x · y sia un vampiro. Quindi contiene le stesse cifre di xey, in particolare d(x · y) = d(x) + d(y). Questo porta a:
 (x · y) mod 9 = d(x · y) mod 9 = (d(x) + d(y)) mod 9 = (d(x) mod 9 + d(y) mod 9) mod 9
-              = (x mod 9 + y mod 9) mod 9 = (x + y) mod 9
+              = (x mod 9 + y mod 9) mod 9 = (x + y) mod 9
 
 Le soluzioni alla congruenza sono (x mod 9, y mod 9) in ((0 0) (2 2) (3 6) (5 8) (6 3) (8 5)). Solo questi casi (6 su 81) devono essere testati nella ricerca di vampiri basata sul test di x · y per valori diversi di x e y.
 
@@ -7671,17 +7671,17 @@ Il problema presenta n persone disposte in circolo in attesa di una esecuzione. 
 Soluzione ricorsiva
 Il problema ha la seguente struttura ricorsiva.
 
-   giuseppe (n, k) = (giuseppe (n - 1, k) + k - 1) % n + 1
-   giuseppe (1, k) = 1
+   giuseppe (n, k) = (giuseppe (n - 1, k) + k - 1) % n + 1
+   giuseppe (1, k) = 1
 
 Dopo che la prima persona (kth dall'inizio) viene uccisa, rimangono n-1 persone. Quindi chiamiamo giuseppe (n - 1, k) per ottenere la posizione con n-1 persone. Ma la posizione restituita da giuseppe (n - 1, k) considererà la posizione a partire da k%n + 1. Quindi dobbiamo apportare modifiche alla posizione restituita da giuseppe (n - 1, k).
 
 (define (giuseppe n k)
   (if (= n 1) 1
       ; La posizione restituita da (giuseppe (n - 1) k)
-      ; viene aggiustata perché la chiamata ricorsiva
-      ; (giuseppe (n - 1) k) considera l'originale
-      ; posizione (k % n) + 1 come posizione 1
+      ; viene aggiustata perché la chiamata ricorsiva
+      ; (giuseppe (n - 1) k) considera l'originale
+      ; posizione (k % n) + 1 come posizione 1
       (+ (% (+ (giuseppe (- n 1) k) k -1) n) 1)))
 
 (giuseppe 14 2)
@@ -7711,8 +7711,8 @@ Nel caso k sia sempre uguale a 2, allora possiamo utilizzare un altro metodo:
 
 (define (giuseppe n)
   ; trova il valore di 2 ^ (1 + floor (Log n))
-  ; che è una potenza di 2 il cui valore
-  ; è appena sopra n.
+  ; che è una potenza di 2 il cui valore
+  ; è appena sopra n.
   (let (p 1)
     (while (<= p n)
       (setq p (* p 2)))

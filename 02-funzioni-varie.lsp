@@ -2407,13 +2407,13 @@ offset  descrizione
 1       cella->tipo: maggiore/minore, vedi newLISP.h per i dettagli
 2       cella->successivo: puntatore alla linked list
 3       cella->aux:
-           lunghezza della stringa + 1 o
-           low (little endian) o high (big endian) word di numero intero a 64 bit o
-           low word di double float IEEE 754
+          lunghezza della stringa + 1 o
+          low (little endian) o high (big endian) word di numero intero a 64 bit o
+          low word di double float IEEE 754
 4       cella->contenuto:
-           indirizzo della stringa/simbolo o
-           high (little endian) o low (big endian) word di numero intero a 64 bit o
-           high di double float IEEE 754
+          indirizzo della stringa/simbolo o
+          high (little endian) o low (big endian) word di numero intero a 64 bit o
+          high di double float IEEE 754
 
 Questa funzione è utile per modificare i bit di tipo nelle celle o per hackerare altre parti dei nuovi interni di LISP.
 
@@ -2486,11 +2486,11 @@ valore descrizione
   8     Numero della versione come costante intera
   9     Costanti del sistema operativo:
         linux = 1, bsd = 2, osx = 3, solaris = 4, windows = 6, os/2 = 7, cygwin = 8, tru64 unix = 9, aix = 10, android = 11
-        il bit 11 è impostato per le versioni ffilib (Extended Import/Callback API) (aggiungere 1024)
-        il bit 10 è impostato per le versioni IPv6 (aggiungere 512)
-        il bit  9 è impostato per le versioni a 64 bit (modificabili a runtime) (aggiungere 256)
-        il bit  8 è impostato per le versioni UTF-8 (aggiungere 128)
-        il bit  7 è aggiunto per le versioni di libreria (aggiungere 64)
+        il bit 11 è impostato per le versioni ffilib (Extended Import/Callback API) (aggiungere 1024)
+        il bit 10 è impostato per le versioni IPv6 (aggiungere 512)
+        il bit  9 è impostato per le versioni a 64 bit (modificabili a runtime) (aggiungere 256)
+        il bit  8 è impostato per le versioni UTF-8 (aggiungere 128)
+        il bit  7 è aggiunto per le versioni di libreria (aggiungere 64)
 
 I numeri da 0 a 9 indicano il valore dell'indice int-idx (opzionale) nella lista restituita.
 
@@ -4335,22 +4335,22 @@ Il metodo esamina un "raggio" che inizia nel punto testato e si estende all'infi
 
 Per capire come viene calcolata la traversata, considerare la seguente figura:
 
-              v2
-              o
-             /
-            / c (intersezione)
+              v2
+              o
+             /
+            / c (intersezione)
   o -------- x ----------------------> all'infinito
   t       /
-         /
-        /
-       o
-       v1
+         /
+        /
+       o
+       v1
 
 Affinché si verifichi l'intersezione, test.y deve essere compreso tra i valori y dei vertici del segmento (v1 e v2). Questa è la prima condizione dell'istruzione if nel metodo. In questo caso, la linea orizzontale deve intersecare il segmento. Resta solo da stabilire se l'intersezione avviene alla destra del punto testato o alla sua sinistra. Ciò richiede di trovare la coordinata x del punto di intersezione, che è:
 
-              t.y - v1.y
+              t.y - v1.y
 c.x = v1.x + ----------- * (v2.x - v1.x)
-             v2.y - v1.y
+             v2.y - v1.y
 
 Tutto ciò che resta da fare è esaminare i casi particolari:
 

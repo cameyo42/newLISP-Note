@@ -6099,11 +6099,11 @@ Somma dei divisori
 Sequenza di Collatz/Hailstone
 -----------------------------
 
-La sequenza di numeri di Collatz (o Hailstone) può essere generata da un numero intero positivo iniziale, n da:
+La sequenza di numeri di Collatz (o Hailstone) può essere generata partendo da un numero intero positivo n con le seguenti regole:
 
-   se n è 1, la sequenza termina.
-   se n è pari anche allora il successivo n della sequenza vale n / 2
-   se n è dispari allora il successivo n della sequenza vale (3 * n) + 1
+   se n è 1, la sequenza termina.
+   se n è pari anche allora il successivo n della sequenza vale n / 2
+   se n è dispari allora il successivo n della sequenza vale (3 * n) + 1
 
 Vediamo alcune funzioni per giocare con la sequenza di collatz:
 

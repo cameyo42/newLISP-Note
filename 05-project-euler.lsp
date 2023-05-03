@@ -1598,9 +1598,9 @@ La sequenza di numeri triangolari viene generata aggiungendo i numeri naturali. 
 
 Cerchiamo di elencare i fattori dei primi sette numeri triangolare:
 
-  1: 1
-  3: 1,3
-  6: 1,2,3,6
+ 1: 1
+ 3: 1,3
+ 6: 1,2,3,6
 10: 1,2,5,10
 15: 1,3,5,15
 21: 1,3,7,21

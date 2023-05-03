@@ -1786,6 +1786,8 @@ NOTE LIBERE 16
   Probabilità a Monopoli
   Forum: Macro version of define that prints args when func is called
   Cattura Numeri (gioco)
+  Complemento relativo di due insiemi (set difference)
+  Serie di Kempner
 
 PROBLEMI SUI DADI
 =================

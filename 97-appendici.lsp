@@ -4344,11 +4344,11 @@ Il primo è un semplice esempio di una funzione generatrice. La funzione crea un
 
 ; Chiusura in Scheme
 
-(definire make-adder
-    (lambda (n)
-        (lambda (x) (+ x n))))
+(define make-adder
+    (lambda (n)
+        (lambda (x) (+ x n))))
 
-(definire add3 (make-adder 3)) => # <procedure add3>
+(define add3 (make-adder 3)) => # <procedure add3>
 
 (add3 10) => 13
 
@@ -4357,7 +4357,7 @@ newLISP usa exp o letex per rendere il numero n una parte dell'espressione lambd
 ; newLISP usando expand
 
 (define (make-adder n)
-    (expand (lambda (x) (+ x n)) 'n))
+    (expand (lambda (x) (+ x n)) 'n))
 
 (define add3 (make-adder 3))
 
@@ -4366,12 +4366,12 @@ newLISP usa exp o letex per rendere il numero n una parte dell'espressione lambd
 ; newLISP usando letex
 
 (define (make-adder n)
-    (letex (c n) (lambda (x) (+ x c))))
+    (letex (c n) (lambda (x) (+ x c))))
 
 ; oppure letex sullo stesso simbolo
 
 (define (make-adder n)
-    (letex (n n) (lambda (x) (+ x n)))))
+    (letex (n n) (lambda (x) (+ x n)))))
 
 (define add3 (make-adder 3))
 
@@ -4577,11 +4577,11 @@ Trovare Y
 ---------
 Questa è la definizione ricorsiva originale del fattoriale:
 
-  (define fact (lambda (n) (if (< n 2) 1 (* n (fact (- n 1))))))
+  (define fact (lambda (n) (if (< n 2) 1 (* n (fact (- n 1))))))
 
 L'originale fattoriale ridefinito come funzione anonima e prendendo il vero fattoriale in h:
 
-  (lambda (h) (lambda (n) (if (< n 2) 1 (* n (h (- n 1))))))
+  (lambda (h) (lambda (n) (if (< n 2) 1 (* n (h (- n 1))))))
 
 Se questa funzione è chiamata F e il fattoriale vero è f allora ((F f) n) = (F n), f è un punto fisso di F.
 
@@ -4591,44 +4591,44 @@ Questa funzione è chiamata "Applicative-order Y fixed point operator" per i fun
 
 Il fattoriale base con il vero fattoriale:
 
-  (lambda (n) (if (< n 2) 1 (* n (h (- n 1)))))
+  (lambda (n) (if (< n 2) 1 (* n (h (- n 1)))))
 
 Passiamo la funzione fattoriale come parametro:
 
-  (lambda (h n) (if (< n 2) 1 (* n (h h (- n 1)))))
+  (lambda (h n) (if (< n 2) 1 (* n (h h (- n 1)))))
 
 Impacchettiamo come espressione anonima e proviamo:
 
-  (let ((g (lambda (h n)
-           (if (< n 2) 1 (* n (h h (- n 1)))))))
-    (g g 10)); => 3628800
+  (let ((g (lambda (h n)
+           (if (< n 2) 1 (* n (h h (- n 1)))))))
+    (g g 10)); => 3628800
 
 Fino a questo punto le espressioni sono identiche a quelle trovate in "The Why of Y" di Richard P. Gabriel. Il resto delle trasformazioni segue Gabriel, ma inserisce la funzione newLISP "expand" dove richiesto per ottenere un effetto di chiusura per la funzione passata come parametro nell'espressione (lambda (h) ...).
 
 Curry (g g 10) a ((g g) 10):
 
-  (let ((g (lambda (h)
-          (espandi (lambda (n) (if (< n 2) 1 (* n ((h h) (- n 1))))) 'h))))
-      ((g g) 10))
+  (let ((g (lambda (h)
+          (espandi (lambda (n) (if (< n 2) 1 (* n ((h h) (- n 1))))) 'h))))
+      ((g g) 10))
 
 Estraiamo (h h) come f:
 
-  (let ((g (lambda (h)
-            (espandi (lambda (n)
-              (let ((f (lambda (f n)
-                      (if (< n 2) 1 (* n (f (- n 1)))))))
-              (f (h h) n))) 'h))))
-           ((g g) 10))
+  (let ((g (lambda (h)
+            (espandi (lambda (n)
+              (let ((f (lambda (f n)
+                      (if (< n 2) 1 (* n (f (- n 1)))))))
+              (f (h h) n))) 'h))))
+           ((g g) 10))
 
 Curry la definizione di f per f interna a (lambda (f n) ...):
 
-  (let ((g (lambda (h)
-           (espandi (lambda (n)
-            (let ((f (lambda (q)
-                   (espandi (lambda (n)
-                     (se (< n 2) 1 (* n (q (- n 1))))) 'q)))); in Schema
-             ((f (h h)) n))) 'h))))
-    ((g g) 10))
+  (let ((g (lambda (h)
+           (espandi (lambda (n)
+            (let ((f (lambda (q)
+                   (espandi (lambda (n)
+                     (se (< n 2) 1 (* n (q (- n 1))))) 'q)))); in Schema
+             ((f (h h)) n))) 'h))))
+    ((g g) 10))
 
 Riscriviamo per portare f in cima:
 
@@ -5192,7 +5192,7 @@ Qualsiasi espressione di risultato appena creata è destinata a essere distrutta
 L'esempio seguente mostra la valutazione di una piccola funzione LISP sum-of-squares definita dall'utente e la creazione e l'eliminazione di oggetti di memoria associati:
 
 (define (sum-of-squares x y)
-  (+ (* x x) (* y y)))
+  (+ (* x x) (* y y)))
 
 (sum-of-squares 3 4) => 25
 

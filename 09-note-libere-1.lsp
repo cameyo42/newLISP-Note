@@ -2960,7 +2960,7 @@ La nozione di ambito (scope) nei linguaggi di programmazione è tradizionalmente
 Secondo l'ambito lessicale (statico), in una espressione, una variabile fa riferimento al costrutto più interno in cui viene dichiarata la variabile (ad esempio, al blocco di codice in cui è definita).
 Invece l'ambito dinamico prevede che la variabile esista e possa essere usata solo durante l'estensione dinamica (esecuzione) di una espressione. Una variabile con ambito dinamico viene anche chiamata 'parametro'.
 L'associazione dinamica associa i dati all'esecuzione del contesto corrente, e quindi consente di passare i dati alle funzioni senza dover dichiarare esplicitamente questi dati nell'interfaccia della funzione.
-Una caratteristica particolare dei binding dinamici è che non sono catturati da una chiusura lessicale (lexical closure). Questo consente alcuni benefici, come la concisione, la modularità e l'adattabilità. Esempi tipici sono il reindirizzamento dell'output di un programma, la definizione di gestori di eccezioni (exception handler), la gestione dello stato dell'host locale in un sistema distribuito, ecc.
+Una caratteristica particolare dei binding dinamici è che non sono catturati da una chiusura lessicale (lexical closure). Questo consente alcuni benefici, come la concisione, la modularità e l'adattabilità. Esempi tipici sono il reindirizzamento dell'output di un programma, la definizione di gestori di eccezioni (exception handler), la gestione dello stato dell'host locale in un sistema distribuito, ecc.
 
 newLISP utilizza l'ambito dinamico per la visibilità delle variabili/identificatori, ma può anche usare l'ambito lessicale utilizzando i contesti (context).
 
@@ -3134,17 +3134,17 @@ Per i meno iniziati qui, ecco alcune regole e spiegazioni relative alla cattura 
 - non vi è alcun pericolo di acquisizione di variabili quando si riutilizzano nomi di variabili nelle funzioni nidificate, 'let' ed espressioni di loop nidificati. Tutte le variabili dei parametri vengono salvate internamente su uno stack di ambiente e ripristinate dopo l'uso. Puoi anche fare quanto segue senza pericolo:
 
 (dotimes (i 3) (println "->" i)
-    (dotimes (i 3) (println i)))
+    (dotimes (i 3) (println i)))
 
 sebbene il ciclo interno usi lo stesso nome di variabile del ciclo esterno, è totalmente sicuro in newLISP e non sicuro in molte altre lingue.
 
 Lo stesso vale per le funzioni create con 'define'. Anche il seguente codice un pò folle funzionerà perfettamente con 'let' riutilizzando gli stessi nomi di variabili:
 
 (define (foo x y)
-   (println x ":" y)
-   (let ((x (div x 2)) (y (div y 2)))
-      (println x "::" y))
-   (println x ":" y))
+   (println x ":" y)
+   (let ((x (div x 2)) (y (div y 2)))
+      (println x "::" y))
+   (println x ":" y))
 
 (foo 3 4)
 ;-> 3:4
@@ -5941,7 +5941,7 @@ Nei LISP tradizionali esiste la funzione GENSYM che serve per generare un simbol
 Comunque in newLISP possiamo ottenere lo stesso scopo ed evitare l'acquisizione variabile, utilizzando la funzione "args" per accedere agli argomenti macro o funzioni:
 
 (define-macro (setq1)
-   (set (args 0) (eval (args 1))))
+   (set (args 0) (eval (args 1))))
 
 (setq1 x 123)
 ;-> 123

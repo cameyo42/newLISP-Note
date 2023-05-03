@@ -752,5 +752,240 @@ Comunque anche l'opzione di prima scelta casuale rende il gioco interessante.
 
 Nota: la strategia di scegliere sempre il valore massimo tra quelli possibili non è la migliore in tutte le posizioni. Bisogna anche considerare quali numeri si mettono a disposizione dell'avversario con la nostra mossa.
 
+
+----------------------------------------------------
+Complemento relativo di due insiemi (set difference)
+----------------------------------------------------
+
+Avendo due insiemi A e B, il complemento di A rispetto a B o l'insieme differenza B meno A, è formato dai soli elementi di B che non appartengono ad A. Esso si indica solitamente come B\A oppure B-A.
+
+  B\A = B-A = (x in B) and (x not in A)
+
+Si noti che l'insieme differenza B-A è un sottoinsieme dell'insieme B.
+
+In newLISP possiamo usare la funzione "difference".
+
+***********************
+>>>funzione DIFFERENCE
+***********************
+sintassi: (difference list-A list-B)
+sintassi: (difference list-A list-B bool)
+
+Nella prima sintassi, "difference" restituisce la differenza degli insiemi list-A e list-B. La lista risultante contiene solo elementi presenti in "list-A", ma non in "list-B". Tutti gli elementi nella lista risultante sono univoci, ma non è necessario che "list-A" e "list-B" contenga elementi univoci. Gli elementi nelle liste possono essere qualsiasi tipo di espressione Lisp.
+
+(difference '(2 5 6 0 3 5 0 2) '(1 2 3 3 2 1))
+;-> (5 6 0)
+
+Nella seconda sintassi, la "difference" funziona in modalità lista. "bool" specifica true o un'espressione diversa da nil. 
+Nella lista risultante, tutti gli elementi di "list-B" vengono eliminati  in "list-A", ma vengono lasciati i duplicati di altri elementi in "list-A".
+
+In the second syntax, difference works in list mode. bool specifies true or an expression not evaluating to nil. In the resulting list, all elements of list-B are eliminated in list-A, but duplicates of other elements in list-A are left.
+
+(difference '(2 5 6 0 3 5 0 2) '(1 2 3 3 2 1) true)
+;-> (5 6 0 5 0)
+
+Vedi anche le altre funzioni sugli insiemi "intersect", "unique" e "union".
+
+Vediamo altri esempi:
+
+(setq A '(1 1 3))
+(setq B '(1 2 2 3 3 4 4))
+
+(difference B A)
+;-> (2 4)
+(difference B A true)
+;-> (2 2 4 4)
+
+(setq A '(1 3))
+(setq B '(1 2 3 4))
+(difference B A)
+;-> (2 4)
+(difference B A true)
+;-> (2 4)
+
+Vediamo un caso non contemplato, la differenza tra due liste con corrispondenza 1:1 tra gli elementi:
+Per esempio:
+
+(setq A '(1 4 7))
+(setq B '(1 1 3 3 4 5 6))
+
+In questo caso il risultato voluto è (1 3 3 5 6), cioè i 2 elementi di A, 1 e 4, cancellano 2 elementi di B, 1 e 4.
+In altre parole, vogliamo eliminare gli elementi in comune tra due liste, l'eliminazione degli elementi avviene con una corrispondenza 1:1.
+La funzione "difference" non è in grado di fornire questo risultato:
+
+(difference B A)
+;-> (3 5 6)
+(difference B A true)
+;-> (3 3 5 6)
+
+Scriviamo una funzione per fare questa operazione:
+
+(define (remove-common lst-a lst-b)
+  (local (a1 b1 f)
+    ; lista copia della prima lista (lst-a)
+    (setq a1 lst-a)
+    ; lista copia della seconda lista (lst-b)
+    (setq b1 lst-b)
+    ; ciclo per ogni elemento della prima lista
+    (dolist (el lst-a)
+      ; se elemento corrente della prima lista esiste nella seconda lista
+      (if (setq f (ref el b1))
+        ; allora elimina l'elemento da entrambe le liste copia
+        (begin (pop a1 (ref el a1)) (pop b1 f))
+      )
+    )
+    ;(println a1) (println b1)
+    (extend a1 b1)))
+
+(remove-common B A)
+;-> (1 3 3 5 6 7)
+(remove-common A B)
+;-> (7 1 3 3 5 6)
+
+(remove-common '(1 1 2 3 4) '(1 2 3 5 3))
+;-> (1 4 5 3)
+(remove-common '(1 2 3 5 3) '(1 1 2 3 4))
+;-> (5 3 1 4)
+(remove-common '("M" "a" "g" "o" "o") '("o" "o" "o" "m" "g" "b"))
+;-> ("M" "a" "o" "m" "b")
+
+Comunque la funzione è lenta per liste con molti elementi:
+
+(silent 
+  (setq a (rand 1e5 1e4))
+  (setq b (rand 1e5 1e4)))
+
+(time (remove-common a b))
+;-> 653.583
+
+(silent 
+  (setq a (rand 1e5 1e5))
+  (setq b (rand 1e5 1e5)))
+
+(time (remove-common a b))
+;-> 35202.751
+
+Vedere anche "Differenza simmetrica negli insiemi (set)" in "Note libere 11".
+
+
+----------------
+Serie di Kempner
+----------------
+
+Theorem 1. Let X be a string of n base-10 digits. Then if we delete from the harmonic series all terms that contain X, the resulting series converges.
+
+La serie di Kempner è una variante della serie armonica, costruita omettendo tutti i termini il cui denominatore contiene la cifra
+9 espressa in base decimale:
+
+  Sum[n=1..inf](1/n) con n != 9
+
+Mentre la serie armonica è divergente, la serie di Kempner è convergente.
+Il valore di convergenza (corretto fino alla 20-esima cifra) è 22.92067661926415034816...
+Intuitivamente questa serie converge perché gli interi molto grandi hanno un'alta probabilità di possedere un 9 (o qualunque cifra) che ne causano l'esclusione dalla sommatoria.
+Generalizzando, omettendo qualunque cifra (0..9), si genera sempre una serie convergente.
+Comunque la serie converge molto lentamente.
+
+Usiamo un'implementazione ovvia per calcolare i valori della serie:
+
+(define (kempner1 limit)
+  (let (k 0)
+    (for (n 1 limit)
+      (if (not (find "9" (string n)))
+        (inc k (div n))))
+    k))
+
+(kempner1 10)
+;-> 2.817857142857143
+(kempner1 100)
+;-> 4.78184876508206
+(kempner1 1000)
+;-> 6.590720190283038
+(kempner1 1e5)
+;-> 9.692877792106202
+(kempner1 1e6)
+;-> 11.01565184987255
+(kempner1 1e7)
+;-> 12.20615372256586
+(time (println (kempner1 1e8)))
+;-> 13.2776059498581
+;-> 46190.689
+
+È stato osservato che dopo aver sommato 10^27 termini, il resto è ancora maggiore di 1.
+
+Definiamo una funzione che accetta la cifra "x" da omettere:
+
+(define (xharm x limit)
+  (let ((sum 0) (d (string x)))
+    (for (n 1 limit)
+      (if (not (find d (string n)))
+        (inc sum (div n))))
+    sum))
+
+(time (println (xharm 0 1e8)))
+;-> 13.42865819123347
+;-> 45896.513
+
+(time (println (xharm 1 1e8)))
+;-> 9.324480947154584
+;-> 45998.49
+
+(time (println (xharm 2 1e8)))
+;-> 11.17880173453594
+;-> 45766.789
+
+(time (println (xharm 3 1e8)))
+;-> 11.94518119626663
+;-> 46122.134
+
+(time (println (xharm 4 1e8)))
+;-> 12.38086241813837
+;-> 46344.576
+
+(time (println (xharm 5 1e8)))
+;-> 12.66946402654039
+;-> 45954.239
+
+(time (println (xharm 6 1e8)))
+;-> 12.87885049539925
+;-> 46016.512
+
+(time (println (xharm 7 1e8)))
+;-> 13.04019764280692
+;-> 45639.016
+
+(time (println (xharm 8 1e8)))
+;-> 13.16993797273606
+;-> 45425.952
+
+(time (println (xharm 9 1e8)))
+;-> 13.2776059498581
+;-> 45488.271
+
+(time (println (xharm 9 1e9)))
+;-> 14.2419130103833
+;-> 472970.052
+
+Un algoritmo efficiente si trova nell'articolo di Schmelzer e Baillie, "Summing a Curious, Slowly Convergent Series" in American Mathematical Monthly, vol.115, n.6, June–July 2008, pp.525–540.
+Non credo di essere in grado di implementarlo.
+
+Teorema
+Sia X una stringa di n cifre in base 10. Quindi se eliminiamo dalla serie armonica tutti i termini che contengono X, la serie risultante converge.
+
+La seguente tabella riassume i valori a cui tendono le serie quando omettiamo la cifra "d":
+
+  d  Somma     OEIS
+  0  23.10344  A082839
+  1  16.17696  A082830
+  2  19.25735  A082831
+  3  20.56987  A082832
+  4  21.32746  A082833
+  5  21.83460  A082834
+  6  22.20559  A082835
+  7  22.49347  A082836
+  8  22.72636  A082837
+  9  22.92067  A082838
+
+In generale, la somma sum[n=1,inf](1/n) quando una particolare stringa di lunghezza k è esclusa dalla somma delle n è data  approssimativamente da 10^k*ln(10).
+
 =============================================================================
 

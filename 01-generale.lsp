@@ -317,7 +317,7 @@ Per accedere agli argomenti ritornati da (args) possiamo usare la funzione "doar
 Le variabili locali definite nell'elenco degli argomenti della funzione possono avere valori predefiniti, che verranno utilizzati solo se non si specificano i valori quando si chiama la funzione.
 
 (define (test (a 1) b (c 2))
-   (println a " " b " " c))
+   (println a " " b " " c))
 
 I simboli "a" e "c" assumono i valori 1 e 2 se non si forniscono valori nella chiamata, ma "b" avrà valore nil a meno che non venga fornito un valore per questo.
 
@@ -4075,7 +4075,7 @@ La funzione "array?" la funzione può essere utilizzata per verificare se un'esp
 
 (array? myarray)
 ;-> true
-                               
+                               
 (array? (array-list myarray))
 ;-> nil
 
@@ -5780,7 +5780,7 @@ I contesti possono essere creati usando la funzione di contesto o tramite la cre
 (setq 'var 123)
 
 (define (func x y z)
-    ...)
+    ...)
 
 (context MAIN)
 
@@ -8632,8 +8632,8 @@ Commento di Lutz:
 La soluzione corretta in newLISP è quella di evitare la cattura variabile in primo luogo racchiudendo il "my-or" in uno spazio dei nomi (contesto):
 
 (define-macro (my-or:my-or)
-   (let (my-or:temp (eval (args 0)))
-      (if my-or:temp my-or: temp (eval (args 1)))))
+   (let (my-or:temp (eval (args 0)))
+      (if my-or:temp my-or: temp (eval (args 1)))))
 
 (my-or 1 nil)
 ;-> 1
@@ -9337,7 +9337,7 @@ Un costruttore può anche specificare i valori predefiniti:
 
 ; costruttore con valori predefiniti
 (definisci (Cerchio: Cerchio (x 10) (y 10) (raggio 3))
-    (elenco Cerchio x raggio y))
+    (elenco Cerchio x raggio y))
 
 (Cerchio) → (Cerchio 10 10 3)
 In molti casi il costruttore creato quando si utilizza new è sufficiente e non è necessario sovrascriverlo.

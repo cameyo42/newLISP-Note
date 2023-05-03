@@ -1627,8 +1627,8 @@ L'algoritmo può anche essere definito nel modo seguente:
 1) Porre il valore iniziale della stima della radice x0 uguale al numero x
 2) Inizializzare y = 1.
 3) Fino al raggiungimento della precisione desiderata:
-   a) calcolare prossima stima: x0 = (x0 + y)/2
-   b) Impostare y = x / x0
+   a) calcolare prossima stima: x0 = (x0 + y)/2
+   b) Impostare y = x / x0
 
 (define (rq x err)
   (local (x0 y)
@@ -4066,11 +4066,11 @@ Dato un testo e una stringa (pattern), scrivere una funzione che ritorna gli ind
 Si può presumere che il testo sia più lungo della stringa.
 Esempi:
 Input:  txt [] = "TESTO DI PROVA"
-        str [] = "TEST"
+        str [] = "TEST"
 Output: (0)
 
 Input: txt [] = "OOHOOXOOWOOHOOHO"
-       str [] = "OOHO"
+       str [] = "OOHO"
 Output: (0 9 12)
 
 Questo algoritmo viene chiamato "naive pattern searching":
@@ -4166,14 +4166,14 @@ L'idea è di mantenere un intervallo [L, R] che è l'intervallo con Rmax tale ch
 
 I passaggi per mantenere questo intervallo sono i seguenti:
 
-1) Se i > R allora non esiste una sottostringa di prefisso che inizi prima di e termina dopo i, quindi ripristiniamo L e R e calcoliamo nuovo [L, R] confrontando str [0 ..] in str [i ..] e ottenendo Z [i] (= R-L + 1).
+1) Se i > R allora non esiste una sottostringa di prefisso che inizi prima di e termina dopo i, quindi ripristiniamo L e R e calcoliamo nuovo [L, R] confrontando str [0 ..] in str [i ..] e ottenendo Z [i] (= R-L + 1).
 
-2) Se i <= R allora lascia K = i-L, ora Z[i] >= min(Z[K], R-i+1) perché str[i ..] corrisponde a str[K ..] per almeno R-i+1 caratteri (essi si trovano nell'intervallo [L, R] che sappiamo essere una sottostringa di prefisso).
+2) Se i <= R allora lascia K = i-L, ora Z[i] >= min(Z[K], R-i+1) perché str[i ..] corrisponde a str[K ..] per almeno R-i+1 caratteri (essi si trovano nell'intervallo [L, R] che sappiamo essere una sottostringa di prefisso).
 Ora bisogna trattare due sottocasi:
 
-a) Se Z[K] < R-i+1 allora non esiste una sottostringa di prefisso a partire da str[i] (altrimenti Z[K] sarebbe più grande) quindi Z[i] = Z[K] e l'intervallo [L, R] rimane lo stesso.
+a) Se Z[K] < R-i+1 allora non esiste una sottostringa di prefisso a partire da str[i] (altrimenti Z[K] sarebbe più grande) quindi Z[i] = Z[K] e l'intervallo [L, R] rimane lo stesso.
 
-b) Se Z[K] >= R-i+1, allora è possibile estendere l'intervallo [L, R], quindi imposteremo L come i e inizieremo il controllo della corrispondenza da str[R] in poi per calcolare una nuova R con cui aggiorneremo l'intervallo [L, R] e calcoleremo Z [i] (= R - L + 1).
+b) Se Z[K] >= R-i+1, allora è possibile estendere l'intervallo [L, R], quindi imposteremo L come i e inizieremo il controllo della corrispondenza da str[R] in poi per calcolare una nuova R con cui aggiorneremo l'intervallo [L, R] e calcoleremo Z [i] (= R - L + 1).
 
 Per una migliore comprensione della procedura, vedere la seguente animazione:
 http://www.utdallas.edu/~besp/demo/John2010/z-algorithm.htm
@@ -4231,8 +4231,8 @@ La seguente funzione restituisce una lista di indici se il "pattern" (stringa) v
         (begin
           (setq k (sub i L))
           ; se Z [k] è inferiore all'intervallo rimanente
-          ; allora Z [i] sarà uguale a Z [k].
-          ; Ad esempio, str = "ababab", i = 3, R = 5 e L = 2
+          ; allora Z [i] sarà uguale a Z [k].
+          ; Ad esempio, str = "ababab", i = 3, R = 5 e L = 2
           (if (< (Z k) (add R (- i) 1))
               (setq (Z i) (Z k))
               ; Per esempio str = "aaaaaa" e i = 2, R vale 5,
@@ -4714,8 +4714,8 @@ Knuth-shuffle (oppure Fisher-Yates shuffle) è un algoritmo per mescolare casual
 Data una lista con N elementi (idx: 0..N-1), lo pseudo-codice dell'algoritmo è il seguente:
 
 for i from N downto 1 do:
-     let j = numero intero casuale nell'intervallo 0 <= j <= i
-     swap lista[i] con lista[j]
+     let j = numero intero casuale nell'intervallo 0 <= j <= i
+     swap lista[i] con lista[j]
 
 (define (knuth-shuffle lst)
   (local (N j)
@@ -6696,9 +6696,9 @@ dopo 10 anni, moltiplicato per 10 e 1 euro rimosso, e così via.
 Quale sarà il tuo saldo dopo 25 anni?
 
 Risultato corretto:
-    Saldo iniziale: (e - 1)
-    Saldo = (Saldo * anno) - 1 (per 25 anni)
-    Saldo dopo 25 anni: 0.0399387296732302
+    Saldo iniziale: (e - 1)
+    Saldo = (Saldo * anno) - 1 (per 25 anni)
+    Saldo dopo 25 anni: 0.0399387296732302
 
 Proviamo con una funzione che utilizza i numeri floating point:
 
@@ -6969,7 +6969,7 @@ Adesso dovremmo definire la funzioni precedente "prec", la funzione moltiplicazi
 La funzione "expand" espande solo i simboli che iniziano con una lettera maiuscola:
 
 (define-macro (LAMBDA)
-  (append (lambda) (expand (args))))
+  (append (lambda) (expand (args))))
 
 (define DEFINE define)
 
