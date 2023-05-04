@@ -1788,6 +1788,8 @@ NOTE LIBERE 16
   Cattura Numeri (gioco)
   Complemento relativo di due insiemi (set difference)
   Serie di Kempner
+  Dadi esplosivi
+  Trasformare due dadi in uno
 
 PROBLEMI SUI DADI
 =================

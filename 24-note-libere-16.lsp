@@ -872,8 +872,6 @@ Vedere anche "Differenza simmetrica negli insiemi (set)" in "Note libere 11".
 Serie di Kempner
 ----------------
 
-Theorem 1. Let X be a string of n base-10 digits. Then if we delete from the harmonic series all terms that contain X, the resulting series converges.
-
 La serie di Kempner è una variante della serie armonica, costruita omettendo tutti i termini il cui denominatore contiene la cifra
 9 espressa in base decimale:
 
@@ -986,6 +984,272 @@ La seguente tabella riassume i valori a cui tendono le serie quando omettiamo la
   9  22.92067  A082838
 
 In generale, la somma sum[n=1,inf](1/n) quando una particolare stringa di lunghezza k è esclusa dalla somma delle n è data  approssimativamente da 10^k*ln(10).
+
+
+--------------
+Dadi esplosivi
+--------------
+
+Scrivere una funzione che simula il lancio di un dado "esplosivo" (Exploding Die).
+Questo dado funziona con le seguenti regole:
+Il dado viene lanciato e si ottiene un valore. 
+Se questo valore è minore del valore massimo per quel tipo di dado (con 4 facce il massimo è 4, con 6 facce il massimo è 6, ecc.), allora ci fermiamo e il risultato del lancio è il valore ottenuto.
+Se, invece, questo valore è il massimo per quel tipo di dado, allora il dado viene lanciato di nuovo e il valore ottenuto viene aggiunto al precedente (totale). Si continua a tirare il dado (e ad aggiungere il risultato al totale) finché non si ottiene più il numero massimo. 
+Il valore finale è comunque aggiunto al totale.
+
+Che distribuzione hanno i valori di questo dado?
+Quale è il valore atteso?
+
+Funzione che simula il lancio di un dado esplosivo con n facce:
+
+(define (explode-die n s)
+  (let (val (+ (rand n) 1)) ;(println val)
+    (++ s val)
+    (if (= val n) (explode-die n s) s)))
+
+(explode-die 4)
+;-> 1
+(explode-die 4)
+;-> 7
+
+Funzione che calcola le frequenze dei valori di un determinato numero di lanci di un dado esplosivo con n facce:
+
+(define (distr n lanci)
+  (local (freq val)
+    (setq freq (array (* n 100) '(0)))
+    (for (i 1 lanci)
+      (setq val (explode-die n))
+      (++ (freq val))
+    )
+    freq))
+
+(distr 4 1e6)
+;-> (0 249952 250009 249924 0 62248 62852 62282 0 
+;->  15653 15702 15636 0 4000 3908 3845 0 
+;->  1000 985 991 0 261 254 248 0 
+;->  77 62 62 0 11 9 21 0 2 2 2 0 
+;->  1 0 0 0 0 0 1 0 0 0 ...)
+
+Nota: i valori multipli di n non compaiono mai (perchè sono da esplodere...)
+
+(distr 6 1e6)
+;-> (0 166222 166745 166832 167004 166596 0 27607 27776 27936 27783 27686 0 
+;->  4659 4677 4717 4632 4620 0 719 757 769 735 787 0 
+;->  109 120 125 135 121 0 14 24 23 25 26 0 
+;->  4 4 3 4 4 0 0 0 ...
+
+Funzione che calcola il valore atteso di un dado esplosivo con n facce:
+
+(define (atteso n lanci)
+  (local (sum val)
+    (setq sum 0)
+    (for (i 1 lanci)
+      (setq val (explode-die n))
+      (++ sum val)
+    )
+    (div sum lanci)))
+
+(atteso 4 1e7)
+;-> 3.3336836
+
+(for (n 2 10) (println n { } (atteso n 1e7)))
+;-> 2 2.999395
+;-> 3 3.0007173
+;-> 4 3.3329194
+;-> 5 3.7513152
+;-> 6 4.1990122
+;-> 7 4.6669425
+;-> 8 5.1448579
+;-> 9 5.6254875
+;-> 10 6.1091211
+
+
+---------------------------
+Trasformare due dadi in uno
+---------------------------
+
+Abbiamo due dadi equi, d1 con A facce e d2 con B facce, dove A non è necessariamente uguale a B.
+Le facce dei dadi sono tutte senza alcun numero.
+Determinare i numeri delle facce di quei dadi per creare un "dado target" con N facce.
+I numeri sulle facce dei dadi d1 e d2 devono essere tali che, se tirati e sommati i loro risultati, si simula un dado equo con N facce.
+I numeri scritti sui dadi devono essere maggiori o uguali a zero (cioè sui dadi non possono esserci numeri negativi).
+Supponiamo che A, B e N siano tutti numeri interi positivi e che N sia un divisore di A*B (condizione per ottenere un risultato valido).
+
+Per esempio per creare un dado con 9 facce con 2 dadi da 6 facce possiamo usare la seguente numerazione:
+
+      0 0 3 3 6 6
+      -----------
+  1 | 1 1 4 4 7 7
+  1 | 1 1 4 4 7 7
+  2 | 2 2 5 5 8 8
+  2 | 2 2 5 5 8 8
+  3 | 3 3 6 6 9 9
+  3 | 3 3 6 6 9 9
+
+Nota: Possono esistere più soluzioni per gli stessi dati iniziali (dipende dal metodo usato per risolvere il problema).
+
+Esempi:
+
+  d1 = 6, d2 = 6 N = 9
+  d1 = (0 0 3 3 6 6)
+  d2 = (1 1 2 2 3 3)
+
+  d1 = 5, d2 = 12, N = 20
+  d1 = (0 0 0 5 5 5 10 10 10 15 15 15)
+  d2 = (1 2 3 4 5)
+
+  d1 = 6, d2 = 4, N = 8
+  d1  = (0 0 0 4 4 4)
+  d2  = (1 2 3 4)
+
+  d1 = 12, d2 = 12, N = 18
+  d1 = (1 1 2 2 3 3 4 4 5 5 6 6)
+  d2 = (0 0 0 0 6 6 6 6 12 12 12 12)
+
+Funzione che genera le facce dei dadi A e B con numeri da 1 a N (target):
+
+(define (single d1 d2 target)
+  (let ((dieA '()) (dieB '()))
+    ; crea le facce del primo dado
+    (dolist (x (sequence 1 d1))
+      (push (% (* x d2) target) dieA)
+    )
+    ; crea le facce del secondo dado
+    (dolist (y (sequence 1 d2))
+      (push (+ (% y (- target (apply max dieA))) 1) dieB)
+    )
+    (list (sort dieA) (sort dieB))))
+
+Facciamo alcune prove:
+
+(single 6 6 9)
+;-> ((0 0 3 3 6 6) (1 1 2 2 3 3))
+
+(single 5 12 20)
+;-> ((0 4 8 12 16) (1 1 1 2 2 2 3 3 3 4 4 4))
+
+(single 6 4 8)
+;-> ((0 0 0 4 4 4) (1 2 3 4))
+
+(single 12 12 18)
+;-> ((0 0 0 0 6 6 6 6 12 12 12 12) (1 1 2 2 3 3 4 4 5 5 6 6))
+
+Scriviamo una funzione che verifica se il risultato della funzione "single" è corretto.
+Possiamo usare due metodi: usare una simulazione oppure calcolare le probabilità esatte.
+
+Funzione di verifica con simulazione:
+
+; Roll a die with N sides with non-standard numeration
+; Get a list with the values of each face
+; Return an element of the list
+(define (rand-lst lst) (lst (rand (length lst))))
+(rand-lst '(0 4 8 12 16))
+;-> 8
+
+(define (verify d1 d2 target iter)
+  (local (freq val)
+    (setq freq (array (+ target 1) '(0)))
+    (for (i 1 iter)
+      (setq val (+ (rand-lst d1) (rand-lst d2)))
+      (++ (freq val))
+    )
+    (dolist (f freq)
+      (println $idx { } (div f iter)))))
+
+(verify '(0 4 8 12 16) '(1 1 1 2 2 2 3 3 3 4 4 4) 20 1e7)
+;->  0 0
+;->  1 0.0499359
+;->  2 0.0499348
+;->  3 0.0500476
+;->  4 0.0499919
+;->  5 0.0499749
+;->  6 0.0499699
+;->  7 0.0499723
+;->  8 0.0500833
+;->  9 0.0499779
+;-> 10 0.0500969
+;-> 11 0.0499459
+;-> 12 0.0499415
+;-> 13 0.0500323
+;-> 14 0.0500137
+;-> 15 0.0500337
+;-> 16 0.0500409
+;-> 17 0.0501069
+;-> 18 0.049893
+;-> 19 0.0499482
+;-> 20 0.0500585
+
+(verify '(0 0 0 5 5 5 10 10 10 15 15 15) '(1 2 3 4 5) 20 1e7)
+;->  1 0.0499492
+;->  2 0.0499846
+;->  3 0.0498709
+;->  4 0.0500461
+;->  5 0.0499026
+;->  6 0.0500105
+;->  7 0.0498982
+;->  8 0.0500815
+;->  9 0.0500338
+;-> 10 0.0500018
+;-> 11 0.0500612
+;-> 12 0.0500846
+;-> 13 0.0500281
+;-> 14 0.0499065
+;-> 15 0.049938
+;-> 16 0.0500609
+;-> 17 0.0499236
+;-> 18 0.0501166
+;-> 19 0.050058
+;-> 20 0.0500433
+
+Funzione di verifica che calcola le frequenze (probabilità) esatte di ogni numero:
+
+(define (verify-mat d1 d2 target)
+  (setq values '())
+  ; costruisce la lista di tutti i valori possibili
+  ; del lancio dei due dadi
+  (dolist (x d1)
+    (dolist (y d2)
+      (push (+ x y) values)
+    )
+  )
+  ; conta quante volte appaiono i numeri da 1 a N (target)
+  (count (sequence 1 target) values))
+
+Verifichiamo alcuni esempi:
+
+(verify-mat '(0 4 8 12 16) '(1 1 1 2 2 2 3 3 3 4 4 4) 20)
+;-> (3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3)
+
+(verify-mat '(0 0 0 0 6 6 6 6 12 12 12 12) '(1 1 2 2 3 3 4 4 5 5 6 6) 18)
+;-> (8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8 8)
+
+(verify-mat '(0 0 0 5 5 5 10 10 10 15 15 15) '(1 2 3 4 5) 20)
+;-> (3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3)
+ 
+Vediamo cosa accade se N non è divisore esatto di A*B:
+
+(single 4 4 10)
+;-> ((2 4 6 8) (1 1 2 2))
+
+Verifichiamo il risultato:
+
+(verify '(2 4 6 8) '(1 1 2 2) 10 1e7)
+;->  0 0
+;->  1 0
+;->  2 0
+;->  3 0.1248611
+;->  4 0.1250152
+;->  5 0.1249099
+;->  6 0.125066
+;->  7 0.1251647
+;->  8 0.124981
+;->  9 0.1250377
+;-> 10 0.1249644
+
+(verify-mat '(2 4 6 8) '(1 1 2 2) 10)
+;-> (0 0 2 2 2 2 2 2 2 2)
+
+I numeri 1 e 2 non sono possibili, quindi il dado ottenuto non è equo.
 
 =============================================================================
 
