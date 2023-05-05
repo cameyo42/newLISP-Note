@@ -1790,6 +1790,7 @@ NOTE LIBERE 16
   Serie di Kempner
   Dadi esplosivi
   Trasformare due dadi in uno
+  Numeri in ordine lessicografico
 
 PROBLEMI SUI DADI
 =================

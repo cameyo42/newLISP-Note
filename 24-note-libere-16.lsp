@@ -1134,6 +1134,16 @@ Facciamo alcune prove:
 (single 12 12 18)
 ;-> ((0 0 0 0 6 6 6 6 12 12 12 12) (1 1 2 2 3 3 4 4 5 5 6 6))
 
+Versione minima:
+
+(setq s (fn (a b t , x y) 
+  (dolist (k (sequence 1 a)) (push (% (* k b) t) x)) 
+  (dolist (k (sequence 1 b)) (push (+ (% k (- t (apply max x))) 1) y)) 
+  (list (sort x) (sort y))))
+
+(s 12 12 18)
+;-> ((0 0 0 0 6 6 6 6 12 12 12 12) (1 1 2 2 3 3 4 4 5 5 6 6))
+
 Scriviamo una funzione che verifica se il risultato della funzione "single" è corretto.
 Possiamo usare due metodi: usare una simulazione oppure calcolare le probabilità esatte.
 
@@ -1250,6 +1260,73 @@ Verifichiamo il risultato:
 ;-> (0 0 2 2 2 2 2 2 2 2)
 
 I numeri 1 e 2 non sono possibili, quindi il dado ottenuto non è equo.
+
+
+-------------------------------
+Numeri in ordine lessicografico
+-------------------------------
+
+Quando ordiniamo delle stringhe che contengono numeri, spesso il risultato ottenuto non è quello voluto (o migliore esteticamente).
+Per esempio, suppponiamo di voler ordinare i nomi dei seguenti file: file1, file10, file99, file2:
+
+(sort '(file1 file99 file10 file2))
+;-> (file1 file10 file2 file99)
+
+Invece l'ordinamento lessicografico genera: file1, file2, file10, file99.
+Il problema è quello di convertire la parte numerica in un modo che il successivo ordinamento produca un ordine lessicografico.
+Un metodo può essere quello di riempire il numero (a sinistra) con la cifra "0" in modo da raggiungere una lunghezza prefissata (padding left with 0).
+Nel nostro esempio, possiamo utilizzare una lunghezza pari a 3 per "normalizzare" i numeri nel modo seguente:
+
+  1  --> 001 --> file001
+  2  --> 002 --> file002
+  10 --> 010 --> file010
+  99 --> 099 --> file099
+
+In questo modo otteniamo un ordinamento lessicografico:
+
+(sort '(file001 file099 file010 file002))
+;-> (file001 file002 file010 file099)
+
+Questo metodo ha lo svantaggio di dover fissare preventivamente la lunghezza della stringa finale (pad length) in modo da generare il numero corretto di zeri da anteporre al numero. Ogni volta che compare un nuovo numero potremmo essere costretti a cambiare la lunghezza di tutte le stringhe.
+Per esempio, se aggiungiamo il file file2222, dobbiamo ricalcolare tutte le stringhe con una lunghezza pari a 4:
+
+  1    --> 0001 --> file0001
+  2    --> 0002 --> file0002
+  10   --> 0010 --> file0010
+  99   --> 0099 --> file0099
+  2222 --> 2222 --> file2222
+
+Quindi il metodo può essere utilizzato solo per numeri in un intervallo limitato (dobbiamo impostare prima la lunghezza).
+Sarebbe auspicabile avere una codifica che possa essere utilizzata per tutti i numeri naturali, da 1 in poi.
+
+(sort '(file1 file10 file2 file9))
+;-> (file1 file10 file2 file9)
+
+Vediamo una codifica che soddisfa il vincolo richiesto (vale per tutti i numeri da 1 in poi):
+
+(define (encode n)
+  (extend (dup "1" (length (string (length (string n))))) "0" 
+          (string (length (string n))) (string n)))
+
+(map encode '(1 99 10 2))
+;-> ("1011" "10299" "10210" "1012")
+
+(sort (map list '(1 99 10 2) (map encode '(1 99 10 2))))
+;-> ((1 "1011") (2 "1012") (10 "10210") (99 "10299"))
+
+(sort (map list (map encode (sequence 1 20)) (sequence 1 20)))
+;-> (("1011" 1) ("1012" 2) ("1013" 3) ("1014" 4) ("1015" 5) ("1016" 6) 
+;->  ("1017" 7) ("1018" 8) ("1019" 9) ("10210" 10) ("10211" 11) ("10212" 12)
+;->  ("10213" 13) ("10214" 14) ("10215" 15) ("10216" 16) ("10217" 17)
+;->  ("10218" 18) ("10219" 19) ("10220" 20))
+
+Vediamo la funzione di decodifica:
+
+(define (decode s)
+  (slice s (+ (* 2 (find "0" s)) 1)))
+
+(map decode '("1011" "10299" "10210" "1012"))
+;-> ("1" "99" "10" "2")
 
 =============================================================================
 
