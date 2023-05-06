@@ -1791,6 +1791,8 @@ NOTE LIBERE 16
   Dadi esplosivi
   Trasformare due dadi in uno
   Numeri in ordine lessicografico
+  Serie consecutiva di N Teste
+  Monete e probabilità
 
 PROBLEMI SUI DADI
 =================

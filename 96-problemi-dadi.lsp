@@ -1489,7 +1489,7 @@ Problem 22
 ----------
 What is the most probable: rolling at least one six with six dice, at least two sixes with twelve dice,
 or at least three sixes with eighteen dice? (This is an old problem, frequently connected with Isaac
-Newton.)
+Newton).
 
 Solution =
 

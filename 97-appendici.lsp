@@ -3547,6 +3547,30 @@ Nota: looks like old "print" function never dies.
 
 Nota: newLISP compiles source code to an internal lisp-cell-expression based binary format. There is no easy way to supply line numbers without inflating memory usage considerably (similar to 'debug' builds in 'C'). 
 
+Un ottimo libro sul processo di debugging è "Why Programs Fail" di Andreas Zeller:
+
+Indice
+ 1) How Failures Come To Be
+ Your program fails. How can this be? 
+ The answer is that the programmer created a defect in the code. 
+ When the code is executed, the defect causes an infection in the program state, which later becomes visible as a failure. 
+ To find the defect, one must reason backward, starting with the failure.
+ 2) Tracking Problems
+ 3) Making Programs Fail
+ 4) Reproducing Problems
+ 5) Simplifying Problems
+ 6) Scientific Debugging
+ 7) Deducing Errors
+ 8) Observing Facts
+ 9) Tracking Origins
+10) Asserting Expectations
+11) Detecting Anomalies
+12) Causes and Effects
+13) Isolating Failure Causes
+14) Isolating Cause–Effect Chains
+15) Fixing the Defect
+16) Learning from Mistakes
+
 
 ============================================================================
  newLISPdoc - Il programma per la documentazione newLISP

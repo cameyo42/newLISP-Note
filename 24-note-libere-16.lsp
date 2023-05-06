@@ -453,7 +453,6 @@ Nice idea.
 
 cormullion:
 -----------
-
 Wicked cool, Fanda! You've done the clever bit for me...
 I might change those @ signs to something else - I find them visually distracting... Underscores appear to work...
 thanks!
@@ -470,7 +469,6 @@ Edit 2: Ah, that doesn't work properly because it's global... Hmm
 
 Fanda:
 -----
-
 Again, you need to put the function name inside the 'println' inside the 'lambda fn'.
 
 (define-macro (my-define @farg)
@@ -540,7 +538,6 @@ Example:
 
 cormullion:
 -----------
-
 Aha - that looks like the one.
 I find these constructions really difficult to conjure up, and so I'm really glad for your help. Perhap's it's something to do with the hypothetical nature of things that are going to be evaluated sometime in the future but now now...
 thanks!
@@ -1327,6 +1324,96 @@ Vediamo la funzione di decodifica:
 
 (map decode '("1011" "10299" "10210" "1012"))
 ;-> ("1" "99" "10" "2")
+
+
+----------------------------
+Serie consecutiva di N Teste
+----------------------------
+
+Quanti lanci sono necessari per ottenere N Teste di fila?
+Matematicamente il valore atteso dei lanci vale:
+
+  E[f(N)] = 2*(2^N − 1) = 2^(N+1) − 2.
+
+Verifichiamolo con una simulazione.
+
+(define (teste n) (- (pow 2 (+ n 1)) 2))
+
+(map teste (sequence 1 10))
+;-> (2 6 14 30 62 126 254 510 1022 2046)
+
+Per avere 10 teste di fila dobbiamo effettuare (in media) 2046 lanci.
+
+Scriviamo una funzione di simulazione:
+
+(define (head n prove)
+  (local (lanci seq val)
+    (setq lanci 0)
+    (for (i 1 prove)
+      (setq seq 0)
+      (until (= seq n)
+        (if (zero? (rand 2)) (++ seq) (setq seq 0))
+        (++ lanci)
+      )
+    )
+    (div lanci prove)))
+
+(head 4 1e5)
+;-> 30.03065
+
+(time (for (n 1 10) (println n { } (head n 1e6))))
+;-> 1 2.000496
+;-> 2 5.998088
+;-> 3 13.973106
+;-> 4 30.012896
+;-> 5 61.973598
+;-> 6 125.952494
+;-> 7 254.146778
+;-> 8 508.807303
+;-> 9 1022.059468
+;-> 10 2045.985049
+;-> 493618.754
+
+
+--------------------
+Monete e probabilità
+--------------------
+
+Abbiamo una moneta equa (Testa o Croce).
+Quale evento è più probabile?
+  1) Ottenere 1 testa con 2 lanci
+  2) Ottenere 2 teste con 4 lanci
+  3) Ottenere 3 teste con 6 lanci
+
+Poniamo: 0=Testa, 1=Croce
+
+Lancio di una moneta:
+(define (moneta) (rand 2))
+(moneta)
+;-> 1
+
+Lancio di N monete:
+(define (monete n) (rand 2 n))
+(monete 10)
+;-> (1 1 0 0 1 1 1 0 1 1)
+
+Funzione di simulazione:
+
+(define (teste iter)
+  (local (s1 s2 s3)
+    (setq s1 0 s2 0 s3 0)
+    (for (i 1 iter)
+      (if (ref 0 (monete 2)) (++ s1))
+      (if (>= (length (ref-all 0 (monete 4))) 2) (++ s2))
+      (if (>= (length (ref-all 0 (monete 6))) 3) (++ s3))
+    )
+    (list (div s1 iter) (div s2 iter) (div s3 iter))))
+
+(time (println (teste 1e7)))
+;-> (0.750132 0.6874232 0.6560362)
+;-> 8782.184
+
+L'evento 1) è quello più probabile.
 
 =============================================================================
 
