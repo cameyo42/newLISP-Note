@@ -1381,9 +1381,9 @@ Monete e probabilità
 
 Abbiamo una moneta equa (Testa o Croce).
 Quale evento è più probabile?
-  1) Ottenere 1 testa con 2 lanci
-  2) Ottenere 2 teste con 4 lanci
-  3) Ottenere 3 teste con 6 lanci
+  1) Ottenere almeno 1 testa con 2 lanci
+  2) Ottenere almeno 2 teste con 4 lanci
+  3) Ottenere almeno 3 teste con 6 lanci
 
 Poniamo: 0=Testa, 1=Croce
 
@@ -1414,6 +1414,144 @@ Funzione di simulazione:
 ;-> 8782.184
 
 L'evento 1) è quello più probabile.
+
+
+-----------------------
+Dado da N con dado da 6
+-----------------------
+
+Vediamo come simulare un dado da n facce con un dado da 6 facce.
+Supponiamo che le facce dei dadi a 6 facce siano numerate 0,1,2,3,4,5 e che le facce dei dadi a n facce siano numerate 0,1,2,...,n−1.
+Sia k l'intero tale che 6^(k−1) < n ≤ 6^k: k = ceil(log 6).
+Lanciare tutti i k dadi.
+Siano d0,d1,...,d(k−1) i numeri lanciati.
+Dopo ogni lancio di k dadi, il numero in base-6 m = (d(k−1),d(k−2),...,d2,d1,d0) è un numero intero casuale compreso tra 0 e 6^k−1, con ogni numero intero ugualmente probabile.
+Convertire il numero m (in base-6) nel numero m10 (in base-10).
+Se (m10 < n) allora restituire m10, altrimenti tirare di nuovo i k dadi.
+(Aggiungere 1 a m10 se i dadi sono numerati 1,...,6 e 1,...,n).
+
+(define (roll n)
+  (local (k m10 stop m6)
+    (setq k (ceil (log n 6))) ; 6^(k-1) < n <= 6^k
+    (setq m10 0)
+    (setq stop nil)
+    (until stop
+      (setq m6 "")
+      (for (i 1 k)
+        (extend m6 (string (rand 6)))
+      )
+      (setq m10 (int m6 0 6))
+      (if (< m10 n) (setq stop true))
+    )
+    (+ m10 1)))
+
+Facciamo alcune prove:
+
+(roll 10)
+;-> 8
+
+(setq freq (array 21 '(0)))
+(for (i 1 1e6) (++ (freq (roll 20))))
+freq
+;-> (0 52364 53000 52816 52563 52788 52690 52752 52528 52459 52966 
+;->  52514 52527 52618 52831 52358 52320 52605 52537 52764)
+
+(freq 1)
+;-> 49953
+(freq 20)
+;-> 50115
+
+(setq freq (array 41 '(0)))
+(for (i 1 1e6) (++ (freq (roll 40))))
+freq
+;-> (0 24906 24909 24912 25112 25210 24892 25088 25059 25240 24930 24885 
+;->  24690 24883 24806 24958 24704 24976 25223 24910 24849 24994 24665 
+;->  25301 25145 25107 24925 24806 24940 25215 24857 25015 25102 25143 
+;->  25202 25309 25050 25033 25215 24981 24853)
+
+
+---------------------------------
+Codice Multitap (old Nokia Phone)
+---------------------------------
+
+Il codice multitap è il nome dato alla storica tecnica di scrittura degli SMS sui primi cellulari con tastiera a 10-12 tasti numerici.
+Multitap sostituisce una lettera con cifre ripetute definite dal codice chiave corrispondente sulla tastiera di un telefono cellulare (questa modalità viene utilizzata durante la scrittura di SMS/Text).
+
+La tabella di corrispondenza è la seguente:
+
+  A 2     B 22
+  C 222   D 3
+  E 33    F 333
+  G 4     H 44
+  I 444   J 5
+  K 55    L 555
+  M 6     N 66
+  O 666   P 7
+  Q 77    R 777
+  S 7777  T 8
+  U 88    V 888
+  W 9     X 99
+  Y 999   Z 9999
+
+Esempio: LISP diventa 555-444-7777-7
+
+Configurazione standard nella tastiera dei telefoni:
+
+  +-----+-----+-----+
+  |  1  |  2  |  3  |
+  |     | abc | cde |
+  +-----+-----+-----+     
+  |  4  |  5  |  6  | 
+  | ghi | jkl | mno |  
+  +-----+-----+-----+    
+  |  7  |  8  |  9  |
+  | pqrs| tuv | wxyz| 
+  +-----+-----+-----+     
+  |  *  |  0  |  #  |
+  |     |     |     |
+  +-----+-----+-----+         
+
+Questo standard (brevettato nel 1985) prende il nome di E.161 ed è stato creato dall'ITU Telecommunication Standardization Sector (ITU-T). 
+Definisce solo lettere dalla A alla Z, altri caratteri come cifre o distinzioni maiuscole/minuscole non sono normalizzate.
+
+In genere lo spazio " " viene codificato con "00".
+
+(setq ch-num
+   '(("A" "2") ("B" "22") ("C" "222") ("D" "3") ("E" "33") ("F" "333") 
+     ("G" "4") ("H" "44") ("I" "444") ("J" "5") ("K" "55") ("L" "555")
+     ("M" "6") ("N" "66") ("O" "666") ("P" "7") ("Q" "77") ("R" "777")
+     ("S" "7777") ("T" "8") ("U" "88") ("V" "888") ("W" "9") ("X" "99")
+     ("Y" "999") ("Z" "9999") (" " "00")))
+
+(setq num-ch (map (fn(x) (list (x 1) (x 0))) ch-num))
+;-> (("2" "A") ("22" "B") ("222" "C") ("3" "D") ("33" "E") ("333" "F") 
+;->  ("4" "G") ("44" "H") ("444" "I") ("5" "J") ("55" "K") ("555" "L")
+;->  ("6" "M") ("66" "N") ("666" "O") ("7" "P") ("77" "Q") ("777" "R")
+;->  ("7777" "S") ("8" "T") ("88" "U") ("888" "V") ("9" "W") ("99" "X")
+;->  ("999" "Y") ("9999" "Z") ("00" " "))
+
+Funzione di Decoder:
+
+(define (mt-text nums)
+  (let (lst (parse nums "-"))
+    (join (map (fn(x) (lookup x num-ch)) lst))))
+
+(mt-text "2-22-222-00-222-444-2-666")
+;-> "ABC CIAO"
+
+Funzione di Encoder:
+
+(define (text-mt chars)
+  (let (lst (explode chars))
+    (chop (join (map (fn(x) (string (lookup x ch-num) "-")) lst)))))
+
+(text-mt "ABC CIAO")
+;-> "2-22-222-00-222-444-2-666"
+
+(text-mt "NEWLISP")
+;-> "66-33-9-555-444-7777-7"
+(mt-text "66-33-9-555-444-7777-7")
+;-> "NEWLISP"
 
 =============================================================================
 

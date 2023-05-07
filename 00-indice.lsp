@@ -1793,6 +1793,8 @@ NOTE LIBERE 16
   Numeri in ordine lessicografico
   Serie consecutiva di N Teste
   Monete e probabilità
+  Dado da N con dado da 6
+  Codice Multitap (old Nokia Phone)
 
 PROBLEMI SUI DADI
 =================
