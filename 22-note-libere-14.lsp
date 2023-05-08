@@ -7787,7 +7787,6 @@ Vediamo un semplice utilizzo della funzione:
     )
     (+ a b)))
 
-
 (test "newLISP")
 ;-> ch = n
 ;-> a = 108
@@ -7811,6 +7810,46 @@ Vediamo un semplice utilizzo della funzione:
 ;-> a = 628
 ;-> b = 656
 ;-> 1284
+
+Un altro metodo è quello proposto da Fanda:
+
+;; Copyright © 2007, Frantisek Sodomka. All rights reserved.
+;;
+;; Debugging utilities :)
+;;
+;; Frantisek Sodomka, Jan 02 2006 (Fanda)
+;;
+
+;
+; Print out
+;
+(define (dprint)
+  (dolist (_s (args))
+    (if (symbol? _s)
+      (println _s " = " (eval _s))
+      (println _s))))
+
+;
+; Output to the file
+;
+(define (dfprint)
+  (let (_str "")
+    (dolist (_s (args))
+      (if (symbol? _s)
+        (write-buffer _str (append (string _s) " = " (string (eval _s)) "\n"))
+        (write-buffer _str (append (string _s) "\n"))))
+    (write-file "debug.txt" _str)))
+
+# Tests
+
+(setq x 10)
+(setq str "Hi!")
+
+; screen
+(dprint  'x 123 'str "test" '(0 1 2))
+
+; file
+(dfprint 'x 123 'str "test" '(0 1 2))
 
 
 -------------

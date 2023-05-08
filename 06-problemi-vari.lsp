@@ -10398,6 +10398,24 @@ Oppure:
 (cross-the-river)
 ;-> ((e e e e) (w e w e) (e e w e) (w w w e) (e w e e) (w w e w) (e w e w) (w w w w))
 
+Nota: Il lupo e i cavoli devono essere due ogetti distinti?
+Riformuliamo il problema senza la distinzione tra lupo e cavoli.
+Poniamo lupo e cavoli uguale ad "x" e capra uguale a "y".
+
+Un contadino deve attraversare un fiume con due x e una y. La barca può trasportare (oltre a lui) soltanto una tra le due x o la y. Non è possibile lasciare da sole x e y. Quindi come trasportare tutti sull'altra riva del fiume?
+
+Adesso il problema è molto più facile da risolvere perchè esiste una sola soluzione:
+attraversare con y      
+tornare indietro         (y)
+                         
+atraversare con x        
+tornare indietro con y   (x)
+                         
+attraversare con x       
+tornare indietro         (x x)
+                         
+attraversare con y       (x x y)
+
 
 --------------------------------
 Ancora la congettura di Goldbach

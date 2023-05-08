@@ -1553,5 +1553,198 @@ Funzione di Encoder:
 (mt-text "66-33-9-555-444-7777-7")
 ;-> "NEWLISP"
 
+
+---------------------------------
+Forum: Naming for global symbols?
+---------------------------------
+
+cormullion:
+-----------
+If there is some data that I want to refer to throughout a script - such as the path to a database - I store it in a global symbol/variable. In the past I've sometimes used the (CommonLisp?) convention of enclosing with asterisks - eg *db* - which doesn't look that great:
+
+(set '*db* {/Users/me/misc/db})
+
+but it's good to have some visual reminder that the symbol is global, and it's harder to type by accident.
+
+Does everyone else use this? 
+What other conventions are used for marking variable names as global? 
+I'm not a fan of underscores... :_) 
+Is an initial capital enough? Or is it better to avoid them altogether somehow?
+
+rickyboy:
+---------
+I also use the asterisk enclosing in my global names. My reasons:
+
+1. This is the convention in CL, and so having the same convention in newlisp makes it easier for me to go back and forth between newlisp and CL, and
+
+2. Putting asterisks around something was the Usenet and Internet way of applying *emphasis* to some text in flat ASCII.
+
+So the convention is well ingrained in me. :-)
+
+Jeff:
+-----
+The other thing you can do is maintain state more safely in a context. Call it 'global or even *global* ;)
+
+I use asterisks for globals in any context, though.
+
+m i c h a e l:
+--------------
+What about the $ (dollar sign)? newLISP uses it for its global variables ($n and $idx, for example).
+
+> (set (global '$db) {/Users/me/misc/db})
+"/Users/me/misc/db"
+> (context 'C)
+C
+C> (define (C:print) (println $db))
+(lambda () (println $db))
+C> (context MAIN)
+> (C:print)
+/Users/me/misc/db
+"/Users/me/misc/db"
+> _
+
+Don't forget to make your globals global ;-)
+
+Lutz:
+-----
+Just put all globals in its own context 'global' or 'gl' or even shortening to capital 'G' for those who hate typing (like myself ;-))
+
+(set 'G:database "/usr/home/joe/data/database.lsp")
+(set 'G:n-config 12345)
+
+A context qualified variable is global by definition, because contexts names are global. It also keeps all globals together in one place for inspection or serializing with
+
+(save "appglobals.lsp" 'G)
+
+
+---------------------------------------------------
+Funzione che accetta simboli o una lista di simboli
+---------------------------------------------------
+
+Scriviamo una funzione che calcola il quadrato di tutti i suoi argomenti.
+Il problema è che gli argomenti si possono presentare in 3 modi:
+1) un singolo atomo (es. 3 o a)
+2) più di un atomo (es. 2 3 o a b)
+3) una lista (es. (2 3) o (a b)
+
+Vediamo cosa contiene la variabile (args) in base ad ogni parametro.
+
+(define (test) (println "(args) = "(args)) (println "(args 0) = " (args 0)))
+
+Un atomo:
+(test 3)
+;-> (args) = (3)
+;-> (args 0) = 3
+
+Più atomi:
+(test 2 3)
+;-> (args) = (2 3)
+;-> (args 0) = 2
+
+Una lista:
+(test '(2 3))
+;-> (args) = ((2 3))
+;-> (args 0) = (2 3)
+
+La nostra funzione dovrà utilizzare il procedimento corretto (calcolo del quadrato) in base al tipo di parametro.
+
+(define (square)
+  ; se abbiamo un atomo o una lista
+  (if (= (length (args)) 1)
+      ; se abbiamo un atomo
+      (if (atom? (args 0))
+          (mul (args 0) (args 0))
+          ; se abbiamo una lista
+          (map mul (args 0) (args 0))
+      )
+      ; altrimenti abbiamo più di un atomo
+      (map mul (args) (args))))
+
+Facciamo alcune prove:
+
+(square 2)
+;-> 4
+(square 2 3)
+;-> (4 9)
+(square '(2 3))
+;-> (4 9)
+(square '(2))
+;-> (4)
+
+(setq a 2 b 3)
+(setq lst '(1 2 3))
+(square a)
+;-> 4
+(square a b b a)
+;-> (4 9 9 4)
+(square lst)
+;-> (1 4 9)
+(square (list a b))
+;-> (4 9)
+
+Quindi abbiamo una funzione che si comporta in modo differente in base al tipo di parametro/i passato.
+
+
+-------------------
+Forum: set question
+-------------------
+
+newdep:
+-------
+Lutz, this may sound like a very very very very stupid question ..
+
+(set 'here '(there where ))
+;-> (there where)
+
+Are there and where now evaluated and set to nil inside newlisp and known as symbols?
+
+PS: assuming you just started the newlisp console
+
+Lutz:
+-----
+yes, they exist now as symbols in the MAIN namespace and contain 'nil'.
+But they have not been evaluated, because they are inside a quoted list.
+
+They get put into the symbol table when parsing the source: "(set 'here '(there where ))".
+
+After parsing the source and translating it into an internal s-expression format, the expression gets evaluated, assigning the list '(there where ) to the symbol 'here.
+
+newdep:
+-------
+..oke thank you for the clear answer...
+
+Has this always been the fact? because im now wondering why I got away with some list content in my programs while not using contexts or OOP.
+
+I was always under the impression that anything inside an explicit list was static until evaluated with .i.e. 'eval..until then the data inside a list was abstract and unknown to the main-context when using 'set. 
+I mean only for lists!
+
+PS: like this, i still think its odd.. ->
+
+newLISP v.9.2.7 on Linux, execute 'newlisp -h' for more info.
+
+(set 'X '(i am a new list))
+;-> (i am a new list)
+(set 'i:am "a new list")
+;-> ERR: context expected in function set : i
+
+Lutz:
+-----
+yes, it has always been this way. 
+After the first statement 'i' exists as a normal symbol variable containing 'nil'. 
+In the next statement then 'i' is expected to be either a context or contain a context. 
+Only the the 'context' function can promote a normal variable to a context symbol:
+
+newLISP v.9.2.0 on OSX, execute 'newlisp -h' for more info.
+
+(set 'X '(i am a new list))
+;-> (i am a new list)
+(set 'i:am "a new list")
+;-> ;-> ERR: context expected in function set : i
+
+(context 'i "am" "a new list")
+;-> "a new list"
+i:am
+;-> "a new list"
+
 =============================================================================
 

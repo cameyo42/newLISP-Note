@@ -1795,6 +1795,9 @@ NOTE LIBERE 16
   Monete e probabilità
   Dado da N con dado da 6
   Codice Multitap (old Nokia Phone)
+  Forum: Naming for global symbols?
+  Funzione che accetta simboli o una lista di simboli
+  Forum: set question
 
 PROBLEMI SUI DADI
 =================

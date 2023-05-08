@@ -3,7 +3,7 @@ Note su newLISP
 MIT License  
 
 Appunti sul linguaggio newLISP e sulla risoluzione dei problemi  
-              (un lavoro continuamente in corso)  
+(un lavoro continuamente in corso)  
 
 00) Indice
 01) newLISP in generale (65)
@@ -29,7 +29,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 21) Note libere 13 (80)
 22) Note libere 14 (80)
 23) Note libere 15 (80)
-24) Note libere 16 (13)
+24) Note libere 16 (16)
 96) Problemi sui dadi (76)
 97) Appendici (27)
 98) Bibliografia
