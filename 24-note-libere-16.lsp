@@ -1746,5 +1746,358 @@ newLISP v.9.2.0 on OSX, execute 'newlisp -h' for more info.
 i:am
 ;-> "a new list"
 
+
+----------------------------
+Lista con indici predefiniti
+----------------------------
+
+In newLISP la struttura lista ha indici che vanno da 0 a (n-1), dove n è la lunghezza della lista.
+In Pascal e in Fortran possiamo definire un vettore con indici predefiniti, ad esempio:
+
+var c : array[ -7 .. 7] of boolean;
+
+In questo caso abbiamo un vettore da 15 elementi con indici da -7 a 7 (compreso l'indice 0).
+
+Per simulare una lista con indici diversi da 0..(n-1) possiamo utilizzare il seguente metodo.
+
+Supponiamo di voler simulare una lista con indici che vanno da -5 a 5.
+Creiamo una lista con una lunghezza predefinita di 11 elementi (5 - (-5) + 1):
+
+(setq lista (dup 0 11))
+;-> (0 0 0 0 0 0 0 0 0 0 0)
+
+Adesso scriviamo una funzione che prende una lista e i nuovi indici idx1, idx2 (iniziale e finale) e crea una lista associativa del tipo:
+
+  (idx1 0) (idx1+1 1) (idx1+2 2) ... (idx2 n-1))
+
+(define (new-index lst idx1 idx2)
+  ;(println (+ (- idx2 idx1) 1) { } (length lst))
+  (if (!= (+ (- idx2 idx1) 1) (length lst))
+      nil ; error: il numero di elementi è diverso
+      ; else crea la lista associativa tra nuovi indici e indici originali
+      (map list (sequence idx1 idx2) (sequence 0 (abs (- idx2 idx1))))))
+
+Creiamo la lista di associazione tra gli indici:
+
+(setq lista-idx (new-index lista -5 5))
+;-> ((-5 0) (-4 1) (-3 2) (-2 3) (-1 4) (0 5) (1 6) (2 7) (3 8) (4 9) (5 10))
+
+Adesso dobbiamo scrivere le funzioni per impostare e leggere i valori dalla lista con i nuovi indici:
+
+(define (set-value lst lst-idx idx value)
+  ;(println (lookup idx lst-idx))
+  (setf ((eval lst) (lookup idx lst-idx)) value))
+
+Nota: Alla funzione "set-value" deve essere passata la lista per riferimento (quotata).
+
+(define (get-value lst lst-idx idx)
+  (lst (lookup idx lst-idx)))
+
+(set-value 'lista lista-idx -5 2)
+;-> 2
+lista
+;-> (2 0 0 0 0 0 0 0 0 0 0)
+
+(get-value lista lista-idx -5)
+;-> 2
+
+Aggiorniamo tutti gli elementi con un ciclo "for":
+
+(for (i -5 5) (set-value 'lista lista-idx i i))
+lista
+;-> (-5 -4 -3 -2 -1 0 1 2 3 4 5)
+
+Un altro metodo potrebbe essere quello di utilizzare delle macro, ma questo mi sembra semplice ed immediato.
+
+
+----------------
+Battaglia navale
+----------------
+
+Battaglia Navale è un gioco per due persone che utilizza due griglie rettangolari di 10 per 10.
+
+   A B C D E F G H I J        A B C D E F G H I J
+ 1 . . . . . . . . . .      1 . . . . . . . . . .
+ 2 . . . . . . . . . .      2 . . . . . . . . . .
+ 3 . . . . . . . . . .      3 . . . . . . . . . .
+ 4 . . . . . . . . . .      4 . . . . . . . . . .
+ 5 . . . . . . . . . .      5 . . . . . . . . . .
+ 6 . . . . . . . . . .      6 . . . . . . . . . .
+ 7 . . . . . . . . . .      7 . . . . . . . . . .
+ 8 . . . . . . . . . .      8 . . . . . . . . . .
+ 9 . . . . . . . . . .      9 . . . . . . . . . .
+10 . . . . . . . . . .     10 . . . . . . . . . .
+
+Ogni giocatore posiziona un certo numero di navi nella propria griglia senza farle vedere al proprio avversario.
+Il numero di navi da posizionare viene deciso dai giocatori prima di iniziare il gioco.
+Le navi hanno le seguenti dimensioni:
+
+  Portaerei: con 5 caselle
+  Corazzata: con 4 caselle
+  Sottomarino: con 3 caselle
+  Corvetta: 2 caselle
+  Lancia: 1 casella
+
+Per esempio, una posizione di partenza potrebbe essere la seguente:
+
+  1 Nave da 5 caselle
+  1 Nave da 4 caselle
+  2 Navi da 3 caselle
+  3 Navi da 2 caselle
+  4 Navi da 1 casella
+
+A questo punto ogni giocatore, a turno, spara un colpo in una casella della griglia dell'avversario.
+Se la casella contiene una nave, allora l'avversario deve rispondere: "colpito".
+Se la casella contiene l'ultima casella "viva" di una nave, allora l'avversario deve rispondere: "colpito e affondato".
+Se la casella è vuota, allora l'avversario deve rispondere: "acqua".
+
+Il vincitore è colui che affonda per primo le navi dell'avversario.
+
+Rappresentiamo queste informazioni in due griglie per ogni giocatore.
+
+  Griglia 1                Griglia 2
+  ---------                --------- 
+    0 1 2 3 4 5 6 7 8 9      0 1 2 3 4 5 6 7 8 9
+  0 . . . . . . . . . .    0 . . . . + . . . . .
+  1 . . . . . . . . . .    1 . + . . . . . . . .
+  2 . . . . . . . 1 . .    2 . + . . . . . . . .
+  3 . 4 4 4 x . . 3 3 3    3 . . . . . . . . . .
+  4 . 2 . 1 . . . . . .    4 . . . . . . . . . .
+  5 . 2 5 . . . . . . .    5 . . . . . . . . . .
+  6 . . 5 . . . . . . .    6 . . . - . . . . . .
+  7 . . x . . . . . . .    7 . . . . + . - . . .
+  8 . . 5 . . . . . . .    8 . . . - . . . . . .
+  9 . . 5 . . . . . . .    9 . . . . . . . . . .
+
+Nella griglia 1 viene rappresentata la posizione delle proprie navi.
+Il segno "." significa che la casella è vuota.
+Il segno "x" significa che quella nave è stata colpita.
+I numeri rappresentano la posizione delle navi (es. 3 3 3 rappresenta una nave da 3).
+
+Nella griglia 2 viene riportata il risultato degli spari del giocatore:
+Il segno "." significa che non ha sparato su quella casella.
+Il segno "+" significa che ha sparato sulla casella e colpito una nave.
+Il segno "-" significa che ha sparato sulla casella senza colpire nulla.
+
+Funzione che stampa le griglie di un giocatore:
+
+(define (print-grid grid1 grid2)
+  (local (row col)
+    (setq row (length grid1))
+    (setq col (length (first grid1)))
+    (print "  " (join (map string (sequence 0 (- row 1))) " "))
+    (println "     " (join (map string (sequence 0 (- row 1))) " "))
+    (for (i 0 (- row 1))
+      (print i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid1 i j) 0) (print ". ")) ; libera
+              ((= (grid1 i j) -1) (print "x ")) ; nave colpita
+              (true (print (string (grid1 i j) " "))) ; nave
+        )
+      )
+      (print {  } i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid2 i j) 0) (print ". ")) ; libera
+              ((= (grid2 i j) 1) (print "- ")) ; colpo a vuoto
+              ((= (grid2 i j) 2) (print "+ ")) ; colpo a segno
+              (true (println "ERROR"))
+        )
+      )
+      (println))))
+
+(setq navi '(4 3 3 2 2 2 1 1 1 1))
+
+Funzione che riempie casualmente una griglia con una lista di navi:
+
+(define (navi-random grid lst)
+  (dolist (el lst)
+    ; dir = 0 -> nave orizzontale
+    ; dir = 1 -> nave verticale
+    (setq dir (rand 2))
+    (setq ok nil)
+    ; posiziona la nave corrente
+    (until ok
+      (setq row (rand (- 11 el)))
+      (setq col (rand (- 11 el)))
+      (setq stop nil)
+      (cond ((= dir 0)
+              (for (i 0 (- el 1) 1 stop)
+                (if (!= (grid row (+ col i)) 0) (setq stop true))))
+            ((= dir 1)
+              (for (i 0 (- el 1) 1 stop)
+                (if (!= (grid (+ row i) col) 0) (setq stop true))))
+      )
+      (if (not stop) (begin
+          (setq ok true)
+          (cond ((= dir 0)
+                  (for (i 0 (- el 1) 1 stop)
+                    (setf (grid row (+ col i)) el)))
+                ((= dir 1)
+                  (for (i 0 (- el 1) 1 stop)
+                    (setf (grid (+ row i) col) el)))
+          )
+      ))
+    )
+    ;(println el)
+    ;(print-grid grid g2)
+    ;(read-line)
+    grid))
+
+Funzione di sparo per il giocatore 1:
+
+(define (boom1)
+  (setq ok nil)
+  (until ok
+    ; input riga
+    (setq row nil)
+    (until row
+      (print "riga (0..9): ")
+      (setq r (int (read-line)))
+      (if (or (< r 0) (> r 9))
+          (println "Errore: riga inesistente")
+          (setq row true))
+    )
+    ; input colonna
+    (setq col nil)
+    (until col
+      (print "colonna (0..9): ")
+      (setq c (int (read-line)))
+      (if (or (< c 0) (> c 9))
+          (println "Errore: riga inesistente")
+          (setq col true))
+    )
+    ; riga e colonna ok
+    (cond ((= (g2 r c) 0) ; casella vuota (colpo a vuoto)
+            (setf (g11 r c) 1) ; "-"
+            (setq ok true))
+          ((= (g2 r c) -1) ; nave già colpita
+            (setf (g2 r c) -1) ; "x"
+            (setf (g11 r c) 2) ; "+"
+            (setq ok true))
+          ((> (g2 r c) 0) ; nave colpita con questo tiro
+            (setf (g2 r c) -1) ; "x"
+            (setf (g11 r c) 2) ; "+"
+            (setq ok true))
+    )
+  )
+)
+
+Funzione di sparo per il giocatore 2:
+
+(define (boom2)
+  (setq ok nil)
+  (until ok
+    ; input riga
+    (setq row nil)
+    (until row
+      (print "riga (0..9): ")
+      (setq r (int (read-line)))
+      (if (or (< r 0) (> r 9))
+          (println "Errore: riga inesistente")
+          (setq row true))
+    )
+    ; input colonna
+    (setq col nil)
+    (until col
+      (print "colonna (0..9): ")
+      (setq c (int (read-line)))
+      (if (or (< c 0) (> c 9))
+          (println "Errore: riga inesistente")
+          (setq col true))
+    )
+    ; riga e colonna ok
+    (cond ((= (g1 r c) 0) ; casella vuota (colpo a vuoto)
+            (setf (g22 r c) 1) ;"-"
+            (setq ok true))
+          ((= (g1 r c) -1) ; nave già colpita
+            (setf (g1 r c) -1) ;"x"
+            (setf (g22 r c) 2) ;"+"
+            (setq ok true))
+          ((> (g1 r c) 0) ; nave colpita con questo tiro
+            (setf (g1 r c) -1) ;"x"
+            (setf (g22 r c) 2) ;"+"
+            (setq ok true))
+    )
+  )
+)
+
+(define (boom2)
+  (local (row col r c)
+    ; input riga
+    (setq row nil)
+    (until row
+      (print "riga (0..9): ")
+      (setq r (int (read-line)))
+      (if (or (< r 0) (> r 9))
+          (println "Errore: riga inesistente")
+          (setq row true))
+    )
+    ; input colonna
+    (setq col nil)
+    (until col
+      (print "colonna (0..9): ")
+      (setq c (int (read-line)))
+      (if (or (< c 0) (> c 9))
+          (println "Errore: riga inesistente")
+          (setq col true))
+    )
+    ; sparo
+    (cond ((= (g1 r c) 0) ; casella vuota (colpo a vuoto)
+            (setf (g22 r c) 1)) ;"-"
+          ((= (g1 r c) -1) ; nave già colpita
+            (setf (g1 r c) -1)  ;"x"
+            (setf (g22 r c) 2)) ;"+"
+          ((> (g1 r c) 0) ; nave colpita con questo tiro
+            (setf (g1 r c) -1)  ;"x"
+            (setf (g22 r c) 2)) ;"+"
+    )))
+
+
+(setq g1 (explode (dup 0 100) 10))
+(setq g2 (explode (dup 0 100) 10))
+(setq g11 (explode (dup 0 100) 10))
+(setq g22 (explode (dup 0 100) 10))
+
+(setq g1 (navi-random g1 '(5 4 3 2 1 1)))
+(setq g2 (navi-random g2 '(5 4 3 2 1 1)))
+(print-grid g1 g11)
+(print-grid g2 g22)
+(boom1)
+(print-grid g1 g11)
+(print-grid g2 g22)
+(boom2)
+(print-grid g2 g22)
+(print-grid g1 g11)
+;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
+;-> 0 . . . . x . . . . .   0 . . . . . . . . . .
+;-> 1 . . . . . . . . 2 2   1 . . . . . . . . . .
+;-> 2 . . . . . . . . . .   2 . . . . . . . . . .
+;-> 3 . . . 5 . . 4 4 4 4   3 . . . . . . . . . .
+;-> 4 . . . 5 . . . . . .   4 . . . . . . . . . .
+;-> 5 . . . 5 . . . . . .   5 . . . . . . . . . .
+;-> 6 . . . 5 . . . . . .   6 . . . . . . . . . .
+;-> 7 . 3 . 5 . . . . . .   7 . . . . . . . - . .
+;-> 8 . 3 . . . . . . . .   8 . . . . . . . . . .
+;-> 9 1 3 . . . . . . . .   9 . . . . . . . . . .
+;-> nil
+;-> > (print-grid g1 g11)
+;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
+;-> 0 . . . . . . . . . .   0 . . . . + . . . . .
+;-> 1 . . . . . . . . . .   1 . . . . . . . . . .
+;-> 2 . . . . . . 1 . . .   2 . . . . . . . . . .
+;-> 3 4 4 4 4 . . 3 3 3 .   3 . . . . . . . . . .
+;-> 4 2 . 1 . . . . . . .   4 . . . . . . . . . .
+;-> 5 2 5 . . . . . . . .   5 . . . . . . . . . .
+;-> 6 . 5 . . . . . . . .   6 . . . . . . . . . .
+;-> 7 . 5 . . . . . . . .   7 . . . . . . . . . .
+;-> 8 . 5 . . . . . . . .   8 . . . . . . . . . .
+;-> 9 . 5 . . . . . . . .   9 . . . . . . . . . .
+(boom1)
+(print-grid g1 g11)
+(print-grid g2 g22)
+(boom2)
+(print-grid g2 g22)
+(print-grid g1 g11)
+
 =============================================================================
 

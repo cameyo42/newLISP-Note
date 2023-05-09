@@ -1798,6 +1798,8 @@ NOTE LIBERE 16
   Forum: Naming for global symbols?
   Funzione che accetta simboli o una lista di simboli
   Forum: set question
+  Lista con indici predefiniti
+  Battaglia navale
 
 PROBLEMI SUI DADI
 =================
