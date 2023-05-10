@@ -1870,14 +1870,14 @@ Rappresentiamo queste informazioni in due griglie per ogni giocatore.
   9 . . 5 . . . . . . .    9 . . . . . . . . . .
 
 Nella griglia 1 viene rappresentata la posizione delle proprie navi.
-Il segno "." significa che la casella è vuota.
-Il segno "x" significa che quella nave è stata colpita.
-I numeri rappresentano la posizione delle navi (es. 3 3 3 rappresenta una nave da 3).
+Valore 0 = casella vuota --> Segno "." significa che la casella è vuota.
+Valore -1 = nave colpita --> Segno "x" significa che quella nave è stata colpita.
+Valore = (1..5) = nave --> Segno "numero" significa la posizione delle navi (es. 3 3 3 rappresenta una nave da 3).
 
 Nella griglia 2 viene riportata il risultato degli spari del giocatore:
-Il segno "." significa che non ha sparato su quella casella.
-Il segno "+" significa che ha sparato sulla casella e colpito una nave.
-Il segno "-" significa che ha sparato sulla casella senza colpire nulla.
+Valore 0 = casella vuota --> Segno "." significa che non ha sparato su quella casella.
+Valore 1 = colpo a vuoto --> Segno "+" significa che ha sparato sulla casella e colpito una nave.
+Valore 2 = colpo a segno --> Segno "-" significa che ha sparato sulla casella senza colpire nulla.
 
 Funzione che stampa le griglie di un giocatore:
 
@@ -1905,8 +1905,6 @@ Funzione che stampa le griglie di un giocatore:
       )
       (println))))
 
-(setq navi '(4 3 3 2 2 2 1 1 1 1))
-
 Funzione che riempie casualmente una griglia con una lista di navi:
 
 (define (navi-random grid lst)
@@ -1927,7 +1925,8 @@ Funzione che riempie casualmente una griglia con una lista di navi:
               (for (i 0 (- el 1) 1 stop)
                 (if (!= (grid (+ row i) col) 0) (setq stop true))))
       )
-      (if (not stop) (begin
+      (if (not stop) 
+        (begin
           (setq ok true)
           (cond ((= dir 0)
                   (for (i 0 (- el 1) 1 stop)
@@ -1935,94 +1934,16 @@ Funzione che riempie casualmente una griglia con una lista di navi:
                 ((= dir 1)
                   (for (i 0 (- el 1) 1 stop)
                     (setf (grid (+ row i) col) el)))
-          )
-      ))
+          )))
     )
-    ;(println el)
-    ;(print-grid grid g2)
-    ;(read-line)
     grid))
+
+(setq navi '(4 3 3 2 2 2 1 1 1 1))
 
 Funzione di sparo per il giocatore 1:
 
 (define (boom1)
-  (setq ok nil)
-  (until ok
-    ; input riga
-    (setq row nil)
-    (until row
-      (print "riga (0..9): ")
-      (setq r (int (read-line)))
-      (if (or (< r 0) (> r 9))
-          (println "Errore: riga inesistente")
-          (setq row true))
-    )
-    ; input colonna
-    (setq col nil)
-    (until col
-      (print "colonna (0..9): ")
-      (setq c (int (read-line)))
-      (if (or (< c 0) (> c 9))
-          (println "Errore: riga inesistente")
-          (setq col true))
-    )
-    ; riga e colonna ok
-    (cond ((= (g2 r c) 0) ; casella vuota (colpo a vuoto)
-            (setf (g11 r c) 1) ; "-"
-            (setq ok true))
-          ((= (g2 r c) -1) ; nave già colpita
-            (setf (g2 r c) -1) ; "x"
-            (setf (g11 r c) 2) ; "+"
-            (setq ok true))
-          ((> (g2 r c) 0) ; nave colpita con questo tiro
-            (setf (g2 r c) -1) ; "x"
-            (setf (g11 r c) 2) ; "+"
-            (setq ok true))
-    )
-  )
-)
-
-Funzione di sparo per il giocatore 2:
-
-(define (boom2)
-  (setq ok nil)
-  (until ok
-    ; input riga
-    (setq row nil)
-    (until row
-      (print "riga (0..9): ")
-      (setq r (int (read-line)))
-      (if (or (< r 0) (> r 9))
-          (println "Errore: riga inesistente")
-          (setq row true))
-    )
-    ; input colonna
-    (setq col nil)
-    (until col
-      (print "colonna (0..9): ")
-      (setq c (int (read-line)))
-      (if (or (< c 0) (> c 9))
-          (println "Errore: riga inesistente")
-          (setq col true))
-    )
-    ; riga e colonna ok
-    (cond ((= (g1 r c) 0) ; casella vuota (colpo a vuoto)
-            (setf (g22 r c) 1) ;"-"
-            (setq ok true))
-          ((= (g1 r c) -1) ; nave già colpita
-            (setf (g1 r c) -1) ;"x"
-            (setf (g22 r c) 2) ;"+"
-            (setq ok true))
-          ((> (g1 r c) 0) ; nave colpita con questo tiro
-            (setf (g1 r c) -1) ;"x"
-            (setf (g22 r c) 2) ;"+"
-            (setq ok true))
-    )
-  )
-)
-
-(define (boom2)
-  (local (row col r c)
+  (local (row col r c value out)
     ; input riga
     (setq row nil)
     (until row
@@ -2042,62 +1963,297 @@ Funzione di sparo per il giocatore 2:
           (setq col true))
     )
     ; sparo
-    (cond ((= (g1 r c) 0) ; casella vuota (colpo a vuoto)
-            (setf (g22 r c) 1)) ;"-"
-          ((= (g1 r c) -1) ; nave già colpita
-            (setf (g1 r c) -1)  ;"x"
-            (setf (g22 r c) 2)) ;"+"
-          ((> (g1 r c) 0) ; nave colpita con questo tiro
-            (setf (g1 r c) -1)  ;"x"
-            (setf (g22 r c) 2)) ;"+"
-    )))
+    (setq value (g2 r c))
+    (cond ((= value 0) ; casella vuota (colpo a vuoto)
+            (setf (g11 r c) 1) ; "-"
+            (setq out "Acqua")) 
+          ((= value -1) ; nave già colpita
+            (setf (g2 r c) -1)  ; "x"
+            (setf (g11 r c) 2)  ; "+"
+            (setq out "Colpita (2 volte)"))
+          ((> value 0) ; nave colpita con questo tiro
+            (setf (g2 r c) -1)  ; "x"
+            (setf (g11 r c) 2)  ; "+"
+            (setq out "Colpita!")
+            (if (affondata? r c value g2) (setq out "Colpita e affondata!")))
+    )
+    out))
 
+Funzione di sparo per il giocatore 2:
 
+(define (boom2)
+  (local (row col r c out value)
+    ; input riga
+    (setq row nil)
+    (until row
+      (print "riga (0..9): ")
+      (setq r (int (read-line)))
+      (if (or (< r 0) (> r 9))
+          (println "Errore: riga inesistente")
+          (setq row true))
+    )
+    ; input colonna
+    (setq col nil)
+    (until col
+      (print "colonna (0..9): ")
+      (setq c (int (read-line)))
+      (if (or (< c 0) (> c 9))
+          (println "Errore: riga inesistente")
+          (setq col true))
+    )
+    ; sparo
+    (setq value (g1 r c))
+    (cond ((= value 0) ; casella vuota (colpo a vuoto)
+            (setf (g22 r c) 1) ;"-"
+            (setq out "Acqua"))
+          ((= value -1) ; nave già colpita
+            (setf (g1 r c) -1)  ;"x"
+            (setf (g22 r c) 2)  ;"+"
+            (setq out "Colpita (2 volte)"))
+          ((> value 0) ; nave colpita con questo tiro
+            (setq value (g1 r c))
+            (setf (g1 r c) -1)  ;"x"
+            (setf (g22 r c) 2)  ;"+"
+            (setq out "Colpita!")
+            (if (affondata? r c  value g1) (setq out "Colpita e affondata!")))
+    )
+    out))
+
+Funzione che verifica se una nave colpita è affondata:
+(controlla se una cella ha un valore uguale up, down, left or right)
+
+(define (affondata? row col value grid)
+  (local (out righe colonne)
+    (setq out true)
+    (setq righe (length grid))
+    (setq colonne (length (grid 0)))
+    (cond ((= value 1) (setq out true))
+          (true
+    # Check the value to the left of the current position (if not in the leftmost column)
+            (if (and (> col 0) (= (grid row (- col 1)) value)) (setq out nil))
+    # Check the value to the right of the current position (if not in the rightmost column)
+            (if (and (< col (- colonne 1)) (= (grid row (+ col 1)) value)) (setq out nil))
+    # Check the value above the current position (if not in the top row)
+            (if (and (> row 0) (= (grid (- row 1) col) value)) (setq out nil))
+    # Check the value below the current position (if not in the bottom row)
+            (if (and (< row (- righe 1)) (= (grid (+ row 1) col) value)) (setq out nil)))
+    )
+    out))
+
+Simulazione di una partita:
+
+Creazione delle griglie:
 (setq g1 (explode (dup 0 100) 10))
 (setq g2 (explode (dup 0 100) 10))
 (setq g11 (explode (dup 0 100) 10))
 (setq g22 (explode (dup 0 100) 10))
 
+Posizionamento casuale delle navi nelle griglie:
 (setq g1 (navi-random g1 '(5 4 3 2 1 1)))
 (setq g2 (navi-random g2 '(5 4 3 2 1 1)))
-(print-grid g1 g11)
-(print-grid g2 g22)
-(boom1)
-(print-grid g1 g11)
-(print-grid g2 g22)
-(boom2)
-(print-grid g2 g22)
+
+Stampa griglie:
 (print-grid g1 g11)
 ;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
-;-> 0 . . . . x . . . . .   0 . . . . . . . . . .
-;-> 1 . . . . . . . . 2 2   1 . . . . . . . . . .
-;-> 2 . . . . . . . . . .   2 . . . . . . . . . .
-;-> 3 . . . 5 . . 4 4 4 4   3 . . . . . . . . . .
-;-> 4 . . . 5 . . . . . .   4 . . . . . . . . . .
-;-> 5 . . . 5 . . . . . .   5 . . . . . . . . . .
-;-> 6 . . . 5 . . . . . .   6 . . . . . . . . . .
-;-> 7 . 3 . 5 . . . . . .   7 . . . . . . . - . .
-;-> 8 . 3 . . . . . . . .   8 . . . . . . . . . .
-;-> 9 1 3 . . . . . . . .   9 . . . . . . . . . .
-;-> nil
-;-> > (print-grid g1 g11)
+;-> 0 . . . 5 . . . . . .   0 . . . . . . . . . .
+;-> 1 . . . 5 . . 1 . . .   1 . . . . . . . . . .
+;-> 2 . 3 . 5 . . . . . .   2 . . . . . . . . . .
+;-> 3 . 3 . 5 . . . 2 2 .   3 . . . . . . . . . .
+;-> 4 . 3 . 5 . . . . . .   4 . . . . . . . . . .
+;-> 5 . . . . 4 4 4 4 . .   5 . . . . . . . . . .
+;-> 6 . . . . . . . . . .   6 . . . . . . . . . .
+;-> 7 . . . . . . . . . .   7 . . . . . . . . . .
+;-> 8 . . . . . . . . . .   8 . . . . . . . . . .
+;-> 9 . . . . . . . 1 . .   9 . . . . . . . . . .
+
+(print-grid g2 g22)
 ;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
-;-> 0 . . . . . . . . . .   0 . . . . + . . . . .
-;-> 1 . . . . . . . . . .   1 . . . . . . . . . .
-;-> 2 . . . . . . 1 . . .   2 . . . . . . . . . .
-;-> 3 4 4 4 4 . . 3 3 3 .   3 . . . . . . . . . .
-;-> 4 2 . 1 . . . . . . .   4 . . . . . . . . . .
-;-> 5 2 5 . . . . . . . .   5 . . . . . . . . . .
-;-> 6 . 5 . . . . . . . .   6 . . . . . . . . . .
-;-> 7 . 5 . . . . . . . .   7 . . . . . . . . . .
-;-> 8 . 5 . . . . . . . .   8 . . . . . . . . . .
-;-> 9 . 5 . . . . . . . .   9 . . . . . . . . . .
+;-> 0 . . . . 5 5 5 5 5 .   0 . . . . . . . . . .
+;-> 1 . . . . . . 4 . . .   1 . . . . . . . . . .
+;-> 2 . . . . . . 4 . . .   2 . . . . . . . . . .
+;-> 3 2 2 . . . . 4 . . .   3 . . . . . . . . . .
+;-> 4 . . . . . . 4 . . .   4 . . . . . . . . . .
+;-> 5 . . . . . . . . . .   5 . . . . . . . . . .
+;-> 6 . 1 . . . . . . . .   6 . . . . . . . . . .
+;-> 7 . . . . . 3 3 3 . .   7 . . . . . . . . . .
+;-> 8 . . . . . 1 . . . .   8 . . . . . . . . . .
+;-> 9 . . . . . . . . . .   9 . . . . . . . . . .
+
+Spara 1:
 (boom1)
+;-> riga (0..9): 6
+;-> colonna (0..9): 1
+;-> "Colpita e affondata!"
+
+Stampa griglie:
 (print-grid g1 g11)
+;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
+;-> 0 . . . 5 . . . . . .   0 . . . . . . . . . .
+;-> 1 . . . 5 . . 1 . . .   1 . . . . . . . . . .
+;-> 2 . 3 . 5 . . . . . .   2 . . . . . . . . . .
+;-> 3 . 3 . 5 . . . 2 2 .   3 . . . . . . . . . .
+;-> 4 . 3 . 5 . . . . . .   4 . . . . . . . . . .
+;-> 5 . . . . 4 4 4 4 . .   5 . . . . . . . . . .
+;-> 6 . . . . . . . . . .   6 . + . . . . . . . .
+;-> 7 . . . . . . . . . .   7 . . . . . . . . . .
+;-> 8 . . . . . . . . . .   8 . . . . . . . . . .
+;-> 9 . . . . . . . 1 . .   9 . . . . . . . . . .
+
 (print-grid g2 g22)
+;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
+;-> 0 . . . . 5 5 5 5 5 .   0 . . . . . . . . . .
+;-> 1 . . . . . . 4 . . .   1 . . . . . . . . . .
+;-> 2 . . . . . . 4 . . .   2 . . . . . . . . . .
+;-> 3 2 2 . . . . 4 . . .   3 . . . . . . . . . .
+;-> 4 . . . . . . 4 . . .   4 . . . . . . . . . .
+;-> 5 . . . . . . . . . .   5 . . . . . . . . . .
+;-> 6 . x . . . . . . . .   6 . . . . . . . . . .
+;-> 7 . . . . . 3 3 3 . .   7 . . . . . . . . . .
+;-> 8 . . . . . 1 . . . .   8 . . . . . . . . . .
+;-> 9 . . . . . . . . . .   9 . . . . . . . . . .
+
+Spara 2:
 (boom2)
+;-> riga (0..9): 8
+;-> colonna (0..9): 0
+;-> "Acqua"
+
+Stampa griglie:
+(print-grid g2 g22)
+;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
+;-> 0 . . . . 5 5 5 5 5 .   0 . . . . . . . . . .
+;-> 1 . . . . . . 4 . . .   1 . . . . . . . . . .
+;-> 2 . . . . . . 4 . . .   2 . . . . . . . . . .
+;-> 3 2 2 . . . . 4 . . .   3 . . . . . . . . . .
+;-> 4 . . . . . . 4 . . .   4 . . . . . . . . . .
+;-> 5 . . . . . . . . . .   5 . . . . . . . . . .
+;-> 6 . x . . . . . . . .   6 . . . . . . . . . .
+;-> 7 . . . . . 3 3 3 . .   7 . . . . . . . . . .
+;-> 8 . . . . . 1 . . . .   8 - . . . . . . . . .
+;-> 9 . . . . . . . . . .   9 . . . . . . . . . .
+
+(print-grid g1 g11)
+;->   0 1 2 3 4 5 6 7 8 9     0 1 2 3 4 5 6 7 8 9
+;-> 0 . . . 5 . . . . . .   0 . . . . . . . . . .
+;-> 1 . . . 5 . . 1 . . .   1 . . . . . . . . . .
+;-> 2 . 3 . 5 . . . . . .   2 . . . . . . . . . .
+;-> 3 . 3 . 5 . . . 2 2 .   3 . . . . . . . . . .
+;-> 4 . 3 . 5 . . . . . .   4 . . . . . . . . . .
+;-> 5 . . . . 4 4 4 4 . .   5 . . . . . . . . . .
+;-> 6 . . . . . . . . . .   6 . + . . . . . . . .
+;-> 7 . . . . . . . . . .   7 . . . . . . . . . .
+;-> 8 . . . . . . . . . .   8 . . . . . . . . . .
+;-> 9 . . . . . . . 1 . .   9 . . . . . . . . . .
+
+...
+
+Spara 1:
+(boom1)
+
+Stampa griglie:
+(print-grid g1 g11)
+(print-grid g2 g22)
+
+Spara 2:
+(boom2)
+
+Stampa griglie:
 (print-grid g2 g22)
 (print-grid g1 g11)
+
+
+---
+Nim
+---
+
+Nim è un gioco di strategia in cui due giocatori, a turno, rimuovono ("nimming") oggetti da pile distinte. 
+Ad ogni turno, un giocatore deve rimuovere almeno un oggetto e può rimuovere qualsiasi numero di oggetti purché provengano tutti dalla stessa pila. 
+Il numero di pile e di oggetti in ogni pila viene concordato tra i giocatori all'inizio del gioco.
+Una disposizione tipica è la seguente (3 pile da 3, 4 e 5 oggetti):
+
+    | | |
+    
+   | | | |
+   
+  | | | | |
+
+Il giocatore che prende l'ultimo oggetto vince (nella versione "misère" del Nim il giocatore che prende l'ultimo oggetto perde).
+
+Simulazione del gioco Nim standard (vince chi prende l'ultimo oggetto).
+
+Rappresentiamo le pile con una lista:
+
+(setq pile '(3 4 5))
+
+(setq t '(3 4 5))
+
+Valutazione della posizione
+Per valutare la posizione dobbiamo calcolare lo xor delle pile:
+
+ valore_posizione = xor(pile)
+
+Con i valori dell'esempio dobbiamo calcolare xor(xor(3 4) 5).
+
+(setq vp (apply ^ pile))
+;-> 2
+
+Se il valore di vp è uguale a 0, allora siamo in una posizione perdente.
+Se il valore di vp è diverso da 0, allora siamo in una posizione vincente.
+Da una posizione vincente, la mossa ottimale è quella che genera un vp pari a 0 per l'avversario.
+
+Nell'esempio vp = 2 e siamo in una posizione vincente.
+La mossa ottimale è quella (quelle) che rendono vp = 0 per l'avversario.
+Ad esempio togliendo 2 oggetti dalla prima pila otteniamo:
+
+(setq pile '(1 4 5))
+(setq vp (apply ^ pile))
+;-> 0
+
+Adesso il nostro avversario si trova in una posizione (vp = 0) in cui qualunque mossa rende vp diverso da 0.
+In questo modo possiamo seguire questa strategia vincente fino alla fine.
+
+(define (print-nim pile ch)
+  (dolist (p pile)  (println { } (+ $idx 1) { } (dup (string " " ch " ") p))))
+
+(print-nim '(3 4 5) "|")
+;-> 1  |  |  |
+;-> 2  |  |  |  |
+;-> 3  |  |  |  |  |
+
+
+(define (get-move pile)
+  (local (righe r oggetti o)
+    (setq righe (length pile))
+    ; input riga
+    (setq row nil)
+    (until row
+      (print "Riga (1.." righe "): ")
+      (setq r (int (read-line)))
+      (if (or (< r 1) (> r righe) (zero? (pile r)))
+          (println "Errore: riga inesistente")
+          (set 'r (- r 1) 'row true))
+    )
+    ; input colonna
+    (setq obj nil)
+    (setq oggetti (pile r))
+    (until obj
+      (print "Oggetti (1.." oggetti "): ")
+      (setq o (int (read-line)))
+      (if (or (< o 1) (> o oggetti))
+          (println "Errore: oggetti inesistenti")
+          (setq obj true))
+    )
+    (-- (pile r) o)
+    pile))
+
+(get-move '(3 4 5))
+;-> riga (1..3): 2
+;-> Oggetti (1..4): 4
+;-> (3 0 5)
+
+(define (evaluate pile) (apply ^ pile))
+
+(define (possible-moves pile)
 
 =============================================================================
 

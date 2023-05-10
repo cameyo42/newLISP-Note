@@ -1800,6 +1800,7 @@ NOTE LIBERE 16
   Forum: set question
   Lista con indici predefiniti
   Battaglia navale
+  Nim
 
 PROBLEMI SUI DADI
 =================
