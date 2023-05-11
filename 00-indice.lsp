@@ -1801,6 +1801,7 @@ NOTE LIBERE 16
   Lista con indici predefiniti
   Battaglia navale
   Nim
+  Insiemi (set) sum-free
 
 PROBLEMI SUI DADI
 =================

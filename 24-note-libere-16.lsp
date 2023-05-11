@@ -2166,35 +2166,59 @@ Stampa griglie:
 Nim
 ---
 
-Nim è un gioco di strategia in cui due giocatori, a turno, rimuovono ("nimming") oggetti da pile distinte. 
-Ad ogni turno, un giocatore deve rimuovere almeno un oggetto e può rimuovere qualsiasi numero di oggetti purché provengano tutti dalla stessa pila. 
-Il numero di pile e di oggetti in ogni pila viene concordato tra i giocatori all'inizio del gioco.
-Una disposizione tipica è la seguente (3 pile da 3, 4 e 5 oggetti):
+Nim è un gioco di strategia in cui due giocatori, a turno, rimuovono ("nimming") oggetti da righe distinte.
+Ad ogni turno, un giocatore deve rimuovere almeno un oggetto e può rimuovere qualsiasi numero di oggetti purché provengano tutti dalla stessa riga.
+Il numero di righe e di oggetti in ogni riga viene concordato tra i giocatori all'inizio del gioco.
+Una disposizione tipica è la seguente (3 righe da 3, 4 e 5 oggetti):
 
-    | | |
-    
-   | | | |
-   
-  | | | | |
+  Riga 1     | | |
+         
+  Riga 3    | | | |
+         
+  Riga 3   | | | | |
 
 Il giocatore che prende l'ultimo oggetto vince (nella versione "misère" del Nim il giocatore che prende l'ultimo oggetto perde).
 
+Strategia ottimale:
+La strategia vincente è terminare ogni mossa con una somma-nim pari a 0.
+Questo è sempre possibile se la somma-nim è diversa da zero prima della mossa.
+Se la somma-nim è zero, il giocatore che deve muovere perderà sicuramente se l'avversario giocherà in maniera ottimale.
+
+La somma-nim viene calcolata sommando il numero di oggetti in ogni riga in base 2.
+I valori binari vanno sommati senza riporto.
+Per esempio, calcoliamo la somma-nim per la posizione raffigurata sopra:
+
+          Binario   Decimale
+  Riga 1  011       3
+  Riga 2  100       4
+  Riga 3  101       5
+          ---
+          010 --> 2    
+
+Una procedura equivalente, che spesso è più facile da eseguire mentalmente, consiste nell'esprimere il numero di oggetti nelle righe come somme di potenze distinte di 2, cancellare le coppie di potenze uguali e quindi aggiungere ciò che resta:
+
+  Riga 1  3 = 0 + 2 + 1 =    2  1
+  Riga 2  4 = 4 + 0 + 0 = 4      
+  Riga 3  5 = 4 + 0 + 1 = 4     1
+          --------------------------------------------------------------------
+                             2    Cosa rimane dopo aver cancellato gli 1 e i 4
+
+La somma-nim è equivalente allo xor di tutte le righe (es. 3 xor 4 xor 5).
+
 Simulazione del gioco Nim standard (vince chi prende l'ultimo oggetto).
 
-Rappresentiamo le pile con una lista:
+Rappresentiamo le righe con una lista:
 
-(setq pile '(3 4 5))
+(setq righe '(3 4 5))
 
-(setq t '(3 4 5))
+Valutazione della posizione (somma-nim)
+Per valutare la posizione dobbiamo calcolare la somma-nim delle righe:
 
-Valutazione della posizione
-Per valutare la posizione dobbiamo calcolare lo xor delle pile:
+ valore_posizione = xor(righe)
 
- valore_posizione = xor(pile)
+Con i valori dell'esempio dobbiamo calcolare 3 xor 4 xor 5.
 
-Con i valori dell'esempio dobbiamo calcolare xor(xor(3 4) 5).
-
-(setq vp (apply ^ pile))
+(setq vp (apply ^ righe))
 ;-> 2
 
 Se il valore di vp è uguale a 0, allora siamo in una posizione perdente.
@@ -2203,57 +2227,240 @@ Da una posizione vincente, la mossa ottimale è quella che genera un vp pari a 0
 
 Nell'esempio vp = 2 e siamo in una posizione vincente.
 La mossa ottimale è quella (quelle) che rendono vp = 0 per l'avversario.
-Ad esempio togliendo 2 oggetti dalla prima pila otteniamo:
+Ad esempio togliendo 2 oggetti dalla prima riga otteniamo:
 
-(setq pile '(1 4 5))
-(setq vp (apply ^ pile))
+(setq righe '(1 4 5))
+(setq vp (apply ^ righe))
 ;-> 0
 
 Adesso il nostro avversario si trova in una posizione (vp = 0) in cui qualunque mossa rende vp diverso da 0.
 In questo modo possiamo seguire questa strategia vincente fino alla fine.
 
-(define (print-nim pile ch)
-  (dolist (p pile)  (println { } (+ $idx 1) { } (dup (string " " ch " ") p))))
+Invece di scrivere un programma che gestisce completamente una partita a Nim tra due giocatori, scriviamo alcune funzioni con cui poter simulare le singole fasi di una partita.
+In questo modo possiamo interagire più liberamente con il funzionamento del gioco.
 
-(print-nim '(3 4 5) "|")
+Posizione iniziale:
+(setq *pos* '(3 4 5))
+
+Funzione che stampa una posizione di Nim:
+
+(define (print-nim position ch)
+  (dolist (p position)
+    (println { } (+ $idx 1) { } (dup (string " " ch " ") p))))
+
+(print-nim *pos* "|")
 ;-> 1  |  |  |
 ;-> 2  |  |  |  |
 ;-> 3  |  |  |  |  |
 
-
-(define (get-move pile)
+(define (make-move posizione)
   (local (righe r oggetti o)
-    (setq righe (length pile))
+    (setq righe (length posizione))
     ; input riga
     (setq row nil)
     (until row
       (print "Riga (1.." righe "): ")
       (setq r (int (read-line)))
-      (if (or (< r 1) (> r righe) (zero? (pile r)))
+      (if (or (< r 1) (> r righe) (zero? (posizione r)))
           (println "Errore: riga inesistente")
+          ;else
           (set 'r (- r 1) 'row true))
     )
-    ; input colonna
+    ; input oggetti
     (setq obj nil)
-    (setq oggetti (pile r))
+    (setq oggetti (posizione r))
     (until obj
       (print "Oggetti (1.." oggetti "): ")
       (setq o (int (read-line)))
       (if (or (< o 1) (> o oggetti))
           (println "Errore: oggetti inesistenti")
+          ;else
           (setq obj true))
     )
-    (-- (pile r) o)
-    pile))
+    (-- (posizione r) o)
+    posizione))
 
-(get-move '(3 4 5))
+Questa è l'unica funzione che modifica la variabile globale "*pos*".
+
+(setq *pos* (make-move *pos*))
 ;-> riga (1..3): 2
 ;-> Oggetti (1..4): 4
 ;-> (3 0 5)
 
-(define (evaluate pile) (apply ^ pile))
+Funzione che valuta una posizione:
 
-(define (possible-moves pile)
+(define (eval-position posizione) (apply ^ posizione))
+
+Funzione che genera tutte le mosse possibili da una posizione data:
+(genera una lista di posizioni)
+
+(define (possible-moves posizione)
+  (local (out base)
+    (setq out '())
+    (dolist (p posizione)
+      (setq base posizione)
+      (for (i 1 p)
+        (setf (base $idx) (- p i))
+        (push base out -1)
+      )
+    )
+    out))
+
+(possible-moves '(3 4 5))
+;-> ((2 4 5) (1 4 5) (0 4 5) 
+;->  (3 3 5) (3 2 5) (3 1 5) (3 0 5) 
+;->  (3 4 4) (3 4 3) (3 4 2) (3 4 1) (3 4 0))
+
+Funzione che valuta una lista di posizioni e restituisce una lista di posizioni valutate con elementi del tipo:
+
+  (valore_posizione [numero] posizione [lista])
+
+(define (evaluate-positions posizioni)
+  (map list (map eval-position posizioni) posizioni))
+
+(evaluate-positions (possible-moves '(3 4 5)))
+;-> ((3 (2 4 5)) (0 (1 4 5)) (1 (0 4 5)) 
+;->  (5 (3 3 5)) (4 (3 2 5)) (7 (3 1 5)) (6 (3 0 5))
+;->  (3 (3 4 4)) (4 (3 4 3)) (5 (3 4 2)) (6 (3 4 1)) (7 (3 4 0)))
+
+Per trovare (se esiste) la mossa ottimale cerchiamo il valore 0 nella lista delle posizioni valutate:
+
+(setq best-move (lookup 0 (evaluate-positions (possible-moves '(3 4 5)))))
+;-> (1 4 5)
+
+(print-nim '(1 4 5) "|")
+;-> 1  |
+;-> 2  |  |  |  |
+;-> 3  |  |  |  |  |
+
+Notiamo che dalla posizione (1 4 5) non esiste una mossa ottimale:
+
+(evaluate-positions (possible-moves '(1 4 5)))
+;-> ((1 (0 4 5)) 
+;->  (7 (1 3 5)) (6 (1 2 5)) (5 (1 1 5)) (4 (1 0 5)) 
+;->  (1 (1 4 4)) (6 (1 4 3)) (7 (1 4 2)) (4 (1 4 1)) (5 (1 4 0)))
+
+Con queste funzioni possiamo analizzare completamente una partita a Nim.
+
+Nota:
+nella versione "misère", la strategia di Nim è diversa solo quando la normale mossa di gioco lascerebbe solo righe con un oggetto soltanto.
+In tal caso, la mossa corretta è lasciare un numero dispari di righe che hanno un solo oggetto (nel gioco normale, la mossa corretta sarebbe lasciare un numero pari di tali righe).
+
+
+----------------------
+Insiemi (set) sum-free
+----------------------
+
+Un insieme (set) viene chiamato "sum-free" se non ci sono due elementi (non necessariamente distinti) che sommati insieme fanno parte dell'insieme stesso.
+Ad esempio, (1 5 7) è "sum-free", perché tutti i membri sono dispari e due numeri dispari quando sommati insieme sono sempre pari.
+Inoltre se un insieme contiene 0, allora non è "sum-free", poichè 0 + 0 = 0.
+Anche (2 4 9 13) non è "sum-free", poiché le somme 2 + 2 = 4 o 4 + 9 = 13 appartengono all'insieme.
+
+Esempi:
+
+  Sum-free:        Non sum-free:
+    ()               (0)
+    (4)              (1 4 5 7)
+    (1 5 7)          (3 0)
+    (16 1 4 9)       (16 1 4 8)
+
+Scriviamo una funzione che verifica se un insieme è "sum-free".
+
+Primo metodo (intersezione tra il prodotto cartesiano e la lista):
+
+(define (sum-free? lst)
+  (let (out '())
+    (dolist (el1 lst)
+      (dolist (el2 lst)
+        (push (+ el1 el2) out)))
+    (null? (intersect lst out))))
+
+(sum-free? '())
+;-> true
+(sum-free? '(4))
+;-> true
+(sum-free? '(1 5 7))
+;-> true
+(sum-free? '(16 1 4 9))
+;-> true
+
+(sum-free? '(0))
+;-> nil
+(sum-free? '(1 4 5 7))
+;-> nil
+(sum-free? '(3 0))
+;-> nil
+(sum-free? '(16 1 4 8))
+;-> nil
+
+Secondo metodo (prodotto cartesiano con verifica per ogni elemento):
+
+(define (sum-free lst)
+  (let (all lst)
+    (setq stop nil)
+    (dolist (el1 lst stop)
+      (dolist (el2 lst stop)
+        ; verifica della presenza della somma corrente nella lista
+        (if (find (+ el1 el2) lst) 
+            (setq stop true))))
+    (not stop)))
+
+(sum-free '())
+;-> true
+(sum-free '(4))
+;-> true
+(sum-free '(1 5 7))
+;-> true
+(sum-free '(16 1 4 9))
+;-> true
+
+(sum-free '(0))
+;-> nil
+(sum-free '(1 4 5 7))
+;-> nil
+(sum-free '(3 0))
+;-> nil
+(sum-free '(16 1 4 8))
+;-> nil
+
+Vediamo i tempi di esecuzione delle due funzioni.
+
+Insieme casuale:
+(setq insieme (unique (rand 1e6 5000)))
+(time (println (sum-free? insieme)))
+;-> 11215.037
+;-> nil
+(time (println (sum-free insieme)))
+;-> nil
+;-> 1.995
+
+Insieme con tutti numeri dispari (quindi è sum-free):
+(time (println (sum-free? (sequence 1 5001 2))))
+;-> true
+;-> 1724.876
+(time (println (sum-free (sequence 1 5001 2))))
+;-> true
+;-> 139356.052
+La funzione "find" sulle liste rallenta molto l'esecuzione.
+
+Terzo metodo (controlli e poi prodotto cartesiano con intersezione):
+
+(define (sumfree? lst)
+  (let (out '())
+    (cond ((null? (clean odd? lst)) true) ; tutti numeri dispari?
+          ((ref 0 lst) nil); numero 0 nella lista?
+          (true ; prodotto cartesiano e intersezione
+            (dolist (el1 lst)
+              (dolist (el2 lst)
+                (push (+ el1 el2) out)))
+            (null? (intersect lst out))))))
+
+(time (println (sumfree? insieme)))
+;-> nil
+;-> 10918.23
+(time (println (sumfree? (sequence 1 5001 2))))
+;-> true
+;-> 0.996
 
 =============================================================================
 
