@@ -1802,6 +1802,8 @@ NOTE LIBERE 16
   Battaglia navale
   Nim
   Insiemi (set) sum-free
+  Numeri orari
+  Notazione Forsyth-Edwards (FEN)
 
 PROBLEMI SUI DADI
 =================

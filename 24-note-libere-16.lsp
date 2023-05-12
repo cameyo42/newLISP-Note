@@ -2462,5 +2462,267 @@ Terzo metodo (controlli e poi prodotto cartesiano con intersezione):
 ;-> true
 ;-> 0.996
 
+
+------------
+Numeri orari
+------------
+
+Determinare tutti i numeri che rappresentano un'ora della giornata in ore e minuti (da 0 a 23 e da 0 a 59).
+Per esempio, 18 rappresenta l'ora 1 e 8 minuti e l'ora 18 (le 6 di pomeriggio).
+
+Sono sufficientei due cicli "for" per risolvere il problema.
+
+(define (ora-esatta)
+  (let (out '())
+    (for (ore 0 23)
+      (for (minuti 0 59)
+        (push (int (string ore minuti) 0 10) out)))
+    ; nella lista out ci sono molti valori duplicati
+    (sort (unique out))))
+
+(ora-esatta)
+;-> (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+;->  25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46
+;->  47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68
+;->  69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90
+;->  91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109
+;->  ...
+;->  2255 2256 2257 2258 2259 2310 2311 2312 2313 2314 2315 2316 2317
+;->  2318 2319 2320 2321 2322 2323 2324 2325 2326 2327 2328 2329 2330
+;->  2331 2332 2333 2334 2335 2336 2337 2338 2339 2340 2341 2342 2343
+;->  2344 2345 2346 2347 2348 2349 2350 2351 2352 2353 2354 2355 2356
+;->  2357 2358 2359)
+
+
+-------------------------------
+Notazione Forsyth-Edwards (FEN)
+-------------------------------
+
+La Notazione Forsyth-Edwards (FEN) è una notazione scacchistica utilizzata per descrivere una particolare posizione sulla scacchiera inventatata da David Forsyth (1854–1909).
+Lo scopo della notazione FEN è quello di fornire tutte le informazioni necessarie a consentire la prosecuzione di una partita a partire da una posizione data.
+
+Una stringa FEN definisce una particolare posizione nel corso di una partita, descrivendola interamente in una linea di testo, ed utilizzando solo i caratteri ASCII.
+Un file di testo che contenga solo stringhe FEN dovrebbe recare l'estensione ".fen".
+
+Una stringa è composta di 6 campi, a loro volta separati da uno spazio.
+Usualmente è indicata tra parentesi quadre.
+
+I campi sono:
+
+1. Posizione dei pezzi: viene descritta ogni singola traversa, a partire dalla ottava fino alla prima.
+Per ciascuna traversa, sono descritti i contenuti di ciascuna casa, a partire dalla colonna "a" ed a finire con quella "h".
+I pezzi del Bianco sono indicati usando le iniziali (inglesi) dei pezzi stessi in maiuscolo ("KQRBNP").
+I pezzi del Nero, con le stesse lettere, ma in minuscolo ("kqrbnp").
+K = King, Q = Queen, R = Rook, B = Bishop, N = kNight, P = pawn.
+L'unica eccezione è il cavallo 'knight' che viene indicato con la lettera N o n.
+Il numero di case vuote tra un pezzo e l'altro o dai bordi della scacchiera è indicato con le cifre dall'1 all'8.
+Se una traversa non contiene pezzi o pedoni, sarà descritta con un 8.
+Il segno " / " è usato per separare le traverse una dall'altra.
+
+2. Giocatore che ha la mossa: "w" indica che la mossa è al Bianco, "b" che tocca al Nero.
+
+3. Possibilità di arroccare: se nessuno dei due giocatori può arroccare, si indica "-".
+Altrimenti, possono essere utilizzare una o più lettere:
+"K" (Il Bianco può arroccare corto),
+"Q" (Il Bianco può arroccare lungo),
+"k" (il Nero può arroccare corto),
+"q" (il Nero può arroccare lungo).
+
+4.  Possibilità di catturare en passant: se non è possibile effettuare alcuna cattura en passant, si indica "-".
+Se un pedone ha appena effettuato la sua prima mossa di due case e c'è la possibilità di catturarlo en passant, verrà indicata la casa "alle spalle" del pedone stesso.
+
+5.  Numero delle semimosse:  è il numero di semimosse dall'ultima spinta di pedone o dall'ultima cattura.
+È usato per determinare se si può chiedere patta per la regola delle cinquanta mosse.
+
+6.  Numero di mosse: il numero complessivo di mosse della partita.
+Inizia da 1, ed aumenta di una unità dopo ogni mossa del Nero.
+
+Come esempio consideriamo la seguente stringa FEN e ricostruiamo la posizione:
+
+ [r1bq1rk1/pp3ppp/3n4/2p1N3/2B5/7P/PPP2PP1/R1BQR1K1 w]
+
+    Coordinate algebriche:                     Righe FEN per ogni traversa:
+
+    +---+---+---+---+---+---+---+---+
+  8 | r |   | b | q |   | r | k |   |   <-->   r1bq1rk1
+    +---+---+---+---+---+---+---+---+
+  7 | p | p |   |   |   | p | p | p |   <-->   pp3ppp
+    +---+---+---+---+---+---+---+---+
+  6 |   |   |   | n |   |   |   |   |   <-->   3n4
+    +---+---+---+---+---+---+---+---+
+  5 |   |   | p |   | N |   |   |   |   <-->   2p1N3
+    +---+---+---+---+---+---+---+---+
+  4 |   |   | A |   |   |   |   |   |   <-->   2B5
+    +---+---+---+---+---+---+---+---+
+  3 |   |   |   |   |   |   |   | P |   <-->   7P
+    +---+---+---+---+---+---+---+---+
+  2 | P | P | P |   |   | P | P |   |   <-->   PPP2PP1
+    +---+---+---+---+---+---+---+---+
+  1 | R |   | B | Q | R |   | K |   |   <-->   R1BQR1K1
+    +---+---+---+---+---+---+---+---+
+      a   b   c   d   e   f   g   h
+
+Vedere anche "Posizione di scacchi casuale - random chess position" su "Note libere 11".
+
+Supponiamo che la posizione sia memorizzata in una matrice.
+
+     Scacchiera con                          Matrice della posizione
+     coordinate algebriche
+                                              0   1   2   3   4   5   6   7
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  8 |   |   |   |   |   |   |   |   |     0 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  7 |   |   |   |   |   |   |   |   |     1 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  6 |   |   |   |   |   |   |   |   |     2 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  5 |   |   |   |   |   |   |   |   |     3 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  4 |   |   |   |   |   |   |   |   |     4 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  3 |   |   |   |   |   |   |   |   |     5 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  2 |   |   |   |   |   |   |   |   |     6 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  1 |   |   |   |   |   |   |   |   |     7 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+      a   b   c   d   e   f   g   h
+
+(setq board '(({r} { } {b} {q} { } {r} {k} { })
+              ({p} {p} { } { } { } {p} {p} {p})
+              ({ } { } { } {n} { } { } { } { })
+              ({ } { } {p} { } {N} { } { } { })
+              ({ } { } {B} { } { } { } { } { })
+              ({ } { } { } { } { } { } { } {P})
+              ({P} {P} {P} { } { } {P} {P} { })
+              ({R} { } {B} {Q} {R} { } {K} { })))
+
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))
+      )
+    )
+    (println)
+  )
+  'chess-position)
+
+(print-board board)
+;->  r . b q . r k .
+;->  p p . . . p p p
+;->  . . . n . . . .
+;->  . . p . N . . .
+;->  . . B . . . . .
+;->  . . . . . . . P
+;->  P P P . . P P .
+;->  R . B Q R . K .
+;-> end
+
+Funzione che converte una stringa FEN nella posizione sulla scacchiera:
+
+(define (fen-board fen)
+  (local (grid field traverse row col ch))
+    (setq grid (array 8 8 '(" ")))
+    ; remove "[" and "]"
+    (setq fen (slice fen 1 (- (length fen) 2)))
+    ; parse fen
+    (setq field (parse fen " "))
+    ; parse field
+    (dolist (f field)
+      (cond ((= $idx 0) ; 1) position
+              (setq traverse (parse f "/"))
+              (setq row 0 col 0)
+              (dolist (t traverse)
+                (setq row $idx)
+                (setq col 0)
+                (dostring (ch t)
+                  (cond ((and (>= ch 49) (<= ch 56)) ; numero
+                          ; (char "1") --> 49, (char "8") --> 56
+                          (setq num (- ch 48))
+                          (for (i 1 num)
+                            (setf (grid row (+ col (- i 1))) " ")
+                          )
+                          (setq col (+ col num)))
+                        (true ; carattere
+                          (setf (grid row col) (char ch))
+                          (++ col))
+                  )
+                )
+              )
+              (print-board grid)
+            )
+            ((= $idx 1) (println "Active color: "f)) ; 2) mossa
+            ((= $idx 2) (println "Castling: " f))    ; 3) arrocco
+            ((= $idx 3) (println "En passant: "f))   ; 4) en passant
+            ((= $idx 4) (println "Halfmove: " f))    ; 5) semi-mosse
+            ((= $idx 5) (println "Fullmove: " f))    ; 6) mosse
+      )
+    )
+  'end)
+
+(setq fen "[r1bq1rk1/pp3ppp/3n4/2p1N3/2B5/7P/PPP2PP1/R1BQR1K1 w]")
+(fen-board fen)
+;->  r . b q . r k .
+;->  p p . . . p p p
+;->  . . . n . . . .
+;->  . . p . N . . .
+;->  . . B . . . . .
+;->  . . . . . . . P
+;->  P P P . . P P .
+;->  R . B Q R . K .
+;-> Active color: w
+
+(setq fen "[rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2]")
+;-> (fen-board fen)
+;->  r n b q k b n r
+;->  p p . p p p p p
+;->  . . . . . . . .
+;->  . . p . . . . .
+;->  . . . . P . . .
+;->  . . . . . N . .
+;->  P P P P . P P P
+;->  R N B Q K B . R
+;-> Active color: b
+;-> Castling: KQkq
+;-> En passant: -
+;-> Halfmove: 1
+;-> Fullmove: 2
+
+Funzione che converte una posizione sulla scacchiera nella stringa FEN:
+
+(define (board-fen board)
+  (local (row col ch)
+    (setq fen "[")
+    (dolist (trav board)
+      (setq num 0)
+      (dolist (t trav)
+        (cond ((= t " ") ; casa vuota
+                (++ num))
+              (true ; casa occupata da un pezzo
+               (if (> num 0) (extend fen (string num)))
+               (setq num 0)
+               (extend fen t))
+        )
+      )
+      (if (> num 0) (extend fen (string num)))
+      (extend fen "/")
+    )
+    (setf (fen -1) "]")
+    fen))
+
+(setq board '(({r} { } {b} {q} { } {r} {k} { })
+              ({p} {p} { } { } { } {p} {p} {p})
+              ({ } { } { } {n} { } { } { } { })
+              ({ } { } {p} { } {N} { } { } { })
+              ({ } { } {B} { } { } { } { } { })
+              ({ } { } { } { } { } { } { } {P})
+              ({P} {P} {P} { } { } {P} {P} { })
+              ({R} { } {B} {Q} {R} { } {K} { })))
+
+(board-fen board)
+;-> "[r1bq1rk1/pp3ppp/3n4/2p1N3/2B5/7P/PPP2PP1/R1BQR1K1]"
+
 =============================================================================
 
