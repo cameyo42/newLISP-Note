@@ -1804,6 +1804,8 @@ NOTE LIBERE 16
   Insiemi (set) sum-free
   Numeri orari
   Notazione Forsyth-Edwards (FEN)
+  ASCII caratteri stampabili (printable characters 32-127)
+  clean e filter per stringhe
 
 PROBLEMI SUI DADI
 =================
@@ -1836,6 +1838,7 @@ APPENDICI
   Frasi sulla Programmazione e sul Linguaggio Lisp
   Prefissi del Sistema Internazionale di unità di misura
   Alfabeto greco
+  Colori HTML
   Codici nazionali (ISO 3166)
   Codici ASCII
 

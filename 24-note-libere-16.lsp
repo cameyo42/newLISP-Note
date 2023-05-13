@@ -2724,5 +2724,94 @@ Funzione che converte una posizione sulla scacchiera nella stringa FEN:
 (board-fen board)
 ;-> "[r1bq1rk1/pp3ppp/3n4/2p1N3/2B5/7P/PPP2PP1/R1BQR1K1]"
 
+
+--------------------------------------------------------
+ASCII caratteri stampabili (printable characters 32-127)
+--------------------------------------------------------
+
+I codici da 32 a 127 sono i cosiddetti caratteri stampabili.
+Rappresentano lettere, numeri, punteggiatura e altri simboli.
+Il carattere 127 rappresenta il comando DEL.
+
+;; ASCII Table (printable characters)
+;;
+;; 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+;;     !  "  #  $  %  &  '  (  )  *  +  ,  -  .  /
+;;
+;; 48 49 50 51 52 53 54 55 56 57
+;;  0  1  2  3  4  5  6  7  8  9
+;;
+;; 58 59 60 61 62 63 64
+;;  :  ;  <  =  >  ?  @
+;;
+;; 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90
+;;  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z
+;;
+;; 91 92 93 94 95 96
+;;  [  \  ]  ^  _  `
+;;
+;; 97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122
+;;  a  b  c   d  e   f   g   h   i   j   k   l   m   n   o   p   q   r   s   t   u   v   w   x   y   z
+;;
+;; 123 124 125 126 127
+;;  {   |   }   ~   ⌂ (DEL)
+
+(define (chars-printable) (map char (sequence 32 126)))
+(chars-printable)
+;-> (" " "!" "\"" "#" "$" "%" "&" "'" "(" ")" "*" "+" "," "-" "." "/"
+;->  "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" ":" ";" "<" "=" ">" "?" "@"
+;->  "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q"
+;->  "R" "S" "T" "U" "V" "W" "X" "Y" "Z" "[" "\\" "]" "^" "_" "`" "a"
+;->  "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r"
+;->  "s" "t" "u" "v" "w" "x" "y" "z" "{" "|" "}" "~")
+
+(define (chars-lower) (map char (sequence 97 122)))
+(chars-lower)
+;-> ("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+;->  "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z")
+
+(define (chars-upper) (map char (sequence 65 90)))
+(join (chars-upper))
+;-> "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+(define (chars-digit) (map char (sequence 48 57)))
+(chars-digit)
+;-> ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")
+
+(define (chars-symbol)
+  (extend (map char (sequence 32 47)) (map char (sequence 58 64))
+          (map char (sequence 91 96)) (map char (sequence 123 126))))
+
+(join (chars-symbol))
+(" " "!" "\"" "#" "$" "%" "&" "'" "(" ")" "*" "+" "," "-" "." "/"
+ ":" ";" "<" "=" ">" "?" "@" "[" "\\" "]" "^" "_" "`" "{" "|" "}"
+ "~")
+(join (chars-symbol))
+;-> " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+
+
+---------------------------
+clean e filter per stringhe
+---------------------------
+
+Le funzioni "clean" e "filter" accettano solo liste.
+Per utilizzarli con le stringhe potremmo utilizzare "explode" e poi passare la lista risultante.
+Comunque vorrei qualcosa di semplice utilizzo.
+Le funzioni "clean-str" e "filter-str" prendono due parametri:
+1) la stringa di caratteri da eliminare/mantenere 
+2) la stringa da modificare
+
+(define (clean-str chars str)
+  (join (difference (explode str) (explode chars) true)))
+
+(clean-str "aeoiuk" "attenzione pericolo")
+;-> "ttnzn prcl"
+
+(define (filter-str chars str)
+  (join (intersect (explode str) (explode chars) true)))
+
+(filter-str "aeoiuk" "attenzione pericolo")
+;-> "aeioeeioo"
+
 =============================================================================
 
