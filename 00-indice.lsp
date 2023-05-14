@@ -1806,6 +1806,8 @@ NOTE LIBERE 16
   Notazione Forsyth-Edwards (FEN)
   ASCII caratteri stampabili (printable characters 32-127)
   clean e filter per stringhe
+  Numerazione di Godel
+  Generatore di numeri primi
 
 PROBLEMI SUI DADI
 =================

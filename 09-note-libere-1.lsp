@@ -3506,23 +3506,26 @@ Infine scriviamo la funzione/funtore del contesto "primo" (il parametro "dir" pu
 
 (define (primo:primo dir)
   (local (found num)
+    (setq primo:val (or primo:val 1))
     (setq found nil)
     (if (null? dir)
       (setq num (+ primo:val 1))
       (setq num (- primo:val 1))
     )
-    (until found
-      (if (primo:isprime? num)
-          (setq primo:val num found true)
-      )
-      (if (null? dir)
-        (++ num)
-        (-- num)
-      )
+    (if (< num 2) 
+        (setq primo:val 2)
+        ;else
+        (until found
+          (if (primo:isprime? num)
+              (setq primo:val num found true)
+          )
+          (if (null? dir)
+            (++ num)
+            (-- num)
+          )
+        )
     )
-    primo:val
-  )
-)
+    primo:val))
 
 Proviamo il tutto:
 
@@ -3534,6 +3537,8 @@ Proviamo il tutto:
 
 (primo:isprime? 13)
 ;-> true
+
+Possiamo usare solo "primo" al posto di "primo:primo" perchè è il funtore del contesto.
 
 (primo)
 ;-> 17
@@ -3642,6 +3647,7 @@ Attiviamo lo stream degli elementi:
 ;-> b
 (mystream)
 ;-> c
+
 Poiché pop funziona sia con le liste che con le stringhe, la stessa funzione generatrice può essere utilizzata per generare uno stream di stringhe:
 
 (setq str "abcddefgh")

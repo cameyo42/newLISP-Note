@@ -2813,5 +2813,280 @@ Le funzioni "clean-str" e "filter-str" prendono due parametri:
 (filter-str "aeoiuk" "attenzione pericolo")
 ;-> "aeioeeioo"
 
+
+--------------------
+Numerazione di Godel
+--------------------
+
+La numerazione di Godel è un sistema che assegna un numero naturale ad ogni simbolo ed espressione in un sistema logico, inventato nel 1931 da Kurt Godel per le dimostrazioni dei suoi teoremi di incompletezza.
+Considerariamo il sistema logico in cui i simboli sono lettere e le espressioni sono parole.
+Per esempio, la parola PRAXIS consiste di sei simboli L, I, S, P.
+La numerazione di Godel assegna numeri alle lettere, diciamo A=1...Z=26, quindi assegna ogni lettera come esponente del numero primo successivo, quindi LISP sarebbe numerato:
+
+  2^12 × 3^9 × 5^19 × 7^16 = 51103419718863787734375000000000000
+
+(* (** 2 12) (** 3 9)  (** 5 19) (** 7 16))
+;-> 51103419718863787734375000000000000L
+
+Il processo è reversibile, cioè è possibile scomporre il numero di Godel e decodificare gli esponenti.
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Per semplicità utilizziamo una lista finita di numeri primi (50):
+
+(setq primi '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 
+              79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157 
+              163 167 173 179 181 191 193 197 199 211 223 227 229))
+
+Inoltre limitiamo la codifica alle sole lettere maiuscole.
+
+Funzione di codifica:
+
+(define (godel str)
+  (let (g 1L)
+    (dostring (ch (upper-case str))
+      (setq g (* g (** (primi $idx) (- ch 64))))
+      (println (char ch) { } (- ch 64) { -> } (primi $idx)"^"(- ch 64) "=" (** (primi $idx) (- ch 64)))
+    )
+  g))
+
+(godel "LISP")
+;-> L 12 -> 2^12=4096L
+;-> I  9 ->  3^9=19683L
+;-> S 19 -> 5^19=19073486328125L
+;-> P 16 -> 7^16=33232930569601L
+;-> 51103419718863787734375000000000000L
+
+(* 4096L 19683L 19073486328125L 33232930569601L)
+;-> 51103419718863787734375000000000000L
+
+(godel "ABBA")
+;-> A 1 -> 2^1=2L
+;-> B 2 -> 3^2=9L
+;-> B 2 -> 5^2=25L
+;-> A 1 -> 7^1=7L
+;-> 3150L
+
+Per decodificare il numero e trovare la stringa che lo ha generato dobbiamo fattorizzare il numero:
+
+(setq f (factor 3150))
+;-> (2 3 3 5 5 7)
+
+E poi contare quante volte sono ripetuti i singoli fattori (molteplicità):
+
+; singoli fattori
+(setq u (unique f))
+;-> (2 3 5 7)
+
+; conta della moltiplicità dei fattori
+(setq conta (count u f))
+;-> (1 2 2 1)
+
+Adesso basta applicare la decodifica dei numeri in caratteri:
+
+(map (fn(x) (char (+ x 64))) conta)
+;-> ("A" "B" "B" "A")
+
+Funzione di decodifica:
+
+(define (decode-godel num)
+  (local (f u)
+    (setq f (factor num))
+    (setq u (unique f))
+    (join (map (fn(x) (char (+ x 64))) (count u f)))))
+
+(decode-godel 3150)
+;-> "ABBA"
+
+Purtroppo la funzione "factor" non è utilizzabile con i numeri big-integer:
+(MAX-INT = 9223372036854775807)
+
+(decode-godel 51103419718863787734375000000000000L)
+;-> ERR: number out of range in function factor
+;-> called from user function (decode-godel 51103419718863787734375000000000000L)
+
+Quindi usiamo la seguente funzione per fattorizzare:
+
+(define (factor-i num)
+"Factorize a big integer number"
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% num 2)) (push '2L out -1) (setq num (/ num 2)))
+    (while (zero? (% num 3)) (push '3L out -1) (setq num (/ num 3)))
+    (while (zero? (% num 5)) (push '5L out -1) (setq num (/ num 5)))
+    (while (zero? (% num 7)) (push '7L out -1) (setq num (/ num 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) num)
+      (if (zero? (% num k))
+        (begin
+          (push k out -1)
+          (setq num (/ num k)))
+        (begin
+          (setq k (+ k (dist i)))
+          (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> num 1) (push (bigint num) out -1))
+    out))
+
+(factor-i 51103419718863787734375000000000000L)
+;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 3L 3L 3L 3L 3L 3L 3L 3L 3L 5L
+;->  5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 5L 7L 7L 7L 7L
+;->  7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L 7L)
+
+(define (decode-godel num)
+  (local (f u)
+    (setq f (factor-i num))
+    (setq u (unique f))
+    (join (map (fn(x) (char (+ x 64))) (count u f)))))
+
+(decode-godel 51103419718863787734375000000000000L)
+;-> "LISP"
+
+(godel "newlisp")
+;-> N 14 -> 2^14=16384L
+;-> E 5  -> 3^5=243L
+;-> W 23 -> 5^23=11920928955078125L
+;-> L 12 -> 7^12=13841287201L
+;-> I 9  -> 11^9=2357947691L
+;-> S 19 -> 13^19=1461920290375446110677L
+;-> P 16 -> 17^16=48661191875666868481L
+;-> 110192844774977460126605610605702126906292904935806038056274175976562500000000000000L
+
+(decode-godel 110192844774977460126605610605702126906292904935806038056274175976562500000000000000L)
+;-> "NEWLISP"
+
+(setq alpha (godel "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+;-> A 1 -> 2^1=2L
+;-> B 2 -> 3^2=9L
+;-> C 3 -> 5^3=125L
+;-> D 4 -> 7^4=2401L
+;-> E 5 -> 11^5=161051L
+;-> F 6 -> 13^6=4826809L
+;-> G 7 -> 17^7=410338673L
+;-> H 8 -> 19^8=16983563041L
+;-> I 9 -> 23^9=1801152661463L
+;-> J 10 -> 29^10=420707233300201L
+;-> K 11 -> 31^11=25408476896404831L
+;-> L 12 -> 37^12=6582952005840035281L
+;-> M 13 -> 41^13=925103102315013629321L
+;-> N 14 -> 43^14=73885357344138503765449L
+;-> O 15 -> 47^15=12063348350820368238715343L
+;-> P 16 -> 53^16=3876269050118516845397872321L
+;-> Q 17 -> 59^17=1271991467017507741703714391419L
+;-> R 18 -> 61^18=136753052840548005895349735207881L
+;-> S 19 -> 67^19=49593099428404263766544428188098203L
+;-> T 20 -> 71^20=10596610576391421032662867140133202401L
+;-> U 21 -> 73^21=1348279907365869037210940254745047725673L
+;-> V 22 -> 79^22=559494740587480879172162808385362976196641L
+;-> W 23 -> 83^23=137656310293626928473255626953462008797108987L
+;-> X 24 -> 89^24=61004259453331056987939675478443460082004997441L
+;-> Y 25 -> 97^25=46697470525437199259645027890776274462295771593057L
+;-> Z 26 -> 101^26=12952563149674059497286795495913738760889297603252601L
+;-> 415260364831088141867894021632550820346162101325613792345810114400910514
+;-> 317412167586650021121833870034921203823690683008724895811222364673849139
+;-> 216671139100788554150419950718781730038776119800333893574816309672573909
+;-> 695498235624708513162596101581761852746026349347879108878718311949631722
+;-> 492822286363917917040069041491884038827718215780986280439105169542807185
+;-> 468703329772870877506193497585032045949738505627758317340676507217143012
+;-> 654416894907347356697296673839244260921466927657884638690278253588924482
+;-> 254626824854619852358939817427700766183092864231129965172825851501071650
+;-> 9196547272680962939471941750L
+
+(decode-godel alpha)
+;-> "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+Generalizziamo le due funzioni di codifica/decodifica in modo da trattare tutti i caratteri ASCII stampabili (32-126).
+
+(define (encode-godel str)
+  (let (g 1L)
+    (dostring (ch str) (setq g (* g (** (primi $idx) (- ch 31)))))
+  g))
+
+(define (decode-godel num)
+  (local (f u)
+    (setq f (factor-i num))
+    (setq u (unique f))
+    (join (map (fn(x) (char (+ x 31))) (count u f)))))
+
+(encode-godel "ABC abc 123 !@# <>:")
+3991166098125043980371008945321831344052118251180177877225577224054190874938080229982666479851833908813107116478194694558115270553002214310389403703749318940050023343071103120353837365865192556939721574973775532831402840055698211324326169650060742874755952521981680518055605587519478189153923331767732732130223925187593273708372563867817087085182694180919846548064274655483259568834658811880449075519570436238901320573898351200337472651909342927341990617125506157694284514382829213049577088567838122318410915039336938565395608325000000000000000000000000000000000L
+
+(decode-godel (encode-godel "ABC abc 123 !@# <>:"))
+;-> "ABC abc 123 !@# <>:"
+
+
+--------------------------
+Generatore di numeri primi
+--------------------------
+
+Scriviamo una funzione che genera il prossimo numero primo a partire da un determinato numero.
+Usiamo un contesto che chiamiamo "nextprime".
+Prima di tutto definiamo una funzione che verifica se un numero è primo:
+
+(define (nextprime:prime? n)
+  (if (< n 2) nil
+      (= 1 (length (factor n)))))
+
+Adesso definiamo una funzione che definisce il numero da cui iniziare la ricerca del prossimo primo:
+
+(define (nextprime:start num) (setq nextprime:val num))
+
+Una funzione per vedere il numero corrente (che potrebbe non essere primo):
+
+(define (nextprime:current)
+  ; se val è nil, allora val = 2
+  (if (nil? nextprime:val)
+      (setq nextprime:val 2)
+      ;else
+      nextprime:val))
+
+Infine la funzione che genera il prossimo numero primo (partendo da nextprime:val):
+
+(define (nextprime:nextprime)
+  ; se val è nil, allora val = 1
+  (setq nextprime:val (or nextprime:val 1))
+  (until (nextprime:prime? (++ nextprime:val)))
+  nextprime:val)
+
+Facciamo alcune prove:
+
+(nextprime)
+;-> 2
+(nextprime)
+;-> 3
+(map nextprime (sequence 1 10))
+;-> (5 7 11 13 17 19 23 29 31 37)
+
+(nextprime:start 98)
+;-> 98
+(nextprime:current)
+;-> 98
+(nextprime)
+;-> 101
+(nextprime:current)
+;-> 101
+
+Nota: quando programmiamo con i contesti è utile analizzare i simboli che sono stati definiti con la seguente funzione:
+
+(define (simboli contesto)
+  (dotree (el contesto) (println el)))
+
+(simboli nextprime)
+;-> nextprime:current
+;-> nextprime:nextprime
+;-> nextprime:prime?
+;-> nextprime:start
+;-> nextprime:val
+
 =============================================================================
 
