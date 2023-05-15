@@ -395,7 +395,7 @@ But this prints the arguments when the function is first defined, not when it's 
 
 Fanda:
 ------
-'define' creates a lambda function/list. 
+'define' creates a lambda function/list.
 You need to include your 'print' functions into the newly created function:
 
 Try if this works:
@@ -548,7 +548,7 @@ Cattura Numeri (gioco)
 ----------------------
 
 Questo gioco utilizza una griglia NxN, dove N è un numero pari.
-Ogni cella della griglia contiene un numero. 
+Ogni cella della griglia contiene un numero.
 I numeri vanno da 1 a N^2, ogni numero appare esattamente una volta.
 A turno, due giocatori scelgono un numero dalla griglia.
 Il numero scelto viene rimosso dalla griglia e viene aggiunto al punteggio del relativo giocatore.
@@ -773,7 +773,7 @@ Nella prima sintassi, "difference" restituisce la differenza degli insiemi list-
 (difference '(2 5 6 0 3 5 0 2) '(1 2 3 3 2 1))
 ;-> (5 6 0)
 
-Nella seconda sintassi, la "difference" funziona in modalità lista. "bool" specifica true o un'espressione diversa da nil. 
+Nella seconda sintassi, la "difference" funziona in modalità lista. "bool" specifica true o un'espressione diversa da nil.
 Nella lista risultante, tutti gli elementi di "list-B" vengono eliminati  in "list-A", ma vengono lasciati i duplicati di altri elementi in "list-A".
 
 In the second syntax, difference works in list mode. bool specifies true or an expression not evaluating to nil. In the resulting list, all elements of list-B are eliminated in list-A, but duplicates of other elements in list-A are left.
@@ -848,14 +848,14 @@ Scriviamo una funzione per fare questa operazione:
 
 Comunque la funzione è lenta per liste con molti elementi:
 
-(silent 
+(silent
   (setq a (rand 1e5 1e4))
   (setq b (rand 1e5 1e4)))
 
 (time (remove-common a b))
 ;-> 653.583
 
-(silent 
+(silent
   (setq a (rand 1e5 1e5))
   (setq b (rand 1e5 1e5)))
 
@@ -989,9 +989,9 @@ Dadi esplosivi
 
 Scrivere una funzione che simula il lancio di un dado "esplosivo" (Exploding Die).
 Questo dado funziona con le seguenti regole:
-Il dado viene lanciato e si ottiene un valore. 
+Il dado viene lanciato e si ottiene un valore.
 Se questo valore è minore del valore massimo per quel tipo di dado (con 4 facce il massimo è 4, con 6 facce il massimo è 6, ecc.), allora ci fermiamo e il risultato del lancio è il valore ottenuto.
-Se, invece, questo valore è il massimo per quel tipo di dado, allora il dado viene lanciato di nuovo e il valore ottenuto viene aggiunto al precedente (totale). Si continua a tirare il dado (e ad aggiungere il risultato al totale) finché non si ottiene più il numero massimo. 
+Se, invece, questo valore è il massimo per quel tipo di dado, allora il dado viene lanciato di nuovo e il valore ottenuto viene aggiunto al precedente (totale). Si continua a tirare il dado (e ad aggiungere il risultato al totale) finché non si ottiene più il numero massimo.
 Il valore finale è comunque aggiunto al totale.
 
 Che distribuzione hanno i valori di questo dado?
@@ -1021,18 +1021,18 @@ Funzione che calcola le frequenze dei valori di un determinato numero di lanci d
     freq))
 
 (distr 4 1e6)
-;-> (0 249952 250009 249924 0 62248 62852 62282 0 
-;->  15653 15702 15636 0 4000 3908 3845 0 
-;->  1000 985 991 0 261 254 248 0 
-;->  77 62 62 0 11 9 21 0 2 2 2 0 
+;-> (0 249952 250009 249924 0 62248 62852 62282 0
+;->  15653 15702 15636 0 4000 3908 3845 0
+;->  1000 985 991 0 261 254 248 0
+;->  77 62 62 0 11 9 21 0 2 2 2 0
 ;->  1 0 0 0 0 0 1 0 0 0 ...)
 
 Nota: i valori multipli di n non compaiono mai (perchè sono da esplodere...)
 
 (distr 6 1e6)
-;-> (0 166222 166745 166832 167004 166596 0 27607 27776 27936 27783 27686 0 
-;->  4659 4677 4717 4632 4620 0 719 757 769 735 787 0 
-;->  109 120 125 135 121 0 14 24 23 25 26 0 
+;-> (0 166222 166745 166832 167004 166596 0 27607 27776 27936 27783 27686 0
+;->  4659 4677 4717 4632 4620 0 719 757 769 735 787 0
+;->  109 120 125 135 121 0 14 24 23 25 26 0
 ;->  4 4 3 4 4 0 0 0 ...
 
 Funzione che calcola il valore atteso di un dado esplosivo con n facce:
@@ -1133,9 +1133,9 @@ Facciamo alcune prove:
 
 Versione minima:
 
-(setq s (fn (a b t , x y) 
-  (dolist (k (sequence 1 a)) (push (% (* k b) t) x)) 
-  (dolist (k (sequence 1 b)) (push (+ (% k (- t (apply max x))) 1) y)) 
+(setq s (fn (a b t , x y)
+  (dolist (k (sequence 1 a)) (push (% (* k b) t) x))
+  (dolist (k (sequence 1 b)) (push (+ (% k (- t (apply max x))) 1) y))
   (list (sort x) (sort y))))
 
 (s 12 12 18)
@@ -1232,7 +1232,7 @@ Verifichiamo alcuni esempi:
 
 (verify-mat '(0 0 0 5 5 5 10 10 10 15 15 15) '(1 2 3 4 5) 20)
 ;-> (3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3)
- 
+
 Vediamo cosa accade se N non è divisore esatto di A*B:
 
 (single 4 4 10)
@@ -1302,7 +1302,7 @@ Sarebbe auspicabile avere una codifica che possa essere utilizzata per tutti i n
 Vediamo una codifica che soddisfa il vincolo richiesto (vale per tutti i numeri da 1 in poi):
 
 (define (encode n)
-  (extend (dup "1" (length (string (length (string n))))) "0" 
+  (extend (dup "1" (length (string (length (string n))))) "0"
           (string (length (string n))) (string n)))
 
 (map encode '(1 99 10 2))
@@ -1312,7 +1312,7 @@ Vediamo una codifica che soddisfa il vincolo richiesto (vale per tutti i numeri 
 ;-> ((1 "1011") (2 "1012") (10 "10210") (99 "10299"))
 
 (sort (map list (map encode (sequence 1 20)) (sequence 1 20)))
-;-> (("1011" 1) ("1012" 2) ("1013" 3) ("1014" 4) ("1015" 5) ("1016" 6) 
+;-> (("1011" 1) ("1012" 2) ("1013" 3) ("1014" 4) ("1015" 5) ("1016" 6)
 ;->  ("1017" 7) ("1018" 8) ("1019" 9) ("10210" 10) ("10211" 11) ("10212" 12)
 ;->  ("10213" 13) ("10214" 14) ("10215" 15) ("10216" 16) ("10217" 17)
 ;->  ("10218" 18) ("10219" 19) ("10220" 20))
@@ -1453,7 +1453,7 @@ Facciamo alcune prove:
 (setq freq (array 21 '(0)))
 (for (i 1 1e6) (++ (freq (roll 20))))
 freq
-;-> (0 52364 53000 52816 52563 52788 52690 52752 52528 52459 52966 
+;-> (0 52364 53000 52816 52563 52788 52690 52752 52528 52459 52966
 ;->  52514 52527 52618 52831 52358 52320 52605 52537 52764)
 
 (freq 1)
@@ -1464,9 +1464,9 @@ freq
 (setq freq (array 41 '(0)))
 (for (i 1 1e6) (++ (freq (roll 40))))
 freq
-;-> (0 24906 24909 24912 25112 25210 24892 25088 25059 25240 24930 24885 
-;->  24690 24883 24806 24958 24704 24976 25223 24910 24849 24994 24665 
-;->  25301 25145 25107 24925 24806 24940 25215 24857 25015 25102 25143 
+;-> (0 24906 24909 24912 25112 25210 24892 25088 25059 25240 24930 24885
+;->  24690 24883 24806 24958 24704 24976 25223 24910 24849 24994 24665
+;->  25301 25145 25107 24925 24806 24940 25215 24857 25015 25102 25143
 ;->  25202 25309 25050 25033 25215 24981 24853)
 
 
@@ -1500,31 +1500,31 @@ Configurazione standard nella tastiera dei telefoni:
   +-----+-----+-----+
   |  1  |  2  |  3  |
   |     | abc | cde |
-  +-----+-----+-----+     
-  |  4  |  5  |  6  | 
-  | ghi | jkl | mno |  
-  +-----+-----+-----+    
+  +-----+-----+-----+
+  |  4  |  5  |  6  |
+  | ghi | jkl | mno |
+  +-----+-----+-----+
   |  7  |  8  |  9  |
-  | pqrs| tuv | wxyz| 
-  +-----+-----+-----+     
+  | pqrs| tuv | wxyz|
+  +-----+-----+-----+
   |  *  |  0  |  #  |
   |     |     |     |
-  +-----+-----+-----+         
+  +-----+-----+-----+
 
-Questo standard (brevettato nel 1985) prende il nome di E.161 ed è stato creato dall'ITU Telecommunication Standardization Sector (ITU-T). 
+Questo standard (brevettato nel 1985) prende il nome di E.161 ed è stato creato dall'ITU Telecommunication Standardization Sector (ITU-T).
 Definisce solo lettere dalla A alla Z, altri caratteri come cifre o distinzioni maiuscole/minuscole non sono normalizzate.
 
 In genere lo spazio " " viene codificato con "00".
 
 (setq ch-num
-   '(("A" "2") ("B" "22") ("C" "222") ("D" "3") ("E" "33") ("F" "333") 
+   '(("A" "2") ("B" "22") ("C" "222") ("D" "3") ("E" "33") ("F" "333")
      ("G" "4") ("H" "44") ("I" "444") ("J" "5") ("K" "55") ("L" "555")
      ("M" "6") ("N" "66") ("O" "666") ("P" "7") ("Q" "77") ("R" "777")
      ("S" "7777") ("T" "8") ("U" "88") ("V" "888") ("W" "9") ("X" "99")
      ("Y" "999") ("Z" "9999") (" " "00")))
 
 (setq num-ch (map (fn(x) (list (x 1) (x 0))) ch-num))
-;-> (("2" "A") ("22" "B") ("222" "C") ("3" "D") ("33" "E") ("333" "F") 
+;-> (("2" "A") ("22" "B") ("222" "C") ("3" "D") ("33" "E") ("333" "F")
 ;->  ("4" "G") ("44" "H") ("444" "I") ("5" "J") ("55" "K") ("555" "L")
 ;->  ("6" "M") ("66" "N") ("666" "O") ("7" "P") ("77" "Q") ("777" "R")
 ;->  ("7777" "S") ("8" "T") ("88" "U") ("888" "V") ("9" "W") ("99" "X")
@@ -1566,9 +1566,9 @@ If there is some data that I want to refer to throughout a script - such as the 
 
 but it's good to have some visual reminder that the symbol is global, and it's harder to type by accident.
 
-Does everyone else use this? 
-What other conventions are used for marking variable names as global? 
-I'm not a fan of underscores... :_) 
+Does everyone else use this?
+What other conventions are used for marking variable names as global?
+I'm not a fan of underscores... :_)
 Is an initial capital enough? Or is it better to avoid them altogether somehow?
 
 rickyboy:
@@ -1715,7 +1715,7 @@ newdep:
 
 Has this always been the fact? because im now wondering why I got away with some list content in my programs while not using contexts or OOP.
 
-I was always under the impression that anything inside an explicit list was static until evaluated with .i.e. 'eval..until then the data inside a list was abstract and unknown to the main-context when using 'set. 
+I was always under the impression that anything inside an explicit list was static until evaluated with .i.e. 'eval..until then the data inside a list was abstract and unknown to the main-context when using 'set.
 I mean only for lists!
 
 PS: like this, i still think its odd.. ->
@@ -1729,9 +1729,9 @@ newLISP v.9.2.7 on Linux, execute 'newlisp -h' for more info.
 
 Lutz:
 -----
-yes, it has always been this way. 
-After the first statement 'i' exists as a normal symbol variable containing 'nil'. 
-In the next statement then 'i' is expected to be either a context or contain a context. 
+yes, it has always been this way.
+After the first statement 'i' exists as a normal symbol variable containing 'nil'.
+In the next statement then 'i' is expected to be either a context or contain a context.
 Only the the 'context' function can promote a normal variable to a context symbol:
 
 newLISP v.9.2.0 on OSX, execute 'newlisp -h' for more info.
@@ -1856,7 +1856,7 @@ Il vincitore è colui che affonda per primo le navi dell'avversario.
 Rappresentiamo queste informazioni in due griglie per ogni giocatore.
 
   Griglia 1                Griglia 2
-  ---------                --------- 
+  ---------                ---------
     0 1 2 3 4 5 6 7 8 9      0 1 2 3 4 5 6 7 8 9
   0 . . . . . . . . . .    0 . . . . + . . . . .
   1 . . . . . . . . . .    1 . + . . . . . . . .
@@ -1925,7 +1925,7 @@ Funzione che riempie casualmente una griglia con una lista di navi:
               (for (i 0 (- el 1) 1 stop)
                 (if (!= (grid (+ row i) col) 0) (setq stop true))))
       )
-      (if (not stop) 
+      (if (not stop)
         (begin
           (setq ok true)
           (cond ((= dir 0)
@@ -1966,7 +1966,7 @@ Funzione di sparo per il giocatore 1:
     (setq value (g2 r c))
     (cond ((= value 0) ; casella vuota (colpo a vuoto)
             (setf (g11 r c) 1) ; "-"
-            (setq out "Acqua")) 
+            (setq out "Acqua"))
           ((= value -1) ; nave già colpita
             (setf (g2 r c) -1)  ; "x"
             (setf (g11 r c) 2)  ; "+"
@@ -2172,9 +2172,9 @@ Il numero di righe e di oggetti in ogni riga viene concordato tra i giocatori al
 Una disposizione tipica è la seguente (3 righe da 3, 4 e 5 oggetti):
 
   Riga 1     | | |
-         
+
   Riga 3    | | | |
-         
+
   Riga 3   | | | | |
 
 Il giocatore che prende l'ultimo oggetto vince (nella versione "misère" del Nim il giocatore che prende l'ultimo oggetto perde).
@@ -2193,12 +2193,12 @@ Per esempio, calcoliamo la somma-nim per la posizione raffigurata sopra:
   Riga 2  100       4
   Riga 3  101       5
           ---
-          010 --> 2    
+          010 --> 2
 
 Una procedura equivalente, che spesso è più facile da eseguire mentalmente, consiste nell'esprimere il numero di oggetti nelle righe come somme di potenze distinte di 2, cancellare le coppie di potenze uguali e quindi aggiungere ciò che resta:
 
   Riga 1  3 = 0 + 2 + 1 =    2  1
-  Riga 2  4 = 4 + 0 + 0 = 4      
+  Riga 2  4 = 4 + 0 + 0 = 4
   Riga 3  5 = 4 + 0 + 1 = 4     1
           --------------------------------------------------------------------
                              2    Cosa rimane dopo aver cancellato gli 1 e i 4
@@ -2307,8 +2307,8 @@ Funzione che genera tutte le mosse possibili da una posizione data:
     out))
 
 (possible-moves '(3 4 5))
-;-> ((2 4 5) (1 4 5) (0 4 5) 
-;->  (3 3 5) (3 2 5) (3 1 5) (3 0 5) 
+;-> ((2 4 5) (1 4 5) (0 4 5)
+;->  (3 3 5) (3 2 5) (3 1 5) (3 0 5)
 ;->  (3 4 4) (3 4 3) (3 4 2) (3 4 1) (3 4 0))
 
 Funzione che valuta una lista di posizioni e restituisce una lista di posizioni valutate con elementi del tipo:
@@ -2319,7 +2319,7 @@ Funzione che valuta una lista di posizioni e restituisce una lista di posizioni 
   (map list (map eval-position posizioni) posizioni))
 
 (evaluate-positions (possible-moves '(3 4 5)))
-;-> ((3 (2 4 5)) (0 (1 4 5)) (1 (0 4 5)) 
+;-> ((3 (2 4 5)) (0 (1 4 5)) (1 (0 4 5))
 ;->  (5 (3 3 5)) (4 (3 2 5)) (7 (3 1 5)) (6 (3 0 5))
 ;->  (3 (3 4 4)) (4 (3 4 3)) (5 (3 4 2)) (6 (3 4 1)) (7 (3 4 0)))
 
@@ -2336,8 +2336,8 @@ Per trovare (se esiste) la mossa ottimale cerchiamo il valore 0 nella lista dell
 Notiamo che dalla posizione (1 4 5) non esiste una mossa ottimale:
 
 (evaluate-positions (possible-moves '(1 4 5)))
-;-> ((1 (0 4 5)) 
-;->  (7 (1 3 5)) (6 (1 2 5)) (5 (1 1 5)) (4 (1 0 5)) 
+;-> ((1 (0 4 5))
+;->  (7 (1 3 5)) (6 (1 2 5)) (5 (1 1 5)) (4 (1 0 5))
 ;->  (1 (1 4 4)) (6 (1 4 3)) (7 (1 4 2)) (4 (1 4 1)) (5 (1 4 0)))
 
 Con queste funzioni possiamo analizzare completamente una partita a Nim.
@@ -2401,7 +2401,7 @@ Secondo metodo (prodotto cartesiano con verifica per ogni elemento):
     (dolist (el1 lst stop)
       (dolist (el2 lst stop)
         ; verifica della presenza della somma corrente nella lista
-        (if (find (+ el1 el2) lst) 
+        (if (find (+ el1 el2) lst)
             (setq stop true))))
     (not stop)))
 
@@ -2798,7 +2798,7 @@ Le funzioni "clean" e "filter" accettano solo liste.
 Per utilizzarli con le stringhe potremmo utilizzare "explode" e poi passare la lista risultante.
 Comunque vorrei qualcosa di semplice utilizzo.
 Le funzioni "clean-str" e "filter-str" prendono due parametri:
-1) la stringa di caratteri da eliminare/mantenere 
+1) la stringa di caratteri da eliminare/mantenere
 2) la stringa da modificare
 
 (define (clean-str chars str)
@@ -2820,8 +2820,8 @@ Numerazione di Godel
 
 La numerazione di Godel è un sistema che assegna un numero naturale ad ogni simbolo ed espressione in un sistema logico, inventato nel 1931 da Kurt Godel per le dimostrazioni dei suoi teoremi di incompletezza.
 Considerariamo il sistema logico in cui i simboli sono lettere e le espressioni sono parole.
-Per esempio, la parola PRAXIS consiste di sei simboli L, I, S, P.
-La numerazione di Godel assegna numeri alle lettere, diciamo A=1...Z=26, quindi assegna ogni lettera come esponente del numero primo successivo, quindi LISP sarebbe numerato:
+Per esempio, la parola LISP consiste di sei simboli L, I, S, P.
+La numerazione di Godel assegna numeri alle lettere, diciamo A=1...Z=26, quindi assegna ogni lettera come esponente del numero primo successivo, quindi LISP sarebbe numerato con:
 
   2^12 × 3^9 × 5^19 × 7^16 = 51103419718863787734375000000000000
 
@@ -2829,6 +2829,8 @@ La numerazione di Godel assegna numeri alle lettere, diciamo A=1...Z=26, quindi 
 ;-> 51103419718863787734375000000000000L
 
 Il processo è reversibile, cioè è possibile scomporre il numero di Godel e decodificare gli esponenti.
+
+Nota: la numerazione di Godedl genera un numero diverso (univoco) per ogni stringa.
 
 (define (** num power)
 "Calculates the integer power of an integer"
@@ -2839,8 +2841,8 @@ Il processo è reversibile, cioè è possibile scomporre il numero di Godel e de
 
 Per semplicità utilizziamo una lista finita di numeri primi (50):
 
-(setq primi '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 
-              79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157 
+(setq primi '(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73
+              79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157
               163 167 173 179 181 191 193 197 199 211 223 227 229))
 
 Inoltre limitiamo la codifica alle sole lettere maiuscole.
@@ -3019,7 +3021,14 @@ Generalizziamo le due funzioni di codifica/decodifica in modo da trattare tutti 
     (join (map (fn(x) (char (+ x 31))) (count u f)))))
 
 (encode-godel "ABC abc 123 !@# <>:")
-3991166098125043980371008945321831344052118251180177877225577224054190874938080229982666479851833908813107116478194694558115270553002214310389403703749318940050023343071103120353837365865192556939721574973775532831402840055698211324326169650060742874755952521981680518055605587519478189153923331767732732130223925187593273708372563867817087085182694180919846548064274655483259568834658811880449075519570436238901320573898351200337472651909342927341990617125506157694284514382829213049577088567838122318410915039336938565395608325000000000000000000000000000000000L
+;-> 39911660981250439803710089453218313440521182511801778772255772240541908
+;-> 74938080229982666479851833908813107116478194694558115270553002214310389
+;-> 40370374931894005002334307110312035383736586519255693972157497377553283
+;-> 14028400556982113243261696500607428747559525219816805180556055875194781
+;-> 89153923331767732732130223925187593273708372563867817087085182694180919
+;-> 84654806427465548325956883465881188044907551957043623890132057389835120
+;-> 03374726519093429273419906171255061576942845143828292130495770885678381
+;-> 22318410915039336938565395608325000000000000000000000000000000000L
 
 (decode-godel (encode-godel "ABC abc 123 !@# <>:"))
 ;-> "ABC abc 123 !@# <>:"
@@ -3037,7 +3046,7 @@ Prima di tutto definiamo una funzione che verifica se un numero è primo:
   (if (< n 2) nil
       (= 1 (length (factor n)))))
 
-Adesso definiamo una funzione che definisce il numero da cui iniziare la ricerca del prossimo primo:
+Adesso scriviamo una funzione che definisce il numero da cui iniziare la ricerca del prossimo primo:
 
 (define (nextprime:start num) (setq nextprime:val num))
 
@@ -3087,6 +3096,380 @@ Nota: quando programmiamo con i contesti è utile analizzare i simboli che sono 
 ;-> nextprime:prime?
 ;-> nextprime:start
 ;-> nextprime:val
+
+
+------------------------------------------------------------------
+Forum: Dynamic and lexical scoping - anyone help me understand it?
+------------------------------------------------------------------
+
+cormullion:
+----------
+I decided it was time for me to learn about this, since I've avoided it hitherto (no mention of it in "Introduction to newLISP"... :-))
+
+Apparently newLISP is bad because it has dynamic scoping...
+Can someone explain in words of one syllable why that's bad?
+And what's lexical scoping (which newLISP also has, but not enough to make it less bad)?
+
+(I have read the manual. But it was very condensed...)
+
+The Wikipedia article is a start, but the examples were in C and Perl, so it wasn't easy to translate them into newLISP...
+
+newdep:
+------
+Actualy good question...I personaly dont care what i use,
+but im intrested in a good explenation too ;-)
+
+m i c h a e l:
+--------------
+Dynamic Scope
+In a dynamically scoped language, e.g. most versions of Lisp, an identifier can be referred to, not only in the block where it is declared, but also in any function or procedure called from within that block, even if the called procedure is declared outside the block.
+
+rickyboy:
+---------
+Here's a short example which hopefully will illustrate the difference.
+Say you have the following definitions entered into your newLISP session.
+
+(define x 42)
+(define (f x) (g (+ x 2)))
+(define (g y) (+ y x))
+
+Now, can you guess the value of (f 1) before evaluating it at the newLISP prompt?
+
+The answer will either be 45 (i.e. y + x = 3 + 42) or 4 (i.e. y + x = 3 + 1).
+That is, the answer depends on which x you are referring to.
+
+It turns out that the answer is 4. But not so with Scheme, for instance:
+
+$ scsh
+Welcome to scsh 0.6.6 (King Conan)
+Type ,? for help.
+> (define x 42)
+> (define (f x) (g (+ x 2)))
+> (define (g y) (+ y x))
+> (f 1)
+45
+
+But what is happening?
+In Scheme, which has lexical variable scope, g can only see the x at the top level (or any level above it in a nested definition).
+In newLISP, g sees the x defined "through" the running application of f (hence, the term "dynamic"), since that x is f's formal parameter.
+
+Hope that helps and doesn't confuse.
+
+cormullion:
+-----------
+Thanks, Ricky. Light is dawning... :-)
+
+My initial reaction is that dynamic scoping is problematic, because it seems that:
+
+ (define (g y) (+ y x))
+
+will give different answers, depending on where you call it from, since x may or may not be a global x or an x inside a calling function.
+
+So the apparent problem with DS is that if you're a sloppy programmer and use symbols that aren't defined in your functions you won't know whether a symbol is 'global' or is inherited from a calling function...
+And that other people will use your functions and pick up the wrong values for symbols... unless you bother to read their code first...
+
+OK - so how do I avoid it using contexts?
+
+rickyboy:
+---------
+Easy. If g were in a context with the top level x from the previous example, then you'd get the same answer as in Scheme:
+
+> (define (f x) (g (+ x 2)))
+> (context 'g)
+g> (define x 42)
+g> (define (g:g y) (+ y x))
+g> (context MAIN)
+> (f 1)
+45
+
+But most of the time, I write functions which don't have free variables (not counting primitives like +).
+So I don't have to resort to making contexts just for my functions.
+
+For instance, note that the body of g has two variables x and y. y is a bound variable in g, since it is a formal parameter of g.
+However, x is unbound, i.e. "free".
+
+If I ever notice free variables in the body of my functions, it is usually due to either an oversight (e.g. I meant it to be a local variable and I forgot to bind it by a let(n) or a local) or it is free on purpose (i.e. it's supposed to refer to a global variable).
+Usually the former case prevails and I have to fix the problem, but when the latter case holds, it's still not a problem due to the naming convention I have for globals (to put asterisks around the name like *this-is-a-global*) which doesn't conflict with names I choose for the non-globals I use (i.e. the ones that show up on the stack).
+
+cormullion:
+-----------
+This seems a useful way of thinking about the problem... so thanks!
+
+You can spot free variables lexically - if it's not in a let or a local list inside a block or function definition, it must be global/dynamically scoped... ?
+
+Interesting idea to use asterisks - looks familiar... ;-)
+
+Lutz:
+-----
+But most of the time, I write functions which don't have free variables (not counting primitives like +), so I don't have to resort to making contexts just for my functions.
+
+Yes, that is the best practice, and most experienced programmers work like this anyway in any programming language and in the spirit of structured programming.
+
+it's still not a problem due to the naming convention I have for globals (to put asterisks around the name like *this-is-a-global*)
+
+... which is a commonly used convention for Lisp programmers and most people from other Lisps will immedeately understand you mean a global.
+
+Or what I sometimes do, is putting all globals into a context, e.g.:
+
+(set 'Setup:data-path "/home/data")
+(set 'Setup:language "english")
+(set 'Setup:n-records 12345)
+
+This has also the advantage that all your globals and/or constants can be saved/loaded to a file in one swoop:
+
+(save "setup.lsp" 'Setup)
+
+; or when reloading
+
+(load "setup.lsp")
+
+As Rickyboy was showing, contexts give you the the lexical fence.
+This is why a multiprogrammer/bigger project in newLISP always should be divided in context modules, so nobody steps on each others feet.
+
+newLISP gives you the best of both worlds: you can make use of dynamic scoping but also build lexical fences using contexts to avoid the dangers of it.
+
+Jeff:
+-----
+I personally prefer dynamic scoping because it forces you to write functions without side effects. I like the idea of having multiple, named, dynamic scopes, though, a-la python modules.
+
+cormullion:
+-----------
+I'm still puzzled - but for different reasons, now! ;-)
+If - as I understand it - dynamic scoping is the way that otherwise unassigned symbols are evaluated in functions called by other functions, I can't see what the fuss is about. People seem to think that dynamic scoping is the devil's work... :-)
+
+I'm not much of a programmer, but I don't think I tend to refer to symbols without knowing what they are and where they're defined, except by mistake. I use global variables a lot - but not without knowing that they're global... There are plenty of more common pitfalls awaiting programmers in every language than that, I would have thought...
+
+Thanks for the explanations...!
+
+Jeff:
+-----
+Dynamic namespaces are better for non-object oriented languages, particularly procedural or functional languages.
+Lexical namespaces are kind of a way of protecting sloppy programmers (in my not-so-humble opinion).
+
+If you take rickyboy's example, the lambda f is redefining x as whatever is passed to it.
+Now, since lambda g is called from inside lambda f, lamba f's scope takes precedence over the global.
+
+With lexical namespaces, the scope from which lambda g is called is irrelevant. Only the scope in which it is defined matters.
+
+This book has an excellent intro to dynamic scoping: http://www.cs.cmu.edu/~dst/LispBook/book.pdf
+"COMMON LISP: A Gentle Introduction to Symbolic Computation"
+
+It is a bit dated (in that it teaches ansi common lisp as it was in the 80s, I believe), but since common lisp has not changed that much since then, it's still relevant, and it gives an excellent foundation in lisp technique.
+
+cormullion:
+-----------
+One more question - to see if I've got this sorted out yet.
+In the following code, is the width symbol in the right-just context statically or lexically scoped, and is the w symbol in the dolist dynamically scoped?
+
+(context 'right-just)
+(set 'width 30)
+(define (right-just:right-just str)
+  (slice (string (dup " " width) str) (* width -1)))
+
+(context MAIN)
+
+(set 'width 1) ; just a test
+
+(dolist (w (symbols))
+  (println (right-just w)))
+
+I'm wondering whether it's the terminology that's confusing me rather than the actual behaviour itself...
+
+thanks if you can dispel the gloom!
+
+Jeff:
+-----
+Technically, they are all dynamically scoped - the entire language is.
+All variables obey the same rules for scoping.
+However, contexts allow you to wall off a scope to provide newlisp with some of the features of lexical scopes.
+Contexts are their own, isolated, dynamic scopes.
+
+There is a difference between global versus local scope and dynamic versus lexical scope.
+
+Both dynamic and lexical scopes have both global and local scopes.
+More accurately, there are dynamic and lexical namespaces.
+These determine the rules for how symbols may be accessed within global and local scopes.
+
+Contexts let you create additional namespaces.
+When you use a function, it creates its own local scope internally.
+This means that when you access a symbol, the interpreter will first look at the local scope. If it cannot find the symbol there, it will then look to the scope the next outside scope.
+For example:
+
+(set 'a-list '(foo bar baz))
+(set 'b "Hello there")
+(dolist (b a-list)
+  (= b "Hello there")) ; => evaluates to nil, because b is locally declared in the dolist
+
+That is an example of local scope overriding a globally declared symbol.
+What dynamic/lexical namespaces do are determine the parent scope of a local scope.
+So,
+
+(set 'a 50)
+(define (foo)
+  (println a))
+(define (bar)
+  (let ((a 10))
+    (foo)))
+(bar)
+
+When we run bar at the bottom, it first enters the bar lambda. It then enters the let scope. It then runs foo.
+
+With dynamic namespaces, foo's outer scope search will proceed through let, bar, then global.
+In lexical, foo will search for 'a in foo, then global.
+Lexical is literally that - based on its lexical location.
+
+Dynamic is determined by where it is called. 
+Because foo is called form within bar and let, those are its parent scopes. 
+In a lexically scoped language, because foo is defined outside of bar, it has no internal relationship with bar.
+
+cormullion:
+-----------
+thanks jeff - i'll work this a few times today to see if it makes sense. I'm grateful that you've spent some time trying to help...
+
+One thing, though - the word lexical to me (and the OED) means "Pertaining or relating to the words or vocabulary of a language. Often contrasted with grammatical." What do computer programmers mean when they use the word?
+
+rickyboy:
+---------
+They mean "of, or related to, program text." Wikipedia has a nice blurb about it:
+http://en.wikipedia.org/wiki/Scope_(programming) wrote:
+With static scope, a variable always refers to its nearest enclosing binding. This is a property of the program text and unrelated to the runtime call stack. Because matching a variable to its binding only requires analysis of the program text, this type of scoping is sometimes also called lexical scoping.
+
+cormullion:
+-----------
+yes that was a good bit... But you can see why i get confused -
+
+Generally, certain blocks are defined to create bindings whose lifetime is the execution time of the block; this adds a hint of lexicality to the scoping.
+
+rickyboy:
+---------
+Yes, I agree that part is confusing -- it was a poor choice of words.
+
+
+---------------
+Nested contexts
+---------------
+
+Lutz:
+-----
+The context/namespace system in newLISP comes from an earlier language project called RuleTalk (a Prolog like language).
+This had nested contexts with inheritance from the ancestor levels.
+The experience building programs with these made me abandon the idea and implement a flat context system for newLISP.
+Initially with inheritance for symbols in MAIN, which was later abandoned too.
+
+Nested namespaces are well suited for languages like Java or JavaScript, but not well suited for a Lisp functional programming language, where the main organizing paradigm is the list.
+
+Use a combination of contexts, symbols, lists and association lists to configure complex data structures.
+When data structures are defined this way they are much easier to handle in a functional way with newLISP's repertoir of built-ins for function application, mapping, lookups in association lists and iteration through lists.
+On the highest data level and for building dictionaries/hashes use contexts.
+
+
+------------------------
+Intervallo di confidenza
+------------------------
+
+In statistica, un intervallo di confidenza (CI) è un intervallo di stime per un parametro sconosciuto.
+Un intervallo di confidenza viene calcolato a un livello di confidenza (CL) designato.
+In genere vengono utilizzati i livelli di confidenza del 90%, 95% e 99%.
+Un livello di confidenza al 95%, significa che di tutti gli intervalli calcolati (con questo livello), il 95% dovrebbe contenere il vero valore del parametro.
+
+Alcuni errori comuni sugli intervalli di confidenza:
+
+- un intervallo di confidenza al 95% non significa che esiste una probabilità del 95% che il parametro della popolazione (es. la percentuale di voti per un partito in tutta Italia) sia compreso nei due estremi dell'intervallo.
+L'intervallo può "contenere" il valore del parametro, oppure no.
+Non è una questione di probabilità.
+Il 95% di confidenza è riferito all'attendibilità del metodo di stima, ma non del particolare intervallo calcolato.
+Per quanto riguarda la bontà del metodo di stima si possono valutare, quando pertinenti:
+a) numerosità e rappresentatività del campione,
+b) casualizzazione della modalità di campionamento,
+c) controllo preventivo delle ipotesi di indipendenza e di identica distribuzione,
+d) assenza di autocorrelazione fra i dati osservati,
+e) eliminazione eventuale di unità fuori tolleranza.
+
+- similmente per il singolo campione, un intervallo di confidenza al 95% non significa che il 95% dei valori campionati cada nell'intervallo.
+
+- se l'intervallo di confidenza è un insieme di valori probabili per l'intera popolazione, ciò non vale per i singoli campioni.
+
+Esempio pratico: sondaggio
+
+Un intervallo di confidenza è rappresentato da un limite inferiore e un limite superiore che definiscono un margine di errore per i risultati di un sondaggio.
+
+L'intervallo di confidenza valuta la qualità e l'accuratezza della stima ottenuta con il campione esaminato, cioè la "fiducia" del sondaggio
+
+L'intervallo dipende principalmente dal numero di persone intervistate.
+Se un sondaggio ha più domande e il numero di risposte ottenute differisce per ogni domanda, allora l'intervallo di confidenza deve essere calcolato per ogni domanda.
+
+Nota: la frequenza osservata in un campione viene chiamata "f", mentre la probabilità nella popolazione totale viene chiamata "p".
+
+Per un'indagine su n persone risultante nella frequenza f e nella probabilità p, allora l'intervallo di confidenza CI% è dato da:
+
+  Limite inferiore             Limite superiore
+
+         sqrt(f*(1 - p))              sqrt(p*(1 - p))
+  p - K*-----------------,     p + K*-----------------
+            sqrt(n)                      sqrt(n)
+
+dove K = sqrt(2)*InverseErf(LC%/100)
+e InverseErf(x) è la funzione errore inversa (Inverse Error Function).
+
+Vediamo i valori più utilizzati per K in base al livello di confidenza (LC):
+
+  LC% = 99.9% --> K = 3.2905267314918947932216270353746491792162269256774...
+  LC% = 99%   --> K = 2.5758293035489007609785767486038141173060176342763...
+  LC% = 95%   --> K = 1.9599639845400542355245944305205515279555500778695...
+  LC% = 90%   --> K = 1.6448536269514727148638489079916321360831957442753...
+  LC% = 50%   --> K = 0.6744897501960817432022270145413071853869044150499...
+
+(define (confidence n f p lc)
+  (local (inf sup)
+    (cond ((= lc 99.9) (setq k 3.290526731))
+          ((= lc 99)   (setq k 2.575829303))
+          ((= lc 95)   (setq k 1.959963984))
+          ((= lc 90)   (setq k 1.644853626))
+          ((= lc 50)   (setq k 0.674489750))
+          (true (println "lc error!!!"))
+    )
+    (setq inf (sub p (mul k (div (sqrt (mul f (sub 1 p))) (sqrt n)))))
+    (setq sup (add p (mul k (div (sqrt (mul p (sub 1 p))) (sqrt n)))))
+    (list inf sup)))
+
+Facciamo un esempio: abbiamo intervistato 400 persone e 125 hanno votato "SI".
+Calcoliamo gli intervalli di confidenza per i livelli di confidenza 50%, 90%, 95%, 99% e 99.9%.
+
+In questo caso la frequenza e la probabilità valgono 125/400 = 0.3125
+
+(confidence 400 0.3125 0.3125 50)
+;-> (0.2968682816765265 0.3281317183234735)
+50% di probabilità che il voto "SI" sia tra il 29.7% e 32.8%
+
+(confidence 400 0.3125 0.3125 90)
+;-> (0.2743794969605156 0.3506205030394844)
+90% di probabilità che il voto "SI" sia tra il 27.4% e 35.1%
+
+(confidence 400 0.3125 0.3125 95)
+;-> (0.2670766189596788 0.3579233810403212)
+95% di probabilità che il voto "SI" sia tra il 26.7% e 35.8%
+
+(confidence 400 0.3125 0.3125 99)
+;-> (0.2528035581877335 0.3721964418122665)
+99% di probabilità che il voto "SI" sia tra il 25.2% e 37.2%
+
+(confidence 400 0.3125 0.3125 99.9)
+;-> (0.2362400019869062 0.3887599980130939)
+99.9% di probabilità che il voto "SI" sia tra il 23.6% e 38.9%
+
+Per ridurre/migliorare un intervallo di confidenza, è necessario aumentare il numero di persone che partecipano all'indagine.
+
+Nota: newLISP mette a disposizione solo la funzione Error Function "erf":
+
+****************
+>>>funzione ERF
+****************
+syntax: (erf num)
+
+erf calcola la funzione di errore del numero num.
+La funzione di errore è definita come:
+
+  erf(x) = 2/sqrt(pi) * integral from 0 to x of exp(-t^2) dt
 
 =============================================================================
 

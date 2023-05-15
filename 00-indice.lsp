@@ -1808,6 +1808,9 @@ NOTE LIBERE 16
   clean e filter per stringhe
   Numerazione di Godel
   Generatore di numeri primi
+  Forum: Dynamic and lexical scoping - anyone help me understand it?
+  Nested contexts
+  Intervallo di confidenza
 
 PROBLEMI SUI DADI
 =================
