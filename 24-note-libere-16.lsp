@@ -3471,5 +3471,150 @@ La funzione di errore è definita come:
 
   erf(x) = 2/sqrt(pi) * integral from 0 to x of exp(-t^2) dt
 
+
+--------------------------------------
+Dragonfly: A web framework for newLISP
+--------------------------------------
+
+Dragonfly is a web framework for newLISP. 
+Development started in June 2009. 
+It focuses on speed, small memory consumption and a small learning curve. 
+Other goodies are a plug and play architecture for writing own helpers or modules and a very easy deployment. 
+It's possible to use it with the builtin newLISP webserver.
+
+Source and download: https://github.com/taoeffect/dragonfly-newlisp
+
+Please visit http://dragonfly.uberberg.com/ for more information.
+
+
+-----------------------
+Strada non intersecante
+-----------------------
+
+Dato una lista di punti, ordinarli in modo che, quando sono collegati in questo ordine, non si intersechino mai.
+Per esempio:
+
+              1     2     3     4     5     6
+    punti = (2 2) (4 1) (1 4) (3 5) (6 3) (4 3)
+
+      |     4
+      | 3   *
+      | *     6
+      |       *  *
+      |  *       5
+      |  1   *2
+      +----------------
+
+Per risolvere il problema basta ordinare i punti in base alla coordinata x e alla coordinata y.
+
+(define (line pts) (sort pts))
+
+(setq punti '((2 2) (4 1) (1 4) (3 5) (6 3) (4 3)))
+(line punti)
+;-> ((1 4) (2 2) (3 5) (4 1) (4 3) (6 3))
+Quindi la linea ha la sequenza di punti: 3-1-4-2-6-5.
+
+
+--------------------
+Bordo di una matrice
+--------------------
+
+Data una matrice di forma rettangolare mxn contenente numeri interi come input, estrarre i suoi bordi.
+Le dimensioni m e n sono maggiori di 1.
+La lista risultante deve partire dall'elemento 0,0 e proseguire in senso orario.
+Per esempio:
+
+ 1 2 3
+ 4 5 6
+ 7 8 9  ==> 1 2 3 6 9 8 7 4
+
+ 4 7 8 8
+ 4 6 7 2
+ 1 2 7 9 ==> 4 7 8 8 2 9 7 2 1 4
+
+Primo metodo (trasposta):
+
+Prendiamo la prima e l'ultima riga della matrice e parte della prima e ultima riga della matrice trasposta
+
+(setq m '((1 2 3) (4 5 6) (7 8 9)))
+
+(setq rows (length m))
+(setq cols (length (m 0)))
+(reverse )
+(setq t (transpose m))
+;-> ((1 4 9) (2 5 8) (3 6 7))
+
+(m 0)
+;-> (1 2 3)
+(slice (t -1) 1 (- rows 2))
+;-> (6)
+(m -1)
+;-> (7 8 9)
+(reverse (m -1))
+;-> (9 8 7)
+(reverse (slice (t 0) 1 (- rows 2)))
+;-> (4)
+
+(define (bordo matrix)
+  (local (out rows cols t)
+    (setq out '())
+    (setq rows (length m))
+    (setq cols (length (m 0)))
+    (setq t (transpose matrix))
+    (extend out (matrix 0)
+                (slice (t -1) 1 (- rows 2))
+                (reverse (matrix -1))
+                (reverse (slice (t 0) 1 (- rows 2))))))
+
+(setq m '((1 2 3)
+          (4 5 6)
+          (7 8 9)))
+
+(bordo m)
+;-> (1 2 3 6 9 8 7 4)
+
+(setq m '((1 2 3 4 5)
+          (3 4 3 6 7)
+          (4 5 8 1 7)
+          (8 3 1 0 9)
+          (4 7 8 1 2)
+          (4 4 5 3 9)
+          (4 5 0 9 1)))
+(bordo m)
+;-> (1 2 3 4 5 7 7 9 2 9 1 9 0 5 4 4 4 8 4 3)
+
+Secondo metodo (ciclo for):
+
+(define (bordo1 matrix)
+  (local (out rows cols t)
+    (setq out '())
+    (setq rows (length m))
+    (setq cols (length (m 0)))
+    (for (i 0 (- cols 1))
+      (push (matrix 0 i) out -1))
+    (for (i 1 (- rows 2))
+      (push (matrix i (- cols 1)) out -1))
+    (for (i (- cols 1) 0 -1)
+      (push (matrix (- rows 1) i) out -1))
+    (for (i (- rows 2) 1 -1)
+      (push (matrix i 0) out -1))
+ ))
+
+(setq m '((1 2 3)
+          (4 5 6)
+          (7 8 9)))
+(bordo1 m)
+;-> (1 2 3 6 9 8 7 4)
+
+(setq m '((1 2 3 4 5)
+          (3 4 3 6 7)
+          (4 5 8 1 7)
+          (8 3 1 0 9)
+          (4 7 8 1 2)
+          (4 4 5 3 9)
+          (4 5 0 9 1)))
+(bordo1 m)
+;-> (1 2 3 4 5 7 7 9 2 9 1 9 0 5 4 4 4 8 4 3)
+
 =============================================================================
 
