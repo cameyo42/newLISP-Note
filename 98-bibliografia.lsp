@@ -44,6 +44,8 @@
 
   "Advanced Recursion in newLISP" di Krzysztof Kliś
   https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
+  
+  "The Littler Schemer", Friedman-Felleiser, 4ed, 1996
 
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968..2015
 
@@ -96,7 +98,10 @@
 
   Mathematics Stack Exchange è un sito di domande e risposte per persone che studiano matematica a qualsiasi livello.
   https://math.stackexchange.com/
-
+  
+  Code Golf Stack Exchange is a question and answer site for programming puzzle enthusiasts and code golfers.
+  https://codegolf.stackexchange.com/
+  
   Enciclopedia libera:
   https://www.wikipedia.org/
 

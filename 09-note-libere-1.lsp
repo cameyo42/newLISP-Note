@@ -3178,7 +3178,65 @@ Quando si usano le normali funzioni create con 'define', la cattura variabile pu
 
 - anche qualsiasi altra funzione o macro (fexpr) in un modulo 'foo:this', 'foo:that' è completamente sicuro contro la cattura/confusione variabili, anche quando si passano simboli quotati.
 
-- in ultimo, ma non meno importante: perché newLISP chiama le macro fexprs? Perché dal punto di vista dell'uso vengono utilizzate per ottenere lo stesso risultato: scrivere funzioni che non seguono le solite regole di valutazione dei parametri per la valutazione iniziale di tutti i parametri ma controllano da sole la valutazione dei parametri usando 'eval'. Trovo più utile usare una definizione orientata all'applicazione.'''
+- in ultimo, ma non meno importante: perché newLISP chiama le macro fexprs? Perché dal punto di vista dell'uso vengono utilizzate per ottenere lo stesso risultato: scrivere funzioni che non seguono le solite regole di valutazione dei parametri per la valutazione iniziale di tutti i parametri ma controllano da sole la valutazione dei parametri usando 'eval'. Trovo più utile usare una definizione orientata all'applicazione.
+
+Breve riassunto
+---------------
+
+Cos'è l'ambito (scope)?
+-----------------------
+L'ambito si riferisce ai punti in un programma in cui una variabile è visibile e può essere referenziata.
+Una situazione interessante è quando una funzione ha variabili libere.
+Consideriamo l'esempio seguente:
+
+(setq x 1)             ; riga 1
+
+(define (f a) (+ a x)) ; riga 2
+
+(define (g)            ; riga 3
+  (setq x 2)           ; riga 4
+  (f 0))               ; riga 5
+
+(g)                    ; riga 6
+Cosa restituisce (g)?
+
+Alla riga 1, creiamo una mappatura per x con valore 1.
+Alla riga 2 definiamo una funzione f il cui corpo utilizza il parametro a, ma anche la variabile libera x.
+Alla riga 3, definiamo una funzione g, il cui corpo crea una nuova mappatura per x con valore 2, e quindi chiama f(0).
+(Si noti che la funzione g (riga 4) non aggiorna la mappatura creata alla riga 1).
+Infine, alla riga 6, chiamiamo g().
+
+Quale valore restituisce g quando viene chiamato?
+A quale mappatura si riferisce la variabile libera x sulla riga 2?
+Si riferisce alla mappatura sulla riga 1 che era visibile quando f è stata definita?
+O si riferisce alla mappatura sulla riga 4 che è stata creata poco prima che f fosse chiamata?
+
+Ambito lessicale
+----------------
+Sotto l'ambito lessicale (noto anche come ambito statico), l'ambito di una variabile è determinato dalla struttura lessicale (cioè testuale) di un programma.
+
+Nell'esempio precedente, la definizione di x sulla riga 1 crea un ambito che inizia dopo la sua definizione e si estende nei corpi di f e g.
+Tuttavia, la seconda definizione di x alla riga 4 crea un nuovo ambito che (1) offusca la precedente definizione di x e (2) non si estende alla chiamata f(0) alla riga 5.
+Guardando questo da un'altra direzione, l'uso di x alla riga 2 rientra nell'ambito creato dalla definizione alla riga 1, e quindi si riferisce a tale definizione.
+
+Pertanto, in ambito lessicale, il programma di esempio restituisce 1.
+
+La maggior parte dei linguaggi di programmazione che usiamo oggi ha un ambito lessicale.
+Intuitivamente, un essere umano (o un compilatore) può determinare l'ambito di una variabile semplicemente esaminando il codice sorgente di un programma.
+In altre parole, un compilatore può determinare a quale definizione si riferisce ciascuna variabile, ma potrebbe non essere in grado di determinare i valori di ciascuna variabile.
+
+Ambito dinamico
+---------------
+Nell'ambito dinamico, una variabile è associata al valore più recente assegnato a quella variabile, ovvero l'assegnazione più recente durante l'esecuzione del programma.
+
+Nell'esempio precedente, la variabile libera x nel corpo di f viene valutata quando f(0) viene chiamato alla riga 5.
+A quel punto (durante l'esecuzione del programma), l'assegnazione più recente era alla riga 4.
+
+Pertanto, in ambito dinamico, il programma di esempio restituisce 2.
+
+I linguaggi di programmazione con ambito dinamico includono bash, LaTeX, newLISP e la versione originale di Lisp.
+Emacs Lisp ha un ambito dinamico, ma consente al programmatore di selezionare l'ambito lessicale.
+Al contrario, Perl e Common Lisp hanno un ambito lessicale per impostazione predefinita, ma consentono al programmatore di selezionare l'ambito dinamico.
 
 
 ----------------------------------

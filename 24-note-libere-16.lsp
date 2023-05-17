@@ -3616,5 +3616,370 @@ Secondo metodo (ciclo for):
 (bordo1 m)
 ;-> (1 2 3 4 5 7 7 9 2 9 1 9 0 5 4 4 4 8 4 3)
 
+
+--------------------------
+Forum: OOP and inheritance
+--------------------------
+
+newBert:
+--------
+In chapter 17 of the NewLISP Manual (Object-Oriented Programming in newLISP) polymorphism is described clearly and simply.
+That shows how NewLISP can adapt easily to apparently complex things...
+
+I studied, with my poor knowledge and competence in computer science, the notion of inheritance and here is a little script which attempts to illustrate the question.
+
+Please, would you critically examine it so as to let me know wether I've well understood the concept.
+
+Nota: This code uses the earlier context-based way of doing OOP, which was found to have weaknesses (see Michael post).
+
+#!/usr/bin/newlisp
+
+(context 'rectangle)
+; Class 'rectangle' with a constructor method
+(define (rectangle:rectangle (width 30) (height 15))
+   (set 'w width)
+   (set 'h height)
+   (set 'nam "rectangle"))
+
+(define (perimeter)
+   (string "(" w " + " h ") x 2 = " (mul (add w h) 2)))
+
+(define (area)
+   (string w " x " h " = " (mul w h)))
+
+(define (measure)
+   (println "A " nam " of " w " by " h)
+   (println "has a surface area of " (area) ",")
+   (println "and a perimeter of " (perimeter) ".\n"))
+
+(context MAIN)
+
+(context 'square)
+; Class 'square' inherits from 'rectangle'
+(new rectangle)
+; Constructor of 'square'
+(define (square:square (side 10))
+   (set 'w side)
+   (set 'h side)
+   (set 'nam "square"))
+
+(context MAIN)
+
+; main program
+(new rectangle 'fig1)
+(fig1 27 12)
+(fig1:measure)
+
+(new square 'fig2)
+(fig2 13)
+(fig2:measure)
+
+I think there is also a little polymorphism.
+I don't use the colon operator there... yet it would be better, sorry ;)
+
+cormullion:
+-----------
+Very good - clear and direct!
+
+I wondered whether the first (context MAIN) was needed.
+But in fact I think it demonstrates that (context 'square) isn't part of context rectangle although it inherits from it, neither is it a nested context (which don't exist...). So leaving it in is good!
+cormullion
+
+newBert:
+--------
+Yes, it was both intentional and conditioning by a distant practice of Basic or Basic-like language (with its 'block' ... 'end block', etc.).
+
+I think it's just a little more readable.
+And I would like to modify those definitions in a very NewLISP way, using lists and colon operator as described in the User Manual (chapter 17)... to compare clearness and efficiency.
+
+m i c h a e l:
+--------------
+Hi newBert!
+Inheritance can be used in a number of ways.
+The one most commonly discussed is the "is a" type of inheritance (the one used in your code), which models a classification relationship between objects.
+Mixins and implementation inheritance are two other types.
+
+Your code uses the earlier context-based way of doing OOP, which was found to have weaknesses.
+
+The way I would do that now is:
+
+;; a rectangle constructor:
+(define (rectangle:rectangle (width 30) (height 15)) (list rectangle width height))
+
+;; a method defined using let to get the rectangle's width and height:
+(define (rectangle:perimeter r)
+   (let  (w (r 1) h (r 2)) (string "(" w " + " h ") x 2 = " (mul (add w h) 2)))
+)
+
+;; a method defined using straight indexing:
+(define (rectangle:area r) (string (r 1) " x " (r 2) " = " (mul (add (r 1) (r 2)))))
+
+;; a method defined using rectangle's area and perimeter methods:
+(define (rectangle:measure r)
+   (println "A " (r 0) " of " (r 1) " by " (r 2))
+   (println "has a surface area of " (:area r) ", ")
+   (println "and a perimeter of " (:perimeter r) ".\n")
+)
+
+;; a square is a rectangle
+(new rectangle 'square)
+
+;; a square constructor
+(define (square:square (side 10)) (list square side side))
+
+;; main program
+(set 'fig1 (rectangle 27 12))
+(:measure fig1)
+
+(set 'fig2 (square 13))
+(:measure fig2)
+
+Programming this way takes a little getting used to, but once you do, it starts to feel a lot more nimble than heavier OOP frameworks (I never did grok Ocaml's object system).
+
+P.S. I think Lutz mentioned somewhere on the club that (context MAIN) should be used before beginning a new context.
+Sorry for not looking it up.
+
+Fanda:
+------
+I could never abandon my version of OOP, so I wrote a new version:
+http://www.intricatevisions.com/source/newlisp/oop.lsp
+
+And using it:
+
+(load "oop.lsp")
+
+(set 'Rectangle
+  (object ()
+    width 30 height 15
+    nam "rectangle"
+
+    init (fn ((w 30) (h 15)) (set 'width w 'height h))
+    perimeter (fn () (string "(" width " + " height ") x 2 = " (mul (add width height) 2)))
+    area (fn () (string width " x " height " = " (mul width height)))
+    measure (fn ()
+     (println "A " nam " of " width " by " height)
+     (println "has a surface area of " (area) ",")
+     (println "and a perimeter of " (perimeter) ".\n"))
+))
+
+(set 'Square
+  (object (Rectangle)
+    nam "square"
+    init (fn ((side 10)) (set 'width side 'height side))
+))
+
+;; main program
+(set 'fig1 (obj-init Rectangle 27 12))
+(obj-do 'fig1 (measure))
+
+(set 'fig2 (obj-init Square 13))
+(obj-do 'fig2 (measure))
+
+I like it because it is compact and has a different feel to it.
+
+newBert:
+--------
+m i c h a e l wrote:
+Your code uses the earlier context-based way of doing OOP, which was found to have weaknesses.
+
+I was aware of the weakness of my code. It was an adaptation of what I learnt about OOP through Python first. I like your version which is closer to the "newLISP spirit" than mine (which is perhaps just a little educational),
+
+Fanda wrote:
+I could never abandon my version of OOP ( ... )
+I like it because it is compact and has a different feel to it.
+
+and I like Fanda's version too, which is closer to OOP standard (so to speak), maybe a little clearer (particularly for a beginner), as we can see in language like Python, Rebol and probably others that I don't know ...
+
+I'm going to study both ways trying to avoid dissipating my efforts.
+
+In any case, thank you for your very interesting replies.
+
+newdep:
+-------
+Fanda's ways is better because its indeed for the beginner more readable..
+
+perhpas the newlisp manual needs this extention ->
+
+;; The object initiation
+;; is done by pre-defining the object-class.
+
+(define object-class:object-class)
+
+;; Now the object initiation with an object-class
+;; defined in a list because that is OOP.
+;; object-class is a context symbol!
+
+(set 'object '(object-class "attribute and methods go here"))
+
+;; A class function
+
+(define (object-class:pick x) (x 1))
+
+;; A polymorphism
+
+(:pick object)
+
+m i c h a e l:
+--------------
+There's no doubt in my mind I would have preferred Fanda's way of doing OOP when I first came to newLISP. I've struggled with many different ways of doing objects in this language (maybe six so far), but this latest way feels the most native to newLISP. An important part of this is that the objects are used functionally (without mutable state). Without this, it's not FOOP.
+
+We are free to use any frameworks we wish in newLISP, including Fanda's. The problem with frameworks is they must be included (and maintained). So far, I've managed to get by without a framework.
+
+So use whatever makes you happy (that's why we code in newLISP, isn't it?). As for me, I'll keep exploring FOOP, wherever it may lead :-)
+
+P.S. I'm still working on the FOOP introduction and hope to have it finished soon!
+
+Lutz:
+-----
+here: http://newlisp.org/index.cgi?page=newLISP-FOOP I have put together a page how FOOP came about and what makes it peculiar for newLISP.
+
+newdep:
+-------
+Lutz wrote:
+here: http://newlisp.org/index.cgi?page=newLISP-FOOP I have put together a page how FOOP came about and what makes it peculiar for newLISP.
+
+Very clear and good paper Lutz!
+and a special thanks to Micheal for his work!
+(Micheals examples are a real mind mixer sometimes ..this is a compliment!..;-)
+
+FOOP it is ;-)
+
+newBert:
+--------
+m i c h a e l wrote:
+We are free to use any frameworks we wish in newLISP, including Fanda's. The problem with frameworks is they must be included (and maintained). So far, I've managed to get by without a framework.
+
+Yes I agree. This was a dilemna for me before...
+
+Lutz wrote:
+here: http://newlisp.org/index.cgi?page=newLISP-FOOP I have put together a page how FOOP came about and what makes it peculiar for newLISP.
+...but Lutz's paper finishes convincing me there is a real NewLISP way (and modern way) of doing OOP.
+Nevertheless Fanda's work is an interesting and concrete demonstration of what NewLISP is able to do and as far as it can go ...
+I'm only a humble and occasional NewLISP user. I'm admiring before all your work. I take a lot of things but I'm incapable of returning so much with my modest contribution.
+Thanks
+
+
+-----------------
+Codice efficiente
+-----------------
+
+Le autorità "Ministerie van Binnenlandse Zaken en Koninkrijksrelaties" (NL) - "Ministry of the Interior and Kingdom Relations" (EN) hanno rilasciato il codice sorgente della loro digid-app.
+
+https://github.com/MinBZK/woo-besluit-broncode-digid-app
+
+Ecco un pezzo di codice preso da:
+
+https://github.com/MinBZK/woo-besluit-broncode-digid-app/blob/ad2737c4a039d5ca76633b81e9d4f3f9370549e4/Source/DigiD.iOS/Services/NFCService.cs
+
+private static string GetPercentageRounds(double percentage)
+{
+    if (percentage == 0)
+        return "⚪⚪⚪⚪⚪⚪⚪⚪⚪⚪";
+    if (percentage > 0.0 && percentage <= 0.1)
+        return "🔵⚪⚪⚪⚪⚪⚪⚪⚪⚪";
+    if (percentage > 0.1 && percentage <= 0.2)
+        return "🔵🔵⚪⚪⚪⚪⚪⚪⚪⚪";
+    if (percentage > 0.2 && percentage <= 0.3)
+        return "🔵🔵🔵⚪⚪⚪⚪⚪⚪⚪";
+    if (percentage > 0.3 && percentage <= 0.4)
+        return "🔵🔵🔵🔵⚪⚪⚪⚪⚪⚪";
+    if (percentage > 0.4 && percentage <= 0.5)
+        return "🔵🔵🔵🔵🔵⚪⚪⚪⚪⚪";
+    if (percentage > 0.5 && percentage <= 0.6)
+        return "🔵🔵🔵🔵🔵🔵⚪⚪⚪⚪";
+    if (percentage > 0.6 && percentage <= 0.7)
+        return "🔵🔵🔵🔵🔵🔵🔵⚪⚪⚪";
+    if (percentage > 0.7 && percentage <= 0.8)
+        return "🔵🔵🔵🔵🔵🔵🔵🔵⚪⚪";
+    if (percentage > 0.8 && percentage <= 0.9)
+        return "🔵🔵🔵🔵🔵🔵🔵🔵🔵⚪";
+
+    return "🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵";
+}
+
+Commenti sul web:
+
+https://www.reddit.com/r/ProgrammerHumor/comments/10dh6x1/very_efficient_code/
+
+Versione newLISP
+
+(define (percentage perc char1 char2)
+  (local (piene vuote)
+    (setq piene (int (add 0.5 (mul 10 perc))))
+    (setq vuote (- 10 piene))
+    (append (dup char1 piene) (dup char2 vuote))))
+
+(percentage 0 "*" "·")
+;-> "··········"
+(percentage 1 "*" "·")
+;-> "**********"
+(percentage 0.63 "*" "·")
+;-> "******····"
+
+
+----------------
+Interi eccessivi
+----------------
+
+Per un intero positivo n con la scomposizione in fattori primi n = p1^e1 * p2^e2 * ... pk^ek dove p1,...,pk sono numeri primi ed e1,...,ek sono numeri interi positivi, possiamo definire due funzioni:
+
+  Ω(n) = e1+e2+...+ek il numero di divisori primi (contati con molteplicità).
+
+Sequenza OEIS A001222:
+  0, 1, 1, 2, 1, 2, 1, 3, 2, 2, 1, 3, 1, 2, 2, 4, 1, 3, 1, 3, 2, 2, 1, 4,
+  2, 2, 3, 3, 1, 3, 1, 5, 2, 2, 2, 4, 1, 2, 2, 4, 1, 3, 1, 3, 3, 2, 1, 5,
+  2, 3, 2, 3, 1, 4, 2, 4, 2, 2, 1, 4, 1, 2, 3, 6, 2, 3, 1, 3, ...
+
+(define (big-omega num) (length (factor num)))
+
+(map big-omega (sequence 1 10))
+;-> (0 1 1 2 1 2 1 3 2 2)
+
+  ω(n) = k il numero di divisori primi distinti.
+
+Sequenza OEIS A001221:
+0, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1,
+2, 1, 2, 1, 3, 1, 1, 2, 2, 2, 2, 1, 2, 2, 2, 1, 3, 1, 2, 2, 2, 1, 2, 1, 2,
+2, 2, 1, 2, 2, 2, 2, 2, 1, 3, 1, 2, 2, 1, 2, 3, 1, 2, 2, 3, 1, ...
+
+(define (omega num) (if (= num 1) 0 (length (unique (factor num)))))
+
+(map omega (sequence 1 10))
+;-> (0 1 1 1 1 2 1 1 1 2)
+
+Con queste due funzioni definiamo l'eccesso e(n) = Ω(n) - ω(n). 
+
+Sequenza OEIS A046660:
+0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0, 1, 0, 0, 0, 3, 0, 1, 0, 1, 0, 0, 0, 2, 1,
+0, 2, 1, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 1, 1, 0, 0, 3, 1, 1,
+0, 1, 0, 2, 0, 2, 0, 0, 0, 1, 0, 0, 1, 5, 0, 0, 0, 1, 0, 0, 0, ...
+
+(define (excess num)
+  (local (f u)
+    (cond ((= num 1) 0)
+          (true
+          (setq f (factor num))
+          (setq u (unique f))
+          (- (length f) (length u))))))
+
+(map excess (sequence 1 10))
+;-> (0 0 0 1 0 0 0 2 1 0)
+
+Per ogni numero n senza quadrati risulta e(n) = 0.
+Quindi e(n) può essere considerata come una misura di quanto un numero sia vicino all'essere privo di quadrati.
+
+Funzione che calcola i numeri senza quadrati fino ad un determinato numero:
+
+(define (square-free limite)
+  (let ((out '()))
+    (for (i 1 limite)
+      (if (zero? (excess i)) (push i out -1)))
+    out))
+
+(square-free 100)
+;-> (1 2 3 5 6 7 10 11 13 14 15 17 19 21 22 23 26 29 30 31 33 34 35 37
+;->  38 39 41 42 43 46 47 51 53 55 57 58 59 61 62 65 66 67 69 70 71 73
+;->  74 77 78 79 82 83 85 86 87 89 91 93 94 95 97)
+
 =============================================================================
 

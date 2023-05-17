@@ -1814,6 +1814,9 @@ NOTE LIBERE 16
   Dragonfly: A web framework for newLISP
   Strada non intersecante
   Bordo di una matrice
+  Forum: OOP and inheritance
+  Codice efficiente
+  Interi eccessivi
   
 PROBLEMI SUI DADI
 =================
@@ -1855,7 +1858,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (234 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (236 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
