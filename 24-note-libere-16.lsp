@@ -3318,8 +3318,8 @@ With dynamic namespaces, foo's outer scope search will proceed through let, bar,
 In lexical, foo will search for 'a in foo, then global.
 Lexical is literally that - based on its lexical location.
 
-Dynamic is determined by where it is called. 
-Because foo is called form within bar and let, those are its parent scopes. 
+Dynamic is determined by where it is called.
+Because foo is called form within bar and let, those are its parent scopes.
 In a lexically scoped language, because foo is defined outside of bar, it has no internal relationship with bar.
 
 cormullion:
@@ -3476,10 +3476,10 @@ La funzione di errore è definita come:
 Dragonfly: A web framework for newLISP
 --------------------------------------
 
-Dragonfly is a web framework for newLISP. 
-Development started in June 2009. 
-It focuses on speed, small memory consumption and a small learning curve. 
-Other goodies are a plug and play architecture for writing own helpers or modules and a very easy deployment. 
+Dragonfly is a web framework for newLISP.
+Development started in June 2009.
+It focuses on speed, small memory consumption and a small learning curve.
+Other goodies are a plug and play architecture for writing own helpers or modules and a very easy deployment.
 It's possible to use it with the builtin newLISP webserver.
 
 Source and download: https://github.com/taoeffect/dragonfly-newlisp
@@ -3947,7 +3947,7 @@ Sequenza OEIS A001221:
 (map omega (sequence 1 10))
 ;-> (0 1 1 1 1 2 1 1 1 2)
 
-Con queste due funzioni definiamo l'eccesso e(n) = Ω(n) - ω(n). 
+Con queste due funzioni definiamo l'eccesso e(n) = Ω(n) - ω(n).
 
 Sequenza OEIS A046660:
 0, 0, 0, 1, 0, 0, 0, 2, 1, 0, 0, 1, 0, 0, 0, 3, 0, 1, 0, 1, 0, 0, 0, 2, 1,
@@ -3980,6 +3980,149 @@ Funzione che calcola i numeri senza quadrati fino ad un determinato numero:
 ;-> (1 2 3 5 6 7 10 11 13 14 15 17 19 21 22 23 26 29 30 31 33 34 35 37
 ;->  38 39 41 42 43 46 47 51 53 55 57 58 59 61 62 65 66 67 69 70 71 73
 ;->  74 77 78 79 82 83 85 86 87 89 91 93 94 95 97)
+
+
+--------------------------------
+Ricerca di un numero sconosciuto
+--------------------------------
+
+Supponiamo che ci sia un numero naturale sconosciuto finito N (big integer) e una funzione comp(x) che restituisce true se x <= N.
+Scrivere un programma per determinare N minimizzando il numero di chiamate a "comp".
+Poichè il numero minimo di chiamate dipende dalla distribuzione di probabilità dei possibili valori di N, si assume per N una distribuzione uniforme.
+
+Un possibile metodo è il seguente:
+- Aumentare la nostra stima finché non si supera N.
+- Eseguire una ricerca binaria.
+
+Ma cosa intendiamo per "aumentare" la stima?
+In che modo la aumentiamo?
+Un approccio ragionevole è quello di raddoppiare la stima, ma per numeri molto grandi potremmo utilizzare un aumento più consistente (moltiplicare per 10, fare il quadrato, ecc.). In questi casi occorre modificare il metodo di ricerca binaria (perchè il numero iniziale (low = high / 2) potrebbe essere superiore a N)
+
+Numero sconosciuto:
+
+(setq *N* 1234567890L)
+
+Funzione "comp":
+
+(define (comp x) (<= x *N*))
+
+Funzione "guess":
+
+(define (guess)
+  (local (low high mid call)
+    (setq call 0)
+    ; stima iniziale
+    (setq high 1L)
+    ; raddoppia fino a che high che non supera *N*
+    (while (comp high) (setq high (* high 2)) (++ call))
+    ; ricerca binaria
+    (setq low (/ high 2))
+    (while (< low (- high 1)) ; low <= *N* < high (invariante)
+      (setq mid (/ (+ low high) 2))
+      (if (comp mid)
+          (setq low mid)
+          (setq high mid)
+      )
+      (++ call)
+    )
+    (list low call)))
+
+Facciamo alcune prove:
+
+(setq *N* 128)
+(guess)
+;-> (128L 15)
+
+(setq *N* 872134762347L)
+(guess)
+;-> (872134762347L 79)
+
+(setq *N* 2738372163489234712761872134762347L)
+(guess)
+;-> (2738372163489234712761872134762347L 223)
+
+(setq *N* 100000000000000000000000000000000000000000000000000000000L)
+(guess)
+;-> (100000000000000000000000000000000000000000000000000000000L 373)
+
+Nota: Il numero di bit nella rappresentazione binaria di *N* è l'optimum teorico delle chiamate a "comp" (se si dispone solo di un confronto binario).
+
+Funzione che calcola la rappresentazione binaria di un numero intero (big-integer):
+
+(setq MAXINT (** 2 62))
+;-> 4611686018427387904L
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (prep s) (string (dup "0" (- 62 (length s))) s))
+
+(define (bitsL n)
+    (if (<= n MAXINT) (bits (int n))
+      (string (bitsL (/ n MAXINT))
+              (prep (bits (int (% n MAXINT)))))))
+
+(length (bitsL 872134762347L))
+;-> 40
+(length (bitsL 2738372163489234712761872134762347L))
+;-> 112
+(length (bitsL 100000000000000000000000000000000000000000000000000000000L))
+;-> 187
+
+
+--------------------
+Liste insignificanti
+--------------------
+
+Una lista insignificante (non significativa) è una lista di numeri interi positivi, in cui le differenze assolute tra elementi consecutivi sono tutte minori o uguali a 1.
+
+Ad esempio, la seguente lista è insignificante: (1 2 3 4 3 4 5 5 5 4)
+Perché le corrispondenti differenze (assolute) sono: (1 1 1 1 1 1 0 0 1)
+Che sono tutti minori o uguali a 1.
+
+Scrivere una funzione per determinare se una lista è insignificante.
+Si può presumere che la lista contiene sempre almeno due elementi.
+
+Test case:
+Input                   ->   Output
+(1 2 3 4 3 4 5 5 5 4)   ->   true
+(1 2 3 4 5 6 7 8 9 8)   ->   true
+(3 3 3 3 3 3 3)         ->   true
+(3 4 4 4 3 3 3 4 4 4)   ->   true
+(1 2 3 4)               ->   true
+(5 4 3 2)               ->   true
+(1 3 5 7 9 7 5 3 1)     ->   nil
+(1 1 1 2 3 4 5 6 19)    ->   nil
+(3 4 5 6 7 8 7 5)       ->   nil
+(1 2 4 10 18 10 100)    ->   nil
+(10 20 30 30 30)        ->   nil
+
+https://codegolf.stackexchange.com/questions/143278/am-i-an-insignificant-array
+
+Versione Golfed (61 char):
+
+(for-all true?(map(fn(x y)(<(abs(- y x))2))(rest a)(chop a)))
+
+Versione Ungolfed:
+
+(define (ungolf lst)
+  (for-all true? (map (fn(x y) (< (abs (- y x)) 2) ) (rest lst) (chop lst))))
+
+(ungolf '(1 2 3 4 3 4 5 5 5 4)) ;-> true
+(ungolf '(1 2 3 4 5 6 7 8 9 8)) ;-> true
+(ungolf '(3 3 3 3 3 3 3))       ;-> true
+(ungolf '(3 4 4 4 3 3 3 4 4 4)) ;-> true
+(ungolf '(1 2 3 4))             ;-> true
+(ungolf '(5 4 3 2))             ;-> true
+(ungolf '(1 3 5 7 9 7 5 3 1))   ;-> nil
+(ungolf '(1 1 1 2 3 4 5 6 19))  ;-> nil
+(ungolf '(3 4 5 6 7 8 7 5))     ;-> nil
+(ungolf '(1 2 4 10 18 10 100))  ;-> nil
+(ungolf '(10 20 30 30 30))      ;-> nil
 
 =============================================================================
 

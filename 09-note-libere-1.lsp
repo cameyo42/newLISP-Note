@@ -4433,7 +4433,7 @@ Da ralph.ronnquist:
 
 Purtroppo la funzione "bits" non funziona con i big integer.
 
-Allora usiamo la seguente funzione:
+Allora usiamo la seguente funzione (ralph.ronnquist):
 
 ; Compute "bits" for bigint and int
 (constant 'MAXINT (pow 2 62))

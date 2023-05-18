@@ -1781,7 +1781,7 @@ NOTE LIBERE 15
   Serializzazione di funzioni
 
 NOTE LIBERE 16
-==============  
+==============
   Lancio di una moneta e probabilità (Fibonacci)
   Probabilità a Monopoli
   Forum: Macro version of define that prints args when func is called
@@ -1817,7 +1817,9 @@ NOTE LIBERE 16
   Forum: OOP and inheritance
   Codice efficiente
   Interi eccessivi
-  
+  Ricerca di un numero sconosciuto
+  Liste insignificanti
+
 PROBLEMI SUI DADI
 =================
   Problemi 1..76
