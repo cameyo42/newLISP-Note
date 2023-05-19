@@ -8393,5 +8393,328 @@ https://github.com/DexterLagan/newlisp-message-box
 
 true 
 
+
+===========
+ CSV FILE
+===========
+
+; -------------------------------------------------------------------------
+; csv.lsp
+; a simple set of Lisp functions for managing csv flat databases
+; Luis Argüelles, 2014
+; www.fuzzylisp.com
+; modify and adapted by cameyo 2018
+; (load "csv.lsp")
+; (load "e:/Lisp-Scheme/newLisp/MAX/csv/csv.lsp")
+; -------------------------------------------------------------------------
+
+; Assign the data of db (csv) to a list (messier)
+; It is a list of sublists. Each sublist is a row.
+; The first sublist contains the names of columns.
+; All data are parsed as string.
+
+;(setq messier (db-load))
+
+; Assign the names of the fields of the db
+;(setq fields (first messier))
+;(setq fields (nth 0 messier))
+
+; (define (db-load, f1 str lst)
+;   (setq lst '())
+;   ;(setq f1 (open "e:/Lisp-Scheme/newLisp/MAX/csv/Messier.csv" "read"))
+;   (setq f1 (open "e:/Lisp-Scheme/newLisp/MAX/csv/db.csv" "read"))
+;   (while (setq str (read-line f1))
+;       (setq lst (cons (parse str ",") lst))
+;       ;(write-line)
+;   );while
+;   (close f1)
+;   (reverse lst)
+; )
+
+;(db-load "e:/Lisp-Scheme/newLisp/MAX/csv/db1.csv" "|")
+;(silent (setq db (db-load "e:/Lisp-Scheme/newLisp/MAX/csv/db-all.csv" ",")))
+(define (db-load filename delim , str lst)
+  (setq lst '())
+  ;(setq f1 (open "e:/Lisp-Scheme/newLisp/MAX/csv/Messier.csv" "read"))
+  (setq f1 (open "e:/Lisp-Scheme/newLisp/MAX/csv/db.csv" "read"))
+  (setq f1 (open filename "read"))
+  (while (setq str (read-line f1))
+      (setq lst (cons (parse str delim) lst))
+      ;(write-line)
+  );while
+  (close f1)
+  (reverse lst)
+)
+
+; This function returns the name of the fields in the base of
+; data to help user at the Lisp prompt
+
+(define (db-fields lst)
+  (nth 0 lst)
+)
+
+; design of the function (db-tell) to interrogate the database
+; if we say (db-tell lst id) it will take the database already loaded in lst
+; and it will return the sublist of the first identifier. For example:
+; (db-tell lst "M108") -> ("M108" "3556" "Ursa Major" "Spiral galaxy"
+; "11h 11.5m" "55d 40m" "10.1" "7.7x1.3" "*" "Sc - edge-on/M97 in field")
+
+(define (db-tell lst id, i l aux-lst result)
+  (setq i 0)
+  (setq l (length lst))
+  (while (< i l)
+    (setq aux-lst (nth i lst))
+      (if (= id (first aux-lst))
+        (setq result aux-lst)
+      )
+      (setq i (+ 1 i))
+  );end while
+  result
+)
+
+; db-tell2 allows to interrogate the database giving it the name
+; of the first element of the row and one of the names of the
+; fields. For example:
+; (db-tell2 lst "M45" "Constellation") -> "Taurus"
+; (db-tell2 lst "M42" "Remarks") -> "Great Orion Nebula"
+
+(define (db-tell2 lst id a-field, i l aux-lst result position)
+  (setq i 0)
+  (setq l (length lst))
+
+  (while (< i l)
+    (setq aux-lst (nth i lst))
+      (if (= id (first aux-lst))
+        (setq result aux-lst)
+      )
+      (setq i (+ 1 i))
+  );end while
+  ;(cons result (find a-field (nth 0 lst)))
+  (setq position (find a-field (nth 0 lst)))
+  (nth position result) ;index
+)
+
+; the following function adds a new field to the
+; database. Take into account it is not a destructive
+; function, so it must be used, for example:
+; (setq messier (db-new-field messier "My observations"))
+; this would add the field "My observation" to messier database
+
+(define (db-new-field lst name-field , i l lst-out)
+  (setq lst-out '())
+  (setq l (length lst)) ;number of records in lst
+  ;in the following line we append the new field's name
+  (setq lst-out (cons (append (nth 0 lst) (list name-field)) lst-out))
+  ;then we copy the entire database, making space in every record
+  ;for the new field
+  (setq i 1)
+  (while (< i l)
+    (setq lst-out (cons (append (nth i lst) (list "")) lst-out))
+    (setq i (+ 1 i))
+  );while
+  (reverse lst-out)
+);end function
+
+;this function substitutes the content of a field in a record
+;parameters:
+;    - lst: the database in list form
+;    - record: the entire record to be updated in list form
+;    - field: the name of the field as string
+;    - new-data: data to be updated as string
+;
+; call example:
+; (db-update-record messier (nth 42 messier) "Remarks" "great sight with the Zeiss telescope")
+;-> ("M42" "1976" "Orion" "Diffuse nebula" "5h 35.4m" "-5d 27m" "2.9" "66x60" "!!!" "great sight with the Zeiss telescope")
+; another call:
+; (db-update-record lst (nth 42 lst) "Constellation" "I'm not sure")
+;-> ("M42" "1976" "I'm not sure" "Diffuse nebula" "5h 35.4m" "-5d 27m" "2.9" "66x60" "!!!" "Great Orion Nebula")
+;important remark: this function is not destructive. Have it into account
+;;This is an auxiliary function to (db-update)
+
+(define (db-update-record lst record field new-data, position j l record-out)
+  (setq record-out '())
+  (setq j 0)
+  (setq l (length record))
+  ;gets the position of the field looking in the first record:
+  (setq position (find field (nth 0 lst)))
+  ;replaces the data:
+  (while (< j l)
+    (if (= j position)
+      (setq record-out (cons new-data record-out)) ;if it evaluates to true
+      (setq record-out (cons (nth j record) record-out)) ;else copy the element
+    );end if
+    (setq j (+ j 1))
+  )
+  (reverse record-out)
+)
+
+;(db-save) saves the database in memory to a file
+(define (db-save db, i j length2 length2 record)
+  (setq f1 (open "Documents/Libro Lisp y Fuzzy Logic/FuzzyLisp/Out.csv" "write"))
+  (println "saving database.....")
+  (setq j 0)
+  (setq length1 (length db)) ;number of records in db
+  (while (< j length1)
+    (setq record (nth j db)) ;loads a record
+    (setq length2 (length record)) ;number of fields in the record
+    (setq i 0)
+  ;now, for each record:
+    (while (< i length2)
+        (write f1 (nth i record))
+        (if (< i (- length2 1))
+           (write f1 ",")
+        );end if
+        (setq i (+ 1 i))
+    );internal while
+    (write f1 "\n")
+    (setq j (+ 1 j))
+  );enf while j
+  (close f1)
+  (println "Database saved Ok")
+  (println j " records sucessfully saved.")
+  true
+)
+
+; returns the number of row given by the value of first field key in the database
+; (db-get-row-number messier "M42") -> 42
+; This is an auxiliary function to (db-update)
+(define (db-get-row-number db key, i length1 row-number)
+  (setq i 0)
+  (setq length1 (length db))
+  (while (< i length1)
+    (if (= key (first (nth i db)))
+      (setq row-number i)
+    )
+    (setq i (+ 1 i))
+  );while end
+  row-number
+)
+
+;(db-update messier "M42" "Constellation" "I'm not sure")
+(define (db-update db key field new-data, row-number i length1 db-out)
+  (setq row-number (db-get-row-number db key)) ;get the index of the row
+  (setq i 0)
+  (setq db-out '())
+  (setq length1 (length db)) ;number of records in db
+  ;copy the first set of records
+  (while (< i row-number)
+      (setq db-out (cons (nth i db) db-out))
+      (setq i (+ 1 i))
+  )
+  ;update the record:
+  (setq db-out (cons (db-update-record db (nth row-number db) field new-data) db-out))
+  (setq i (+ 1 i)); advances one row
+  ;copy the rest of records
+  (while (< i length1)
+      (setq db-out (cons (nth i db) db-out))
+      (setq i (+ 1 i))
+  )
+  (reverse db-out)
+)
+
+;(db-filter messier '(= "Constellation" "Orion"))
+;(db-filter messier '(= "Class" "Globular cluster"))
+;(db-filter messier '(= "Class" "Spiral galaxy"))
+;(db-filter messier '(<= "Magnitude" 4))
+;(setq galaxies (db-filter messier '(= "Class" "Spiral galaxy")))
+
+(define (db-filter db expr, i, length1 header record field-id lst-out str)
+  (setq i 1)
+  (setq lst-out '())
+  (setq lst-out (cons (nth 0 db) lst-out)) ;header row (name of the fields)
+  (setq length1 (length db))
+  (setq header (first db)) ;name of fields
+  (setq field-id (find (nth 1 expr) header)) ;field index
+  (while (< i length1)
+      (setq record (nth i db));current record
+      (setq str (nth field-id record))
+      ; if (last expr) is a number then convert (nth field-id record) in number
+      (if (number? (last expr))
+        ;(setq str (eval-string str))
+        (setq str (float str))
+      );if
+      (if (eval (list (eval '(first expr)) str (last expr)))
+        ;(println (nth 0 record) " within filter")
+        (setq lst-out (cons record lst-out))
+      );if
+  (setq i (+ 1 i))
+  );while
+  (reverse lst-out)
+)
+
+; db-stats returns the statistics of a field, that is, numbers located
+; in columns. It assumes that the content of the field are strings that
+; represent numbers.
+; example: (db-stats messier "Magnitude") ->
+; (110 7.534545455 1.540495868 1.914715413 3.666135113 -0.4639868813 0.3590037872)
+(define (db-stats db field, header field-id i lst length1)
+  (setq header (first db));get name of fields
+  (setq field-id (find field header));find the position of the field
+  (setq lst '())
+  (setq i 1)
+  (setq length1 (length db))
+  (while (< i length1)
+    ;get a record, get its field, convert from string to number and
+    ;cons it in lst
+    (setq lst (cons (eval-string (nth field-id (nth i db))) lst))
+    (setq i (+ 1 i))
+  );while
+  (stats (reverse lst)) ;return the statistics
+)
+
+; A simple menu
+; (define (db-menu)
+;   (print "\nCSV database manager\n\n")
+;   (print "1. Load a database into memory\n")
+;   (print "2. Get the name of fields in a database\n")
+;   (print "3. Query the database\n")
+;   (print "4. Add a new field to the database\n")
+;   (print "5. Update the database\n")
+;   (print "6. Filter the database\n")
+;   (print "7. Calculate statistics\n")
+;   (print "8. Save the database\n")
+;   (print "\nChoose an option (1-8): ")
+;   (read-line)
+; )
+;
+; (db-menu)
+
+
+; (db-see)
+; Print records from start number to end number
+; Call example: (dbsee db 1 10)
+(define (db-see lst start end)
+  ;(println (nth 0 lst))
+  (setq numrec (- (length lst) 1))
+  (println (format (get-format lst) (nth 0 lst)))
+  (if (>= end numrec)
+      (setq end numrec)
+  )
+  (while (<= start end)
+      ;(println (nth start lst))
+      ;(println (format "%-10s %-10s %-10s %-10s %-10s" (nth start lst)))
+      ;(println (format "%-4s %-12s %-13s %-7s %-3s" (nth start lst)))
+      (println (format (get-format lst) (nth start lst)))
+      (setq start (+ 1 start))
+  )
+  ;(print (char 7))
+)
+
+; return a format string for db-see function
+; Find the max lenght of field value for all the fields
+(define (get-format db)
+  (setq db1 (transpose db))
+  (setq fmt "")
+  (setq row 0)
+  (while (< row (length db1))
+      (setq fmt (append fmt "%-" (string (apply max (map length (nth row db1)))) "s "))
+      (setq row (+ 1 row))
+  )
+  fmt
+)
+
+(println "EOF csv.lsp")
+; -------------------- EOF ------------------------
+
 =============================================================================
 

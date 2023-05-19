@@ -1879,7 +1879,7 @@ Possiamo scrivere una funzione che restituisce le coppie di coordinate:
 (coordFX fx 10 20 2)
 ;-> ((10 266) (12 390) (14 538) (16 710) (18 906) (20 1126))
 
-Definiamo la funzionde quadrato:
+Definiamo la funzione quadrato:
 
 (define (gx x) (mul x x))
 

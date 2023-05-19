@@ -534,6 +534,7 @@ LIBRERIE
   The Little newLISPER (newlisper.lsp)
   MessageBox (by Dexter Santucci)
   default.lsp (by kazimir majorinc)
+  csv file (by Arguelles/cameyo)
 
 NOTE LIBERE 1
 =============
@@ -1819,6 +1820,8 @@ NOTE LIBERE 16
   Interi eccessivi
   Ricerca di un numero sconosciuto
   Liste insignificanti
+  Operatore di confronto a tre vie "<=>" sui numeri
+  Quadrati latini
 
 PROBLEMI SUI DADI
 =================

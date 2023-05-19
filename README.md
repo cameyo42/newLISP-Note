@@ -13,7 +13,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 05) Project eulero (126)
 06) Problemi vari (81)
 07) Domande programmatori (101)
-08) Librerie (11)
+08) Librerie (12)
 09) Note libere 1 (80)
 10) Note libere 2 (80)
 11) Note libere 3 (80)
@@ -29,7 +29,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 21) Note libere 13 (80)
 22) Note libere 14 (80)
 23) Note libere 15 (80)
-24) Note libere 16 (37)
+24) Note libere 16 (39)
 96) Problemi sui dadi (76)
 97) Appendici (28)
 98) Bibliografia

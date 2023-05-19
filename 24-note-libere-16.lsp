@@ -4124,5 +4124,80 @@ Versione Ungolfed:
 (ungolf '(1 2 4 10 18 10 100))  ;-> nil
 (ungolf '(10 20 30 30 30))      ;-> nil
 
+
+-------------------------------------------------
+Operatore di confronto a tre vie "<=>" sui numeri
+-------------------------------------------------
+
+Scrivere una funzione che, quando vengono dati due numeri dello stesso tipo a e b, faccia quanto segue: 
+
+  se a < b, restituisce -1. 
+  se a = b, restituisce 0. 
+  se a > b, restituisce 1.
+
+(define (<=> a b) (cond ((< a b) -1) ((= a b) 0) ((> a b) 1)))
+
+(<=> 21 42)
+;-> -1
+(<=> 42 21)
+;-> 1
+(<=> 77 77)
+;-> 0
+
+
+---------------
+Quadrati latini
+---------------
+
+Un quadrato latino è una griglia NxN riempita da n numeri distinti, ognuno dei quali appare esattamente una volta in ogni riga e colonna.
+Dato un input N, dobbiamo creare una matrice NxN costituita da numeri da 1 a N ciascuno che compare esattamente una volta in ogni riga e in ogni colonna.
+Esempi:
+
+N: 3
+quadrato latino: 1 2 3
+        3 1 2
+        2 3 1
+
+N: 5
+quadrato latino: 1 2 3 4 5
+                 5 1 2 3 4
+                 4 5 1 2 3
+                 3 4 5 1 2
+                 2 3 4 5 1
+
+Un semplice algoritmo per creare un quadrato latino è il seguente:
+ - Nella prima riga, i numeri sono memorizzati da 1 a n in modo sequenziale.
+ - Nella seconda riga, i numeri vengono spostati a destra di una colonna (cioè, 1 è memorizzato nella seconda colonna ora e così via).
+ - Nella terza riga, i numeri vengono spostati a destra di due colonne (cioè, 1 è memorizzato nella terza colonna ora e così via).
+ - Continuare allo stesso modo per le restanti righe.
+
+Nota: potrebbe esistere più di una configurazione possibile per un quadrato latino nxn.
+
+(define (latin num)
+  (let ( (out '()) (row '()) )
+    (setq row (sequence 1 num))
+    (push row out -1)
+    (for (r 1 (- num 1))
+      (push (rotate row) out -1)
+    )
+    out))
+
+(latin 5)
+;-> ((1 2 3 4 5) (5 1 2 3 4) (4 5 1 2 3) (3 4 5 1 2) (2 3 4 5 1))
+
+(latin 12)
+;-> ((1 2 3 4 5 6 7 8 9 10 11 12) 
+;->  (12 1 2 3 4 5 6 7 8 9 10 11) 
+;->  (11 12 1 2 3 4 5 6 7 8 9 10)
+;->  (10 11 12 1 2 3 4 5 6 7 8 9)
+;->  (9 10 11 12 1 2 3 4 5 6 7 8)
+;->  (8 9 10 11 12 1 2 3 4 5 6 7)
+;->  (7 8 9 10 11 12 1 2 3 4 5 6)
+;->  (6 7 8 9 10 11 12 1 2 3 4 5)
+;->  (5 6 7 8 9 10 11 12 1 2 3 4)
+;->  (4 5 6 7 8 9 10 11 12 1 2 3)
+;->  (3 4 5 6 7 8 9 10 11 12 1 2)
+;->  (2 3 4 5 6 7 8 9 10 11 12 1))
+
 =============================================================================
 
