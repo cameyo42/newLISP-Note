@@ -4199,5 +4199,263 @@ Nota: potrebbe esistere più di una configurazione possibile per un quadrato lat
 ;->  (3 4 5 6 7 8 9 10 11 12 1 2)
 ;->  (2 3 4 5 6 7 8 9 10 11 12 1))
 
+
+--------------
+Numeri sublimi
+--------------
+
+Un numero perfetto è un numero intero positivo la cui somma dei divisori (eccetto se stesso) è uguale a se stesso. Per esempio. 6 (1 + 2 + 3 = 6) e 28 (1 + 2 + 4 + 7 + 14 = 28) sono perfetti.
+
+Un numero sublime è un numero intero positivo il cui conteggio e somma dei divisori (incluso se stesso) sono entrambi perfetti. 
+Per esempio. 12 è un numero sublime perché:
+
+  i divisori di 12 sono 1, 2, 3, 4, 6, 12
+  il conteggio dei divisori è 6 (perfetto)
+  la somma dei divisori è 28 (perfetto)
+
+Il successivo numero sublime più piccolo conosciuto è:
+
+6086555670238378989670371734243169622657830773351885970528324860512791691264
+
+e questi due numeri sono gli unici numeri sublimi conosciuti nel 2022.
+
+Sequenza OEIS A081357:
+2, 6086555670238378989670371734243169622657830773351885970528324860512791691264
+
+Scomponiamo il numero in fattori  primi:
+
+(time (println (setq f (factor-i 6086555670238378989670371734243169622657830773351885970528324860512791691264))))
+;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+;->  2L 2L 2L 2L 2L 2L 7L 31L 127L 524287L 2147483647L 2305843009213693951L)
+;->  253865.791 ; 4m 13s 865ms
+
+(setq f '(2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 
+ 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+ 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+ 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+ 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
+ 2L 2L 2L 2L 2L 2L 7L 31L 127L 524287L 2147483647L 2305843009213693951L))
+
+Le seguenti funzioni prendono come argomento la lista dei fattori di un numero (in forma estesa)
+(Accettano anche con i big-integer).
+
+lst = lista dei fattori del numero
+
+Raggruppa i fattori (RLE):
+
+(define (raggruppa-fattori lst)
+  (letn (unici (unique lst))
+    (transpose (list unici (count unici lst)))))
+
+(raggruppa-fattori f)
+;-> ((2L 126) (7L 1) (31L 1) (127L 1) (524287L 1) 
+;->  (2147483647L 1) (2305843009213693951L 1))
+
+Conta i divisori:
+
+(define (conta-divisori lst)
+  (let (lst (raggruppa-fattori lst))
+    (apply * (map (fn(x) (+ 1L (last x))) lst))))
+
+(conta-divisori f)
+;-> 8128
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Somma i divisori:
+
+(define (somma-divisori lst)
+  (local (sum out)
+    (setq out 1L)
+    (setq lst (raggruppa-fattori lst))
+    (dolist (el lst)
+      (setq sum 0L)
+      (for (i 0 (last el))
+        (setq sum (+ sum (** (first el) i)))
+      )
+      (setq out (* out sum)))))
+
+(somma-divisori f)
+;-> 14474011154664524427946373126085988481573677491474835889066354349131199152128
+
+Lista dei divisori:
+
+(define (divisors lst)
+  (local (f out)
+    (setq f (raggruppa-fattori lst))
+    (setq out '())
+    (divisors-aux 0L 1L)
+    (sort out)))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(length (divisors f))
+;-> 8128
+
+Sommiamo i divisori:
+
+(setq sum 0L)
+(dolist (el (divisors f)) (setq sum (+ sum el)))
+;-> 14474011154664524427946373126085988481573677491474835889066354349131199152128L
+
+I numeri 8128 e 14474011154664524427946373126085988481573677491474835889066354349131199152128 sono perfetti. 
+
+
+-------------------
+Checksum alfabetico
+-------------------
+
+Data una stringa di lettere minuscole, calcolare il "checksum alfabetico" di quella stringa.
+
+Esempio:
+Prendiamo la stringa "helloworld". 
+Con a = 0, b = 1, c = 2 ... z = 25, possiamo sostituire tutte le lettere con numeri:
+
+  h  e  l  l  o  w  o  r  l  d
+  7  4  11 11 14 22 14 17 11 3
+
+Ora, possiamo sommare questi numeri:
+
+  7+4+11+11+14+22+14+17+11+3 = 114
+
+Se applichiamo il modulo 26, otteniamo:
+
+  114 % 26 = 10
+
+Ora, utilizzando lo stesso sistema di numerazione di prima, otteniamo la decima lettera, k. 
+Questo è il checksum alfabetico di "helloworld".
+
+Vediamo alcuni esempi:
+
+  stringa          checksum
+  -------          --------
+  helloworld       k
+  abcdef           p
+  newlisp          n
+  codegolf         h
+  aaaaa            a
+  zzzzz            v
+
+Supponiamo che la stringa sia composta solo da lettere minuscole:
+("a" = 97, "z" = 122)
+
+Funzione di checksum alfabetico:
+
+(define (checksum str)
+  (char (+ 97 (% (apply + (map (fn(x) (- (char x) 97)) (explode str))) 26))))
+
+(setq lst '("helloworld" "abcdef" "newlisp" "codegolf" "aaaaa" "zzzzz"))
+
+(map checksum lst)
+;-> ("k" "p" "n" "h" "a" "v")
+
+Come funziona?
+
+(setq str "newlisp")
+
+(explode str)
+;-> ("n" "e" "w" "l" "i" "s" "p")
+
+(map (fn(x) (- (char x) 97)) '("n" "e" "w" "l" "i" "s" "p"))
+;-> (13 4 22 11 8 18 15)
+
+(apply + '(13 4 22 11 8 18 15))
+;-> 91
+
+(% 91 26)
+;-> 13
+
+(+ 97 13)
+;-> 110
+
+(char 110)
+;-> "n"
+
+Adesso scriviamo una funzione di checksum alfabetico che utilizza tutti i caratteri ASCII stampabili (32-126).
+
+(for (i 32 126) (print (char i) { }))
+;->   ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @
+;-> A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` 
+;-> a b c d e f g h i j k l m n o p q r s t u v w x y z { | } ~
+
+In tutto sono (126 - 32 + 1) = 95 caratteri
+
+(define (check-alpha str)
+  (char (+ 32 (% (apply + (map (fn(x) (- (char x) 32)) (explode str))) 95))))
+
+(check-alpha "newlisp")
+;-> "g"
+(check-alpha "newLISP")
+;-> "F"
+(check-alpha "Hello World!!")
+;-> "E"
+
+
+--------------------------
+Anti-divisori di un numero
+--------------------------
+
+Gli anti-divisori sono i numeri che non dividono un numero per il margine più ampio possibile. 
+Per esempio, 20 ha anti-divisori 3, 8 e 13.
+
+Definizione:
+Se un numero dispari i nell'intervallo 1 < i <= n divide N dove N è uno qualsiasi tra 2n-1, 2n o 2n+1 allora d = N/i è chiamato anti-divisore di n. I numeri 1 e 2 non hanno anti-divisori.
+
+Equivalentemente, un anti-divisore di n è un numero d nell'intervallo [2,n-1] che non divide n ed è un divisore (necessariamente dispari) di 2n-1 o 2n+1, oppure un divisore (necessariamente pari) ) divisore di 2n.
+Quindi un antidivisore di n è un intero d in [2,n-1] tale che n == (d-1)/2, d/2, o (d+1)/2 (mod d), il la classe di d è rispettivamente -1, 0 o 1.
+
+Equivalentemente, k è un anti-divisore di n se e solo se 1 < k < n e | (n mod k) - k/2 | < 1.
+
+Sequenza OEIS A006272: Numero di anti-divisori di n (n > 0)
+  0, 0, 1, 1, 2, 1, 3, 2, 2, 3, 3, 2, 4, 3, 3, 2, 5, 4, 3, 3, 3, 5, 5, 
+  2, 5, 3, 5, 5, 3, 3, 5, 6, 5, 3, 5, 2, 5, 7, 5, 4, 4, 5, 5, 3, 7, 5,
+  5, 3, 6, 6, 3, 7, 7, 3, 5, 3, 5, 7, 7, 6, 4, 5, 7, 2, 5, 5, 9, 7, 3, ...
+
+Funzione che crea la lista degli anti-divisori di un numero intero positivo:
+
+(define (anti-divisors num)
+  (cond ((< num 3) '())
+    (true
+      (let (out '())
+        (for (k 2 (- num 1))
+          (if (< (abs (sub (mod num k) (div k 2))) 1)
+              (push k out -1)
+          )
+        )
+        out))))
+
+(anti-divisors 20)
+;-> (3 8 13)
+
+(anti-divisors 325)
+;-> (2 3 7 10 11 21 26 31 50 59 93 130 217)
+
+(map anti-divisors (sequence 1 20))
+;-> (() () (2) (3) (2 3) (4) (2 3 5) (3 5) (2 6) (3 4 7)
+;->  (2 3 7) (5 8) (2 3 5 9) (3 4 9) (2 6 10)
+;->  (3 11) (2 3 5 7 11) (4 5 7 12) (2 3 13) (3 8 13))
+
+Verifica della sequenza OEIS:
+
+(map (fn(x) (length (anti-divisors x))) (sequence 1 25))
+;-> (0 0 1 1 2 1 3 2 2 3 3 2 4 3 3 2 5 4 3 3 3 5 5 2 5)
+
 =============================================================================
 

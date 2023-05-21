@@ -1822,6 +1822,9 @@ NOTE LIBERE 16
   Liste insignificanti
   Operatore di confronto a tre vie "<=>" sui numeri
   Quadrati latini
+  Numeri sublimi
+  Checksum alfabetico
+  Anti-divisori di un numero
 
 PROBLEMI SUI DADI
 =================
