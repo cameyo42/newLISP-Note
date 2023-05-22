@@ -4457,5 +4457,75 @@ Verifica della sequenza OEIS:
 (map (fn(x) (length (anti-divisors x))) (sequence 1 25))
 ;-> (0 0 1 1 2 1 3 2 2 3 3 2 4 3 3 2 5 4 3 3 3 5 5 2 5)
 
+
+--------------------------------
+Stringa con caratteri mascherati
+--------------------------------
+
+Data una stringa con caratteri mascherati, generare tutte le parole possibili, utilizzando tutti i caratteri di un'altra stringa.
+La stringa con i caratteri mascherati contiene solo lettere minuscole.
+La stringa con i caratteri sostitutivi contiene solo lettere maiuscole.
+
+Per esempio:
+stringa 1 = "l-s-"
+stringa 2 = "AEIOUSP"
+
+Lista da creare:
+(lAsA lEsA lIsA lOsA lUsA lSsA lPsA lAsE lEsE lIsE lOsE lUsE lSsE lPsE
+ lAsI lEsI lIsI lOsI lUsI lSsI lPsI lAsO lEsO lIsO lOsO lUsO lSsO lPsO
+ lAsU lEsU lIsU lOsU lUsU lSsU lPsU lAsS lEsS lIsS lOsS lUsS lSsS lPsS
+ lAsP lEsP lIsP lOsP lUsP lSsP lPsP)
+
+Per generare tutte le modifiche utilizziamo le permutazioni con ripetizione.
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+Funzione che genera tutte le parole possibili:
+
+(define (unmask str1 str2)
+  (local (indici masked changes out)
+    (setq out '())
+    ; indici degli elementi mascherati (da sostituire) in str1
+    (setq indici (flat (ref-all "-" (explode str1))))
+    ; numero di elementi mascherati
+    (setq masked (length indici))
+    ; lista dei cambiamenti
+    (setq changes (perm-rep masked (explode str2)))
+    ; creazione delle stringhe senza elementi mascherati
+    ; ciclo per ogni elemento in changes
+    (dolist (el changes)
+      ; modifica la stringa corrente
+      (dolist (ind indici)
+        (setf (str1 ind) (upper-case (el $idx)))
+      )
+      (push str1 out -1)
+    )
+    out))
+
+Facciamo un paio di prove:
+
+(setq s1 "l-s-")
+(setq s2 "AEIOUSP")
+
+(unmask s1 s2)
+;-> ("lAsA" "lEsA" "lIsA" "lOsA" "lUsA" "lSsA" "lPsA" "lAsE" "lEsE" "lIsE" 
+;->  "lOsE" "lUsE" "lSsE" "lPsE" "lAsI" "lEsI" "lIsI" "lOsI" "lUsI" "lSsI" 
+;->  "lPsI" "lAsO" "lEsO" "lIsO" "lOsO" "lUsO" "lSsO" "lPsO" "lAsU" "lEsU" 
+;->  "lIsU" "lOsU" "lUsU" "lSsU" "lPsU" "lAsS" "lEsS" "lIsS" "lOsS" "lUsS" 
+;->  "lSsS" "lPsS" "lAsP" "lEsP" "lIsP" "lOsP" "lUsP" "lSsP" "lPsP")
+
+(setq s1 "n-wl-sp")
+(setq s2 "aeiou")
+
+(unmask s1 s2)
+;-> ("nAwlAsp" "nEwlAsp" "nIwlAsp" "nOwlAsp" "nUwlAsp" "nAwlEsp" "nEwlEsp"
+;->  "nIwlEsp" "nOwlEsp" "nUwlEsp" "nAwlIsp" "nEwlIsp" "nIwlIsp" "nOwlIsp"
+;->  "nUwlIsp" "nAwlOsp" "nEwlOsp" "nIwlOsp" "nOwlOsp" "nUwlOsp" "nAwlUsp"
+;->  "nEwlUsp" "nIwlUsp" "nOwlUsp" "nUwlUsp")
+
 =============================================================================
 

@@ -1825,6 +1825,7 @@ NOTE LIBERE 16
   Numeri sublimi
   Checksum alfabetico
   Anti-divisori di un numero
+  Stringa con caratteri mascherati
 
 PROBLEMI SUI DADI
 =================
