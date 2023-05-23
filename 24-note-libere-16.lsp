@@ -4527,5 +4527,110 @@ Facciamo un paio di prove:
 ;->  "nUwlIsp" "nAwlOsp" "nEwlOsp" "nIwlOsp" "nOwlOsp" "nUwlOsp" "nAwlUsp"
 ;->  "nEwlUsp" "nIwlUsp" "nOwlUsp" "nUwlUsp")
 
+
+--------------------
+Colori complementari
+--------------------
+
+Dato un colore, il suo colore complementare è il colore che si trova in posizione opposta nella ruota dei colori (ruota cromatica).
+Esistono due tipi di ruote cromatiche: quella che usa una tecnica di combinazione dei colori additiva e quella che usa una tecnica sottrattiva.
+Quindi esistono colori primari additivi (rosso, verde e blu) e colori primari sottrattivi (ciano, magenta e giallo).
+In genere il metodo sottrattivo viene usato in pittura, mentre il metodo additivo viene usato dai computer.
+
+Vediamo un semplice algoritmo per calcolare il colore complementare di un dato colore RGB (R,G,B):
+1) trasformare il colore dato nello spazio HSV, 
+2) sommare a Hue (Tinta) un angolo piatto (180 gradi) 
+3) ritrasformare questo colore HSV nello spazio RGB.
+
+Funzioni RGB <--> HSV:
+
+(define (rgb2hsv r g b)
+  (local (h s v var-r var-g var-b var-min var-max del-max del-r del-g del-b)
+    (setq var-r (div r 255))
+    (setq var-g (div g 255))
+    (setq var-b (div b 255))
+    (setq var-min (min var-r var-g var-b)) ; valore minimo di RGB
+    (setq var-max (max var-r var-g var-b)) ; valore massimo di RGB
+    (setq del-max (sub var-max var-min))   ; delta RGB
+    (setq v var-max)
+    (cond ((= 0 del-max) (setq h 0) (setq s 0)) ; tono di grigio
+           (true ; colore
+              (setq s (div del-max var-max))
+              (setq del-r (div (add (div (sub var-max var-r) 6) (div del-max 2)) del-max))
+              (setq del-g (div (add (div (sub var-max var-g) 6) (div del-max 2)) del-max))
+              (setq del-b (div (add (div (sub var-max var-b) 6) (div del-max 2)) del-max))
+              (cond ((= var-r var-max) (setq h (sub del-b del-g)))
+                    ((= var-g var-max) (setq h (add (div 1 3) (sub del-r del-b))))
+                    ((= var-b var-max) (setq h (add (div 2 3) (sub del-g del-r))))
+                    (true println "errore")
+              )
+              (if (< h 0) (setq h (add 1 h)))
+              (if (> h 1) (setq h (sub 1 h)))
+           );end true
+    )
+    (list h s v)))
+
+(define (hsv2rgb h s v)
+  (local (r g b var-h var-i var-1 var-2 var-3 var-4 var-r var-g var-b)
+    (cond ((= 0 s) (setq r (mul v 255)) (setq g (mul v 255)) (setq b (mul v 255)))
+          (true
+             (setq var-h (mul h 6))
+             (if (= var-h 6) (setq var-h 0)) ; h deve essere minore di 1
+             (setq var-i (floor var-h))
+             (setq var-1 (mul v (sub 1 s)))
+             (setq var-2 (mul v (sub 1 (mul s (sub var-h var-i)))))
+             (setq var-3 (mul v (sub 1 (mul s (sub 1 (sub var-h var-i))))))
+             (cond ((= 0 var-i) (setq var-r v)     (setq var-g var-3) (setq var-b var-1))
+                   ((= 1 var-i) (setq var-r var-2) (setq var-g v)     (setq var-b var-1))
+                   ((= 2 var-i) (setq var-r var-1) (setq var-g v)     (setq var-b var-3))
+                   ((= 3 var-i) (setq var-r var-1) (setq var-g var-2) (setq var-b v))
+                   ((= 4 var-i) (setq var-r var-3) (setq var-g var-1) (setq var-b v))
+                   (true        (setq var-r v    ) (setq var-g var-1) (setq var-b var-2))
+             )
+             (setq r (mul var-r 255))
+             (setq g (mul var-g 255))
+             (setq b (mul var-b 255))
+          )
+    );end cond
+    (list r g b)))
+
+R, G e B range = 0 ÷ 255
+H, S e V range = 0 ÷ 1.0
+
+(define (complement r g b)
+  (local (h s v h2)
+    (setq hsv (rgb2hsv r g b))
+    (map set '(h s v) (rgb2hsv r g b))
+    ;(println h { } s { } v)
+    ; Hue (tinta) è normalizzato fra 0 e 1
+    ; per calcolare l'angolo opposto sommare o sottrarre mezzo giro (0.5).
+    (if (> h 0.5)
+        (setq h2 (sub h 0.5))
+        (setq h2 (add h 0.5))
+    )
+    (hsv2rgb h2 s v)))
+
+(complement 49 221 173)
+;-> (221 49 97.00000000000009)
+
+(apply complement '(49 221 173))
+;-> (221 49 97.00000000000009)
+
+(complement 221 49 97)
+;-> (49 221 173.0000000000001)
+
+(apply complement '(221 49 97))
+;-> (49 221 173.0000000000001)
+
+(setq colors (explode (rand 256 30) 3))
+;-> ((0 144 49) (207 149 122) (89 229 210) (191 44 219) (181 131 77) 
+;->  (3 23 93) (37 42 253) (114 30 1) (2 96 136) (146 154 155))
+
+(map (fn(x) (apply complement x)) colors)
+;-> ((144 0 95) (122 180 207) (229 89 108) (72 219 44) (77 127 181)
+;->  (93 73 3) (253 248 37) (1 85 114) (136 42 2) (155 147 146))
+
+Vedere il file "complementari.png" nella cartella "data".
+
 =============================================================================
 

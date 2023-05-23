@@ -1993,11 +1993,10 @@ Definiamo una funzione che converte i millisecondi in minuti e secondi:
 (ms2min 514886.082)
 ;-> 514886 millisec = 8 minuti e 34 secondi.
 
-Sequenza OEIS dei numeri di Fibonacci primi:
-
-2, 3, 5, 13, 89, 233, 1597, 28657, 514229, 433494437, 2971215073,
-99194853094755497, 1066340417491710595814572169,
-19134702400093278081449423917,
+Sequenza OEIS A005478 (numeri di Fibonacci primi):
+  2, 3, 5, 13, 89, 233, 1597, 28657, 514229, 433494437, 2971215073,
+  99194853094755497, 1066340417491710595814572169,
+  19134702400093278081449423917,
 
 Nota: MAXINT = 9223372036854775807 e MININT = -9223372036854775808
 
@@ -6622,9 +6621,9 @@ La distribuzione dai numeri da 1 a 12 non è uniforme. Questo è corretto ed è 
 Nota: nel 1933 una monografia del matematico russo A. Kolmogorov sviluppa un approccio assiomatico che costituisce la base per la moderna teoria della probabilità ("Foundations of Probability Theory", Chelsea, New York, 1950).
 
 
------------------
-Fibonacci(104911)
------------------
+------------------
+Fibonacci (104911)
+------------------
 
 Questo è il più grande numero noto di Fibonacci che è anche primo. Contieneo 21925 cifre ed è stato dimostrato primo da Mathew Steine e Bouk de Water nel 2015.
 

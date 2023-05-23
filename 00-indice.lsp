@@ -602,7 +602,7 @@ NOTE LIBERE 1
   Funzioni e contesti
   Buon 2020 (e 2021)
   Nascita della teoria della probabilità
-  Fibonacci(104911)
+  Fibonacci (104911)
   Conta e leggi
   Assegnazione parallela
   Generatore di numeri casuali
@@ -1826,6 +1826,7 @@ NOTE LIBERE 16
   Checksum alfabetico
   Anti-divisori di un numero
   Stringa con caratteri mascherati
+  Colori complementari
 
 PROBLEMI SUI DADI
 =================
