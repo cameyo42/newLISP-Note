@@ -1827,6 +1827,8 @@ NOTE LIBERE 16
   Anti-divisori di un numero
   Stringa con caratteri mascherati
   Colori complementari
+  Sequenza "Fly straight, dammit"
+  Valutazione di semplici espressioni matematiche (notazione infissa)
 
 PROBLEMI SUI DADI
 =================

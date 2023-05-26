@@ -4632,5 +4632,253 @@ H, S e V range = 0 ÷ 1.0
 
 Vedere il file "complementari.png" nella cartella "data".
 
+
+-------------------------------
+Sequenza "Fly straight, dammit"
+-------------------------------
+
+"Fly straight, dammit" (OEIS A133058) è una sequenza di numeri interi, che ha queste regole:
+
+  a0 = a1 = 1
+
+         | a(n-1) + n + 1, se gcd(a(n-1),n) = 1
+  a(n) = |
+         | a(n) = a(n-1)/gcd(a(n-1),n), se gcd(a(n-1),n) != 1
+
+Sequenza OEIS A133058:
+  1, 1, 4, 8, 2, 8, 4, 12, 3, 1, 12, 24, 2, 16, 8, 24, 3, 21, 7, 27, 48, 16,
+  8, 32, 4, 30, 15, 5, 34, 64, 32, 64, 2, 36, 18, 54, 3, 41, 80, 120, 3, 45,
+  15, 59, 104, 150, 75, 123, 41, 91, 142, 194, 97, 151, 206, 262, 131, 189, ...
+
+Dopo n=638, la sequenza genera quattro linee rette e si assesta diventando quasi periodica.
+
+"Whenever I look at this sequence I am reminded of the great "Fly straight, dammit" scene in the movie "Avatar"."
+N. J. A. Sloane
+
+Versione ricorsiva:
+
+(define (fly n)
+  (cond ((or (zero? n) (= n 1)) 1)
+        (true
+          (if (= (gcd (fly (- n 1)) n) 1)
+              (+ (fly (- n 1)) n 1)
+              (/ (fly (- n 1)) (gcd (fly (- n 1)) n))))))
+
+(time (println (map fly (sequence 1 22))))
+;-> (1 4 8 2 8 4 12 3 1 12 24 2 16 8 24 3 21 7 27 48 16 8)
+;-> 68087.971
+
+Versione iterativa:
+
+(define (fly2 n)
+  (local (prev mcd)
+    ; Valore precedente (a[n-1])
+    (setq prev 1)
+    (if (and (!= n 0) (!= n 1))
+        ; ciclo da 2 a n
+        (for (i 2 n)
+          ; GCD del valore precedente e i
+          (setq mcd (gcd prev i))
+          ; Se GCD = 1,
+          (if (= mcd 1) 
+            ; Incrementa il valore precedente di (i+1)
+            (setq prev (+ prev i 1))
+            ; altrimenti
+            ; Imposta il valore precedente a se stesso diviso GCD
+            (setq prev (/ prev mcd))
+          )
+        )
+    )
+    prev))
+
+(time (println (map fly2 (sequence 1 22))))
+;-> (1 4 8 2 8 4 12 3 1 12 24 2 16 8 24 3 21 7 27 48 16 8)
+;-> 1.994
+
+(map fly2 (sequence 638 700))
+;-> (1 641 1282 2 1 645 1290 2 1 649 1298 2 1 653 1306 2 1 657 1314 2 1 661 
+;->  1322 2 1 665 1330 2 1 669 1338 2 1 673 1346 2 1 677 1354 2 1 681 1362 
+;->  2 1 685 1370 2 1 689 1378 2 1 693 1386 2 1 697 1394 2 1 701 1402)
+
+
+-------------------------------------------------------------------
+Valutazione di semplici espressioni matematiche (notazione infissa)
+-------------------------------------------------------------------
+
+La notazione infissa è la comune notazione logica e matematica, nella quale gli operatori sono scritti tra gli operandi su cui agiscono (per es. 2 + 2).
+Nella notazione infissa le parentesi che circondano gruppi di operandi e operatori sono necessarie per indicare l'ordine desiderato delle operazioni. In assenza delle parentesi, entrano in causa delle regole di precedenza degli operatori per determinare l'ordine delle operazioni da applicare agli operandi.
+
+Per convertire una notazione infissa in una postfissa è possibile utilizzare l'algoritmo "Shunting Yard" di Edgar Dijkstra.
+
+Questo algoritmo prende come input un'espressione infissa e produce una coda che ha questa espressione convertita in notazione postfissa.
+Lo stesso algoritmo può essere modificato per calcolare il risultato della valutazione dell'espressione invece di produrre una coda.
+Per fare questo occorre usare due stack, uno per gli operandi e uno per gli operatori.
+
+L'algoritmo è il seguente:
+
+1. Affinchè ci sono ancora token da leggere,
+   1.1 Ottieni il token successivo.
+   1.2 Se il token è:
+       1.2.1 Un numero: inseriscilo nella pila dei valori.
+       1.2.2 Una variabile: ricavare il valore e inseriscilo nella pila dei valori.
+       1.2.3 Una parentesi aperta: inseriscila nella pila degli operatori.
+       1.2.4 Una parentesi chiusa:
+         a) Affinchè il token in cima alla pila degli operatori non è una parentesi aperta,
+            1 Pop l'operatore dalla pila degli operatori.
+            2 Pop la pila di valori due volte, ottenendo due operandi.
+            3 Applicare l'operatore agli operandi, nell'ordine corretto.
+            4 Push il risultato nella pila dei valori.
+         b) Estrarre la parentesi aperta dalla pila degli operatori e scartarla.
+       1.2.5 Un operatore (chiamalo thisOp):
+         a) Affinchè la pila degli operatori non è vuota, 
+            e il token in cima alla pila di operatori ha la stessa 
+            o maggiore precedenza di thisOp,
+            1 Pop l'operatore dalla pila degli operatori.
+            2 Pop la pila di valori due volte, ottenendo due operandi.
+            3 Applicare l'operatore agli operandi, nell'ordine corretto.
+            4 Push il risultato nella pila dei valori.
+         b) Push thisOp sullo pila degli operatori.
+2. Affinchè la pila degli operatori non è vuota,
+     1 Pop l'operatore dalla pila degli operatori.
+     2 Pop la pila di valori due volte, ottenendo due operandi.
+     3 Applicare l'operatore agli operandi, nell'ordine corretto.
+     4 Push il risultato nella pila dei valori.
+3. A questo punto la pila degli operatori dovrebbe essere vuota e la pila 
+   dei valori dovrebbe contenere un solo valore, che è il risultato finale.
+
+Per semplicità scriviamo una implementazione che ha le seguenti limitazioni:
+- l'espressione deve essere ben formata (nessun controllo di correttezza)
+- solo operazioni binarie (due operandi e un operatore)
+- solo numeri interi
+- solo le quattro operazioni +,-,*,/.
+- solo parentesi tonde
+- senza parentesi si applicano le comuni regole di precedenza
+  (* e / hanno priorità maggiore di + e -).
+
+Notare che i numeri negativi devono essere scritti come operazione binaria:
+  -2  --> (0 - 2)
+  -10 --> (0 - 10)
+
+Funzione per calcolare la precedenza degli operatori:
+
+(define (precedence op)
+  (cond ((or (= op "+") (= op "-")) 1)
+        ((or (= op "*") (= op "/")) 2)
+        (true 0)))
+
+Funzione che applica le operazioni aritmetiche:
+
+(define (apply-op a b op)
+  (cond ((= op "+") (+ a b))
+        ((= op "-") (- a b))
+        ((= op "*") (* a b))
+        ((= op "/") (/ a b))))
+
+Funzione che verifica se un carattere è una cifra:
+
+(define (digit? ch) (and (>= ch "0") (<= ch "9")))
+
+Funzione che implementa l'algoritmo Shunting yard (semplificato)::
+
+(define (evaluate expr)
+  (local (values ops i val val1 val2 op i)
+    ; pila dei valori (stack)
+    (setq values '())
+    ; pila delle operazioni (stack)
+    (setq ops '())
+    ; Rimuove gli spazi dall'espressione
+    (replace " " expr "")
+    ; indice
+    (setq i 0)
+    ; parsing dell'espressione
+    (while (< i (length expr))
+            ; token = "(", parentesi aperta
+      (cond ((= (expr i) "(")
+              ; inserisce "(" nelle operazioni
+              (push (expr i) ops))
+            ; token = cifra
+            ((digit? (expr i))
+              ; legge il numero e poi lo mette nei valori
+              (setq val 0)
+              (while (and (< i (length expr)) (digit? (expr i)))
+                (setq val (+ (* val 10) (int (expr i) 0 10)))
+                (++ i)
+              )
+              (push val values)
+              (-- i))
+            ; token = ")", parentesi chiusa
+            ((= (expr i) ")")
+              ; risolve l'espressione tra parentesi
+              (while (and (!= (length ops) 0) (!= (ops 0) "("))
+                (setq val2 (pop values))
+                (setq val1 (pop values))
+                (setq op (pop ops))
+                (push (apply-op val1 val2 op) values)
+              )
+              (pop ops)) ; rimuove "()"
+            ; token = operatore
+            (true
+              ; applica l'operatore ai primi due numeri dei valori
+              (while (and (!= (length ops) 0)
+                          (>= (precedence (ops 0)) (precedence (expr i))))
+                (setq val2 (pop values))
+                (setq val1 (pop values))
+                (setq op (pop ops))
+                (push (apply-op val1 val2 op) values)
+              )
+              ; inserisce operatore nelle operazioni
+              (push (expr i) ops)) ;opening brackets
+      )
+      (++ i)
+   )
+   ; il parsing dell'espressione è terminato
+   ; applichiamo le rimanenti operazioni
+   (while (!= (length ops) 0)
+     (setq val2 (pop values))
+     (setq val1 (pop values))
+     (setq op (pop ops))
+     (push (apply-op val1 val2 op) values)
+   )
+   ; risultato finale
+   (values 0)))
+
+Facciamo alcune prove:
+
+(evaluate "100 * ( 2 + 12 ) / (13+1)*1")
+;-> 100
+(evaluate "(3*2)+(4*1)*(4 * (0 - 2))")
+;-> -26
+(evaluate "3*2+4*1+4*2")
+;-> 18
+(evaluate "(2+3*2)")
+;-> 8
+(evaluate "(2+3*2")
+;-> nil
+
+Adesso scriviamo una funzione che crea una mini-repl che agisce come una calcolatrice per espressioni infisse:
+("quit" per uscire):
+
+(define (calc)
+  (let ((expr "") (run true))
+    (while run
+      (print ">> ")
+      (setq expr (read-line))
+      (cond ((= expr "quit") (setq run nil))
+            (true (catch (evaluate expr) 'out)
+                  (println "--> " out))))))
+
+Vediamo come funziona:
+
+(calc)
+;-> >>
+(2+3)
+;--> 5
+((4 + 2) * (2 + 1) - 7)
+;--> 11
+(0 - 25)*(0 - 31)
+;--> 775
+quit
+;-> nil
+
 =============================================================================
 
