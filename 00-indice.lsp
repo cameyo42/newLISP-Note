@@ -1829,6 +1829,8 @@ NOTE LIBERE 16
   Colori complementari
   Sequenza "Fly straight, dammit"
   Valutazione di semplici espressioni matematiche (notazione infissa)
+  Suggerimenti per la denominazione delle variabili
+  La funzione "atof" del C
 
 PROBLEMI SUI DADI
 =================

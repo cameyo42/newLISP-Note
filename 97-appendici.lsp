@@ -8,21 +8,21 @@
  The fifteen ideas characterizing LISP
 ============================================================================
 
-The fifteen ideas characterizing LISP: 
-1. Computing with symbolic expressions rather than numbers. 
-2. Representation of symbolic expressions and other information by list structure in computer memory. 
-3. Representation of information on paper, from keyboards and in other external media mostly by multi-level lists and sometimes by S-expressions. It has been important that any kind of data can be represented by a single general type. 
-4. A small set of selector and constructor operations expressed as func- tions, i.e. car, cdr and cons. 
-5. Composition of functions as a tool for forming more complex functions. 
-6. The use of conditional expressions for getting branching into function definitions. 
-7. The recursive use of conditional expressions as a sufficient tool for building computable functions. 
-8. The use of lambda-expressions for naming functions. 
-9. The storage of information on the property lists of atoms. 
-10. The representation of LISP programs as LISP data that can be manipulated by object programs. This has prevented the separation between system programmers and application programmers. Everyone can "improve" his LISP, and many of these "improvements" have developed into improvements to the language. 
-11. The conditional expression interpretation of Boolean connectives. 
-12. The LISP function eval that serves both as a formal definition of the language and as an interpreter. 
-13. Garbage collection as the means of erasure. 
-14. Minimal requirements for declarations so that LISP statements can be executed in an on-line environment without preliminaries. 
+The fifteen ideas characterizing LISP:
+1. Computing with symbolic expressions rather than numbers.
+2. Representation of symbolic expressions and other information by list structure in computer memory.
+3. Representation of information on paper, from keyboards and in other external media mostly by multi-level lists and sometimes by S-expressions. It has been important that any kind of data can be represented by a single general type.
+4. A small set of selector and constructor operations expressed as func- tions, i.e. car, cdr and cons.
+5. Composition of functions as a tool for forming more complex functions.
+6. The use of conditional expressions for getting branching into function definitions.
+7. The recursive use of conditional expressions as a sufficient tool for building computable functions.
+8. The use of lambda-expressions for naming functions.
+9. The storage of information on the property lists of atoms.
+10. The representation of LISP programs as LISP data that can be manipulated by object programs. This has prevented the separation between system programmers and application programmers. Everyone can "improve" his LISP, and many of these "improvements" have developed into improvements to the language.
+11. The conditional expression interpretation of Boolean connectives.
+12. The LISP function eval that serves both as a formal definition of the language and as an interpreter.
+13. Garbage collection as the means of erasure.
+14. Minimal requirements for declarations so that LISP statements can be executed in an on-line environment without preliminaries.
 15. LISP statements as a command language in an on-line environment.
 
 
@@ -3545,15 +3545,15 @@ Due ulteriori stringhe opzionali "str-header" e "str-footer" che controllano il 
 
 Nota: looks like old "print" function never dies.
 
-Nota: newLISP compiles source code to an internal lisp-cell-expression based binary format. There is no easy way to supply line numbers without inflating memory usage considerably (similar to 'debug' builds in 'C'). 
+Nota: newLISP compiles source code to an internal lisp-cell-expression based binary format. There is no easy way to supply line numbers without inflating memory usage considerably (similar to 'debug' builds in 'C').
 
 Un ottimo libro sul processo di debugging è "Why Programs Fail" di Andreas Zeller:
 
 Indice
  1) How Failures Come To Be
- Your program fails. How can this be? 
- The answer is that the programmer created a defect in the code. 
- When the code is executed, the defect causes an infection in the program state, which later becomes visible as a failure. 
+ Your program fails. How can this be?
+ The answer is that the programmer created a defect in the code.
+ When the code is executed, the defect causes an infection in the program state, which later becomes visible as a failure.
  To find the defect, one must reason backward, starting with the failure.
  2) Tracking Problems
  3) Making Programs Fail
@@ -6406,7 +6406,10 @@ Kelsey Hightower
 - Carl Sassenrath
 
 "In genere, scrivo un programma nel modo migliore per fare il suo debug."
-- cameyo
+- cameyo (ma non è una frase famosa)
+
+"There are only two hard things in Computer Science: cache invalidation and naming things."
+- Phil Karlton
 
 
 ============================================================================
@@ -6639,9 +6642,9 @@ Sort by name
 ;;
 ;; Country codes alpha-2 & alpha-3
 ;;
-;; This is a complete list of all (249) country ISO codes 
+;; This is a complete list of all (249) country ISO codes
 ;; as described in the ISO 3166 international standard.
-;; These codes are used throughout the IT industry 
+;; These codes are used throughout the IT industry
 ;; to ease the identification of country names.
 ;;
 ;; Format: (country alpha-2 alpha-3 numeric)

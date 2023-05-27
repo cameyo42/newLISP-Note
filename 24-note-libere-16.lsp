@@ -4880,5 +4880,333 @@ Vediamo come funziona:
 quit
 ;-> nil
 
+
+-------------------------------------------------
+Suggerimenti per la denominazione delle variabili
+-------------------------------------------------
+
+Una citazione famosa afferma che ci sono solo due cose difficili nell'informatica: 
+l'invalidazione della cache e la denominazione delle cose (variabili, funzioni, oggetti, classi,...)
+
+Lasciamo stare l'invalidazione della cache e vediamo alcuni suggerimenti per migliorare il modo con cui si nominano le variabili di un programma.
+Nota: per "variabile" intendiamo anche le funzioni, gli oggetti, le classe, ecc. a meno che non sia specificato diversamente.
+
+Cosa fa il codice seguente?
+
+(define (solve)
+  (local (a b c)
+    (setq a 0)
+    (setq b 1)
+    (for (i 2 50)
+      (setq c (add (div (mul 2 a) i) 1))
+      (setq a b)
+      (setq b (add b c))
+      (setq out (sub 1 (div (add c 1) (add i 3))))
+      ;(println out)
+    )
+    (println (format "%16.14f" out))))
+
+Non lo so.
+
+Nota: passiamo più tempo a leggere i programmi che a scriverli.
+
+Vediamo alcune regole e suggerimenti (poi ognuno fa come vuole):
+
+1) Evitare di nominare una variabile con una singola lettera
+
+  y = m*x + c
+
+Questo deriva dal fatto che una espressione informatica è spesso molto simile ad una espressione matematica.
+Comunque noi dobbiamo modificare i nostri programmi e non le formule matematiche.
+Una variabile con una singola lettera non trasmette alcuna informazione.
+
+Eccezione: per variabili che vivono solo all'interno di una singola espressione.
+(Per esempio quando usiamo una funzione lambda anonima).
+Eccezione: "i" è universalmente usato come indice...
+
+2) Non abbreviare troppo i nomi
+
+  Sbagliato               Corretto
+  dw = 10                 dog-weight = 10
+  cw = 5                  cat-weight = 5
+  mw = 70                 man-weight = 70
+  tw = dw + cw + mw       total-weight = dog-weight + cat-weight + man-weight
+
+3) Non allungare troppo i nomi
+
+  Sbagliato               Corretto
+  the-dog-weight          dog-weight 
+
+4) Non utilizzare la prima lettera per indicare il tipo della variabile:
+(notazione Ungherese)
+
+  Sbagliato               Corretto
+  iValue                  Value
+  sName                   Name
+
+In newLISP (che non è un linguaggio tipizzato) una variabile può cambiare tipo in ogni momento.  
+
+5) Non utilizzare il tipo nel nome della variabile
+
+  Sbagliato               Corretto
+  Value-Int               Value
+  Name-String             Name
+
+Eccezione: esistono due variabili che hanno lo stesso valore, ma tipo diverso.
+Per esempio, 
+   value-string = "123"
+   value-int = int(value-string) = 123
+
+6) Utilizzare anche l'unità di misura nel nome della variabile
+    
+    Sbagliato             Corretto
+    execute(delay)        execute(delay-seconds)
+
+Vediamo alcuni pensieri presi in giro per il web su questo argomento:
+
+A good variable name should:
+1) Be clear and concise.
+2) Be written in English.
+3) Not contain special characters. (only the standard printable ASCII character)
+3) Not conflict with keywords of programming language
+
+Formatting variable names
+1) Separate lover case words with "_" or "-" (temp_celsius or temp-celsius).
+2) Use CamelCase or camelCase method to capitalize the first letter of words in a variable name to make it easier to read (TempCelsius or tempCelsius).
+We can use either option, as long as we are consistent in the use.
+
+"Abbreviations rely on context you may or may not have."
+
+The more imposing the variable name is the bigger the scope. Since letter variables are for a few lines of code in the middle of a function. Large screaming snake case constants are constants that span 1 or more files.
+
+Just for very simple variables which have no meaning other than iterative variables like “int i”, or “char c” for one line variables. 
+Or, like lambda function parameters (k, v) for map’s. 
+Though I do see value in naming row / col instead of r / c.
+
+Single letter variables do tell you something about the variable. They say "I'm not important", "my scope is as small as I am", "I'm fleeting" and "I'll be gone in 2 lines".
+
+Verbs in function names are vital.
+
+The "if you're having trouble naming something, it probably means something needs to be restructured" rule of thumb is honestly my biggest takeaway from this.
+
+Nota: qualunque stile adottiamo l'obiettivo è quello di facilitare (a noi stessi e agli altri) la lettura e la comprensione del programma.
+
+
+------------------------
+La funzione "atof" del C
+------------------------
+
+La funzione "atof" fa parte della libreria standard del linguaggio C e converte una stringa in un numero floating point.
+
+Dal manuale del C dell'IBM:
+
+atof() — Convert Character String to Float
+
+Format
+------
+#include <stdlib.h>
+double atof(const char *string);
+
+Description
+-----------
+The atof() function converts a character string to a double-precision floating-point value.
+
+The input string is a sequence of characters that can be interpreted as a numeric value of the specified return type.
+The function stops reading the input string at the first character that it cannot recognize as part of a number.
+This character can be the null character that ends the string.
+
+The atof() function expects a string in the following form:
+
+ [spaces][+|-][digits][.][digits][e|E][+|-][digits]
+
+The white space consists of the same characters for which the isspace() function is true, such as spaces and tabs. The atof() function ignores leading white-space characters.
+
+For the atof() function, digits is one or more decimal digits.
+If no digits appear before the decimal point, at least one digit must appear after the decimal point.
+The decimal digits can precede an exponent, introduced by the letter e or E. The exponent is a decimal integer, which might be signed.
+
+The atof() function will not fail if a character other than a digit follows an E or if e is read in as an exponent.
+For example, 100elf will be converted to the floating-point value 100.0.
+The accuracy is up to 17 significant character digits.
+
+Return Value
+------------
+The atof() function returns a double value that is produced by interpreting the input characters as a number. The return value is 0 if the function cannot convert the input to a value of that type.
+
+La funzione di newLISP equivalente ad "atof" è "float".
+Comunque, per esercizio, scriviamo la funzione "atof" in newLISP.
+
+(define (digit? ch) (and (>= ch "0") (<= ch "9")))
+
+(define (atof str)
+  (local (val ex ch idx magn sign ee)
+    (setq val 0.0)
+    (setq ex 0)
+    (setq ch 0)
+    (setq idx 0)
+    (setq magn 1)
+    ; elimina gli spazi all'inizio della stringa
+    (setq str (trim str " " ""))
+    ; numero positivo o negativo?
+    (cond ((= (str idx) "+") (++ idx))
+          ((= (str idx) "-") (++ idx) (setq magn -1))
+    )
+    ; legge la parte intera (se esiste)
+    (while (and (< idx (length str)) (digit? (setq ch (str idx))))
+      (setq val (add (mul val 10.0) (- (char ch) 48)))
+      (++ idx)
+    )
+    ; legge la parte decimale (se esiste)
+    (if (and (< idx (length str)) (= (setq ch (str idx)) "."))
+      (begin
+        (++ idx)
+        (while (and (< idx (length str)) (digit? (setq ch (str idx))))
+          (setq val (add (mul val 10.0) (- (char ch) 48)))
+          (++ idx)
+          (-- ex)
+        )))
+    ; legge la parte esponenziale (se esiste)
+    (if (and (< idx (length str)) (or (= (str idx) "E") (= (str idx) "e")))
+      (begin
+        (++ idx)
+        (setq ch (str idx))
+        (setq sign 1)
+        (setq ee 0)
+        (cond ((= ch "+") (++ idx))
+              ((= ch "-") (++ idx) (setq sign -1))
+        )
+        (while (and (< idx (length str)) (digit? (setq ch (str idx))))
+          (setq ee (add (mul ee 10) (- (char ch) 48)))
+          (++ idx)
+        )
+        (setq ex (add ex (mul ee sign)))))
+    ; aggiorna il risultato in base al valore dell'esponente
+    (while (> ex 0)
+      (setq val (mul val 10))
+      (-- ex)
+    )
+    (while (< ex 0)
+      (setq val (mul val 0.1))
+      (++ ex)
+    )
+    ; assegnazione del segno (positivo o negativo)
+    (mul val magn)))
+
+Facciamo alcune prove:
+
+(atof "1234.134")
+;-> 1234.134
+(atof " 1234.134")
+;-> 1234.134
+(atof " 1234.13 4")
+;-> 1234.13
+(atof "")
+;-> 0
+(atof "0.134")
+;-> 0.134
+(atof ".134")
+;-> 0.134
+(atof "a2")
+;-> 0
+(atof "2.3a2")
+;-> 2.3
+(atof "2.0130")
+;-> 2.013
+(atof "2.01b30")
+;-> 2.01
+(atof "2.0130a")
+;-> 2.013
+(atof " 2e3")
+;-> 2000
+(atof "2e+3")
+;-> 2000
+(atof "2e-3")
+;-> 0.002000000000000001
+(atof "e2e-3")
+;-> 0
+(atof ".1e2")
+;-> 10
+(atof "-2e3 ")
+;-> -2000
+(atof " 100elf ")
+;-> 100
+(atof "-2309.12E-15")
+;-> -2.309120000000002e-012
+
+Vediamo le differenze con "float":
+
+(float "1234.134")
+;-> 1234.134
+(float " 1234.134")
+;-> 1234.134
+(float " 1234.13 4")
+;-> 1234.13
+(float "")
+;-> nil
+(float "0.134")
+;-> 0.134
+(float ".134")
+;-> 0.134
+(float "a2")
+;-> nil
+(float "2.3a2")
+;-> 2.3
+(float "2.0130")
+;-> 2.013
+(float "2.01b30")
+;-> 2.01
+(float "2.0130a")
+;-> 2.013
+(float " 2e3")
+;-> 2000
+(float "2e+3")
+;-> 2000
+(float "2e-3")
+;-> 0.002
+(float "e2e-3")
+;-> nil
+(float ".1e2")
+;-> 10
+(float "-2e3 ")
+;-> -2000
+(float " 100elf ")
+;-> 100
+(float "-2309.12E-15")
+;-> -2.30912e-012
+
+Nota: alcuni numeri in formato stringa non possonop essere convertiti esattamente (con le stesse cifre decimali) perchè i numeri floating-point non possono rappresentare tutti i numeri reali.
+
+(setq nums (map string (random 1 100 10)))
+;-> ("1.125125888851589" "57.35853144932401" "20.33042390209662" 
+;->   "81.87405011139256" "59.50093081453902" "48.98730430005799" 
+;->   "36.02914517654958" "90.59624011963255" "83.28400524918364" 
+;->   "75.66048158207953")
+
+(map atof nums)
+;-> (1.12512588885159 57.35853144932406 20.33042390209664 81.87405011139263 
+;->  59.50093081453906 48.98730430005803 36.02914517654961 90.59624011963263 
+;->  83.28400524918371 75.6604815820796)
+
+(map float nums)
+;-> (1.125125888851589 57.35853144932401 20.33042390209662 81.87405011139256 
+;->  59.50093081453902 48.98730430005799 36.02914517654958 90.59624011963255 
+;->  83.28400524918364 75.66048158207953)
+
+La funzione "float" è più precisa di "atof":
+
+(= (map atof nums) (map float nums))
+;-> nil
+
+(= nums (map string (map float nums)))
+;-> true
+
+(= nums (map string (map atof nums)))
+;-> nil
+
+Ma anche "float" ha i suoi limiti:
+
+(float "1.12345678901234567890")
+;-> 1.123456789012346
+
 =============================================================================
 
