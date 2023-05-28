@@ -15,6 +15,7 @@
 
   Forum ufficiale di newLISP
   http://www.newLISPfanclub.alh.net/forum/
+  https://newlispfanclub.com/ (2023)
 
   Johu's Blog
   https://johu02.wordpress.com/
@@ -25,6 +26,10 @@
   Kazimir Majorinc's Blog
   http://kazimirmajorinc.com/
 
+  cameyo github:
+  https://github.com/cameyo42/newLISP-Note
+
+  Libro sulla Fuzzy Logic (in newLISP):
   "A Practical Introduction to Fuzzy Logic using Lisp", Luis Arguelles Mendez, 2015
 
   Informazioni sui numeri Floating Point:
@@ -44,7 +49,11 @@
 
   "Advanced Recursion in newLISP" di Krzysztof Kliś
   https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html
-  
+
+  "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
+  http://www.nhplace.com/kent/Papers/Special-Forms.html
+
+  Libri:
   "The Littler Schemer", Friedman-Felleiser, 4ed, 1996
 
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968..2015
@@ -64,20 +73,21 @@
   "Numerical Recipes in Pascal: The Art of Scientific Computing", 2ed, Press-Teukolsky-Vetterling-Flannery, 1991
 
   "Il Libro dei Numeri", Conway-Guy, 1999
-  
+
   "How to Solve It", George Polya, Princeton University Press, 1945
-  
+
   "Winning Ways for Your Mathematical Plays: Volume 1", Berlekamp-Conway-Guy, 2001
   "Winning Ways for Your Mathematical Plays: Volume 2", Berlekamp-Conway-Guy, 2003
   "Winning Ways for Your Mathematical Plays: Volume 3", Berlekamp-Conway-Guy, 2003
   "Winning Ways for Your Mathematical Plays: Volume 4", Berlekamp-Conway-Guy, 2004
-  
+
+  "Math with Bad Drawings", Ben Orlin, 2018
+  "Math Games with Bad Drawings", Ben Orlin, 2022
+
   "Duelling Idiots and Other Probability Puzzlers", Paul Nahin, 2000
   "Digital Dice Computational Solutions to Practical Probability Problems", Paul Nahin, 2008
 
-  "Special Forms in Lisp" Kent Pitman, Conference Record of the 1980 Lisp Conference, Stanford University, August 25-27, 1980
-  http://www.nhplace.com/kent/Papers/Special-Forms.html
-
+  Siti web:
   Cut-the-knot è un sito web dedicato alla divulgazione di una grande varietà di argomenti matematici amministrato da Alexander Bogomolny fino alla sua scomparsa l'8 luglio 2018
   https://www.cut-the-knot.org/
 
@@ -98,10 +108,10 @@
 
   Mathematics Stack Exchange è un sito di domande e risposte per persone che studiano matematica a qualsiasi livello.
   https://math.stackexchange.com/
-  
+
   Code Golf Stack Exchange is a question and answer site for programming puzzle enthusiasts and code golfers.
   https://codegolf.stackexchange.com/
-  
+
   Enciclopedia libera:
   https://www.wikipedia.org/
 
@@ -113,10 +123,10 @@
 
   GeeksforGeeks - Un portale di computer science per "geeks"
   https://www.geeksforgeeks.org/
-  
+
   Techie Delight è una piattaforma leader per la preparazione di colloqui tecnici
   https://www.techiedelight.com/
-    
+
   Opengenus - Comunità scientifica focalizzata sulla ricerca informatica
   https://iq.opengenus.org/
 

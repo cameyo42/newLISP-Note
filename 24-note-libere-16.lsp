@@ -4129,10 +4129,10 @@ Versione Ungolfed:
 Operatore di confronto a tre vie "<=>" sui numeri
 -------------------------------------------------
 
-Scrivere una funzione che, quando vengono dati due numeri dello stesso tipo a e b, faccia quanto segue: 
+Scrivere una funzione che, quando vengono dati due numeri dello stesso tipo a e b, faccia quanto segue:
 
-  se a < b, restituisce -1. 
-  se a = b, restituisce 0. 
+  se a < b, restituisce -1.
+  se a = b, restituisce 0.
   se a > b, restituisce 1.
 
 (define (<=> a b) (cond ((< a b) -1) ((= a b) 0) ((> a b) 1)))
@@ -4186,8 +4186,8 @@ Nota: potrebbe esistere più di una configurazione possibile per un quadrato lat
 ;-> ((1 2 3 4 5) (5 1 2 3 4) (4 5 1 2 3) (3 4 5 1 2) (2 3 4 5 1))
 
 (latin 12)
-;-> ((1 2 3 4 5 6 7 8 9 10 11 12) 
-;->  (12 1 2 3 4 5 6 7 8 9 10 11) 
+;-> ((1 2 3 4 5 6 7 8 9 10 11 12)
+;->  (12 1 2 3 4 5 6 7 8 9 10 11)
 ;->  (11 12 1 2 3 4 5 6 7 8 9 10)
 ;->  (10 11 12 1 2 3 4 5 6 7 8 9)
 ;->  (9 10 11 12 1 2 3 4 5 6 7 8)
@@ -4206,7 +4206,7 @@ Numeri sublimi
 
 Un numero perfetto è un numero intero positivo la cui somma dei divisori (eccetto se stesso) è uguale a se stesso. Per esempio. 6 (1 + 2 + 3 = 6) e 28 (1 + 2 + 4 + 7 + 14 = 28) sono perfetti.
 
-Un numero sublime è un numero intero positivo il cui conteggio e somma dei divisori (incluso se stesso) sono entrambi perfetti. 
+Un numero sublime è un numero intero positivo il cui conteggio e somma dei divisori (incluso se stesso) sono entrambi perfetti.
 Per esempio. 12 è un numero sublime perché:
 
   i divisori di 12 sono 1, 2, 3, 4, 6, 12
@@ -4225,7 +4225,7 @@ Sequenza OEIS A081357:
 Scomponiamo il numero in fattori  primi:
 
 (time (println (setq f (factor-i 6086555670238378989670371734243169622657830773351885970528324860512791691264))))
-;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 
+;-> (2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
 ;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
 ;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
 ;->  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
@@ -4233,7 +4233,7 @@ Scomponiamo il numero in fattori  primi:
 ;->  2L 2L 2L 2L 2L 2L 7L 31L 127L 524287L 2147483647L 2305843009213693951L)
 ;->  253865.791 ; 4m 13s 865ms
 
-(setq f '(2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 
+(setq f '(2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
  2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L 2L
@@ -4252,7 +4252,7 @@ Raggruppa i fattori (RLE):
     (transpose (list unici (count unici lst)))))
 
 (raggruppa-fattori f)
-;-> ((2L 126) (7L 1) (31L 1) (127L 1) (524287L 1) 
+;-> ((2L 126) (7L 1) (31L 1) (127L 1) (524287L 1)
 ;->  (2147483647L 1) (2305843009213693951L 1))
 
 Conta i divisori:
@@ -4315,7 +4315,7 @@ Sommiamo i divisori:
 (dolist (el (divisors f)) (setq sum (+ sum el)))
 ;-> 14474011154664524427946373126085988481573677491474835889066354349131199152128L
 
-I numeri 8128 e 14474011154664524427946373126085988481573677491474835889066354349131199152128 sono perfetti. 
+I numeri 8128 e 14474011154664524427946373126085988481573677491474835889066354349131199152128 sono perfetti.
 
 
 -------------------
@@ -4325,7 +4325,7 @@ Checksum alfabetico
 Data una stringa di lettere minuscole, calcolare il "checksum alfabetico" di quella stringa.
 
 Esempio:
-Prendiamo la stringa "helloworld". 
+Prendiamo la stringa "helloworld".
 Con a = 0, b = 1, c = 2 ... z = 25, possiamo sostituire tutte le lettere con numeri:
 
   h  e  l  l  o  w  o  r  l  d
@@ -4339,7 +4339,7 @@ Se applichiamo il modulo 26, otteniamo:
 
   114 % 26 = 10
 
-Ora, utilizzando lo stesso sistema di numerazione di prima, otteniamo la decima lettera, k. 
+Ora, utilizzando lo stesso sistema di numerazione di prima, otteniamo la decima lettera, k.
 Questo è il checksum alfabetico di "helloworld".
 
 Vediamo alcuni esempi:
@@ -4392,7 +4392,7 @@ Adesso scriviamo una funzione di checksum alfabetico che utilizza tutti i caratt
 
 (for (i 32 126) (print (char i) { }))
 ;->   ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @
-;-> A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` 
+;-> A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ `
 ;-> a b c d e f g h i j k l m n o p q r s t u v w x y z { | } ~
 
 In tutto sono (126 - 32 + 1) = 95 caratteri
@@ -4412,7 +4412,7 @@ In tutto sono (126 - 32 + 1) = 95 caratteri
 Anti-divisori di un numero
 --------------------------
 
-Gli anti-divisori sono i numeri che non dividono un numero per il margine più ampio possibile. 
+Gli anti-divisori sono i numeri che non dividono un numero per il margine più ampio possibile.
 Per esempio, 20 ha anti-divisori 3, 8 e 13.
 
 Definizione:
@@ -4424,7 +4424,7 @@ Quindi un antidivisore di n è un intero d in [2,n-1] tale che n == (d-1)/2, d/2
 Equivalentemente, k è un anti-divisore di n se e solo se 1 < k < n e | (n mod k) - k/2 | < 1.
 
 Sequenza OEIS A006272: Numero di anti-divisori di n (n > 0)
-  0, 0, 1, 1, 2, 1, 3, 2, 2, 3, 3, 2, 4, 3, 3, 2, 5, 4, 3, 3, 3, 5, 5, 
+  0, 0, 1, 1, 2, 1, 3, 2, 2, 3, 3, 2, 4, 3, 3, 2, 5, 4, 3, 3, 3, 5, 5,
   2, 5, 3, 5, 5, 3, 3, 5, 6, 5, 3, 5, 2, 5, 7, 5, 4, 4, 5, 5, 3, 7, 5,
   5, 3, 6, 6, 3, 7, 7, 3, 5, 3, 5, 7, 7, 6, 4, 5, 7, 2, 5, 5, 9, 7, 3, ...
 
@@ -4512,10 +4512,10 @@ Facciamo un paio di prove:
 (setq s2 "AEIOUSP")
 
 (unmask s1 s2)
-;-> ("lAsA" "lEsA" "lIsA" "lOsA" "lUsA" "lSsA" "lPsA" "lAsE" "lEsE" "lIsE" 
-;->  "lOsE" "lUsE" "lSsE" "lPsE" "lAsI" "lEsI" "lIsI" "lOsI" "lUsI" "lSsI" 
-;->  "lPsI" "lAsO" "lEsO" "lIsO" "lOsO" "lUsO" "lSsO" "lPsO" "lAsU" "lEsU" 
-;->  "lIsU" "lOsU" "lUsU" "lSsU" "lPsU" "lAsS" "lEsS" "lIsS" "lOsS" "lUsS" 
+;-> ("lAsA" "lEsA" "lIsA" "lOsA" "lUsA" "lSsA" "lPsA" "lAsE" "lEsE" "lIsE"
+;->  "lOsE" "lUsE" "lSsE" "lPsE" "lAsI" "lEsI" "lIsI" "lOsI" "lUsI" "lSsI"
+;->  "lPsI" "lAsO" "lEsO" "lIsO" "lOsO" "lUsO" "lSsO" "lPsO" "lAsU" "lEsU"
+;->  "lIsU" "lOsU" "lUsU" "lSsU" "lPsU" "lAsS" "lEsS" "lIsS" "lOsS" "lUsS"
 ;->  "lSsS" "lPsS" "lAsP" "lEsP" "lIsP" "lOsP" "lUsP" "lSsP" "lPsP")
 
 (setq s1 "n-wl-sp")
@@ -4538,8 +4538,8 @@ Quindi esistono colori primari additivi (rosso, verde e blu) e colori primari so
 In genere il metodo sottrattivo viene usato in pittura, mentre il metodo additivo viene usato dai computer.
 
 Vediamo un semplice algoritmo per calcolare il colore complementare di un dato colore RGB (R,G,B):
-1) trasformare il colore dato nello spazio HSV, 
-2) sommare a Hue (Tinta) un angolo piatto (180 gradi) 
+1) trasformare il colore dato nello spazio HSV,
+2) sommare a Hue (Tinta) un angolo piatto (180 gradi)
 3) ritrasformare questo colore HSV nello spazio RGB.
 
 Funzioni RGB <--> HSV:
@@ -4623,7 +4623,7 @@ H, S e V range = 0 ÷ 1.0
 ;-> (49 221 173.0000000000001)
 
 (setq colors (explode (rand 256 30) 3))
-;-> ((0 144 49) (207 149 122) (89 229 210) (191 44 219) (181 131 77) 
+;-> ((0 144 49) (207 149 122) (89 229 210) (191 44 219) (181 131 77)
 ;->  (3 23 93) (37 42 253) (114 30 1) (2 96 136) (146 154 155))
 
 (map (fn(x) (apply complement x)) colors)
@@ -4680,7 +4680,7 @@ Versione iterativa:
           ; GCD del valore precedente e i
           (setq mcd (gcd prev i))
           ; Se GCD = 1,
-          (if (= mcd 1) 
+          (if (= mcd 1)
             ; Incrementa il valore precedente di (i+1)
             (setq prev (+ prev i 1))
             ; altrimenti
@@ -4696,8 +4696,8 @@ Versione iterativa:
 ;-> 1.994
 
 (map fly2 (sequence 638 700))
-;-> (1 641 1282 2 1 645 1290 2 1 649 1298 2 1 653 1306 2 1 657 1314 2 1 661 
-;->  1322 2 1 665 1330 2 1 669 1338 2 1 673 1346 2 1 677 1354 2 1 681 1362 
+;-> (1 641 1282 2 1 645 1290 2 1 649 1298 2 1 653 1306 2 1 657 1314 2 1 661
+;->  1322 2 1 665 1330 2 1 669 1338 2 1 673 1346 2 1 677 1354 2 1 681 1362
 ;->  2 1 685 1370 2 1 689 1378 2 1 693 1386 2 1 697 1394 2 1 701 1402)
 
 
@@ -4730,8 +4730,8 @@ L'algoritmo è il seguente:
             4 Push il risultato nella pila dei valori.
          b) Estrarre la parentesi aperta dalla pila degli operatori e scartarla.
        1.2.5 Un operatore (chiamalo thisOp):
-         a) Affinchè la pila degli operatori non è vuota, 
-            e il token in cima alla pila di operatori ha la stessa 
+         a) Affinchè la pila degli operatori non è vuota,
+            e il token in cima alla pila di operatori ha la stessa
             o maggiore precedenza di thisOp,
             1 Pop l'operatore dalla pila degli operatori.
             2 Pop la pila di valori due volte, ottenendo due operandi.
@@ -4743,7 +4743,7 @@ L'algoritmo è il seguente:
      2 Pop la pila di valori due volte, ottenendo due operandi.
      3 Applicare l'operatore agli operandi, nell'ordine corretto.
      4 Push il risultato nella pila dei valori.
-3. A questo punto la pila degli operatori dovrebbe essere vuota e la pila 
+3. A questo punto la pila degli operatori dovrebbe essere vuota e la pila
    dei valori dovrebbe contenere un solo valore, che è il risultato finale.
 
 Per semplicità scriviamo una implementazione che ha le seguenti limitazioni:
@@ -4885,7 +4885,7 @@ quit
 Suggerimenti per la denominazione delle variabili
 -------------------------------------------------
 
-Una citazione famosa afferma che ci sono solo due cose difficili nell'informatica: 
+Una citazione famosa afferma che ci sono solo due cose difficili nell'informatica:
 l'invalidazione della cache e la denominazione delle cose (variabili, funzioni, oggetti, classi,...)
 
 Lasciamo stare l'invalidazione della cache e vediamo alcuni suggerimenti per migliorare il modo con cui si nominano le variabili di un programma.
@@ -4935,7 +4935,7 @@ Eccezione: "i" è universalmente usato come indice...
 3) Non allungare troppo i nomi
 
   Sbagliato               Corretto
-  the-dog-weight          dog-weight 
+  the-dog-weight          dog-weight
 
 4) Non utilizzare la prima lettera per indicare il tipo della variabile:
 (notazione Ungherese)
@@ -4944,7 +4944,7 @@ Eccezione: "i" è universalmente usato come indice...
   iValue                  Value
   sName                   Name
 
-In newLISP (che non è un linguaggio tipizzato) una variabile può cambiare tipo in ogni momento.  
+In newLISP (che non è un linguaggio tipizzato) una variabile può cambiare tipo in ogni momento.
 
 5) Non utilizzare il tipo nel nome della variabile
 
@@ -4953,12 +4953,12 @@ In newLISP (che non è un linguaggio tipizzato) una variabile può cambiare tipo
   Name-String             Name
 
 Eccezione: esistono due variabili che hanno lo stesso valore, ma tipo diverso.
-Per esempio, 
+Per esempio,
    value-string = "123"
    value-int = int(value-string) = 123
 
 6) Utilizzare anche l'unità di misura nel nome della variabile
-    
+
     Sbagliato             Corretto
     execute(delay)        execute(delay-seconds)
 
@@ -4979,8 +4979,8 @@ We can use either option, as long as we are consistent in the use.
 
 The more imposing the variable name is the bigger the scope. Since letter variables are for a few lines of code in the middle of a function. Large screaming snake case constants are constants that span 1 or more files.
 
-Just for very simple variables which have no meaning other than iterative variables like “int i”, or “char c” for one line variables. 
-Or, like lambda function parameters (k, v) for map’s. 
+Just for very simple variables which have no meaning other than iterative variables like “int i”, or “char c” for one line variables.
+Or, like lambda function parameters (k, v) for map’s.
 Though I do see value in naming row / col instead of r / c.
 
 Single letter variables do tell you something about the variable. They say "I'm not important", "my scope is as small as I am", "I'm fleeting" and "I'll be gone in 2 lines".
@@ -4988,6 +4988,61 @@ Single letter variables do tell you something about the variable. They say "I'm 
 Verbs in function names are vital.
 
 The "if you're having trouble naming something, it probably means something needs to be restructured" rule of thumb is honestly my biggest takeaway from this.
+
+Clear variable names
+--------------------
+1) A variable name should describe the entity the variable represents.
+2) When writing your code, prioritize ease of reading over speed of writing.
+3) Use consistent standards throughout a project to minimize the cognitive burden of small decisions.
+
+Things to avoid
+---------------
+1) Unhelpful, confusing or vague variable names
+2) Unnamed magic constant numbers
+
+Basic ideas when naming variables
+---------------------------------
+1) The variable name must describe the information represented by the variable.
+A variable name should tell you concisely in words what the variable stands for.
+2) Your code will be read more times than it is written.
+Prioritize how easy your code is to read over than how quick it is to write.
+3) Adopt standard conventions for naming so you can make one global decision in a codebase instead of multiple local decisions.
+
+Problems with naming variables
+------------------------------
+1) A desire to keep variable names short
+2) A direct translation of formulas into code
+
+We write code to solve real-world problems, and we need to understand the problem our model represents.
+While a computer will ultimately run your code, it’ll be read by humans, so write code intended for humans!
+
+Variable names — dos and dont’s
+-------------------------------
+a) Use descriptive variable names
+b) Use function parameters or named constants instead of magic numbers.
+c) Describe what an equation or model represents with variable names.
+d) Put aggregations at the end of variable names.
+e) Use item_count instead of num.
+f) Use descriptive loop indexes instead of i, j, k.
+g) Adopt conventions for naming and formatting across a project.
+h) Don’t use machine-learning specific abbreviations.
+
+Variable names — conventions to avoid
+-------------------------------------
+a) Numerals in variable names
+b) Commonly misspelled words in English
+c) Names with ambiguous characters
+d) Names with similar meanings
+e) Abbreviations in names
+f) Names that sound similar to one another
+g) Never use magic numbers
+
+How to abbreviate names
+-----------------------
+a) Decide on common abbreviations: avg for average, max for maximum, std for standard deviation and so on.
+Make sure all team members agree and write these down. (An alternative is to avoid abbreviating aggregations.)
+b) Put the abbreviation at the end of the name.
+This puts the most relevant information, the entity described by the variable, at the beginning.
 
 Nota: qualunque stile adottiamo l'obiettivo è quello di facilitare (a noi stessi e agli altri) la lettura e la comprensione del programma.
 
@@ -5177,19 +5232,19 @@ Vediamo le differenze con "float":
 Nota: alcuni numeri in formato stringa non possonop essere convertiti esattamente (con le stesse cifre decimali) perchè i numeri floating-point non possono rappresentare tutti i numeri reali.
 
 (setq nums (map string (random 1 100 10)))
-;-> ("1.125125888851589" "57.35853144932401" "20.33042390209662" 
-;->   "81.87405011139256" "59.50093081453902" "48.98730430005799" 
-;->   "36.02914517654958" "90.59624011963255" "83.28400524918364" 
+;-> ("1.125125888851589" "57.35853144932401" "20.33042390209662"
+;->   "81.87405011139256" "59.50093081453902" "48.98730430005799"
+;->   "36.02914517654958" "90.59624011963255" "83.28400524918364"
 ;->   "75.66048158207953")
 
 (map atof nums)
-;-> (1.12512588885159 57.35853144932406 20.33042390209664 81.87405011139263 
-;->  59.50093081453906 48.98730430005803 36.02914517654961 90.59624011963263 
+;-> (1.12512588885159 57.35853144932406 20.33042390209664 81.87405011139263
+;->  59.50093081453906 48.98730430005803 36.02914517654961 90.59624011963263
 ;->  83.28400524918371 75.6604815820796)
 
 (map float nums)
-;-> (1.125125888851589 57.35853144932401 20.33042390209662 81.87405011139256 
-;->  59.50093081453902 48.98730430005799 36.02914517654958 90.59624011963255 
+;-> (1.125125888851589 57.35853144932401 20.33042390209662 81.87405011139256
+;->  59.50093081453902 48.98730430005799 36.02914517654958 90.59624011963255
 ;->  83.28400524918364 75.66048158207953)
 
 La funzione "float" è più precisa di "atof":
@@ -5207,6 +5262,125 @@ Ma anche "float" ha i suoi limiti:
 
 (float "1.12345678901234567890")
 ;-> 1.123456789012346
+
+
+-------------------------
+Potenze di 2 in un intero
+-------------------------
+
+Estrarre la potenza di due da un numero intero minimizzando la lunghezza della soluzione.
+Esempi:
+   88 = 2 * 2 * 2 * 11                 --> 2 * 2 * 2 = 8
+  316 = 2 * 2 * 79                     --> 2 * 2 = 4
+  384 = 2 * 2 * 2 * 2 * 2 * 2 * 2 * 3  --> 2 * 2 * 2 * 2 * 2 * 2 * 2 = 128
+
+(setq n1 384)
+(setq n2 4096)
+(setq n3 88)
+
+Ecco alcune soluzioni in ordine decrescente di lunghezza:
+
+60 caratteri:
+(define (f n) (apply * (filter (fn(x) (= x 2)) (factor n))))
+(println (f n1)  { } (f n2) { } (f n3))
+;-> 128 4096 8
+
+60 caratteri:
+(define (f n) (apply * (clean (fn(x) (!= x 2)) (factor n))))
+(println (f n1)  { } (f n2) { } (f n3))
+;-> 128 4096 8
+
+54 caratteri:
+(define (f n) (pow 2 (length (ref-all 2 (factor n)))))
+(println (f n1)  { } (f n2) { } (f n3))
+;-> 128 4096 8
+
+54 caratteri:
+(define (f n) (apply * (ref-all 2 (factor n) = true)))
+(println (f n1)  { } (f n2) { } (f n3))
+;-> 128 4096 8
+
+48 caratteri:
+(define (f n) (apply * (find-all 2 (factor n))))
+(println (f n1)  { } (f n2) { } (f n3))
+;-> 128 4096 8
+
+
+------------------------
+Concatenazione di numeri
+------------------------
+
+Data una lista di numeri interi positivi come (21 360), generare la sequenza di numeri che può essere formata concatenando i numeri dall'insieme precedente, in ordine numerico crescente.
+
+Ad esempio, con (21 360) la sequenza inizia in questo modo:
+
+  21, 360, 2121, 21360, 36021, 212121, 360360, 2121360, ...
+
+Gli elementi della sequenza devono essere unici.
+
+La lista iniziale non è vuota e non contiene duplicati.
+
+Idea: usare il prodotto cartesiano ripetutamente memorizzando i risultati intermedi
+
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        '()
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(setq out '())
+(setq N 10)
+(setq base '(21 360))
+(setq nums '(21 360))
+(setq curr '(21 360))
+
+(while (> N (length nums))
+  (setq curr (cp base curr))
+  (extend nums curr)
+)
+;-> (21 360 (21 21) (21 360) (360 21) (360 360) (21 (21 21)) (21 (21 360)) 
+;->  (21 (360 21)) (21 (360 360)) (360 (21 21)) (360 (21 360)) (360 (360 21))
+;->  (360 (360 360)))
+
+(dolist (el nums)
+  (cond ((atom? el) (push el out))
+        ((list? el) (push (int (join (map string (flat el))) 0 10) out))
+  )
+)
+(sort (unique out))
+;-> (21 360 2121 21360 36021 212121 360360 2121360 2136021 3602121 
+;->  21360360 36021360 36036021 360360360)
+
+Funzione che genera la sequenza dei numeri concatenati di una lista fino ad un dato limite:
+
+(define (concatenate lst limit)
+  (local (nums curr out)
+    (setq nums lst)
+    (setq curr lst)
+    (while (> limit (length nums))
+      (setq curr (cp lst curr))
+      (extend nums curr)
+    )
+    (dolist (el nums)
+      (cond ((atom? el) (push el out))
+            ((list? el) (push (int (join (map string (flat el))) 0 10) out)))
+    )
+    (sort (unique out))))
+
+(concatenate '(21 360) 20)
+;-> (21 360 2121 21360 36021 212121 360360 2121360 2136021 3602121 21212121
+;->  21360360 36021360 36036021 212121360 212136021 213602121 360212121
+;->  360360360 2121360360 2136021360 2136036021 3602121360 3602136021
+;->  3603602121 21360360360 36021360360 36036021360 36036036021 360360360360)
+
+(concatenate '(108 5) 10)
+;-> (5 55 108 555 1085 5108 10855 51085 55108 108108 
+;->  1081085 1085108 5108108 108108108)
+
+(concatenate '(2 222 2) 10)
+;-> (2 22 222 2222 222222) ;ops: non è lunga 10...troppi numeri uguali.
 
 =============================================================================
 

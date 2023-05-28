@@ -1831,6 +1831,8 @@ NOTE LIBERE 16
   Valutazione di semplici espressioni matematiche (notazione infissa)
   Suggerimenti per la denominazione delle variabili
   La funzione "atof" del C
+  Potenze di 2 in un intero
+  Concatenazione di numeri
 
 PROBLEMI SUI DADI
 =================
