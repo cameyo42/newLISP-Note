@@ -3815,7 +3815,7 @@ Una volta eliminati i file ".o" digitare:
 
 make -f "makefile_mingw64dll_utf8_ffi"
 
-Questa volta avrete il vostro file "newLISP.dll" insieme a diversi altri file che  hanno estensione ".o".
+Questa volta avrete il vostro file "newLISP.dll" insieme a diversi altri file che hanno estensione ".o".
 
 Cancellate i file ".o" e copiate "newLISP.exe" e "newLISP.dll" nella cartella che preferite (la cartella deve trovarsi nella variabile di ambiente PATH).
 

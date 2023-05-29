@@ -1833,6 +1833,8 @@ NOTE LIBERE 16
   La funzione "atof" del C
   Potenze di 2 in un intero
   Concatenazione di numeri
+  Frazione compresa tra due frazioni
+  Fattorizzazione e divisori di numeri big-integer
 
 PROBLEMI SUI DADI
 =================

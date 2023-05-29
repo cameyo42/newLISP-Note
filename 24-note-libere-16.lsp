@@ -5382,5 +5382,242 @@ Funzione che genera la sequenza dei numeri concatenati di una lista fino ad un d
 (concatenate '(2 222 2) 10)
 ;-> (2 22 222 2222 222222) ;ops: non è lunga 10...troppi numeri uguali.
 
+(define (concatenate lst limit)
+  (local (nums curr temp out)
+    (setq nums lst)
+    (setq curr lst)
+    (while (> limit (length nums))
+      (setq curr (cp lst curr))
+      (setq temp '())
+      (dolist (el curr)
+        (cond ((atom? el) (push el temp))
+              ((list? el) (push (int (join (map string (flat el))) 0 10) temp))
+        )
+      )
+      (setq curr (unique temp))
+      (setq nums (unique (extend nums curr)))
+    )
+    (slice (sort (unique nums)) 0 limit)))
+
+(concatenate '(2 222 2) 10)
+;-> (2 22 222 2222 22222 222222 2222222 22222222 
+;->  222222222 2222222222)
+
+(concatenate '(0 1 2 3 4 5 6 7 8 9) 50)
+;-> (0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 
+;->  20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36
+;->  37 38 39 40 41 42 43 44 45 46 47 48 49)
+
+
+----------------------------------
+Frazione compresa tra due frazioni
+----------------------------------
+
+Date due frazioni intere positive a e b tali che a<b, trovare la frazione z compresa tra a e b che ha il più piccolo denominatore.
+Ad esempio per a=2/5 e b=4/5, la frazione z vale 1/2.
+Anche altre frazioni come 3/5 sono tra i due, ma 1/2 ha il denominatore di più piccolo (2 < 5).
+
+Per trovare la frazione tra due frazioni basta sommarle e dividere per 2:
+
+  ((2/5) + (4/5))/2 = 6/5 * 1/2 = 6/10 = 3/5
+
+Comunque il problema non è trovare la frazione che si trova esattamente a metà tra le due frazione date, ma trovare la frazione che è compresa tra le due ed ha il denominatore più piccolo.
+
+Date due frazioni a=n1/d1 e b=n2/d2 il metodo per calcolare tale frazione è il seguente:
+
+Ciclo per k=0,1,2,3... fino a che floor(b*k) > floor(a*k) + 1
+Ritornare (floor(a*k) + 1) e k (numeratore e denominatore della soluzione)
+
+(define (fraction n1 d1 n2 d2)
+  (let ((den 0) (num 0))
+    (while (<= (* den n2) (* d2 num))
+      (++ den)
+      (setq num (+ (/ (* den n1) d1) 1))
+    )
+  (list num den)))
+
+Facciamo alcune prove:
+
+(fraction 2 5 4 5)
+;-> (1 2)
+(fraction 5 13 7 18)
+;-> (12 31)
+(fraction 1 1 2 1)
+;-> (3 2)
+(fraction 12 31 7 18)
+;-> (19 49)
+
+Quando a=b la funzione entra in un ciclo infinito (es. (fraction 1 1 2 2)).
+Modifichiamo la nostra funzione per trattare questo caso particolare:
+
+(define (fraction n1 d1 n2 d2)
+  ; due frazioni sono uguali se il loro prodotto incrociato è uguale
+  ; num1*den2 = num2*den1 ?
+  (if (= (* n1 d2) (* n2 d1)) 
+      (list n1 d1)
+      ;else
+      (let ((den 0) (num 0))
+        
+        (while (<= (* den n2) (* d2 num))
+          (++ den)
+          (setq num (+ (/ (* den n1) d1) 1))
+        )
+      (list num den))))
+
+(fraction 2 5 4 5)
+;-> (1 2)
+(fraction 5 13 7 18)
+;-> (12 31)
+(fraction 1 1 2 1)
+;-> (3 2)
+(fraction 12 31 7 18)
+;-> (19 49)
+(fraction 1 1 2 2)
+;-> (1 1)
+(fraction 12 13 132 143)
+;-> (12 13)
+
+
+------------------------------------------------
+Fattorizzazione e divisori di numeri big-integer
+------------------------------------------------
+
+Alcune funzioni per calcolare i divisori di un numero big-integer.
+
+(define (factor-i num)
+"Factorize a big integer number"
+  (local (f k i dist out)
+    ; Distanze tra due elementi consecutivi della ruota (wheel)
+    (setq dist (array 48 '(2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4
+                           6 8 4 2 4 2 4 8 6 4 6 2 4 6 2 6 6 4
+                           2 4 6 2 6 4 2 4 2 10 2 10)))
+    (setq out '())
+    (while (zero? (% num 2)) (push '2L out -1) (setq num (/ num 2)))
+    (while (zero? (% num 3)) (push '3L out -1) (setq num (/ num 3)))
+    (while (zero? (% num 5)) (push '5L out -1) (setq num (/ num 5)))
+    (while (zero? (% num 7)) (push '7L out -1) (setq num (/ num 7)))
+    (setq k 11L i 0)
+    (while (<= (* k k) num)
+      (if (zero? (% num k))
+        (begin
+          (push k out -1)
+          (setq num (/ num k)))
+        (begin
+          (setq k (+ k (dist i)))
+          (if (< i 47) (++ i) (setq i 0)))
+      )
+    )
+    (if (> num 1) (push (bigint num) out -1))
+    out))
+
+(setq num1 922337203685477580988L)
+(setq num2 442233720368547758094L)
+(time (println (setq f1 (factor-i num1))))
+;-> (2L 2L 13L 17L 109L 347813L 27521059771L)
+;-> 40.182
+(time (println (setq f2 (factor-i num2))))
+;-> (2L 3L 43929733L 1677807148553L)
+;-> 4714.545
+
+Funzione che raggruppa una lista di fattori:
+
+(define (raggruppa-fattori lst)
+  (letn (unici (unique lst))
+    (transpose (list unici (count unici lst)))))
+
+(raggruppa-fattori f1)
+;-> ((2L 2) (13L 1) (17L 1) (109L 1) (347813L 1) (27521059771L 1))
+(raggruppa-fattori f2)
+;-> ((2L 1) (3L 1) (43929733L 1) (1677807148553L 1))
+
+Funzione che conta i divisori di una lista di fattori:
+
+(define (conta-divisori lst)
+  (let (lst (raggruppa-fattori lst))
+    (apply * (map (fn(x) (+ 1L (last x))) lst))))
+
+(conta-divisori f1)
+;-> 96L
+(conta-divisori f2)
+;-> 16L
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che somma i divisori di una lista di fattori:
+
+(define (somma-divisori lst)
+  (local (sum out)
+    (setq out 1L)
+    (setq lst (raggruppa-fattori lst))
+    (dolist (el lst)
+      (setq sum 0L)
+      (for (i 0 (last el))
+        (setq sum (+ sum (** (first el) i)))
+      )
+      (setq out (* out sum)))))
+
+(somma-divisori f1)
+;-> 1857391605801792688320L
+(somma-divisori f2)
+;-> 884467460871308455632L
+
+Funzione che genera la lista dei divisori di una lista di fattori:
+
+(define (lista-divisori lst)
+  (local (f out)
+    (setq f (raggruppa-fattori lst))
+    (setq out '())
+    (lista-divisori-aux 0L 1L)
+    (sort out)))
+; auxiliary function
+(define (lista-divisori-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (lista-divisori-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(lista-divisori f1)
+;-> (1L 2L 4L 13L 17L 26L 34L 52L 68L 109L 218L 221L 436L 442L 884L
+;->  1417L 1853L 2834L 3706L 5668L 7412L 24089L 48178L 96356L 347813L
+;->  695626L 1391252L 4521569L 5912821L 9043138L 11825642L 18086276L
+;->  23651284L 37911617L 75823234L 76866673L 151646468L 153733346L
+;->  307466692L 492851021L 644497489L 985702042L 1288994978L 1971404084L
+;->  2577989956L 8378467357L 16756934714L 27521059771L 33513869428L
+;->  55042119542L 110084239084L 357773777023L 467858016107L 715547554046L
+;->  935716032214L 1431095108092L 1871432064428L 2999795515039L 5999591030078L
+;->  6082154209391L 11999182060156L 12164308418782L 24328616837564L
+;->  38997341695507L 50996523755663L 77994683391014L 101993047511326L
+;->  155989366782028L 203986095022652L 662954808823619L 1325909617647238L
+;->  2651819235294476L 9572182362130823L 19144364724261646L 38288729448523292L
+;->  124438370707700699L 162727100156223991L 248876741415401398L
+;->  325454200312447982L 497753482830802796L 650908400624895964L
+;->  1043367877472259707L 2086735754944519414L 2115452302030911883L
+;->  4173471509889038828L 4230904604061823766L 8461809208123647532L
+;->  13563782407139376191L 17737253917028415019L 27127564814278752382L
+;->  35474507834056830038L 54255129628557504764L 70949015668113660076L
+;->  230584300921369395247L 461168601842738790494L 922337203685477580988L)
+(length (lista-divisori f1))
+;-> 96
+(apply + (lista-divisori f1))
+;-> 1857391605801792688320L
+
+(lista-divisori f2)
+;-> (1L 2L 3L 6L 43929733L 87859466L 131789199L 263578398L 1677807148553L
+;->  3355614297106L 5033421445659L 10066842891318L 73705620061424626349L
+;->  147411240122849252698L 221116860184273879047L 442233720368547758094L)
+(length (lista-divisori f2))
+;-> 16
+(apply + (lista-divisori f2))
+;-> 884467460871308455632L
+
 =============================================================================
 
