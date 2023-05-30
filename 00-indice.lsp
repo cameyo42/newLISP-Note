@@ -1835,6 +1835,8 @@ NOTE LIBERE 16
   Concatenazione di numeri
   Frazione compresa tra due frazioni
   Fattorizzazione e divisori di numeri big-integer
+  Visitare una lista annidata
+  Inversione di una lista annidata
 
 PROBLEMI SUI DADI
 =================

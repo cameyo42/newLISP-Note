@@ -5619,5 +5619,130 @@ Funzione che genera la lista dei divisori di una lista di fattori:
 (apply + (lista-divisori f2))
 ;-> 884467460871308455632L
 
+
+---------------------------
+Visitare una lista annidata
+---------------------------
+
+(setq a '(1 2 3))
+(setq b '(1 (2 3 (4 (5 (6)) 7)) (8 (9))))
+(setq c '(1 (2 (3 (4 5 (6 5))) 7) (3 (8 7 (6 5)))))
+
+Visita lineare (dal primo elemento all'ultimo (flat list))
+----------------------------------------------------------
+
+(define (visit lst f)
+  (dolist (el lst)
+    (if (list? el)
+        (visit el f)
+        (f el))))
+
+(visit a (fn(x) (print x { })))
+;-> 1 2 3
+(visit b (fn(x) (print x { })))
+;-> 1 2 3 4 5 6 7 8 9
+(visit c (fn(x) (print x { })))
+;-> 1 2 3 4 5 6 5 7 3 8 7 6 5
+
+Sfruttando il contesto dinamico possiamo applicare anche una funzione che modifica i valori che visitiamo (i risultati vengono inseriti in una lista esterna alla funzione "visit"):
+
+(setq out '())
+(visit a (fn(x) (push (* x x) out -1)))
+;-> (1 4 9)
+
+(setq out '())
+(visit b (fn(x) (push (* x x) out -1)))
+;-> (1 4 9 16 25 36 49 64 81)
+
+Se invece vogliamo applicare una funzione a tutti gli elementi di una lista annidata:
+
+(define (map-all f lst)
+  (let (result '())
+    (dolist (el lst)
+      (if (list? el)
+        (push (map-all f el) result -1)
+        (push (f el) result -1)))
+    result))
+
+(map-all (fn(x) (* x x)) a)
+;-> (1 4 9)
+(map-all (fn(x) (* x x)) b)
+;-> (1 (4 9 (16 (25 (36)) 49)) (64 (81)))
+(map-all (fn(x) (* x x)) c)
+;-> (1 (4 (9 (16 25 (36 25))) 49) (9 (64 49 (36 25))))
+
+Visita in base all'annidamento (prima gli elementi più annidati)
+----------------------------------------------------------------
+Generiamo la lista degli indici di tutti gli elementi della lista:
+
+(setq indici (ref-all nil b (fn (x) true)))
+;-> ((0) (1) (1 0) (1 1) (1 2) (1 2 0) (1 2 1) (1 2 1 0) (1 2 1 1) 
+;->  (1 2 1 1 0) (1 2 2) (2) (2 0) (2 1) (2 1 0))
+
+Ordiniamo la lista degli indici in base alla lunghezza di ogni indice (ordine decrescente):
+
+(setq ind-ord (sort (map (fn(x) (list (length x) $idx)) indici) >))
+;-> ((5 9) (4 8) (4 7) (3 14) (3 10) (3 6) (3 5) (2 13) (2 12) (2 4) (2 3) 
+;->  (2 2) (1 11) (1 1) (1 0))
+
+(setq ind-ord (select indici (map last ind-ord)))
+;-> ((1 2 1 1 0) (1 2 1 1) (1 2 1 0) (2 1 0) (1 2 2) (1 2 1) (1 2 0) 
+;->  (2 1) (2 0) (1 2) (1 1) (1 0) (2) (1) (0))
+
+Visitiamo la lista utilizzando la lista degli indici ordinata:
+
+(dolist (el ind-ord)
+  (print (b el) { | })
+)
+;-> 6 | (6) | 5 | 9 | 7 | (5 (6)) | 4 | (9) | 8 | (4 (5 (6)) 7) | 3 | 2 | 
+;-> (8 (9)) | (2 3 (4 (5 (6)) 7)) | 1 |
+
+(setq indici (ref-all nil c (fn (x) true)))
+(setq ind-ord (sort (map (fn(x) (list (length x) $idx)) indici) >))
+(setq ind-ord (select indici (map last ind-ord)))
+(dolist (el ind-ord)
+  (print (c el) { | })
+)
+;-> 5 | 6 | 5 | 6 | (6 5) | 5 | 4 | (6 5) | 7 | 8 | (4 5 (6 5)) | 3 |
+;-> (8 7 (6 5)) | 3 | 7 | (3 (4 5 (6 5))) | 2 | (3 (8 7 (6 5))) | 
+;-> (2 (3 (4 5 (6 5))) 7) | 1 |
+
+Partendo dalla lista degli indici possiamo visitare la lista nel modo che vogliamo.
+
+
+--------------------------------
+Inversione di una lista annidata
+--------------------------------
+
+La funzione "reverse" di newLISP inverte solo la posizione degli elementi del primo livello (cioè le eventuali sotto-liste non vengono invertite):
+
+(setq a '(1 2 3))
+(setq b '(1 (2 3) (4 5)))
+(setq c '((1 2) (3 4) ((5) 6) (7)))
+
+(reverse (copy a))
+;-> (3 2 1)
+(reverse (copy b))
+;-> ((4 5) (2 3) 1)
+(reverse (copy c))
+;-> ((7) ((5) 6) (3 4) (1 2))
+
+Scriviamo una funzione che inverte una lista e tutte le sottoliste:
+
+(define (reverse-all lst)
+  (let (result '())
+    (dolist (el lst)
+      (if (atom? el)
+        (push el result)
+        (push (reverse-all el) result)))
+    result))
+
+(reverse-all a)
+;-> (3 2 1)
+(reverse-all b)
+;-> ((5 4) (3 2) 1)
+(reverse-all c)
+;-> ((7) (6 (5)) (4 3) (2 1))
+
 =============================================================================
 

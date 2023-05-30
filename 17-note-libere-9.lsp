@@ -3071,7 +3071,7 @@ In questo caso possiamo semplicemente usare "setf":
 (setf (assoc '(80 1010) me)  (append $it (list "more stuff")))
 ;-> (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101)) "more stuff")
 
-Il riferimento restituito da "assoc" può essere utilizzato da "setf".. e possiamo renderlo ancora più breve usando "push":
+Il riferimento restituito da "assoc" può essere utilizzato da "setf"... e possiamo renderlo ancora più breve usando "push":
 
 (set (global 'me) '(
   (80 (1010 ((84 114 117 115 116 80 105 112 101 73 115 65 119 101 115 111 109 101))) )
