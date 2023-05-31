@@ -1837,6 +1837,7 @@ NOTE LIBERE 16
   Fattorizzazione e divisori di numeri big-integer
   Visitare una lista annidata
   Inversione di una lista annidata
+  Angoli e lancette dell'orologio
 
 PROBLEMI SUI DADI
 =================

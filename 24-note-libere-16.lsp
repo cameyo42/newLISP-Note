@@ -5744,5 +5744,104 @@ Scriviamo una funzione che inverte una lista e tutte le sottoliste:
 (reverse-all c)
 ;-> ((7) (6 (5)) (4 3) (2 1))
 
+
+-------------------------------
+Angoli e lancette dell'orologio
+-------------------------------
+
+Dato un angolo tra 0 e 180 gradi scrivere una funzione che restituisce ora e minuti che formano le lancette di un orologio analogico con quell'angolo.
+Per esempio quando l'angolo vale 0 l'ora vale 12:00.
+Per esempio quando l'angolo vale 180 l'ora vale 6:00.
+L'ora deve essere restituita come hh:mm tralasciando i secondi.
+L'ora restituita deve essere compresa tra le 12:00 e le 11:59 (ad es. 0:00 e 22:00 sono ore non valide).
+Ci sono due tempi possibili in ore e minuti (ad eccezione di 0 e 180 gradi) per ogni angolo intero (o angolo con parte frazionaria di 0.5) tra 0 e 180.
+
+Esempi:
+
+Angolo   | Ora
+---------|------------
+0        | 12:00
+90       | 3:00, 9:00
+180      | 6:00
+45       | 4:30, 7:30
+30       | 1:00, 11:00
+60       | 2:00, 10:00
+120      | 4:00, 8:00
+15       | 5:30, 6:30
+135      | 1:30, 10:30
+1        | 4:22, 7:38
+42       | 3:24, 8:36
+79       | 3:02, 8:58
+168      | 1:36, 10:24
+179      | 1:38, 10:22
+115      | 1:50, 10:10
+
+Se poniamo che un angolo pari a 0 restituisce 12, risulta che all'ora hh:mm:
+- la lancetta dei minuti ha un angolo pari a (360*mm)/60
+- la lancetta delle ore ha un angolo pari a (360*hh)/60 + (360*mm)/(60*12)
+Quindi l'angolo (clockwise) tra le due lancette vale:
+
+  A = (360*hh)/60 + (360*m)/(60*12) - (360*mm)/60 =
+    = 30*hh - (11*m)/2
+
+A questo punto possiamo usare due cicli (ore e minuti) per creare una lista con tutti gli orari (hh:mm) e il relativo angolo)
+
+(define (make-time)
+  (local (out angle)
+    (setq out '())
+    (for (h 1 12)
+      (for (m 0 59)
+        (setq angle (abs (sub (mul 30 h) (div (mul 11 m) 2))))
+        (if (> angle 180) (setq angle (sub 360 angle)))
+        (push (list angle h m) out)
+      )
+    )
+    (sort (unique out))))
+
+(setq t (make-time))
+(length t)
+;-> 720
+
+Adesso per cercare l'ora associata ad un angolo possiamo scrivere:
+
+(ref-all '(115 ? ?) t match true)
+;-> ((115 1 50) (115 10 10))
+Un angolo di 115 gradi rappresenta le ore 01:50 oppure 10:10.
+
+Invece per cercare l'angolo associato ad una data ora possiamo scrivere:
+
+(ref-all '(? 10 10) t match true)
+;-> ((115 10 10))
+
+Verifichiamo i valori degli esempi:
+
+(setq angoli '(0 90 180 45 30 60 120 15 135 1 42 79 168 179 115))
+
+(map (fn(x) (println (ref-all (list x '? '?) t match true))) angoli)
+;-> ((0 12 0))
+;-> ((90 3 0) (90 9 0))
+;-> ((180 6 0))
+;-> ((45 4 30) (45 7 30))
+;-> ((30 1 0) (30 11 0))
+;-> ((60 2 0) (60 10 0))
+;-> ((120 4 0) (120 8 0))
+;-> ((15 5 30) (15 6 30))
+;-> ((135 1 30) (135 10 30))
+;-> ((1 4 22) (1 7 38))
+;-> ((42 3 24) (42 8 36))
+;-> ((79 3 2) (79 8 58))
+;-> ((168 1 36) (168 10 24))
+;-> ((179 1 38) (179 10 22))
+;-> ((115 1 50) (115 10 10))
+;-> ((115 1 50) (115 10 10))
+
+Orari associati agli angoli (da 0 a 180):
+
+(dolist (a angoli) (println (ref-all (list a '? '?) t match true)))
+
+Angoli associati agli orari (da 1:00 a 12:59):
+
+(setq tt (sort (map (fn(x) (list (x 1) (x 2) (x 0))) t)))
+
 =============================================================================
 
