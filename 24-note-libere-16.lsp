@@ -5843,5 +5843,166 @@ Angoli associati agli orari (da 1:00 a 12:59):
 
 (setq tt (sort (map (fn(x) (list (x 1) (x 2) (x 0))) t)))
 
+
+------------------------------------------
+Esecuzione di programmi esterni dalla REPL
+------------------------------------------
+
+Per eseguire programmi esterni newLISP mette a disposizione due funzioni: "exec" e "process".
+
+*****************
+>>>funzione EXEC
+*****************
+sintassi: (exec str-process)
+sintassi: (exec str-process [str-stdin])
+
+Nella prima forma, "exec" avvia un processo descritto in "str-process" e restituisce tutto lo standard output come una lista di stringhe (una per ogni riga in standard out (STDOUT)). 
+"exec" restituisce nil se non è stato possibile avviare il processo. 
+Se il processo può essere avviato ma restituisce solo un errore e nessun output valido, verrà restituito la lista vuota.
+
+(exec "ls *.c")  → ("newlisp.c" "nl-math.c" "nl-string.c")
+
+L'esempio avvia un processo ed esegue il comando di shell ls, catturando l'output in un array di stringhe.
+
+Nella seconda forma, exec crea una pipe di processo, avvia il processo in str-process e riceve da str-stdin input standard per questo processo. Il valore restituito è true se il processo è stato avviato correttamente, altrimenti è nil.
+
+(exec "cgiProc" query)
+
+In questo esempio, cgiProc potrebbe essere un processore cgi (ad esempio, Perl o newLISP) che riceve ed elabora l'input standard fornito da una stringa contenuta nella variabile query.
+
+Per esempio possiamo usare "exec" per visualizzare un'immagine:
+
+Esegue il visualizzatore di Windows 10 (ImageViewer):
+(exec
+{%SystemRoot%\System32\rundll32.exe "%ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll", ImageView_Fullscreen})
+
+Esegue il visualizzatore di Windows 10 (ImageViewer) visualizzando un'immagine:
+(exec
+{%SystemRoot%\System32\rundll32.exe "%ProgramFiles%\Windows Photo Viewer\PhotoViewer.dll", ImageView_Fullscreen C:\temp\image1.jpg})
+
+Purtroppo la funzione "exec" è bloccante, cioè non viene restituito il focus alla REPL fino a che non viene chiuso il programma che è stato lanciato.
+
+********************
+>>>funzione PROCESS
+********************
+sintassi: (process str-command)
+sintassi: (process str-command int-pipe-in int-pipe-out [int-win-option])
+sintassi: (process str-command int-pipe-in int-pipe-out [int-unix-pipe-error])
+
+Nella prima sintassi, "process" avvia un processo specificato in "str-command" e restituisce immediatamente un ID processo o nil se non è stato possibile creare un processo. 
+Questo processo eseguirà il programma specificato o morirà immediatamente se "str-command" non può essere eseguito.
+
+Su macOS e altri Unix, l'applicazione o lo script deve essere specificato con il suo percorso completo. 
+Il nuovo processo eredita l'ambiente del sistema operativo dal processo principale.
+
+Gli argomenti della riga di comando vengono analizzati negli spazi. 
+Gli argomenti contenenti spazi devono essere delimitati utilizzando virgolette singole su macOS e altri Unix. 
+Su MS Windows, vengono utilizzate le virgolette doppie. 
+
+L'id del processo restituito può essere utilizzato per distruggere il processo in esecuzione utilizzando "destroy", se il processo non si chiude da solo.
+
+(process "c:/WINDOWS/system32/notepad.exe")  → 1894 ; Windows
+
+; or when in executable path
+(process "notepad.exe")                      → 1894 ; Windows
+
+; find out the path of the program to start using exec, 
+; if the path is not known
+
+(process (first (exec "which xclock")))  → 22607 ; on Unix
+
+Se il percorso dell'eseguibile è sconosciuto, "exec" insieme al comando Unix "which" può essere utilizzato per avviare un programma. Il pid restituito può essere utilizzato per distruggere il processo.
+
+Nella seconda sintassi, l'input e l'output standard del processo creato possono essere reindirizzati agli handle di pipe. 
+Quando si rimappa l'I/O standard dell'applicazione avviata su una pipe, è possibile comunicare con l'altra applicazione tramite "write-line" e "read-line" o istruzioni "write" e "read":
+
+;; Linux/Unix
+;; create pipes
+(map set '(myin bcout) (pipe))
+(map set '(bcin myout) (pipe))   
+
+;; launch Unix 'bc' calculator application
+(process "/usr/bin/bc" bcin bcout) → 7916
+
+(write-line myout "3 + 4")  ; bc expects a line-feed
+
+(read-line myin)  → "7"
+
+;; bc can use bignums with arbitrary precision
+
+(write-line myout "123456789012345 * 123456789012345")
+
+(read-line myin)  → "15241578753238669120562399025"
+
+;; destroy the process
+(destroy 7916)
+
+;; MS Windows
+(map set '(myin cmdout) (pipe))
+(map set '(cmdin myout) (pipe))
+
+(process "c:/Program Files/newlisp/newlisp.exe -c" cmdin cmdout)
+→ 1284
+
+(write-line myout "(+ 3 4)")
+
+(read-line myin) → "7"
+
+;; destroy the process
+(destroy 1284)
+
+Nelle versioni MS Windows di newLISP, è possibile specificare un quarto parametro opzionale di "int-win-option" per controllare lo stato di visualizzazione dell'applicazione. 
+L'impostazione predefinita di questa opzione è 1 per mostrare la finestra dell'applicazione, 0 per nasconderla e 2 per mostrarla ridotta a icona sulla barra di avvio di Windows.
+
+Su entrambi i sistemi MS Windows e Linux/Unix, standard error verrà reindirizzato a standard out per impostazione predefinita. Su Linux/Unix, è possibile definire un handle di pipe facoltativo per lo standard error output in "int-unix-pipe-error".
+
+La funzione "peek" può essere utilizzata per controllare le informazioni sugli handle delle pipe:
+
+;; create pipes
+(map set '(myin bcout) (pipe))
+(map set '(bcin myout) (pipe))   
+(map set '(errin errout) (pipe))   
+
+;; launch Unix 'bc' calculator application
+(process "bc" bcin bcout errout)
+
+(write myout command)
+
+;; wait for bc sending result or error info
+(while (and (= (peek myin) 0)
+            (= (peek errin) 0)) (sleep 10))
+
+(if (> (peek errin) 0)
+	(println (read-line errin)))
+	
+(if (> (peek myin) 0)
+	(println (read-line myin)))
+
+Non tutte le applicazioni console interattive possono avere i propri canali I/O standard rimappati. 
+A volte solo un canale, in o out, può essere rimappato. In questo caso, specificare 0 (zero) per il canale non utilizzato. L'istruzione seguente utilizza solo l'output dell'applicazione avviata:
+
+(process "app" 0 appout)
+
+Normalmente vengono utilizzate due pipe: una per le comunicazioni al processo figlio e l'altra per le comunicazioni dal processo figlio.
+
+Vedi anche le funzioni "pipe" e "share" per le comunicazioni tra processi e la funzione "semaphore" per la sincronizzazione di più processi. Vedere le funzioni "fork" e "spawn" per altri modi di avviare i processi newLISP. Entrambi sono disponibili solo su macOS, Linux e altri sistemi operativi simili a Unix.
+
+Con la funzione "process" possiamo eseguire un programma e ritornare immediatamente alla REPL.
+Per esempio visualizziamo un'immagine con il seguente comando (XNviewMP):
+
+(process "c:\\util\\XnViewMP\\xnviewmp.exe C:\\temp\\image1.jpg")
+(setq viewer "c:\\util\\XnViewMP\\xnviewmp.exe ")
+
+(process (append viewer "C:\\temp\\image1.jpg"))
+(process (append viewer "C:/temp/image1.jpg"))
+
+Nota: per convertire tra "\\", "/" e "\\":
+
+(join (parse {c:\temp\image1} {\}) "/")
+;-> "c:/temp/image1"
+
+(join (parse {c:\temp\image1} {\\}) "/")
+;-> "c:\\temp\\image1"
+
 =============================================================================
 

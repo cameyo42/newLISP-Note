@@ -1838,6 +1838,7 @@ NOTE LIBERE 16
   Visitare una lista annidata
   Inversione di una lista annidata
   Angoli e lancette dell'orologio
+  Esecuzione di programmi esterni dalla REPL
 
 PROBLEMI SUI DADI
 =================
