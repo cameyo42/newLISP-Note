@@ -6004,5 +6004,265 @@ Nota: per convertire tra "\\", "/" e "\\":
 (join (parse {c:\temp\image1} {\\}) "/")
 ;-> "c:\\temp\\image1"
 
+
+-------------
+Make building
+-------------
+
+Scrivere una funzione che disegna il seguente edificio prendendo come parametro il numero di piani.
+Un edificio ha almeno un piano (primo piano).
+Esempi:
+
+Edificio con 3 piani               Edificio con 2 piani
+  .________.
+  |        |
+  | []  [] | ultimo piano          .________.
+  |--------|                       |        |
+  | []  [] | secondo piano         | []  [] | ultimo piano
+  |--------|                       |--------|
+  | []  [] |                       | []  [] |
+  |  ____  |                       |  ____  |
+  |  |  |  | primo piano           |  |  |  | primo piano
+  |  |  |  |                       |  |  |  |
+  ----------                       ----------
+
+(define (build piani)
+  (if (< piani 1) (setq piani 1))
+  (if (> piani 1) ; almeno primo e ultimo piano
+      ; ultimo piano
+      (println ".________." "\n" "|        |" "\n" "| []  [] |")
+  )
+  ; ci sono più di due piani?
+  (if (> piani 2)
+    (until (= piani 2)
+      (println "|--------|")
+      (println "| []  [] |")
+      (-- piani)
+    )
+  )
+  ; primo piano
+  (println "|--------|")
+  (println "| []  [] |")
+  (println "|  ____  |")
+  (println "|  |  |  |")
+  (println "|  |  |  |")
+  '----------)
+
+(build 3)
+(build 2)
+(build 1)
+.________.
+|        |
+| []  [] |    .________.      
+|--------|    |        |
+| []  [] |    | []  [] |
+|--------|    |--------|    |--------|
+| []  [] |    | []  [] |    | []  [] |
+|  ____  |    |  ____  |    |  ____  |
+|  |  |  |    |  |  |  |    |  |  |  |
+|  |  |  |    |  |  |  |    |  |  |  |
+----------    ----------    ----------
+
+
+--------------------------------
+Ordine delle operazioni e PEMDAS
+--------------------------------
+
+Quanto fa 6/2*(1+2)?
+
+a) (6/2)*(1+2) = 3*3 = 9
+b) 6/(2*(1+2)) = 6/(2*3) = 6/6 = 1
+
+L'ordine delle operazioni, ovvero l'ordine in cui devono essere eseguite le operazioni in una formula, viene utilizzato in matematica, scienze, tecnologia e molti linguaggi di programmazione per computer ed è il seguente:
+
+1) Parentesi
+2) Elevamenti a potenza (Exponentiation)
+3) Moltiplicazioni e Divisioni
+4) Addizioni e Sottrazioni
+
+Le prime lettere delle operazioni formano l'acronimo "PEMDAS":
+Parentheses, Exponents, Multiplication/Division, Addition/Subtraction.
+Altro acronimo (altri paesi):
+BEDMAS: Brackets, Exponents, Division/Multiplication, Addition/Subtraction.
+
+Per risolvere il nostro quesito abbiamo bisogno di una regola ulteriore:
+
+5) Se le operazioni hanno la stessa precedenza, allora si procede da sinistra a destra.
+
+Con la regola 5) possiamo affermare che 6/2*(1+2) = 9 (perchè dobbiamo fare prima la divisione e poi la moltiplicazione).
+
+Nota: il modo più sicuro per evitare ambiguità è usare le parentesi.
+In newLISP siamo costretti a specificare l'ordine delle operazioni:
+
+(* (/ 6 2) (+ 1 2))
+;-> 9
+(/ 6 (* 2 (+ 1 2)))
+;-> 1
+
+
+----------------
+Encoding Collatz
+----------------
+
+La famosa Congettura di Collatz definisce una sequenza per ogni numero naturale e ipotizza che ciascuna di queste sequenze alla fine raggiungerà 1.
+Per un dato numero di partenza N, l'algoritmo per generare la sequenza di Collatz è il seguente:
+
+   Affinchè N > 1:
+     Se N è pari, dividire per 2
+     Se N è dispari, moltiplicare per 3 e aggiungere 1
+
+La codifica Collatz (encoding collatz) di un numero utilizza l'algoritmo specificato nella congettura per generare per mapparlo su un altro numero univoco.
+https://codegolf.stackexchange.com/questions/246722/collatz-encoding
+Per fare ciò, si inizia con un 1 e ad ogni passo dell'algoritmo, se si divide per 2 aggiungere 0, altrimenti aggiungere un 1. La stringa di cifre finale è la rappresentazione binaria della codifica.
+
+Ad esempio, calcoliamo la codifica Collatz del numero 3:
+
+ 3 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1.
+(1)    1    0     1    0    0    0    0.
+
+Pertanto, la codifica di 3 vale 208 (11010000 in binario).
+
+(define (collatz n)
+"Generate the collatz sequence of a positive integer number"
+  (let ((out (list n)) (bit "1"))
+    (until (= n 1)
+      (if (even? n)
+          (setq n (/ n 2))
+          (setq n (+ (* 3 n) 1))
+      )
+      (push n out -1)
+    )
+    out))
+
+(collatz 52)
+;-> (52 26 13 40 20 10 5 16 8 4 2 1)
+
+(collatz 27)
+;-> (27 82 41 124 62 31 94 47 142 71 214 107 322 161 484 242 121 364 182
+;->  91 274 137 412 206 103 310 155 466 233 700 350 175 526 263 790 395
+;->  1186 593 1780 890 445 1336 668 334 167 502 251 754 377 1132 566 283
+;->  850 425 1276 638 319 958 479 1438 719 2158 1079 3238 1619 4858 2429
+;->  7288 3644 1822 911 2734 1367 4102 2051 6154 3077 9232 4616 2308 1154
+;->  577 1732 866 433 1300 650 325 976 488 244 122 61 184 92 46 23 70
+;->  35 106 53 160 80 40 20 10 5 16 8 4 2 1)
+
+Funzione di codifica Collatz:
+
+(define (collatz-enc n)
+  (let (bit "1")
+    (until (= n 1)
+      (cond ((even? n)
+              (setq n (/ n 2))
+              (extend bit "0"))
+            (true
+              (setq n (+ (* 3 n) 1))
+              (extend bit "1"))
+      )
+    )
+    (println bit)
+    (int bit 0 2)))
+
+(collatz-enc 3)
+;-> 11010000
+;-> 208
+(collatz-enc 52)
+;-> 100100010000
+;-> 2320
+(collatz-enc 27)
+;-> 11010010101010100100101001010100101010100100010101001010010101010101000
+;-> 10101010000100100100001000101010000010000
+;-> -1 ;oops la funzione "bit" non converte a numeri big-integer.
+
+Funzioni per convertire numeri big-integer da decimale a binario e viceversa.
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (bitsL n)
+(setq MAXINT (** 2 62)) ; 4611686018427387904L
+(define (prep s) (string (dup "0" (- 62 (length s))) s))
+    (if (<= n MAXINT) (bits (int n))
+      (string (bitsL (/ n MAXINT))
+              (prep (bits (int (% n MAXINT)))))))
+
+(define (bin-decL binary)
+  (let (num 0L)
+    (dolist (b (explode binary))
+      (setq num (+ (* num 2L) (int b)))
+    )
+    num))
+
+Se n è dispari, 3*n + 1 deve essere pari. Ciò significa che in questo, possiamo combinare due passi in uno, con (3*n 1)/2 (e aggiungere "10" alla stringa di codifica).
+
+Funzione di codifica Collatz ottimizzata (big-integer):
+
+(define (c-enc n)
+  (let (bit "1")
+    (until (= n 1)
+      (cond ((odd? n)
+              ;(setq n (+ (* 3 n) 1))
+              ;(setq n (/ n 2))
+              ;(setq n (/ (+ (* 3 n) 1) 2))
+              ; n = n/2+n%2*(n+1)
+              (setq n (+ (/ n 2) (* (% n 2) (+ n 1))))
+              (extend bit "10"))
+            (true
+              (setq n (/ n 2))
+              (extend bit "0"))
+      )
+    )
+    (println bit)
+    (bin-decL bit)))
+
+(c-enc 3)
+;-> 11010000
+;-> 208L
+(c-enc 52)
+;-> 100100010000
+;-> 2320L
+(c-enc 27)
+;-> 11010010101010100100101001010100101010100100010101001010010101010101000
+;-> 10101010000100100100001000101010000010000
+;-> 4272797808638851837289440854955024L
+
+(= 4272797808638851837289440854955024L
+ (bin-decL (bitsL 4272797808638851837289440854955024L)))
+;-> true
+
+
+--------------------------------------------
+Conversione decimale-binario per big-integer
+--------------------------------------------
+
+Ecco due funzioni per convertire tra decimale e binario (e viceversa) anche i numeri big-integer.
+
+Conversione da decimale a binario (big-integer):
+
+(define (dec-binL num)
+  (let (MAXINT 4611686018427387904L) ; (2^62)
+    (define (prep s) (string (dup "0" (- 62 (length s))) s))
+    (if (<= num MAXINT) (bits (int num))
+      (string (dec-binL (/ num MAXINT))
+              (prep (bits (int (% num MAXINT))))))))
+
+Conversione da binario a decimale (big-integer):
+
+(define (bin-decL binary)
+  (let (num 0L)
+    (dolist (b (explode binary)) (setq num (+ (* num 2L) (int b))))
+    num))
+
+(dec-binL 102394746378492383765)
+;-> "1011000110100000011001101110101001000010100010000010001001000010101"
+(bin-decL "1011000110100000011001101110101001000010100010000010001001000010101")
+;-> 102394746378492383765L
+
+(= 102394746378492383765 (bin-decL (dec-binL 102394746378492383765)))
+;-> true
+
 =============================================================================
 

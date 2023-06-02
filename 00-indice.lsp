@@ -1839,6 +1839,10 @@ NOTE LIBERE 16
   Inversione di una lista annidata
   Angoli e lancette dell'orologio
   Esecuzione di programmi esterni dalla REPL
+  Make building
+  Ordine delle operazioni e PEMDAS
+  Encoding Collatz
+  Conversione decimale-binario per big-integer
 
 PROBLEMI SUI DADI
 =================
