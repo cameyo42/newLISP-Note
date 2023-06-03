@@ -7306,7 +7306,7 @@ Usiamo una funzione ricorsiva che segue queste due regole.
 Maggiori a destra (Visa)
 ------------------------
 
-Dato una lista di numeri interi, calcolare una lista di interi che contiene, in ogni elemento della lista, il conteggio degli interi nell'elenco originale che sono a destra e sono minori dell'elemento nella posizione corrente della lista originale. Ad esempio, data la lista di input (10 12 8 17 3 24 19), l'output desiderato è (4 3 3 2 2 0 0), perché dal primo elemento della lista, 10, ci sono quattro elementi a destra (12 17 24 19) maggiori di 10, al secondo elemento della lista, 12, ci sono tre elementi (17 24 19) maggiori di 12, al terzo elemento della lista, 8, ci sono tre elementi (17 24 19) maggiori di 8, al quarto elemento della lista, 17, ci sono due elementi (24 19) maggiori di 17, al quinto elemento della lista, 3, ci sono due elementi (24 19) maggiori di 3, al sesto elemento della lista, 24, ci sono 0 elementi maggiori di 24 e al settimo elemento della lista, 19, ci sono 0 elementi maggiori di 19.
+Dato una lista di numeri interi, calcolare una lista di interi che contiene, in ogni elemento della lista, il conteggio degli interi nell'elenco originale che sono a destra e sono maggiori dell'elemento nella posizione corrente della lista originale. Ad esempio, data la lista di input (10 12 8 17 3 24 19), l'output desiderato è (4 3 3 2 2 0 0), perché dal primo elemento della lista, 10, ci sono quattro elementi a destra (12 17 24 19) maggiori di 10, al secondo elemento della lista, 12, ci sono tre elementi (17 24 19) maggiori di 12, al terzo elemento della lista, 8, ci sono tre elementi (17 24 19) maggiori di 8, al quarto elemento della lista, 17, ci sono due elementi (24 19) maggiori di 17, al quinto elemento della lista, 3, ci sono due elementi (24 19) maggiori di 3, al sesto elemento della lista, 24, ci sono 0 elementi maggiori di 24 e al settimo elemento della lista, 19, ci sono 0 elementi maggiori di 19.
 
 Scrivere una funzione per calcolare la lista dei conteggi degli elementi maggiori di ogni elemento.
 
@@ -7331,6 +7331,7 @@ Il primo metodo che viene in mente è quello di utilizzare due cicli innestati, 
 
 (setq a '(10 12 8 17 3 24 19))
 (bigger-dx a)
+;-> (4 3 3 2 2 0 0)
 
 (bigger-dx '(-1 -1))
 ;-> (0 0)

@@ -1841,8 +1841,10 @@ NOTE LIBERE 16
   Esecuzione di programmi esterni dalla REPL
   Make building
   Ordine delle operazioni e PEMDAS
+  Quadrati con n cifre
   Encoding Collatz
   Conversione decimale-binario per big-integer
+  Numeri somma di due quadrati
 
 PROBLEMI SUI DADI
 =================

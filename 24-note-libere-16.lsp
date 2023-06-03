@@ -5973,10 +5973,10 @@ La funzione "peek" può essere utilizzata per controllare le informazioni sugli 
             (= (peek errin) 0)) (sleep 10))
 
 (if (> (peek errin) 0)
-	(println (read-line errin)))
-	
+  (println (read-line errin)))
+  
 (if (> (peek myin) 0)
-	(println (read-line myin)))
+  (println (read-line myin)))
 
 Non tutte le applicazioni console interattive possono avere i propri canali I/O standard rimappati. 
 A volte solo un canale, in o out, può essere rimappato. In questo caso, specificare 0 (zero) per il canale non utilizzato. L'istruzione seguente utilizza solo l'output dell'applicazione avviata:
@@ -6098,6 +6098,37 @@ In newLISP siamo costretti a specificare l'ordine delle operazioni:
 ;-> 9
 (/ 6 (* 2 (+ 1 2)))
 ;-> 1
+
+
+--------------------
+Quadrati con n cifre
+--------------------
+
+Per ogni intero positivo n, determinare il numero più piccolo il cui quadrato ha n cifre.
+
+Per esempio: a(4) = 32, 32^2 = 1024 ha 4 cifre, mentre 31^2 = 961 ha 3 cifre.
+
+Sequenza OEIS A017936: 
+  1, 4, 10, 32, 100, 317, 1000, 3163, 10000, 31623, 100000, 316228, 1000000, 
+  3162278, 10000000, 31622777, 100000000, 316227767, 1000000000, 3162277661, 
+  10000000000, 31622776602, 100000000000, 316227766017, ...
+
+La formula è la seguente:
+
+  a(n) = ceiling(10^((n-1)/2))
+  
+oppure
+
+  a(n) = ceiling(sqrt(10^n))
+
+(define (solve num) (ceil (sqrt (pow 10 num))))
+
+(map solve (sequence 0 30))
+;-> (1 4 10 32 100 317 1000 3163 10000 31623 100000 316228 1000000 3162278 
+;->  10000000 31622777 100000000 316227767 1000000000 3162277661 
+;->  10000000000 31622776602 100000000000 316227766017 1000000000000 
+;->  3162277660169  10000000000000 31622776601684 100000000000000 
+;->  316227766016838 1000000000000000)
 
 
 ----------------
@@ -6249,6 +6280,11 @@ Conversione da decimale a binario (big-integer):
       (string (dec-binL (/ num MAXINT))
               (prep (bits (int (% num MAXINT))))))))
 
+(bits 9223372036854775807)
+;-> "111111111111111111111111111111111111111111111111111111111111111"
+(dec-binL 9223372036854775807)
+;-> "111111111111111111111111111111111111111111111111111111111111111"
+
 Conversione da binario a decimale (big-integer):
 
 (define (bin-decL binary)
@@ -6263,6 +6299,129 @@ Conversione da binario a decimale (big-integer):
 
 (= 102394746378492383765 (bin-decL (dec-binL 102394746378492383765)))
 ;-> true
+
+
+----------------------------
+Numeri somma di due quadrati
+----------------------------
+
+Determinare se un numero intero N può essere espresso come somma dei quadrati di due numeri interi.
+
+Sequenza OEIS A001481:
+  0, 1, 2, 4, 5, 8, 9, 10, 13, 16, 17, 18, 20, 25, 26, 29, 32, 34, 36, 37,
+  40, 41, 45, 49, 50, 52, 53, 58, 61, 64, 65, 68, 72, 73, 74, 80, 81, 82,
+  85, 89, 90, 97, 98, 100, 101, 104, 106, 109, 113, 116, 117, 121, 122,
+  125, 128, 130, 136, 137, 144, 145, 146, 148, 149, 153, 157, 160, ...
+
+La sequenza complementare è quella di tutti i numeri che non possono essere espressi come somma  dei quadrati di due numeri interi.
+
+Sequenza OEIS A022544:
+  3, 6, 7, 11, 12, 14, 15, 19, 21, 22, 23, 24, 27, 28, 30, 31, 33, 35, 38,
+  39, 42, 43, 44, 46, 47, 48, 51, 54, 55, 56, 57, 59, 60, 62, 63, 66, 67, 
+  69, 70, 71, 75, 76, 77, 78, 79, 83, 84, 86, 87, 88, 91, 92, 93, 94, 95, 
+  96, 99, 102, 103, 105, 107, 108, 110, 111, 112, 114, 115, 118, 119, 120,
+  123, 124, 126, 127, 129, 131, 132, 133, 134, 135, 138, 139, 140, 141, 
+  142, 143, 147, 150, 151, 152, 154, 155, 156, 158, 159, ...
+
+Approccio Brute-force
+---------------------
+Usiamo due cicli for fino alla radice quadrata di N e ogni volta verifichiamo se la somma dei quadrati dei due numeri (indici) del ciclo è uguale a N.
+
+(define (sum-quad1 num)
+  (let ((a nil) (b nil) (break nil))
+    (for (i 0 (int (+ (sqrt num) 1)) 1 break)
+      (for (j i (int (+ (sqrt num) 1)))
+        (if (= num (+ (* i i) (* j j))) (set 'a i 'b j 'break true))
+      )
+    )
+    ;(println a { } b)
+    break))
+
+(sum-quad1 17)
+;-> 1 4
+;-> true
+
+(filter sum-quad1 (sequence 0 30))
+;-> (0 1 2 4 5 8 9 10 13 16 17 18 20 25 26 29)
+(clean sum-quad1 (sequence 0 30))
+;-> (3 6 7 11 12 14 15 19 21 22 23 24 27 28 30)
+
+Approccio ottimizzato
+---------------------
+Usiamo una lista (o una hashmap) per memorizzare i quadrati dei numeri fino a sqrt(n), e ogni volta verifichiamo se esiste nella lista un numero pari a (N – sqrt(i)).
+
+(define (sum-quad2 num)
+  (let ((a nil) (b nil) (break nil) (sq '()))
+    (for (i 0 (int (+ (sqrt num) 1)) 1 break)
+      (setq q (* i i))
+      (push q sq)
+      (if (ref (- num q) sq) (set 'a i 'b (sqrt (- num q)) 'break true))
+    )
+    ;(println a { } b)
+    break))
+
+(sum-quad2 17)
+;-> 4 1
+;-> true
+
+(filter sum-quad2 (sequence 0 30))
+;-> (0 1 2 4 5 8 9 10 13 16 17 18 20 25 26 29)
+(clean sum-quad2 (sequence 0 30))
+;-> (3 6 7 11 12 14 15 19 21 22 23 24 27 28 30)
+
+Approccio matematico
+--------------------
+Ecco un teorema, dovuto a Fermat, che risolve il problema:
+
+Un numero N è esprimibile come somma di 2 quadrati se e solo se nella scomposizione in fattori primi di N ogni numero primo della forma (4k+3) ricorre un numero pari di volte!
+
+Esempi: 245 = 5*7*7. L'unico numero primo della forma 4k+3 è 7, e compare due volte. Quindi dovrebbe essere possibile scrivere 245 come somma di 2 quadrati (infatti, prova i quadrati di 14 e 7). Ma poiché 7 compare solo una volta in 42=2*3*7, è impossibile scrivere 42 come somma di due quadrati.
+
+Un corollario di questo fatto è che ogni numero primo della forma (4k+1) può essere scritto come somma di due quadrati.
+
+Nota: un numero N è nella forma (4k+3) se (N mod 4) = 3.
+
+(define (sum-quad3 num)
+  (local (f out)
+    (setq f (factor num))
+    (cond ((or (= num 0) (= num 1)) true)
+          ((= (length f) 1)
+            ; primo in forma (4k+3) --> nil
+            ; primo non in forma (4k+3) --> true
+            (if (= (% (f 0) 4) 3) nil true)
+          )
+          (true
+            (setq out true)
+            (dolist (el f (not out))
+              (if (and (= (% el 4) 3) (odd? (first (count (list el) f))))
+                  (setq out nil)
+              )
+            )
+            out))))
+
+(sum-quad3 17)
+;-> true
+
+(filter sum-quad3 (sequence 0 30))
+;-> (0 1 2 4 5 8 9 10 13 16 17 18 20 25 26 29)
+(clean sum-quad3 (sequence 0 30))
+;-> (3 6 7 11 12 14 15 19 21 22 23 24 27 28 30)
+
+Vediamo se le funzioni producono gli stessi risultati:
+
+(= (filter sum-quad1 (sequence 0 1000))
+   (filter sum-quad2 (sequence 0 1000))
+   (filter sum-quad3 (sequence 0 1000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(time (filter sum-quad1 (sequence 0 1e4)))
+;-> 2387.103
+(time (filter sum-quad2 (sequence 0 1e4)))
+;-> 237.376
+(time (filter sum-quad3 (sequence 0 1e4)))
+;-> 17.007
 
 =============================================================================
 
