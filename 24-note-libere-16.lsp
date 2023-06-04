@@ -6423,5 +6423,72 @@ Vediamo la velocità delle funzioni:
 (time (filter sum-quad3 (sequence 0 1e4)))
 ;-> 17.007
 
+
+------------------------------------------
+Risoluzione dell'equazione 1/x + 1/y = 1/n
+------------------------------------------
+
+Trovare tutte le soluzioni intere positive della seguente equazione per un determinato n:
+
+  1/x + 1/y = 1/n
+
+Risolviamo l'espressione in funzione della variabile x:
+
+  1/x + 1/y = 1/n
+  --> 1/x = 1/n – 1/y
+  --> 1/x = (y – n)/(n*y)
+  --> x = (n*y)/(y – n)
+
+  x = ((n*y)/(y – n)) * (1)
+  --> x = ((n*y)/(y – n)) * (1 – n/y + n/y)
+  --> x = ((n*y)/(y – n)) * ((y- n)/y + n/y)
+  --> x = n + n^2 / (y – n)
+
+Notiamo che per avere un intero positivo x, il resto quando n^2 è diviso per (y – n) deve essere 0.
+Inoltre il valore minimo di y può essere n + 1 (così che il denominatore y – n > 0) e il valore massimo di y può essere n^2 + n così che rimane n^2/(y – n) un numero intero positivo maggiore o uguale a 1.
+Quindi l'algoritmo è il seguente:
+
+  Ciclo con y che va da n + 1 a n * n
+    Se (y-n) divide il quadrato di n, allora
+       una soluzione vale (n + n^2 / (y – n)) e y
+  End
+
+Questo algoritmo trova anche le soluzioni simmetriche, cioè (x,y) e (y,x).
+Se vogliamo trovare solo le soluzioni uniche, allora prendiamo solo le soluzioni in cui x>=y (oppure solo quelle in cui x <= y).
+
+(define (solve num all)
+  (local (x y out)
+    (setq out '())
+    (if all
+        (for (y (+ num 1) (+ num (* num num)))
+          (if (zero? (% (* num num) (- y num)))
+            (push (list (+ num (/ (* num num) (- y num))) y) out -1)))
+        ;else
+        (for (y (+ num 1) (+ num (* num num)))
+          (if (and (zero? (% (* num num) (- y num)))
+                   (>= (+ num (/ (* num num) (- y num))) y))
+            (push (list (+ num (/ (* num num) (- y num))) y) out -1)))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(solve 1)
+;-> ((2 2))
+(solve 7)
+;-> ((56 8 (14 14)))
+(solve 7 true)
+;-> ((56 8) (14 14) (8 56))
+(solve 360)
+;-> ((129960 361) (65160 362) (43560 363) (32760 364) (26280 365) (21960 366) 
+;->  (16560 368) (14760 369) (13320 370) (11160 372) (9000 375) (8460 376)
+;->  (7560 378) (6840 380) (5760 384) (5544 385) (5160 387) (4680 390)
+;->  (4410 392) (3960 396) (3600 400) (3240 405) (3060 408) (2952 410)
+;->  (2760 414) (2520 420) (2385 424) (2160 432) (2088 435) (1980 440)
+;->  (1960 441) (1800 450) (1710 456) (1656 460) (1560 468) (1440 480)
+;->  (1320 495) (1260 504) (1224 510) (1170 520) (1160 522) (1080 540)
+;->  (1035 552) (1008 560) (960 576) (936 585) (900 600) (840 630) (810 648)
+;->  (792 660) (765 680) (760 684) (720 720))
+
 =============================================================================
 

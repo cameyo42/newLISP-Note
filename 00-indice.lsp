@@ -1845,6 +1845,7 @@ NOTE LIBERE 16
   Encoding Collatz
   Conversione decimale-binario per big-integer
   Numeri somma di due quadrati
+  Risoluzione dell'equazione 1/x + 1/y = 1/n
 
 PROBLEMI SUI DADI
 =================
