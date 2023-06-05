@@ -6490,5 +6490,71 @@ Facciamo alcune prove:
 ;->  (1035 552) (1008 560) (960 576) (936 585) (900 600) (840 630) (810 648)
 ;->  (792 660) (765 680) (760 684) (720 720))
 
+
+-----------
+a*b + c = N
+-----------
+
+Danto un intero positivo N, trovare (se esistono) tre interi a, b, c che soddisfano:
+
+  1) a*b + c = N
+  2) a, b e c sono numeri primi
+  3) a > b > c oppure a< b < c
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(length (comb 3 (primes-to 1000)))
+;-> 776216
+
+(define (solve num)
+  (local (terne out)
+    (setq out '())
+    ; genera tutte le terne possibili dei numeri primi fino a num
+    ; le terne sono ordinate in modo crescente
+    (setq terne (comb 3 (primes-to num)))
+    (dolist (el terne)
+      ; a < b < c
+      (if (= (+ (* (el 0) (el 1)) (el 2)) num)
+          (push el out -1))
+      ; a > b > c
+      (if (= (+ (* (el 2) (el 1)) (el 0)) num)
+          (push (reverse el) out -1))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(solve 17)
+;-> ((5 3 2) (2 3 11) (2 5 7))
+(solve 20)
+;-> ()
+(solve 37)
+;-> ((2 3 31) (7 5 2) (2 7 23))
+(solve 48)
+;-> ((5 7 13))
+(solve 208)
+;-> ((41 5 3) (3 5 193) (3 17 157) (3 19 151) (3 23 139) (3 37 97) 
+;->  (3 43 79) (3 47 67) (29 7 5) (5 7 173) (5 19 113) (5 31 53)
+;->  (7 11 131) (7 17 89) (7 23 47))
+
 =============================================================================
 
