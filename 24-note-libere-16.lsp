@@ -6556,5 +6556,261 @@ Facciamo alcune prove:
 ;->  (3 43 79) (3 47 67) (29 7 5) (5 7 173) (5 19 113) (5 31 53)
 ;->  (7 11 131) (7 17 89) (7 23 47))
 
+
+-------------------------------------
+Triangoli con stesso perimetro e area
+-------------------------------------
+
+Trovare tutti i possibili triangoli aventi lo stesso perimetro e area e i cui lati sono numeri interi.
+
+  Perimetro = a + b + c
+  Area = sqrt(s*(s-a)*(s-b)*(s-c)) (formula di Erone)
+         dove s = (a + b + c)/2
+
+  Perimetro = Area
+  a + b + c = sqrt(s*(s-a)*(s-b)*(s-c))
+
+sostituiamo: a + b + c = 2*s
+  2*s = sqrt(s*(s-a)*(s-b)*(s-c))
+
+eleviamo al quadrato:
+  4*s^2 = (s*(s-a)*(s-b)*(s-c))
+
+semplifichiamo s:
+  4*s = (s-a)*(s-b)*(s-c)
+
+moltiplichiamo entrambi i membri per 2*2*2:
+  (2*2*2)*4s = 2*(s-a)*2*(s-b)*2*(s-c)
+
+Adesso:
+  2*(s-a) = 2*((a+b+c)/2 - a) = (-a + b + c)
+  2*(s-b) = 2*((a+b+c)/2 - b) = (a - b + c)
+  2*(s-c) = 2*((a+b+c)/2 - c) = (a + b - c)
+
+Sostituiamo:
+  (2*2)*4*(a + b + c) = (-a + b + c)*(a - b + c)*(a + b - c)
+
+Semplifichiamo:
+  16*(a + b + c) = (-a + b + c)*(a - b + c)*(a + b - c)
+
+In base a questa condizione il massimo valore del secondo membro deve essere:
+
+  Max[ (- a + b + c)*(a – b + c)*(a + b – c) ] <= 16*16*16
+
+Quindi:
+  16*(a + b + c) ≤ 16*16*16  --> (a + b + c) <= 256
+
+Algoritmo:
+Tre cicli per provare tutte le combinazioni di a, b, c che soddisfano le condizioni.
+
+(define (triangle)
+  (local (out per2 m1 m2 m3)
+    (for (i 1 256)
+      (for (j 1 256)
+        (for (k 1 256)
+          (setq per2 (+ i j k))
+          ;2*(s-a)
+          (setq m1 (+ (- i) j k))
+          ;2*(s-b)
+          (setq m2 (+ i (- j) k))
+          ;2*(s-c)
+          (setq m3 (+ i j (- k)))
+          ; area = perimetro ?
+          (if (= (* 16 per2) (* m1 m2 m3))
+              ; una soluzione trovata (i j k)
+              (push (sort (list i j k)) out -1)
+          )
+        )
+      )
+    )
+    ; elimina soluzioni duplicate
+    (unique out)))
+
+(time (println (triangle)))
+;-> ((5 12 13) (6 8 10) (6 25 29) (7 15 20) (9 10 17))
+;-> 5132.188
+
+
+-----------------------------
+Ordinamento di liste annidate
+-----------------------------
+
+Per ordinare una lista non annidata possiamo usare la funzione "sort":
+
+(setq a '(10 6 4 8 14 3 8))
+(sort a)
+;-> (3 4 6 8 8 10 14)
+
+Se la lista è annidata, allora la funzione "sort" potrebbe essere insufficiente per i nostri scopi:
+
+(setq a '((3 5 2) (7 6) (5 9 2 4)))
+(sort a)
+;-> ((3 5 2) (5 9 2 4) (7 6))
+
+Come si nota, gli elementi vengono ordinati in base ai valori di ogni sottolista, ma le sottoliste non vengono ordinate.
+Possiamo risolvere questo problema utilizzando la funzione "map":
+
+(setq a '((3 5 2) (7 6) (5 9 2 4)))
+(map sort a)
+;-> ((2 3 5) (6 7) (2 4 5 9))
+
+In questo caso abbiamo ordinato tutte le sottoliste in base ai propri valori, ma non vengono ordinate le liste tra loro, per fare questo occorre utilizzare nuovamente "sort":
+
+(setq a '((3 5 2) (7 6) (5 9 2 4)))
+(sort (map sort a))
+;-> ((2 3 5) (2 4 5 9) (6 7))
+
+Comunque la lista considerata aveva un solo annidamento, in caso di liste più complesse dobbiamo usare altri metodi per ordinarle.
+Supponiamo di avere la seguente lista:
+
+(setq a '( ((15 8 4) (3) (3 1 2) (9 20 2) (4))
+           ((77 63) (42 21))
+           ((33) (4 2 19) (1 7 (4 3 (5 1) (2)) 5 3) (44)  (55) (57))
+           (2 1)
+           1
+           (2 2)
+           (101 99 (77) (75)) ))
+
+La funzione "sort" produce il seguente risultato:
+
+(sort (copy a))
+;-> (1 (2 1) (2 2)
+;->  (101 99 (77) (75))
+;->  ((15 8 4) (3) (3 1 2) (9 20 2) (4))
+;->  ((33) (4 2 19) (1 7 (4 3 (5 1) (2)) 5 3) (44) (55) (57))
+;->  ((77 63) (42 21)))
+
+Come si nota, le sottoliste non sono ordinate.
+
+Non possiamo applicare "map", perchè alcuni elementi sono atomi e non liste:
+
+(map sort a)
+;-> ERR: list or array expected in function sort : 1
+
+L'obiettivo è quello di ordinare la lista nel modo seguente:
+
+(((1 2 3) (2 9 20) (3) (4) (4 8 15))
+ ((21 42) (63 77))
+ ((1 3 5 7 (3 4 (1 5) (2))) (2 4 19) (33) (44) (55) (57))
+ (1 2)
+ 1
+ (2 2)
+ (99 101 (75) (77)))
+
+Cioè tutte le sottoliste annidate sono ordinate sia internamente che tra loro.
+Solo le sottoliste del primo livello non vengono ordinate tra loro.
+
+Per ottenere questo risultato occorre ordinare tutte le sottoliste partendo da quelle più interne.
+Un possibile algoritmo è il seguente:
+
+1) generare la lista degli indici di tutti gli elementi della lista data
+2) ordinare la lista degli indici per lunghezza delle sottoliste (decrescente)
+3) Ciclo sulla lista degli indici ordinata
+   per ordinare tutte le sottoliste (partendo da quelle più interne/annidate)
+
+Nota: se ordiniamo gli indici in modo crescente, allora incontriamo prima le sottoliste più esterne.
+
+Facciamo un esempio:
+
+(setq lst '( ((15 8 4) (3) (4 (1)))
+             ((77 63) (42 21))
+             ((33) (4 2 19) (57))
+              (2 1)
+              1
+              (101 99 (77) (75)) ))
+
+1) generare la lista degli indici di tutti gli elementi della lista data
+(setq indici (ref-all nil lst (fn (x) true)))
+;-> ((0) (0 0) (0 0 0) (0 0 1) (0 0 2) (0 1) (0 1 0) (0 2) (0 2 0) (0 2 1)
+;->  (0 2 1 0) (1) (1 0) (1 0 0) (1 0 1) (1 1) (1 1 0) (1 1 1) (2) (2 0)
+;->  (2 0 0) (2 1) (2 1 0) (2 1 1) (2 1 2) (2 2) (2 2 0) (3) (3 0) (3 1)
+;->  (4) (5) (5 0) (5 1) (5 2) (5 2 0) (5 3) (5 3 0))
+
+2) ordinare la lista degli indici per lunghezza delle sottoliste (decrescente)
+(setq ind-ord (sort (map (fn(x) (list (length x) $idx)) indici) >))
+(setq ind-ord (select indici (map last ind-ord)))
+;-> ((0 2 1 0) (5 3 0) (5 2 0) (2 2 0) (2 1 2) (2 1 1) (2 1 0) (2 0 0) (1 1 1)
+;->  (1 1 0) (1 0 1) (1 0 0) (0 2 1) (0 2 0) (0 1 0) (0 0 2) (0 0 1) (0 0 0)
+;->  (5 3) (5 2) (5 1) (5 0) (3 1) (3 0) (2 2) (2 1) (2 0) (1 1) (1 0) (0 2)
+;->  (0 1) (0 0) (5) (4) (3) (2) (1) (0))
+
+3) Ciclo sulla lista degli indici ordinata
+   per ordinare tutte le sottoliste (partendo da quelle più interne/annidate)
+(dolist (idx ind-ord)
+  ;(println idx { } (lst idx))
+  ;(read-line)
+  (if (list? (lst idx))
+      ;(setf (lst idx) (sort (a idx)))
+      (setf (lst idx) (sort (copy $it)))
+  )
+)
+lst
+;-> (((3) (4 8 15) (4 (1)))
+;->  ((21 42) (63 77))
+;->  ((2 4 19) (33) (57))
+;->  (1 2)
+;->  1 
+;->  (99 101 (75) (77)))
+
+Vediamo una implementazione:
+
+(define (sort-nested lst)
+  (local (indici ind-ord)
+    ; genera la lista degli indici di tutti gli elementi della lista data
+    (setq indici (ref-all nil lst (fn (x) true)))
+    ; ordina la lista degli indici per lunghezza delle sottoliste
+    (setq ind-ord (sort (map (fn(x) (list (length x) $idx)) indici) >))
+    (setq ind-ord (select indici (map last ind-ord)))
+    ; ordina tutte le sottoliste della lista data
+    ; partendo da quelle più interne (annidate)
+    (dolist (idx ind-ord)
+      ;(println idx { } (lst idx))
+      ;(read-line)
+      (if (list? (lst idx))
+          ;(setf (lst idx) (sort (a idx)))
+          (setf (lst idx) (sort (copy $it)))
+      )
+    )
+    lst))
+
+Facciamo alcune prove:
+
+(sort-nested a)
+;-> (((1 2 3) (2 9 20) (3) (4) (4 8 15))
+;->  ((21 42) (63 77))
+;->  ((1 3 5 7 (3 4 (1 5) (2))) (2 4 19) (33) (44) (55) (57))
+;->  (1 2)
+;->  1
+;->  (2 2)
+;->  (99 101 (75) (77)))
+
+Se vogliamo ordinare anche il primo livello della lista data, basta applicare "sort" al risultato di "sort-nested":
+
+(sort (sort-nested a))
+;-> (1
+;->  (1 2)
+;->  (2 2)
+;->  (99 101 (75) (77))
+;->  ((1 2 3) (2 9 20) (3) (4) (4 8 15))
+;->  ((1 3 5 7 (3 4 (1 5) (2))) (2 4 19) (33) (44) (55) (57))
+;->  ((21 42) (63 77)))
+
+Le liste non annidate non vengono ordinate:
+
+(setq a '(4 2 1 7 6 9 2))
+(sort-nested a)
+;-> (4 2 1 7 6 9 2)
+La lista non è cambiata perchè "sort-nested" non ordina il primo livello.
+
+(setq a '((5 9) (4 8 2) ((6) (3) (8)) ((9 8 11))))
+(sort-nested a)
+;-> ((5 9) (2 4 8) ((3) (6) (8)) ((8 9 11)))
+
+(setq a '((7 4 5) (9 4 2) (2 6 3)))
+(sort-nested a)
+;-> ((4 5 7) (2 4 9) (2 3 6))
+
+Nota: partendo dalla lista degli indici è possibile individuare anche il livello di annidamento della sottolista corrente (uguale alla lunghezza della relativa lista degli indici) e quindi possiamo ordinare la lista nel modo che vogliamo.
+
 =============================================================================
 

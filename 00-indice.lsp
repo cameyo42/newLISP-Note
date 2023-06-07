@@ -1847,6 +1847,8 @@ NOTE LIBERE 16
   Numeri somma di due quadrati
   Risoluzione dell'equazione 1/x + 1/y = 1/n
   a*b + c = N
+  Triangoli con stesso perimetro e area
+  Ordinamento di liste annidate
 
 PROBLEMI SUI DADI
 =================
