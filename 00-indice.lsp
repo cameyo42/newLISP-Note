@@ -1849,6 +1849,8 @@ NOTE LIBERE 16
   a*b + c = N
   Triangoli con stesso perimetro e area
   Ordinamento di liste annidate
+  Numero successivo con cifre non decrescenti
+  La funzione modulo (%, mod)
 
 PROBLEMI SUI DADI
 =================

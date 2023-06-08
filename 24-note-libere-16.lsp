@@ -6752,7 +6752,7 @@ lst
 ;->  1 
 ;->  (99 101 (75) (77)))
 
-Vediamo una implementazione:
+Vediamo l'implementazione:
 
 (define (sort-nested lst)
   (local (indici ind-ord)
@@ -6810,7 +6810,340 @@ La lista non è cambiata perchè "sort-nested" non ordina il primo livello.
 (sort-nested a)
 ;-> ((4 5 7) (2 4 9) (2 3 6))
 
+(setq a '(((10 5 9) (6 4 4)) ((2 6 3) (3 3 2)) ((3 8 6) (1 5 6))))
+(sort (copy a))
+;-> (((2 6 3) (3 3 2)) ((3 8 6) (1 5 6)) ((10 5 9) (6 4 4)))
+(sort-nested a)
+;-> (((4 4 6) (5 9 10)) ((2 3 3) (2 3 6)) ((1 5 6) (3 6 8)))
+(sort (sort-nested a))
+(((1 5 6) (3 6 8)) ((2 3 3) (2 3 6)) ((4 4 6) (5 9 10)))
+
+(setq a '(((6 9) (12 17)) ((9 6) (9 8))))
+(sort (copy a))
+;-> (((6 9) (12 17)) ((9 6) (9 8)))
+(sort-nested a)
+;-> (((6 9) (12 17)) ((6 9) (8 9)))
+(sort (sort-nested a))
+;-> (((6 9) (8 9)) ((6 9) (12 17)))
+ 
 Nota: partendo dalla lista degli indici è possibile individuare anche il livello di annidamento della sottolista corrente (uguale alla lunghezza della relativa lista degli indici) e quindi possiamo ordinare la lista nel modo che vogliamo.
+
+
+-------------------------------------------
+Numero successivo con cifre non decrescenti
+-------------------------------------------
+
+Dato un numero intero positivo N, trovare il numero successivo con i seguenti requisiti:
+Il successivo numero maggiore è un numero in cui ogni cifra, da sinistra a destra, è maggiore o uguale alla precedente. Ad esempio, 1455: 1<4, 4<5, 5<=5.
+Il prossimo numero maggiore deve essere maggiore di N.
+
+Sequenza OEIS A009994: Numbers with digits in nondecreasing order
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23,
+24, 25, 26, 27, 28, 29, 33, 34, 35, 36, 37, 38, 39, 44, 45, 46, 47, 48, 49,
+55, 56, 57, 58, 59, 66, 67, 68, 69, 77, 78, 79, 88, 89, 99, 111, 112, 113,
+114, 115, 116, 117, 118, 119, 122, ...
+
+Sequenza OEIS A009996: Numbers with digits in nonincreasing order
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41,
+  42, 43, 44, 50, 51, 52, 53, 54, 55, 60, 61, 62, 63, 64, 65, 66, 70, 71,
+  72, 73, 74, 75, 76, 77, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91, 92,
+  93, 94, 95, 96, 97, 98, 99, 100, 110, 111, 200, 210, 211, ...
+
+(setq MAX-INT 9223372036854775807)
+
+Algoritmo brute-force
+Ciclo che ogni volta aumenta di 1 il numero e verifica se soddisfa i requisiti.
+
+(define (next num)
+  (let (found nil)
+    (cond ((< num 9) (++ num))
+          (true
+            (until found
+              (++ num)
+              (if (apply <= (explode (string num))) (setq found true))
+            )))
+    num))
+
+Facciamo alcune prove:
+
+(next 2)
+;-> 3
+(next 10)
+;-> 11
+(next 19)
+;-> 22
+(next 21)
+;-> 22
+(next 99)
+;-> 111
+(next 321)
+;-> 333
+(next 1455)
+;-> 1456
+(next 98142)
+;-> 99999
+
+Questa non termina brevemente...(l'ho interrotta)
+(time (println (next 11123159995399999)))
+
+(map next (sequence 0 50))
+;-> (1 2 3 4 5 6 7 8 9 11 11 12 13 14 15 16 17 18 19 22 22 22 23 24 25
+;->  26 27 28 29 33 33 33 33 34 35 36 37 38 39 44 44 44 44 44 45 46 47
+;->  48 49 55 55)
+(unique (map next (sequence 0 50)))
+;-> (1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 22 23 24 25 26 27 28
+;->  29 33 34 35 36 37 38 39 44 45 46 47 48 49 55)
+
+Algoritmo smart
+a) Verifica del numero
+b) Ciclo sul numero fino a che non si trova un numero inferiore al precedente (es. 5 > 4) o si raggiunge la fine del numero.
+c) Se raggiungiamo la fine del numero, lo aumentiamo di 1 e andiamo al passo a).
+4) Se abbiamo trovato una coppia discendente, allora occorre sostituire tutte le cifre dal numero inferiore (4) alla fine, con il numero precedente (5).
+
+Esempio: 1321
+1321 non soddisfa i requisiti
+La prima coppia discendente vale 32.
+Sosituiamo tutte le cifre dalla 2 alla fine con il valore 3 --> 1333
+1333 soddisfa i requisiti.
+
+(define (next1 num)
+  (let ((found nil) (coppia nil))
+    (cond ((< num 9) (setq str (string (++ num))))
+          (true
+            (until (or found coppia)
+              (++ num)
+              (setq str (string num))
+              (cond ((apply <= (explode str)) (setq found true))
+                    (true
+                      (setq coppia nil)
+                      (for (i 0 (- (length str) 2) 1 coppia)
+                        (if (< (str (+ i 1)) (str i))
+                            (set 'coppia true 'idx (+ i 1) 'digit (str i))
+                        )
+                      )
+                      (if coppia
+                        (for (i idx (- (length str) 1))
+                          (setf (str i) digit)
+                        )
+                      ))
+              )
+            ))
+    )
+    (int str 0 10)))
+
+Facciamo alcune prove:
+
+(next1 2)
+;-> 3
+(next1 10)
+;-> 11
+(next1 19)
+;-> 22
+(next1 21)
+;-> 22
+(next1 99)
+;-> 111
+(next1 321)
+;-> 333
+(next1 1455)
+;-> 1456
+(next1 98142)
+;-> 99999
+(time (println (next1 11123159995399999)))
+;-> 11123333333333333
+;-> 1.996
+
+(map next1 (sequence 0 50))
+;-> (1 2 3 4 5 6 7 8 9 11 11 12 13 14 15 16 17 18 19 22 22 22 23 24 25
+;->  26 27 28 29 33 33 33 33 34 35 36 37 38 39 44 44 44 44 44 45 46 47
+;->  48 49 55 55)
+(unique (map next1 (sequence 0 50)))
+;-> (1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 22 23 24 25 26 27 28
+;->  29 33 34 35 36 37 38 39 44 45 46 47 48 49 55)
+
+
+---------------------------
+La funzione modulo (%, mod)
+---------------------------
+
+L'operatore modulo, spesso indicato come "mod" o "%", rappresenta il resto di una divisione.
+Una definizione matematica ampiamente accettata è stata fatta da Donald Knuth:
+
+  mod(a, b) = a - b * floor(a / b)
+
+Fare una divisione intera e poi moltiplicarla di nuovo significa trovare il numero più grande più piccolo di "a" che è divisibile per "b" senza resto. Sottraendo questo da "a" si ottiene il resto della divisione e quindi il modulo.
+
+Nei linguaggi di programmazione esistono due principali implementazioni di "mod", che scelgono il segno del risultato a seconda dei segni del dividendo "a" e del divisore "b":
+
+1) La divisione troncata restituisce: r = a − b*trunc(a/b).
+   Pertanto, r ha lo stesso segno del dividendo a.
+2) La divisione floor restituisce: r = a − b*floor(a/b).
+   Qui, r ha lo stesso segno del divisore b.
+
+Linguaggi e modalità di calcolo del modulo
+------------------------------------------
+
+  Linguaggio  (13 mod 3)  (-13 mod 3)  (13 mod -3)  (-13 mod -3)
+  ----------  ----------  -----------  -----------  ------------
+  C               1            -1          1             -1
+  C#              1            -1          1             -1
+  C++             1            -1          1             -1
+  Erlang          1            -1          1             -1
+  Go              1            -1          1             -1
+  Java            1            -1          1             -1
+  Javascript      1            -1          1             -1
+  Kotlin          1            -1          1             -1
+  newLISP         1            -1          1             -1
+  PHP             1            -1          1             -1
+  Rust            1            -1          1             -1
+  Scala           1            -1          1             -1
+  Swift           1            -1          1             -1
+  Haskell         1             2         -2             -1
+  Lua             1             2         -2             -1
+  Mathematica     1             2         -2             -1
+  Python          1             2         -2             -1
+  Ruby            1             2         -2             -1
+  Zig @rem        1            -1        error          error
+  Zig @mod        1             2        error          error
+
+Come si nota newLISP si comporta come il C.
+
+****************
+>>>funzione MOD
+****************
+sintassi: (mod num-1 num-2 [num-3 ... ])
+sintassi: (mod num-1)
+
+Calculates the modular value of the numbers in num-1 and num-2. 
+mod computes the remainder from the division of the numerator num-i by the denominator num-i + 1.
+Specifically, the return value is numerator - n * denominator, where n is the quotient of the numerator divided by the denominator, rounded towards zero to an integer.
+The result has the same sign as the numerator and its magnitude is less than the magnitude of the denominator.
+
+In the second syntax 1 is assumed for num-2 and the result is the fractional part of num-1.
+
+(mod 10.5 3.3)   →  0.6
+(mod -10.5 3.3)  → -0.6
+(mod -10.5)      → -0.5
+
+Use the % (percent sign) function when working with integers only.
+
+**************
+>>>funzione %
+**************
+sintassi: (% int-1 [int-2 ... ])
+
+Each result is divided successively by the next int, then the rest (modulo operation) is returned.
+Division by zero causes an error. 
+For floating point numbers, use the mod function.
+
+(% 10 3)             → 1
+(% -10 3)            → -1
+
+Floating point values in arguments to % are truncated to the integer value closest to 0 (zero).
+
+Floating point values larger or smaller than the maximum (9,223,372,036,854,775,807) or minimum (-9,223,372,036,854,775,808) integer values are truncated to those values. 
+This includes the values for +Inf and -Inf.
+
+Calculations resulting in values larger than 9,223,372,036,854,775,807 or smaller than -9,223,372,036,854,775,808 wrap around from positive to negative or negative to positive.
+
+Floating point values that evaluate to NaN (Not a Number), ar treated as 0 (zero).
+
+Adesso vediamo come viene calcolato il modulo negli altri linguaggi (es. Mathematica).
+
+Quando solo il dividendo è negativo
+-----------------------------------
+Se solo il dividendo è negativo, allora:
+Il modulo troncato restituisce il resto negativo e il modulo floor restituisce il resto positivo.
+Ad esempio, calcoliamo −9 mod 4:
+−9 = 4 * (−2) − 1
+e
+-9 = 4 * (-3) + 3.
+L'uguaglianza nella prima equazione corrisponde alla divisione troncata e implica che −9 mod 4 = −1. 
+Il dividendo è negativo, e quindi lo è anche il resto.
+L'uguaglianza di quest'ultima equazione corrisponde alla versione floor e implica che −9 mod 4 = 3. 
+Il divisore è positivo, e quindi lo è anche il resto.
+
+Quando solo il divisore è negativo
+----------------------------------
+Se solo il dividendo è negativo, allora:
+La divisione troncata restituisce il resto positivo e la divisione floor restituisce il resto negativo.
+Ad esempio, calcoliamo 9 mod (-4).
+Abbiamo 9 = (−4) * (−2) + 1, che corrisponde alla versione troncata e implica che 9 mod (−4) = 1. 
+Il dividendo e il risultato sono entrambi positivi.
+In alternativa, 9 = (−4) * (−3) − 3, che è la versione floor vale 9 mod (−4) = −3. 
+Il divisore e il resto sono negativi.
+
+Quando sia il divisore che il dividendo sono negativi
+-----------------------------------------------------
+Se sia il divisore che il dividendo sono negativi, sia la divisione troncata che la divisione floor restituiscono il resto negativo.
+Ad esempio, calcoliamo (-9) mod (-4).
+Abbiamo floor(−9/(−4)) = floor(9/4) = 2 e trunc(−9/(−4)) = trunc(9/4) = 2.
+Quindi, l'uguaglianza (−9) = (−4) * 2 − 1 corrisponde sia alla divisione troncata che a quella floored, e implica che in entrambi i casi abbiamo (−9) mod (−4) = (−9) − (− 4)*2 = (−9) + 8 = −1. 
+Il dividendo, il divisore e il resto sono tutti negativi.
+
+Scriviamo una funzione che calcola il modulo come Mathematica:
+
+(define (%% a b)
+  (cond ((and (>= a 0) (>= b 0)) (% a b))
+        ; dividendo e divisore entrambi negativi
+        ((and (< a 0) (< b 0)) (% a b))
+        ; dividendo negativo e divisore positivo
+        ((and (< a 0) (> b 0)) (+ (% a b) b))
+        ;(dividendo positivo e divisore negativo
+        ((and (> a 0) (< b 0)  (+ (% a b) b)))
+        (true (println "error"))
+  ))
+
+(%% 9 4)
+;-> 1
+(%% -9 4)
+;-> 3
+(%% 9 -4)
+;-> -3
+(%% -9 -4)
+;-> -1
+
+Versione migliore (più efficiente):
+
+(define (%% a b)
+  (if (= (sgn a) (sgn b))
+      (% a b)
+      (+ (% a b) b)))
+
+(%% 9 4)
+;-> 1
+(%% -9 4)
+;-> 3
+(%% 9 -4)
+;-> -3
+(%% -9 -4)
+;-> -1
+
+Versione definitiva per numeri interi:
+
+(define (%% a b) (% (+ (% a b) b) b))
+
+(%% 9 4)
+;-> 1
+(%% -9 4)
+;-> 3
+(%% 9 -4)
+;-> -3
+(%% -9 -4)
+;-> -1
+
+Versione definitiva per numeri in virgola mobile:
+
+(define (modmod a b) (mod (add (mod a b) b) b))
+
+(modmod 10.3 3.2)
+;-> 0.7
+(modmod -10.3 3.2)
+;-> 2.5
+(modmod 10.3 -3.2)
+;-> -2.5
+(modmod -10.3 -3.2)
+;-> -0.7
 
 =============================================================================
 
