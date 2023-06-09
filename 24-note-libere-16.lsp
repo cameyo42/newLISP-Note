@@ -7014,39 +7014,42 @@ Come si nota newLISP si comporta come il C.
 sintassi: (mod num-1 num-2 [num-3 ... ])
 sintassi: (mod num-1)
 
-Calculates the modular value of the numbers in num-1 and num-2. 
-mod computes the remainder from the division of the numerator num-i by the denominator num-i + 1.
-Specifically, the return value is numerator - n * denominator, where n is the quotient of the numerator divided by the denominator, rounded towards zero to an integer.
-The result has the same sign as the numerator and its magnitude is less than the magnitude of the denominator.
+Calcola il valore modulare dei numeri in "num-1" e "num-2".
+mod calcola il resto dalla divisione del numeratore "num-i" per il denominatore num-i + 1.
+Nello specifico, il valore restituito è numeratore - n*denominatore, dove n è il quoziente del numeratore diviso per il denominatore, arrotondato per difetto a un numero intero.
+Il risultato ha lo stesso segno del numeratore e la sua grandezza è minore della grandezza del denominatore.
 
-In the second syntax 1 is assumed for num-2 and the result is the fractional part of num-1.
+Nella seconda sintassi si assume 1 per num-2 e il risultato è la parte frazionaria di num-1.
 
 (mod 10.5 3.3)   →  0.6
 (mod -10.5 3.3)  → -0.6
 (mod -10.5)      → -0.5
 
-Use the % (percent sign) function when working with integers only.
+Utilizzare la funzione % (segno di percentuale) quando si lavora solo con numeri interi.
 
 **************
 >>>funzione %
 **************
 sintassi: (% int-1 [int-2 ... ])
 
-Each result is divided successively by the next int, then the rest (modulo operation) is returned.
-Division by zero causes an error. 
+Ogni risultato viene diviso successivamente per l'int successivo, quindi viene restituito il resto (operazione modulo). 
+La divisione per zero causa un errore. 
+Per i numeri in virgola mobile, usa la funzione mod.
+
 For floating point numbers, use the mod function.
 
 (% 10 3)             → 1
 (% -10 3)            → -1
 
+I valori in virgola mobile negli argomenti di % vengono troncati al valore intero più vicino a 0 (zero).
+
+I valori in virgola mobile maggiori o minori dei valori interi massimo (9.223.372.036.854.775.807) o minimo (-9.223.372.036.854.775.808) vengono troncati a tali valori.
+Ciò include i valori per +Inf e -Inf.
+
+I calcoli che generano valori maggiori di 9.223.372.036.854.775.807 o minori di -9.223.372.036.854.775.808 vanno da positivo a negativo o da negativo a positivo.
+
+I valori in virgola mobile che restituiscono NaN (non un numero), vengono trattati come 0 (zero).
 Floating point values in arguments to % are truncated to the integer value closest to 0 (zero).
-
-Floating point values larger or smaller than the maximum (9,223,372,036,854,775,807) or minimum (-9,223,372,036,854,775,808) integer values are truncated to those values. 
-This includes the values for +Inf and -Inf.
-
-Calculations resulting in values larger than 9,223,372,036,854,775,807 or smaller than -9,223,372,036,854,775,808 wrap around from positive to negative or negative to positive.
-
-Floating point values that evaluate to NaN (Not a Number), ar treated as 0 (zero).
 
 Adesso vediamo come viene calcolato il modulo negli altri linguaggi (es. Mathematica).
 
@@ -7144,6 +7147,311 @@ Versione definitiva per numeri in virgola mobile:
 ;-> -2.5
 (modmod -10.3 -3.2)
 ;-> -0.7
+
+
+--------------------------------
+Generazione di un grafo regolare
+--------------------------------
+
+Dati due numeri interi positivi n,k con n> k >= 1, generare una matrice nxn binaria tale che ogni riga e ogni colonna contenga esattamente k valori 1 e la diagonale maggiore sia tutta con valori 0.
+Questa è la matrice di adiacenza di un grafo orientato regolare.
+
+Un grafo regolare è un grafo in cui ogni vertice ha lo stesso numero di vicini, cioè ogni vertice ha lo stesso grado.
+Nel caso di grafi orientati, un grafo regolare deve soddisfare anche la proprietà che il grado in uscita e quello in entrata siano uguali.
+
+(define (%% a b) (% (+ (% a b) b) b))
+
+(define (graph n k)
+  (setq out (array-list (array n n '())))
+  (for (i 0 (- n 1))
+    (for (j 0 (- n 1))
+      (if (< (%% (- i j 1) n) k)
+          (setf (out i j) 1)
+          (setf (out i j) 0)
+      )
+    )
+  )
+  out)
+
+Facciamo alcune prove:
+
+(graph 2 1)
+;-> ((0 1) (1 0))
+
+(graph 5 3)
+;-> ((0 0 1 1 1) 
+;->  (1 0 0 1 1) 
+;->  (1 1 0 0 1) 
+;->  (1 1 1 0 0) 
+;->  (0 1 1 1 0))
+
+(graph 3 1)
+;-> ((0 0 1)
+;->  (1 0 0)
+;->  (0 1 0)
+
+(graph 6 2)
+;-> ((0 0 0 0 1 1) 
+;->  (1 0 0 0 0 1) 
+;->  (1 1 0 0 0 0) 
+;->  (0 1 1 0 0 0) 
+;->  (0 0 1 1 0 0) 
+;->  (0 0 0 1 1 0))
+
+(graph 5 4)
+;-> ((0 1 1 1 1) 
+;->  (1 0 1 1 1) 
+;->  (1 1 0 1 1) 
+;->  (1 1 1 0 1) 
+;->  (1 1 1 1 0))
+
+
+--------------------------------
+Disordine di una lista di numeri
+--------------------------------
+
+Per calcolare il "disordine" di una lista esistono diverse misure.
+Il seguente articolo elenca 11 misure per il "disordine":
+
+Vladmir Estivill-Castro, Derick Wood "A survey of adaptive sorting algorithms." ACM 1992
+"Lo sviluppo di nuovi algoritmi di ordinamento sfrutta l'ordine esistente nella sequenza di input e molti di loro raggiungono la massima adattabilità (ottimalità) rispetto a diverse misure di disordine."
+
+Inversione in una lista X = (x1, x2, ..., xn): quando per (i,j) risulta i < j e xi > xj.
+
+Vediamo brevemente alcune misure di disordine:
+
+Inv: numero di inversioni per passare dalla lista originale a quella ordinata.
+Dis: la distanza più lunga eseguita da una inversione
+Max: la distanza maggiore che un elemento deve fare per essere ordinato
+Exc: minimo numero di scambi per ordinare la sequenza
+Rem: il numero minimo di elementi che devono essere spostati per ordinare
+
+La maggior parte delle misure è orientato dal metodo di ordinamento utilizzato.
+
+Vediamo un metodo generico per misurare il "disordine" proposto da Andrushenko Alexander:
+
+https://cs.stackexchange.com/questions/11836/how-to-measure-sortedness
+
+Data una qualsiasi lista (a b c ...) la confrontiamo con la lista ordinata contenente gli stessi elementi, contiamo il numero di corrispondenze e lo dividiamo per il numero di elementi nella sequenza.
+Ad esempio data la successione (5 1 2 3 4) si procede come segue:
+
+1) ordinare la sequenza: (1 2 3 4 5)
+
+2) confrontare la sequenza ordinata con l'originale spostandola di una posizione alla volta e contando il numero massimo di corrispondenze:
+
+          (5 1 2 3 4)
+  (1 2 3 4 5)                            1 match
+  
+          (5 1 2 3 4)
+    (1 2 3 4 5)                          0 match
+  
+          (5 1 2 3 4)
+      (1 2 3 4 5)                        0 match
+  
+          (5 1 2 3 4)
+        (1 2 3 4 5)                      0 match
+  
+          (5 1 2 3 4)
+          (1 2 3 4 5)                    0 match
+  
+          (5 1 2 3 4)
+            (1 2 3 4 5)                  4 matches
+  
+          (5 1 2 3 4)
+              (1 2 3 4 5)                0 match
+  
+          (5 1 2 3 4)
+                (1 2 3 4 5)              0 match
+  
+          (5 1 2 3 4)
+                  (1 2 3 4 5)            0 match
+
+3) Il numero massimo di corrispondenze è 4, possiamo calcolare "quanto è ordinata" come 4/5 = 0.8.
+
+Il numero di confronti da fare tra le due liste vale 2*length(lst) - 1.
+
+L'ordinamento di una sequenza ordinata sarebbe 1 e l'ordinamento di una sequenza con elementi posti in ordine inverso sarebbe 1/n.
+
+L'idea alla base di questa definizione è stimare la quantità minima di lavoro che dovremmo fare per convertire qualsiasi sequenza nella sequenza ordinata.
+Nell'esempio sopra abbiamo bisogno di spostare un solo elemento, il 5 (ci sono molti modi, ma spostare il 5 è il più efficiente).
+Quando gli elementi verrebbero posizionati in ordine inverso, avremmo bisogno di spostare 4 elementi.
+E quando la sequenza è stata ordinata, non è necessario alcun lavoro.
+
+Scriviamo una funzione che implementa questo metodo.
+
+La funzione restituisce una lista con tre valori:
+(valore minimo, valore della lista, valore massimo)
+Il valore minimo rappresenta il valore di massimo disordine della lista e vale 1/len (quando la lista data è completamente disordinata).
+Il valore della lista è il valore di ordine calcolato per la lista data.
+Il valore massimo vale 1 (quando la lista data ordinata)
+
+Il parametro op determina il tipo di ordinamento (crescente "<" o decrescente ">")
+
+(define (ordered lst op)
+  (local (srt len conta conta-max a b)
+    (setq op (or op '<))
+    ; ordinamento della lista (in base a op)
+    (setq srt (sort (copy lst) op))
+    (setq len (length lst))
+    ; numero massimo di match tra gli elementi
+    (setq conta-max 0)
+    ; confronto tra tutti gli elementi delle due liste
+    (setq conta 0)
+    (map (fn(x y) (if (= x y) (++ conta))) lst srt)
+    (setq conta-max (max conta conta-max))
+    ; confronti tra gli elementi delle due liste
+    ; left->right: from 1 to (len - 1)
+    ; right->left: from 1 to (len - 1)
+    (for (k 1 (- len 1))
+      ; from left to right
+      (setq a (slice lst 0 k))
+      (setq b (slice srt (- k) k))
+      ;(println a { } b)
+      ; conta il numero di match
+      (setq conta 0)
+      (map (fn(x y) (if (= x y) (++ conta))) a b)
+      (setq conta-max (max conta conta-max))
+      ; from right to left
+      (setq a (slice lst (- k) k))
+      (setq b (slice srt 0 k))
+      ;(println a { } b)
+      ; conta il numero di match
+      (setq conta 0)
+      (map (fn(x y) (if (= x y) (++ conta))) a b)
+      (setq conta-max (max conta conta-max))
+    )
+    ;(println conta-max)
+    (list (div len) (div conta-max len) 1)))
+
+Facciamo alcune prove:
+
+(setq lst '(5 4 3 2 1))
+(ordered lst <)
+;-> (0.2 0.2 1)
+Questa lista ha il massimo disordine (0.2) perchè è ordinata in senso opposto (decrescente) all'operatore utilizzato "<".
+Se utilizziamo l'operatore ">", allora la lista ha il massimo ordine (1).
+(ordered lst >)
+;-> (0.2 1 1)
+
+Quindi il tipo di "disordine" dipende dal tipo di ordinamento considerato.
+Utilizzando entrambi gli operatori sulla stessa lista possiamo capire meglio il "disordine" della lista data.
+
+(setq lst '(1 2 3 4 9 8 7 6))
+(ordered lst <)
+;-> (0.125 0.5 1)
+(ordered lst >)
+;-> (0.125 0.5 1)
+
+(setq lst '(5 1 2 3 4))
+(ordered lst <)
+;-> (0.2 0.8 1)
+(ordered lst >)
+;-> (0.2 0.2 1)
+
+(setq lst (rand 20 20))
+;-> (11 3 16 11 9 7 17 16 14 3 17 14 10 6 0 1 7 2 3 19)
+(ordered lst >)
+;-> (0.05 0.2 1)
+(ordered lst <)
+;-> (0.05 0.15 1)
+
+Un altro metodo per calcolare il "disordine" è quello di calcolare il valore massimo e la somma delle distanze degli indici tra gli elementi della lista data e quelli della lista ordinata (bubble-sort like).
+Esempio:
+
+  index  0 1 2 3 4
+    lst (5 1 2 3 4)
+  
+  index  0 1 2 3 4
+    srt (1 2 3 4 5)
+
+  numero 5: indice passa da 0 a 4 --> 4
+  numero 4: indice passa da 4 a 3 --> 1
+  numero 3: indice passa da 3 a 2 --> 1
+  numero 2: indice passa da 2 a 1 --> 1
+  numero 1: indice passa da 1 a 0 --> 1
+
+In questo caso il valore massimo vale 4 e la somma delle distanze vale 8.
+
+(setq lst '(1 2 3 4 5))
+;-> (0 0)
+(setq lst '(5 4 3 2 1))
+;-> (4 12)
+(setq lst '(5 1 2 3 4))
+;-> (4 8)
+
+(define (disordered lst op)
+  (local (srt a b dist dist-max dist-sum a1 b1 val1 idx1 val2 idx2 coppia)
+    (setq op (or op '<))
+    ; ordinamento della lista (in base a op)
+    (setq srt (sort (copy lst) op))
+    ; crea una lista (elemento indice) della lista data
+    (setq a (map (fn(x) (list x $idx)) lst))
+    ; crea una lista (elemento indice) della lista ordinata
+    (setq b (map (fn(x) (list x $idx)) srt))
+    ; reset distanze
+    (setq dist 0)
+    (setq dist-max 0)
+    (setq dist-sum 0)
+    ; copia delle liste per associazione/eliminazione 1:1
+    ; delle coppie (valore indice) delle due liste
+    (setq a1 a)
+    (setq b1 b)
+    ; ciclo per associare le coppie (valore indice) delle due liste
+    ; e calcolare le distanze tra gli indici
+    (dolist (el a)
+      (setq idx1 (el 1)) ; indice lista data
+      (setq val1 (el 0)) ; valore lista data
+      ; trova la coppia con il valore val1 nella lista ordinata
+      (find (list val1 '?) b1 match)
+      ; coppia trovata nella lista ordinata
+      (setq coppia $0)
+      (setq idx2 (coppia 1)) ; indice lista ordinata
+      ;(println idx1 { } idx2)
+      ; eliminazione degli elementi correnti dalle liste copia
+      ; (altrimenti non potremmo associare le coppie delle liste in modo 1:1)
+      (pop b1 (find coppia b1))
+      (pop a1 (find el a1))
+      ; calcolo del valore massimo
+      (setq dist (abs (- idx2 idx1)))
+      (setq dist-max (max dist-max dist))
+      (setq dist-sum (+ dist-sum dist))
+      ;(println dist { } dist-sum { } dist-max)
+    )
+    (list dist-max dist-sum)))
+
+Facciamo alcune prove:
+
+(setq lst '(1 2 3 4 5))
+(disordered lst)
+;-> (0 0)
+
+(setq lst '(5 4 3 2 1))
+(disordered lst)
+;-> (4 12)
+
+(setq lst '(5 1 2 3 4))
+(disordered lst)
+;-> (4 8)
+
+Anche in questo caso il valore del "disordine" dipende dal tipo di ordinamento che adottiamo:
+
+(setq lst '(1 2 3 4 9 8 7 6))
+(disordered lst <)
+;-> (3 8)
+(disordered lst >)
+;-> (7 32)
+
+(setq lst '(5 1 2 3 4))
+(disordered lst <)
+;-> (4 8)
+(disordered lst >)
+;-> (3 8)
+
+(setq lst '(11 3 16 11 9 7 17 16 14 3 17 14 10 6 0 1 7 2 3 19))
+(disordered lst >)
+;-> (19 104)
+(disordered lst <)
+;-> (15 156)
 
 =============================================================================
 

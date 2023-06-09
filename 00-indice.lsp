@@ -1851,6 +1851,8 @@ NOTE LIBERE 16
   Ordinamento di liste annidate
   Numero successivo con cifre non decrescenti
   La funzione modulo (%, mod)
+  Generazione di un grafo regolare
+  Disordine di una lista di numeri
 
 PROBLEMI SUI DADI
 =================
