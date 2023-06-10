@@ -5229,7 +5229,7 @@ Vediamo le differenze con "float":
 (float "-2309.12E-15")
 ;-> -2.30912e-012
 
-Nota: alcuni numeri in formato stringa non possonop essere convertiti esattamente (con le stesse cifre decimali) perchè i numeri floating-point non possono rappresentare tutti i numeri reali.
+Nota: alcuni numeri in formato stringa non possono essere convertiti esattamente (con le stesse cifre decimali) perchè i numeri floating-point non possono rappresentare tutti i numeri reali.
 
 (setq nums (map string (random 1 100 10)))
 ;-> ("1.125125888851589" "57.35853144932401" "20.33042390209662"
@@ -7452,6 +7452,334 @@ Anche in questo caso il valore del "disordine" dipende dal tipo di ordinamento c
 ;-> (19 104)
 (disordered lst <)
 ;-> (15 156)
+
+
+------------------------------
+Scambio di coppie in una lista
+------------------------------
+
+Data una lista di numeri con almeno due elementi e un numero pari di elementi, scambiare di posto ad ogni coppia di elementi.
+
+Esempi:
+input:  (1 2 3 4 5 6)
+output: (2 1 4 3 6 5)
+
+input:  (0 1 0 1)
+output: (1 0 1 0)
+
+La funzione deve essere la più breve possibile (tipo CodeGolf).
+
+(setq a '(1 2 3 4 5 6))
+(setq a '(0 1 0 1))
+
+53 caratteri
+(flat (map (fn(x) (list (x 1) (x 0))) (explode a 2)))
+
+47 caratteri
+(flat(map(fn(x)(list(x 1)(x 0)))(explode a 2)))
+;-> (2 1 4 3 6 5)
+
+34 caratteri
+(flat (map reverse (explode a 2)))
+
+32 caratteri
+(flat(map reverse(explode a 2)))
+;-> (2 1 4 3 6 5)
+
+
+------------
+Numeri Wonky
+------------
+
+I numeri wonky (traballanti) sono numeri di 3 o più cifre che soddisfano uno o più dei seguenti criteri:
+
+1) Qualsiasi cifra seguita da tutti zeri: 100, 70000
+2) Stessa cifra per tutto il numero: 1111, 7777777
+3) Le cifre sono in ordine strettamente ascendente consecutivo: 1234, 1234567890 (per 0 vedi sotto)
+4) Le cifre sono in ordine strettamente decrescente consecutivo: 4321, 9876543210
+5) Il numero è un numero palindromo: 1221, 123321
+
+Sia per i numeri ascendenti che per quelli discendenti 0 viene per ultimo.
+Ascendente:  1234567890
+Discendente: 9876543210
+
+Esempi:
+Il numero 122 non è ascendente,
+Il numero 1245 non è Wonky perché manca 3.
+
+Scrivere una funzione per verificare se un numero è Wonky:
+
+Test 1) es. 100, 70000, ...
+
+(define (t1 num)
+  (let (str (slice (string num) 1))
+    (= str (dup "0" (length str)))))
+
+(t1 2000000)
+;-> true
+(t1 2000010)
+;-> nil
+
+Test 2) es 1111, 7777777, ...
+
+(define (t2 num)
+  (= num (* (div (- (pow 10 (length num)) 1) 9) (% num 10))))
+
+(t2 1111)
+;-> true
+(t2 1112)
+;-> nil
+
+Test 3) 1234, 1234567890, ... (strettamente crescente consecutivo)
+
+(define (t3 num)
+  (let (str (string num))
+    (if (= (str -1) "0") (setq str (chop str)))
+    (and
+         ; numero strettamente crescente ?
+         (apply <= (explode str))
+         ; ultima_cifra - prima_cifra == lunghezza_numero - 1 ?
+         (= (- (int (str -1)) (int (str 0))) (- (length str) 1)))))
+
+(t3 1234)
+;-> true
+(t3 12340)
+;-> true
+(t3 1340)
+;-> nil
+(t3 12344)
+;-> nil
+(t3 12034)
+;-> nil
+
+Test 4) 4321, 9876543210, ... (strettamente decrescente consecutivo)
+
+(define (t4 num)
+  (let (str (string num))
+         ; numero strettamente decrescente ?
+    (and (apply >= (explode str))
+         ; prima_cifra - ultima_cifra == lunghezza_numero - 1 ?
+         (= (- (int (str 0)) (int (str -1))) (- (length str) 1)))))
+
+(t4 4321)
+;-> true
+(t4 43210)
+;-> true
+(t4 643210)
+;-> nil
+
+Test 5) 1221, 123321, ... (palindromi)
+
+(define (t5 num)
+  (let (str (string num))
+    (= str (reverse (copy str)))))
+
+(t5 1221)
+;-> true
+(t5 1222)
+;-> nil
+
+Un numero è Wonky se soddisfa uno o più criteri (t1...t5), quindi utilizziamo l'operatore "or".
+Per decidere l'ordine delle funzioni(criteri) nell'operatore "or" vediamo la loro velocità (perchè gli operatori "or" e "and" usano la "short circuit evaluation"):
+
+(silent (setq a (rand 123456789012345678 1000)))
+
+(time (map t1 a) 100)
+;-> 87.137
+(time (map t2 a) 100)
+;-> 27.737
+(time (map t3 a) 100)
+;-> 294.102
+(time (map t4 a) 100)
+;-> 271.083
+(time (map t5 a) 100)
+;-> 71.515
+
+Ordine di velocità (dalla più veloce alla più lenta): t2, t5, t1, t4, t3.
+
+(define (wonky? num)
+  (if (< (length num) 3)
+      nil
+      (or (t2 num) (t5 num) (t1 num) (t4 num) (t3 num))))
+
+Facciamo alcune prove:
+
+(wonky? 100)
+;-> true
+(wonky? 12344321)
+;-> true
+(wonky? 77777777777)
+;-> true
+(wonky? 132)
+;-> nil
+(wonky? 321)
+;-> true
+(wonky? 122)
+;-> nil
+(wonky? 987789)
+;-> true
+(wonky? 98765)
+;-> true
+(wonky? 120000)
+;-> nil
+(wonky? 100001)
+;-> true
+(wonky? 786)
+;-> nil
+(wonky? 890)
+;-> true
+
+(filter wonky? (sequence 1 1000))
+;-> (100 101 111 113 120 121 123 131 133 141 151 161 171 181 191 200 202
+;->  210 212 220 222 224 230 232 234 242 244 252 262 272 282 292 300 303
+;->  311 313 321 323 331 333 335 340 343 345 353 355 363 373 383 393 400
+;->  404 414 422 424 432 434 442 444 446 450 454 456 464 466 474 484 494
+;->  500 505 515 525 533 535 543 545 553 555 557 560 565 567 575 577 585
+;->  595 600 606 616 626 636 644 646 654 656 664 666 668 670 676 678 686
+;->  688 696 700 707 717 727 737 747 755 757 765 767 775 777 779 780 787
+;->  789 797 799 800 808 818 828 838 848 858 866 868 876 878 886 888 890
+;->  898 900 909 919 929 939 949 959 969 977 979 987 989 997 999 1000)
+
+
+-------------------------------
+Equazione ax + by + cz + dw = 0
+-------------------------------
+
+Risolvere l'equazione:
+
+  a*x + b*y +c*z + d*w = 0
+
+dove a,b,c,d sono numeri interi.
+
+Poniamo g=gcd(a,b) e h=gcd(c,d) l'equazione diventa un sistema lineare Diofantino:
+
+  a*x + b*y = g*u
+  c*z + d*w = h*v
+  g*u + u*v = 0
+
+dove u,v sono numeri interi.
+
+Per risolvere il sistema poniamo:
+
+  h = (h*n3)/j
+  v = (-g*n3)/j
+  dove j = gcd(g,h)
+
+Se consideriamo (x0,y0) come una soluzione "speciale" di a*x b*y=g e analogamente (z0,w0) una soluzione "speciale" di c*z d*w=h, allora le soluzioni sono
+
+  x = (b*n1)/g + (-x0*h*n3)/j
+  y = (-a*n1)/g + (-y0*h*n3)/j
+  z = (d*n2)/h + (z0*g*n3)/j
+  w = (-c*n2)/h + (w0*g*n3)/j
+
+dove n1,n2 e n3 sono numeri interi qualsiasi.
+
+Le soluzioni "speciali" (x0,y0) e (z0,w0) possono essere calcolate con l'agoritmo di euclide esteso.
+
+(define (extended-euclid a b)
+  (local (x0 y0 x y d)
+  (cond ((zero? b) (list 1 0 a))
+        (true
+          (map set '(x0 y0 d) (extended-euclid b (% a b)))
+          (map set '(x y) (list y0 (- x0 (* (/ a b) y0))))
+          (list x y d)))))
+
+Vediamo un esempio:
+
+(setq a -6 b 3 c 7 d 8)
+
+(setq g (gcd a b))
+;-> 3
+(setq h (gcd c d))
+;-> 1
+(setq j (gcd g h))
+;-> 1
+
+Primo set di valori per n1,n2,n3:
+(setq n3 j)
+(setq n2 h)
+(setq n1 g)
+
+Secondo set di valori per n1,n2,n3:
+;(setq n3 1)
+;(setq n2 1)
+;(setq n1 1)
+
+(setq u (/ (* n3 h) j))
+;-> 1
+(setq v (/ (* (- g) n3) j))
+;-> -3
+
+(setq x0y0 (extended-euclid a b))
+;-> (0 1 3)
+(setq x0 (x0y0 0))
+;-> 0
+(setq y0 (x0y0 1))
+;-> 1
+(setq z0w0 (extended-euclid c d))
+;-> (-1 1 1)
+(setq z0 (z0w0 0))
+;-> -1
+(setq w0 (z0w0 1))
+;-> 1
+
+(setq x (+ (/ (* b n1) g) (/ (* (- x0) h n3) j)))
+;-> 3
+(setq y (+ (/ (* (- a) n1) g) (/ (* (- y0) h n3) j)))
+;-> 5
+(setq z (+ (/ (* d n2) h) (/ (* z0 g n3) j)))
+;-> 5
+(setq w (+ (/ (* (- c) n2) h) (/ (* w0 g n3) j)))
+;-> -4
+(list x y z w)
+;-> (3 5 5 -4)
+
+Verifichiamo la soluzione:
+
+(define (equation x y z w)
+  (+ (* a x) (* b y) (* c z) (* d w)))
+
+(equation x y z w)
+;-> 0
+
+Scriviamo la funzione che calcola la soluzione:
+
+(define (solve a b c d n1 n2 n3)
+  (local (g h j u v x0y0 x0 y0 z0w0 z0 w0)
+    (setq g (gcd a b))
+    (setq h (gcd c d))
+    (setq j (gcd g h))
+    (setq n1 (or n1 g))    
+    (setq n2 (or n2 h))
+    (setq n3 (or n3 j))
+    (setq u (/ (* n3 h) j))
+    (setq v (/ (* (- g) n3) j))
+    ; calcolo soluzioni speciali
+    (setq x0y0 (extended-euclid a b))
+    (setq x0 (x0y0 0))
+    (setq y0 (x0y0 1))
+    ; calcolo soluzioni speciali
+    (setq z0w0 (extended-euclid c d))
+    (setq z0 (z0w0 0))
+    (setq w0 (z0w0 1))
+    ; calcolo soluzioni
+    (setq x (+ (/ (* b n1) g) (/ (* (- x0) h n3) j)))
+    (setq y (+ (/ (* (- a) n1) g) (/ (* (- y0) h n3) j)))
+    (setq z (+ (/ (* d n2) h) (/ (* z0 g n3) j)))
+    (setq w (+ (/ (* (- c) n2) h) (/ (* w0 g n3) j)))
+    (setq verify (+ (* a x) (* b y) (* c z) (* d w)))
+    (list x y z w verify)))
+
+Facciamo alcuni esempi:
+(solve -6 3 7 8 1 1 1)
+;-> (1 1 5 -4 0)
+
+Se non passiamo i valori per n1, n2 e n3, allora prendono i valori di g, h e j rispettivamente.
+(solve -6 3 7 8)
+;-> (3 5 5 -4 0)
+
+(solve 1 2 3 4)
+;-> (1 -1 3 -2 0)
 
 =============================================================================
 

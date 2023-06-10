@@ -1853,6 +1853,9 @@ NOTE LIBERE 16
   La funzione modulo (%, mod)
   Generazione di un grafo regolare
   Disordine di una lista di numeri
+  Scambio di coppie in una lista
+  Numeri Wonky
+  Equazione ax + by + cz + dw = 0
 
 PROBLEMI SUI DADI
 =================

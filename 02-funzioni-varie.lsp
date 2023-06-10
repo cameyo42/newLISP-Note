@@ -5836,6 +5836,21 @@ Versione generale:
 (gcdex 8 -6)
 ;-> (2 1 1)
 
+Versione equivalente (più lenta):
+
+(define (extended-euclid a b)
+  (local (x0 y0 x y d)
+  (cond ((zero? b) (list a 1 0))
+        (true 
+          (map set '(d x0 y0) (extended-euclid b (% a b)))
+          (map set '(x y) (list y0 (- x0 (* (/ a b) y0))))
+          (list d x y)))))
+
+(extended-euclid 120 23)
+;-> (1 -9 47)
+(extended-euclid 8 -6)
+;-> (2 1 1)
+
 Versione ricorsiva:
 
 (define (gcd-ext a b)
