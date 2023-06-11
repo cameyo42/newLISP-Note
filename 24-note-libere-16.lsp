@@ -7781,5 +7781,68 @@ Se non passiamo i valori per n1, n2 e n3, allora prendono i valori di g, h e j r
 (solve 1 2 3 4)
 ;-> (1 -1 3 -2 0)
 
+
+------------------
+Numeri primi Gobar
+------------------
+
+I numeri primi Gobar sono quei numeri che generano un numero primo quando invertiamo gli 1 e gli 0 nella sua rappresentazione binaria.
+Per esempio, 10 è un numero Gobar perchè 10 in base 2 vale "1010", e invertendo gli 1 e gli 0 otteniamo "0101" che rappresenta il numero 5 in notazione binaria che è primo.
+
+(bits 10)
+;-> "1010"
+
+(int "0101" 0 2)
+;-> 5
+
+Sequenza OEIS A347476:
+  4, 5, 8, 10, 12, 13, 18, 20, 24, 26, 28, 29, 32, 34, 40, 44, 46, 50, 52,
+  56, 58, 60, 61, 66, 68, 74, 80, 84, 86, 90, 96, 98, 104, 108, 110, 114,
+  116, 120, 122, 124, 125, 128, 142, 146, 148, 152, 154, 158, 166, 172, 176,
+  182, 184, 188, 194, 196, 202, 208, 212, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Inverte gli 0 e gli 1 di una stringa binaria:
+
+(define (flip str)
+  (let (out "")
+    (dostring (c str)
+      (if (= c 49)
+          (extend out "0")
+          (extend out "1")))))
+
+(flip "101010000111")
+;-> "010101111000"
+
+Funzione che verifica se un numero è primo Gobar:
+
+(define (gobar? num)
+  (prime? (int (flip (bits num)) 0 2)))
+
+(gobar? 10)
+;-> true
+
+(filter gobar? (sequence 1 215))
+;-> (4 5 8 10 12 13 18 20 24 26 28 29 32 34 40 44 46 50 52 56 58 60 61
+;->  66 68 74 80 84 86 90 96 98 104 108 110 114 116 120 122 124 125 128
+;->  142 146 148 152 154 158 166 172 176 182 184 188 194 196 202 208 212
+;->  214)
+
 =============================================================================
 

@@ -1856,6 +1856,7 @@ NOTE LIBERE 16
   Scambio di coppie in una lista
   Numeri Wonky
   Equazione ax + by + cz + dw = 0
+  Numeri primi Gobar
 
 PROBLEMI SUI DADI
 =================
