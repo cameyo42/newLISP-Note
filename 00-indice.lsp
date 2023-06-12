@@ -1857,6 +1857,9 @@ NOTE LIBERE 16
   Numeri Wonky
   Equazione ax + by + cz + dw = 0
   Numeri primi Gobar
+  1 e 0 primi
+  Contatore universale
+  Invertire parte di una lista o di una stringa
 
 PROBLEMI SUI DADI
 =================

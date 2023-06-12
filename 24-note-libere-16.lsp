@@ -7781,6 +7781,93 @@ Se non passiamo i valori per n1, n2 e n3, allora prendono i valori di g, h e j r
 (solve 1 2 3 4)
 ;-> (1 -1 3 -2 0)
 
+Vediamo un problema simile con una soluzione brute-force.
+
+Risolvere l'equazione:
+
+  a*x + b*y +c*z + d*w = 0
+
+dove a,b,c,d sono numeri interi noti compresi tra -999 e 999,
+e le soluzioni x,y,z,w sono numeri interi diversi da 0.
+
+La soluzione, se esiste, deve avere somma minima dei valori assoluti della soluzione, cioè il valore più piccolo di |x|+|y|+|z|+|w|.
+
+(setq segni '( (1 1 1 1) (1 1 1 -1) (1 1 -1 1) (1 1 -1 -1)
+               (1 -1 1 1) (1 -1 1 -1) (1 -1 -1 1) (1 -1 -1 -1)
+               (-1 1 1 1) (-1 1 1 -1) (-1 1 -1 1) (-1 1 -1 -1)
+               (-1 -1 1 1) (-1 -1 1 -1) (-1 -1 -1 1) (-1 -1 -1 -1) ))
+
+(define (solve a b c d limit)
+  (local (val-min x1 y1 z1 w1 xx yy zz ww out)
+    (setq stop nil)
+    (setq val-min 99999)
+    ; brute force
+    (for (x 1 limit 1 stop)
+      (for (y 1 limit 1 stop)
+        (for (z 1 limit 1 stop)
+          (for (w 1 limit 1 stop)
+            ; per ogni quadrupla di valori x,y,z,w
+            ; applichiamo i 16 segni
+            (dolist (s segni)
+              ; assegnazione valori a x,y,z,w
+              (map set '(x1 y1 z1 w1)
+                        (map * s (list x y z w)))
+              ; controllo soluzione
+              (if (zero? (+ (* a x1) (* b y1) (* c z1) (* d w1)))
+                  (if (> val-min (+ (abs x1) (abs y1) (abs z1) (abs w1)))
+                    (begin
+                      (setq xx x1 yy y1 zz z1 ww w1)
+                      ; controllo valore minimo
+                      (setq val-min (+ (abs x1) (abs y1) (abs z1) (abs w1)))
+                      (println xx { } yy { } zz { } ww)
+                      ;(setq stop true)
+                    )  
+                  )
+              )
+            )
+          )
+        )
+      )
+    )
+    (list xx yy zz ww val-min)))
+
+(solve 78 -75 24 33 10)
+;-> 1 1 4 -3
+;-> 1 -1 -5 -1
+;-> 2 1 -2 -1
+;-> (2 1 -2 -1 6)
+
+(solve 84 62 -52 -52 10)
+;-> 1 2 1 3
+;-> (1 2 1 3 7)
+
+(solve 26 45 -86 -4 10)
+;-> 1 10 6 -10
+;-> 2 -6 -3 10
+;-> 3 2 2 -1
+;-> (3 2 2 -1 8)
+
+(solve 894 231 728 -106 10)
+;-> 3 -8 -1 1
+;-> (3 -8 -1 1 13)
+
+(solve -170 962 863 -803 10)
+;-> 4 3 -10 -8
+;-> 5 -4 -2 -8
+;-> (5 -4 -2 -8 19)
+
+(solve 3 14 62 74 10)
+;-> 2 -2 -8 7
+;-> 2 -3 -3 3
+;-> 2 -4 2 -1
+;-> (2 -4 2 -1 9)
+
+(solve 9923 -9187 9011 -9973 10)
+;-> (nil nil nil nil 99999)
+(solve 9923 -9187 9011 -9973 20)
+;-> 3 17 -7 -19
+;-> (3 17 -7 -19 46)
+
 
 ------------------
 Numeri primi Gobar
@@ -7843,6 +7930,204 @@ Funzione che verifica se un numero è primo Gobar:
 ;->  66 68 74 80 84 86 90 96 98 104 108 110 114 116 120 122 124 125 128
 ;->  142 146 148 152 154 158 166 172 176 182 184 188 194 196 202 208 212
 ;->  214)
+
+
+-----------
+1 e 0 primi
+-----------
+
+Un numero è 1 e 0 primo se la sua rappresentazione binaria contiene un numero primo di 1 e un numero primo di 0.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (seq limit)
+  (local (out0 out1 out01 one zero bin)
+    (setq out0 '() out1 '() out01 '())
+    (for (i 1 limit)
+      (setq one 0)
+      (setq zero 0)
+      (setq bin (bits i))
+      (dostring (b bin) 
+        (if (= b 48) (++ zero))
+        (if (= b 49) (++ one))
+      )
+      (if (prime? zero) (push i out0 -1))
+      (if (prime? one)  (push i out1 -1))
+      (if (and (prime? zero) (prime? one)) (push i out01 -1))
+    )
+    ;(println out0)
+    ;(println out1)
+    out01))
+
+(seq 100)
+;-> (9 10 12 17 18 19 20 21 22 24 25 26 28 35 37 38 41 42 44 49 50 52
+;->  56 65 66 68 72 79 80 87 91 93 94 96)
+
+
+--------------------
+Contatore universale
+--------------------
+
+Un contatore universale (o contatore di cifre arbitrarie) è un algoritmo che utilizza simboli/cifre arbitrarie a scopo di conteggio.
+Per esempio con i simboli (x y z) il conteggio dovrebbe essere il seguente
+  x
+  y
+  z
+  yx
+  yy
+  yz
+  zx
+  zy
+  zz
+  yxx
+  yxy
+  yxz
+  yyx
+  yyy
+  yyz
+  yzx
+  yzy
+  yzz
+  zxx
+  ... eccetera
+
+L'idea è quella di convertire in base(numero dei simboli) e quindi invece di convertire i simboli in numeri, si indicizza la lista dei simboli.
+Vediamo un esempio:
+
+(setq digits '("x" "y" "z"))
+(setq digits-length (length digits))
+
+(define (getnext x)
+  (setq out "")
+  (cond ((zero? x)
+          (push (digits 0) out))
+        (true
+          (until (zero? x)
+            (push (digits (% x digits-length)) out)
+            (setq x (/ x digits-length))
+          )
+        )
+  )
+  out)
+
+(setq digits '("x" "y" "z"))
+(setq digits-length (length digits))
+(for (i 0 21) (println (getnext i)))
+;-> x
+;-> y
+;-> z
+;-> yx
+;-> yy
+;-> yz
+;-> zx
+;-> zy
+;-> zz
+;-> yxx
+;-> yxy
+;-> yxz
+;-> yyx
+;-> yyy
+;-> yyz
+;-> yzx
+;-> yzy
+;-> yzz
+;-> zxx
+;-> zxy
+;-> zxz
+;-> zyx
+
+Verifichiamo la correttezza del contatore utilizzando le 10 cifre come simboli:
+
+(setq digits '("0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
+(setq digits-length (length digits))
+(for (i 0 21) (println (getnext i)))
+;-> 0
+;-> 1
+;-> 2
+;-> 3
+;-> 4
+;-> 5
+;-> 6
+;-> 7
+;-> 8
+;-> 9
+;-> 10
+;-> 11
+;-> 12
+;-> 13
+;-> 14
+;-> 15
+;-> 16
+;-> 17
+;-> 18
+;-> 19
+;-> 20
+;-> 21
+
+(setq digits '("a" "b" "c" "1" "2" "3"))
+(setq digits-length (length digits))
+(for (i 0 21) (println (getnext i)))
+;-> a
+;-> b
+;-> c
+;-> 1
+;-> 2
+;-> 3
+;-> ba
+;-> bb
+;-> bc
+;-> b1
+;-> b2
+;-> b3
+;-> ca
+;-> cb
+;-> cc
+;-> c1
+;-> c2
+;-> c3
+;-> 1a
+;-> 1b
+;-> 1c
+;-> 11
+
+
+---------------------------------------------
+Invertire parte di una lista o di una stringa
+---------------------------------------------
+
+Per invertire parte di una stringa o di una lista possiamo usare la seguente funzione:
+
+(define (reverse-part obj idx len)
+  (extend (slice obj 0 idx)             ; parte a sinistra dell'inversione
+          (reverse (slice obj idx len)) ; parte dell'inversione
+          (slice obj (+ idx len))))     ; parte a destra dell'inversione
+
+Facciamo alcune prove:
+
+(reverse-part "newLISP" 3 3)
+;-> "newSILP"
+(reverse-part "newLISP" 0 3)
+;-> "wenLISP"
+(reverse-part '(a b c d e f g) 2 3)
+;-> (a b e d c f g)
+(reverse-part '(a b c d e f g) 0 2)
+;-> (b a c d e f g)
+(reverse-part '(1 2 3 4 5 6 7) 0 6)
+;-> (6 5 4 3 2 1 7)
+
+Un'altra versione, solo per stringhe:
+
+(define (reverse-part2 str idx len)
+  (let (part (slice str idx len))
+    (replace part str (reverse part))))
+
+(reverse-part2 "newLISP" 3 3)
+;-> "newSILP"
+(reverse-part2 "newLISP" 0 3)
+;-> "wenLISP"
 
 =============================================================================
 
