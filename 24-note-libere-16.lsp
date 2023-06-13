@@ -8129,5 +8129,124 @@ Un'altra versione, solo per stringhe:
 (reverse-part2 "newLISP" 0 3)
 ;-> "wenLISP"
 
+
+--------------------------------------
+Annidamento di un simbolo in una lista
+--------------------------------------
+
+Dato un simbolo S e un numero N, generare una lista in cui il simbolo S compare annidato N volte (cioè una lista annidata a più livelli con il simbol ripetuto in tutte le sottoliste  secondarie.
+
+Esempi:
+
+N = 1, simbolo = a  -->  (a)
+N = 2, simbolo = a  -->  (a (a))
+N = 3, simbolo = a  -->  (a (a (a)))
+N = 4, simbolo = a  -->  (a (a (a (a))))
+N = 5, simbolo = a  -->  (a (a (a (a (a)))))
+N = 6, simbolo = a  -->  (a (a (a (a (a (a))))))
+
+(define (annida simbolo level)
+  (if (= level 1) (cons simbolo)
+      (cons simbolo (cons (annida simbolo (- level 1))))))
+
+(annida 'a 1)
+;-> (a)
+(annida 'a 5)
+;-> (a (a (a (a (a)))))
+(annida 'a 16)
+;-> (a (a (a (a (a (a (a (a (a (a (a (a (a (a (a (a))))))))))))))))
+
+Nota: la lista annidata risultante ha sempre lunghezza 2 (tranne quando N=1).
+
+
+------------------------
+Numero di bit 1 da 1 a n
+------------------------
+
+Dato un numero intero n >= 0, restituire il numero totale di bit impostati dei numeri tra 0 e n inclusi.
+
+Sequenza OEIS A000788:
+  0, 1, 2, 4, 5, 7, 9, 12, 13, 15, 17, 20, 22, 25, 28, 32, 33, 35, 37,
+  40, 42, 45, 48, 52, 54, 57, 60, 64, 67, 71, 75, 80, 81, 83, 85, 88, 
+  90, 93, 96, 100, 102, 105, 108, 112, 115, 119, 123, 128, 130, 133, 
+  136, 140, 143, 147, 151, 156, 159, 163, 167, 172, 176, 181, 186, ...
+
+(define (ones num)
+  (let (sum 0)
+    (for (i 0 num) 
+      (++ sum (first (count '("1") (explode (bits i))))))
+    sum))
+
+(ones 10)
+;-> 17
+
+(map ones (sequence 0 40))
+;-> (0 1 2 4 5 7 9 12 13 15 17 20 22 25 28 32 33 35 37 
+;->  40 42 45 48 52 54 57 60 64 67 71 75 80 81 83 85 88 
+;->  90 93 96 100 102)
+
+
+--------------------------------------------
+Triangoli rettangoli con lo stesso perimetro
+--------------------------------------------
+
+Dato un perimetro P (intero), trovare tutti i triangoli rettangoli possibili con perimetro uguale a P.
+
+In un triangolo rettangolo risulta:
+
+  P = a + b + c 
+  a^2 + b^2 = c^2
+
+quindi dobbiamo trovare i numeri interi a, b e c che soddisfano queste due equazioni.
+
+Un algoritmo semplice consiste nell'eseguire due cicli per a (da 1 a p/2) e b (da 1 a p/3), quindi porre c = p-a-b e verificare se a*a + b*b == c*c.
+
+(define (tri p)
+  (local (c out)
+    (setq out '())
+    (for (a 1 (+ (/ p 2) 0))
+      (for (b 1 (+ (/ p 3) 0))
+        (setq c (- p a b))
+        (if (= (* c c) (+ (* a a) (* b b)))
+            (push (list a b c) out -1)
+        )
+      )
+    )
+    ; contiamo anche le soluzioni simmetriche (a = x, b = y) (a = y, b = x)
+    out))
+
+(setq s (tri 840))
+;-> ((210 280 350) (240 252 348) (252 240 348) (280 210 350) (315 168 357) 
+;->  (336 140 364) (350 120 370) (360 105 375) (390 56 394) (399 40 401))
+
+Funzione di controllo della soluzione:
+
+(define (check sol p)
+  (local (a b c)
+    (dolist (el sol)
+      (print el {: })
+      (setq per (apply + el))
+      (if (= per p)
+        (print "perimetro: " p { })
+        (print "perimetro: " p " (ERROR)")
+      )
+      (setq a (el 0)) (setq b (el 1)) (setq c (el 2))
+      (if (= (* c c) (+ (* a a) (* b b)))
+          (println "c^2: " (* c c) ", a^2 + b^2: " (+ (* a a) (* b b)))
+          (println "c^2: " (* c c) ", a^2 + b^2: " (+ (* a a) (* b b)) "ERROR")
+      ))))
+
+(check s 840)
+;-> (210 280 350): perimetro: 840 c^2: 122500, a^2 + b^2: 122500
+;-> (240 252 348): perimetro: 840 c^2: 121104, a^2 + b^2: 121104
+;-> (252 240 348): perimetro: 840 c^2: 121104, a^2 + b^2: 121104
+;-> (280 210 350): perimetro: 840 c^2: 122500, a^2 + b^2: 122500
+;-> (315 168 357): perimetro: 840 c^2: 127449, a^2 + b^2: 127449
+;-> (336 140 364): perimetro: 840 c^2: 132496, a^2 + b^2: 132496
+;-> (350 120 370): perimetro: 840 c^2: 136900, a^2 + b^2: 136900
+;-> (360 105 375): perimetro: 840 c^2: 140625, a^2 + b^2: 140625
+;-> (390 56 394): perimetro: 840 c^2: 155236, a^2 + b^2: 155236
+;-> (399 40 401): perimetro: 840 c^2: 160801, a^2 + b^2: 160801
+
 =============================================================================
 

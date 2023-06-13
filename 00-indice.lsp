@@ -1860,6 +1860,12 @@ NOTE LIBERE 16
   1 e 0 primi
   Contatore universale
   Invertire parte di una lista o di una stringa
+  Annidamento di un simbolo in una lista
+  Numero di bit 1 da 1 a n
+  Triangoli rettangoli con lo stesso perimetro
+
+NOTE LIBERE 17
+==============
 
 PROBLEMI SUI DADI
 =================
