@@ -1867,6 +1867,8 @@ NOTE LIBERE 16
 NOTE LIBERE 17
 ==============
   Home Prime
+  Generazione della permutazione successiva
+  Sequenza di Levine
 
 PROBLEMI SUI DADI
 =================
