@@ -619,5 +619,101 @@ Facciamo alcune prove:
 Non credo che con questa funzione si possa arrivare molto più lontano.
 
 
+---------------------------------------
+Spazio campionario di N lanci di monete
+---------------------------------------
+
+Dato un numero intero positivo N come input, generare lo spazio campionario di N lanci consecutivi di monete. 
+La moneta è giusta, cioè le due facce Testa e Croce hanno ciascuna probabilità 0.5.
+
+Per esempio con N=3 lo spazio campionario è il seguente:
+
+  TTT, TTC, TCT, TCC, CTT, CTC, CCT, CCC
+
+La soluzione consiste nel calcolare le permutazioni di 2 elementi (T e C) con N ripetizioni.
+Il numero di elementi dello spazio campionario vale: 2^N.
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(perm-rep 3 '(T C))
+;-> ((T T T) (C T T) (T C T) (C C T) (T T C) (C T C) (T C C) (C C C))
+
+(perm-rep 4 '(T C))
+;-> ((T T T T) (C T T T) (T C T T) (C C T T) (T T C T) (C T C T) (T C C T) 
+;->  (C C C T) (T T T C) (C T T C) (T C T C) (C C T C) (T T C C) (C T C C)
+;->  (T C C C) (C C C C))
+ 
+(length (perm-rep 12 '(1 0)))
+;-> 4096
+(pow 2 12)
+;-> 4096
+
+
+------------------------------------
+Indovina il numero (con un bugiardo)
+------------------------------------
+
+Si tratta di un gioco per due giocatori.
+Il primo pensa ad un numero da 1 a N.
+Il secondo prova ad indovinare il numero pensato proponendo un numero.
+Il primo giocatore deve dire se il numero proposto è "uguale" (fine del gioco) "maggiore" o "minore" al numero che ha pensato.
+A questo punto il secondo giocatore propone un nuovo numero, il primo risponde e si continua in questo modo fino a quando non viene indovinato il numero pensato.
+
+Purtroppo il secondo giocatore è un pò bugiardo (cioè non dice sempre la verità).
+Il suo comportamento è il seguente:
+1) una volta dice il vero e una volta potrebbe dire il falso (cioè potrebbe dire o il vero o il falso).
+2) non si conosce se comincia dicendo il vero oppure dicendo o il falso o il vero.
+
+(define (start limite)
+  (setq num (+ (rand limite) 1))
+  (setq prove 0)
+  (setq r (rand 2))
+  (if (zero? r)
+    (setq f1 odd?  f2 even?) ; odd/dispari = vero,  even/pari = falso
+    (setq f1 even? f2 odd?)) ; odd/dispari = falso, even/pari = vero
+  '---)
+
+(define (guess val)
+  (local (bugiardo)
+  (++ prove)
+  (cond
+    ((= val num)
+      (println "Esatto. " prove " tentativi"))
+    ((> num val)
+      (cond
+        ((f1 prove) ; dice il vero
+          (println val " è minore del numero."))
+        ((f2 prove) ; potrebbe dire il falso
+          (if (zero? (rand 2)) ; se esce 0 dice il falso
+            (println val " è maggiore del numero.")
+            ; altrimenti dice il vero
+            (println val " è minore del numero.")))))
+    ((< num val)
+      (cond
+        ((f1 prove) ; dice il vero
+          (println val " è maggiore del numero."))
+        ((f2 prove) ; potrebbe dire il falso
+          (if (zero? (rand 2)) ; se esce 0 dice il falso
+            (println val " è minore del numero.")
+            ; altrimenti dice il vero
+            (println val " è maggiore del numero."))))))
+  '---))
+
+Provate a indovinare il numero... senza trucchi.
+
+(start 10)
+num
+;-> 7
+f1
+;-> odd?@411571
+f2
+;-> even?@411584
+(guess 5)
+;-> 5 è minore del numero.
+
 =============================================================================
 

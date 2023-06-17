@@ -1869,6 +1869,8 @@ NOTE LIBERE 17
   Home Prime
   Generazione della permutazione successiva
   Sequenza di Levine
+  Spazio campionario di N lanci di monete
+  Indovina il numero (con un bugiardo)
 
 PROBLEMI SUI DADI
 =================
