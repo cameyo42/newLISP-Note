@@ -2208,7 +2208,7 @@ Dunque proviamo!
 A COSA SERVE IL LISP?
 ---------------------
 
-La maggior parte dei linguaggi di programmazione ​​(Con l'eccezione del BASIC :-)) sono stati sviluppati per semplificare la soluzione di certi problemi. Il nome del linguaggio LISP sta per "LISt Processor", "gestore di liste" - questa è la principale area delle sua applicazioni.
+La maggior parte dei linguaggi di programmazione (Con l'eccezione del BASIC :-)) sono stati sviluppati per semplificare la soluzione di certi problemi. Il nome del linguaggio LISP sta per "LISt Processor", "gestore di liste" - questa è la principale area delle sua applicazioni.
 
 Durante la scrittura di codice LISP, le liste sono delimitate da parentesi tonde, ed i suoi elementi sono separati dal carattere spazio. Che cosa può contenere una lista? - in LISP - quasi tutto! Gli elementi di una lista possono essere costanti, nomi di variabili e funzioni (nella terminologia LISP, simboli) e, naturalmente, altre liste:
 
@@ -2353,7 +2353,7 @@ dotimes (i 100)
 
 Analizziamo l'espressione spostamento più in dettaglio:
 
-(dotimes (i 100) espressione1 espressione2 ...) - calcola le "espressioni" 100 volte, mentre il simbolo "i" assume valori​​da 0 a 99.
+(dotimes (i 100) espressione1 espressione2 ...) - calcola le "espressioni" 100 volte, mentre il simbolo "i" assume valori da 0 a 99.
 
 (rand 4) - genera un numero intero casuale nell'intervallo da 0 a 3.
 
@@ -2479,9 +2479,9 @@ UN PÒ DI COMPUTAZIONE CONDIZIONALE.
 -----------------------------------
 
 Dal momento che abbiamo citato l'operatore condizionale, diamo uno sguardo più da vicino ai calcoli logici in newLISP (il LISP tradizionale ha alcune differenze, in particolare, una diversa interpretazione del concetto di "nil" e regole molto insoliti di uguaglianza).
-La base dei calcoli logici, la logica binaria, è costruita sui valori ​​di "vero" (true) e "falso" (false). In newLISP, il valore "false" utilizza il simbolo "nil". Il secondo scopo di questo carattere è il valore "null" che hanno i caratteri non inizializzati.
+La base dei calcoli logici, la logica binaria, è costruita sui valori di "vero" (true) e "falso" (false). In newLISP, il valore "false" utilizza il simbolo "nil". Il secondo scopo di questo carattere è il valore "null" che hanno i caratteri non inizializzati.
 
-Tutti gli altri valori ​​in newLISP sono trattati come true (incluso 0, una stringa vuota e una lista vuota). Per facilità di scrittura, newLISP ha anche un simbolo speciale "true" - alcune funzioni logiche possono restituirlo.
+Tutti gli altri valori in newLISP sono trattati come true (incluso 0, una stringa vuota e una lista vuota). Per facilità di scrittura, newLISP ha anche un simbolo speciale "true" - alcune funzioni logiche possono restituirlo.
 
 (if condition expression
     condition expression
@@ -2731,7 +2731,7 @@ Ridurre l'uso di effetti collaterali consente, a sua volta, di aumentare le capa
 Sviluppo dal basso verso l'alto (bottom-up).
 --------------------------------------------
 
-Naturalmente, non si deve aspettare "trasparenza" da un'espressione funzionale di due pagine. Tutti sanno che il codice che è troppo grande può essere diviso in funzioni. L'approccio usuale per linguaggi procedurali ​​è quello di definire un compito, isolare i sottocompiti, e dividerli fino a quando diventa possibile scrivere funzioni separate per la loro soluzione. Se alla fine dello sviluppo le funzioni risultano ancora grandi e complesse, si capisce che era necessario risolvere il problema in modo leggermente diverso ... Questo metodo è chiamato sviluppo top-down.
+Naturalmente, non si deve aspettare "trasparenza" da un'espressione funzionale di due pagine. Tutti sanno che il codice che è troppo grande può essere diviso in funzioni. L'approccio usuale per linguaggi procedurali è quello di definire un compito, isolare i sottocompiti, e dividerli fino a quando diventa possibile scrivere funzioni separate per la loro soluzione. Se alla fine dello sviluppo le funzioni risultano ancora grandi e complesse, si capisce che era necessario risolvere il problema in modo leggermente diverso ... Questo metodo è chiamato sviluppo top-down.
 In LISP, grazie alle sue proprietà di meta-linguaggio, tutto è fatto al contrario. Per risolvere il problema, l'argomento da risolvere viene indagato e, in base alle capacità di LISP, viene creato un nuovo linguaggio. Quindi, la soluzione del problema viene scritta in questo linguaggio. Se "improvvisamente" si scopre che il piano originale ha subito cambiamenti significativi, questo non è un problema - in un linguaggio ad-hoc non è difficile scrivere qualcosa di nuovo. Questo metodo viene chiamato sviluppo bottom-up.
 
 Un conseguenza particolarmente piacevole dello sviluppo bottom-up è la capacità di usare il linguaggio più appropriato a ciascun livello di risoluzione del problema, che, ancora una volta, può essere facilmente tradotto nella logica del linguaggio naturale.
@@ -2851,7 +2851,7 @@ suddiviso in una lista di righe,
 4) il quarto elemento viene preso da ogni riga (indice -3) e convertito in un numero,
 5) la lista risultante viene sommmata.
 
-Due funzioni ausiliarie sono evidenti: la prima separa la stringa con una espressione regolare (e rimuove tutti gli spazi aggiuntivi in ​​uno), la seconda cerca nella lista divisa in stringhe il valore numerico nel quarto elemento (quello che interessa a noi).
+Due funzioni ausiliarie sono evidenti: la prima separa la stringa con una espressione regolare (e rimuove tutti gli spazi aggiuntivi in uno), la seconda cerca nella lista divisa in stringhe il valore numerico nel quarto elemento (quello che interessa a noi).
 
 Forse in Perl è possibile scrivere un programma più compatto. Tuttavia, non bisogna dimenticare che il risultato principale di questo script è quello di ottenere una lista di tutti gli elementi del report che possono poi essere raggruppati, filtrati, correlati e manipolati con tutta la ricchezza delle funzioni per l’elaborazione delle liste.
 
@@ -5120,7 +5120,7 @@ Considerazioni sulle prestazioni con i parametri di copia
 ---------------------------------------------------------
 In teoria, il passaggio dei parametri alle funzioni definite dall'utente in base al valore (by-value, copia della memoria) anziché al riferimento pone un potenziale svantaggio quando si gestiscono liste, matrici o stringhe di grandi dimensioni. Ma in pratica newLISP è più veloce o veloce come altri linguaggi di scripting e offre speciali sintassi per passare oggetti di memoria molto grandi per riferimento.
 
-Poiché le funzioni newLISP versione 9.4.5 possono passare parametri di tipo list, array e string come riferimenti utilizzando gli identificativi dei funtori predefiniti ​​degli spazi dei nomi. I namespace (chiamati contesti in newLISP) hanno un overhead molto piccolo e possono essere utilizzati per avvolgere funzioni e dati. Ciò consente il passaggio di riferimento di un grande oggetto di memoria nelle funzioni definite dall'utente.
+Poiché le funzioni newLISP versione 9.4.5 possono passare parametri di tipo list, array e string come riferimenti utilizzando gli identificativi dei funtori predefiniti degli spazi dei nomi. I namespace (chiamati contesti in newLISP) hanno un overhead molto piccolo e possono essere utilizzati per avvolgere funzioni e dati. Ciò consente il passaggio di riferimento di un grande oggetto di memoria nelle funzioni definite dall'utente.
 
 Dalla versione 10.2, FOOP (Functional Object Oriented Programming) in newLISP passa per riferimento anche l'oggetto target di una chiamata di metodo.
 

@@ -8540,7 +8540,7 @@ Presto, Covanov e Thomé nello stesso anno 2015, hanno inventato un altro algori
 
 Nonostante questi miglioramenti, gli algoritmi non erano adatti all'uso pratico e venivano apportati miglioramenti minimi. Per una nota positiva, abbiamo diversi algoritmi con diverse idee di base.
 
-I maggiori progressi sono stati compiuti nel marzo 2019 da Harvey e van der Hoeven. Hanno proposto un algoritmo con complessità temporale di O(N logN). Questo è significativo in quanto nel 1971 Volker Strassen dimostrò che la migliore complessità possibile per la moltiplicazione intera dovrebbe essere O(N*logN) e quindi siamo arrivati ​​alla fine. Comunque questo risultato è in corso di verifica.
+I maggiori progressi sono stati compiuti nel marzo 2019 da Harvey e van der Hoeven. Hanno proposto un algoritmo con complessità temporale di O(N logN). Questo è significativo in quanto nel 1971 Volker Strassen dimostrò che la migliore complessità possibile per la moltiplicazione intera dovrebbe essere O(N*logN) e quindi siamo arrivati alla fine. Comunque questo risultato è in corso di verifica.
 
 
 --------------------

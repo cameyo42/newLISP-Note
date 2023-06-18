@@ -900,7 +900,7 @@ Possiamo precalcolare i valori dei fattoriali:
 Teorema di Nicomachus (somma del k-esimo gruppo di numeri positivi dispari)
 ---------------------------------------------------------------------------
 
-Consideriamo i numeri dispari positivi in ​​ordine crescente come 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, ... e raggruppati come (1), (3 5), (7 9 11), (13 15 17 19), ... e così via.
+Consideriamo i numeri dispari positivi in ordine crescente come 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, ... e raggruppati come (1), (3 5), (7 9 11), (13 15 17 19), ... e così via.
 Quindi, il primo gruppo è (1), il secondo gruppo è (3 5) e il terzo gruppo è (7 9 11), ecc. in generale, il k-esimo gruppo contiene i successivi k elementi della sequenza.
 Dato k, trovare la lista dei numeri e la somma del k-esimo gruppo.
 

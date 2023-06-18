@@ -4199,9 +4199,9 @@ Invece, la serie 0.21, 0.35, 0.16 ha lunghezza 3.
 ;-> 2.7186064
 
 
--------------------
-Funzioni come liste
--------------------
+--------------------------------
+Funzioni e indici degli elementi
+--------------------------------
 
 La seguente funzione crea una lista con tutti gli indici della lista passata come parametro:
 

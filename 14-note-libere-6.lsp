@@ -4105,9 +4105,9 @@ poi a:
 c = 0, eliminando la compensazione dell'errore.
 
 
------------------------
-Numeri in base negativa
------------------------
+-------------------------------------------
+Rappresentazione di numeri in base negativa
+-------------------------------------------
 
 Dato un numero intero e una base negativa, scrivere una funzione che converte il numero in quella base.
 Per rappresentare un numero con una base "positiva", ad esempio in base 2, moltiplichiamo i bit per 1, 2, 4, 8 ecc. per ottenere il numero decimale.
@@ -4168,7 +4168,7 @@ Pertanto, affinché il residuo ottenuto soddisfi le condizioni, è necessario es
 (Perché la prossima operazione assegnerà b ad a, che equivale a b += 1, il valore del quoziente +1)
 
 La dimostrazione è la seguente:
-Qui per comodità di comprensione e presentazione, sia n un numero intero positivo, e sappiamo che se r è un numero negativo, allora l'intervallo di r deve essere superiore a [-n+1, ​​​​0]:
+Qui per comodità di comprensione e presentazione, sia n un numero intero positivo, e sappiamo che se r è un numero negativo, allora l'intervallo di r deve essere superiore a [-n+1,0]:
 
   a = (-n)*b + r ==> a = (-n)*b + (r + n) - n ==> a = (-n)*(b + 1) + (r + n)
 
@@ -5121,7 +5121,7 @@ Ogni giocatore inizia con 12 punti, e un tiro riuscito dei tre dadi per un gioca
 Questa è la classica formulazione della rovina del giocatore d'azzardo: due giocatori iniziano con puntate fisse, trasferendo punti fino a quando l'uno o l'altro viene "rovinato" arrivando a zero punti.
 
 Il giocatore che gioca una partita equo (con 0.5 probabilità di vincita) finirà per fallire o raddoppierà la sua ricchezza.
-Definiamo che il gioco finisce per entrambi gli eventi. Questi eventi sono ugualmente probabili, altrimenti il ​​gioco non sarebbe equo. Quindi ha una probabilità di 0.5 di fallire prima di raddoppiare i suoi soldi. Se raddoppia i suoi soldi, inizia un nuovo gioco e ha ancora una possibilità di 0.5 di raddoppiare i suoi soldi prima di fallire. Dopo il secondo gioco c'è una possibilità 1/2 * 1/2 che non sia andato in rovina nel primo e nel secondo gioco. Continuando in questo modo, la sua possibilità di non andare in rovina dopo n partite successive è 1/2 * 1/2 * 1/2 * ... * 1/2^n che si avvicina a 0. La sua possibilità di fallire dopo n partite consecutive è 0.5 + 0.25 + 0.125 + . . . 1 - 1/2^n che si avvicina a 1
+Definiamo che il gioco finisce per entrambi gli eventi. Questi eventi sono ugualmente probabili, altrimenti il gioco non sarebbe equo. Quindi ha una probabilità di 0.5 di fallire prima di raddoppiare i suoi soldi. Se raddoppia i suoi soldi, inizia un nuovo gioco e ha ancora una possibilità di 0.5 di raddoppiare i suoi soldi prima di fallire. Dopo il secondo gioco c'è una possibilità 1/2 * 1/2 che non sia andato in rovina nel primo e nel secondo gioco. Continuando in questo modo, la sua possibilità di non andare in rovina dopo n partite successive è 1/2 * 1/2 * 1/2 * ... * 1/2^n che si avvicina a 0. La sua possibilità di fallire dopo n partite consecutive è 0.5 + 0.25 + 0.125 + . . . 1 - 1/2^n che si avvicina a 1
 
 Nel caso di un giocatore che gioca una partita con un valore atteso negativo, il suo risultato non può essere migliore di quello del giocatore in una partita equa, quindi anche lui andrà in rovina.
 
@@ -5200,9 +5200,9 @@ Facciamo delle simulazioni in cui il giocatore più sfortunato ha molte più mon
 ;-> (0.0002090413238294019 0.9997909586761706)
 
 
---------
-Roulette
---------
+--------------------
+Roulette e strategie
+--------------------
 
 La roulette francese ha 37 numeri (da 0 a 36), di cui 18 sono rossi e 18 sono neri. Lo zero è verde.
 Un giocatore ha una certa quantità di monete e può scegliere tra due strategie di gioco:

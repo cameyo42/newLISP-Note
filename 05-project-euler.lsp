@@ -142,7 +142,7 @@ Project Euler è una serie di stimolanti problemi di programmazione matematica/i
 La motivazione per l'avvio di Project Euler, e la sua continuazione, è di fornire una piattaforma per la mente indagatrice per addentrarsi in aree non familiari e apprendere nuovi concetti in un contesto divertente e ricreativo.
 
 A chi sono rivolti i problemi?
-Il pubblico previsto comprende studenti per i quali il curriculum di base non alimenta la loro fame per imparare, adulti il ​​cui background non era principalmente la matematica ma aveva un interesse per le cose matematiche, e professionisti che vogliono mantenere le loro capacità di solving e la matematica all'avanguardia.
+Il pubblico previsto comprende studenti per i quali il curriculum di base non alimenta la loro fame per imparare, adulti il cui background non era principalmente la matematica ma aveva un interesse per le cose matematiche, e professionisti che vogliono mantenere le loro capacità di solving e la matematica all'avanguardia.
 
 Chiunque può risolvere i problemi?
 I problemi sono di diversa difficoltà e per molti l'esperienza è l'apprendimento a catena induttivo. Cioè, risolvendo un problema ti esporrà ad un nuovo concetto che ti permette di intraprendere un problema precedentemente inaccessibile. Quindi il partecipante determinato lentamente ma sicuramente farà il suo lavoro attraverso ogni problema.

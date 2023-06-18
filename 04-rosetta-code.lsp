@@ -11560,7 +11560,7 @@ I numeri di Bell possono essere calcolati creando il cosiddetto triangolo di Bel
 1. Iniziare con il numero uno. Mettere questo numero in una riga da solo x(0,1) = 1.
 2 .Iniziare una nuova riga con l'elemento più a destra della riga precedente come numero più a sinistra x(i,1)) = x(i-1,r) dove r è l'ultimo elemento della (i-1)-esima riga.
 3. Determinare i numeri che non si trovano nella colonna di sinistra prendendo la somma del numero a sinistra e il numero sopra il numero a sinistra, cioè il numero diagonalmente in alto a sinistra rispetto al numero che stiamo calcolando x(i,j) =  x(i,j-1) + x(i-1,j-1).
-4. Ripetere il ​​passaggio 3 finché non c'è una nuova riga con un numero in più rispetto alla riga precedente (Eseguire il passaggio 3 fino a j = r + 1).
+4. Ripetere il passaggio 3 finché non c'è una nuova riga con un numero in più rispetto alla riga precedente (Eseguire il passaggio 3 fino a j = r + 1).
 5. Il numero sul lato sinistro di una data riga è il numero di Bell per quella riga B(i) = x(i,1).
 
 L'implementazione che segue si basa su questo algoritmo, ma produce solo i numeri di Bell:

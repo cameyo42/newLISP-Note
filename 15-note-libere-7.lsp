@@ -5754,7 +5754,7 @@ b) Una funzione il cui output dipende interamente dai suoi input può anche esse
 
 La natura deterministica delle funzioni pure (cioè il fatto che restituiscono sempre lo stesso output per lo stesso input) ha alcune conseguenze interessanti. Le funzioni pure sono facili da testare e da analizzare.
 
-Inoltre, il fatto che gli output dipendano solo dagli input significa che l'ordine di valutazione non è importante. Sia che valutiamo il ​​risultato di una funzione ora o in un secondo momento, il risultato non cambierà. Ciò significa che le parti del programma costituite interamente da funzioni pure possono essere ottimizzate in diversi modi:
+Inoltre, il fatto che gli output dipendano solo dagli input significa che l'ordine di valutazione non è importante. Sia che valutiamo il risultato di una funzione ora o in un secondo momento, il risultato non cambierà. Ciò significa che le parti del programma costituite interamente da funzioni pure possono essere ottimizzate in diversi modi:
 
   - Parallelizzazione: thread diversi eseguono attività in parallelo
   - Valutazione pigra (lazy): valuta i valori solo se necessario

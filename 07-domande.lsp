@@ -5223,7 +5223,7 @@ Algoritmo:
 2) La ricerca degli altri due elementi può essere eseguita in modo efficiente utilizzando la tecnica a due puntatori quando la lista è ordinata.
 3) Esegui un ciclo esterno prendendo la variabile di controllo i e per ogni iterazione inizializza un valore l che è il primo puntatore con i+1 e r con l'ultimo indice.
 4) Ora entra in un ciclo while che verrà eseguito fino al valore di l < r.
-5) Se lst[i] + lst[l] + lst[r]> Somma, decrementa r ​​di 1 in quanto la somma richiesta 6) è inferiore alla somma corrente.
+5) Se lst[i] + lst[l] + lst[r]> Somma, decrementa r di 1 in quanto la somma richiesta 6) è inferiore alla somma corrente.
 7) Se lst[i] + lst[l] + lst[r] < Somma, incrementa l di 1 in quanto la somma richiesta è inferiore alla somma corrente.
 8) Se lst[i] + lst[l] + lst[r] == Somma abbiamo trovato una soluzione (tre valori).
 9) Incrementa i Vai al passo 3.

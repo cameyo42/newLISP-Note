@@ -2498,9 +2498,9 @@ Si consiglia di utilizzare gli indici da 0 a 5 (includendo) "Numero massimo di c
 
 Quando si usa int-idx, verrà restituito un solo elemento della lista.
 
-(sys-info) → (429 268435456 402 1 0 2048 0 19453 10406 ​​1155)
+(sys-info) → (429 268435456 402 1 0 2048 0 19453 10406 1155)
 (sys-info 3) → 1
-(sys-info -2) → 10406 ​​;; versione 10.4.6
+(sys-info -2) → 10406 ;; versione 10.4.6
 
 Il numero relativo al massimo di celle Lisp può essere modificato tramite l'opzione della riga di comando -m. Per ogni megabyte di memoria di celle Lisp, è possibile allocare 64k celle Lisp. La profondità massima dello stack di chiamata può essere modificata utilizzando l'opzione della riga di comando -s.
 

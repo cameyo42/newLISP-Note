@@ -667,6 +667,7 @@ Purtroppo il secondo giocatore è un pò bugiardo (cioè non dice sempre la veri
 Il suo comportamento è il seguente:
 1) una volta dice il vero e una volta potrebbe dire il falso (cioè potrebbe dire o il vero o il falso).
 2) non si conosce se comincia dicendo il vero oppure dicendo o il falso o il vero.
+3) se il numero proposto è uguale al numero pensato, allora dice sempre la verità.
 
 (define (start limite)
   (setq num (+ (rand limite) 1))
@@ -714,6 +715,26 @@ f2
 ;-> even?@411584
 (guess 5)
 ;-> 5 è minore del numero.
+
+
+--------------------------------------
+"Semplice" esercizio di programmazione
+--------------------------------------
+
+L'esercizio sembra molto semplice: stampare "love newLISP" senza i doppi apici, cioè stampare:
+
+love newLISP
+
+Comunque ci sono delle regole da rispettare:
+1) non è possibile utilizzare i caratteri "", '', ', {}.
+2) non è possibile utilizzare i caratteri numeri (0..9)
+3) il programma deve essere il più corto possibile
+
+Una possibile soluzione è quella di utilizzare "read-line" per inserire la stringa da stampare e poi utilizzare "sym" per rendere la stringa un simbolo che viene poi emesso dalla REPL:
+
+(sym(read-line))
+love newLISP
+;-> love newLISP
 
 =============================================================================
 

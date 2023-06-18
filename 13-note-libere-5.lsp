@@ -4638,7 +4638,7 @@ Esistono varie versioni del problema. Se è possibile comprare e vendere solo un
 
 Il problema può essere risolto utilizzando la programmazione dinamica.
 
-Poniamo che profitto[t][i] rappresenti il ​​profitto massimo utilizzando al massimo t transazioni fino al giorno i (incluso il giorno i).
+Poniamo che profitto[t][i] rappresenti il profitto massimo utilizzando al massimo t transazioni fino al giorno i (incluso il giorno i).
 Allora la relazione è:
 
   profitto[t][i] = max(profitto[t][i-1], max(prezzo[i] – prezzo[j] + profitto[t-1][j]))

@@ -2849,7 +2849,7 @@ Gli errori assoluti perdono di significato con l'aumentare della magnitudine dei
  PROPAGAZIONE DEGLI ERRORI
 ===========================
 
-Mentre gli errori nei singoli numeri in virgola mobile sono molto piccoli, anche calcoli semplici su di essi possono contenere insidie ​​che aumentano l'errore nel risultato ben oltre l'avere i singoli errori "sommati".
+Mentre gli errori nei singoli numeri in virgola mobile sono molto piccoli, anche calcoli semplici su di essi possono contenere insidie che aumentano l'errore nel risultato ben oltre l'avere i singoli errori "sommati".
 
 In generale:
 

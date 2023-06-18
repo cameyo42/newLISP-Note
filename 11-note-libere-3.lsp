@@ -2166,12 +2166,11 @@ Facciamo alcune prove:
 ;-> 0.03125
 
 
---------
-Roulette
---------
+-------------------------
+Roulette sempre sul Rosso
+-------------------------
 
-Un giocatore ha a disposizione un certo capitale C e decide di giocare alla roulette con la strategia di
-puntare sempre sul Rosso la metà del capitale posseduto in quel momento.
+Un giocatore ha a disposizione un certo capitale C e decide di giocare alla roulette con la strategia di puntare sempre sul Rosso la metà del capitale posseduto in quel momento.
 Dal punto di vista probabilistico, dopo n puntate il giocatore ha vinto, perso o pareggiato?
 
 Quando vince il suo capitale diventa C*(3/2), mentre quando perde il capitale diventa C*(1/2). Dopo n puntate (con n numero pari) si avranno n/2 vittorie e n/2 sconfitte, cioè:
@@ -7562,7 +7561,7 @@ Come memorizzi gli URL? Un semplice database flat-file è sufficiente?
 Qual è il collo di bottiglia del sistema? È oneroso in lettura o in scrittura?
 Stimare il numero massimo di URL che una singola macchina può memorizzare.
 Stimare il numero massimo di query al secondo (QPS) per la decodifica di un URL abbreviato in una singola macchina.
-Come ridimensioneresti il ​​servizio? Ad esempio, un collegamento "virale" condiviso nei social media potrebbe comportare un picco di QPS in qualche momento.
+Come ridimensioneresti il servizio? Ad esempio, un collegamento "virale" condiviso nei social media potrebbe comportare un picco di QPS in qualche momento.
 Come potresti gestire la ridondanza? (Per esempio, se un server non funziona, come puoi assicurarti che il servizio rimanga ancora operativo?)
 Conservare gli URL per sempre o eliminarli, pro e contro? Come si fa la potatura?
 Quale API fornireste a uno sviluppatore di terze parti?

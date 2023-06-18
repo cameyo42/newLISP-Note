@@ -877,7 +877,7 @@ Quando abbiamo una funzione (o una macro) del tipo:
 (define (double x) (+ x x))
 ;-> (lambda (x) (+ x x))
 
-Possiamo accedere facilamente al corpo della funzione (o della macro):
+Possiamo accedere facilmente al corpo della funzione (o della macro):
 
 (last double)
 ;-> (+ x x)

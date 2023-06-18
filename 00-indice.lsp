@@ -724,7 +724,7 @@ NOTE LIBERE 3
   Serie ricorsiva
   Sei contro cinque
   Torneo ad eliminazione diretta
-  Roulette
+  Roulette sempre sul Rosso
   Daniel Dennet Quinian Crossword
   Lista delle fattorizzazioni di un numero
   Algoritmo di Bellman-Ford
@@ -997,7 +997,7 @@ NOTE LIBERE 6
   Formula di Bernoulli
   Palestre e autobus
   Somma di una serie di numeri: algoritmo di Kahan
-  Numeri in base negativa
+  Rappresentazione di numeri in base negativa
   Serie e somma armonica
   Raccolta di figurine
   Strano ma vero
@@ -1006,7 +1006,7 @@ NOTE LIBERE 6
   Scontro al bar
   La fallacia dello scommettitore
   La rovina del giocatore d'azzardo (Gambler's ruin)
-  Roulette
+  Roulette e strategie
   Separazione dei numeri uguali
   Spezzare un bastone
   Modello di Ehrenfest
@@ -1255,7 +1255,7 @@ NOTE LIBERE 9
   map e funzioni con argomenti multipli
   Divisione incongrue
   Numeri causali e numero di eulero
-  Funzioni come liste
+  Funzioni e indici degli elementi
   Numeri cistercensi
   La funzione "match"
   Analisi DNA
@@ -1871,6 +1871,7 @@ NOTE LIBERE 17
   Sequenza di Levine
   Spazio campionario di N lanci di monete
   Indovina il numero (con un bugiardo)
+  "Semplice" esercizio di programmazione
 
 PROBLEMI SUI DADI
 =================
