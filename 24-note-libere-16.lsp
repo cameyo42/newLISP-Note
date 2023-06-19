@@ -8093,6 +8093,34 @@ Verifichiamo la correttezza del contatore utilizzando le 10 cifre come simboli:
 ;-> 1c
 ;-> 11
 
+Vediamo una funzione che individua i numeri da utilizzare per un determinato range di valori.
+Supponiamo di voler utilizzare il range da "baaa" a "dddd":
+
+(setq digits '("a" "b" "c" "d"))
+(setq digits-length (length digits))
+
+(define (range str1 str2)
+  (local (val a b)
+    (setq s1 (explode str1))
+    (setq s2 (explode str2))
+    (setq val s1)
+    (for (i 0 100000)
+      (setq val (getnext i))
+      ;(print val) (read-line)
+      (if (= val str1) (setq a i))
+      (if (= val str2) (setq b i))
+    )
+    (list a b)))
+
+(range "baaa" "dddd")
+;-> (64 255)
+(getnext 64)
+;-> "baaa"
+(getnext 255)
+;-> "dddd"
+
+Nota: in questo caso il simbolo "a" vale 0, quindi non possiamo avere nessuna valore contatore che inizia per "a".
+
 
 ---------------------------------------------
 Invertire parte di una lista o di una stringa

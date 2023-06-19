@@ -736,5 +736,192 @@ Una possibile soluzione è quella di utilizzare "read-line" per inserire la stri
 love newLISP
 ;-> love newLISP
 
+
+----------------------------
+Distanza tra coppia di primi
+----------------------------
+
+Dato un intero positivo N, scrivere una funzione che restituisce una coppia qualunque di numeri primi la cui differenza è N.
+
+Esempi:
+
+2 -> (3 5) oppure (11 13) oppure (29 31) oppure ...
+3 -> (2 5) 
+4 -> (3 7) oppure (19 23) oppure ...
+
+Per alcuni valori di N non è sicuro che esista una coppia di primi valida (cioè a distanza N).
+
+Algoritmo
+Calcolare i primi fino ad un dato limite
+Ciclo su questi primi
+  Se (primo-corrente + N) è primo, allora abbiamo trovato una soluzione
+Restituire la soluzione o nil
+
+(define (prime? n)
+  (if (< n 2) nil
+      (= 1 (length (factor n)))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (coppia dist limite)
+  (local (out primi trovato)
+    (setq out nil)
+    (setq primi (primes-to limite))
+    (setq trovato nil)
+    (dolist (p primi trovato)
+      (if (prime? (+ p dist)) 
+        (begin
+          (setq trovato true)
+          (setq out (list p (+ p dist)))
+        )
+      )
+    ) 
+    out))
+
+Facciamo alcune prove:
+
+(coppia 2 1e4)
+;-> (3 5)
+(coppia 3 1e4)
+;-> (2 5)
+(coppia 42 1e4)
+;-> (5 47)
+
+Con N=7 non ho trovato nessuna coppia:
+(coppia 7 1e7)
+;-> nil
+
+Applichiamo la funzione per valori di N da 1 a 20:
+
+(map (fn(x) (list x (coppia x 1e7))) (sequence 1 20))
+;-> ((1 (2 3)) (2 (3 5)) (3 (2 5)) (4 (3 7)) (5 (2 7)) (6 (5 11)) 
+;->  (7 nil) (8 (3 11)) (9 (2 11)) (10 (3 13)) (11 (2 13)) (12 (5 17))
+;->  (13 nil) (14 (3 17)) (15 (2 17)) (16 (3 19)) (17 (2 19)) (18 (5 23))
+;->  (19 nil) (20 (3 23)))
+
+Per N = 7, 13 e 19 non ho trovato soluzioni.
+
+
+----------------------
+Coppie autogrammatiche
+----------------------
+
+Abbiamo due funzioni, P e Q, entrambi nella stesso linguaggio (newLISP).
+Ciascuno di essi riceve un input di un solo carattere.
+Se P riceve il carattere K, P dice quante volte K appare in Q.
+Viceversa: se Q riceve K, Q dice quante volte K appare in P.
+
+In newLISP una funzione è anche una lista
+
+(define (P ch)
+  (length (find-all ch (string Q))))
+
+(define (Q ch)
+  (length (find-all ch (string P))))
+
+(string Q)
+;-> "(lambda (ch) (length (find-all ch (string P))))"
+(string P)
+;-> "(lambda (ch) (length (find-all ch (string Q))))"
+
+Facciamo alcune prove:
+
+(P "c")
+;-> 2
+(Q "c")
+;-> 2
+(P "P")
+;-> 1
+(P "Q")
+;-> 0
+(Q "Q")
+;-> 1
+(Q "P")
+;-> 0
+
+
+---------------
+Numeri di Peano
+---------------
+
+I numeri di Peano sono un modo semplice di rappresentare i numeri naturali usando solo il valore zero e una funzione successore:
+
+  0 = 0
+  1 = Succ(0)
+  2 = Succ(Succ(0))
+
+Rappresentiamo i numeri di Peano con le liste:
+
+  0 = (Z)
+  1 = (S (Z))
+  2 = (S (S (Z)))
+
+Per trattare con i numeri di Peano scriviamo due funzioni che convertono un numero intero in un numero di Peano (lista) e viceversa.
+In questo modo possiamo utilizzare le normali operazioni sui numeri interi.
+
+Funzione che converte un numero intero in un numero di Peano (lista):
+
+(define (numero-peano num)
+  (if (= num 0) (cons 'Z)
+      (cons 'S (cons (peano (- num 1))))))
+
+Facciamo alcune prove:
+
+(numero-peano 0)
+;-> (Z)
+(numero-peano 1)
+;-> (S (Z))
+(numero-peano 10)
+;-> (S (S (S (S (S (S (S (S (S (S (Z)))))))))))
+
+(setq lst (numero-peano 4))
+;-> (S (S (S (S (Z)))))
+
+La seguente funzione restituisce gli indici di tutti gli elementi di una lista:
+
+(ref-all nil lst (fn (x) true))
+;-> ((0) (1) (1 0) (1 1) (1 1 0) (1 1 1) (1 1 1 0) (1 1 1 1) (1 1 1 1 0))
+
+Adesso possiamo calcolare il valore di un numero di peano:
+
+  valore = lunghezza(ultimo elemento) - 1
+
+Funzione che converte un numero di Peano (lista) in un numero intero:
+
+(define (peano-numero lst)
+  (- (length ((ref-all nil lst (fn (x) true)) -1)) 1))
+
+Facciamo alcune prove:
+
+(peano-numero '(Z))
+;-> 0
+(peano-numero '(S(Z)))
+;-> 1
+(peano-numero (peano 42))
+;-> 42
+
+Funzione che applica l'operatore "op" (+,-,*,/) a due numeri di Peano:
+
+(define (arit-peano op p1 p2)
+  (op (peano-numero p1) (peano-numero p2)))
+
+(arit-peano * '(S (S (Z))) '(S (S (S (S (S (S (S (S (S (S (Z))))))))))))
+;-> 20
+
+(arit-peano + (numero-peano 32) (numero-peano 10))
+;-> 42
+
+Nota: solo numeri naturali come risultato.
+
 =============================================================================
 

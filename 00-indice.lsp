@@ -1872,6 +1872,9 @@ NOTE LIBERE 17
   Spazio campionario di N lanci di monete
   Indovina il numero (con un bugiardo)
   "Semplice" esercizio di programmazione
+  Distanza tra coppia di primi
+  Coppie autogrammatiche
+  Numeri di Peano
 
 PROBLEMI SUI DADI
 =================
