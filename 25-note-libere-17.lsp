@@ -921,7 +921,66 @@ Funzione che applica l'operatore "op" (+,-,*,/) a due numeri di Peano:
 (arit-peano + (numero-peano 32) (numero-peano 10))
 ;-> 42
 
-Nota: solo numeri naturali come risultato.
+Nota: solo numeri naturali come operatori e come risultato.
+
+
+---------------------------------------
+Numerazione delle pagine di un giornale
+---------------------------------------
+
+Un giornale è composto da più fogli.
+Ogni foglio del giornale contiene quattro pagine del giornale finale.
+Ecco un esempio di un giornale con tre fogli che compongono un giornale di dodici pagine:
+
+   ___________
+  |2    |   11|
+  |  ___|_____|_
+  | |4    |    9|
+  |_|  ___|_____|_
+    | |6    |    7|
+    |_|     |     |
+      |     |     |
+      |_____|_____|
+
+   ___________
+  |12   |    1|
+  |  ___|_____|_
+  | |10   |    3|
+  |_|  ___|_____|_
+    | |8    |    5|
+    |_|     |     |
+      |     |     |
+      |_____|_____|
+
+Scrivere una funzione che genera la numerazione dei fogli dal giorrnale (4 numeri per ogni foglio).
+Per esempio, con 3 fogli (12 pagine), si ottiene:
+
+  (1 12 2 11) (3 10 4 9) (5 8 6 7)
+
+Funzione di numerazione delle pagine:
+
+(define (numera2 fogli)
+  (local (nums left right)
+    (setq nums (dup '() fogli))
+    (setq left 0)
+    (setq right (+ (* fogli 4) 1))
+    (for (f 0 (- fogli 1))
+      (push (++ left) (nums f) -1) 
+      (push (-- right) (nums f) -1)
+      (push (++ left) (nums f) -1) 
+      (push (-- right) (nums f) -1)
+    )
+    nums))
+
+(numera2 3)
+;-> ((1 12 2 11) (3 10 4 9) (5 8 6 7))
+
+(numera2 5)
+;-> ((1 20 2 19) (3 18 4 17) (5 16 6 15) (7 14 8 13) (9 12 10 11))
+
+(numera2 10)
+;-> ((1 40 2 39) (3 38 4 37) (5 36 6 35) (7 34 8 33) (9 32 10 31) 
+;->  (11 30 12 29) (13 28 14 27) (15 26 16 25) (17 24 18 23) (19 22 20 21))
 
 =============================================================================
 

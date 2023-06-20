@@ -1875,6 +1875,7 @@ NOTE LIBERE 17
   Distanza tra coppia di primi
   Coppie autogrammatiche
   Numeri di Peano
+  Numerazione delle pagine di un giornale
 
 PROBLEMI SUI DADI
 =================
