@@ -1876,6 +1876,7 @@ NOTE LIBERE 17
   Coppie autogrammatiche
   Numeri di Peano
   Numerazione delle pagine di un giornale
+  Vicini di Von Neumann
 
 PROBLEMI SUI DADI
 =================

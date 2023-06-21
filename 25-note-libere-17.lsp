@@ -982,5 +982,94 @@ Funzione di numerazione delle pagine:
 ;-> ((1 40 2 39) (3 38 4 37) (5 36 6 35) (7 34 8 33) (9 32 10 31) 
 ;->  (11 30 12 29) (13 28 14 27) (15 26 16 25) (17 24 18 23) (19 22 20 21))
 
+
+---------------------
+Vicini di Von Neumann
+---------------------
+
+Date le coordinate di una cella (x,y) e una distanza r, restituire tutte le celle che hanno una distanza di Manhattan uguale o inferiore a r (vicini di VonNeumann).
+
+Distanza di manhattan = 1
+
+          (x,y-1)
+  (x-1,y)  (x,y)  (x+1,y)
+          (x,y+1)
+
+Distanza di manhattan = 2
+
+                    (x,y-2)
+          (x-1,y-1) (x,y-1) (x+1,y-1)
+  (x-2,y)  (x-1,y)   (x,y)   (x+1,y)  (x+2,y)
+          (x-1,y+1) (x,y+1) (x+1,y+1)
+                    (x,y+2)
+
+Calcola la distanza di Manhattan (4 direzioni - torre) di due punti P1=(x1 y1) e P2=(x2 y2):
+
+(define (manhattan x1 y1 x2 y2)
+  (add (abs (sub x1 x2)) (abs (sub y1 y2))))
+
+(manhattan 1 1 -1 -1)
+;-> 4
+
+Funzione che calcola i vicini di VonNeumann di una cella (x,y) con distanza minore o uguale a r:
+
+(define (vicini x y r)
+  (let (out '())
+    (for (a (- x r) (+ x r))
+      (for (b (- y r) (+ y r))
+        (if (<= (manhattan x y a b) r) (push (list a b) out -1))
+      )
+    )
+    (unique out)))
+
+(vicini 0 0 2)
+;-> ((-2 0) (-1 -1) (-1 0) (-1 1) (0 -2) (0 -1) (0 0) 
+;->  (0 1) (0 2) (1 -1) (1 0) (1 1) (2 0))
+
+Funzione che disegna i vicini di VonNeumann di una cella (x,y) con distanza minore o uguale a r:
+
+(define (draw-vicini x y r)
+  (local (neib trasla-x trasla-y m)
+    (setq neib (vicini x y r))
+    (setq trasla-x (abs (apply min (map first neib))))
+    (setq trasla-y (abs (apply min (map last neib))))
+    (setq m (array (+ x trasla-x r 1) (+ y trasla-y r 1) '(.)))
+    ;(println trasla-x { } trasla-y)
+    (dolist (el neib)
+      (setf (m (+ trasla-x (el 0)) (+ trasla-y (el 1))) 1)
+    )
+    m))
+
+(draw-vicini -2 -4 3)
+;-> ((. . . 1 . . .) 
+;->  (. . 1 1 1 . .) 
+;->  (. 1 1 1 1 1 .) 
+;->  (1 1 1 1 1 1 1) 
+;->  (. 1 1 1 1 1 .)
+;->  (. . 1 1 1 . .)
+;->  (. . . 1 . . .))
+
+(draw-vicini -2 -4 5)
+;-> ((. . . . . 1 . . . . .) 
+;->  (. . . . 1 1 1 . . . .) 
+;->  (. . . 1 1 1 1 1 . . .) 
+;->  (. . 1 1 1 1 1 1 1 . .)
+;->  (. 1 1 1 1 1 1 1 1 1 .)
+;->  (1 1 1 1 1 1 1 1 1 1 1)
+;->  (. 1 1 1 1 1 1 1 1 1 .)
+;->  (. . 1 1 1 1 1 1 1 . .)
+;->  (. . . 1 1 1 1 1 . . .)
+;->  (. . . . 1 1 1 . . . .)
+;->  (. . . . . 1 . . . . .))
+
+(draw-vicini 2 4 3)
+;-> ((. . . . . 1 . . .) 
+;->  (. . . . 1 1 1 . .) 
+;->  (. . . 1 1 1 1 1 .) 
+;->  (. . 1 1 1 1 1 1 1)
+;->  (. . . 1 1 1 1 1 .)
+;->  (. . . . 1 1 1 . .)
+;->  (. . . . . 1 . . .))
+
 =============================================================================
 
