@@ -1071,5 +1071,249 @@ Funzione che disegna i vicini di VonNeumann di una cella (x,y) con distanza mino
 ;->  (. . . . 1 1 1 . .)
 ;->  (. . . . . 1 . . .))
 
+
+-------------------
+Maggior numero di 1
+-------------------
+
+Data una lista di numeri interi, trovare l'elemento che ha il maggior numero di bit impostati a 1.
+
+(define (max-uno lst)
+  (local (max-1 val-max-1 val-1)
+    (setq max-1 0)
+    (setq val-max-1 0)
+    (dolist (el lst)
+      (setq val-1 (length (find-all "1" (bits el))))
+      (if (> val-1 max-1) (setq max-1 val-1 val-max-1 el))
+    )
+    (list val-max-1 max-1)))
+
+Facciamo alcune prove:
+
+(max-uno (sequence 1 100))
+;-> (63 6)
+
+(max-uno '(2141234 127168 11674 233871))
+;-> (233871 10)
+
+(setq nums (rand 1e7 100))
+(max-uno nums)
+;-> (8346812 16)
+
+
+---------------------------------------
+Fattorizzazione di una forma quadratica
+---------------------------------------
+
+Fattorizzare una espressione quadratica significa esprimere la forma quadratica dell'espressione come prodotto di due monomi:
+
+  f(x) = ax² + bx + c = k(x - x1)(x- x2)
+
+Passo 1: identificare una data funzione quadratica e semplificarla completamente se necessario
+Passo 2: assicurati che la funzione sia nella forma f(x) = ax² + bx + c
+Passo 3: trovare le radici x1 e x2 utilizzando la formula:
+
+           -b +- sqrt(b^2 - 4ac)
+  x1,x2 = -----------------------
+                    2a
+
+Passo 4: la fattorizzazione vale: f(x) = ax² + bx + c = a(x - x1)(x-x2)
+
+Nota: il metodo sopra funziona indipendentemente dal fatto che le radici siano reali o meno.
+
+Se la forma quadratica è del tipo x^2 + ax + b una tecnica comune è trovare due numeri p e q tali che:
+
+  p + q = a
+  pq = b
+
+Scriviamo una funzione che risolve questo caso (solo per equazioni con soluzioni reali):
+
+(define (fattorizza a b)
+  (local (p q)
+   (setq p (add (div a 2) (sqrt (sub (div (mul a a) 4) b))))
+   (setq q (sub a p))
+   (list p q)))
+
+Facciamo alcune prove:
+
+(fattorizza 2 -15)
+;-> (5 -3)
+(fattorizza -22 85)
+;-> (-5 -17)
+(fattorizza 6 -16)
+;-> (8 -2)
+(fattorizza -8 -240)
+;-> (12 -20)
+(fattorizza -1 -272)
+;-> (16 -17)
+(fattorizza 17 16)
+;-> (16 1)
+(fattorizza -4 0)
+;-> (0 -4)
+(fattorizza 3 -54)
+;-> (9 -6)
+(fattorizza 13 40)
+;-> (8 5)
+(fattorizza -29 198)
+;-> (-11 -18)
+(fattorizza 11 -12)
+;-> (12 -1)
+(fattorizza 4 -320)
+;-> (20 -16)
+(fattorizza 4 4)
+;-> (2 2)
+
+
+--------------------------------
+Numeri palindromi senza quadrati
+--------------------------------
+
+Un numero palindromo è un numero che ha lo stesso valore se letto da sinistra a destra o da destra a sinistra.
+Un numero senza quadrati (square-free) non è divisibile esattamente per un numero quadrato (cioè non contiene un fattore primo ripetuto). 
+Ad esempio, 44=22*11 non è senza quadrati, mentre 66=2*3*11 è senza quadrati.
+
+Sequenza OEIS: A071251
+  1, 2, 3, 5, 6, 7, 11, 22, 33, 55, 66, 77, 101, 111, 131, 141, 151, 161,
+  181, 191, 202, 222, 262, 282, 303, 313, 323, 353, 373, 383, 393, 434, 454,
+  474, 494, 505, 515, 535, 545, 555, 565, 595, 606, 626, 646, 707, 717, ...
+
+Funzione per verificare se un dato numero è palindromo senza quadrati:
+
+(define (pali-sqfree? num)
+  (cond 
+    ((< num 1) nil)
+    ((= num 1) true)
+    (true
+      (let ((f (factor num)) (s (string num)))
+        (and (= s (reverse (copy s)))
+            (= f (unique f)))))))
+
+Facciamo alcune prove:
+
+(pali-sqfree? 44)
+;-> nil
+(pali-sqfree? 66)
+;-> true
+(pali-sqfree? 77)
+;-> true
+
+(filter pali-sqfree? (sequence 1 500))
+;-> (1 2 3 5 6 7 11 22 33 55 66 77 101 111 131 141 151 161 181 191 
+;->  202 222 262 282 303 313 323 353 373 383 393 434 454 474 494)
+
+
+----------------------------------------------------------
+Notazioni: Snake case, Kebab case, Camel case, Pascal Case
+----------------------------------------------------------
+
+Quasi tutti i linguaggi di programmazione hanno un metodo standard che utilizza le maiuscole e le minuscole per nominare le variabili. I principali metodi di notazione sono i seguenti:
+
+1) (snake_case)
+   Snake Case: tutte le lettere sono minuscole, con caratteri di sottolineatura che separano le parole.
+
+2) (kebab-case)
+   Kebab Case: tutte le lettere sono minuscole, con trattini che separano le parole.
+
+3) (camelCase)
+   Camel Case: la prima lettera di ogni parola dopo la prima è in maiuscolo, senza spazi.
+
+4) (PascalCase)
+   Pascal Case: La prima lettera di ogni parola è in maiuscolo, senza spazi.
+
+Nota: in newLISP si usa in genere la notazione "kebab-case" con qualche eccezione per variabili che cominciano con una maiuscola.
+
+Non credo ci sarà mai un accordo su un singolo sistema da utilizzare e dobbiamo alternare tra i vari metodi.
+
+Scrivere una funzione che converte tra i vari metodi di notazione.
+
+(define (upper? ch) (and (>= ch "A") (<= ch "Z")))
+
+(define (nota metodo str)
+  (local (out len next-upper)
+    ;(setq str (lower-case str))
+    (setq out "")
+    (setq len (length str))
+    (cond
+      ((= metodo 1) ; to snake_case
+        (replace "-" str "_")
+        (for (i 0 (- len 1))
+          (if (and (upper? (str i)) (!= i 0) (!= (out -1) "_")) 
+              (extend out "_")
+          )
+          (extend out (lower-case (str i)))
+        )
+      )
+      ((= metodo 2) ; to kebab_case
+        (replace "_" str "-")
+        (for (i 0 (- len 1))
+          (if (and (upper? (str i)) (!= i 0) (!= (out -1) "-"))
+              (extend out "-")
+          )
+          (extend out (lower-case (str i)))
+        )
+      )
+      ((= metodo 3) ; to camelCase
+        (for (i 0 (- len 1))
+          (cond ((or (= (str i) "-") (= (str i) "_"))
+                  (setq next-upper true))
+                (next-upper
+                  (extend out (upper-case (str i)))
+                  (setq next-upper nil))
+                (true
+                  (if (zero? i)
+                    (extend out (lower-case (str i)))
+                    (extend out (str i))))
+          )
+        )
+      )
+      ((= metodo 4) ; to PascalCase
+        (for (i 0 (- len 1))
+          (cond ((or (= (str i) "-") (= (str i) "_"))
+                  (setq next-upper true))
+                (next-upper
+                  (extend out (upper-case (str i)))
+                  (setq next-upper nil))
+                (true
+                  (if (zero? i)
+                      (extend out (upper-case (str i)))
+                      (extend out (str i))))
+          )
+        )
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(setq tipi '("snake_case" "kebab-case" "camelCase" "PascalCase"))
+(map (curry nota 1) tipi)
+;-> ("snake_case" "kebab_case" "camel_case" "pascal_case")
+(map (curry nota 2) tipi)
+;-> ("snake-case" "kebab-case" "camel-case" "pascal-case")
+(map (curry nota 3) tipi)
+;-> ("snakeCase" "kebabCase" "camelCase" "pascalCase")
+(map (curry nota 4) tipi)
+;-> ("SnakeCase" "KebabCase" "CamelCase" "PascalCase")
+
+(setq lst '("this-Var" "This-Var" "this-var" "thisVar" "This_Var" "This-var"))
+(map (curry nota 1) lst)
+;-> ("this_var" "this_var" "this_var" "this_var" "this_var" "this_var")
+(map (curry nota 2) lst)
+;-> ("this-var" "this-var" "this-var" "this-var" "this-var" "this-var")
+(map (curry nota 3) lst)
+;-> ("thisVar" "thisVar" "thisVar" "thisVar" "thisVar" "thisVar")
+(map (curry nota 4) lst)
+;-> ("ThisVar" "ThisVar" "ThisVar" "ThisVar" "ThisVar" "ThisVar")
+
+(setq lst '("_sotTo" "ABcDE" "ab-cd-fg" "_A"))
+(map (curry nota 1) lst)
+;-> ("_sot_to" "a_bc_d_e" "ab_cd_fg" "_a")
+(map (curry nota 2) lst)
+;-> ("-sot-to" "a-bc-d-e" "ab-cd-fg" "-a")
+(map (curry nota 3) lst)
+;-> ("SotTo" "aBcDE" "abCdFg" "A")
+(map (curry nota 4) lst)
+;-> ("SotTo" "ABcDE" "AbCdFg" "A")
+
 =============================================================================
 

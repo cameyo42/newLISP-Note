@@ -1877,6 +1877,10 @@ NOTE LIBERE 17
   Numeri di Peano
   Numerazione delle pagine di un giornale
   Vicini di Von Neumann
+  Maggior numero di 1
+  Fattorizzazione di una forma quadratica
+  Numeri palindromi senza quadrati
+  Notazioni: Snake case, Kebab case, Camel case, Pascal Case
 
 PROBLEMI SUI DADI
 =================
