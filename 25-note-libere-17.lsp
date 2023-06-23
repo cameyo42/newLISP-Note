@@ -1315,5 +1315,174 @@ Facciamo alcune prove:
 (map (curry nota 4) lst)
 ;-> ("SotTo" "ABcDE" "AbCdFg" "A")
 
+
+-----------------
+Radicale perfetto
+-----------------
+
+Dato un numero intero positivo n trovare il suo radicale perfetto.
+
+Un radicale perfetto r di un intero positivo n è la radice intera più piccola di n di qualsiasi indice k:
+
+  r = n^(1/k)
+
+dove r è un numero intero.
+
+In altre parole k è l'esponente massimo tale che r elevato a k vale n:
+
+  n = r^k
+
+Sequenza OEIS: A052410
+  1, 2, 3, 2, 5, 6, 7, 2, 3, 10, 11, 12, 13, 14, 15, 2, 17, 18, 19, 20,
+  21, 22, 23, 24, 5, 26, 3, 28, 29, 30, 31, 2, 33, 34, 35, 6, 37, 38, 39,
+  40, 41, 42, 43, 44, 45, 46, 47, 48, 7, 50, 51, 52, 53, 54, 55, 56, 57,
+  58, 59, 60, 61, 62, 63, 2, 65, 66, 67, 68, 69, 70, 71, ...
+
+Funzione che trova il radicale perfetto di un numero:
+
+(define (radicale num)
+  (if (= num 1) 1
+  ;else
+  (local (k r)
+    (setq k num)
+    (setq r (pow num (div k)))
+    ;(println r { } (mod r 1))
+    ;(while (and (!= (mod r 1) 0) (> k 0))
+    (while (!= (mod r 1) 0)
+      (setq r (pow num (div k)))
+      ;(println r { } (mod r 1))
+      (-- k)
+    )
+    ;(print (list num r (+ k 1)) { })
+    r)))
+
+(map radicale (sequence 1 50))
+;-> (1 2 3 2 5 6 7 2 3 10 11 12 13 14 15 2 17 18 19 20 21 22 23 24 5 26 3
+;->  28 29 30 31 2 33 34 35 6 37 38 39 40 41 42 43 44 45 46 47 48 7 50)
+
+Funzione che calcola il radicale perfetto da 1 fino ad un certo limite:
+
+def upto(n):
+    list = [1] + [0] * (n - 1)
+    for i in range(2, n + 1):
+        if not list[i - 1]:
+            j = i
+            while j <= n:
+                list[j - 1] = i
+                j *= i
+    return list
+
+(define (radicali limite)
+  (setq rad (array limite '(0)))
+  (setf (rad 0) 1)
+  (for (i 2 limite)
+    (if (zero? (rad (- i 1)))
+      (begin
+        (setq j i)
+        (while (<= j limite)
+          (setf (rad (- j 1)) i)
+          (setq j (* j i)))))
+  )
+  rad)
+
+(radicali 50)
+;-> (1 2 3 2 5 6 7 2 3 10 11 12 13 14 15 2 17 18 19 20 21 22 23 24 5 26 3
+;->  28 29 30 31 2 33 34 35 6 37 38 39 40 41 42 43 44 45 46 47 48 7 50)
+
+
+-----------------------
+Moltiplicare o dividere
+-----------------------
+
+Iniziare con 1. Continuare moltiplicando o dividendo per n.
+Moltiplicare per n quando a(n-1) è minore di n.
+Dividere per n quando a(n-1) è maggiore di n e prendere il valore intero 
+(questo serve a garantire che a(n) > 0 per ogni n)
+La definizione matematica della sequenza è la seguente:
+
+         | n*a(n-1), se a(n-1) < n, 
+  a(n) = |
+         | floor(a(n-1)/n), altrimenti.
+
+Sequenza OEIS A076039
+  1, 2, 6, 1, 5, 30, 4, 32, 3, 30, 2, 24, 1, 14, 210, 13, 221, 12, 228, 11, 
+  231, 10, 230, 9, 225, 8, 216, 7, 203, 6, 186, 5, 165, 4, 140, 3, 111, 2, 
+  78, 1, 41, 1722, 40, 1760, 39, 1794, 38, 1824, 37, 1850, 36, 1872, 35, 
+  1890, 34, 1904, 33, 1914, 32, 1920, 31, 1922, 30, 1920, ...
+
+(define (mul-div limite)
+  (local (out)
+    (setq out '(1))
+    (for (n 1 limite)
+      (if (< (out (- n 1)) n)
+          (push (* n (out (- n 1))) out -1)
+          (push (/ (out (- n 1)) n) out -1)
+      )
+    )
+    (slice out 1)))
+
+(mul-div 50)
+;-> (1 2 6 1 5 30 4 32 3 30 2 24 1 14 210 13 221 12 228 11 
+;->  231 10 230 9 225 8 216 7 203 6 186 5 165 4 140 3 111 2 
+;->  78 1 41 1722 40 1760 39 1794 38 1824 37 1850)
+
+
+--------------------------------
+Numerologia e parole compatibili
+--------------------------------
+
+In numerologia, due parole (stringhe composte interamente da lettere) sono compatibili se producono lo stesso numero con la seguente procedura (usiamo la stringa hello come esempio):
+
+Associare ogni lettera a un numero (ignorando maiuscole e minuscole) in base alla seguente tabella:
+
+  1 2 3 4 5 6 7 8 9
+  a b c d e f g h i
+  j k l m n o p q r
+  s t u v w x y z
+
+Il numero in cima alla colonna in cui si trova una lettera è il suo valore
+(ad esempio a -> 1, x -> 6).
+
+  newLISP -> (5 5 5 3 9 1 7)
+
+Sommare questi numeri: (5 + 5 + 5 + 3 + 9 + 1 + 7) = 35.
+
+Calcolare la radice digitale del numero (cioè calcolare la somma delle cifre fino a che non si ottiene una singola cifra): 35 -> 3 + 5 = 8.
+
+Alla parola "newLISP" viene associato il numero 8.
+In questo caso, tutte le parole che producono 8 sono simili a "newLISP".
+
+(define (number word)
+  (local (table sum)
+    (setq table 
+      '(("a" 1) ("b" 2) ("c" 3) ("d" 4) ("e" 5) ("f" 6) ("g" 7) ("h" 8) ("i" 9)
+        ("j" 1) ("k" 2) ("l" 3) ("m" 4) ("n" 5) ("o" 6) ("p" 7) ("q" 8) ("r" 9)
+        ("s" 1) ("t" 2) ("u" 3) ("v" 4) ("w" 5) ("x" 6) ("y" 7) ("z" 8)))
+    (setq word (lower-case word))
+    (setq sum 0)
+    ; calcola la somma dei caratteri
+    (dolist (ch (explode word))
+      (++ sum (lookup ch table))
+    )
+    ; calcula la radice digitale della somma
+    (+ 1 (% (- (abs sum) 1) 9))))
+
+Facciamo alcune prove:
+
+(number "newLISP")
+;-> 8
+(number "programming")
+;-> 5
+
+(setq lang '("fortran" "c" "basic" "pascal" "lisp" "prolog" "python" 
+             "java" "processing" "forth" "newlisp"))
+
+(sort (map (fn(x) (list (number x) x)) lang))
+;-> ((2 "fortran") (2 "lisp") (2 "prolog") 
+;->  (3 "c") 
+;->  (4 "forth") 
+;->  (7 "basic") (7 "java") (7 "pascal")
+;->  (8 "newlisp") (8 "processing") (8 "python"))
+
 =============================================================================
 

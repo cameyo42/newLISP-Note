@@ -1881,6 +1881,9 @@ NOTE LIBERE 17
   Fattorizzazione di una forma quadratica
   Numeri palindromi senza quadrati
   Notazioni: Snake case, Kebab case, Camel case, Pascal Case
+  Radicale perfetto
+  Moltiplicare o dividere
+  Numerologia e parole compatibili
 
 PROBLEMI SUI DADI
 =================
