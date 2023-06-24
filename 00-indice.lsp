@@ -1884,6 +1884,12 @@ NOTE LIBERE 17
   Radicale perfetto
   Moltiplicare o dividere
   Numerologia e parole compatibili
+  Fattoriale in Haiku
+  Numeri primissimi
+  Minimo e massimo con due numeri
+  Numeri senza numeri
+  Numeri Loeschian
+  Stringhe ASCII prime
 
 PROBLEMI SUI DADI
 =================

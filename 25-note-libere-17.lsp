@@ -174,9 +174,9 @@ Calcoliamo gli HP della lista "numeri":
 
 Elenco degli numeri il cui HP è big-integer:
 
- numero   HP          
+ numero   HP
  48                   6161791591356884791277
- 65       1381321118321175157763339900357651 
+ 65       1381321118321175157763339900357651
  86                6012903280474189529884459
  87               41431881512748629379008933
 
@@ -257,7 +257,7 @@ Proviamo a calcolarli:
 ;-> 3317106975833595192748879L
 ;-> ... interrotto
 
-Elenco degli numeri il cui HP è sconosciuto (al 2023): 
+Elenco degli numeri il cui HP è sconosciuto (al 2023):
 
 (setq unknown '(49 77 80 96))
 
@@ -348,7 +348,7 @@ Vediamo dove possiamo arrivare:
 Generazione della permutazione successiva
 -----------------------------------------
 
-Data una lista, trovare la successiva permutazione lessicograficamente maggiore della lista data. 
+Data una lista, trovare la successiva permutazione lessicograficamente maggiore della lista data.
 Se non esiste alcuna permutazione maggiore, restituire la permutazione lessicograficamente più piccola della lista data.
 
 Analizziamo alcuni esempi per vedere se riusciamo a riconoscere alcuni schemi.
@@ -359,7 +359,7 @@ Analizziamo alcuni esempi per vedere se riusciamo a riconoscere alcuni schemi.
 (1 3 5 4) = il prossimo numero maggiore è 1435
 (3 2 1) = non possiamo formare un numero maggiore del numero corrente da tutte le possibili permutazioni
 
-Quindi, è chiaro che per ottenere la prossima permutazione dovremo cambiare il numero in una posizione il più a destra possibile. Ogni permutazione (eccetto la prima) ha un suffisso crescente. 
+Quindi, è chiaro che per ottenere la prossima permutazione dovremo cambiare il numero in una posizione il più a destra possibile. Ogni permutazione (eccetto la prima) ha un suffisso crescente.
 Ora, se cambiamo il pattern dal punto di pivot (dove il suffisso crescente si interrompe) alla sua successiva possibile rappresentazione lessicografica, otterremo la successiva permutazione maggiore.
 
 Per capire come cambiare il pattern da pivot, vediamo un esempio:
@@ -385,7 +385,7 @@ Scambiare il pivot con il successore più a destra: (1 e 5)
      2 4 5 7 1 0
 
 Invertire il suffisso: (0 1 7)
-           _____  
+           _____
      2 4 5 0 1 7
 
 Sequenza finale:
@@ -553,7 +553,7 @@ Controllo stessi risultati delle due funzioni "next-perm" e "next-perm1":
 Sequenza di Levine
 ------------------
 
-Nell'estate del 1997 il matematico Lionel Levine scoprì questa sequenza di numeri: 
+Nell'estate del 1997 il matematico Lionel Levine scoprì questa sequenza di numeri:
 
   1, 2, 2, 3, 4, 7, 14, 42, 213, 2837, ...
 
@@ -568,17 +568,17 @@ La sequenza è composta dal termine finale di ogni riga di questa lista:
  1 1 1 1 1 1 1 2 2 2 2 2 2 3 3 3 3 3 4 4 4 4 5 5 5 5 6 6 6 7 7 7 8 8 9 9 10 10 11 12 13 14
  ...
 
-La lista è costruita con una semplice regola. 
-Inizia con 1 1 e considera ogni riga come base per costruire quella successiva: leggila da destra a sinistra e considerala come un inventario di cifre. 
-La prima riga, 1 1, verrebbe letta "un 1 e un 2", quindi otteniamo 1 2 per la seconda riga. 
+La lista è costruita con una semplice regola.
+Inizia con 1 1 e considera ogni riga come base per costruire quella successiva: leggila da destra a sinistra e considerala come un inventario di cifre.
+La prima riga, 1 1, verrebbe letta "un 1 e un 2", quindi otteniamo 1 2 per la seconda riga.
 La seconda riga (sempre leggendo da destra a sinistra) verrebbe letta "due 1 e un 2", dando 1 1 2 per la terza riga.
 La terza riga veerrebbe letta "due 1, un 2 e un 3", dando 1 1 2 3 per la quarta riga.
-E così via. 
+E così via.
 Questo sembra semplice, eppure il ventesimo termine non è ancora stato calcolato.
 Il 15-esimo termine vale: 508009471379488821444261986503540.
 
 Sequenza OEIS A011784:
-  1, 2, 2, 3, 4, 7, 14, 42, 213, 2837, 175450, 139759600, 6837625106787, 
+  1, 2, 2, 3, 4, 7, 14, 42, 213, 2837, 175450, 139759600, 6837625106787,
   266437144916648607844, 508009471379488821444261986503540, 37745517525533091954736701257541238885239740313139682, ...
 
 (define (levine limite)
@@ -623,7 +623,7 @@ Non credo che con questa funzione si possa arrivare molto più lontano.
 Spazio campionario di N lanci di monete
 ---------------------------------------
 
-Dato un numero intero positivo N come input, generare lo spazio campionario di N lanci consecutivi di monete. 
+Dato un numero intero positivo N come input, generare lo spazio campionario di N lanci consecutivi di monete.
 La moneta è giusta, cioè le due facce Testa e Croce hanno ciascuna probabilità 0.5.
 
 Per esempio con N=3 lo spazio campionario è il seguente:
@@ -643,10 +643,10 @@ Il numero di elementi dello spazio campionario vale: 2^N.
 ;-> ((T T T) (C T T) (T C T) (C C T) (T T C) (C T C) (T C C) (C C C))
 
 (perm-rep 4 '(T C))
-;-> ((T T T T) (C T T T) (T C T T) (C C T T) (T T C T) (C T C T) (T C C T) 
+;-> ((T T T T) (C T T T) (T C T T) (C C T T) (T T C T) (C T C T) (T C C T)
 ;->  (C C C T) (T T T C) (C T T C) (T C T C) (C C T C) (T T C C) (C T C C)
 ;->  (T C C C) (C C C C))
- 
+
 (length (perm-rep 12 '(1 0)))
 ;-> 4096
 (pow 2 12)
@@ -746,7 +746,7 @@ Dato un intero positivo N, scrivere una funzione che restituisce una coppia qual
 Esempi:
 
 2 -> (3 5) oppure (11 13) oppure (29 31) oppure ...
-3 -> (2 5) 
+3 -> (2 5)
 4 -> (3 7) oppure (19 23) oppure ...
 
 Per alcuni valori di N non è sicuro che esista una coppia di primi valida (cioè a distanza N).
@@ -779,13 +779,13 @@ Restituire la soluzione o nil
     (setq primi (primes-to limite))
     (setq trovato nil)
     (dolist (p primi trovato)
-      (if (prime? (+ p dist)) 
+      (if (prime? (+ p dist))
         (begin
           (setq trovato true)
           (setq out (list p (+ p dist)))
         )
       )
-    ) 
+    )
     out))
 
 Facciamo alcune prove:
@@ -804,7 +804,7 @@ Con N=7 non ho trovato nessuna coppia:
 Applichiamo la funzione per valori di N da 1 a 20:
 
 (map (fn(x) (list x (coppia x 1e7))) (sequence 1 20))
-;-> ((1 (2 3)) (2 (3 5)) (3 (2 5)) (4 (3 7)) (5 (2 7)) (6 (5 11)) 
+;-> ((1 (2 3)) (2 (3 5)) (3 (2 5)) (4 (3 7)) (5 (2 7)) (6 (5 11))
 ;->  (7 nil) (8 (3 11)) (9 (2 11)) (10 (3 13)) (11 (2 13)) (12 (5 17))
 ;->  (13 nil) (14 (3 17)) (15 (2 17)) (16 (3 19)) (17 (2 19)) (18 (5 23))
 ;->  (19 nil) (20 (3 23)))
@@ -965,9 +965,9 @@ Funzione di numerazione delle pagine:
     (setq left 0)
     (setq right (+ (* fogli 4) 1))
     (for (f 0 (- fogli 1))
-      (push (++ left) (nums f) -1) 
+      (push (++ left) (nums f) -1)
       (push (-- right) (nums f) -1)
-      (push (++ left) (nums f) -1) 
+      (push (++ left) (nums f) -1)
       (push (-- right) (nums f) -1)
     )
     nums))
@@ -979,7 +979,7 @@ Funzione di numerazione delle pagine:
 ;-> ((1 20 2 19) (3 18 4 17) (5 16 6 15) (7 14 8 13) (9 12 10 11))
 
 (numera2 10)
-;-> ((1 40 2 39) (3 38 4 37) (5 36 6 35) (7 34 8 33) (9 32 10 31) 
+;-> ((1 40 2 39) (3 38 4 37) (5 36 6 35) (7 34 8 33) (9 32 10 31)
 ;->  (11 30 12 29) (13 28 14 27) (15 26 16 25) (17 24 18 23) (19 22 20 21))
 
 
@@ -1023,7 +1023,7 @@ Funzione che calcola i vicini di VonNeumann di una cella (x,y) con distanza mino
     (unique out)))
 
 (vicini 0 0 2)
-;-> ((-2 0) (-1 -1) (-1 0) (-1 1) (0 -2) (0 -1) (0 0) 
+;-> ((-2 0) (-1 -1) (-1 0) (-1 1) (0 -2) (0 -1) (0 0)
 ;->  (0 1) (0 2) (1 -1) (1 0) (1 1) (2 0))
 
 Funzione che disegna i vicini di VonNeumann di una cella (x,y) con distanza minore o uguale a r:
@@ -1041,18 +1041,18 @@ Funzione che disegna i vicini di VonNeumann di una cella (x,y) con distanza mino
     m))
 
 (draw-vicini -2 -4 3)
-;-> ((. . . 1 . . .) 
-;->  (. . 1 1 1 . .) 
-;->  (. 1 1 1 1 1 .) 
-;->  (1 1 1 1 1 1 1) 
+;-> ((. . . 1 . . .)
+;->  (. . 1 1 1 . .)
+;->  (. 1 1 1 1 1 .)
+;->  (1 1 1 1 1 1 1)
 ;->  (. 1 1 1 1 1 .)
 ;->  (. . 1 1 1 . .)
 ;->  (. . . 1 . . .))
 
 (draw-vicini -2 -4 5)
-;-> ((. . . . . 1 . . . . .) 
-;->  (. . . . 1 1 1 . . . .) 
-;->  (. . . 1 1 1 1 1 . . .) 
+;-> ((. . . . . 1 . . . . .)
+;->  (. . . . 1 1 1 . . . .)
+;->  (. . . 1 1 1 1 1 . . .)
 ;->  (. . 1 1 1 1 1 1 1 . .)
 ;->  (. 1 1 1 1 1 1 1 1 1 .)
 ;->  (1 1 1 1 1 1 1 1 1 1 1)
@@ -1063,9 +1063,9 @@ Funzione che disegna i vicini di VonNeumann di una cella (x,y) con distanza mino
 ;->  (. . . . . 1 . . . . .))
 
 (draw-vicini 2 4 3)
-;-> ((. . . . . 1 . . .) 
-;->  (. . . . 1 1 1 . .) 
-;->  (. . . 1 1 1 1 1 .) 
+;-> ((. . . . . 1 . . .)
+;->  (. . . . 1 1 1 . .)
+;->  (. . . 1 1 1 1 1 .)
 ;->  (. . 1 1 1 1 1 1 1)
 ;->  (. . . 1 1 1 1 1 .)
 ;->  (. . . . 1 1 1 . .)
@@ -1169,10 +1169,10 @@ Numeri palindromi senza quadrati
 --------------------------------
 
 Un numero palindromo è un numero che ha lo stesso valore se letto da sinistra a destra o da destra a sinistra.
-Un numero senza quadrati (square-free) non è divisibile esattamente per un numero quadrato (cioè non contiene un fattore primo ripetuto). 
+Un numero senza quadrati (square-free) non è divisibile esattamente per un numero quadrato (cioè non contiene un fattore primo ripetuto).
 Ad esempio, 44=22*11 non è senza quadrati, mentre 66=2*3*11 è senza quadrati.
 
-Sequenza OEIS: A071251
+Sequenza OEIS A071251:
   1, 2, 3, 5, 6, 7, 11, 22, 33, 55, 66, 77, 101, 111, 131, 141, 151, 161,
   181, 191, 202, 222, 262, 282, 303, 313, 323, 353, 373, 383, 393, 434, 454,
   474, 494, 505, 515, 535, 545, 555, 565, 595, 606, 626, 646, 707, 717, ...
@@ -1180,7 +1180,7 @@ Sequenza OEIS: A071251
 Funzione per verificare se un dato numero è palindromo senza quadrati:
 
 (define (pali-sqfree? num)
-  (cond 
+  (cond
     ((< num 1) nil)
     ((= num 1) true)
     (true
@@ -1198,7 +1198,7 @@ Facciamo alcune prove:
 ;-> true
 
 (filter pali-sqfree? (sequence 1 500))
-;-> (1 2 3 5 6 7 11 22 33 55 66 77 101 111 131 141 151 161 181 191 
+;-> (1 2 3 5 6 7 11 22 33 55 66 77 101 111 131 141 151 161 181 191
 ;->  202 222 262 282 303 313 323 353 373 383 393 434 454 474 494)
 
 
@@ -1237,7 +1237,7 @@ Scrivere una funzione che converte tra i vari metodi di notazione.
       ((= metodo 1) ; to snake_case
         (replace "-" str "_")
         (for (i 0 (- len 1))
-          (if (and (upper? (str i)) (!= i 0) (!= (out -1) "_")) 
+          (if (and (upper? (str i)) (!= i 0) (!= (out -1) "_"))
               (extend out "_")
           )
           (extend out (lower-case (str i)))
@@ -1332,7 +1332,7 @@ In altre parole k è l'esponente massimo tale che r elevato a k vale n:
 
   n = r^k
 
-Sequenza OEIS: A052410
+Sequenza OEIS A052410:
   1, 2, 3, 2, 5, 6, 7, 2, 3, 10, 11, 12, 13, 14, 15, 2, 17, 18, 19, 20,
   21, 22, 23, 24, 5, 26, 3, 28, 29, 30, 31, 2, 33, 34, 35, 6, 37, 38, 39,
   40, 41, 42, 43, 44, 45, 46, 47, 48, 7, 50, 51, 52, 53, 54, 55, 56, 57,
@@ -1396,18 +1396,18 @@ Moltiplicare o dividere
 
 Iniziare con 1. Continuare moltiplicando o dividendo per n.
 Moltiplicare per n quando a(n-1) è minore di n.
-Dividere per n quando a(n-1) è maggiore di n e prendere il valore intero 
+Dividere per n quando a(n-1) è maggiore di n e prendere il valore intero
 (questo serve a garantire che a(n) > 0 per ogni n)
 La definizione matematica della sequenza è la seguente:
 
-         | n*a(n-1), se a(n-1) < n, 
+         | n*a(n-1), se a(n-1) < n,
   a(n) = |
          | floor(a(n-1)/n), altrimenti.
 
-Sequenza OEIS A076039
-  1, 2, 6, 1, 5, 30, 4, 32, 3, 30, 2, 24, 1, 14, 210, 13, 221, 12, 228, 11, 
-  231, 10, 230, 9, 225, 8, 216, 7, 203, 6, 186, 5, 165, 4, 140, 3, 111, 2, 
-  78, 1, 41, 1722, 40, 1760, 39, 1794, 38, 1824, 37, 1850, 36, 1872, 35, 
+Sequenza OEIS A076039:
+  1, 2, 6, 1, 5, 30, 4, 32, 3, 30, 2, 24, 1, 14, 210, 13, 221, 12, 228, 11,
+  231, 10, 230, 9, 225, 8, 216, 7, 203, 6, 186, 5, 165, 4, 140, 3, 111, 2,
+  78, 1, 41, 1722, 40, 1760, 39, 1794, 38, 1824, 37, 1850, 36, 1872, 35,
   1890, 34, 1904, 33, 1914, 32, 1920, 31, 1922, 30, 1920, ...
 
 (define (mul-div limite)
@@ -1422,8 +1422,8 @@ Sequenza OEIS A076039
     (slice out 1)))
 
 (mul-div 50)
-;-> (1 2 6 1 5 30 4 32 3 30 2 24 1 14 210 13 221 12 228 11 
-;->  231 10 230 9 225 8 216 7 203 6 186 5 165 4 140 3 111 2 
+;-> (1 2 6 1 5 30 4 32 3 30 2 24 1 14 210 13 221 12 228 11
+;->  231 10 230 9 225 8 216 7 203 6 186 5 165 4 140 3 111 2
 ;->  78 1 41 1722 40 1760 39 1794 38 1824 37 1850)
 
 
@@ -1454,7 +1454,7 @@ In questo caso, tutte le parole che producono 8 sono simili a "newLISP".
 
 (define (number word)
   (local (table sum)
-    (setq table 
+    (setq table
       '(("a" 1) ("b" 2) ("c" 3) ("d" 4) ("e" 5) ("f" 6) ("g" 7) ("h" 8) ("i" 9)
         ("j" 1) ("k" 2) ("l" 3) ("m" 4) ("n" 5) ("o" 6) ("p" 7) ("q" 8) ("r" 9)
         ("s" 1) ("t" 2) ("u" 3) ("v" 4) ("w" 5) ("x" 6) ("y" 7) ("z" 8)))
@@ -1474,15 +1474,337 @@ Facciamo alcune prove:
 (number "programming")
 ;-> 5
 
-(setq lang '("fortran" "c" "basic" "pascal" "lisp" "prolog" "python" 
+(setq lang '("fortran" "c" "basic" "pascal" "lisp" "prolog" "python"
              "java" "processing" "forth" "newlisp"))
 
 (sort (map (fn(x) (list (number x) x)) lang))
-;-> ((2 "fortran") (2 "lisp") (2 "prolog") 
-;->  (3 "c") 
-;->  (4 "forth") 
+;-> ((2 "fortran") (2 "lisp") (2 "prolog")
+;->  (3 "c")
+;->  (4 "forth")
 ;->  (7 "basic") (7 "java") (7 "pascal")
 ;->  (8 "newlisp") (8 "processing") (8 "python"))
+
+
+-------------------
+Fattoriale in Haiku
+-------------------
+
+Crea un programma che calcola il fattoriale di un numero senza utilizzare funzioni fattoriali incorporate. L'intero programma deve essere in forma haiku, cioè devono seguire (quando si pronuncia) il formato di 5-7-5 sillabe.
+
+Soluzione di Cornullion:
+
+(define (fac n (so))            ; define fac n so
+(if (= n 0) 1                   ; if equals n zero 1
+(* n (fac (dec n)))))           ; times n fac dec n
+
+(for (n 0 10)                   ; for n zero ten
+; let's test from zero to ten
+(println (fac n thus)))         ; printline fac n thus
+
+  Lisp code consists of
+  
+  numerous parentheses
+  
+  and a few functions
+
+
+-----------------
+Numeri primissimi
+-----------------
+
+Si tratta di tutti i numeri primi che hanno la somma delle cifre prima e la radice digitale prima.
+
+Sequenza OEIS A207294:
+  2, 3, 5, 7, 11, 23, 29, 41, 43, 47, 61, 83, 101, 113, 131, 137, 151,
+  173, 191, 223, 227, 241, 263, 281, 311, 313, 317, 331, 353, 401, 421,
+  443, 461, 599, 601, 641, 797, 821, 887, 911, 977, 1013, 1019, 1031,
+  1033, 1051, 1091, 1103, 1109, 1123, 1163, 1181, 1213, 1217 , ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (digit-root num)
+"Calculates the repeated sum of the digits of an integer"
+    (+ 1 (% (- (abs num) 1) 9)))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che verifica se un numero è primissimo:
+
+(define (primissimo? num)
+  (and (prime? num) (prime? (digit-sum num)) (prime? (digit-root num))))
+
+(filter primissimo? (sequence 2 1250))
+;-> (2 3 5 7 11 23 29 41 43 47 61 83 101 113 131 137 151 173 191 223 227
+;->  241 263 281 311 313 317 331 353 401 421 443 461 599 601 641 797 821
+;->  887 911 977 1013 1019 1031 1033 1051 1091 1103 1109 1123 1163 1181
+;->  1213 1217 1231)
+
+
+-------------------------------
+Minimo e massimo con due numeri
+-------------------------------
+
+Dati due numeri naturali a 3 cifre, costruire due numeri a 2 cifre che sono il valore minimo e il valore massimo di tutti i numeri che rispettano le seguenti regole:
+
+1) In ciascuno dei numeri da costruire, una cifra viene presa da un numero di input e l'altra dall'altro numero.
+
+2) I due numeri da costruire non devono avere zeri iniziali
+
+Esempi:
+
+  123, 912 --> 11, 93
+  888, 906 --> 68, 98
+  100, 100 --> 10, 11
+  222, 222 --> 22, 22
+  123, 222 --> 12, 32
+  798, 132 --> 17, 93
+
+(define (min-max a b)
+  (local (out minimo massimo)
+    (setq out '())
+    (setq minimo 999)
+    (setq massimo 0)
+    (setq lst1 (explode (string a)))
+    (setq lst2 (explode (string b)))
+    ; prodotto cartesiano
+    (dolist (el1 lst1)
+      (dolist (el2 lst2)
+        (if (!= el1 "0")
+          (push (int (string el1 el2) 0 10) out -1)
+        )
+        (if (!= el2 "0")
+          (push (int (string el2 el1) 0 10) out -1)
+        )
+      )
+    )
+    ;(println out)
+    (setq minimo (apply min out))
+    (setq massimo (apply max out))
+    (list minimo massimo)))
+
+Facciamo alcune prove:
+
+(min-max 123 912)
+;-> (11 93)
+(min-max 888 906)
+;-> (68 98)
+(min-max 100 100)
+;-> (10 11)
+(min-max 222 222)
+;-> (22 22)
+(min-max 123 222)
+;-> (12 32)
+(min-max 798 132)
+;-> (17 93)
+
+
+-------------------
+Numeri senza numeri
+-------------------
+
+Scrivere una funzione o espressione che stampa 2023 senza utilizzare nessuno dei caratteri 0123456789 e indipendentemente da qualsiasi variabile esterna come la data o l'ora o un numero casuale.
+
+prima soluzione: codice ASCII
+  2023 = 60 * 35 - 77
+(char 60)
+;-> "<"
+(char 35)
+;-> "#"
+(char 77)
+;-> "M"
+(println (- (* (char "<") (char "#")) (char "M")))
+;-> 2023
+
+Seconda soluzione: codice UTF
+(setq s (char 2023))
+;-> "▀º"
+(char "▀º")
+;-> 2023
+
+
+----------------
+Numeri Loeschian
+----------------
+
+Un numero intero positivo N è un numero Loeschian se può essere espresso come:
+
+  N = x*x + y*y + x*y,  dove i, j >= 0.
+
+Nota: Per ogni coppia di interi (i,j) c'è una coppia di interi non negativi che produce lo stesso N.
+
+Sequenza OEIS A003136:
+  0, 1, 3, 4, 7, 9, 12, 13, 16, 19, 21, 25, 27, 28, 31, 36, 37, 39, 43,
+  48, 49, 52, 57, 61, 63, 64, 67, 73, 75, 76, 79, 81, 84, 91, 93, 97,
+  100, 103, 108, 109, 111, 112, 117, 121, 124, 127, 129, 133, 139, 144,
+  147, 148, 151, 156, 157, 163, 169, 171, 172, 175, 181, 183, 189, 192, ...
+
+Funzione che verifica se un numero è Loaschian (true o nil):
+
+(define (loeschian? num)
+  (local (limit stop)
+  (cond
+    ((= (% num 3) 2) nil)
+    ((or (= num 0) (= num 1) (= num 3)) true)
+    (true
+      (setq limit (int (add 0.5 (mul 2 (sqrt (div num 3))))))
+      (setq stop nil)
+      (for (y 0 limit 1 stop)
+        (for (x 0 y 1 stop)
+          (if (= num (+ (* x x) (* y y) (* x y))) (setq stop true))
+        )
+      )
+      stop))))
+
+Facciamo alcune prove:
+
+(loeschian? 4)
+;-> true
+(loeschian? 21)
+;-> true
+(loeschian? 42)
+;-> nil
+(loeschian? 49)
+;-> true
+
+Generiamo la sequenza OEIS:
+
+(filter loeschian? (sequence 0 200))
+;-> (0 1 3 4 7 9 12 13 16 19 21 25 27 28 31 36 37 39 43 48 49 52 57 61
+;->  63 64 67 73 75 76 79 81 84 91 93 97 100 103 108 109 111 112 117 121
+;->  124 127 129 133 139 144 147 148 151 156 157 163 169 171 172 175 181
+;->  183 189 192 193 196 199)
+
+Funzione che verifica se un numero è Loeschian (in questo caso può generare la prima coppia o tutte le coppie che producono N):
+
+(define (loeschian num all)
+  (local (out limit stop)
+  (setq out '())
+  (cond
+    ((= (% num 3) 2) (setq out nil))
+    ((= num 0) (setq out '((0 0 0))))
+    ((= num 1)
+      (if all
+          (setq out '((1 0 1) (1 1 0)))
+          (setq out '((1 0 1)))))
+    ((= num 3) (setq out '((3 1 1))))
+    (true
+      (setq limit (int (mul 2 (sqrt (div num 3)))))
+      (setq stop nil)
+      (for (y 0 limit 1 stop)
+        (for (x 0 y 1 stop)
+          (if (= num (+ (* x x) (* y y) (* x y)))
+            (begin
+              (push (list (+ (* x x) (* y y) (* x y)) x y) out -1)
+              (if (not all) (setq stop true)))))))
+  )
+  out))
+
+Facciamo alcune prove:
+
+(loeschian 21)
+;-> ((21 1 4))
+(loeschian 49)
+;-> ((49 3 5))
+(loeschian 49 true)
+;-> ((49 3 5) (49 0 7))
+(loeschian 8281 true)
+;-> ((8281 49 56) (8281 39 65) (8281 19 80) (8281 11 85) (8281 0 91))
+
+Nota: Per ogni soluzione (num x y) esiste anche la soluzione simmetrica (num y x), che non vengono calcolate dalla funzione "loeschian".
+
+Vediamo quale numero (da 0 a 1000) ha il maggior numero di coppie:
+
+(setq mille '())
+(for (i 0 1000)
+  (push (list (length (loeschian i true)) i) mille)
+)
+(slice (sort mille >) 0 3)
+;-> ((3 931) (3 637) (2 988))
+
+(loeschian 931 true)
+;-> ((931 14 21) (931 9 25) (931 1 30))
+(loeschian 637 true)
+;-> ((637 12 17) (637 7 21) (637 4 23))
+(loeschian 988 true)
+;-> ((988 14 22) (988 6 28))
+
+
+--------------------
+Stringhe ASCII prime
+--------------------
+
+Una stringa ASCII è considerata prima se il suo numero è primo.
+
+Ad ogni stringa vengono assegnati 3 numeri:
+
+  Numero 1: somma dei valori ASCII dei singoli caratteri
+  Numero 2: somma delle cifre del Numero 1
+  Numero 3: radice digitale del Numero 1 (1..9)
+
+Se il Numero 1 è primo, allora la stringa è prima di tipo 1.
+Se il Numero 2 è primo, allora la stringa è prima di tipo 2.
+Se il Numero 3 è primo, allora la stringa è prima di tipo 3.
+
+Caratteri ASCII (32..126):
+
+(char 32)
+;-> " "
+(char 126)
+;-> "~"
+
+(define (digit-root num)
+"Calculates the repeated sum of the digits of an integer"
+    (+ 1 (% (- (abs num) 1) 9)))
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che verifica se una stringa è prima:
+
+(define (prima-ascii str)
+  (local (t1 t2 t3)
+    (setq t1 0)
+    (dostring (ch str) (++ t1 ch))
+    (setq t2 (digit-sum t1))
+    (setq t3 (digit-root t1))
+    (println t1 { } t2 { } t3)
+    (list (prime? t1) (prime? t2) (prime? t3))))
+
+Facciamo alcune prove:
+
+(prima-ascii "newLISP")
+(prima-ascii "trovare una stringa prima per tutti e tre i tipi")
+;-> (nil nil true)
+(prima-ascii (string prima-ascii))
+;-> (nil nil true)
+
+Queste sono stringhe prime per tutti e tre i tipi:
+
+(prima-ascii "What are you studying?")
+;-> (true true true)
+(prima-ascii "I'm sleepy")
+;-> (true true true)
 
 =============================================================================
 
