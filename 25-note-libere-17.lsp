@@ -1788,12 +1788,13 @@ Funzione che verifica se una stringa è prima:
     (dostring (ch str) (++ t1 ch))
     (setq t2 (digit-sum t1))
     (setq t3 (digit-root t1))
-    (println t1 { } t2 { } t3)
+    ;(println t1 { } t2 { } t3)
     (list (prime? t1) (prime? t2) (prime? t3))))
 
 Facciamo alcune prove:
 
 (prima-ascii "newLISP")
+;-> (nil nil true)
 (prima-ascii "trovare una stringa prima per tutti e tre i tipi")
 ;-> (nil nil true)
 (prima-ascii (string prima-ascii))
@@ -1805,6 +1806,150 @@ Queste sono stringhe prime per tutti e tre i tipi:
 ;-> (true true true)
 (prima-ascii "I'm sleepy")
 ;-> (true true true)
+
+
+--------------------------
+select con indici multipli
+--------------------------
+
+La funzione "select" può selezionare solo elementi di primo livello in una lista (non può selezionare un elemento annidato).
+
+(setq data '((0 "zero") (1 "uno") (2 "due") (3 "tre")))
+
+(select data '(1 2))
+;-> ((1 "uno") (2 "due"))
+
+Proviamo a selezionare la stringa "due":
+
+(select data '((2 1)))
+;-> ERR: value expected in function select : (2 1)
+
+Scriviamo una funzione che seleziona anche gli elementi annidati.
+La lista "idx" ha la seguente struttura:
+
+  ((i1 j1 ...) (i2 j2 ...) ... (in jn ...))
+
+(define (selects lst idx)
+  (let (out '())
+    (dolist (el idx)
+      (push (lst el) out -1))
+    out))
+
+(selects data '((2 1)))
+;-> ("due")
+
+(selects data '((0 1) (1 1) (2 1) (3 1)))
+;-> ("zero" "uno" "due" "tre")
+
+Nota: possiamo anche usare la funzione "find-all" nella maggior parte dei casi.
+
+Vedere anche "select e unselect (antiselect)" in "Note libere 1".
+
+
+---------------------------
+Numeri casuali di Fibonacci
+---------------------------
+
+I numeri di Fibonacci vengono generati dalla seguente relazione:
+
+  F(n) = F(n-1) + F(n-2), con F(1) = F(2) = 1
+
+I numeri casuali di Fibonacci vengono generati dalla seguente relazione:
+
+         |F(n-1) + F(n-2), (probabilità = 0.5),
+  F(n) = |                                      con F(1) = F(2) = 1
+         |F(n-1) - F(n-2), (probabilità = 0.5),
+
+Funzione di Fibonacci (ricorsiva):
+
+(define (fibo n)
+  (if (< n 3) 1
+      (+ (fibo (- n 1)) (fibo (- n 2)))))
+
+Funzione di Fibonacci (iterativa):
+
+(define (fibo-i n)
+    (local (a b c)
+      (setq a 0L b 1L c 0L)
+      (for (i 0 (- n 1))
+        (setq c (+ a b))
+        (setq a b)
+        (setq b c)
+      )
+    a))
+
+(map fibo-i (sequence 1 10))
+;-> (1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
+(map fibo (sequence 1 10))
+;-> (1 1 2 3 5 8 13 21 34 55)
+
+Verifichiamo che le due funzioni producono gli stessi risultati:
+
+(= (map fibo-i (sequence 1 30)) (map fibo (sequence 1 30)))
+;-> true
+
+Adesso vediamo le versione probabilistiche.
+
+Funzione di Fibonacci casuale (ricorsiva):
+
+(define (fibo-rnd n)
+  (if (< n 3) 1
+    (if (zero? (rand 2))
+      (+ (fibo-rnd (- n 1)) (fibo-rnd (- n 2)))
+      (- (fibo-rnd (- n 1)) (fibo-rnd (- n 2))))))
+
+(seed 1)
+(fibo-rnd 10)
+;-> 9
+
+Funzione di Fibonacci casuale (iterativa):
+
+(define (fibo-i-rnd n)
+    (local (a b c)
+      (setq a 0L b 1L c 0L)
+      (for (i 0 (- n 1))
+        (if (zero? (rand 2))
+            (setq c (+ a b))
+            (setq c (- a b))
+        )
+        (setq a b)
+        (setq b c)
+      )
+    a)))
+
+(seed 1)
+(fibo-i-rnd 10)
+;-> 5L
+
+Le due funzioni "fibo-rnd" e "fibo-i-rnd" non producono gli stessi risultati neanche se partiamo dallo stesso seme casuale (seed 1), questo perchè le due funzioni effettuano un diverso numero di chiamate alla funzione "rnd".
+Comunque possiamo valutare se, dopo tante esecuzioni delle funzioni con lo stesso parametro, abbiamo dei risultati congruenti.
+
+(setq a (sort (unique (collect (fibo-rnd 10) 1000))))
+;-> (-21 -19 -17 -15 -13 -11 -9 -7 -5 -3 -1 1 3 5 7 9 11 13 15 17 19 21 23 25)
+(setq b (sort (unique (collect (fibo-i-rnd 10) 1000))))
+;-> (-55L -29L -25L -23L -19L -17L -15L -13L -11L -9L -7L -5L -3L -1L 1L 
+;->  3L 5L 7L 9L 11L 13L 15L 17L 19L 23L 25L 29L 55L)
+
+(difference b a)
+;-> (-55L -29L -25L 23L 55L)
+
+Gli unici risultati differenti sono quelli minori o maggiori, quindi le due funzioni sembrano che siano corrette.
+
+Versione con la funzione "amb":
+
+(define (fibo-i-amb n)
+    (local (a b c)
+      (setq a 0L b 1L c 0L)
+      (for (i 0 (- n 1))
+        (eval (amb '(setq c (+ a b)) '(setq c (- a b))))
+        (setq a b)
+        (setq b c)
+      )
+    a))
+
+(setq c (sort (unique (collect (fibo-i-amb 10) 1000))))
+;-> (-55L -29L -25L -23L -19L -17L -13L -11L -9L -7L -5L -3L -1L 1L 3L 5L 7L 9L 11L 13L
+;->  15L 17L 19L 23L 25L 29L 55L)
 
 =============================================================================
 

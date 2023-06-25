@@ -1890,6 +1890,8 @@ NOTE LIBERE 17
   Numeri senza numeri
   Numeri Loeschian
   Stringhe ASCII prime
+  select con indici multipli
+  Numeri casuali di Fibonacci
 
 PROBLEMI SUI DADI
 =================
