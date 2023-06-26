@@ -1892,6 +1892,9 @@ NOTE LIBERE 17
   Stringhe ASCII prime
   select con indici multipli
   Numeri casuali di Fibonacci
+  Mouse pointer
+  Congettura di Legendre
+  Scambio delle potenze dei primi
 
 PROBLEMI SUI DADI
 =================

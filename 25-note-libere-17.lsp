@@ -1502,9 +1502,9 @@ Soluzione di Cornullion:
 (println (fac n thus)))         ; printline fac n thus
 
   Lisp code consists of
-  
+
   numerous parentheses
-  
+
   and a few functions
 
 
@@ -1927,7 +1927,7 @@ Comunque possiamo valutare se, dopo tante esecuzioni delle funzioni con lo stess
 (setq a (sort (unique (collect (fibo-rnd 10) 1000))))
 ;-> (-21 -19 -17 -15 -13 -11 -9 -7 -5 -3 -1 1 3 5 7 9 11 13 15 17 19 21 23 25)
 (setq b (sort (unique (collect (fibo-i-rnd 10) 1000))))
-;-> (-55L -29L -25L -23L -19L -17L -15L -13L -11L -9L -7L -5L -3L -1L 1L 
+;-> (-55L -29L -25L -23L -19L -17L -15L -13L -11L -9L -7L -5L -3L -1L 1L
 ;->  3L 5L 7L 9L 11L 13L 15L 17L 19L 23L 25L 29L 55L)
 
 (difference b a)
@@ -1950,6 +1950,193 @@ Versione con la funzione "amb":
 (setq c (sort (unique (collect (fibo-i-amb 10) 1000))))
 ;-> (-55L -29L -25L -23L -19L -17L -13L -11L -9L -7L -5L -3L -1L 1L 3L 5L 7L 9L 11L 13L
 ;->  15L 17L 19L 23L 25L 29L 55L)
+
+
+-------------
+Mouse pointer
+-------------
+
+Lo Xerox Alto, originariamente rilasciato nel 1973, è stato il primo computer a presentare l'ormai familiare puntatore angolato del mouse.
+La bitmap del puntatore dell'Alto aveva questo aspetto:
+
+  16  *
+  15  **
+  14  ***
+  13  ****
+  12  *****
+  11  ******
+  10  *******
+   9  ****
+   8  ** **
+   7  *  **
+   6      **
+   5      **
+   4       **
+   3       **
+   2        **
+   1        **
+      12345678
+
+
+Immagine originale al seguente indirizzo:
+
+http://bitsavers.trailing-edge.com/pdf/xerox/parc/techReports/VLSI-81-1_The_Optical_Mouse.pdf
+
+(define (mouse ch)
+  (println ch)
+  (println (dup ch 2))
+  (println (dup ch 3))
+  (println (dup ch 4))
+  (println (dup ch 5))
+  (println (dup ch 6))
+  (println (dup ch 7))
+  (println (dup ch 4))
+  (println (dup ch 2) { } (dup ch 2))
+  (println ch {  } (dup ch 2))
+  (println {    } (dup ch 2))
+  (println {    } (dup ch 2))
+  (println {     } (dup ch 2))
+  (println {     } (dup ch 2))
+  (println {      } (dup ch 2))
+  (println {      } (dup ch 2))
+  'pointer)
+
+The Xerox Alto, originally released in 1973, was the first computer to feature the now-familiar angled mouse pointer. The Alto's bitmapped pointer looked like this (redrawn from Fig. 2 here):
+http://bitsavers.trailing-edge.com/pdf/xerox/parc/techReports/VLSI-81-1_The_Optical_Mouse.pdf
+
+(mouse "■")        (mouse "▀")        (mouse "█")
+
+■                  ▀                  █
+■■                 ▀▀                 ██
+■■■                ▀▀▀                ███
+■■■■               ▀▀▀▀               ████
+■■■■■              ▀▀▀▀▀              █████
+■■■■■■             ▀▀▀▀▀▀             ██████
+■■■■■■■            ▀▀▀▀▀▀▀            ███████
+■■■■               ▀▀▀▀               ████
+■■ ■■              ▀▀ ▀▀              ██ ██
+■  ■■              ▀  ▀▀              █  ██
+    ■■                 ▀▀                 ██
+    ■■                 ▀▀                 ██
+     ■■                 ▀▀                 ██
+     ■■                 ▀▀                 ██
+      ■■                 ▀▀                 ██
+      ■■                 ▀▀                 ██
+
+
+----------------------
+Congettura di Legendre
+----------------------
+
+La Congettura di Legendre è un'affermazione non dimostrata che riguarda la distribuzione dei numeri primi. Essa afferma che esiste almeno un numero primo nell'intervallo (n^2,(n-1)^2) per tutti gli n naturali.
+
+Scrivere una funzione che verifica (o falsifica) la congettura di Legendre fino ad un dato limite.
+
+(define (prime? n)
+  (if (< n 2) nil
+      (= 1 (length (factor n)))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Funzione che verifica la congettura di Legendre fino ad un dato numero:
+
+(define (legendre limite show)
+  (local (max-primo primi stop p)
+    (setq max-primo (* limite limite))
+    (setq primi (primes-to max-primo))
+    (setq stop nil)
+    (for (i 2 limite 1 stop)
+      (setq p (intersect primi (sequence i (* (- i 1) (- i 1)))))
+      (if show (println i { } (* (- i 1) (- i 1)) { } p))
+      ; se l'intersezione è vuota la congettura è falsa
+      (if (= p '()) (setq stop true))
+    )
+    stop))
+
+Facciamo alcune prove:
+
+(legendre 10 true)
+;-> 2 1 (2)
+;-> 3 4 (3)
+;-> 4 9 (5 7)
+;-> 5 16 (5 7 11 13)
+;-> 6 25 (7 11 13 17 19 23)
+;-> 7 36 (7 11 13 17 19 23 29 31)
+;-> 8 49 (11 13 17 19 23 29 31 37 41 43 47)
+;-> 9 64 (11 13 17 19 23 29 31 37 41 43 47 53 59 61)
+;-> 10 81 (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79)
+;-> nil
+
+(time (println (legendre 100)))
+;-> nil
+;-> 39.825
+
+(time (println (legendre 1000)))
+;-> nil
+;-> 52875.876
+
+
+-------------------------------
+Scambio delle potenze dei primi
+-------------------------------
+
+Abbiamo un numero n che ha la sequente forma: n = p^q.
+I numeri p e q sono numeri primi e sono sconosciuti.
+Scrivere una funzione che calcola q^p per un dato n solo se n = p^q, altrimenti restituisce nil.
+
+Un numero n che ha la forma p^q (con p e q primi) ha la seguente scomposizione in fattori primi:
+
+   q volte
+  ---------
+  p p ... p
+
+In altre parole il numero p viene moltiplicato q volte per se stesso.
+Per esempio, 3^5 = 243
+
+(factor 243)
+;-> (3 3 3 3 3)
+
+Il numero q^p è semplicemente il numero q moltiplicato q volte.
+In altre parole q vale il numero di fattori, mentre p è uno qualunque dei fattori (perchè sono tutti uguali).
+
+Per controllare se una lista ha tutti i numeri uguali possiamo utilizzare "apply".
+
+(define (cambio num)
+  (let (f (factor num))
+    (if (apply = f)
+        (pow (length f) (f 0))
+        nil)))
+
+Facciamo alcune prove:
+
+(cambio 243)
+;-> 125
+(cambio 125)
+;-> 243
+
+(define (cambio-to limite)
+  (let ((out '()) (val nil))
+    (for (i 2 limite)
+      (setq val (cambio i))
+      (if val (push (list i val) out -1))
+    )
+    out))
+
+(cambio-to 1000)
+;-> ((4 4) (8 9) (9 8) (16 16) (25 32) (27 27) (32 25) (49 128) (64 36) (81 64)
+;->  (121 2048) (125 243) (128 49) (169 8192) (243 125) (256 64) (289 131072)
+;->  (343 2187) (361 524288) (512 81) (529 8388608) (625 1024) (729 216)
+;->  (841 536870912) (961 2147483648))
 
 =============================================================================
 
