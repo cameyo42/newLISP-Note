@@ -2138,5 +2138,100 @@ Facciamo alcune prove:
 ;->  (343 2187) (361 524288) (512 81) (529 8388608) (625 1024) (729 216)
 ;->  (841 536870912) (961 2147483648))
 
+
+-------------------
+XOR di due stringhe
+-------------------
+
+Date due stringhe di caratteri ASCII restituire lo XOR delle stringhe.
+
+Come si effettua lo XOR tra due stringhe:
+Per ogni carattere nella prima stringa, prendere il codice ASCII (es. A=65), fare lo XOR con il valore della seconda stringa che ha l'indice corrispondente e inserirlo nel risultato.
+Se una stringa è più lunga dell'altra, allora occorre aggiungere al risultato i caratteri rimanenti della stringa più lunga.
+
+(define (xor str1 str2)
+  (cond 
+    ((= str1 "") str2)
+    ((= str2 "") str1)
+    (true
+      (local (out len1 len2)
+        (setq out "")
+        (setq len1 (length str1))
+        (setq len2 (length str2))
+        ; str1 diventa/rimane la più corta
+        (if (> len1 len2) (begin (swap str1 str2) (swap len1 len2)))
+        ; (a xor b) = (b xor a)
+        ; (a xor 0) = a
+        ; (0 xor b) = b
+        (for (i 0 (- len1 1))
+          (extend out (char (^ (or (char (str1 i)) 0)
+                              (or (char (str2 i)) 0))))
+        )
+        (extend out (slice str2 len1))
+        out))))
+
+Facciamo alcune prove:
+
+(xor "abcde" "01234")
+;-> "QSQWQ"
+(xor "lowercase" "9?'      ")
+;-> "UPPERCASE"
+(xor "test" "")
+;-> "test"
+(xor "12345" "98765")
+;-> "\b\n\004\002\000"
+(xor "123" "ABCDE")
+;-> pppDE
+(xor "01" "qsCDE")
+;-> ABCDE
+(xor "`c345" "QQ")
+;-> 12345
+
+
+------------------
+Funtore come lista
+------------------
+
+Per creare una lista in un funtore (di un contesto) possiamo scrivere:
+
+(setq z:z '(1 2 3 4))
+;-> (1 2 3 4)
+(z 1)
+;-> 2
+
+Come fare lo stesso con una variabile? (es. (setq nome "z:z"))
+
+Un metodo è quello di usare "eval-string":
+
+(setq name "z:z")
+;(println (string "(setq " name " '(11 22 33 44))"))
+(eval-string (string "(setq " name " '(11 22 33 44))"))
+;-> (11 22 33 44)
+(z 1)
+;-> 22
+
+Un altro metodo è il seuente:
+
+(setq name "y")
+; crea il contesto
+(context (sym name))
+; crea la variabile/funtore nel contesto
+(setq name "y")
+; assegna la lista al funtore/variabile
+(set (sym name) '(5 6 7))
+(context MAIN)
+y:y
+;-> (5 6 7)
+(y 1)
+;-> 6
+(context 'y)
+y:y
+;-> (5 6 7)
+y
+;-> (5 6 7)
+(y 0)
+;-> 5
+(context MAIN)
+
 =============================================================================
 

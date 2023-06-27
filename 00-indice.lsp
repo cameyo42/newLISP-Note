@@ -1895,6 +1895,9 @@ NOTE LIBERE 17
   Mouse pointer
   Congettura di Legendre
   Scambio delle potenze dei primi
+  XOR di due stringhe
+  Funtore come lista
+  
 
 PROBLEMI SUI DADI
 =================
