@@ -2233,5 +2233,176 @@ y
 ;-> 5
 (context MAIN)
 
+
+----------------------------------------------
+Dividere una stringa in tutti i modi possibili
+----------------------------------------------
+
+Data una stringa, dividerla in tutti i modi possibili.
+
+Per esempio:
+
+"123"  -> ("123" "12 3" "1 23" "1 2 3")
+
+"ABCD" -> ("ABCD" "ABC D" "A BCD" "AB CD" "AB C D" "A BC D" "A B CD" "A B C D")
+
+"8451" -> ("8451" "845 1" "8 451" "84 51" "84 5 1" "8 45 1" "8 4 51" "8 4 5 1")
+
+"ABCDE"-> ("ABCDE" "ABCD E" "A BCDE" "ABC DE" "AB CDE" "ABC D E" "A BCD E" 
+           "A B CDE" "AB CD E"  "AB C DE" "A BC DE" "AB C D E" "A BC D E" 
+           "A B CD E" "A B C DE" "A B C D  E")
+
+Notiamo che il numero totale delle parole divise vale 2^(n-1), dove n è la lunghezza della stringa data.
+Possiamo considerare l'operazione di divisione della stringa come fosse fatta da un numero binario.
+Il numero binario è lungo (n - 1) e varia da 0 a (2^n - 1).
+La cifra 1 di un numero indica un taglio, la cifra 0 indica nessun taglio.
+
+Per esempio:
+
+stringa "123"
+binario  00 --> nessun taglio --> "123"
+
+stringa "123"
+binario  01 --> taglio tra i e i+1 (tra indice 1 e indice 2) --> "12 3"
+
+stringa "123"
+binario  10 --> taglio tra i e i+1 (tra indice 0 e indice 1) --> "1 23"
+
+stringa "123"
+binario  11 --> taglio tra i e i+1 (tra indice 0 e indice 1) 
+                taglio tra i e i+1 (tra indice 1 e indice 2) --> "1 2 3"
+
+Algoritmo
+Ciclo da 0 a (2^n - 1)
+  Taglia stringa con binario corrente
+  Inserisce risultato nella soluzione
+
+Per prima cosa dobbiamo scrivere una funzione che prende una stringa e un numero binario e taglia la stringa in corrispondenza degli 1 del numero binario:
+
+(define (divide str binary)
+  (let (out "")
+    (for (i 0 (- (length binary) 1))
+      (if (= (binary i) "1")
+          ; taglio
+          (extend out (string (str i) { }))
+          ; nessun taglio
+          (extend out (str i))
+      )
+    )
+    ; inserisce caratteri finale
+    (extend out (str -1))
+    out))
+
+(divide "123" "00")
+;-> "123"
+(divide "123" "01")
+;-> "12 3"
+(divide "123" "10")
+;-> "1 23"
+(divide "123" "11")
+;-> "1 2 3"
+
+Adesso scriviamo la funzione finale:
+
+(define (split str)
+  (local (out len max-tagli taglio fmt)
+    (setq out '())
+    (setq len (length str))
+    ; numero massimo di tagli
+    (setq max-tagli (- len 1))
+    ; formattazione con 0 davanti
+    (setq fmt (string "%0" max-tagli "s"))
+    (for (i 0 (- (pow 2 max-tagli) 1))
+      ; taglio corrente
+      (setq taglio (format fmt (bits i)))
+      ; taglia la stringa con taglio corrente
+      (push (divide str taglio) out -1)
+    )
+    out))
+
+Facciamo alcune prove:
+
+(split "123")
+;-> ("123" "12 3" "1 23" "1 2 3")
+
+(split "ABCD")
+;-> ("ABCD" "ABC D" "AB CD" "AB C D" "A BCD" "A BC D" "A B CD" "A B C D")
+
+(split "ABCDE")
+;-> ("ABCDE" "ABCD E" "ABC DE" "ABC D E" "AB CDE" "AB CD E" "AB C DE" 
+;->  "AB C D E" "A BCDE" "A BCD E" "A BC DE" "A BC D E" "A B CDE" 
+;->  "A B CD E" "A B C DE" "A B C D E")
+
+(length (split "12345"))
+;-> 16
+
+(length (split "123456"))
+;-> 32
+
+
+-----------------------------------
+Estrazione di interi da una stringa
+-----------------------------------
+
+Data una stringa estrarre tutti i numeri interi che compaiono nella stringa.
+Per esempio:
+stringa = "10 palline, 7 carte e 2 penne"
+Output = (10 7 2)
+
+Per fare questo possiamo usare la funzione "parse":
+
+  (parse str-data [str-break [regex-option]])
+
+Applichiamo "parse" senza alcun parametro opzionale (in questo caso viene effettua il parsing della stringa come se fosse codice sorgente newLISP):
+
+(setq str "10 palline, 7 carte, e 2 penne")
+(setq token (parse str))
+;-> ("10" "palline" "," "7" "carte" "e" "2" "penne")
+(setq int-nil (map int token))
+;-> (10 nil nil 7 nil nil 2 nil)
+(setq interi (clean nil? int-nil))
+;-> (10 7 2)
+
+Vediamo cosa accade quando ci sono numeri in virgola mobile nella stringa:
+
+(setq str "10 palline, 7 carte e 2.5 penne.")
+;-> "10 palline, 7 carte e 2e3 penne."
+(setq token (parse str))
+;-> ("10" "palline" "," "7" "carte" "e" "2e3" "penne.")
+(setq int-nil (map int token))
+;-> (10 nil nil 7 nil nil 2 nil)
+(setq interi (clean nil? int-nil))
+;-> (10 7 2)
+
+In questo caso 2.5 è un numero in virgola mobile e non deve essere estratto (in questo caso viene estratta la prima cifra 2 come numero intero).
+Per risolvere questo problema confrontiamo se (int x) è uguale a (float x), in tal caso x è un numero intero.
+
+(= (int 2) (float 2))
+;-> true
+(= (int 2.5) (float 2.5))
+;-> nil
+
+Quindi possiamo scrivere:
+
+(setq str "10 palline, 7 carte e 2.5 penne.")
+;-> "10 palline, 7 carte e 2.5 penne."
+(setq token (parse str))
+;-> ("10" "palline" "," "7" "carte" "e" "2.5" "penne.")
+(setq int-nil (map (fn(x) (if (= (int x) (float x)) (int x) nil)) token))
+;-> (10 nil nil 7 nil nil nil nil)
+(setq interi (clean nil? int-nil))
+;-> (10 7)
+
+La funzione "parse" accetta anche una espressione regolare, per esempio:
+
+(setq s "dev.obj,lisp test")
+
+Parsing della stringa s con delimitatori " " o "." o ",":
+
+(parse s {[ .,]} 0)
+;-> ("dev" "obj" "lisp" "test")
+
+Vedere anche "Parsing di stringhe" su "Note libere 2".
+
 =============================================================================
 

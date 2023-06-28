@@ -1897,7 +1897,8 @@ NOTE LIBERE 17
   Scambio delle potenze dei primi
   XOR di due stringhe
   Funtore come lista
-  
+  Dividere una stringa in tutti i modi possibili
+  Estrazione di interi da una stringa
 
 PROBLEMI SUI DADI
 =================
