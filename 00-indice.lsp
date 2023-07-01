@@ -1899,6 +1899,8 @@ NOTE LIBERE 17
   Funtore come lista
   Dividere una stringa in tutti i modi possibili
   Estrazione di interi da una stringa
+  Sharpness di una parola
+  Componente di un vettore
 
 PROBLEMI SUI DADI
 =================

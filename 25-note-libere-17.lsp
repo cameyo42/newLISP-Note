@@ -2397,12 +2397,110 @@ La funzione "parse" accetta anche una espressione regolare, per esempio:
 
 (setq s "dev.obj,lisp test")
 
-Parsing della stringa s con delimitatori " " o "." o ",":
+Parsing della stringa s con delimitatori " " e "." e ",":
 
 (parse s {[ .,]} 0)
 ;-> ("dev" "obj" "lisp" "test")
 
 Vedere anche "Parsing di stringhe" su "Note libere 2".
+
+
+-----------------------
+Sharpness di una parola
+-----------------------
+
+Lo sharpness (nitidezza) di una parola è la somma degli sharpness di ciascuna delle sue lettere, utilizzando le seguenti regole:
+
+Lettere sharp
+A e V hanno sharpness 1
+N e Z hanno sharpness 2
+M e W hanno sharpness 3
+
+Lettere dull
+C e U hanno sharpness -1
+S ha sharpness -2
+O sharpness -3
+
+Tutte le altre lettere hanno sharpness pari a 0.
+
+(setq alst '(("A" 1) ("V" 1) ("N" 2) ("Z" 2) ("M" 3) ("W" 3)
+             ("C" -1) ("U" -1) ("S" -2) ("O" -3)))
+
+(define (sharpness str)
+  (local (out alst val)
+    (setq out 0)
+    (setq alst '(("A" 1) ("V" 1) ("N" 2) ("Z" 2) ("M" 3) ("W" 3)
+                ("C" -1) ("U" -1) ("S" -2) ("O" -3)))
+    (dolist (ch (explode (upper-case str)))
+      (setq val (lookup ch alst))
+      ; adesso val può essere nil o un numero intero
+      (if val (++ out val))
+    )
+    out))
+
+(sharpness "NEWLISP")
+;-> 3
+(sharpness "cameyo")
+;-> 0
+
+(define (sharp str)
+  (let (alst '(("A" 1) ("V" 1) ("N" 2) ("Z" 2) ("M" 3) ("W" 3)
+              ("C" -1) ("U" -1) ("S" -2) ("O" -3)))
+    (apply + (map (fn(x) (or (lookup x alst) 0)) (explode (upper-case str))))))
+
+(sharp "NEWLISP")
+;-> 3
+(sharp "cameyo")
+;-> 0
+
+
+
+------------------------
+Componente di un vettore
+------------------------
+
+Abbiamo due vettori a=(a1 a2 ... an) e b=(b1 b2 ... bn) in uno spazio n-dimensionale, dove almeno uno tra b1 ... bn è diverso da zero.
+Allora il vettore a può essere scomposto univocamente in due vettori, uno dei quali è un multiplo scalare di b (b*x) e uno è perpendicolare a b (b_perp):
+
+  a = b*x + b_perp, dove b_perp prodotto scalare b = 0.
+
+Trovare il valore di x.
+
+Questo può anche essere pensato nel modo seguente:
+Immaginare una linea che passa per l'origine e il punto b.
+Quindi tracciare una linea perpendicolare su di essa che passa per il punto a e che denota l'intersezione c.
+Infine, trovare il valore di x che soddisfa c = b*x.
+
+       a prodotto scalare b
+  x = ----------------------
+       b prodotto scalare b
+
+Possiamo usare una formula esplicita, che si presenta quando si calcola la proiezione:
+
+       a1*b1 + a2*b2 + ... + an*bn
+  x = -----------------------------
+       b1*b1 + b2*b2 + ... + bn*bn
+
+Scriviamo una funzione che implementa la formula:
+
+(define (x a b)
+  (div (apply add (map mul a b))
+       (apply add (map mul b b))))
+
+Facciamo alcune prove:
+
+(x '(2 7) '(3 1))
+;-> 1.3
+(x '(2 7) '(-1 3))
+;-> 1.9
+(x '(3 4 5) '(0 0 1))
+;-> 5
+(x '(3 4 5) '(1 1 1))
+;-> 4
+(x '(3 4 5) '(1 -1 -1))
+;-> -2
+(x '(3 4 5 6) '(1 -2 1 2))
+;-> 1.2
 
 =============================================================================
 
