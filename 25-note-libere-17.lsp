@@ -2210,7 +2210,7 @@ Un metodo è quello di usare "eval-string":
 (z 1)
 ;-> 22
 
-Un altro metodo è il seuente:
+Un altro metodo è il seguente:
 
 (setq name "y")
 ; crea il contesto
@@ -2501,6 +2501,222 @@ Facciamo alcune prove:
 ;-> -2
 (x '(3 4 5 6) '(1 -2 1 2))
 ;-> 1.2
+
+
+-----------
+Autoanalisi
+-----------
+
+Scrivere una funzione che prende un carattere come input e restituisce il numero di volte in cui quel carattere ricorre all'interno del codice della funzione.
+
+(define (auto ch)
+  (length (find-all ch (string auto))))
+
+Vediamo la rappresentazione interna della funzione:
+
+auto
+;-> (lambda (ch) (length (find-all ch (string auto))))
+
+(auto "l")
+;-> 4
+(auto "a")
+;-> 4
+(auto "s")
+;-> 1
+
+
+-----------------------------
+True and False (Vero e Falso)
+-----------------------------
+
+Le parole True and False (Vero e Falso) in diversi linguaggi:
+
+https://codegolf.stackexchange.com/questions/205460/make-true-and-false-global
+
++----------------------+------------+-------------+
+| Language             | True       | False (nil) |
++----------------------+------------+-------------+
+| Arabic               | sahih      | zaif        |
+| Armenian             | irakan     | kelc        |
+| Assamese             | asol       | misa        |
+| Breton               | gwir       | gaou        |
+| Bulgarian            | veren      | neveren     |
+| Catalan              | veritable  | fals        |
+| Cornish              | gwir       | gaw         |
+| Czech                | pravdivy   | nepravdivy  |
+| Danish               | sand       | falsk       |
+| Dutch                | waar       | onwaar      |
+| English              | true       | false       |
+| Esperanto            | vera       | malvera     |
+| Finnish              | tosi       | epatosi     |
+| French               | vrai       | faux        |
+| Galician, Portuguese | verdadeiro | falso       |
+| Georgian             | namdvili   | cru         |
+| German               | wahr       | falsch      |
+| Greek                | alithis    | psevdis     |
+| Hebrew               | hiyuvi     | shikri      |
+| Hindi, Urdu          | thik       | jhutha      |
+| Hungarian            | igaz       | hamis       |
+| Icelandic            | sannur     | rangur      |
+| Indonesian, Malay    | benar      | salah       |
+| Irish                | fior       | breagach    |
+| Italian              | vero       | falso       |
+| Japanese             | shin       | nise        |
+| Korean               | cham       | geojit      |
+| Latin                | verus      | falsus      |
+| Latvian              | patiess    | nepareizs   |
+| Mandarin Chinese     | zhen       | jia         |
+| Maori                | pono       | pate        |
+| Persian              | dorost     | galat       |
+| Polish               | prawdziwy  | falszywy    |
+| Romanian             | adevarat   | fals        |
+| Russian              | vernyj     | falsivyj    |
+| Sardinian            | beru       | falsu       |
+| Scottish Gaelic      | fior       | breugach    |
+| Spanish              | verdadero  | falso       |
+| Swedish              | sann       | falskt      |
+| Sylheti              | hasa       | misa        |
+| Turkish              | dogru      | yanlis      |
+| Volapuk              | veratik    | dobik       |
+| Welsh                | gwir       | anwir       |
++----------------------+------------+-------------+
+
+All words ASCIIfied from Wiktionary: true, false. 
+https://en.wiktionary.org/wiki/true#Translations
+https://en.wiktionary.org/wiki/false#Translations
+Preference given to first entry under 'A state in Boolean logic that indicates an affirmative or positive result'/'state in Boolean logic that indicates a negative result', then first entry under 'concurring with a given set of facts'/'untrue, not factual, wrong'. 
+
+
+---------------------------------
+Numero di elementi pari e dispari
+---------------------------------
+
+Data una lista di numeri interi positivi, scrivere una funzione che restituisce true se la lista contiene lo stesso numero di elementi pari e di elementi dispari, altrimenti restituisce nil.
+La funzione deve essere la più breve possibile.
+
+Soluzione 1:
+
+(define (sol1 lst)
+  (local (pari dispari)
+    (dolist (el lst)
+      (if (odd? el) 
+          (++ dispari)
+          (++ pari)
+      )
+    )
+    (= pari dispari)))
+
+Soluzione 2:
+
+(define (sol2 lst)
+  (= (count '(true) (map odd? lst))
+     (count '(true) (map even? lst))))
+
+Soluzione 3:
+
+Elevando -1 ad una potenza pari otteniamo -1
+Elevando -1 ad una potenza dispari otteniamo +1
+Eleviamo -1 a potenza con tutti gli elementi e otteniamo una lista di valori -1 o +1.
+Se il numero di elementi pari e di elementi dispari è lo stasso, allora la somma degli elementi della lista di -1 e +1 vale 0.
+
+(define (sol3 lst)
+  (zero? (apply + (map (fn(x) (pow -1 x)) lst))))
+
+Facciamo alcune prove:
+
+(setq lst1 '(1 2 3 4 5 6 7 10))
+(setq lst2 '(1 2 3 4 5 6 7))
+(sol1 lst1)
+;-> true
+(sol2 lst1)
+;-> true
+(sol3 lst1)
+;-> true
+(sol1 lst2)
+;-> nil
+(sol2 lst2)
+;-> nil
+(sol3 lst2)
+;-> nil
+
+
+------------------------------
+Numeri con un solo bit a 0 (1)
+------------------------------
+
+Scrivere una funzione che verifica se un numero ha un solo bit a 0 nella sua rappresentazione binaria.
+
+Sequenza OEIS A030130:
+
+  0, 2, 5, 6, 11, 13, 14, 23, 27, 29, 30, 47, 55, 59, 61, 62, 95, 111, 119,
+  123, 125, 126, 191, 223, 239, 247, 251, 253, 254, 383, 447, 479, 495, 503,
+  507, 509, 510, 767, 895, 959, 991, 1007, 1015, 1019, 1021, 1022, 1535, 1791,
+  1919, 1983, 2015, 2031, 2039, ...
+
+Esempio:
+(setq n 10345)
+(bits n)
+;-> "10100001101001"
+(count '("1") (explode (bits n)))
+;-> (6)
+
+Funzione che verifica se la rappresentazione binaria di un numero contien un solo 0 (o un solo 1, a seconda del parametro "bit"):
+
+(define (onlyone? bit num)
+  (= (count (list (string bit)) (explode (bits num))) '(1)))
+
+Verifichiamo la sequenza OEIS:
+
+(filter (curry onlyone? 0) (sequence 0 1000))
+;-> (0 2 5 6 11 13 14 23 27 29 30 47 55 59 61 62 95 111 119 123 125 126 191 
+;->  223 239 247 251 253 254 383 447 479 495 503 507 509 510 767 895 959 991)
+
+I numeri che hanno un solo 1 nella rappresentazione binaria sono le potenze di 2:
+
+(filter (curry onlyone? 1) (sequence 0 1000))
+;-> (1 2 4 8 16 32 64 128 256 512)
+
+
+--------
+MetaOEIS
+--------
+
+The On-Line Encyclopedia of Integer Sequences: https://oeis.org/
+
+Data una sequenza di numeri interi, scrivere una funzione che accetta una sequenza e genera una funzione che accetta un indice e restituisce il numero della sequenza con quell'indice.
+Esempio:
+Una funzione f che prende come input una sequenza di numeri interi e restituisce una funzione lambda. 
+Quando la funzione lambda viene chiamata con un indice n, restituisce l'n-esimo elemento della sequenza.
+
+Soluzione 1:
+
+Usiamo una singola funzione (non creiamo un'altra funzione).
+Comunque dobbiamo usare una variabile libera ("seq").
+
+(define (meta-oeis par)
+  (if (list? par) 
+      (setq seq par)
+      (seq par)))
+
+(setq sequenza '(0 11 22 33 44 55 66))
+(meta-oeis sequenza)
+;-> (0 11 22 33 44 55 66)
+(meta-oeis 2)
+;-> 22
+
+Soluzione 2:
+
+Creiamo un funtore che agisce come contenitore della lista.
+Chiamando il funtore con un indice otteniamo l'elemento di quell'indice.
+Il funtore prende il nome dalla variabile "name".
+
+(define (make-oeis name lst)
+  (setq name (append name ":" name))
+  (eval-string (string "(setq " name " '" lst ")")))
+
+(make-oeis "a01" sequenza)
+(a01 1)
+;-> 11
 
 =============================================================================
 

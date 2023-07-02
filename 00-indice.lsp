@@ -1901,6 +1901,11 @@ NOTE LIBERE 17
   Estrazione di interi da una stringa
   Sharpness di una parola
   Componente di un vettore
+  Autoanalisi
+  True and False (Vero e Falso)
+  Numero di elementi pari e dispari
+  Numeri con un solo bit a 0 (1)
+  MetaOEIS
 
 PROBLEMI SUI DADI
 =================
