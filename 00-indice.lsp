@@ -1906,6 +1906,10 @@ NOTE LIBERE 17
   Numero di elementi pari e dispari
   Numeri con un solo bit a 0 (1)
   MetaOEIS
+  Numeri autodivisori
+  Numeri autocoprimi
+  Dividere una lista in due parti con somme uguali (o quasi)
+  Numeri skip-pure
 
 PROBLEMI SUI DADI
 =================

@@ -2150,7 +2150,7 @@ Per ogni carattere nella prima stringa, prendere il codice ASCII (es. A=65), far
 Se una stringa è più lunga dell'altra, allora occorre aggiungere al risultato i caratteri rimanenti della stringa più lunga.
 
 (define (xor str1 str2)
-  (cond 
+  (cond
     ((= str1 "") str2)
     ((= str2 "") str1)
     (true
@@ -2248,8 +2248,8 @@ Per esempio:
 
 "8451" -> ("8451" "845 1" "8 451" "84 51" "84 5 1" "8 45 1" "8 4 51" "8 4 5 1")
 
-"ABCDE"-> ("ABCDE" "ABCD E" "A BCDE" "ABC DE" "AB CDE" "ABC D E" "A BCD E" 
-           "A B CDE" "AB CD E"  "AB C DE" "A BC DE" "AB C D E" "A BC D E" 
+"ABCDE"-> ("ABCDE" "ABCD E" "A BCDE" "ABC DE" "AB CDE" "ABC D E" "A BCD E"
+           "A B CDE" "AB CD E"  "AB C DE" "A BC DE" "AB C D E" "A BC D E"
            "A B CD E" "A B C DE" "A B C D  E")
 
 Notiamo che il numero totale delle parole divise vale 2^(n-1), dove n è la lunghezza della stringa data.
@@ -2269,7 +2269,7 @@ stringa "123"
 binario  10 --> taglio tra i e i+1 (tra indice 0 e indice 1) --> "1 23"
 
 stringa "123"
-binario  11 --> taglio tra i e i+1 (tra indice 0 e indice 1) 
+binario  11 --> taglio tra i e i+1 (tra indice 0 e indice 1)
                 taglio tra i e i+1 (tra indice 1 e indice 2) --> "1 2 3"
 
 Algoritmo
@@ -2329,8 +2329,8 @@ Facciamo alcune prove:
 ;-> ("ABCD" "ABC D" "AB CD" "AB C D" "A BCD" "A BC D" "A B CD" "A B C D")
 
 (split "ABCDE")
-;-> ("ABCDE" "ABCD E" "ABC DE" "ABC D E" "AB CDE" "AB CD E" "AB C DE" 
-;->  "AB C D E" "A BCDE" "A BCD E" "A BC DE" "A BC D E" "A B CDE" 
+;-> ("ABCDE" "ABCD E" "ABC DE" "ABC D E" "AB CDE" "AB CD E" "AB C DE"
+;->  "AB C D E" "A BCDE" "A BCD E" "A BC DE" "A BC D E" "A B CDE"
 ;->  "A B CD E" "A B C DE" "A B C D E")
 
 (length (split "12345"))
@@ -2581,10 +2581,9 @@ https://codegolf.stackexchange.com/questions/205460/make-true-and-false-global
 | Welsh                | gwir       | anwir       |
 +----------------------+------------+-------------+
 
-All words ASCIIfied from Wiktionary: true, false. 
+All words ASCIIfied from Wiktionary: true, false.
 https://en.wiktionary.org/wiki/true#Translations
 https://en.wiktionary.org/wiki/false#Translations
-Preference given to first entry under 'A state in Boolean logic that indicates an affirmative or positive result'/'state in Boolean logic that indicates a negative result', then first entry under 'concurring with a given set of facts'/'untrue, not factual, wrong'. 
 
 
 ---------------------------------
@@ -2599,7 +2598,7 @@ Soluzione 1:
 (define (sol1 lst)
   (local (pari dispari)
     (dolist (el lst)
-      (if (odd? el) 
+      (if (odd? el)
           (++ dispari)
           (++ pari)
       )
@@ -2614,12 +2613,18 @@ Soluzione 2:
 
 Soluzione 3:
 
-Elevando -1 ad una potenza pari otteniamo -1
-Elevando -1 ad una potenza dispari otteniamo +1
+(define (sol3 lst)
+  (= (length (filter odd? lst))
+     (length (filter even? lst))))
+
+Soluzione 4:
+
+Elevando -1 ad una potenza pari otteniamo +1
+Elevando -1 ad una potenza dispari otteniamo -1
 Eleviamo -1 a potenza con tutti gli elementi e otteniamo una lista di valori -1 o +1.
 Se il numero di elementi pari e di elementi dispari è lo stasso, allora la somma degli elementi della lista di -1 e +1 vale 0.
 
-(define (sol3 lst)
+(define (sol4 lst)
   (zero? (apply + (map (fn(x) (pow -1 x)) lst))))
 
 Facciamo alcune prove:
@@ -2632,11 +2637,15 @@ Facciamo alcune prove:
 ;-> true
 (sol3 lst1)
 ;-> true
+(sol4 lst1)
+;-> true
 (sol1 lst2)
 ;-> nil
 (sol2 lst2)
 ;-> nil
 (sol3 lst2)
+;-> nil
+(sol4 lst2)
 ;-> nil
 
 
@@ -2660,7 +2669,7 @@ Esempio:
 (count '("1") (explode (bits n)))
 ;-> (6)
 
-Funzione che verifica se la rappresentazione binaria di un numero contien un solo 0 (o un solo 1, a seconda del parametro "bit"):
+Funzione che verifica se la rappresentazione binaria di un numero contiene un solo 0 (o un solo 1, a seconda del parametro "bit"):
 
 (define (onlyone? bit num)
   (= (count (list (string bit)) (explode (bits num))) '(1)))
@@ -2668,7 +2677,7 @@ Funzione che verifica se la rappresentazione binaria di un numero contien un sol
 Verifichiamo la sequenza OEIS:
 
 (filter (curry onlyone? 0) (sequence 0 1000))
-;-> (0 2 5 6 11 13 14 23 27 29 30 47 55 59 61 62 95 111 119 123 125 126 191 
+;-> (0 2 5 6 11 13 14 23 27 29 30 47 55 59 61 62 95 111 119 123 125 126 191
 ;->  223 239 247 251 253 254 383 447 479 495 503 507 509 510 767 895 959 991)
 
 I numeri che hanno un solo 1 nella rappresentazione binaria sono le potenze di 2:
@@ -2685,7 +2694,7 @@ The On-Line Encyclopedia of Integer Sequences: https://oeis.org/
 
 Data una sequenza di numeri interi, scrivere una funzione che accetta una sequenza e genera una funzione che accetta un indice e restituisce il numero della sequenza con quell'indice.
 Esempio:
-Una funzione f che prende come input una sequenza di numeri interi e restituisce una funzione lambda. 
+Una funzione f che prende come input una sequenza di numeri interi e restituisce una funzione lambda.
 Quando la funzione lambda viene chiamata con un indice n, restituisce l'n-esimo elemento della sequenza.
 
 Soluzione 1:
@@ -2694,7 +2703,7 @@ Usiamo una singola funzione (non creiamo un'altra funzione).
 Comunque dobbiamo usare una variabile libera ("seq").
 
 (define (meta-oeis par)
-  (if (list? par) 
+  (if (list? par)
       (setq seq par)
       (seq par)))
 
@@ -2717,6 +2726,234 @@ Il funtore prende il nome dalla variabile "name".
 (make-oeis "a01" sequenza)
 (a01 1)
 ;-> 11
+
+
+-------------------
+Numeri autodivisori
+-------------------
+
+Un numero intero positivo è chiamato "autodivisore" se ogni cifra decimale del numero è un divisore del numero, cioè il numero è divisibile esattamente per ognuna delle sue cifre.
+
+Esempi:
+128 è autodivisore è divisibile per 1, 2 e 8 esattamente.
+28 non è un autodivisore perché non è divisibile per 8 esattamente.
+
+Il numero 0 non è divisore di alcun numero, quindi qualsiasi numero che contiene la cifra 0 non è un autodivisore.
+
+Ci sono infiniti numeri autodivisori.
+
+Sequenza OEIS A024838:
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 15, 22, 24, 33, 36, 44, 48, 55, 66,
+  77, 88, 99, 111, 112, 115, 122, 124, 126, 128, 132, 135, 144, 155, 162,
+  168, 175, 184, 212, 216, 222, 224, 244, 248, 264, 288, 312, 315, 324,
+  333, 336, 366, 384, 396, 412, 424, 432, 444, 448, ...
+
+Soluzione 1:
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (autodiv1? num)
+  (let (digit (int-list num))
+    (for-all (fn(x) (and (not (zero? x)) (zero? (% num x)))) digit)))
+
+(autodiv1? 128)
+;-> true
+(autodiv1? 28)
+;-> nil
+
+(filter autodiv1? (sequence 1 150))
+;-> (1 2 3 4 5 6 7 8 9 11 12 15 22 24 33 36 44 48 55 66 
+;->  77 88 99 111 112 115 122 124 126 128 132 135 144)
+
+Soluzione 2:
+
+(define (autodiv2? num)
+  (let ((out true) (val nil))
+    (setq val num)
+    (while (and (!= num 0) out)
+      (setq d (% num 10))
+      (if (or (= d 0) (!= (% val d) 0))
+          (setq out nil)
+      )
+      (setq num (/ num 10))
+    )
+    out))
+
+(autodiv2? 128)
+;-> true
+(autodiv2? 28)
+;-> nil
+
+(filter autodiv2? (sequence 1 150))
+;-> (1 2 3 4 5 6 7 8 9 11 12 15 22 24 33 36 44 48 55 66 
+;->  77 88 99 111 112 115 122 124 126 128 132 135 144)
+
+
+------------------
+Numeri autocoprimi
+------------------
+
+Un numero intero positivo è chiamato "autocoprimo" se ogni cifra decimale del numero è coprima con il numero.
+
+Sequenza OEIS A138708:
+  1, 11, 13, 17, 19, 21, 23, 27, 29, 31, 37, 41, 43, 47, 49, 51, 53, 57,
+  59, 61, 67, 71, 73, 79, 81, 83, 87, 89, 91, 97, 101, 103, 107, 109, 111,
+  113, 117, 119, 121, 127, 131, 133, 137, 139, 141, 143, 149, 151, 157, 
+  161, 163, 167, 169, 171, 173, 177, 179, 181, 187, 191, ...
+
+Due numeri interi a e b sono coprimi se e solo se gcd(a,b) = 1.
+
+(define (autocoprimo? num)
+  (let ((out true) (val nil))
+    (setq val num)
+    (while (and (!= num 0) out)
+      (setq d (% num 10))
+      (if (!= (gcd val d) 1)
+          (setq out nil)
+      )
+      (setq num (/ num 10))
+    )
+    out))
+
+(autocoprimo? 171)
+;-> true
+
+(filter autocoprimo? (sequence 1 200))
+;-> (1 11 13 17 19 21 23 27 29 31 37 41 43 47 49 51 53 57 59 61 67 71 73 
+;->  79 81 83 87 89 91 97 111 113 117 119 121 127 131 133 137 139 141 143 
+;->  149 151 157 161 163 167 169 171 173 177 179 181 187 191 193 197 199)
+
+
+----------------------------------------------------------
+Dividere una lista in due parti con somme uguali (o quasi)
+----------------------------------------------------------
+
+Data una lista di almeno due numeri interi positivi trovare una posizione (indice) di taglio che minimizza la differenza assoluta tra le somme delle due parti (a sinistra e a destra di esso).
+La posizione dell'indice è quella dell'ultimo elemento della parte sinistra.
+
+Vediamo un esempio:
+
+(setq a '(2 5 1 8 5 4 3 8 8 7))
+;-> (2 5 1 8 5 4 3 8 8 7)
+; somma della parte destra
+(setq right (apply + a))
+;-> 49
+; somma della parte sinistra
+(setq left 0)
+; ciclo 
+; per ogni elemento aggiorniamo la somma delle parti destra e sinistra
+; e calcoliamo la differenza assoluta tra le due somme
+(dolist (el a)
+  ; aggiorna somma sinistra
+  (setq left (+ left el))
+  ; aggiorna somma destra
+  (setq right (- right el))
+  (setq diff (abs (- left right)))
+  (println $idx { } left { } right { } diff)
+  ;(read-line)
+)
+;-> 0 2 49 47
+;-> 1 7 44 37
+;-> 2 8 43 35
+;-> 3 16 35 19
+;-> 4 21 30 9
+;-> 5 25 26 1 <-- differenza minima
+;-> 6 28 23 5 <-- da qui aumenta la differenza
+;-> 7 36 15 21
+;-> 8 44 7 37
+;-> 9 51 0 51
+
+Scriviamo la funzione che restituisce una lista del tipo:
+
+  (indice somma-sinistra somma-destra)
+
+(define (taglio lst)
+  (local (right left prev-diff stop diff indice)
+    (setq right (apply + lst))
+    (setq left 0)
+    (setq prev-diff (abs (- left right)))
+    (setq stop nil)
+    (dolist (el lst stop)
+      (setq left (+ left el))
+      (setq right (- right el))
+      (setq diff (abs (- left right)))
+      ;(println $idx { } left { } right { } diff)
+      ; aumenta la differenza?
+      (if (> diff prev-diff)
+        (begin
+          (setq indice (- $idx 1))
+          (setq left (- left el))
+          (setq right (+ right el))
+          (setq stop true)
+        )
+        (begin
+          (setq prev-diff diff)
+        )
+      )
+    )
+    (list indice left right)))
+
+Facciamo alcune prove:
+
+(taglio a)
+;-> (5 25 26)
+(taglio (sequence 1 20))
+;-> (13 105 105)
+(taglio (sequence 20 1))
+;-> (5 105 105)
+(taglio '(1 8 5 6 9 8 5 4 8 3 2 3 7 8))
+;-> (5 37 40)
+
+
+----------------
+Numeri skip-pure
+----------------
+
+I numeri skip-pure sono definiti con questa regola:
+
+   A(0) = 1
+   A(1) = 1
+   A(n) = il più piccolo numero positivo non nella sequenza tale che:
+          A(x) + A(x-2) per ogni x non appare mai
+
+Ad esempio, il termine A(2) è 2, perché 1 è già apparso. 
+Il termine A(3) è 4, poiché A(2) + A(0) = 3 e 3 non è consentito dalla terza riga della regola.
+
+Sequenza:
+
+  1 1 2 4 6 7 9 10 12 13 14 16 18 19 20 22 24 25 27 28 30 31 33 34 
+  36 37 39 40 42 43 45 46 48 49 50 52 54 55 56 58 60 61 62 64 66 67
+  68 70 72 73 74 76 78 79 80 82 84 85 86 88 90 91 92 94 96 97 99 100
+  102 103 105 106 108 109 111 112 114 115 117 118 120 121 123 124 126
+  127 129 130 132 133 135 136 138 139 141 142 144 145 147 148
+
+La sequenza può essere generata dalla seguente formula per n>=1:
+
+          | floor(3n/2) - 1, se floor(ln n) è pari e n ≡ 2 (mod 4)
+   a(n) = |
+          | floor(3n/2), altrimenti
+
+Scriviamo una funzione che implementa la formula:
+
+(define (skip-pure num)
+  (cond ((= num 0) 1)
+        ((= num 1) 1)
+        ((and (= (% num 4) 2) (even? (floor (log num))))
+          (sub (floor (mul 1.5 num)) 1))
+        (true
+          (floor (mul 1.5 num)))))
+
+(map skip-pure (sequence 0 99))
+;-> (1 1 2 4 6 7 9 10 12 13 14 16 18 19 20 22 24 25 26 28 30 31 33 34
+;->  36 37 39 40 42 43 45 46 48 49 51 52 54 55 57 58 60 61 63 64 66 67
+;->  69 70 72 73 75 76 78 79 81 82 84 85 86 88 90 91 92 94 96 97 98 100
+;->  102 103 104 106 108 109 110 112 114 115 116 118 120 121 122 124 126
+;->  127 128 130 132 133 134 136 138 139 140 142 144 145 146 148)
 
 =============================================================================
 
