@@ -2955,5 +2955,104 @@ Scriviamo una funzione che implementa la formula:
 ;->  102 103 104 106 108 109 110 112 114 115 116 118 120 121 122 124 126
 ;->  127 128 130 132 133 134 136 138 139 140 142 144 145 146 148)
 
+
+----------------------------------------------------
+Generare una sequenza con numeri positivi e negativi
+----------------------------------------------------
+
+Dati due interi 1 <= a <= b, generare tutti gli interi x tali che a <= |x| <= b. Il risultato ordinato è (-b, 1-b, 2-b, ..., -a, a, a 1, a 2,... , b).
+La funzione deve essere la più corta possibile.
+
+Esempi:
+a=6, b=9
+(6,-6,7,-7,8,-8,9,-9) oppure (6,7,8,9,-9,-8,-7,-6) oppure (-8,7,-9,-7,9,8,-6,6) oppure ((6,-6),(7,-7),(8,-8),(9,-9)) oppure ((6,7,8,9),(-6,-7,-8,-9)) ecc.
+
+a=6, b=6
+(6,-6) oppure (-6,6) oppure ((6,-6)) oppure ((6),(-6)) ecc.
+
+(define (seq a b) (append (sequence a b) (sequence (- a) (- b))))
+
+(seq 5 10)
+;-> (5 6 7 8 9 10 -5 -6 -7 -8 -9 -10)
+(seq 6 9)
+;-> (6 7 8 9 -6 -7 -8 -9)
+(seq 6 6)
+;-> (6 -6)
+
+
+-----------------------
+Lista di numeri coprimi
+-----------------------
+
+Data una lista di numeri interi positivi, verificare se tutti i numeri sono coprimi tra loro.
+
+Due numeri a e b sono coprimi se e solo se risulta gcd(a,b)=1.
+
+Soluzione 1: (verifichiamo tutte le coppie di numeri)
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+(define (all-coprimi? lst)
+  (local (len stop)
+    (setq len (length lst))
+    (setq stop nil)
+    (for (i 0 (- len 2) 1 stop)
+      (for (j (+ i 1) (- len 1) 1 stop)
+        (if (not (coprimi? (lst i) (lst j))) (setq stop true))
+      )
+    )
+    (not stop)))
+
+(all-coprimi? '(1 3 5 7 13))
+;-> true
+(all-coprimi? '(1 2 3 4 5))
+;-> nil
+
+
+Soluzione 2: (algebra)
+
+I numeri sono tutti coprimi se e solo se il minimo comune multiplo di tutti i numeri è uguale al prodotto di tutti i numeri:
+
+  minimo comune multiplo(numeri) = prodotto(numeri)
+
+Dimostrazione
+
+Dati due numeri a e b risulta:
+
+  gcd(a,b)*lcm(a,b) = n*m
+
+Se gcd(a,b)=1, allora risulta:
+
+  lcm(a,b) = a*b
+
+Inoltre la funzione gcd è moltiplicativa, cioè se a1 e a2 sono relativamente primi tra loro (coprimi) allora risulta:
+
+  gcd(a1*a2,b) = (gcd(a1,b)*gcd(a2,b)
+
+Adesso se gcd(a,b*c) = 1, allora risulta:
+
+  gcd(a,b) = 1 e gcd(a,c) = 1
+
+Quindi i numeri di una lista (x1,x2,...,xn) sono tutti coprimi tra loro se e solo se risulta:
+
+                      n
+  lcm(x1,x2,...,xn) = Prod[x(i)]
+                      x=1
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (args) 2))
+
+(define (all-coprimi? lst)
+  (= (apply lcm lst) (apply * lst)))
+
+(all-coprimi? '(1 3 5 7 13))
+;-> true
+(all-coprimi? '(1 2 3 4 5))
+;-> nil
+
+
 =============================================================================
 

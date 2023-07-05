@@ -1910,6 +1910,8 @@ NOTE LIBERE 17
   Numeri autocoprimi
   Dividere una lista in due parti con somme uguali (o quasi)
   Numeri skip-pure
+  Generare una sequenza con numeri positivi e negativi
+  Lista di numeri coprimi
 
 PROBLEMI SUI DADI
 =================
