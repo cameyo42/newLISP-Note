@@ -2767,7 +2767,7 @@ Soluzione 1:
 ;-> nil
 
 (filter autodiv1? (sequence 1 150))
-;-> (1 2 3 4 5 6 7 8 9 11 12 15 22 24 33 36 44 48 55 66 
+;-> (1 2 3 4 5 6 7 8 9 11 12 15 22 24 33 36 44 48 55 66
 ;->  77 88 99 111 112 115 122 124 126 128 132 135 144)
 
 Soluzione 2:
@@ -2790,7 +2790,7 @@ Soluzione 2:
 ;-> nil
 
 (filter autodiv2? (sequence 1 150))
-;-> (1 2 3 4 5 6 7 8 9 11 12 15 22 24 33 36 44 48 55 66 
+;-> (1 2 3 4 5 6 7 8 9 11 12 15 22 24 33 36 44 48 55 66
 ;->  77 88 99 111 112 115 122 124 126 128 132 135 144)
 
 
@@ -2803,7 +2803,7 @@ Un numero intero positivo è chiamato "autocoprimo" se ogni cifra decimale del n
 Sequenza OEIS A138708:
   1, 11, 13, 17, 19, 21, 23, 27, 29, 31, 37, 41, 43, 47, 49, 51, 53, 57,
   59, 61, 67, 71, 73, 79, 81, 83, 87, 89, 91, 97, 101, 103, 107, 109, 111,
-  113, 117, 119, 121, 127, 131, 133, 137, 139, 141, 143, 149, 151, 157, 
+  113, 117, 119, 121, 127, 131, 133, 137, 139, 141, 143, 149, 151, 157,
   161, 163, 167, 169, 171, 173, 177, 179, 181, 187, 191, ...
 
 Due numeri interi a e b sono coprimi se e solo se gcd(a,b) = 1.
@@ -2824,8 +2824,8 @@ Due numeri interi a e b sono coprimi se e solo se gcd(a,b) = 1.
 ;-> true
 
 (filter autocoprimo? (sequence 1 200))
-;-> (1 11 13 17 19 21 23 27 29 31 37 41 43 47 49 51 53 57 59 61 67 71 73 
-;->  79 81 83 87 89 91 97 111 113 117 119 121 127 131 133 137 139 141 143 
+;-> (1 11 13 17 19 21 23 27 29 31 37 41 43 47 49 51 53 57 59 61 67 71 73
+;->  79 81 83 87 89 91 97 111 113 117 119 121 127 131 133 137 139 141 143
 ;->  149 151 157 161 163 167 169 171 173 177 179 181 187 191 193 197 199)
 
 
@@ -2845,7 +2845,7 @@ Vediamo un esempio:
 ;-> 49
 ; somma della parte sinistra
 (setq left 0)
-; ciclo 
+; ciclo
 ; per ogni elemento aggiorniamo la somma delle parti destra e sinistra
 ; e calcoliamo la differenza assoluta tra le due somme
 (dolist (el a)
@@ -2921,12 +2921,12 @@ I numeri skip-pure sono definiti con questa regola:
    A(n) = il più piccolo numero positivo non nella sequenza tale che:
           A(x) + A(x-2) per ogni x non appare mai
 
-Ad esempio, il termine A(2) è 2, perché 1 è già apparso. 
+Ad esempio, il termine A(2) è 2, perché 1 è già apparso.
 Il termine A(3) è 4, poiché A(2) + A(0) = 3 e 3 non è consentito dalla terza riga della regola.
 
 Sequenza:
 
-  1 1 2 4 6 7 9 10 12 13 14 16 18 19 20 22 24 25 27 28 30 31 33 34 
+  1 1 2 4 6 7 9 10 12 13 14 16 18 19 20 22 24 25 27 28 30 31 33 34
   36 37 39 40 42 43 45 46 48 49 50 52 54 55 56 58 60 61 62 64 66 67
   68 70 72 73 74 76 78 79 80 82 84 85 86 88 90 91 92 94 96 97 99 100
   102 103 105 106 108 109 111 112 114 115 117 118 120 121 123 124 126
@@ -3053,6 +3053,184 @@ Quindi i numeri di una lista (x1,x2,...,xn) sono tutti coprimi tra loro se e sol
 (all-coprimi? '(1 2 3 4 5))
 ;-> nil
 
+
+-------------------
+FORTRAN typing rule
+-------------------
+
+Il Fortran 77 ha sei tipi di dati: CHARACTER, COMPLEX, DOUBLE PRECISION, INTEGER, LOGICAL e REAL.
+A qualsiasi oggetto non dichiarato in modo esplicito per avere uno di questi tipi viene assegnato implicitamente un tipo dal compilatore, come determinato dalla prima lettera del nome dell'oggetto.
+I tipi impliciti predefiniti sono:
+
+--------------+---------------
+Prima lettera | Tipo implicito
+--------------+---------------
+     A-H      |  REAL
+     I-O      |  INTEGER
+     O-Z      |  REAL
+----------------------------
+
+Ad esempio, l'oggetto chiamato NUMBER (prima lettera N) ha il tipo implicito INTEGER mentre l'oggetto chiamato DUMBER (prima lettera D) ha il tipo implicito REAL.
+Queste regole portano al vecchio scherzo che DIO è REALE... a meno che non sia dichiarato INTEGER.
+
+I tipi impliciti predefiniti possono essere sovrascritti utilizzando istruzioni IMPLICIT.
+Per esempio:
+
+  IMPLICIT DOUBLE PRECISION (D,X-Z), INTEGER (N-P)
+
+significa che tutti gli oggetti i cui nomi iniziano con D, X, Y o Z ora hanno il tipo implicito DOUBLE PRECISION e quelli che iniziano con N, O o P hanno il tipo implicito INTEGER.
+Gli oggetti i cui nomi iniziano con qualsiasi altra lettera mantengono i loro tipi impliciti predefiniti (in questo esempio, REAL per A–C, E–H e Q–W e INTEGER per I–M).
+
+
+--------------------
+Numeri per posizione
+--------------------
+
+Creare la seguente lista di numeri:
+
+  (1 22 333 4444 55555 666666 7777777 88888888 999999999)
+
+La funzione deve essere la più corta possibile.
+
+Soluzione 1:
+
+(list '(1 22 333 4444 55555 666666 7777777 88888888 999999999))
+;-> (1 22 333 4444 55555 666666 7777777 88888888 999999999)
+
+Soluzione 2:
+
+(map int (map (fn(x) (dup (string x) x)) (sequence 1 9)))
+;-> (1 22 333 4444 55555 666666 7777777 88888888 999999999)
+
+Soluzione 3: (non valida, ma interessante)
+
+Usiamo la seguente formula:
+
+         floor(sqrt(8*n - 7)) + 1
+  floor(--------------------------),  per n = 1..45
+                    2
+
+(define (f n) (/ (+ (floor (sqrt (- (* 8 n) 7))) 1) 2))
+(map f (sequence 1 45))
+;-> (1 2 2 3 3 3 4 4 4 4 5 5 5 5 5 6 6 6 6 6 6 7 7 7 7 7 7 7
+;->  8 8 8 8 8 8 8 8 9 9 9 9 9 9 9 9 9)
+(map (fn(x) (/ (+ (floor (sqrt (- (* 8 x) 7))) 1) 2)) (sequence 1 45))
+;-> (1 2 2 3 3 3 4 4 4 4 5 5 5 5 5 6 6 6 6 6 6 7 7 7 7 7 7 7
+;->  8 8 8 8 8 8 8 8 9 9 9 9 9 9 9 9 9)
+
+
+-------------
+Numeri simili
+-------------
+
+Consideriamo simili due numeri interi positivi se hanno la stessa lunghezza e se confrontiamo i caratteri in due posizioni qualsiasi per entrambe le stringhe decimali, i risultati del confronto (minore, uguale o maggiore) devono essere gli stessi in entrambe le stringhe.
+
+Formalmente, per due numeri che possono essere scritti come stringhe decimali a1a2...an, b1b2...bm, sono simili se e solo se n=m e a(i) < a(j) se e solo se b(i) < b(j) per ogni i,j in [1..n].
+
+Ad esempio:
+2131 e 8090 sono simili.
+1234 e 1111, 1234 e 4321 non sono simili.
+
+Funzione che verifica se due numeri interi sono simili:
+
+(define (simili? a b)
+  (if (!= (length a) (length b))
+    nil
+    ;else
+    (local (len stop)
+      (setq a (string a))
+      (setq b (string b))
+      (setq len (length a))
+      (setq stop nil)
+      (for (i 0 (- len 1) 1 stop)
+        (for (j 0 (- len 1) 1 stop)
+          (if (!= i j)
+              (cond ;check condition
+                ((and (= (a i) (a j)) (not (= (b i) (b j)))) (setq stop true))
+                ((and (> (a i) (a j)) (not (> (b i) (b j)))) (setq stop true))
+                ((and (< (a i) (a j)) (not (< (b i) (b j)))) (setq stop true))
+              )
+          )
+        )
+      )
+      ; se stop vale nil, allora i due numeri sono simili
+      (not stop))))
+
+Facciamo alcune prove:
+
+(simili? 2131 8090)
+;-> true
+(simili? 1234 1111)
+;-> nil
+(simili? 1234 4321)
+;-> nil
+
+Funzione che trova il prossimo numero simile ad un dato numero:
+
+(define (next-simile num)
+  (local (len sol limite stop)
+    (setq len (length num))
+    (setq sol nil)
+    (setq limite (- (pow 10 len) 1))
+    ;(println limite)
+    (setq stop nil)
+    (for (i (+ num 1) limite 1 stop)
+      (if (simili? num i) (setq stop true sol i))
+    )
+    sol))
+
+Facciamo alcune prove:
+
+(next-simile 7316)
+;-> 7324
+(next-simile 123456)
+;-> (123457)
+(next-simile 99)
+;-> nil
+
+Funzione che trova il precedente numero simile ad un dato numero:
+
+(define (prev-simile num)
+  (local (len sol limite stop)
+    (setq len (length num))
+    (setq sol nil)
+    (setq limite (pow 10 (- len 1)))
+    ;(println limite)
+    (setq stop nil)
+    (for (i (- num 1) limite -1 stop)
+      (if (simili? num i) (setq stop true sol i))
+    )
+    sol))
+
+Facciamo alcune prove:
+
+(prev-simile 7324)
+;-> 7316
+(prev-simile 123457)
+;-> 123456
+(prev-simile 7316)
+;-> 7315
+(prev-simile 123456)
+;-> nil
+(prev-simile 99)
+;-> 88
+
+La sequenza di numeri simili può essere definita nel modo seguente:
+
+  a(0) = 0
+  a(k) = n, se n e (n-1) sono simili
+       = nil, altrimenti
+
+(define (seq-simili limite)
+  (let (out '(0))
+    (for (n 1 limite) (if (simili? n (- n 1)) (push n out -1)))
+    out))
+
+(seq-simili 100)
+;-> (0 1 2 3 4 5 6 7 8 9 13 14 15 16 17 18 19 21 24 25 26 27 28 29 31
+;->  32 35 36 37 38 39 41 42 43 46 47 48 49 51 52 53 54 57 58 59 61 62
+;->  63 64 65 68 69 71 72 73 74 75 76 79 81 82 83 84 85 86 87 91 92 93
+;->  94 95 96 97 98)
 
 =============================================================================
 

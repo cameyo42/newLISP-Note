@@ -1912,6 +1912,9 @@ NOTE LIBERE 17
   Numeri skip-pure
   Generare una sequenza con numeri positivi e negativi
   Lista di numeri coprimi
+  FORTRAN typing rule
+  Numeri per posizione
+  Numeri simili
 
 PROBLEMI SUI DADI
 =================
