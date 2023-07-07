@@ -4980,7 +4980,7 @@ We can use either option, as long as we are consistent in the use.
 The more imposing the variable name is the bigger the scope. Since letter variables are for a few lines of code in the middle of a function. Large screaming snake case constants are constants that span 1 or more files.
 
 Just for very simple variables which have no meaning other than iterative variables like “int i”, or “char c” for one line variables.
-Or, like lambda function parameters (k, v) for map’s.
+Or, like lambda function parameters (k, v) for map's.
 Though I do see value in naming row / col instead of r / c.
 
 Single letter variables do tell you something about the variable. They say "I'm not important", "my scope is as small as I am", "I'm fleeting" and "I'll be gone in 2 lines".
@@ -5014,9 +5014,9 @@ Problems with naming variables
 2) A direct translation of formulas into code
 
 We write code to solve real-world problems, and we need to understand the problem our model represents.
-While a computer will ultimately run your code, it’ll be read by humans, so write code intended for humans!
+While a computer will ultimately run your code, it'll be read by humans, so write code intended for humans!
 
-Variable names — dos and dont’s
+Variable names — dos and dont's
 -------------------------------
 a) Use descriptive variable names
 b) Use function parameters or named constants instead of magic numbers.
@@ -5025,7 +5025,7 @@ d) Put aggregations at the end of variable names.
 e) Use item_count instead of num.
 f) Use descriptive loop indexes instead of i, j, k.
 g) Adopt conventions for naming and formatting across a project.
-h) Don’t use machine-learning specific abbreviations.
+h) Don't use machine-learning specific abbreviations.
 
 Variable names — conventions to avoid
 -------------------------------------

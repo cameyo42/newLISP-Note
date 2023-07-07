@@ -4374,7 +4374,7 @@ Peso ideale e indice di massa corporea
 Peso ideale
 -----------
 Il peso ideale è il peso forma teorico di una persona. Ma come calcolare questo peso forma teorico?
-La soluzione esatta del problema è praticamente impossibile. Molti scienziati hanno cercato di creare una formula e, nonostante ne esistano diverse, ognuna ha i suoi difetti. Questo non significa che siano completamente sbagliate, ma solo che i risultati variano da formula a formula. Questo perché ci sono delle caratteristiche dell’essere umano che non vengono prese in considerazione. Queste formule utilizzano come parametri l'età, il sesso e l'altezza, mentre non tengono conto della struttura scheletrica (dimensione delle ossa) e della struttura muscolare (grasso o muscoli).
+La soluzione esatta del problema è praticamente impossibile. Molti scienziati hanno cercato di creare una formula e, nonostante ne esistano diverse, ognuna ha i suoi difetti. Questo non significa che siano completamente sbagliate, ma solo che i risultati variano da formula a formula. Questo perché ci sono delle caratteristiche dell'essere umano che non vengono prese in considerazione. Queste formule utilizzano come parametri l'età, il sesso e l'altezza, mentre non tengono conto della struttura scheletrica (dimensione delle ossa) e della struttura muscolare (grasso o muscoli).
 Vediamo le formule più famose e indicative.
 
 Formula di Lorenz
@@ -4429,7 +4429,7 @@ Peso ideale Donna = (135 x altezza in dm3)/100
 
 Indice di massa corporea
 ------------------------
-Dato che tutte queste formule producono risultati diversi, l’OMS (Organizzazione Mondiale della Sanità), ha preferito definire un indice che viene interpretato in un range di valori (invece che il solo valore del peso forma). In questo modo l'indice appartiene ad una classe con determinati limiti (minimo e massimo). Ad esempio, se ci troviamo nella classe (range) "Normale" non ci sono problemi sia che ci troviamo verso l’alto che verso il basso (se usciamo dal range "Normale", invece, occorre preoccuparsi).
+Dato che tutte queste formule producono risultati diversi, l'OMS (Organizzazione Mondiale della Sanità), ha preferito definire un indice che viene interpretato in un range di valori (invece che il solo valore del peso forma). In questo modo l'indice appartiene ad una classe con determinati limiti (minimo e massimo). Ad esempio, se ci troviamo nella classe (range) "Normale" non ci sono problemi sia che ci troviamo verso l'alto che verso il basso (se usciamo dal range "Normale", invece, occorre preoccuparsi).
 
 La formula del BMI (Body Mass Index) o IMC (Indice di Massa Corporea) che viene utilizzata è la seguente:
 
@@ -4439,7 +4439,7 @@ Questa formula da un valore che non è il peso forma teorico, ma un punteggio. C
 
 NuovoBMI: 1.3 x peso in Kg / (altezza in m)^2.5
 
-In pratica, questa nuova formula normalizza l’altezza rendendola più significativa del peso.
+In pratica, questa nuova formula normalizza l'altezza rendendola più significativa del peso.
 
 Possiamo utilizzare tutte e due le formule e, pur trovando due valori leggermente diversi, interpretare i risultati con la seguente tabella:
 
@@ -5237,8 +5237,8 @@ Nota: questa funzione ha il problema dello stack overflow per numeri relativamen
 Il gioco del Lotto
 ------------------
 
-Il gioco del Lotto consiste in un’urna che contiene 90 palline numerate. Vengono estratte a caso 5 palline, 85 di queste sono perdenti, 5 sono vincenti.
-I casi possibili sono tutti i modi di estrarre un gruppo di k=5 palline tra n=90 (poichè le ripetizioni non sono ammesse e l’ordine di estrazione non è rilevante, allora si tratta del numero di combinazioni):
+Il gioco del Lotto consiste in un'urna che contiene 90 palline numerate. Vengono estratte a caso 5 palline, 85 di queste sono perdenti, 5 sono vincenti.
+I casi possibili sono tutti i modi di estrarre un gruppo di k=5 palline tra n=90 (poichè le ripetizioni non sono ammesse e l'ordine di estrazione non è rilevante, allora si tratta del numero di combinazioni):
 
   Numero di casi possibili = Combinazioni(90,5)
 
@@ -9597,7 +9597,7 @@ Tail recursion without TCO by Mike Ivanov
 
 https://www.mikeivanov.com/post/44952159596/tail-recursion-without-tco
 
-Emacs lisp has no Tail Call Optimization (TCO), neither do many other lisp dialects. The lack of TCO is not a big deal–it’s always possible to transform a tail recursive algorithm into a loop. However, it makes functions look uglier. Here is a very simple method of enabling Clojure-style tail call recursion in Emacs lisp:
+Emacs lisp has no Tail Call Optimization (TCO), neither do many other lisp dialects. The lack of TCO is not a big deal–it's always possible to transform a tail recursive algorithm into a loop. However, it makes functions look uglier. Here is a very simple method of enabling Clojure-style tail call recursion in Emacs lisp:
 
 ;; A very simple linearized Y combinator.
 ;; All the state management stuff is incapsulated here.
@@ -9630,7 +9630,7 @@ Emacs lisp has no Tail Call Optimization (TCO), neither do many other lisp diale
        (rloop- (function (lambda (,@args) ,body))
                ,@args))))
 
-Here’s how to use it:
+Here's how to use it:
 
 (defun factorial (x)
   ;; this is the recursion entry point
@@ -9676,7 +9676,7 @@ ELISP> (macroexpand '(rloop ((n 0)) (if (> n 5) n (recur (1+ n)))))
           (1+ n))))
    n))
 
-...which means two extra function calls on each iteration. But realistically, it’s not such a big deal. Clarity of the code is way more important.
+...which means two extra function calls on each iteration. But realistically, it's not such a big deal. Clarity of the code is way more important.
 
 
 ------------------------
@@ -10478,7 +10478,7 @@ Numeri primi di Sophie Germain
 ------------------------------
 
 Un numero primo P viene detto numero primo di Sophie Germain se anche il numero 2P + 1 è primo.
-Ad esempio, 41 è un numero di Sophie Germain in quanto 2*41 + 1 = 83 è anch’esso un numero primo.
+Ad esempio, 41 è un numero di Sophie Germain in quanto 2*41 + 1 = 83 è anch'esso un numero primo.
 Si congettura che il numero dei primi di Sophie Germain sia infinito. Finora questa tesi non è stata ancora dimostrata, ma sembra molto verosimile, dato che vengono trovati numeri primi di Sophie Germain sempre più grandi.
 
 Tra 1 e 1000, troviamo 37 numeri di Sophie Germain. Indichiamo in parentesi il corrispondente numero primo 2P + 1.
@@ -10489,7 +10489,7 @@ Tra 1 e 1000, troviamo 37 numeri di Sophie Germain. Indichiamo in parentesi il c
  683(1367), 719(1439), 743(1487), 761(1523), 809(1619), 911(1823), 953(1907)
 
 Considerando che il numero dei numeri primi tra 1 e 1000 è 168, notiamo che ben il 22% di questi sono numeri di Sophie Germain.
-Se però consideriamo i numeri primi fino a 100.000, questa percentuale scende al 12.2%, fino a 10.000.000 all’8.43%, fino a 100.000.000 al 7.34%, fino a 1.000.000.000 al 6.5% e così via.
+Se però consideriamo i numeri primi fino a 100.000, questa percentuale scende al 12.2%, fino a 10.000.000 all'8.43%, fino a 100.000.000 al 7.34%, fino a 1.000.000.000 al 6.5% e così via.
 Tutti i numeri primi di Sophie Germain sono della forma 6N + 5 e così pure i corrispondenti numeri primi 2P +1.
 
 Considerando per esempio il numero primo di Sophie Germain 89 ed il suo corrispondente 179, avremo:
@@ -10526,7 +10526,7 @@ Il numero 666
 -------------
 
 "Qui sta la sapienza. Chi ha intelligenza, calcoli il numero della bestia, perché è un numero d'uomo, e il suo numero è seicentosessantasei." Apocalisse di Giovanni (13,18).
-Su questo numero, chiamato "numero della bestia" o "numero dell’Anticristo" o "numero del Demonio", sono stati versati fiumi d’inchiostro e sono stati scritti interi volumi. Vediamo alcune proprietà note di questo numero.
+Su questo numero, chiamato "numero della bestia" o "numero dell'Anticristo" o "numero del Demonio", sono stati versati fiumi d'inchiostro e sono stati scritti interi volumi. Vediamo alcune proprietà note di questo numero.
 
 1) La proprietà più evidente è che 666 è la somma dei primi 36 numeri interi consecutivi (si noti che 36 è a sua volta uguale a 6×6):
 
@@ -10566,7 +10566,7 @@ Infatti:
 6) 666 è costituito dalla tripla ripetizione della cifra 6 che è il più piccolo dei rarissimi numeri perfetti, cioè uguali alla somma dei suoi divisori. Infatti i divisori di 6 sono 1, 2 e 3 e la loro somma fa 6.
 Inoltre 6 è la somma dei primi 3 interi consecutivi: 1 + 2 + 3 = 6.
 
-7) Notiamo che, nel sistema di numerazione dell’antica Roma, 666 si scrive DCLXVI che sono le prime 6 cifre romane scritte in rigoroso ordine decrescente.
+7) Notiamo che, nel sistema di numerazione dell'antica Roma, 666 si scrive DCLXVI che sono le prime 6 cifre romane scritte in rigoroso ordine decrescente.
 
 8) Una ulteriore proprietà è che 666 è la somma delle prime 144 cifre decimali di pi greco (senza contare dunque il 3 a sinistra della virgola), dove 144 = (6+6)x(6+6)
 

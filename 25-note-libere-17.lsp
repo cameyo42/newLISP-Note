@@ -3232,5 +3232,279 @@ La sequenza di numeri simili può essere definita nel modo seguente:
 ;->  63 64 65 68 69 71 72 73 74 75 76 79 81 82 83 84 85 86 87 91 92 93
 ;->  94 95 96 97 98)
 
+
+-------------------------------
+Multiplayer Rock-Paper-Scissors
+-------------------------------
+
+Per un'introduzione al gioco vedi "Rock Paper Scissors" in "Note libere 4".
+
+Regole standard:
+
+  Rock batte Scissors   |  Sasso batte Forbici
+  Paper batte Rock      |  Carta batte Sasso
+  Scissors batte Paper  |  Forbici batte Carta
+
+In questo caso abbiamo più di 2 giocatori, cioè il risultato di una mano del gioco è rappresentato da una lista delle figure mostrate da ogni giocatore.
+Per esempio con 4 giocatori la lista potrebbe essere:
+
+  (Rock Rock Paper Scissors)
+
+Con le regole standard, se escono tutte e tre le figure, la mano viene considerata un pareggio tra tutti i giocatori. Comunque con molti giocatori la possibilità di pareggiare una mano aumenta drasticamente.
+Per questo motivo viene definita la seguente regola per stabilire i vincitori:
+
+Data una lista che contiene Rock, Paper e Scissors (es. (R P P S S P)):
+
+Calcolare il numero di Rock, Paper e Scissors (R P S) (es. 1 3 2)
+
+Se un valore vale 0, allora i vincitori sono stabiliti dalla regola standard.
+Altrimenti ad ogni giocatore viene attribuito un punteggio nel modo seguente:
+moltiplicare il numero della propria figura per il numero delle figure su cui vince. 
+Cioè, Rock ottiene un punteggio R*S, 
+      Paper ottiene un punteggio P*R,
+      Scissor ottiene un punteggio S*P.
+
+Se i punteggi non sono uguali, vince il giocatore con il punteggio massimo.
+
+Se i punteggi sono uguali tra due giocatori, si stabilisce il giocatore vincente con la regola standard.
+
+Se i punteggi sono uguali tra tutti i giocatori, il risultato è un pareggio.
+
+Associamo le figure a valori interi:
+
+  0 = rock
+  1 = paper
+  2 = scissors
+
+Funzione che simula una mano con un dato numero di giocatori:
+
+(define (game players)
+(local (figs mano nums values max-value indici figure uniq a b)
+  ; lista delle figure
+  (setq figs '("Rock" "Paper" "Scissor"))
+  ; generazione casuale di una mano
+  (setq mano (rand 3 players))
+  ;(setq mano '(0 0 1 1 2 2))
+  (println "Mano: " mano)
+  (println "Mano: " (map (fn(x) (figs x)) mano))
+  ; conta le figure della mano (R P S)
+  (setq nums (count '(0 1 2) mano))
+  (println "Conteggio figure: "nums)
+  ; lista dei punteggi dei giocatori
+  (setq values '())
+  ; calcolo punteggi dei giocatori
+  (dolist (el mano)
+    (cond ((= el 0) (push (* (nums 0) (nums 2)) values -1))
+          ((= el 1) (push (* (nums 1) (nums 0)) values -1))
+          ((= el 2) (push (* (nums 2) (nums 1)) values -1))
+    )
+  )
+  (println "Punteggi: " values)
+  (cond 
+    ; tutti punteggi uguali
+    ((apply = values)
+      (println "0) Pareggio con valore: "(values 0)))
+    ; punteggi diversi
+    (true
+      ; punteggio massimo
+      (setq max-value (apply max values))
+      ;-> 16
+      ; lista dei giocatori con punteggio massimo
+      (setq indici (flat (ref-all max-value values)))
+      ; lista delle figure con punteggio massimo
+      (setq figure (select mano indici))
+      (cond ((= (length figure) 1) ; un solo vincitore
+              (println "1) Vince: " indici " con figura: " (figs (figure 0))))
+            ((apply = figure)      ; vincitori con la stessa figura
+              (println "2) Vince: " indici " con figura: " (figs (figure 0))))
+            (true                  ; vincitori con la figura maggiore
+              ; crea la lista delle figure uniche (sono sempre 2)
+              (setq uniq (unique figure))
+              (if (> (length uniq) 2) (println "ERRORE!!!"))
+              (println "Figure uniche: " uniq)
+              (setq a (uniq 0))
+              (setq b (uniq 1))
+              (println "a: " a {, } "b: " b)
+              ; stabilisce il vincitore in base alle regole standard
+              (cond ((or (and (= a 0) (= b 2))  ; a vince su b
+                        (and (= a 1) (= b 0))
+                        (and (= a 2) (= b 1))) 
+                      (setq indici (flat (ref-all a mano)))
+                      (println "3) Vince: " indici " con figura: " (figs a)))
+                    (true  ; b vince su a
+                      (setq indici (flat (ref-all b mano)))
+                      (println "4) Vince: " indici " con figura: " (figs b)))
+              )
+            )
+      )
+    )
+  )
+  '---------------------))
+
+Facciamo alcune prove:
+
+(game 2)
+;-> Mano: (1 0)
+;-> Mano: ("Paper" "Rock")
+;-> Conteggio figure: (1 1 0)
+;-> Punteggi: (1 0)
+;-> 1) Vince: (0) con figura: Paper
+;-> ---------------------
+(game 4)
+;-> Mano: (0 2 0 1)
+;-> Mano: ("Rock" "Scissor" "Rock" "Paper")
+;-> Conteggio figure: (2 1 1)
+;-> Punteggi: (2 1 2 2)
+;-> Figure uniche: (0 1)
+;-> a: 0, b: 1
+;-> 4) Vince: (3) con figura: Paper
+;-> ---------------------
+(game 5)
+;-> Mano: (1 0 1 0 0)
+;-> Mano: ("Paper" "Rock" "Paper" "Rock" "Rock")
+;-> Conteggio figure: (3 2 0)
+;-> Punteggi: (6 0 6 0 0)
+;-> 2) Vince: (0 2) con figura: Paper
+;-> ---------------------
+(game 10)
+;-> Mano: (0 2 0 0 2 2 2 2 1 1)
+;-> Mano: ("Rock" "Scissor" "Rock" "Rock" "Scissor" "Scissor" "Scissor" "Scissor" "Paper" "Paper")
+;-> Conteggio figure: (3 2 5)
+;-> Punteggi: (15 10 15 15 10 10 10 10 6 6)
+;-> 2) Vince: (0 2 3) con figura: Rock
+;-> ---------------------
+
+
+---------------------------
+Numeri/simboli intransitivi
+---------------------------
+
+Relazione transitiva
+--------------------
+In matematica una relazione binaria R in un insieme S è transitiva se e solo se, per ogni x, y, z appartenenti a X, se x è in relazione con y e y è in relazione con z, allora x è in relazione con z.
+
+Per esempio, "è maggiore di", "è minore di" e "è uguale a" sono relazioni transitive:
+
+  se x > y e y > z, allora x > z
+  se x < y e y < z, allora x < z
+  se x = y e y = z, allora x = z
+
+Non è invece transitiva (cioè è intransitiva) la relazione "è perpendicolare a": se la retta A è perpendicolare alla retta B, e la retta B è perpendicolare alla retta C, allora la retta A non è perpendicolare alla retta C.
+
+Nel gioco "Rock, Paper, Scissor" abbiamo la relazione intransitiva "vince su", infatti:
+
+  Rock vince su Scissor
+  Scissor vince su Paper
+  Paper vince su Rock 
+  (per essere transitiva dovrebbe essere: Rock vince su Paper)
+
+In questo caso abbiamo 3 simboli.
+Il problema è: come possiamo generare un insieme di N simboli (con N dispari) in cui ogni simbolo vince con (N-1)/2 simboli e perde con (N-1)/2 simboli (cioè vince con il 50% dei simboli e perde con il 50% dei simboli)
+
+Vediamo una possibile soluzione.
+Invece di dare i nomi ai simboli, usiamo i numeri interi (altrimenti dovremmo nominare ogni simbolo).
+Andiamo da 0 a qualsiasi numero pari arbitrario 2*n (n = (N-1)/2).
+Per qualsiasi numero intero compreso tra 0 e 2*n, abbiamo bisogno che batta n altri numeri e perda contro n altri numeri.
+
+Il trucco sta nella definizione delle regole per "cosa batte cosa":
+
+  1) Se si confrontano due numeri dispari, vince il più piccolo.
+  2) Se si confrontano due numeri pari, vince quello più piccolo.
+  3) Se si confrontano un numero dispari e un numero pari, vince il più grande.
+
+Possiamo dimostrare che, con questa regola, ogni numero da 0 a 2*n batte n altri numeri e perde contro n altri numeri.
+
+Dimostrazione per induzione:
+Quando n=1, ci sono tre numeri: 0, 1 e 2. 
+0 batte 2 perché sono entrambi pari e 0 è più piccolo. 
+1 batte 0 perché 0 è pari, 1 è dispari e 1 è maggiore. 
+2 batte 1 perché 1 è dispari, 2 è pari e 2 è maggiore. 
+Quindi il processo funziona quando n=1.
+
+Assumiamo che il processo funzioni per n=N e mostriamo che questo implica che il processo funzionerà per n=N+1. 
+Abbiamo numeri da 0 a 2*N, ogni numero batte N altri numeri e perde contro N altri numeri. 
+Aggiungiamo due nuovi numeri al mix 2*N+1 e 2*N+2.
+
+Tutti i numeri pari da 0 a 2*N ora perdono contro 2*N+1 e battono 2*N+2. 
+Quindi tutti questi numeri ora battono N+1 numeri e perdono contro N+1 numeri. 
+Funziona ancora tutto.
+
+Tutti i numeri dispari da 0 a 2*N ora battono 2*N+1 e perdono contro 2*N+2. 
+Quindi tutti questi numeri ora battono N+1 numeri e perdono contro N+1 numeri. 
+Funziona ancora tutto.
+
+2*N+2 è pari e perde contro tutti i numeri pari da 0 a 2*N. 
+Esistono N+1 numeri di questo tipo. 
+2*N+2 batte tutti i numeri dispari da 0 a 2*N+1. 
+Esistono N+1 numeri di questo tipo. 
+Quindi 2*N+2 perde contro N+1 numeri e batte N+1 numeri.
+
+2*N+1 è dispari e perde contro tutti i numeri dispari da 0 a 2*N. 
+Ci sono N tali numeri. 
+Perde anche 2*N+2. 
+Quindi perde contro un totale di N+1 numeri. 
+Batte tutti i numeri pari da 0 a 2*N. 
+Ci sono un totale N+1 di tali numeri. 
+Quindi 2N+1 perde contro N+1 numeri e batte N+1 numeri.
+
+Quindi il sistema funziona per n=1 ed essendo vero per ogni n=N, è vero per ogni n=N+1. 
+Quindi, è vero per tutti gli n.
+
+Verifichiamo il risultato con una funzione che prende un numero dispari di elementi e crea una lista con le vittorie e le sconfitte di ogni elemento contro tutti gli altri:
+
+(define (check num-element)
+  (local (nums values a b)
+    ; num-element deve essere dispari
+    ; lista dei numeri da 0 a (num-element - 1)
+    (setq nums (sequence 0 (- num-element 1)))
+    ; lista dei numeri con vittorie e sconfitte
+    ; (numero num-vittorie num-sconfitte)
+    (setq values (map list nums (dup 0 num-element) (dup 0 num-element)))
+    ; ciclo che calcola vittoria o sconfitta per tutte le coppie della lista
+    (for (i 0 (- (length nums) 1))
+      (setq a (nums i)) ; primo numero
+      (for (j 0 (- (length nums) 1))
+        (setq b (nums j)) ; secondo numero
+              ; la coppia deve essere composta da due elementi diversi
+        (cond ((!= i j)
+                      ; numeri entrambi pari o entrambi dispari?
+                (cond ((or (and (odd? a) (odd? b))
+                          (and (even? a) (even? b)))
+                        ; vince il più piccolo
+                        (if (< a b)
+                            (++ (values i 1))
+                            (++ (values i 2))))
+                      ; numeri uno pari e uno dispari?
+                      ((or (and (odd? a) (even? b))
+                          (and (even? a) (odd? b)))
+                        ; vince il più grande
+                        (if (> a b)
+                            (++ (values i 1))
+                            (++ (values i 2))))
+                      ; caso non possibile
+                      (true (println "ERRORE"))
+                ))
+              (true nil)
+        )
+      )
+    )
+    values))
+
+Facciamo alcune prove:
+
+(check 11)
+;-> ((0 5 5) (1 5 5) (2 5 5) (3 5 5) (4 5 5) (5 5 5)
+;->  (6 5 5) (7 5 5) (8 5 5) (9 5 5) (10 5 5))
+(check 101)
+;-> ((0 50 50) (1 50 50) (2 50 50) (3 50 50) (4 50 50) (5 50 50)
+;->  (6 50 50) (7 50 50) (8 50 50) (9 50 50) (10 50 50) (11 50 50)
+;->  ...
+;->  (89 50 50) (90 50 50) (91 50 50) (92 50 50) (93 50 50) (94 50 50)
+;->  (95 50 50) (96 50 50) (97 50 50) (98 50 50) (99 50 50) (100 50 50))
+
+Anche la simulazione dimostra che ogni numero vince e perde un numero uguale di volte.
+
+A questo punto è possibile associare ad ogni numero un simbolo diverso e determinare le relazioni (vittoria e sconfitta) tra tutti i simboli.
+
 =============================================================================
 

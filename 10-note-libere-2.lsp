@@ -5080,7 +5080,7 @@ Si supponga che i numeri primi non siano infiniti, ma solo P=(p1,p2,... ,pn). pn
 Poniamo M = p1*p2*...*pn (prodotto degli n numeri primi).
 Consideriamo il valore (M + 1) = (p1*p2*...*pn) + 1: è un numero primo o è un numero composto?
 
-Per completare il ragionamento abbiamo bisogno del Teorema Fondamentale dell’Aritmetica:
+Per completare il ragionamento abbiamo bisogno del Teorema Fondamentale dell'Aritmetica:
 un numero o è primo o è ottenuto univocamente dal prodotto di numeri primi (composto).
 
 Inoltre possiamo notare che per ogni numero primo pi risulta che la divisione (M + 1)/pi ha sempre resto 1.

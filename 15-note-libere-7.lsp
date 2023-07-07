@@ -2224,7 +2224,7 @@ Quindi possiamo concludere che:
 
   (-) × (-) = (+)
 
-Nota: più che una dimostrazione sembra di aver trovato il risultato per esclusione di tutti gli altri casi possibili (tipo Sherlock Holmes: "Quando hai escluso l’impossibile ciò che resta, per quanto improbabile, è la verità").
+Nota: più che una dimostrazione sembra di aver trovato il risultato per esclusione di tutti gli altri casi possibili (tipo Sherlock Holmes: "Quando hai escluso l'impossibile ciò che resta, per quanto improbabile, è la verità").
 
 
 ---------------------------------

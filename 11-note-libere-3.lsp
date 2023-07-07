@@ -770,7 +770,7 @@ Per ogni quadrimestre (1/3 di anno) al tasso di r/3 avremmo C(1/3) = C*(1+r/3) e
 
 Se gli interessi maturassero ogni 1/n di anno al tasso di r/n dopo ogni m frazioni di anno avremmo C(m/n) = C(1+r/n)^m e dopo un anno C1 = C*(1+r/n)n.
 
-Per una maturazione continua (interesse composto) basta passare al limite per n tendente all’infinito e dopo un anno avremmo un capitale di: C(1) = C*lim(1+r/n)^n.
+Per una maturazione continua (interesse composto) basta passare al limite per n tendente all'infinito e dopo un anno avremmo un capitale di: C(1) = C*lim(1+r/n)^n.
 
 Se poniamo r = 1 questo limite è proprio il numero di Eulero "e".
 

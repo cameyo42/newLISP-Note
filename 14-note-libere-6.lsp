@@ -133,7 +133,7 @@ Partendo con 14316 otteniamo una sequenza formata da 28 termini diversi: 14316, 
 
 Possiamo anche trovare sequenze aliquot formate da due soli termini, come:
 220,284,220,...  –  1184,1210,1184...  –  2620,2924,2620... –  5020,5564,5020... etc
-In tal caso i due termini della serie vengono chiamati numeri amici (amichevoli, amicabili) ed ognuno è la somma dei divisori dell’altro.
+In tal caso i due termini della serie vengono chiamati numeri amici (amichevoli, amicabili) ed ognuno è la somma dei divisori dell'altro.
 
 Infine vi sono rare sequenze aliquot formate da un solo numero:
 6,6...  –  28,28...  –  496,496...  –  8128,8128...  –  33550336,33550336...  etc
@@ -143,7 +143,7 @@ In qualche raro caso, anche se il numero di partenza non è ne perfetto, ne amic
 
 Abbiamo individuato cinque tipi di sequenze aliquot e la congettura di Catalan asserisce che questi sono gli unici.
 
-Esistono però alcuni rari numeri che sembrano sfuggire a questa congettura: le loro sequenze aliquot, almeno per quanto se ne sa fin’ora, sembrano non terminare mai. I primi di essi sono: 276, 552, 564, 660 e 966. Per questi numeri sono stati calcolati decine di migliaia di termini della loro sequenza aliquot, ma ancora non si è riusciti a stabilire se la sequenza alla fine terminerà in uno dei modi predetti o proseguirà all’infinito.
+Esistono però alcuni rari numeri che sembrano sfuggire a questa congettura: le loro sequenze aliquot, almeno per quanto se ne sa fin'ora, sembrano non terminare mai. I primi di essi sono: 276, 552, 564, 660 e 966. Per questi numeri sono stati calcolati decine di migliaia di termini della loro sequenza aliquot, ma ancora non si è riusciti a stabilire se la sequenza alla fine terminerà in uno dei modi predetti o proseguirà all'infinito.
 
 (define (factor-i num)
 "Factorize a big integer number"
@@ -1635,7 +1635,7 @@ Si definisce ordine di "a modulo P" il più piccolo esponente x tale che:
 
  a^x ≡ 1 (modulo P)
 
-Se l’ordine di "a modulo P" è proprio (P-1), allora "a" si definisce "radice primitiva di P".
+Se l'ordine di "a modulo P" è proprio (P-1), allora "a" si definisce "radice primitiva di P".
 
 Per esempio con il numero primo 13 abbiamo:
 
@@ -1869,9 +1869,9 @@ Verifichiamo i risultati precedenti:
 ;-> 2
 
 Le radici primitive sono anche collegate con il "periodo della frazione 1/P":
-in generale, la lunghezza del periodo di 1/P è uguale all’ordine di 10 modulo P.
+in generale, la lunghezza del periodo di 1/P è uguale all'ordine di 10 modulo P.
 
-Nell’esempio precedente abbiamo visto che l’ordine di 10 modulo 13 è 6 e possiamo verificare che la lunghezza del periodo della frazione 1/ 13 è proprio 6:
+Nell'esempio precedente abbiamo visto che l'ordine di 10 modulo 13 è 6 e possiamo verificare che la lunghezza del periodo della frazione 1/ 13 è proprio 6:
 
 1/13 = 0.(076923)076923076923076923…
 
@@ -2699,7 +2699,7 @@ Nota: se il problema è complesso, allora la simulazione è spesso l'unica strad
 
 Nota: il metodo di Monte Carlo è utile anche per verificare un'eventuale soluzione analitica del problema e viceversa (dipende se ci fidiamo di più delle nostre capacità matematiche o di quelle di programmatore).
 
-Vediamo un altro esempio da un problema del 1708 dal libro "Essay d’analyse sur les jeux de hazard" (Analisi dei giochi d'azzardo) del matematico francese Pierre Remond de Montmort (1678–1719). Nel libro Montmort descrive il seguente processo:
+Vediamo un altro esempio da un problema del 1708 dal libro "Essay d'analyse sur les jeux de hazard" (Analisi dei giochi d'azzardo) del matematico francese Pierre Remond de Montmort (1678–1719). Nel libro Montmort descrive il seguente processo:
 dato un mazzo coperto e mischiato di carte numerate da 1 a 13, estrarre una carta alla volta e indicare l'ordine dalla carta (1, 2, 3, ... fino a 13).
 Se ripetiamo questo processo tante volte, quante carte, in media, qual'è la probabilità che nessuna carta abbia lo stesso valore del relativo numero ordinale di estrazione?
 In altre parole, qual'è la probabilità che nessuna delle k carte estratte abbia valore k ?

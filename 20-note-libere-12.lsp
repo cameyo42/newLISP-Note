@@ -24,7 +24,7 @@ The Paradox of the Question
 
 From "The Paradox of the Question" by Markosian Ned (1997), Analysis 57: 95–7.
 
-Once upon a time, during a large and international conference of the world’s leading philosophers, an Angel miraculously appeared and said:
+Once upon a time, during a large and international conference of the world's leading philosophers, an Angel miraculously appeared and said:
 "I come to you as a messenger from God. You will be permitted to ask any one question you want – but only one! – and I will answer that question truthfully. What would you like to ask?"
 ...
 
@@ -3492,7 +3492,7 @@ The second important part of the LISP language is the source language itself whi
 Third, LISP can interpret and execute programs written in the form of Sexpressions. Thus, like machine language, and unlike most other higher level languages, it can be used to generate programs for further execution.
 ------------
 
-John McCarthy wrote in the LISP 1.5 programmer’s manual that LISP differs from most programming languages in three ways:
+John McCarthy wrote in the LISP 1.5 programmer's manual that LISP differs from most programming languages in three ways:
 
 1) The first way is the data. In the LISP language, all data are in the form of symbolic expressions usually referred to as S-expressions.
 
@@ -4535,16 +4535,16 @@ Risiko!
 -------
 
 Dal Regolamento del Risiko!:
-l’attaccante comunica ad alta voce il nome del territorio attaccato e quello da cui parte l’attacco.
+l'attaccante comunica ad alta voce il nome del territorio attaccato e quello da cui parte l'attacco.
 Se omette di fare questo annuncio prima di aver lanciato i dadi, il difensore può chiedere la ripetizione del lancio.
-L’attaccante tira tanti dadi quante sono le armate con cui ha deciso di attaccare (massimo 3).
+L'attaccante tira tanti dadi quante sono le armate con cui ha deciso di attaccare (massimo 3).
 Esempio: un attaccante possiede 10 armate su un territorio e attacca con 3 armate, lanciando 3 dadi, ma se lo avesse desiderato, avrebbe potuto anche attaccare solo con una o due, lanciando un corrispondente numero di dadi.
-Il difensore, a sua volta, può lanciare un massimo di 3 dadi, anche se possiede più di 3 armate in difesa del territorio attaccato. Il difensore deve tuttavia dichiarare con quante armate intende combattere prima che l’attaccante abbia lanciato i dadi.
+Il difensore, a sua volta, può lanciare un massimo di 3 dadi, anche se possiede più di 3 armate in difesa del territorio attaccato. Il difensore deve tuttavia dichiarare con quante armate intende combattere prima che l'attaccante abbia lanciato i dadi.
 Quando i due giocatori hanno lanciato i dadi, si confrontano i punteggi ottenuti in base al seguente criterio:
-a) Il dado con il punteggio più alto ottenuto dall’attaccante si confronta con il punteggio più alto del difensore: se è maggiore il punteggio dell’attaccante, il difensore dovrà togliere dal territorio attaccato una delle sue armate (riponendola fra quelle in dotazione). In caso contrario, sarà l’attaccante a dover ritirare una delle sue armate dal territorio dal quale ha sferrato l’attacco.
+a) Il dado con il punteggio più alto ottenuto dall'attaccante si confronta con il punteggio più alto del difensore: se è maggiore il punteggio dell'attaccante, il difensore dovrà togliere dal territorio attaccato una delle sue armate (riponendola fra quelle in dotazione). In caso contrario, sarà l'attaccante a dover ritirare una delle sue armate dal territorio dal quale ha sferrato l'attacco.
 b) In caso di pareggio vince sempre il difensore.
-c) Se entrambi hanno lanciato più di un dado si confronta il secondo punteggio più alto dell’attaccante con il secondo punteggio più alto del difensore seguendo la stessa procedura.
-d) Se entrambi hanno lanciato 3 dadi, si confronta anche il terzo punteggio più alto dell’attaccante con il terzo punteggio più alto del difensore seguendo la stessa procedura.
+c) Se entrambi hanno lanciato più di un dado si confronta il secondo punteggio più alto dell'attaccante con il secondo punteggio più alto del difensore seguendo la stessa procedura.
+d) Se entrambi hanno lanciato 3 dadi, si confronta anche il terzo punteggio più alto dell'attaccante con il terzo punteggio più alto del difensore seguendo la stessa procedura.
 I punteggi non si sommano mai, si confrontano in ordine di grandezza.
 
 Vediamo alcune funzioni di simulazione.
@@ -7334,7 +7334,7 @@ Il paradosso di Simpson e la fallacia di Berkson
 
 Il paradosso di Simpson viene descritto per la prima volta dallo statistico Edward Simpson in un articolo del 1951 intitolato "The Interpretation of Interaction in Contingency Tables".
 Simpson ha descritto uno scenario in cui i risultati di uno studio scientifico sembrano supportare una conclusione, ma quando i risultati vengono divisi per tenere conto di una particolare variabile, i risultati mostrano una conclusione diversa.
-Il paradosso di Simpson si manifesta quando la relazione tra due variabili nell’intera popolazione è molto diversa dalla relazione tra le stesse variabili nelle sottopopolazioni definite da una terza variabile, tanto che le conclusioni sono opposte.
+Il paradosso di Simpson si manifesta quando la relazione tra due variabili nell'intera popolazione è molto diversa dalla relazione tra le stesse variabili nelle sottopopolazioni definite da una terza variabile, tanto che le conclusioni sono opposte.
 Il paradosso di Simpson viene descritto anche come un metodo per dimostrare, con gli stessi dati, conclusioni opposte.
 
 Vediamo alcuni esempi.
@@ -7393,14 +7393,14 @@ Vediamo cosa accade:
 
   X = mezzo di soccorso (elicottero/ambulanza)
   Y = esito (morto/sopravvissuto)
-  Z = gravità dell’incidente (grave/non grave)
+  Z = gravità dell'incidente (grave/non grave)
 
-La relazione tra X e Y nell’intera popolazione (1300 persone) è ben diversa dalla relazione tra X e Y nella sottopopolazione con incidente grave (Z= "grave", 200 persone) e in quella con incidente non grave (Z="non grave", 1100 persone).
+La relazione tra X e Y nell'intera popolazione (1300 persone) è ben diversa dalla relazione tra X e Y nella sottopopolazione con incidente grave (Z= "grave", 200 persone) e in quella con incidente non grave (Z="non grave", 1100 persone).
 
 2) Discriminazione sessuale
 ---------------------------
-Negli anni Settanta l’università di Berkeley ha analizzato i dati relativi alle assunzioni nei vari dipartimenti, scoprendo che il tasso di ammissione delle femmine era sostanzialmente inferiore a quello dei maschi.
-L’università poteva essere accusata di discriminazione sessuale!
+Negli anni Settanta l'università di Berkeley ha analizzato i dati relativi alle assunzioni nei vari dipartimenti, scoprendo che il tasso di ammissione delle femmine era sostanzialmente inferiore a quello dei maschi.
+L'università poteva essere accusata di discriminazione sessuale!
 
 Consideriamo un esempio con 200 candidati, di cui 100 maschi e 100 femmine
 
@@ -7434,7 +7434,7 @@ Adesso introduciamo una nuova variabile (dipartimento: sociologia o fisica):
   | %-assunti   | 25.0%   | 37.5%   | 62.5%  | 75.0%   | 55.0%  | 45.0%   |
   +-------------+---------+---------+--------+---------+--------+---------+
 
-L’analisi dei dati mostra che non c'♪ alcuna discriminazione sessuale.
+L'analisi dei dati mostra che non c'♪ alcuna discriminazione sessuale.
 Infatti, considerando i tassi di ammissione per dipartimento, la situazione è rovesciata poiché nella maggior parte dei dipartimenti (nell'esempio solo Sociologia e Fisica) le femmine facevano registrare un tasso di successo più elevato (il tasso di assunzione globale risultava inferiore perché le femmine facevano domanda soprattutto nei dipartimenti più "difficili", cioè con molti candidati per ogni posizione).
 Il tasso di successo complessivo si ottiene come media pesata dei tassi di successo nei due dipartimenti, usando pesi proporzionali al numero di partecipanti.
 Ad es., le femmine hanno un tasso di successo di 0.375 a sociologia (dove partecipano in 80) e 0.75 a fisica (dove partecipano in 20):
@@ -7457,9 +7457,9 @@ Interpretazione in termini di effetti causali
 Essere femmina influenza probabilità di assunzione in due modi:
 a) Effetto diretto (la freccia (a))
 b) Effetto indiretto tramite la scelta del dipartimento (le frecce (b))
-L’effetto di interesse per valutare la discriminazione è quello diretto.
-Tuttavia, studiando la relazione tra femmina e assunzione senza considerare il dipartimento non si ottiene l’effetto diretto, ma quello complessivo (diretto + indiretto).
-Per ottenere l’effetto diretto l’analisi va svolta condizionatamente al dipartimento, cioè si deve studiare la relazione tra femmina e assunzione separatamente per ogni dipartimento.
+L'effetto di interesse per valutare la discriminazione è quello diretto.
+Tuttavia, studiando la relazione tra femmina e assunzione senza considerare il dipartimento non si ottiene l'effetto diretto, ma quello complessivo (diretto + indiretto).
+Per ottenere l'effetto diretto l'analisi va svolta condizionatamente al dipartimento, cioè si deve studiare la relazione tra femmina e assunzione separatamente per ogni dipartimento.
 
 3) Razzismo e pena di morte
 ---------------------------
@@ -7517,11 +7517,11 @@ La fallacia di Berkson
 
 Paradosso di Simpson: la relazione tra due variabili di interesse X e Y si inverte quando ci si condiziona ad una terza variabile Z.
 
-Negli esempi visti fino ad ora l’analisi che ignora Z è sbagliata, mentre l’analisi che condiziona a Z è corretta.
-Questo è ciò che accade di solito, ma ci sono situazioni in accade il contrario, ovvero è l’analisi condizionata a Z a produrre risultati fuorvianti.
+Negli esempi visti fino ad ora l'analisi che ignora Z è sbagliata, mentre l'analisi che condiziona a Z è corretta.
+Questo è ciò che accade di solito, ma ci sono situazioni in accade il contrario, ovvero è l'analisi condizionata a Z a produrre risultati fuorvianti.
 
-Un caso interessante è la fallacia di Berkson, in cui Z denota l’appartenenza al campione osservato.
-Esempio fittizio con X: diabete, Y: ipertensione, questa è la tabella doppia nell’intera popolazione.
+Un caso interessante è la fallacia di Berkson, in cui Z denota l'appartenenza al campione osservato.
+Esempio fittizio con X: diabete, Y: ipertensione, questa è la tabella doppia nell'intera popolazione.
 
           Ipertensione
  Diabete   No  Sì Tot
@@ -7531,7 +7531,7 @@ Esempio fittizio con X: diabete, Y: ipertensione, questa è la tabella doppia ne
 
 Nella popolazione le due patologie sono indipendenti: la proporzione di ipertesi è la stessa tra i non diabetici (180/600=0.3) e diabetici (280/400=0.3).
 
-Supponiamo di non poter osservare l’intera popolazione, ma solo coloro che sono ricoverati in ospedale (Z=1) e consideriamo due scenari.
+Supponiamo di non poter osservare l'intera popolazione, ma solo coloro che sono ricoverati in ospedale (Z=1) e consideriamo due scenari.
 
 Scenario A:
 sono in ospedale tutti coloro che hanno almeno una delle due patologie.
@@ -7545,7 +7545,7 @@ sono in ospedale tutti coloro che hanno almeno una delle due patologie.
 Nella sottopopolazione in ospedale le due patologie sono positivamente associate: la proporzione di ipertesi è maggiore tra i non diabetici (180/180=1) che tra i diabetici (120/400=0.3).
 
 Scenario B:
-sono in ospedale tutti coloro che hanno entrambe le due patologie + 1 su 10 di coloro che hanno una sola patologia + altri 12 soggetti che non hanno ne l’una né l’altra.
+sono in ospedale tutti coloro che hanno entrambe le due patologie + 1 su 10 di coloro che hanno una sola patologia + altri 12 soggetti che non hanno ne l'una né l'altra.
 
            Ipertensione
   Diabete   No  Sì Tot
@@ -7567,9 +7567,9 @@ Interpretazione in termini di effetti causali
             | Ricovero in ospedale |
             +----------------------+
 
-In questo esempio non c’è associazione tra diabete e ipertensione (nessuna freccia). Tuttavia, diabete e ipertensione hanno un effetto comune (ricovero in ospedale), per cui l’analisi condizionata allo stato di ricovero in ospedale crea una associazione fittizia tra diabete e ipertensione.
-In questo caso l’analisi condizionata (cioè sui soggetti ricoverati in ospedale) è sbagliata, mentre quella non condizionata (cioè su tutta la popolazione) è corretta.
-La fallacia di Berkson è detta anche distorsione da selezione campionaria: in generale, si verifica quando l’appartenere o meno al campione osservato dipende dal valore delle variabili di interesse, per cui la relazione tra le variabili nel campione è diversa dalla relazione nella popolazione.
+In questo esempio non c'è associazione tra diabete e ipertensione (nessuna freccia). Tuttavia, diabete e ipertensione hanno un effetto comune (ricovero in ospedale), per cui l'analisi condizionata allo stato di ricovero in ospedale crea una associazione fittizia tra diabete e ipertensione.
+In questo caso l'analisi condizionata (cioè sui soggetti ricoverati in ospedale) è sbagliata, mentre quella non condizionata (cioè su tutta la popolazione) è corretta.
+La fallacia di Berkson è detta anche distorsione da selezione campionaria: in generale, si verifica quando l'appartenere o meno al campione osservato dipende dal valore delle variabili di interesse, per cui la relazione tra le variabili nel campione è diversa dalla relazione nella popolazione.
 
 
 ------------------------------------
@@ -8612,10 +8612,10 @@ Un giorno, stanco di tanta inerzia, annunciò a tutti che avrebbe donato qualunq
 A corte si presentò uno stuolo di personaggi d'ogni genere, eruditi saggi e stravaganti fachiri, improbabili maghi e spericolati saltimbanchi, sfarzosi nobili e zotici plebei, ma nessuno riuscì a rallegrare l'annoiato Principe.
 Finché si fece avanti un mercante (Sissa), famoso per le sue invenzioni. Aprì una scatola, estrasse una tavola con disegnate alternatamente 64 caselle bianche e nere, vi appoggiò sopra 32 figure di legno variamente intagliate, e si rivolse al nobile reggente: "Vi porgo i miei omaggi, o potentissimo Signore, nonché questo gioco di mia modesta invenzione. L'ho chiamato il gioco degli scacchi".
 Poi stese a terra un tappeto sul quale aveva disegnato un "reticolato" composto da 64 piccoli quadrati alternativamente bianchi e neri , poi estrasse via via delle statuine spiegando che rappresentavano schematicamente due eserciti contrapposti pronti alla battaglia.
-La conformazione dell’esercito presentata dal mercante era ovviamente stabilita secondo la concezione  dell’epoca, quindi guerrieri a piedi, truppe a cavallo e su elefante, carri per il trasporto delle vettovaglie e delle salmerie e poi il sovrano con il suo generale.
+La conformazione dell'esercito presentata dal mercante era ovviamente stabilita secondo la concezione  dell'epoca, quindi guerrieri a piedi, truppe a cavallo e su elefante, carri per il trasporto delle vettovaglie e delle salmerie e poi il sovrano con il suo generale.
 Sistemò quei pezzi e cominciò a spiegare le regole del movimento di ciascuno e lo scopo del "gioco", che era evidentemente uccidere il re (lo scià) nemico.
 Chi fosse riuscito avrebbe potuto gridare "Shah mat!", "il Re è morto!"
-E proprio dall’espressione “Shah mat!” per assonanza deriverà “scacco matto!”.
+E proprio dall'espressione “Shah mat!” per assonanza deriverà “scacco matto!”.
 Il Principe guardò perplesso il mercante e gli chiese spiegazioni sulle regole.
 Il mercante gliele mostrò, sconfiggendolo in una partita dimostrativa.
 Punto sull'orgoglio il Principe chiese la rivincita, perdendo nuovamente.
@@ -8675,7 +8675,7 @@ Nel 2020 la produzione mondiale di grano è stata di 760 milioni di tonnellate:
  9) GERMANIA (22172100 tonnellate)
 10) TURCHIA  (20500000 tonnellate)
 
-Interessante notare che se venisse conteggiata la produzione di grano dell’Unione Europea come fosse un unico paese, con le sue 126658950 tonnellate (l’Italia ne ha prodotte 6716180 tonnellate), sarebbe il secondo produttore di grano del mondo.
+Interessante notare che se venisse conteggiata la produzione di grano dell'Unione Europea come fosse un unico paese, con le sue 126658950 tonnellate (l'Italia ne ha prodotte 6716180 tonnellate), sarebbe il secondo produttore di grano del mondo.
 
 
 ----------------------

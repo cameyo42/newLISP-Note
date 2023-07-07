@@ -4,12 +4,12 @@
 
 ====================================================
 
-Informatica (definizione formale dell’Association for Computing Machinery - ACM):
-è lo studio sistematico degli algoritmi che descrivono e trasformano l’informazione, la loro teoria e analisi, il loro progetto, e la loro efficienza, realizzazione e applicazione.
+Informatica (definizione formale dell'Association for Computing Machinery - ACM):
+è lo studio sistematico degli algoritmi che descrivono e trasformano l'informazione, la loro teoria e analisi, il loro progetto, e la loro efficienza, realizzazione e applicazione.
 
 Molte persone confondono l'informatica con quelle aree professionali che riguardano l'utilizzo dei programmi per l'ufficio (es. Office), la navigazione sul web o il gaming. In realtà, l'informatica vera e propria (che si distingue in teorica e applicata) è lo studio e la progettazione di algoritmi e linguaggi capaci di permettere a un computer di eseguire operazioni in modo automatico. In questo senso l'informatica (Computer Science) richiede notevoli conoscenze e competenze in materie come la matematica, la logica, la linguistica, la psicologia, l'elettronica, l'automazione, la telematica, e altre.
 
-Mentre occorrono notevoli conoscenze teoriche e tecniche per appartenere alla categoria degli informatici, per appartenere a quella degli utenti finali ne occorrono decisamente di meno – talvolta solo il minimo indispensabile – e questo grazie al lavoro dei primi, costantemente orientato a rendere sempre più semplice l’uso del computer per tutti.
+Mentre occorrono notevoli conoscenze teoriche e tecniche per appartenere alla categoria degli informatici, per appartenere a quella degli utenti finali ne occorrono decisamente di meno – talvolta solo il minimo indispensabile – e questo grazie al lavoro dei primi, costantemente orientato a rendere sempre più semplice l'uso del computer per tutti.
 
 Un informatico dovrebbe sempre avere un interesse profondo per i fondamenti teorici dell'informatica. Che poi, per professione o per passione, spesso faccia lo sviluppatore di software è possibile, ma non è così scontato, poichè può sfruttare le proprie capacità di problem solving in diversi ambiti. In ogni caso l'informatica, almeno nella sua parte applicativa, è una disciplina fortemente orientata al problem solving.
 

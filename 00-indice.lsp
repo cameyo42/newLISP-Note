@@ -1915,6 +1915,8 @@ NOTE LIBERE 17
   FORTRAN typing rule
   Numeri per posizione
   Numeri simili
+  Multiplayer Rock-Paper-Scissors
+  Numeri/simboli intransitivi
 
 PROBLEMI SUI DADI
 =================

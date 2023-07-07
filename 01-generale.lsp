@@ -2946,14 +2946,14 @@ NB. I circa 4 miliardi di configurazioni (usati a 32-bit) consentono di coprire 
 
 newLISP rappresenta e usa tutti i numeri floating point in precisione doppia (double a 64-bit).
 
-Nota: Si osservi che nell’intervallo [0.125, 0.25) abbiamo 2 numeri.
-Nell’intervallo [0.25, 0.5), che è il doppio di quello precedente abbiamo ancora 2 numeri.
-Nell’intervallo [0.5, 1) che è ancora il doppio di quello precedente abbiamo la possibilità di rappresentare ancora 2 numeri.
-Nell’intervallo [1, 2) abbiamo infine ancora 2 numeri.
+Nota: Si osservi che nell'intervallo [0.125, 0.25) abbiamo 2 numeri.
+Nell'intervallo [0.25, 0.5), che è il doppio di quello precedente abbiamo ancora 2 numeri.
+Nell'intervallo [0.5, 1) che è ancora il doppio di quello precedente abbiamo la possibilità di rappresentare ancora 2 numeri.
+Nell'intervallo [1, 2) abbiamo infine ancora 2 numeri.
 Man mano che ci muoviamo nella direzione crescente di valori in potenze di due (da 0.125 a 2) la densità dei numeri diminuisce. Abbiamo quindi una distribuzione non uniforme.
 Questa considerazione ci fa pensare al concetto di precisione.
-Nell’intervallo [0.125, 0.25) possiamo rappresentare solo 0.125 e 0.1875, ma non possiamo rappresentare l’entità 0.1415 se non attraverso un errore in difetto (0.125) o in eccesso (0.1875).
-È evidente che non potremo rappresentare perfettamente tutti i numeri reali ma ci dovremo accontentare di un’approssimazione, tanto più efficiente quanti più bit destiniamo alla mantissa.
+Nell'intervallo [0.125, 0.25) possiamo rappresentare solo 0.125 e 0.1875, ma non possiamo rappresentare l'entità 0.1415 se non attraverso un errore in difetto (0.125) o in eccesso (0.1875).
+È evidente che non potremo rappresentare perfettamente tutti i numeri reali ma ci dovremo accontentare di un'approssimazione, tanto più efficiente quanti più bit destiniamo alla mantissa.
 
 Vediamo un esempio, scriviamo una funzione che prende un valore x ed effettua le seguenti operazioni:
 1) imposta val = 1
@@ -3715,8 +3715,8 @@ Per risolvere questo problema potremmo utilizzare le frazioni intere per i calco
 ===================
 
 Consideriamo le operazioni (add, sub, mul e div) e due numeri floating-point x e y.
-In generale il risultato di una operazione (es. (add x y)) può considerarsi come il risultato esatto dell’operazione tra x ed y seguito dall’arrotondamento o dal troncamento.
-Quindi è improbabile che l’esatto valore di (add x y) sia un numero floating-point.
+In generale il risultato di una operazione (es. (add x y)) può considerarsi come il risultato esatto dell'operazione tra x ed y seguito dall'arrotondamento o dal troncamento.
+Quindi è improbabile che l'esatto valore di (add x y) sia un numero floating-point.
 Mentre gli errori nei singoli numeri in virgola mobile sono molto piccoli, anche calcoli semplici su di essi possono contenere insidie che aumentano l'errore nel risultato ben oltre l'avere i singoli errori "sommati".
 Per cercare di contenere la propagazione degli errori ricordiamo le seguenti regole generali:
 
@@ -6965,7 +6965,7 @@ Metacarattere   Significato
   .             qualsiasi carattere (tranne newline)
   *             zero o più occorrenze (carattere o gruppo di caratteri)
   ?             zero o una occorrenza (carattere o gruppo di caratteri)
-  {}            numero esatto o minimo o massimo o l’intervallo di occorrenze (carattere o gruppo di caratteri)
+  {}            numero esatto o minimo o massimo o l'intervallo di occorrenze (carattere o gruppo di caratteri)
   +             una o più occorrenze (carattere o gruppo di caratteri)
   ^             inizio della stringa (o la negazione di un gruppo di caratteri)
   $             fine della stringa
@@ -6982,21 +6982,21 @@ Esaminiamo meglio i singoli metacaratteri.
 Le parentesi quadre [], come si è accennato, racchiudono una 'classe' di caratteri. Questo vuol dire che il modello può o deve contenere alcuni o tutti i caratteri in esse contenute. Vediamo alcuni esempi:
 
 [abc]
-questo modello è soddisfatto quando viene trovata una delle lettere, senza tener conto dell’ordine in cui sono presenti:
+questo modello è soddisfatto quando viene trovata una delle lettere, senza tener conto dell'ordine in cui sono presenti:
 
 [a-z]
-in questo modello è presente un intervallo di caratteri (notare il segno -, sta per "dalla a alla z"), esso è soddisfatto quando viene trovato uno qualsiasi dei caratteri compresi nell’intervallo;
+in questo modello è presente un intervallo di caratteri (notare il segno -, sta per "dalla a alla z"), esso è soddisfatto quando viene trovato uno qualsiasi dei caratteri compresi nell'intervallo;
 
 [0-9]
-in questo modello è presente invece un intervallo di numeri, esso è soddisfatto quando viene trovato uno qualsiasi dei numeri compresi nell’intervallo;
+in questo modello è presente invece un intervallo di numeri, esso è soddisfatto quando viene trovato uno qualsiasi dei numeri compresi nell'intervallo;
 
 [a-z0-9?]
 questo modello è leggermente più complesso, ma dovrebbe essere di facile comprensione. La corrispondenza viene trovata quando la stringa contiene una lettera (minuscola in questo caso), un numero o il carattere ? (notate il segno prima di ?, perché il punto interrogativo è un carattere speciale, che qui però assumiamo per il suo valore letterale);
 
 [^a-z]
-questo modello è soddisfatto quando viene trovato un qualsiasi carattere che non sia una lettera minuscola (notate il segno ^ che all’interno della classe, la nega);
+questo modello è soddisfatto quando viene trovato un qualsiasi carattere che non sia una lettera minuscola (notate il segno ^ che all'interno della classe, la nega);
 
-Naturalmente una classe di caratteri può essere seguita (e normalmente lo è) da uno dei metacaratteri che indicano il numero di volte in cui uno dei caratteri in essa contenuti, deve essere presente, riprendendo l’ultimo modello:
+Naturalmente una classe di caratteri può essere seguita (e normalmente lo è) da uno dei metacaratteri che indicano il numero di volte in cui uno dei caratteri in essa contenuti, deve essere presente, riprendendo l'ultimo modello:
 
 [a-z0-9?]?
 i caratteri contenuti nella classe devono essere presenti zero o una volta;
@@ -7016,7 +7016,7 @@ i caratteri contenuti nella classe devono essere presenti minimo tre volte;
 [a-z0-9?]{,3}
 i caratteri contenuti nella classe devono essere presenti massimo tre volte.
 
-Le parentesi graffe, come abbiamo già visto, indicano il numero esatto, minimo, massimo o l’intervallo di volte in cui una un’esatta sequenza o una classe di caratteri, devono essere presenti in una stringa:
+Le parentesi graffe, come abbiamo già visto, indicano il numero esatto, minimo, massimo o l'intervallo di volte in cui una un'esatta sequenza o una classe di caratteri, devono essere presenti in una stringa:
 
 {3} esattamente 3 volte;
 {3,} minimo 3 volte;
@@ -7026,27 +7026,27 @@ Le parentesi graffe, come abbiamo già visto, indicano il numero esatto, minimo,
 "()"
 Le parentesi tonde, invece, fanno riferimento ad una sottostringa, o una parte di stringa se preferite, che viene assunta per il suo esatto valore letterale.
 
-Quindi ad esempio (abc) si riferisce all’esatta sequenza di caratteri abc, a differenza, come abbiamo visto, di [abc] che si riferisce invece ad uno dei tre caratteri.
+Quindi ad esempio (abc) si riferisce all'esatta sequenza di caratteri abc, a differenza, come abbiamo visto, di [abc] che si riferisce invece ad uno dei tre caratteri.
 
-Ovviamente anche le parentesi tonde, possono essere usate con quei metacaratteri che indicano il numero di volte in cui la sottostringa deve ripetersi, per cui l’espressione (casa)? indica la presenza opzionale della parola casa (o, il che è lo stesso, che la parola deve essere presente zero o una volta).
+Ovviamente anche le parentesi tonde, possono essere usate con quei metacaratteri che indicano il numero di volte in cui la sottostringa deve ripetersi, per cui l'espressione (casa)? indica la presenza opzionale della parola casa (o, il che è lo stesso, che la parola deve essere presente zero o una volta).
 
 Ma le parentesi tonde sono molto importanti anche e soprattutto perche le parti di stringa (o le espressioni) in esse contenute, possono essere "utilizzate" per vari scopi (un replace per dirne uno), ma lo vedremo più avanti quando faremo un cenno alle funzioni PHP sulle Espressioni Regolari.
 
 Descriviamo adesso brevemente, gli altri metacaratteri.
 
 "."
-Partiamo dal punto che sta per qualsiasi carattere escluso un accapo, per cui, ad esempio, l’espressione (.)+ indica qualsiasi carattere ripetuto una o più volte (nella pratica è difficile che questo modello non trovi corrispondenza…).
+Partiamo dal punto che sta per qualsiasi carattere escluso un accapo, per cui, ad esempio, l'espressione (.)+ indica qualsiasi carattere ripetuto una o più volte (nella pratica è difficile che questo modello non trovi corrispondenza…).
 
 "|"
-Dei caratteri *,? e + abbiamo già detto in relazioni alle classi e alle sottostringhe. Il carattere | (pipe) indica l’operatore OR e consente, quindi, di presentare più alternative per un’espressione: ad esempio (bello|normale|brutto) va letta come "bello o normale o brutto" ed è quindi soddisfatta quando solo una delle tre parole viene trovata nella stringa analizzata.
+Dei caratteri *,? e + abbiamo già detto in relazioni alle classi e alle sottostringhe. Il carattere | (pipe) indica l'operatore OR e consente, quindi, di presentare più alternative per un'espressione: ad esempio (bello|normale|brutto) va letta come "bello o normale o brutto" ed è quindi soddisfatta quando solo una delle tre parole viene trovata nella stringa analizzata.
 
 "^"
-Sul carattere ^ vale la pena di soffermarsi un attimo perchè, come accennato, esso assume una duplice valenza, a seconda del punto in cui si trovi all’interno dell’Espressione Regolare ed occorre quindi porre molta attenzione nel suo uso.
+Sul carattere ^ vale la pena di soffermarsi un attimo perchè, come accennato, esso assume una duplice valenza, a seconda del punto in cui si trovi all'interno dell'Espressione Regolare ed occorre quindi porre molta attenzione nel suo uso.
 
-Se posto all’inizio del modello, tale carattere indica l’inizio esatto dello stesso: ^(ciao) indica infatti che la stringa deve iniziare con la parola ciao. Ma l’accento circonflesso, se posto all’interno di una classe di caratteri, nega la stessa: [^0-9] indica qualsiasi carattere che non sia un numero.
+Se posto all'inizio del modello, tale carattere indica l'inizio esatto dello stesso: ^(ciao) indica infatti che la stringa deve iniziare con la parola ciao. Ma l'accento circonflesso, se posto all'interno di una classe di caratteri, nega la stessa: [^0-9] indica qualsiasi carattere che non sia un numero.
 
 "$"
-Infine, il carattere $ indica la fine di una stringa, per cui se viene usato in combinazione con ^, è possibile costruire un’Espressione Regolare che indichi un modello esattamente contenuto in una stringa, ad esempio ^Ciao come stai ?$, o che indichi l’esatto inizio e l’esatta fine di una stringa, ad esempio ^(Ciao) [a-zA-Z]+ (come stai ?)$
+Infine, il carattere $ indica la fine di una stringa, per cui se viene usato in combinazione con ^, è possibile costruire un'Espressione Regolare che indichi un modello esattamente contenuto in una stringa, ad esempio ^Ciao come stai ?$, o che indichi l'esatto inizio e l'esatta fine di una stringa, ad esempio ^(Ciao) [a-zA-Z]+ (come stai ?)$
 
 Le Espressioni Regolari, conoscono anche, per così dire, delle abbreviazioni per ottenere ciò che si desidera, in relazione, ad esempio, alle classi di caratteri usate più di frequente. Eccone di seguito un breve schema riepilogativo:
 
@@ -7067,7 +7067,7 @@ Analogamente, esistono delle classi di caratteri predefinite:
 [[:punct:]] indica i caratteri di punteggiatura
 [[:xdigit:]] indica i valori esadecimali
 
-Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l’argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire modelli validi per gli scopi che ci proponiamo. Prima di costruire l’espressione, è fondamentale che abbiate in mente l’esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
+Che ci crediate o no, le poche regole appena esplicate (che non esauriscono l'argomento, comunque) sono sufficienti a permetterci di lavorare con le Espressioni Regolari e a costruire modelli validi per gli scopi che ci proponiamo. Prima di costruire l'espressione, è fondamentale che abbiate in mente l'esatto modello che volete riprodurre, le parti di cui esso si compone, in altre parole, che sappiate esattamente ciò che volete cercare delimitandone correttamente i confini.
 
 Adesso esaminiamo alcuni esempi generali non specifici a newLISP. Le spiegazioni degli esempi sono state lasciate in lingua inglese perchè sono più sintetiche.
 

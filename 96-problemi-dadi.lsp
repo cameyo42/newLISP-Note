@@ -3536,7 +3536,7 @@ Solution =
 ----------
 Problem 54
 ----------
-Let’s make pairs of dice that only sum to prime values.
+Let's make pairs of dice that only sum to prime values.
 If we minimize the sum of all the values on the faces, what dice do we get for 2-sided dice, 3-sided dice, etc.?
 
 Solution =
@@ -3656,10 +3656,10 @@ Solution =
 
 Two dice:
   There is no choice of target sums that would make this game fair.
-  The game is fair if the first player’s target is a sum of 4 or 5, and the second player’s target is a sum of 8, 9 or 10.
+  The game is fair if the first player's target is a sum of 4 or 5, and the second player's target is a sum of 8, 9 or 10.
   In this case prob(4 or 5) = prob(8 or 9 or 10) = 1/3.
 Three dice:
-  If the players throw three dice, and player A’s target is a sum of 4 or 8 while player B’s target is a sum
+  If the players throw three dice, and player A's target is a sum of 4 or 8 while player B's target is a sum
   of 11, then the game is fair (prob(4 or 8) = prob(11)).
 
 (define (p57-1 iter)
@@ -3986,9 +3986,9 @@ The game of craps is perhaps the most famous of all dice games.
 The player begin by throwing two standard dice.
 If the sum of these dice is 7 or 11, the player wins.
 If the sum is 2,3 or 12, the player loses.
-Otherwise, the sum becomes the player’s "point".
+Otherwise, the sum becomes the player's "point".
 The player continues to roll until either the "point" comes up again, in which case the player wins, or the player throws 7, in which case they lose.
-The natural question is: what is a player’s probability of winning?
+The natural question is: what is a player's probability of winning?
 
 Solution = 0.49(29)...
 
@@ -4037,8 +4037,8 @@ Then we can define a game analogous to craps in the following way.
 The player rolls two n-sided dice.
 If the sum of these dice is n + 1 or 2n + 1, the player wins.
 If the sum of these dice is 2, 3 or 2n the player loses.
-Otherwise the sum becomes the player’s point, and they win if they roll that sum again before rolling n + 1.
-We may again ask: what is the player’s probability of winning?
+Otherwise the sum becomes the player's point, and they win if they roll that sum again before rolling n + 1.
+We may again ask: what is the player's probability of winning?
 
 Solution =
 
@@ -4175,7 +4175,7 @@ Problem 65
 ----------
 More Yahtzee.
 What is the probability of getting Yahtzee, assuming that we are trying just to get Yahtzee, we make reasonable choices about which dice to re-roll, and we have three rolls?
-That is, if we’re in the situation where all we have left to get in a game of Yahtzee is Yahtzee, so all other outcomes are irrelevant.
+That is, if we're in the situation where all we have left to get in a game of Yahtzee is Yahtzee, so all other outcomes are irrelevant.
 
 Solution = 347897/7558272 = 0.04602864252569899...
 
@@ -4224,8 +4224,8 @@ Problem 66
 ----------
 Drop Dead.
 In the game of Drop Dead, the player starts by rolling five standard dice.
-If there are no 2’s or 5’s among the five dice, then the dice are summed and this is the player’s score.
-If there are 2’s or 5’s, these dice become "dead" and the player gets no score.
+If there are no 2's or 5's among the five dice, then the dice are summed and this is the player's score.
+If there are 2's or 5's, these dice become "dead" and the player gets no score.
 In either case, the player continues by rolling all non-dead dice, adding points onto the score, until all dice are dead.
 For example, the player might roll (1, 3, 3, 4, 6) and score 17.
 Then they roll all the dice again and get (1, 1, 2, 3, 5) which results in no points and two of the dice dying.
@@ -4233,9 +4233,9 @@ Rolling the three remaining dice, they might get (2, 3, 6) for again no score, a
 Rolling the remaining two they might get (4, 6) which gives them 10 points, bringing the score to 27.
 They roll the two dice again, and get (2, 3) which gives no points and another dead die.
 Rolling the remaining die, they might get (3) which brings the score to 30.
-Rolling again, they get (5) which brings this player’s round to an end with 30 points.
+Rolling again, they get (5) which brings this player's round to an end with 30 points.
 Some natural questions to ask are:
-(a) What is the expected value of a player’s score?
+(a) What is the expected value of a player's score?
 (b) What is the probability of getting a score of 0? 1? 10? 20? etc.
 
 Solution =
@@ -4397,7 +4397,7 @@ Threes.
 In the game of Threes, the player starts by rolling five standard dice.
 In the game, the threes count as zero, while the other faces count normally.
 The goal is to get as low a sum as possible.
-On each roll, at least one die must be kept, and any dice that are kept are added to the player’s sum.
+On each roll, at least one die must be kept, and any dice that are kept are added to the player's sum.
 The game lasts at most five rolls, and the score can be anywhere from 0 to 30.
 For example a game might go like this:
 On the first roll the player rolls 2 - 3 - 3 - 4 - 6.
@@ -4506,7 +4506,7 @@ In the game of Pig, two players take turns rolling a die.
 On a turn, a player may roll the die as many times as they like, provided they have not thrown a one.
 If they end their turn before rolling a one, their turn score is the sum of rolls for that turn.
 If they roll a one, their turn score is zero.
-At the end of the turn, their turn score is added to the player’s total score.
+At the end of the turn, their turn score is added to the player's total score.
 The first player to reach 100 points wins.
 Let's consider the strategy for playing this game in which the player will roll until their turn score is at least M.
 What value of M will maximize their expected turn score?
@@ -4581,7 +4581,7 @@ See "The Game of Pig" in "Problemi vari" and "Il gioco del Pig" in "Note libere 
 Problem 69
 ----------
 Suppose we play a game with a die where we roll and sum our rolls.
-We can stop any time and take the sum as our score, but if we roll a face we’ve rolled before then we lose everything.
+We can stop any time and take the sum as our score, but if we roll a face we've rolled before then we lose everything.
 What strategy will maximize our expected score?
 
 Solution =
@@ -4631,7 +4631,7 @@ Problem 70
 ----------
 (Same as previous game, but with two dice.)
 Suppose we play a game with two dice where we roll and sum our rolls.
-We can stop any time and take the sum as our score, but if we roll a sum we’ve rolled before then we lose everything.
+We can stop any time and take the sum as our score, but if we roll a sum we've rolled before then we lose everything.
 What strategy will maximize our expected score?
 
 Solution =
@@ -4741,7 +4741,7 @@ Problem 72
 ----------
 Suppose we play a game with a die where we roll and sum our rolls as long as we keep rolling larger values.
 For instance, we might roll a sequence like 1-3-4 and then roll a 2, so our sum would be 8.
-If we roll a 6 first, then we’re through and our sum is 6. Three questions about this game:
+If we roll a 6 first, then we're through and our sum is 6. Three questions about this game:
 (a) What is the expected value of the sum?
 (b) What is the expected value of the number of rolls?
 (c) If the game is played with an n-sided die, what happens to the expected number of rolls as n approaches infinity?

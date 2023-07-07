@@ -1855,9 +1855,9 @@ Consideriamo ad esempio il numero 1.42703703703..., con le cifre 703 che si ripe
 - si dice periodo il gruppo di cifre che si ripete (nell'esempio, il periodo è 703)
 - si dice antiperiodo il gruppo di cifre che sta tra la virgola (punto) e il periodo (nell'esempio, l'antiperiodo è 42)
 
-se l’antiperiodo non c’è, si parla di numero periodico semplice (ad esempio 1,6666... è un numero periodico semplice)
+se l'antiperiodo non c'è, si parla di numero periodico semplice (ad esempio 1,6666... è un numero periodico semplice)
 
-se invece l’antiperiodo è presente, si parla di numero periodico misto (ad esempio 1,3777... è un numero periodico misto)
+se invece l'antiperiodo è presente, si parla di numero periodico misto (ad esempio 1,3777... è un numero periodico misto)
 
 L'algoritmo è il seguente:
 
@@ -1865,7 +1865,7 @@ Per costruire la frazione generatrice di un numero decimale periodico si calcola
 
 1) al numeratore, il numero dato senza la virgola (punto) e senza il segno di periodo, meno (sottrazione) tutto ciò che sta prima del periodo;
 
-2) al denominatore, tanti 9 quante sono le cifre del periodo, seguiti da tanti 0 quante sono le cifre dell’antiperiodo.
+2) al denominatore, tanti 9 quante sono le cifre del periodo, seguiti da tanti 0 quante sono le cifre dell'antiperiodo.
 
 3) Dopo aver fatto queste operazioni dobbiamo ridurre la frazione numeratore/denominatore ai minimi termini.
 
@@ -8220,7 +8220,7 @@ Infine scriviamo la funzione che genera tutte le coppie di numeri primi che somm
 Problema dei travasi ed equazioni diofantee
 -------------------------------------------
 
-Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d’acqua?
+Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d'acqua?
 
 In generale, dati due contenitori non graduati e una quantità infinita di liquido, è possibile avere, con una serie di riempimenti, svuotamenti e travasi, una fissata quantità in un solo recipiente?
 
@@ -8285,7 +8285,7 @@ Si dice equazione diofantea (di 1° grado) ogni equazione della forma:
 
 dove a, b, c numeri interi relativi e a e b non entrambi nulli
 
-Si dice soluzione dell’equazione diofantea ogni coppia (x0,y0) con x0 e y0 numeri interi relativi tale che:
+Si dice soluzione dell'equazione diofantea ogni coppia (x0,y0) con x0 e y0 numeri interi relativi tale che:
 
   a*x + b*y = c
 
@@ -8297,7 +8297,7 @@ Un'equazione diofantea di primo grado
 
 con a, b, c numeri interi relativi e a e b non entrambi nulli ha soluzioni se e solo se c è un multiplo del Massimo Comun Denominatore di (a,b).
 
-In tal caso se (x0,y0) è una soluzione dell’equazione, tutte le soluzioni (x(n),y(n)) si trovano con le formule:
+In tal caso se (x0,y0) è una soluzione dell'equazione, tutte le soluzioni (x(n),y(n)) si trovano con le formule:
 
                     b                              a
     x(n) = x0 + ----------*n       y(n) = y0 - ----------*n
@@ -8358,7 +8358,7 @@ Teorema
 Dati tre numeri naturali a, b, c con 0 < c < max(a,b) CNES affinché il problema dei travasi con contenitori di capienza a, b e quantità da realizzare c sia risolubile, è che c sia un multiplo di MCD(a,b).
 
 Applichiamo ora il teorema appena dimostrato al problema dei travasi proposto all'inizio.
-Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d’acqua?
+Avendo a disposizione una fontana e due recipienti, rispettivamente da 9 e da 15 litri, come si può a raccogliere precisamente 12 litri d'acqua?
 In virtù del teorema il problema è risolubile perché 12 è un multiplo di MCD(9,15)=3.
 Mostreremo ora come la strategia destra permette di raggiungere lo stato (0,6) e la
 strategia sinistra lo stato (6,0).

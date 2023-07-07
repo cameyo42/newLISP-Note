@@ -387,7 +387,7 @@ Le altre possibili stringhe di lunghezza 2 sono "00", "11", "20", "21" e "22". T
 Input: n = 1, S = ("0" "1" "2")
 Output: "0" "1" "2"
 
-Esiste un algoritmo efficiente per generare parole di Lyndon (proposto da Jean-Pierre Duval) che può essere utilizzato per generare tutte le parole di Lyndon di lunghezza n con tempo proporzionale al numero di tali parole (vedi "Average cost of Duval’s algorithm for generating Lyndon words" di Berstel e Pocchiola)
+Esiste un algoritmo efficiente per generare parole di Lyndon (proposto da Jean-Pierre Duval) che può essere utilizzato per generare tutte le parole di Lyndon di lunghezza n con tempo proporzionale al numero di tali parole (vedi "Average cost of Duval's algorithm for generating Lyndon words" di Berstel e Pocchiola)
 
 L'algoritmo genera le parole di Lyndon in ordine lessicografico. Se w è una parola di Lyndon, la parola successiva si ottiene con i seguenti passaggi:
 

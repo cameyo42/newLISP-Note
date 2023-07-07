@@ -3810,9 +3810,9 @@ La tecnica Feynman può essere riassunta in 4 passi:
 
 Step 1: scegli un concetto che vuoi approfondire
 ------------------------------------------------
-Quando hai individuato qualcosa che vuoi capire meglio, prendi un foglio di carta bianco o un libro degli appunti e scrivi tutto quello che sai già sull’argomento.
+Quando hai individuato qualcosa che vuoi capire meglio, prendi un foglio di carta bianco o un libro degli appunti e scrivi tutto quello che sai già sull'argomento.
 Man mano che recuperi più informazioni, aggiungile ai tuoi appunti, magari utilizzando penne di colori diversi per rendere visibile la progressione del tuo apprendimento (es. mappa mentale).
-Una volta che pensi di conoscere bene l’argomento, puoi passare al passo 2.
+Una volta che pensi di conoscere bene l'argomento, puoi passare al passo 2.
 
 Passo 2: cerca di spiegarlo ad un bambino di 10/12 anni
 -------------------------------------------------------
@@ -3829,16 +3829,16 @@ Questa è la fase dove avviene il vero apprendimento. Nel passo 2 ci siamo resi 
 
 Passo 4: racconta una storia
 ----------------------------
-Una volta che hai completato gli aggiustamenti del passo 3 sei pronto per raccontare la tua storia: rileggi i tuoi appunti a voce alta. Fai finta di spiegare l’argomento ad una classe di studenti. Se possibile raccontalo a qualcuno per capire le sue reazioni: che domande ti ha chiesto? Su quali parti è andato in confusione?
-Ritorna al passo 2 tutte le volte che lo ritieni necessario, ovvero fino a quando non ti sarai reso conto di conoscere davvero l’argomento e di spiegarlo in modo semplice.
+Una volta che hai completato gli aggiustamenti del passo 3 sei pronto per raccontare la tua storia: rileggi i tuoi appunti a voce alta. Fai finta di spiegare l'argomento ad una classe di studenti. Se possibile raccontalo a qualcuno per capire le sue reazioni: che domande ti ha chiesto? Su quali parti è andato in confusione?
+Ritorna al passo 2 tutte le volte che lo ritieni necessario, ovvero fino a quando non ti sarai reso conto di conoscere davvero l'argomento e di spiegarlo in modo semplice.
 
 Una volta che hai terminato questo processo puoi essere sicuro di aver capito veramente quello che volevi approfondire e di non dimenticherlo più.
 
 Sembra semplice, ma è complicato da mettere in pratica: si fa molta fatica a spiegare una cosa a qualcuno che non ne sa nulla.
-In questa fatica sta una parte del segreto dell’efficacia della tecnica.
+In questa fatica sta una parte del segreto dell'efficacia della tecnica.
 La tecnica di Feynman è efficace per due motivi principali:
 
-a) lo sforzo che dobbiamo fare per "tradurre" il nostro contenuto mentale ci costringe all’elaborazione del nostro pensiero.
+a) lo sforzo che dobbiamo fare per "tradurre" il nostro contenuto mentale ci costringe all'elaborazione del nostro pensiero.
 Siamo costretti ad elaborare in maniera attiva le nostre conoscenza, facendo domande del tipo:
  - Come faccio a rappresentare questo concetto?
  - Come posso esemplificare questa connessione logica?
@@ -3866,7 +3866,7 @@ La matrice di Eisenhower è uno strumento di gestione delle attività che aiuta 
 "Ciò che è importante raramente è urgente e ciò che è urgente raramente è importante" Dwight D. Eisenhower.
 
 Il concetto di "importante" è soggettivo e dipende anche dal contesto.
-Il concetto di "urgente" è oggettivo perché dipende unicamente dalla variabile tempo (È proprio l’oggettività della situazione che crea l’urgenza).
+Il concetto di "urgente" è oggettivo perché dipende unicamente dalla variabile tempo (È proprio l'oggettività della situazione che crea l'urgenza).
 
 Combinando i due concetti si ottengono i quattro quadranti che costituiscono la matrice di Eisenhower:
 

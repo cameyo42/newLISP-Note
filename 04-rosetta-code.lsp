@@ -6804,7 +6804,7 @@ dato n uomini e n donne, dove ogni persona ha classificato tutti i membri del se
 
 I matematici americani Dave Gale e Lloyd Shapley pubblicarono un algoritmo di soluzione nel 1962 dimostrando che il problema del matrimonio stabile ammette sempre una soluzione.
 
-L’algoritmo di Gale e Shapley consente di individuare una soluzione stabile. Nel 1971 Mc Vitie e Wilson hanno pubblicato un algoritmo che consente di trovare tutte le soluzioni stabili del problema.
+L'algoritmo di Gale e Shapley consente di individuare una soluzione stabile. Nel 1971 Mc Vitie e Wilson hanno pubblicato un algoritmo che consente di trovare tutte le soluzioni stabili del problema.
 
 La soluzione proposta è un adattamento del programma in Java presentato all'indirizzo web:
 
@@ -7116,9 +7116,9 @@ Proviamo la funzione:
 
 Attenzione, questo algoritmo permette di trovare una soluzione stabile, non ottima.
 Alcune coppie potrebbero essere ottime (banalmente se la prima scelta di un x e un y combaciano), ma non è necessario che lo siano. Anzi, è molto probabile che ciascun elemento ottenga la sua seconda o terza scelta (o, al crescere del numero di persone, anche scelte molto peggiori). Inoltre se un elemento riceve una sola proposta sarà costretto ad accettarla, non importa quanto sia in basso nella sua scala delle preferenze.
-È opportuno osservare che l’algoritmo produce sempre la soluzione ottimale per ciascun elemento del gruppo che propone e al tempo stesso produce la soluzione peggiore per ciascun elemento dell'altro gruppo.
+È opportuno osservare che l'algoritmo produce sempre la soluzione ottimale per ciascun elemento del gruppo che propone e al tempo stesso produce la soluzione peggiore per ciascun elemento dell'altro gruppo.
 Quindi se il gruppo che propone fosse una volta quello degli uomini e una volta quello delle donne otterremmo due risultati diversi, entrambi i risultati però sarebbero completi e costituiti solo da coppie stabili (ottimali per il gruppo proponente).
-Di fatto l’algoritmo garantisce che ogni coppia formata non possa "trovare di meglio" e che quindi non abbia motivo per rompersi. E questo è il risultato migliore a cui si può aspirare.
+Di fatto l'algoritmo garantisce che ogni coppia formata non possa "trovare di meglio" e che quindi non abbia motivo per rompersi. E questo è il risultato migliore a cui si può aspirare.
 
 Nota: nei problemi pratici occorre considerare anche i casi generali in cui gli insiemi sono di cardinalità differente e/o le liste di preferenza sono incomplete.
 
@@ -11349,7 +11349,7 @@ Vediamo quanto tempo occorre per calcolare i primi 100 milioni di termini:
 ;-> 12495.63
     12.5 secondi
 
-Nota: per una rappresentazione visiva di questa sequenza vedi "A combinatorial interpretation of hofstadter’s G-sequence" di Mustazee Rahman.
+Nota: per una rappresentazione visiva di questa sequenza vedi "A combinatorial interpretation of hofstadter's G-sequence" di Mustazee Rahman.
 
 ----------------------------------------------
 SEQUENZA FEMMINA (F) MASCHIO (M) DI HOFSTADTER

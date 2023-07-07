@@ -4175,9 +4175,9 @@ Problema 7
 ----------
 Dimostrare che ad una festa ci sono due persone che hanno lo stesso numero di amici (l'amicizia è reciproca, cioè se A è amico di B, allora anche B è amico di A).
 Soluzione:
-detto n il numero di persone ad una festa, allora ogni partecipante può avere da 0 a (n - 1) amici. Se tutte le persone avessero un numero diverso di amici, allora ce ne sarebbe una con 0 amici e un’altra con (n - 1) amici, il che è impossibile in quanto la persona con(n - 1) amici sarebbe amica di tutti (compreso di colui che ha 0 amici).
+detto n il numero di persone ad una festa, allora ogni partecipante può avere da 0 a (n - 1) amici. Se tutte le persone avessero un numero diverso di amici, allora ce ne sarebbe una con 0 amici e un'altra con (n - 1) amici, il che è impossibile in quanto la persona con(n - 1) amici sarebbe amica di tutti (compreso di colui che ha 0 amici).
 Un altro modo di ragionare
-Ognuno degli n partecipanti può essere amico di un numero di persone variabile tra 0 e n-1. Iniziamo a supporre che ciascuno abbia almeno un amico, e associamogli il numero di amici che ha: ci sono allora n persone a cui sono associati i numeri da 1 a n−1, e per il principio dei cassetti due di loro devono avere lo stesso numero. Cosa succede se esiste uno senza amici (imbucato)? In questo caso nessuno degli altri può avere n−1 amici, visto che non conosce l’imbucato. Quindi alle n persone si associano i numeri da 0 a n−2, che vale di nuovo n−1.
+Ognuno degli n partecipanti può essere amico di un numero di persone variabile tra 0 e n-1. Iniziamo a supporre che ciascuno abbia almeno un amico, e associamogli il numero di amici che ha: ci sono allora n persone a cui sono associati i numeri da 1 a n−1, e per il principio dei cassetti due di loro devono avere lo stesso numero. Cosa succede se esiste uno senza amici (imbucato)? In questo caso nessuno degli altri può avere n−1 amici, visto che non conosce l'imbucato. Quindi alle n persone si associano i numeri da 0 a n−2, che vale di nuovo n−1.
 
 Nota: nel 2014 è stato dimostrato che in meccanica quantistica il principio dei cassetti può essere violato.
 
@@ -4361,7 +4361,7 @@ In questo caso quindi non siamo in grado di dare una risposta univoca, tuttavia 
 
 Complementary counting
 ----------------------
-Un’altra tecnica frequente è quella del complementary counting, cioè si vanno a contare tutti i casi non richiesti (il complementare) per poi sottrarli al numero totale di casi. Ad esempio, se volessi conoscere tutte le parole lunghe 5 lettere con almeno una A, possiamo sottrarre il numero di parole che non contengono la A(25^5) al numero totale di parole con 5 lettere (26^5).
+Un'altra tecnica frequente è quella del complementary counting, cioè si vanno a contare tutti i casi non richiesti (il complementare) per poi sottrarli al numero totale di casi. Ad esempio, se volessi conoscere tutte le parole lunghe 5 lettere con almeno una A, possiamo sottrarre il numero di parole che non contengono la A(25^5) al numero totale di parole con 5 lettere (26^5).
 
 Problema
 --------
@@ -4377,7 +4377,7 @@ Invece le parole in cui tutte e 3 le lettere sono uguali sono 26. Dunque la risp
 
 Principio fondamentale del contare
 ----------------------------------
-"Se un evento si può verificare una prima volta in n1 modi diversi, una seconda in n2, una terza in n2, e così via, allora il numero di sequenze di eventi nell’ordine indicato sarà n1*n2*n3*...".
+"Se un evento si può verificare una prima volta in n1 modi diversi, una seconda in n2, una terza in n2, e così via, allora il numero di sequenze di eventi nell'ordine indicato sarà n1*n2*n3*...".
 
 
 ---------------------------------------------

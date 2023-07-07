@@ -1427,7 +1427,7 @@ L'interesse lineare o interesse semplice è un interesse che si accumula linearm
 Il capitale di riferimento del tasso di interesse semplice non varia mai, ma rimane sempre uguale. Vediamo come funziona con un esempio:
 
 Acquistiamo un titolo di stato da 10000 euro che garantisce ogni anno un tasso di interesse del 5% netto.
-Per calcolare quanti soldi riceverò tra 10 anni con un tasso di interesse semplice non devo fare altro che calcolare il 5% dei 10000 euro del primo anno e poi moltiplicare questa cifra per i successivi 10 anni. Quindi, poichè il 5% di 10000 euro è 500 euro, basta moltiplicare 500 euro per 10 anni e ottenere così l’incremento di 5000 euro. Alla fine del decimo anno avremo 10000 + 5000 = 15000 euro.
+Per calcolare quanti soldi riceverò tra 10 anni con un tasso di interesse semplice non devo fare altro che calcolare il 5% dei 10000 euro del primo anno e poi moltiplicare questa cifra per i successivi 10 anni. Quindi, poichè il 5% di 10000 euro è 500 euro, basta moltiplicare 500 euro per 10 anni e ottenere così l'incremento di 5000 euro. Alla fine del decimo anno avremo 10000 + 5000 = 15000 euro.
 
 La formula generale è la seguente:
 
@@ -1450,7 +1450,7 @@ Interesse composto
 ------------------
 L'interesse composto o anatocismo è l'interesse che viene regolarmente aggiunto al debito. L'interesse viene allora calcolato non solo sul capitale, ma anche sugli interessi aggiunti al debito in precedenza – in altre parole, sul montante. Con l'interesse composto, la frequenza di capitalizzazione influenza l'interesse totale pagato nel corso della vita totale del prestito. La funzione dei montanti per l'interesse composto cresce in modo esponenziale rispetto al tempo.
 Calcoliamo l'interesse composto con i dati dell'esempio precedente.
-Dopo il primo anno, come visto sopra, abbiamo 500 euro in più e un capitale di 10500 euro. Poichè l'investimento genera un interesse del 5% annuo, occorre calcolare il 5% sul nuovo montante di 10500 euro. Andando avanti in questo modo, dopo il secondo anno abbiamo un valore di 525 euro e il terzo anno abbiamo un montante pari a 11025 euro... dopo 10 anni avremo un capitale di 16288.95 euro, quindi quasi 1290 euro in più rispetto al caso dell’interesse semplice.
+Dopo il primo anno, come visto sopra, abbiamo 500 euro in più e un capitale di 10500 euro. Poichè l'investimento genera un interesse del 5% annuo, occorre calcolare il 5% sul nuovo montante di 10500 euro. Andando avanti in questo modo, dopo il secondo anno abbiamo un valore di 525 euro e il terzo anno abbiamo un montante pari a 11025 euro... dopo 10 anni avremo un capitale di 16288.95 euro, quindi quasi 1290 euro in più rispetto al caso dell'interesse semplice.
 
   C(n) = C0*(1 + t/k)^(k*n)
 

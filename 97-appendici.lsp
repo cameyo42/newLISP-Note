@@ -1008,7 +1008,7 @@ La funzione begin è utile per combinare espressioni in una singola espressione.
 > _
 
 Le istruzioni multilinea e le funzioni devono essere immesse premendo il tasto [invio] al prompt. Per uscire dalla modalità multilinea, premere di nuovo il tasto [invio] al prompt.
-Ricorda che l’espressione if accetta solo tre argomenti:
+Ricorda che l'espressione if accetta solo tre argomenti:
 
 sintassi: (if condizione conseguenza alternativa)
 
@@ -1235,7 +1235,7 @@ La condizione if interpreta qualsiasi valore che non sia nil o la lista vuota ()
  (if a-list
      ...
 
-Fintanto che una lista contiene il primo elemento (first) rimanente, il conteggio continua aggiungendo 1 al risultato della chiamata list-length sul resto (rest) della lista. Quando il primo elemento di una lista vuota è nil, viene restituito il valore alternativo zero che permette anche di uscire dalle chiamate ricorsive dell’algoritmo annidate nello stack (pila).
+Fintanto che una lista contiene il primo elemento (first) rimanente, il conteggio continua aggiungendo 1 al risultato della chiamata list-length sul resto (rest) della lista. Quando il primo elemento di una lista vuota è nil, viene restituito il valore alternativo zero che permette anche di uscire dalle chiamate ricorsive dell'algoritmo annidate nello stack (pila).
 Diciamo che una lista è una struttura dati ricorsiva perché la sua definizione è ricorsiva e non semplicemente perché è suscettibile di algoritmi di elaborazione ricorsivi.
 Una definizione ricorsiva di una lista potrebbe eseere qualcosa di simile:
 
@@ -1284,12 +1284,12 @@ La forma let è simile alla forma iniziale mostrata in precedenza, tranne che es
 
  '((y 4) (x 3) (y 2) (x 1))
 
-Poiché la ricerca inizia da sinistra, i valori di associazione di x e y vengono restituiti, in modo da nascondere i loro valori originali al di fuori dell’espressione let.
+Poiché la ricerca inizia da sinistra, i valori di associazione di x e y vengono restituiti, in modo da nascondere i loro valori originali al di fuori dell'espressione let.
 Quando l'espressione let termina, la tabella dei simboli si presenta come segue:
 
  '((y 2) (x 1))
 
-E di conseguenza x e y assumono i valori originali (cioè quelli che avevano prima dell’esecuzione dell’espressione let).
+E di conseguenza x e y assumono i valori originali (cioè quelli che avevano prima dell'esecuzione dell'espressione let).
 
 Per capire meglio, confronta quanto segue:
 
@@ -1366,7 +1366,7 @@ Per capire perché la risposta sopra è corretta, considera quanto segue.
 
  '((y 2) (y 4) (x 3))
 
-La lista di associazioni sopra riportata rappresenta la tabella dei simboli quando si entra nel corpo dell'espressione let subito dopo il l’associazione (dinamica) di y .
+La lista di associazioni sopra riportata rappresenta la tabella dei simboli quando si entra nel corpo dell'espressione let subito dopo il l'associazione (dinamica) di y .
 
 Dopo:
 
@@ -1380,11 +1380,11 @@ E al ritorno dall'espressione let viene modificata in questo modo:
 
  '((y 4) (x 5))
 
-Quindi set, setq e define associano il simbolo se viene trovato nella tabella dei simboli oppure inseriscono la nuova associazione all’inizio (sulla parte anteriore) della lista di associazioni. Torneremo sulla visibilità delle variabili (scoping) dopo aver esplorato ulteriormente le funzioni.
+Quindi set, setq e define associano il simbolo se viene trovato nella tabella dei simboli oppure inseriscono la nuova associazione all'inizio (sulla parte anteriore) della lista di associazioni. Torneremo sulla visibilità delle variabili (scoping) dopo aver esplorato ulteriormente le funzioni.
 
 Funzioni
 --------
-L’utente può definire nuove funzioni (come discusso in precedenza). La seguente funzione f restituisce la somma dei suoi due argomenti:
+L'utente può definire nuove funzioni (come discusso in precedenza). La seguente funzione f restituisce la somma dei suoi due argomenti:
 
  (define (f x y) (+ x y))
 
@@ -1414,7 +1414,7 @@ Si noti che le seguenti due espressioni sono essenzialmente le stesse:
  ;-> 3
  > _
 
-L'unica vera differenza è che la sequenza di espressioni nell'espressione lambda viene ritardata fino a quando non viene applicata agli argomenti. Applicare l'espressione lambda agli argomenti in effetti crea un’associazione tra gli argomenti formali e gli argomenti effettivi a cui viene applicata la funzione.
+L'unica vera differenza è che la sequenza di espressioni nell'espressione lambda viene ritardata fino a quando non viene applicata agli argomenti. Applicare l'espressione lambda agli argomenti in effetti crea un'associazione tra gli argomenti formali e gli argomenti effettivi a cui viene applicata la funzione.
 
 Quali sono i valori nelle seguenti espressioni?
 
@@ -1436,7 +1436,7 @@ Ricorda che le espressioni lambda e let sono essenzialmente le stesse.
  y
  ;-> 4
 
-Gli argomenti 1 e 2 sono superflui. L'argomento formale y nasconde la y definita al di fuori dell'espressione lambda in modo che l'impostazione di x al valore 5 sia l'unica che ha effetto dopo l’esecuzione (il ritorno) della funzione lambda.
+Gli argomenti 1 e 2 sono superflui. L'argomento formale y nasconde la y definita al di fuori dell'espressione lambda in modo che l'impostazione di x al valore 5 sia l'unica che ha effetto dopo l'esecuzione (il ritorno) della funzione lambda.
 
 Funzioni di primo ordine
 ------------------------
@@ -1573,7 +1573,7 @@ Da notare che il valore di f è solo lambda:
  (let ((x 5) (y 6) (z 7)) (f 1))
  ;-> (5 6 1)
 
-Anche se l'espressione lambda è definita all'interno dell'ambito lessicale della espressione let che associa x a 1 e y a 2, al momento della sua chiamata è l'ambito dinamico che conta. Diciamo che l’associazione delle espressioni lambda in newLISP è dinamico (rispetto all’associazione lessicale del Common Lisp e di Scheme).
+Anche se l'espressione lambda è definita all'interno dell'ambito lessicale della espressione let che associa x a 1 e y a 2, al momento della sua chiamata è l'ambito dinamico che conta. Diciamo che l'associazione delle espressioni lambda in newLISP è dinamico (rispetto all'associazione lessicale del Common Lisp e di Scheme).
 
 Qualsiasi variabile libera di un'espressione lambda viene associata dinamicamente nel momento in cui viene valutato il corpo delle espressioni. Le variabili non specificate (non associate) nella lista degli argomenti formali sono chiamate libere (free).
 
@@ -1674,7 +1674,7 @@ Considera quanto segue:
 
 Che cosa è successo?
 
-L’espressione:
+L'espressione:
 
  (set _key 1)
 
@@ -1959,7 +1959,7 @@ Si noti che la funzione symbols restituisce i nomi dei simboli associati al cont
  ;-> (id x y z)
  F> _
 
-L’ambito lessicale del contesto corrente continua fino al prossimo cambio di contesto. Poiché è possibile in seguito tornare a un particolare contesto, è possibile aumentare il suo ambito lessicale e potrebbe apparire frammentato nel file sorgente.
+L'ambito lessicale del contesto corrente continua fino al prossimo cambio di contesto. Poiché è possibile in seguito tornare a un particolare contesto, è possibile aumentare il suo ambito lessicale e potrebbe apparire frammentato nel file sorgente.
 
  F> (context 'B)
  ;-> B
@@ -1969,9 +1969,9 @@ L’ambito lessicale del contesto corrente continua fino al prossimo cambio di c
 
 Per ambito lessicale, intendiamo l'ambito definito dal codice sorgente. I nomi x ed y sono definiti nell'ambito lessicale del contesto F mentre i nomi a e b sono definiti nell'ambito lessicale del contesto B.
 
-Tutte le espressioni lambda sono associate all’ambito lessicale del contesto in cui sono definite. Di conseguenza le espressioni lambda sono in definitiva "chiuse" dal contesto.
+Tutte le espressioni lambda sono associate all'ambito lessicale del contesto in cui sono definite. Di conseguenza le espressioni lambda sono in definitiva "chiuse" dal contesto.
 
-L'espressione lambda sottostante si trova nell’ambito lessicale di MAIN e anche nell’ambito lessicale dell'espressione (let ((x 3)) ...).
+L'espressione lambda sottostante si trova nell'ambito lessicale di MAIN e anche nell'ambito lessicale dell'espressione (let ((x 3)) ...).
 
  (context MAIN)
  (setq x 1 y 2)
@@ -2010,7 +2010,7 @@ Pensaci per un momento. L'espressione let in alto estende dinamicamente l'ambito
  ;-> (1 2)
  FOO> _
 
-Che cosa è successo? L’ambito dinamico di MAIN:foo include solo l'ambito del contesto MAIN eventualmente esteso dinamicamente. Poiché l'espressione let estende l'ambito dinamico di FOO, l'invocazione di MAIN:foo non vede l’associazione FOO:x => 5.
+Che cosa è successo? L'ambito dinamico di MAIN:foo include solo l'ambito del contesto MAIN eventualmente esteso dinamicamente. Poiché l'espressione let estende l'ambito dinamico di FOO, l'invocazione di MAIN:foo non vede l'associazione FOO:x => 5.
 
 La seguente espressione è rivelatrice:
 
@@ -2025,7 +2025,7 @@ Quando abbiamo introspettato foo nel contesto MAIN, non abbiamo visto il qualifi
  (lambda () (lista x y))
  > _
 
-Quindi, anche se il contesto FOO è stato ampliato in modo dinamico con l’associazione FOO:x => 5, possiamo vedere che quando MAIN:foo viene eseguito esecuzione, limita la sua ricerca solo al contesto MAIN (possibilmente esteso dinamicamente).
+Quindi, anche se il contesto FOO è stato ampliato in modo dinamico con l'associazione FOO:x => 5, possiamo vedere che quando MAIN:foo viene eseguito esecuzione, limita la sua ricerca solo al contesto MAIN (possibilmente esteso dinamicamente).
 
 Quale sarebbe il valore della seguente espressione?
 
@@ -2052,7 +2052,7 @@ Ogni espressione di livello superiore viene prima tradotta e quindi valutata in 
 ;seconda espressione
 (setq r 1 s 2)
 
-Ciascuna delle espressioni di cui sopra sono espressioni di livello superiore, nonostante l’indentazione suggerisca diversamente. La prima espressione viene tradotta nel contesto corrente. In questo modo, FOO diventa un simbolo associato al contesto corrente (ad es. MAIN, se non lo è già) prima che l'espressione venga effettivamente valutata. Una volta che l'espressione tradotta viene valutata, avviene il cambio di contesto, che può essere visto chiaramente quando si opera in modalità interprete:
+Ciascuna delle espressioni di cui sopra sono espressioni di livello superiore, nonostante l'indentazione suggerisca diversamente. La prima espressione viene tradotta nel contesto corrente. In questo modo, FOO diventa un simbolo associato al contesto corrente (ad es. MAIN, se non lo è già) prima che l'espressione venga effettivamente valutata. Una volta che l'espressione tradotta viene valutata, avviene il cambio di contesto, che può essere visto chiaramente quando si opera in modalità interprete:
 
 (context MAIN)
 (context 'FOO)
@@ -2488,7 +2488,7 @@ Tutti gli altri valori in newLISP sono trattati come true (incluso 0, una string
     ...
     otherwise, expression)
 
-Così appare la vera funzione della ramificazione condizionale. Se la "condition" è vera, allora la corrispondente "espressione" viene eseguita e il calcolo della funzione viene interrotto. Se tutte le "condition" sono false, allora viene eseguita l’espressione "otherwise, expression". Se una qualsiasi "espression" viene valutata, allora il risultato viene restituito come risultato della funzione, altrimenti viene restituito nil.
+Così appare la vera funzione della ramificazione condizionale. Se la "condition" è vera, allora la corrispondente "espressione" viene eseguita e il calcolo della funzione viene interrotto. Se tutte le "condition" sono false, allora viene eseguita l'espressione "otherwise, expression". Se una qualsiasi "espression" viene valutata, allora il risultato viene restituito come risultato della funzione, altrimenti viene restituito nil.
 Si noti che un "expression" può essere una sola espressione:
 
 (if right (+ x 1))
@@ -2681,7 +2681,7 @@ E l'esempio con il "my-append" - la funzione "cons", che aggiunge un elemento in
 
 In un LISP tradizionale, dove le liste sono rappresentate come una testa e una coda, "cons" svolge un ruolo molto più significativo combinando questi due componenti. In newLISP, le liste sono costruiti su una base "lineare".
 
-Di maggiore interesse sono funzioni progettate per convertire una lista in un’altra. La più semplice e più attesa è la funzione "filter", che filtra la lista, lasciando in essa solo i valori​ ​che soddisfano la condizione data:
+Di maggiore interesse sono funzioni progettate per convertire una lista in un'altra. La più semplice e più attesa è la funzione "filter", che filtra la lista, lasciando in essa solo i valori​ ​che soddisfano la condizione data:
 
 ; (filter test_function list)
 
@@ -2693,7 +2693,7 @@ La funzione inversa è "clean":
 
 (clean empty? '("abc" "" "def" "jhi" "")) -> ("abc" "def" "jhi")
 
-Un’altra semplice, ma utile funzione, "join", combina una lista di stringhe in una singola stringa.
+Un'altra semplice, ma utile funzione, "join", combina una lista di stringhe in una singola stringa.
 
 (join '("abc" "" "def" "jhi") ":") -> "abc :: def: jhi"
 (join '("abc" 123 "def" "jhi") ":") -> Error! - 123 is not a string
@@ -2726,7 +2726,7 @@ Nonostante il fatto che, nella pratica reale, un tale stile non è sempre possib
 Registrazione funzionale.
 -------------------------
 
-Ridurre l'uso di effetti collaterali consente, a sua volta, di aumentare le capacità di registrazione funzionale - quello che normalmente è scritto sotto forma di diverse espressioni in un linguaggio procedurale spesso può essere messo in una sola espressione in LISP. Inoltre, la struttura annidata dell'espressione LISP rivela le connessioni logiche dei suoi componenti. L’aspetto di una notazione funzionale è più simile a un linguaggio naturale, mentre una notazione procedurale non è altro che un elenco di azioni sequenziali (come l’assembler).
+Ridurre l'uso di effetti collaterali consente, a sua volta, di aumentare le capacità di registrazione funzionale - quello che normalmente è scritto sotto forma di diverse espressioni in un linguaggio procedurale spesso può essere messo in una sola espressione in LISP. Inoltre, la struttura annidata dell'espressione LISP rivela le connessioni logiche dei suoi componenti. L'aspetto di una notazione funzionale è più simile a un linguaggio naturale, mentre una notazione procedurale non è altro che un elenco di azioni sequenziali (come l'assembler).
 
 Sviluppo dal basso verso l'alto (bottom-up).
 --------------------------------------------
@@ -2769,7 +2769,7 @@ Ci sono opinioni diverse su come formattare meglio il codice LISP e newLISP. Un 
 Indentazione.
 -------------
 
-Il rientro standard per l’annidamento delle espressioni è impostato su due spazi.
+Il rientro standard per l'annidamento delle espressioni è impostato su due spazi.
 
 Il rientro per liste di dati annidate è uno spazio (dal momento che le parentesi di apertura sulla linea precedente possono seguire una dopo l'altra).
 
@@ -2784,7 +2784,7 @@ Per funzioni speciali, come "let" o "se", in cui il primo parametro ha un signif
 Chiusura parentesi.
 -------------------
 
-Le parentesi di chiusura di solito non compaiono su righe separate, come avviene nel linguaggio "C" e simili. Questo è inutile per mettere in evidenza la struttura del programma, dal momento che l’indentazione (i rientri) porta già tutte le informazioni necessarie.
+Le parentesi di chiusura di solito non compaiono su righe separate, come avviene nel linguaggio "C" e simili. Questo è inutile per mettere in evidenza la struttura del programma, dal momento che l'indentazione (i rientri) porta già tutte le informazioni necessarie.
 
 Per controllare l'equilibrio (bilanciamento) delle parentesi, è meglio utilizzare un editor di testo che offre la possibilità di visualizzare automaticamente le coppie di parentesi - tutti i moderni editor per "programmatori" sono in  grado di farlo.
 
@@ -2795,7 +2795,7 @@ SCRIPTING PRATICO.
 
 Il compito più comune di scripting è, naturalmente, elaborare file di testo. Il leader assoluto in termini di convenienza qui è AWK - non esiste un linguaggio che potrebbe essere scritto in modo più conciso. Purtroppo, questo è un linguaggio piuttosto debole, che perde rapidamente terreno quando c'è la necessità di elaborare dati complessi. In questa area, Perl ha tradizionalmente dominato.
 
-Per gli stessi compiti, newLISP è una buona scelta. Questo linguaggio supporta anche le espressioni regolari Perl-compatibili (PCRE) e permette l'analisi (parsing) di documenti di testo. La peculiarità dell'uso di newLISP è il suo orientamento per l’elaborazione di liste (mentre lo stile Perl tende all’elaborazione del flusso – stream processing). Ciò significa che quando usiamo newLISP, di solito è più vantaggioso non processare il testo linea per linea, ma di leggere tutto il file, dividerlo in una lista che contiene le sue parti (linee, parole, righe) e quindi elaborarle utilizzando tutta la potenza del LISP.
+Per gli stessi compiti, newLISP è una buona scelta. Questo linguaggio supporta anche le espressioni regolari Perl-compatibili (PCRE) e permette l'analisi (parsing) di documenti di testo. La peculiarità dell'uso di newLISP è il suo orientamento per l'elaborazione di liste (mentre lo stile Perl tende all'elaborazione del flusso – stream processing). Ciò significa che quando usiamo newLISP, di solito è più vantaggioso non processare il testo linea per linea, ma di leggere tutto il file, dividerlo in una lista che contiene le sue parti (linee, parole, righe) e quindi elaborarle utilizzando tutta la potenza del LISP.
 
 Ad esempio, si consideri un compito semplice: Supponiamo che il file "report.txt" contenga un rapporto nella forma seguente:
 
@@ -2853,7 +2853,7 @@ suddiviso in una lista di righe,
 
 Due funzioni ausiliarie sono evidenti: la prima separa la stringa con una espressione regolare (e rimuove tutti gli spazi aggiuntivi in uno), la seconda cerca nella lista divisa in stringhe il valore numerico nel quarto elemento (quello che interessa a noi).
 
-Forse in Perl è possibile scrivere un programma più compatto. Tuttavia, non bisogna dimenticare che il risultato principale di questo script è quello di ottenere una lista di tutti gli elementi del report che possono poi essere raggruppati, filtrati, correlati e manipolati con tutta la ricchezza delle funzioni per l’elaborazione delle liste.
+Forse in Perl è possibile scrivere un programma più compatto. Tuttavia, non bisogna dimenticare che il risultato principale di questo script è quello di ottenere una lista di tutti gli elementi del report che possono poi essere raggruppati, filtrati, correlati e manipolati con tutta la ricchezza delle funzioni per l'elaborazione delle liste.
 
 -------------------
 Qui mi permetto di interrompere il racconto, visto che è stato scritto abbastanza, e si può cedere al desiderio di vedere cosa si può fare con questo linguaggio ...
@@ -4124,9 +4124,9 @@ by Alexandru Lazar
 
 Working with newLISP is a fairly pleasant experience, although it does depend a lot on what you want to do with it. Although the developer tools are not very complex, nor very powerful, they are sufficient for typical scripting needs.
 
-As mentioned earlier, newLISP comes with a very useful documentation. Unlike Hyperspec, which is extremely complete but rather unpleasant to work with, newLISP’s documentation is a lot leaner and cleaner, although not as detailed. This is a double-edged sword. On one hand, if you are looking for the gory details of the implementation, you have to look at the source. On the other hand, the documentation works very well not only when working with newLISP, but also as a reference.
+As mentioned earlier, newLISP comes with a very useful documentation. Unlike Hyperspec, which is extremely complete but rather unpleasant to work with, newLISP's documentation is a lot leaner and cleaner, although not as detailed. This is a double-edged sword. On one hand, if you are looking for the gory details of the implementation, you have to look at the source. On the other hand, the documentation works very well not only when working with newLISP, but also as a reference.
 
-newLISP sports a reasonable IDE, which offers most of the things you would expect from it — a friendly syntax-highlighting editor and a REPL prompt (an interactive prompt which allows you to evaluate LISP expressions on the fly and to debug your program). Although it’s quite far from being particularily complete, we should point out the fact that most other LISP dialects offer only one other alternative in the shape of Emacs and SLIME, ILM, ILISP and so on. Again, this is double-edged, although Emacs is a wonderful tool (and before burning me to the stake in the comments, my editor of choice), it is quite a turnoff for most beginners. There is a newLISP Emacs mode floating on the Internet, but it does not offer the same range of features as SLIME, meaning that seasoned Emacs and SLIME users will be left without their favorite LISP development environment. While it can be argued that the typical newLISP program does not require all the features SLIME offers, newLISP’s IDE does lack a number of features. There are no documentation-related features, there is no code completion and no support for managing projects.
+newLISP sports a reasonable IDE, which offers most of the things you would expect from it — a friendly syntax-highlighting editor and a REPL prompt (an interactive prompt which allows you to evaluate LISP expressions on the fly and to debug your program). Although it's quite far from being particularily complete, we should point out the fact that most other LISP dialects offer only one other alternative in the shape of Emacs and SLIME, ILM, ILISP and so on. Again, this is double-edged, although Emacs is a wonderful tool (and before burning me to the stake in the comments, my editor of choice), it is quite a turnoff for most beginners. There is a newLISP Emacs mode floating on the Internet, but it does not offer the same range of features as SLIME, meaning that seasoned Emacs and SLIME users will be left without their favorite LISP development environment. While it can be argued that the typical newLISP program does not require all the features SLIME offers, newLISP's IDE does lack a number of features. There are no documentation-related features, there is no code completion and no support for managing projects.
 
 Adjusting to newLISP is not very difficult if you have used some LISP dialect before. In fact, compared to Common LISP, newLISP will feel like quite a breeze, being a lot simpler, although arguably less complete and/or fast. Furthermore, most differences are there to simplify things, not complicate them any further, so learning newLISP will essentially feel like learning a more intuitive subset of Common LISP.
 
@@ -4137,13 +4137,13 @@ The matter is further simplified by the fact that newLISP is an already mature a
 SUMMING UP
 Although newLISP is not as complete, nor possibly as fast and efficient as its cousins Common LISP and Scheme, the overall impression that it has left me was positive to say the least. It is very clean, unobtrusive, and it does allow you to get things done with relative ease. It is well suited for scripting and some web development, and the enthusiasm displayed by its authors is entirely deserved. It also has a small, but helpful and enjoyable community, not to mention the CAPTCHA on their forums being absolutely unbeatable.
 
-newLISP does have a handful of downsides. The GUI server is somewhat arcane to deal with (although it’s an otherwise sufficient solution given its ease of use and portability), and an IDE with a few additional functions, like some extra set of debugging features and some basic project management functions would make a good start for a wislist. The modules are fairly broad but some of them are rather superficial, so anything extremely serious is likely to imply some extra work on your side. However, one could always point out that newLISP wasn’t meant for anything “extremely serious” — but it can incidentally do a lot of “extremely serious work”, some of it being displayed on newLISP’s homepage under the Apps section.
+newLISP does have a handful of downsides. The GUI server is somewhat arcane to deal with (although it's an otherwise sufficient solution given its ease of use and portability), and an IDE with a few additional functions, like some extra set of debugging features and some basic project management functions would make a good start for a wislist. The modules are fairly broad but some of them are rather superficial, so anything extremely serious is likely to imply some extra work on your side. However, one could always point out that newLISP wasn't meant for anything “extremely serious” — but it can incidentally do a lot of “extremely serious work”, some of it being displayed on newLISP's homepage under the Apps section.
 
-Whether this is a better option than another LISP dialect (or another programming language, for that matter) will obviously depend on a lot of issues. Despite some optimistic claims, I am rather reluctant recommending newLISP for scientific or statistical applications, and I haven’t tried using it as an environment for full-blown application development. Nevertheless, I would wholeheartedly recommend that you try having a look at it before writing your next Python script. You never know how much you may like it.
+Whether this is a better option than another LISP dialect (or another programming language, for that matter) will obviously depend on a lot of issues. Despite some optimistic claims, I am rather reluctant recommending newLISP for scientific or statistical applications, and I haven't tried using it as an environment for full-blown application development. Nevertheless, I would wholeheartedly recommend that you try having a look at it before writing your next Python script. You never know how much you may like it.
 
 newLISP is distributed under a GPL license and you can find it at http://www.newlisp.org/. Happy coding!
 
-About me: I’m a freelancer studying Electrical Engineering betweem deadlines, and a quiet but active LISP user for the last couple of years.
+About me: I'm a freelancer studying Electrical Engineering betweem deadlines, and a quiet but active LISP user for the last couple of years.
 
 
 ============================================================================
@@ -6367,7 +6367,7 @@ Kelsey Hightower
 "Playfully doing something difficult, whether useful or not, that is hacking."
 - Richard Stallman
 
-"Data dominates. If you’ve chosen the right data structures and organized things well, the algorithms will almost always be self-evident. Data structures, not algorithms, are central to programming."
+"Data dominates. If you've chosen the right data structures and organized things well, the algorithms will almost always be self-evident. Data structures, not algorithms, are central to programming."
 - Rob Pike
 
 "Another effective technique is to explain your code to someone else. This will often cause you to explain the bug to yourself. Sometimes it takes no more than a few sentences, followed by an embarrassed "Never mind, I see what's wrong. Sorry to bother you." This works remarkably well. You can even use non-programmers as listeners. One university computer center kept a teddy bear near the help desk. Students with mysterious bugs were required to explain them to the bear before they could speak to a human counselor."
