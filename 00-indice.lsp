@@ -1917,6 +1917,8 @@ NOTE LIBERE 17
   Numeri simili
   Multiplayer Rock-Paper-Scissors
   Numeri/simboli intransitivi
+  Distanze tra i tasti di una tastiera QWERTY
+  Generalizzazione di CAR e CDR
 
 PROBLEMI SUI DADI
 =================

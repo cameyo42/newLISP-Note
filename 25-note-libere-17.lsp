@@ -3506,5 +3506,155 @@ Anche la simulazione dimostra che ogni numero vince e perde un numero uguale di 
 
 A questo punto è possibile associare ad ogni numero un simbolo diverso e determinare le relazioni (vittoria e sconfitta) tra tutti i simboli.
 
+
+-------------------------------------------
+Distanze tra i tasti di una tastiera QWERTY
+-------------------------------------------
+
+Le distanze tra i tasti delle lettere di una tastiera QWERTY sono piuttosto standardizzate. 
+I tasti sono quadrati e sia la spaziatura orizzontale che quella verticale sono di 19,05 mm (quindi se non ci fossero spazi tra i tasti, la loro lunghezza laterale sarebbe di 19,05 mm) e le tre file di tasti sono sfalsate di 1/4 e 1/2 della dimensione del tasto.
+La rappresentazione della tastiera e delle distanze si trova nel file "qwerty.png" nella cartella "data".
+Le righe della tastiera QWERTY sono disposte nel modo seguente:
+
+  Q W E R T Y U I O P
+   A S D F G H J K L
+    Z X C V B N M
+
+Scrivere una funzione che prende due tasti con lettere e restituisce la distanza euclidea tra i loro centri.
+
+;(define (dist2d x1 y1 x2 y2)
+;  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+;             (mul (sub y1 y2) (sub y1 y2)))))
+
+(define (dist2d P1 P2)
+  (let ( (x1 (P1 0)) (y1 (P1 1))
+         (x2 (P2 0)) (y2 (P2 1)) )
+    (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+               (mul (sub y1 y2) (sub y1 y2))))))
+
+Poniamo l'origine degli assi cartesiani (0,0) in basso a sinistra (cioè, lo 0 della x è il punto più a sinistra del tasto Q e lo 0 della y è il punto più in basso del tasto Z).
+Per capire meglio la soluzione vedi il file "qwerty.png" nella cartella "data".
+
+(setq dist 19.05)
+; prima fila
+(setq q (list (div dist 2) (div (mul 5 dist) 2)))
+(setq w (list (div (mul 3 dist) 2) (div (mul 5 dist) 2)))
+(setq e (list (div (mul 5 dist) 2) (div (mul 5 dist) 2)))
+(setq r (list (div (mul 7 dist) 2) (div (mul 5 dist) 2)))
+(setq t (list (div (mul 9 dist) 2) (div (mul 5 dist) 2)))
+(setq y (list (div (mul 11 dist) 2) (div (mul 5 dist) 2)))
+(setq u (list (div (mul 13 dist) 2) (div (mul 5 dist) 2)))
+(setq i (list (div (mul 15 dist) 2) (div (mul 5 dist) 2)))
+(setq o (list (div (mul 17 dist) 2) (div (mul 5 dist) 2)))
+(setq p (list (div (mul 19 dist) 2) (div (mul 5 dist) 2)))
+; seconda fila
+(setq a (list (div (mul 3 dist) 4) (div (mul 3 dist) 2)))
+(setq s (list (div (mul 7 dist) 4) (div (mul 3 dist) 2)))
+(setq d (list (div (mul 11 dist) 4) (div (mul 3 dist) 2)))
+(setq f (list (div (mul 15 dist) 4) (div (mul 3 dist) 2)))
+(setq g (list (div (mul 19 dist) 4) (div (mul 3 dist) 2)))
+(setq h (list (div (mul 23 dist) 4) (div (mul 3 dist) 2)))
+(setq j (list (div (mul 27 dist) 4) (div (mul 3 dist) 2)))
+(setq k (list (div (mul 31 dist) 4) (div (mul 3 dist) 2)))
+(setq l (list (div (mul 35 dist) 4) (div (mul 3 dist) 2)))
+; terza fila
+(setq z (list (div (mul 5 dist) 4) (div dist 2)))
+(setq x (list (div (mul 9 dist) 4) (div dist 2)))
+(setq c (list (div (mul 13 dist) 4) (div dist 2)))
+(setq v (list (div (mul 17 dist) 4) (div dist 2)))
+(setq b (list (div (mul 21 dist) 4) (div dist 2)))
+(setq n (list (div (mul 25 dist) 4) (div dist 2)))
+(setq m (list (div (mul 29 dist) 4) (div dist 2)))
+
+(setq keys '(q w e r t y u i o p a s d f g h j k l z x c v b n m))
+
+Funzione che calcola tutte le distanze tra coppie di tasti con lettera:
+
+(define (keys-distance)
+  (setq out '())
+  (setq alpha '(a b c d e f g h i j k l m n o p q r s t u v w x y z))
+  (setq len (length alpha))
+  (for (ii 0 (- len 1))
+    (for (jj 0 (- len 1))
+      (setq k1 (eval (alpha ii)))
+      ;(println (alpha ii) { } k1)
+      (setq k2 (eval (alpha jj)))
+      ;(println (alpha jj) { } k2)
+      (push (list (alpha ii) (alpha jj) (dist2d k1 k2)) out -1)
+    )
+  )
+  out)
+
+(keys-distance)
+;-> ((a a 0) 
+;->  (a b 87.81616095571475) 
+;->  (a c 51.29369478795616) 
+;->  (a d 38.1) 
+;->  (a e 38.39650252627184)
+;->  (a f 57.15)
+;->  (a g 76.19999999999999)
+;->  (a h 95.25)
+;->  (a i 129.9909522091826)
+;->  (a j 114.3)
+;->  (a k 133.35)
+;->  (a l 152.4)
+;->  (a m 125.2818148216253)
+;->  (a n 106.4927374284275)
+;->  (a o 148.8614587670362)
+;->  (a p 167.7725399350263)
+;->  ...
+;->  (z o 143.2713253105799)
+;->  (z p 161.7147532114804)
+;->  (z q 40.69081783707475)
+;->  (z r 57.34809418149831)
+;->  (z s 21.2985474856855)
+;->  (z t 72.69640745078124)
+;->  (z u 107.0238765708382)
+;->  (z v 57.15000000000001)
+;->  (z w 38.39650252627185)
+;->  (z x 19.05)
+;->  (z y 89.4792512611164)
+;->  (z z 0))
+
+La lista di tutti i valori si trova nel file "distance-keys.txt" nella cartella "data".
+
+
+-----------------------------
+Generalizzazione di CAR e CDR
+-----------------------------
+
+Le funzioni CAR e CDR ("first" e "rest" in newLISP) derivano dal LISP originale e vengono usate per accedere agli elementi di una lista.
+
+Sebbene CAR e CDR siano stati nomi poco ispirati per quasi 50 anni, sono sopravvissuti perché offrono una geniale funzionalità: puoi aggiungere più lettere "a" e "d" tra "c" e "r", per produrre funzioni con nomi anche più strani.
+Allora "caddr" trova il "car" del "cdr" del "cdr", leggiamo da sinistra a destra, sebbene le funzioni siano applicate da destra a sinistra come al solito.
+
+Scriviamo una funzione che ci permette di utilizzare qualunque combinazione di lettere "a" e "d" nelle funzioni "cad" e "cdr":
+
+(define (get str lst)
+  (dolist (ch (reverse (explode str)))
+    (cond ((= ch "c") nil)
+          ((= ch "d") (setq lst (rest lst)))
+          ((= ch "a") (setq lst (first lst)))
+    )
+  )
+  lst)
+
+Facciamo alcune prove:
+
+(get "car" '(1 2 3))
+;-> 1
+(get "cadr" '(7 3 5))
+;-> 3
+(get "cadr" (get "cdr" '(7 3 5)))
+;-> 5
+(get "cadadr" '(0 (1 2 3) 4 5))
+;-> 2
+(get "caddr" '(7 3 5))
+;-> 5
+(get "caddr" '(7 3 ((1 2) 5)))
+;-> ((1 2) 5)
+
+Vedere anche "CAR e CDR in newLISP" in "Generale".
+
 =============================================================================
 

@@ -6652,7 +6652,7 @@ So we have CAR and CDR."
 
 newLISP chiama "first" la funzione "CAR" e chiama "rest" la funzione "CDR".
 
-Sebbene auto e cdr siano stati nomi poco ispirati per quasi 50 anni, sono sopravvissuti perché offrono una geniale funzionalità: puoi aggiungere più lettere a e d tra "c" e "r", per produrre funzioni con nomi anche più strani.
+Sebbene CAR e CDR siano stati nomi poco ispirati per quasi 50 anni, sono sopravvissuti perché offrono una geniale funzionalità: puoi aggiungere più lettere "a" e "d" tra "c" e "r", per produrre funzioni con nomi anche più strani.
 Allora "caddr" trova il "car" del "cdr" del "cdr", leggiamo da sinistra a destra, sebbene le funzioni siano applicate da destra a sinistra come al solito.
 
 Come vengono pronunciate queste funzioni?
@@ -6822,6 +6822,8 @@ Proviamo alcune di queste le funzioni:
 (cadaddar lst)
 ;-> ERR: list is empty : (cdr (cdr (car x)))
 ;-> called from user function (cadaddar lst)
+
+Vedere anche "Generalizzazione di CAR e CDR" su "Note libere 17".
 
 
 ======================
