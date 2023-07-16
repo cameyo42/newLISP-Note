@@ -3571,19 +3571,20 @@ Per capire meglio la soluzione vedi il file "qwerty.png" nella cartella "data".
 Funzione che calcola tutte le distanze tra coppie di tasti con lettera:
 
 (define (keys-distance)
-  (setq out '())
-  (setq alpha '(a b c d e f g h i j k l m n o p q r s t u v w x y z))
-  (setq len (length alpha))
-  (for (ii 0 (- len 1))
-    (for (jj 0 (- len 1))
-      (setq k1 (eval (alpha ii)))
-      ;(println (alpha ii) { } k1)
-      (setq k2 (eval (alpha jj)))
-      ;(println (alpha jj) { } k2)
-      (push (list (alpha ii) (alpha jj) (dist2d k1 k2)) out -1)
+  (local (out alpha len)
+    (setq out '())
+    (setq alpha '(a b c d e f g h i j k l m n o p q r s t u v w x y z))
+    (setq len (length alpha))
+    (for (ii 0 (- len 1))
+      (for (jj 0 (- len 1))
+        (setq k1 (eval (alpha ii)))
+        ;(println (alpha ii) { } k1)
+        (setq k2 (eval (alpha jj)))
+        ;(println (alpha jj) { } k2)
+        (push (list (alpha ii) (alpha jj) (dist2d k1 k2)) out -1)
+      )
     )
-  )
-  out)
+    out))
 
 (keys-distance)
 ;-> ((a a 0) 
@@ -3633,6 +3634,7 @@ Scriviamo una funzione che ci permette di utilizzare qualunque combinazione di l
 (define (get str lst)
   (dolist (ch (reverse (explode str)))
     (cond ((= ch "c") nil)
+          ((= ch "r") nil)
           ((= ch "d") (setq lst (rest lst)))
           ((= ch "a") (setq lst (first lst)))
     )
@@ -3653,8 +3655,220 @@ Facciamo alcune prove:
 ;-> 5
 (get "caddr" '(7 3 ((1 2) 5)))
 ;-> ((1 2) 5)
+(get "caaddr" '(7 3 ((1 2) 5)))
+;-> (1 2)
 
 Vedere anche "CAR e CDR in newLISP" in "Generale".
+
+
+-----------------------------
+Somma collettiva di un numero
+-----------------------------
+
+Dato un numero intero naturale, la sua somma collettiva è la somma dei numeri formati partendo da ogni ogni cifra e prendendo tante cifre dal numero (da sinistra) quanto vale ogni cifra.
+Per esempio:
+
+N = 13214
+cifra 1: prendiamo 1 cifra -->    1  +
+cifra 3: prendiamo 3 cifre -->  132  +
+cifra 2: prendiamo 2 cifre -->   13  +
+cifra 1: prendiamo 1 cifra -->    1  +
+cifra 4: prendiamo 4 cifre --> 1321  =
+                              ---------
+                               1468
+
+Casi particolari:
+1) la cifra 0 lascia la somma inalterata (cioè sommiamo 0)
+2) se una cifra è maggiore della lunghezza del numero, allora si prende tutto il numero.
+
+Per esempio:
+
+N = 2051
+cifra 2: prendiamo 2 cifra -->   20  +
+cifra 0: prendiamo 0 cifre -->    0  +
+cifra 5: prendiamo 5 cifre --> 2051  +
+cifra 1: prendiamo 1 cifra -->    2  =
+                              ---------
+                               2073
+
+Funzione che calcola la somma collettiva di un numero intero naturale:
+
+(define (somma num)
+  (let ((tot 0) (str (string num)))
+    (dolist (ch (explode str))
+      (if (!= ch "0") (++ tot (int (slice str 0 (int ch)))))
+    )
+    tot))
+
+Facciamo alcune prove:
+
+(somma 13214)
+;-> 1468
+(somma 2051)
+;-> 2073
+
+Calcoliamo la somma collettiva dei primi 50 numeri:
+
+(map somma (sequence 0 50))
+;-> (0 1 2 3 4 5 6 7 8 9 1 2 13 14 15 16 17 18 19 20 20 23 44 46 48 50 52 54
+;->  56 58 30 34 64 66 68 70 72 74 76 78 40 45 84 86 88 90 92 94 96 98 50)
+
+
+------------------------------
+Numero di coprimi di un numero
+------------------------------
+
+Dato un numero N, esistono k coprimi di N minori di N.
+La sequenza è la seguente:
+
+  a(0) = 0
+  a(1) = 2
+  a(n) = numero di coprimi di n fino a (n-1)
+
+(define (coprimi? a b) (= (gcd a b) 1))
+
+(define (conta-coprimi num prt)
+  (let ((out 0) (res nil))
+    (for (i 1 (- num 1))
+      (setq res (coprimi? num i))
+      (if res (++ out))
+      (if (and res prt) (println num {: } i))
+    )
+    out))
+
+(conta-coprimi 10 true)
+;-> 10: 1
+;-> 10: 3
+;-> 10: 7
+;-> 10: 9
+;-> 4
+
+(define (seq limite)
+  (let (out '(0 2))
+    (for (i 2 limite)
+      (push (conta-coprimi i) out -1))
+    out))
+
+(seq 20)
+;-> (0 2 1 2 2 4 2 6 4 6 4 10 4 12 6 8 8 16 6 18 8)
+
+
+-------------
+map vs dolist
+-------------
+
+(setq a (rand 1e5 20))
+(setq b (rand 1e5 1e4))
+
+1) Funzione primitiva (una lista):
+
+(define (m1 lst) (map integer? lst))
+
+(define (d1 lst)
+  (let (out '()) 
+    (dolist (el lst) (push (integer? el) out -1))))
+
+Controllo risultati uguali:
+
+(= (m1 a) (d1 a))
+;-> true
+
+Velocità con lista da 20 elementi:
+
+(time (m1 a) 1e6)
+;-> 768.972
+(time (d1 a) 1e6)
+;-> 1367.417
+
+Velocità con lista da 10000 elementi:
+
+(time (m1 b) 1e3)
+;-> 368.047
+(time (d1 b) 1e3)
+;-> 660.225
+
+2) Funzione lambda (una lista):
+
+(define (m2 lst) (map (fn(x) (* x x)) lst))
+
+(define (d2 lst)
+  (let (out '())
+    (dolist (el lst) (push (* el el) out -1))))
+
+Controllo risultati uguali:
+
+(= (m2 a) (d2 a))
+;-> true
+
+Velocità con lista da 20 elementi:
+
+(time (m2 a) 1e6)
+;-> 1594.744
+(time (d2 a) 1e6)
+;-> 1481.054
+
+Velocità con lista da 10000 elementi:
+
+(time (m2 b) 1e3)
+;-> 759.968
+(time (d2 b) 1e3)
+;-> 709.113
+
+
+3) Funzione primitiva (due liste):
+
+(define (m3 lst1 lst2) (map * lst1 lst2))
+
+(define (d3 lst1 lst2)
+  (let (out '())
+    (dolist (el lst1) (push (* el (lst2 $idx)) out -1))))
+
+Controllo risultati uguali:
+
+(= (m3 a a) (d3 a a))
+;-> true
+
+Velocità con lista da 20 elementi:
+
+(time (m3 a a) 1e6)
+;-> 1152.946
+(time (d3 a a) 1e6)
+;-> 2039.577
+
+Velocità con lista da 10000 elementi:
+
+(time (m3 b b) 1e3)
+;-> 507.67
+(time (d3 b b) 1e3)
+;-> 86197.549
+
+4) Funzione lambda (due liste):
+
+(define (m4 lst1 lst2) (map (fn(x y) (+ (* x x) (* y y))) lst1 lst2))
+
+(define (d4 lst1 lst2)
+  (let (out '())
+    (dolist (el lst1) 
+      (push (+ (* el el) (* (lst2 $idx) (lst2 $idx))) out -1))))
+
+Controllo risultati uguali:
+
+(= (m4 a a) (d4 a a))
+;-> true
+
+Velocità con lista da 20 elementi:
+
+(time (m4 a a) 1e6)
+;-> 2689.037
+(time (d4 a a) 1e6)
+;-> 3259.285
+
+Velocità con lista da 10000 elementi:
+
+(time (m4 b b) 1e2)
+;-> 143.643
+(time (d4 b b) 1e2)
+;-> 17116.262
 
 =============================================================================
 

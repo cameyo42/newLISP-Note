@@ -1919,6 +1919,9 @@ NOTE LIBERE 17
   Numeri/simboli intransitivi
   Distanze tra i tasti di una tastiera QWERTY
   Generalizzazione di CAR e CDR
+  Somma collettiva di un numero
+  Numero di coprimi di un numero
+  map vs dolist
 
 PROBLEMI SUI DADI
 =================
