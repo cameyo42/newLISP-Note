@@ -1922,6 +1922,7 @@ NOTE LIBERE 17
   Somma collettiva di un numero
   Numero di coprimi di un numero
   map vs dolist
+  La funzione matematica Torian
 
 PROBLEMI SUI DADI
 =================
