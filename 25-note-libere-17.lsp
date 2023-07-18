@@ -3953,5 +3953,107 @@ Facciamo alcune prove:
 ;-> 69509
 ;-> 422.088
 
+
+------------------------------------
+Segmento casuale su griglia quadrata
+------------------------------------
+
+Consideriamo una griglia quadrata con spaziatura unitaria.
+Un segmento di lunghezza intera L viene lasciato cadere in una posizione arbitraria con orientamento arbitrario.
+Diciamo che il segmento "tocca" un quadrato se interseca l'interno del quadrato (non solo il suo bordo).
+Qual è il numero massimo di quadrati che il segmento può toccare, in funzione di L?
+
+Sequenza OEIS A346232:
+  3, 5, 7, 8, 9, 11, 12, 14, 15, 17, 18, 19, 21, 22, 24, 25, 27, 28,
+  29, 31, 32, 34, 35, 36, 38, 39, 41, 42, 43, 45, 46, 48, 49, 51, 52,
+  53, 55, 56, 58, 59, 60, 62, 63, 65, 66, 68, 69, 70, 72, 73, 75, 76,
+  77, 79, 80, 82, 83, 85, 86, 87, 89, 90, 92, 93, 94, 96, 97, ...
+
+La formula è la seguente:
+
+  f(L) = floor(sqrt(2*L^2 - 2)) + 3
+
+Dimostrazione
+
+https://codegolf.stackexchange.com/questions/231176/maximum-number-of-squares-touched-by-a-line-segment
+
+Il layout ottimale utilizza un segmento quasi diagonale la cui estensione orizzontale e verticale è almeno (h, h) o (h, h + 1). Abbiamo bisogno che la lunghezza-L per coprire almeno questa distanza usando il teorema di Pitagora, più qualcosa in più per raggiungere i quadrati e coprirne altri 3.
+
+Questo comporta uno dei seguenti risultati:
+
+1) 2*h + 3 dove h è il più grande intero positivo dove h^2 + h^2 < L^2,
+
+oppure
+
+2) 2*h + 4 dove h è il massimo intero positivo dove h^2 + (h + 1)^2 < L^2,
+
+e vedere quale di questi è più grande.
+
+Vogliamo combinare questi due casi in uno.
+
+Iniziamo facendo sembrare i due casi più simili.
+
+Si noti che il secondo caso può essere riscritto come:
+
+   2*(h + 1/2) + 3, dove 2*(h + 1/2)^2 + 1/2 < L^2
+
+o come:
+
+   2*h + 3, dove 2*h^2 + 1/2 < L^2
+
+dove h è un intero positivo e mezzo.
+
+Il 2*h^2 < L^2 nel primo caso può anche essere scritto come:
+
+   2*h^2 + 1/2 < L^2,
+
+che è equivalente perché entrambi i lati erano numeri interi.
+
+Quindi, i casi ora si fondono in:
+
+   2*h + 3
+
+dove h è il massimo intero positivo o semiintero dove 2*h^2 + 1/2 < L^2
+
+Chiamando 2*h = H, questo è:
+
+   H + 3
+
+dove H è il massimo intero positivo dove 2*(H/2)^2 + 1/2 < L^2.
+
+Questa disuguaglianza è:
+
+  H^2 < 2*L^2,
+
+e poiché questi sono numeri interi, questo è lo stesso di:
+
+   H^2 <= 2*L^2
+
+Il massimo di tali interi positivi H è quindi:
+
+   floor(sqrt(2*L^2 - 2))
+
+quindi il risultato finale è:
+
+   floor(sqrt(2*L^2 - 2)) + 3
+
+Implementazione della funzione:
+
+  f(L) = floor(sqrt(2*L^2 - 2)) + 3
+
+(define (f L) (+ (floor (sqrt (- (* 2 L L) 2))) 3))
+
+Facciamo alcune prove:
+
+(f 3)
+;-> 7
+(f 5)
+;-> 9
+
+(map f (sequence 1 50))
+;-> (3 5 7 8 9 11 12 14 15 17 18 19 21 22 24 25 27 28
+;->  29 31 32 34 35 36 38 39 41 42 43 45 46 48 49 51 52
+;->  53 55 56 58 59 60 62 63 65 66 68 69 70 72 73)
+
 =============================================================================
 

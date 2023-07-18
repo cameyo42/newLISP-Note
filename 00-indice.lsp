@@ -1923,6 +1923,7 @@ NOTE LIBERE 17
   Numero di coprimi di un numero
   map vs dolist
   La funzione matematica Torian
+  Segmento casuale su griglia quadrata
 
 PROBLEMI SUI DADI
 =================
