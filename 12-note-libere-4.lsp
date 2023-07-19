@@ -2931,6 +2931,15 @@ La macro può essere applicata anche alle stringhe:
 (replace-all sost str)
 ;-> "newLISP è divertente"
 
+Nota: attenzione alle modifiche sono circolari,
+
+(setq lst '(1 3 5 4 3))
+(setq sost '((1 3) (5 1) (4 2) (3 1)))
+(replace-all sost lst)
+;-> (1 1 1 2 1)
+
+Ogni elemento nella lista sost modifica tutti gli elementi della lista lst in sequenza.
+
 
 ----------------
 ASCII Mandelbrot

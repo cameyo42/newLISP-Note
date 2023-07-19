@@ -4055,5 +4055,229 @@ Facciamo alcune prove:
 ;->  29 31 32 34 35 36 38 39 41 42 43 45 46 48 49 51 52
 ;->  53 55 56 58 59 60 62 63 65 66 68 69 70 72 73)
 
+
+-----------------------------------------
+Confrontare due numeri dati come stringhe
+-----------------------------------------
+
+Date due stringhe numeriche determinare se rappresentano lo stesso numero.
+Le stringhe possono rappresentare numeri interi e floating point (anche in notazione esponenziale).
+Nelle stringhe possono comparire degli zeri "0" o spazi " " all'inizio e spazi " " alla fine.
+
+Esempi:
+
+  Stringa1    Stringa2   Risultato
+  --------------------------------
+  "1e3"       "1000"     true
+  "0032.4"    "32.4"     true
+  "12.345e2"  "1234.5 "  true
+  "12.34e-2"  "0.1234"   true
+  "0001"      "1    "    true
+  " 23 "      "023 "     true
+  "1450"      "1450 "    true
+  "0010001"   "10001"    true
+  "1"         "1.0"      true
+  "0010000"   "  10  "   nil
+  "101023"    "101024"   nil
+
+Funzione che compara due stringhe numeriche:
+
+(define (compare str1 str2)
+  ; str1 float o integer?
+  (if (or (find "." str1) (find "e" str1))
+      (setq str1 (float str1))
+      ;else
+      (setq str1 (int str1 0 10)))
+  ; str2 float o integer?
+  (if (or (find "." str2) (find "e" str2))
+      (setq str2 (float str2))
+      ;else
+      (setq str2 (int str2 0 10)))
+  (= str1 str2))
+
+Verifichiamo gli esempi:
+
+(compare "1e3" "1000")
+;-> true
+(compare "0032.4" "32.4")
+;-> true
+(compare "12.345e2" "1234.5 ")
+;-> true
+(compare "12.34e-2" "0.1234")
+;-> true
+(compare "0001" "1 ")
+;-> true
+(compare " 23 " "023 ")
+;-> true
+(compare "1450" "1450 ")
+;-> true
+(compare "0010001" "10001")
+;-> true
+(compare "1" "1.0")
+;-> true
+(compare "0010000" " 10 ")
+;-> nil
+(compare "101023" "101024")
+;-> nil
+
+
+--------------------
+Operazioni Flip-Flop
+--------------------
+
+Operazione flip: inverte i primi k elementi di una lista
+Operazione flop: inverte gli ultimi k elementi di una lista
+
+Funzione flip
+-------------
+
+(define (flip k lst)
+  (setq k (min k (length lst))) ;k <= numero elementi di lst
+  (extend (reverse (slice lst 0 k)) (slice lst k)))
+
+Facciamo alcune prove:
+
+(setq a '(1 2 3 4 5 6 7 8 9 10))
+(setq b '(3 2 1 4 3 3 2))
+
+(flip 4 a)
+;-> (4 3 2 1 5 6 7 8 9 10)
+(flip 4 b)
+;-> (4 1 2 3 3 3 2)
+(flip 20 b)
+;-> (2 3 3 4 1 2 3)
+(flip 2 a)
+;-> (2 1 3 4 5 6 7 8 9 10)
+(flip 1 a)
+;-> (1 2 3 4 5 6 7 8 9 10)
+(flip 0 a)
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+Funzione flop
+-------------
+
+(define (flop k lst)
+  (let (len (length lst))
+    (setq k (max 1 (min k (length lst)))) ;k <= numero elementi di lst (!= 0)
+    (extend (slice lst 0 (- len k)) (reverse (slice lst (- k))))))
+
+Facciamo alcune prove:
+
+(flop 4 a)
+;-> (1 2 3 4 5 6 10 9 8 7)
+(flop 13 a)
+;-> (10 9 8 7 6 5 4 3 2 1)
+(flop 2 a)
+;-> (1 2 3 4 5 6 7 8 10 9)
+(flop 1 a)
+;-> (1 2 3 4 5 6 7 8 9 10)
+(flop 0 a)
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+Le funzioni flip e flop operano anche sulle stringhe:
+
+(flip 4 "newold")
+;-> "owenld"
+(flop 4 "newold")
+;-> "nedlow"
+
+
+-------------------------
+Trascrizione da DNA a RNA
+-------------------------
+
+Dato un filamento di DNA, restituire il suo complemento di RNA (per trascrizione di RNA).
+Entrambi i filamenti di DNA e RNA sono una sequenza di nucleotidi.
+
+I quattro nucleotidi presenti nel DNA sono:
+
+  adenina (A), citosina (C), guanina (G) e timina (T).
+
+I quattro nucleotidi trovati nell'RNA sono:
+
+  adenina (A), citosina (C), guanina (G) e uracile (U).
+
+Dato un filamento di DNA, il suo filamento di RNA trascritto si forma sostituendo ogni nucleotide con il suo complemento:
+
+  G -> C
+  C -> G
+  T -> A
+  A -> U
+
+Esempi:
+
+  Input                     Output
+  "C"                   ->  "G"
+
+  "A"                   ->  "U"
+
+  "ACGTGGTCTTAA"        ->  "UGCACCAGAAUU"
+
+  "XXX"                 ->  nil
+
+  "ACGTXXXCTTAA"        ->  nil
+
+  "ACTCAGCCGTGGTCTTAA"  ->  "UGAGUCGGCACCAGAAUU"
+
+(char "G")
+;-> 71
+(char "C")
+;-> 67
+(char "A")
+;-> 65
+(char "T")
+;-> 84
+(char "U")
+;-> 85
+
+Versione 1:
+
+(define (dna-rna1 str)
+  (let ((rna "") (err nil))
+    (dostring (c str err)
+      (cond ((= c 71) (extend rna (char 67))) ;G --> C
+            ((= c 67) (extend rna (char 71))) ;C --> G
+            ((= c 84) (extend rna (char 65))) ;T --> A
+            ((= c 65) (extend rna (char 85))) ;A --> U
+            (true (setq err true) (setq rna nil))
+      )
+    )
+    rna))
+
+(dna-rna1 "C")
+;-> "G"
+(dna-rna1 "ACGTGGTCTTAA")
+;-> "UGCACCAGAAUU"
+(dna-rna1 "XXX")
+;-> nil
+(dna-rna1 "ACGTGGTCTTAAx")
+;-> nil
+(dna-rna1 "ACTCAGCCGTGGTCTTAA")
+;-> "UGAGUCGGCACCAGAAUU"
+
+Versione 2:
+
+(define (dna-rna2 str)
+  (let ((rna "") (err nil) (alst '(("G" "C") ("C" "G") ("T" "A") ("A" "U"))))
+    (dolist (ch (explode str) err)
+      (setq val (lookup ch alst))
+      (if val
+          (extend rna val)
+          (setq err true rna nil)
+      )
+    )
+    rna))
+
+(dna-rna2 "C")
+;-> "G"
+(dna-rna2 "ACGTGGTCTTAA")
+;-> "UGCACCAGAAUU"
+(dna-rna2 "XXX")
+;-> nil
+(dna-rna2 "ACGTGGTCTTAAx")
+;-> nil
+(dna-rna2 "ACTCAGCCGTGGTCTTAA")
+;-> "UGAGUCGGCACCAGAAUU"
+
 =============================================================================
 

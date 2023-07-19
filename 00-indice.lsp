@@ -1924,6 +1924,9 @@ NOTE LIBERE 17
   map vs dolist
   La funzione matematica Torian
   Segmento casuale su griglia quadrata
+  Confrontare due numeri dati come stringhe
+  Operazioni Flip-Flop
+  Trascrizione da DNA a RNA
 
 PROBLEMI SUI DADI
 =================
