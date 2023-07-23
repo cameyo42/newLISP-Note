@@ -4279,5 +4279,214 @@ Versione 2:
 (dna-rna2 "ACTCAGCCGTGGTCTTAA")
 ;-> "UGAGUCGGCACCAGAAUU"
 
+
+-----------------------
+Funzione inversa di map
+-----------------------
+
+Nella versione base la funzione "map" applica una funzione agli elementi di una lista.
+Dal punto di vista concettuale la funzione inversa di "map" applica una lista di funzioni ad un numero.
+Questa nuova funzione, "pam", restituisce uno dei seguenti risultati in base ad un parametro:
+
+1) una lista di elementi in cui ognuno rappresenta l'applicazione della relativa funzione ad un numero.
+2) un numero che rappresenta l'applicazione sequenziale di tutte le funzioni a partire dal numero dato.
+
+Per esempio:
+
+(map sqrt '(4 9 16))
+;-> (2 3 4)
+
+In questo caso generiamo una lista di due elementi, (sqrt 16) e (string 16)):
+
+(pam 16 '(sqrt string))
+;-> (4 "16")
+
+In questo caso generiamo un numero (string (sqrt 16)):
+
+(pam 16 '(sqrt string) true)
+;-> "4"
+
+Scriviamo la funzione:
+
+(define (pam num lst one)
+  (let (out '())
+    (cond ((true? one)
+            (setq out num)
+            (dolist (f lst)
+              (setq out ((eval f) out))))
+          (true
+            (dolist (f lst)
+              (push ((eval f) num) out -1)))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(pam 5 '(cos sin))
+;-> (0.2836621854632263 -0.9589242746631385)
+(pam 5 '(cos sin) true)
+;-> 0.2798733507685274
+
+Possiamo usare anche funzioni definite dall'utente:
+
+(pam 5 '((fn(x) (* x x)) sin))
+;-> (25 -0.9589242746631385)
+(pam 5 '((fn(x) (* x x)) sin) true)
+;-> -0.132351750097773
+
+
+---------
+Bit-array
+---------
+
+Un array di bit (bit-array, bit-vector, bit-mask, bit-set) è una struttura di dati di tipo array (o lista) che memorizza una serie di bit (0 oppure 1).
+Può essere utilizzato per implementare una semplice struttura Set.
+In alcuni linguaggi un array di bit sfrutta il parallelismo a livello di bit nell'hardware per eseguire operazioni rapidamente (purtroppo newLISP non ha questa struttura come primitiva).
+
+Un array di bit è una mappatura da un dominio ai valori nell'insieme (0, 1).
+I due valori possono essere interpretati come vero/falso, si/no, assente/presente,eccetera.
+Poichè sono possibili solo due valori, questi possono essere memorizzati in un bit.
+Come con gli altri array, l'accesso a un singolo bit viene gestito tramite indici.
+
+Per esempio, supponendo che la dimensione dell'array sia di n bit, l'array può essere utilizzato per specificare un sottoinsieme del dominio (0, 1, 2, ..., n−1), dove 1 bit indica la presenza e 0 bit l'assenza di un numero dell'insieme.
+
+Sebbene la maggior parte delle macchine non sia in grado di indirizzare singoli bit in memoria, né disponga di istruzioni per manipolare singoli bit, ogni bit in una parola può essere individuato e manipolato utilizzando operazioni bit a bit.
+
+Le operazioni bit-wise sui bit-array sono le seguenti:
+
+(setq b1 '(1 1 1 0 1 0 1 0))
+(setq b2 '(0 0 0 1 0 1 0 1))
+
+OR (Impostare un bit a 1):
+11101010 OR 00000100 = 11101110
+
+AND (Impostare un bit a 0):
+11101010 AND 11111101 = 11101000
+
+AND (Determinare se un bit vale 1, zero-test):
+11101010 AND 00000001 = 00000000 = 0
+11101010 AND 00000010 = 00000010 != 0
+
+XOR (Invertire un bit)
+11101010 XOR 00000100 = 11101110
+11101110 XOR 00000100 = 11101010
+
+NOT (Invertire tutti i bit):
+NOT 10110010 = 01001101
+
+Per ottenere la maschera di bit (bit-mask) necessaria per queste operazioni, possiamo utilizzare un operatore di bit shift per spostare il numero 1 a sinistra del numero appropriato di posizioni, nonché la negazione bit per bit (bitwise) se necessario.
+
+Dati due array di bit, a e b, della stessa dimensione che rappresentano insiemi (set), possiamo calcolare la loro unione, intersezione e differenza degli insiemi (set) utilizzando semplici operazioni di bit:
+
+    unione[i]       := a[i] or b[i]
+    intersezione[i] := a[i] and b[i]
+    differenza[i]   := a[i] and (not b[i])
+
+Definiamo le funzioni "AND", "OR", "XOR", e "NOT" per i bit-array:
+
+Funzione "AND":
+(define (bit-and b1 b2) (map & b1 b2))
+
+Funzione "OR":
+(define (bit-or b1 b2) (map | b1 b2))
+
+Funzione "XOR":
+(define (bit-xor b1 b2) (map ^ b1 b2))
+
+Funzione "NOT":
+(define (bit-not b) (map (fn(x) (- 1 x)) b))
+
+Facciamo una prova:
+
+(bit-and '(1 1 1 0 0) '(0 1 1 1 0))
+;-> (0 1 1 0 0)
+(bit-or '(1 1 1 0 0) '(0 1 1 1 0))
+;-> (1 1 1 1 0)
+(bit-xor '(1 1 1 0 0) '(0 1 1 1 0))
+;-> (1 0 0 1 0)
+(bit-not '(1 1 1 0 0))
+;-> (0 0 0 1 1)
+
+newLISP ha funzioni integrate per l'unione ("union"), l'intersezione ("intersection") e la differenza ("difference") tra due insiemi (set).
+
+Vediamo un semplice esempio di intersezione tra insiemi (set) con i bit-array.
+
+Set1 = (1 3 6 8 9)
+Bit-Array1 = (0 1 0 1 0 0 1 0 1 1)
+              0 1 2 3 4 5 6 7 8 9
+(setq b1 '(0 1 0 1 0 0 1 0 1 1))
+
+Set2 = (2 3 5 7 9)
+Bit-Array2 = (0 0 1 1 0 1 0 1 0 1)
+              0 1 2 3 4 5 6 7 8 9
+(setq b2 '(0 0 1 1 0 1 0 1 0 1))
+
+(define (intersezione b1 b2)
+  (let ((out '()) (bint (bit-and b1 b2)))
+    (dolist (el bint)
+      (if (= el 1) (push $idx out -1))
+    )
+    (println bint)
+    out))
+
+(intersezione b1 b2)
+;-> (0 0 0 1 0 0 0 0 0 1)
+;-> (3 9)
+
+Vediamo alcune funzioni per gestire i bit-array.
+
+Funzione che verifica se un array (o una lista) è un bit-array:
+
+(define (bit-array? b)  (apply (fn(x) (or (= x 0) (= x 1))) b))
+
+(bit-array? '(1 0 0 1 1))
+;-> true
+(bit-array? '(2 0 0 1 1))
+;-> nil
+
+Funzione che imposta i bit tutti a 0:
+
+(define (bit-clear b) (dup 0 (length b)))
+
+(bit-clear '(0 1 1 1 1 0 0 1))
+;-> (0 0 0 0 0 0 0 0)
+
+Funzione che imposta i bit tutti a 1:
+
+(define (bit-set b) (dup 1 (length b)))
+
+(bit-set '(0 1 1 1 1 0 0 1))
+;-> (1 1 1 1 1 1 1 1)
+
+Funzione che conta gli 0 di un bit-array:
+
+(define (bit-set-count b) (first (count '(1) b)))
+
+(bit-set-count '(0 1 1 1 1 0 0 1))
+;-> 5
+
+Funzione che conta gli 1 di un bit-array:
+
+(define (bit-unset-count b) (first (count '(0) b)))
+
+(bit-unset-count '(0 1 1 1 1 0 0 1))
+;-> 3
+
+Funzione che inverte un bit-array:
+
+(define (bit-invert b) (reverse b))
+
+(bit-invert '(1 1 1 0 0 1))
+;-> (1 0 0 1 1 1)
+
+Funzione che inverte i valori di un bit-array (0 ->1) (1 -> 0):
+
+(define (bit-flip b) (map (fn(x) (- 1 x)) b))
+
+(bit-flip '(1 1 1 0 0 1))
+;-> (0 0 0 1 1 0)
+
+Nota: per accedere e gestire i singoli elementi dei bit-array possiamo usare i classici metodi di indicizzazione.
+
 =============================================================================
 

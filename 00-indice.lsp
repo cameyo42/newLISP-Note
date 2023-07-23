@@ -1927,6 +1927,8 @@ NOTE LIBERE 17
   Confrontare due numeri dati come stringhe
   Operazioni Flip-Flop
   Trascrizione da DNA a RNA
+  Funzione inversa di map
+  Bit-array
 
 PROBLEMI SUI DADI
 =================
