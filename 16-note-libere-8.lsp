@@ -3817,7 +3817,7 @@ Creiamo un file di testo windows (\r\n):
 
 Adesso il file "win.txt" ha il terminatore di linea di tipo windows (\r\n)
 
-Creiamo un file di testo windows (\r):
+Creiamo un file di testo unix (\r):
 
 (device (open "unix.txt" "write"))
 (println-unix "prova " "unix")

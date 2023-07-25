@@ -1929,6 +1929,10 @@ NOTE LIBERE 17
   Trascrizione da DNA a RNA
   Funzione inversa di map
   Bit-array
+  Dividere una stringa alla prima occorrenza di ogni carattere
+  Codice (quasi) segreto
+  Quanto costa eval in termini di tempo?
+  Subset Sum Problem
 
 PROBLEMI SUI DADI
 =================

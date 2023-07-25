@@ -4488,5 +4488,262 @@ Funzione che inverte i valori di un bit-array (0 ->1) (1 -> 0):
 
 Nota: per accedere e gestire i singoli elementi dei bit-array possiamo usare i classici metodi di indicizzazione.
 
+
+------------------------------------------------------------
+Dividere una stringa alla prima occorrenza di ogni carattere
+------------------------------------------------------------
+
+Data una stringa ASCII stampabile, dividerla in sottostringhe.
+Le sottostringhe iniziano ogni volta che compare un nuovo carattere.
+
+Per esempio:
+  massimo --> m, a, ss, im, o
+  mississippi --> m, i, ssissi, ppi
+  Adam --> A, d, a, m
+
+(define (break str)
+  (local (out vecchi tmp)
+    (setq out '())
+    ; lista dei caratteri visti
+    (setq vecchi '())
+    ; sottostringa
+    (setq tmp "")
+    ; ciclo per ogni carattere
+    (dolist (ch (explode str))
+      (cond ((find ch vecchi) ; se carattere in vecchi
+              (extend tmp ch)); allora aumenta la stringa tmp
+            (true ; se carattere non in vecchi
+              ; mette carattere nei vecchi
+              (push ch vecchi)
+              ; se tmp non è nulla , allora la inserisce nel risultato
+              (if (!= tmp "") (push tmp out -1))
+              ; la sottostringa tmp diventa il carattere
+              (setq tmp ch)
+            )
+      )
+    )
+    ; ; se tmp non è nulla , allora la inserisce nel risultato (ultima)
+    (if (!= tmp "") (push tmp out -1))
+    out))
+
+Facciamo alcune prove:
+
+(break "")
+;-> ()
+(break "massimo")
+;-> ("m" "a" "ss" "im" "o")
+(break "mississippi")
+;-> ("m" "i" "ssissi" "ppi")
+(break "AAA")
+;-> ("AAA")
+(break "P P & C G")
+;-> ("P" " P " "& " "C " "G")
+(break "Adam")
+;-> ("A" "d" "a" "m")
+(break "newLISP")
+;-> ("n" "e" "w" "L" "I" "S" "P")
+
+
+----------------------
+Codice (quasi) segreto
+----------------------
+
+Due agenti segreti hanno escogitato il seguente metodo di comunicazione:
+
+1) Prendere il codice ASCII di ogni lettera. (Non vengono usati spazi, numeri o punteggiatura)
+
+2) Per ogni lettera del messaggio, prendiamo il codice ASCII di essa e il codice ASCII della lettera successiva (se esiste, se non esiste, deve essere considerata 0).
+
+3) I due valori vengono moltiplicati (questo prodotto viene memorizzato in una lista) e sommati (questo numero viene memorizzato in una lista diversa).
+
+4) Le due liste (delle somme e dei prodotti) vengono unite (prima le somme, poi i prodotti) in un unica lista che viene trasmessa.
+
+Esempi di coppie di messaggi cifrati e in chiaro:
+
+(173 209 216 219 198 198 225 222 208 100 
+ 7272 10908 11664 11988 9657 9657 12654 12312 10800 0) -> "HelloWorld"
+ 
+(131 133 164 195 197 99 
+ 4290 4422 6499 9506 9702 0) -> "ABCabc"
+
+Scrivere due funzioni di codifica e decodifica di questo metodo.
+
+Funzione che cripta una stringa:
+
+(define (crypt str)
+  (local (len somma prodotto)
+    (setq len (length str))
+    (for (i 0 (- len 2))
+      ; codice ASCII carattere corrente
+      (setq ch1 (char (str i)))
+      ; codice ASCII carattere successivo
+      (setq ch2 (char (str (+ i 1))))
+      ; aggiorna lista prodotto
+      (push (* ch1 ch2) prodotto -1)
+      ; aggiorna lista somma
+      (push (+ ch1 ch2) somma -1)
+    )
+    ; aggiorna le liste con l'ultimo valore
+    (push 0 prodotto -1)
+    (push (char (str -1)) somma -1)
+    ; unisce le liste
+    (append somma prodotto)))
+
+(setq data (crypt "HelloWorld"))
+;-> (173 209 216 219 198 198 225 222 208 100 7272 10908 11664 11988 9657 9657 12654 12312
+;->  10800 0)
+
+Per decriptare il messaggio è sufficiente prendere la lista delle somme.
+Partiamo dall'ultimo valore che rappresenta il codice ASCII dell'ultima lettera del messaggio.
+Adesso per trovare la lettera precedente basta sottrarre il codice ASCII dell'ultimo carattere decodificato al numero corrente per ottenere il codice ASCII della lettera.
+Ripetere questo procedimento fino all'inizio della lista.
+
+Funzione che decripta una lista di numeri (somme e prodotti):
+
+(define (decrypt lst)
+  (setq out "")
+  ; serve solo la parte delle somme
+  (setq half (slice lst 0 (/ (length lst) 2)))
+  ; il precedente dell'ultimo carattere vale 0 (lista inversa)
+  (setq prev 0) 
+  ; ciclo dalla fine della lista di somme
+  (dolist (num (reverse half))
+      ; sottrae il codice ASCII precedente
+      (setq num-ch (- num prev))
+      ; carattere dal codice ASCII
+      (extend out (char num-ch))
+      ; il codice ASCII corrente diventa il precedente 
+      (setq prev num-ch)
+  )
+  (reverse out)
+)
+
+(decrypt data)
+;-> "HelloWorld"
+
+(decrypt (crypt "ABCabc"))
+;-> "ABCabc"
+
+
+--------------------------------------
+Quanto costa eval in termini di tempo?
+--------------------------------------
+
+Vedere anche "eval, eval-string, read-expr" su "Note libere 6".
+
+newLISP mette a disposizione la funzione "eval" (e anche "eval-string") che è molto potente, ma quanto costa la sua esecuzione?
+
+Ad esempio, vediamo la velocità di "eval" nel passaggio per riferimento.
+
+Funzione che valuta l'oggetto passato:
+
+(define (ev obj) (eval obj))
+
+Usiamo tre liste (1000, 1 milione, 10 milioni):
+
+(silent
+  (setq a (sequence 1 1e3))
+  (setq b (sequence 1 1e6))
+  (setq c (sequence 1 1e7)))
+
+(time (ev 'a))
+;-> 0
+(time (ev 'b))
+;-> 8.976
+(time (ev 'c))
+;-> 95.771
+
+Con 1 milione di elementi "eval" impiega circa 9 millisecondi.
+Con 10 milioni di elementi "eval" impiega circa 96 millisecondi.
+
+La velocità di "eval" è inversamente proporzionale al numero degli elementi della struttura da valutare.
+
+
+------------------
+Subset Sum Problem
+------------------
+
+Data una lista di numeri interi positivi, dividere la lista in due sottoliste:
+1) i numeri che possono essere formati sommando gli altri elementi
+2) i numeri che non possono essere formati sommando gli altri elementi
+
+Un numero può essere formato da una lista di numeri se una o più sottoliste di elementi sommano al numero.
+
+Funzione che data una lista e un numero, calcola tutte le sotto-liste che sommano a quel numero:
+
+(define (subset-sum-all lst sum)
+  (local (limit val len out)
+    (setq out '())
+    (setq len (length lst))
+    ; numero di subset
+    (setq limit (<< 1 len))
+    ;(setq limit (pow 2 len))
+    (for (i 0 (- limit 1))
+      (setq val 0)
+      (setq tmp '())
+      (setq stop nil)
+      (for (j 0 (- len 1) 1 stop)
+        ; usa la rappresentazione binaria di "i"
+        ; per decidere quali elementi prendere.
+        (if (!= (& i (<< 1 j)))
+          (begin
+            (push (lst j) tmp -1)
+            (setq val (+ val (lst j)))
+            ; stop se somma del sottoinsieme corrente
+            ; supera il valore sum
+            (if (> val sum) (setq stop true))
+          )
+        )
+      )
+      (if (= val sum)
+        ; aggiunge un sottosieme che somma a sum
+        (push tmp out -1)
+      )
+    )
+    out))
+
+(subset-sum-all '(1 2 3 4 5) 10)
+;-> ((1 2 3 4) (2 3 5) (1 4 5))
+
+(subset-sum-all (sequence 1 10) 10)
+;-> ((1 2 3 4) (2 3 5) (1 4 5) (1 3 6) (4 6) (1 2 7) (3 7) (2 8) (1 9) (10))
+
+Funzione che crea le due sottoliste (formabili e non):
+
+(define (separa lst)
+  (let ((somme '()) 
+        (addendi '())
+        (primitivi '())
+        (tmp lst))
+    (dolist (el lst)
+      ; toglie il numero corrente
+      (pop tmp $idx)
+      ; calcola tutte le somme possibili
+      (setq somme (map (fn(x) (apply + x)) (subset-sum-all tmp el)))
+      (if (find el somme)
+          (push el addendi -1)
+          (push el primitivi)
+      )
+      (setq tmp lst)
+    )
+    (list addendi primitivi)))
+
+Facciamo alcune prove:
+
+(separa '(2 3 1 1))
+;-> ((2 3 1 1) ())
+(separa '(2 3 1))
+;-> ((3) (1 2))
+(separa '(8 2 1 4))
+;-> (() (4 1 2 8))
+(separa '(7 2 1 4))
+;-> ((7) (4 1 2))
+(separa '(7 2 1 4 6))
+;-> ((7 6) (4 1 2))
+(separa (sequence 1 10) 20)
+;-> ((3 4 5 6 7 8 9 10) (2 1))
+
+Vedere anche "Somma dei sottoinsiemi (Subset Sum Problem)" su "Note libere 8".
+
 =============================================================================
 
