@@ -1933,6 +1933,8 @@ NOTE LIBERE 17
   Codice (quasi) segreto
   Quanto costa eval in termini di tempo?
   Subset Sum Problem
+  Scatola di biscotti
+  Numeri armonici generalizzati
 
 PROBLEMI SUI DADI
 =================

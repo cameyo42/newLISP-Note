@@ -4745,5 +4745,169 @@ Facciamo alcune prove:
 
 Vedere anche "Somma dei sottoinsiemi (Subset Sum Problem)" su "Note libere 8".
 
+
+-------------------
+Scatola di biscotti
+-------------------
+
+Una scatola di biscotti contiene K tipi diversi di biscotti.
+Inoltre, contiene quantità diverse di ciascun tipo di biscotto.
+
+I biscotti vanno mangiati con la seguente regola:
+  il giorno N-esimo bisogna mangiare N biscotti diversi.
+
+In altre parole:
+il giorno 1 dobbiamo mangiare 1 biscotto
+il giorno 2 dobbiamo mangiare 2 biscotti (tutti diversi)
+il giorno 3 dobbiamo mangiare 3 biscotti (tutti diversi)
+ecc.
+
+Se non è possibile seguire la regola, allora non è possibile continuare a mangiare i biscotti.
+
+Trovare il numero massimo di giorni N in cui è possibile mangiare i biscotti.
+
+La lista di input contiene K numeri interi positivi, che specificano il numero di biscotti per ogni diverso tipo.
+
+
+Soluzione
+---------
+Occorre "mangiare" 1 ciascuno degli N biscotti con la quantità maggiore ogni giorno, iniziando con N=1, fino a quando non esistono più N biscotti diversi.
+Restituire il numero di giorni in cui è stato possibile mangiare i biscotti.
+
+(define (eats lst)
+  (let ( (day 1) (stop nil) (eated 0) )
+    (until stop
+      ; mangia day biscotti diversi
+      ; partendo dai tipi con il maggior numero di biscotti
+      (sort lst >)
+      (setq eated 0)
+      (dolist (el lst (= eated day))
+        (-- (lst $idx))
+        (++ eated)
+      )
+      ; numero di tipi di biscotti rimasti
+      (setq fill (clean zero? lst))
+      ; esistono un numero di tipi di biscotti da mangiare
+      ; il prossimo giorno?
+      (if (< (length fill) (+ day 1)) 
+          (setq stop true)
+          ;else
+          (++ day)
+      )
+    )
+    day))
+
+Facciamo alcune prove:
+
+(eats '(1 2))
+;-> 2
+(eats '(1 2 3))
+;-> 3
+(eats '(1 2 3 4 4))
+;-> 4
+(eats '(1 2 3 3))
+;-> 3
+(eats '(2 2 2))
+;-> 3
+(eats '(1 1 1 1))
+;-> 2
+(eats '(11 22 33 44 55 66 77 88 99))
+;-> 9
+(eats '(10 20 30 40 50 60 70 80))
+ -> 8
+(eats '(3 3 3 3 3 3 3 3 3 3 3)) 
+;-> 7
+(eats '(3 3 3 3 3 3 3 3 3))
+;-> 6
+(eats '(9 5 6 8 7))
+;-> 5
+(eats '(1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 3 3 3 3 3 3 3 3
+        3 3 3 3 4 4 4 4 4 4 4 4 4 4 4 4 5 5 5 5 5 5 5 5 5 5 5 5 6 6 6 6
+        6 6 6 6 6 6 6 6 7 7 7 7 7 7 7 7 7 7 7 7 8 8 8 8 8 8 8 8 8 8 8 8
+        9 9 9 9 9 9 9 9 9 9 9 9 10 10 10 10 10 10 10 10 10 10 10 10))
+;-> 35
+(eats '(1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1
+        2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2
+        3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3 4 5 6 7 8 9 10 1 2 3
+        4 5 6 7 8 9 10))
+;-> 32
+
+
+-----------------------------
+Numeri armonici generalizzati
+-----------------------------
+
+Il concetto di numero armonico può essere generalizzato.
+Fissati due interi naturali m ed n, si definisce come n-esimo numero armonico generalizzato di esponente m la somma:
+
+  H(n,m) = Sum[k=1..n](1/k^m)
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+; Funzioni per il calcolo delle quattro operazioni
+; aritmetiche con le frazioni: "+", "-" "*" "/"
+; (big-integer enabled)
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+(define (+rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (+ (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1L) (r2 1L))))
+(define (-rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (- (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1) (r2 1))))
+(define (*rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 0L))
+       (* (r1 1L) (r2 1L))))
+(define (/rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 1L))
+       (* (r1 1L) (r2 0L))))
+
+Funzione che calcola il valore esatto di un numero armonico generalizzato dato n e m:
+
+(define (H n m)
+  (let (sum '(0 1))
+    (for (k 1 n) (setq sum (+rat sum (list 1 (** k m)))))
+    sum))
+
+Facciamo alcune prove:
+
+(H 3 7)
+;-> (282251L 279936L)
+(H 6 4)
+;-> (14011361L 12960000L)
+(H 5 5)
+;-> (806108207L 777600000L)
+(H 4 8)
+;-> (431733409L 429981696L)
+(H 3 1)
+;-> (11L 6L)
+(H 8 3)
+;-> (78708473L 65856000L)
+(H 7 2)
+;-> (266681L 176400L)
+(H 6 7)
+;-> (940908897061L 933120000000L)
+(H 2 8)
+;-> (257L 256L)
+(H 5 7)
+;-> (2822716691183L 2799360000000L)
+
 =============================================================================
 
