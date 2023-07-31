@@ -4909,5 +4909,483 @@ Facciamo alcune prove:
 (H 5 7)
 ;-> (2822716691183L 2799360000000L)
 
+
+-------------------
+Esercizio Toy-Robot
+-------------------
+
+Il "Toy-Robot" è un famoso esercizio che viene comunemente utilizzato come problema nelle interviste per programmatori.
+
+È stato originariamente sviluppato dal programmatore Jon Eaves:
+https://joneaves.wordpress.com/2014/07/21/toy-robot-coding-test/
+
+La descrizione dell'esercizio è abbastanza semplice, ma ha una certa complessità di fondo che può portare a qualche difficoltà nel provare a risolverlo.
+
+Le specifiche dell'esercizio "Toy-Robot":
+Si tratta di simulare un robot giocattolo che si muove su un tavolo quadrato, di dimensioni 5 unità x 5 unità.
+Non ci sono altri ostacoli sulla superficie del tavolo.
+Il robot è libero di muoversi sulla superficie del tavolo.
+Qualsiasi movimento che provocherebbe la caduta del robot dal tavolo è impedito, tuttavia sono comunque consentiti ulteriori comandi di movimento validi.
+Il robot è controllato dai comandi eseguit dalla REPL (o dalla lettura di un file di comandi).
+
+Sono validi i seguenti comandi:
+
+  1) PLACE X,Y,F
+  2) MOVE
+  3) LEFT
+  4) RIGHT
+  5) REPORT
+  6) SHOW
+
+- PLACE metterà il robot giocattolo sul tavolo in posizione X, Y e rivolto a NORD, SUD, EST o OVEST.
+- L'origine (0,0) è l'angolo più a SUD-OVEST.
+- Tutti i comandi vengono ignorati finché non viene creato un PLACE valido.
+- MOVE sposterà il robot giocattolo di un'unità in avanti nella direzione in cui è attualmente rivolto.
+- LEFT e RIGHT ruotano il robot di 90 gradi nella direzione specificata senza modificare la posizione del robot.
+- REPORT stampa la posizione e l'orientamento del robot (X, Y e F).
+- SHOW stampa la griglia con la posizione e l'orientamento del robot.
+
+Si suppone che il file abbia tutti i comandi sintatticamente corretti.
+Tutti i comandi devono essere in maiuscolo.
+
+Implementazione
+---------------
+
+Comandi:
+  1) (PLACE X Y F)
+  2) (MOVE)
+  3) (LEFT)
+  4) (RIGHT)
+  5) (REPORT)
+  6) (SHOW)
+
+Funzione SETUP (definisce le variabili globali dell'applicazione):
+
+(define (SETUP)
+  ; grid dimension
+  (setq side 5)
+  ; table grid 5x5 (side x side)
+  (setq table (array-list (array side side '(.))))
+  ; current position of robot (x y) (col row)
+  (setq xpos nil)
+  (setq ypos nil)
+  ; current direction of robot
+  (setq dir nil)
+  ; possible directions
+  (setq directions '("NORTH" "SUD" "EAST" "WEST"))
+  (setq NORTH "NORTH")
+  (setq SUD "SUD")
+  (setq EAST "EAST")
+  (setq WEST "WEST")
+  ; symbols of directions
+  (setq dir-symbols '("N" "S" "E" "W"))
+  (setq dir-symbols '("^" "!" ">" "<"))
+  ; these don't works on windows (dos)
+  ;(setq dir-symbols '("↑" "↓" "→" "←"))
+  ;(setq dir-symbols '("∧" "∨" ">" "<"))
+  ; to test symbols
+  ;(map println dir-symbols)
+  )
+
+Funzione LOAD-FILE (carica ed esegue un file di comandi):
+
+(define (LOAD-FILE filename)
+  (let (aFile (open filename "read"))
+    (while (setq line (read-line aFile))
+      ;(write-line)
+      ; skip comment
+      (if (!= (line 0) ";") (eval-string line))
+    )
+    (close aFile)
+    'end-of-file))
+
+(LOAD-FILE "robot.txt")
+
+Funzione REPORT:
+
+(define (REPORT)
+  (println "Robot is at ("xpos ", " ypos"), facing " dir))
+
+Funzione PLACE:
+
+(define (PLACE x y f)
+  (cond
+    ; robot position is inside the table?
+    ((or (< x 0) (< y 0) (> x (- side 1)) (> y (- side 1))) nil)
+    ; robot direction is valid?
+    ((not (find f directions)) nil)
+    ; setting place values
+    (true
+      (setq xpos x)
+      (setq ypos y)
+      (setq dir f))))
+
+Funzione MOVE:
+
+(define (MOVE)
+  ; robot already placed?
+  (if (nil? dir) nil
+    ; else
+    (local (xnew ynew)
+      (setq xnew xpos)
+      (setq ynew ypos)
+      ; calculate new position based on actual direction
+      (case dir
+        ("NORTH" (++ ynew))
+        ("SUD"   (-- ynew))
+        ("EAST"  (++ xnew))
+        ("WEST"  (-- xnew))
+      )
+      (cond
+        ; robot new position is inside the table?
+        ((or (< xnew 0) (< ynew 0) (> xnew (- side 1)) (> ynew (- side 1))) nil)
+        ; setting place values
+        (true
+          (setq xpos xnew)
+          (setq ypos ynew))))))
+
+Funzione LEFT:
+
+(define (LEFT)
+  ; robot already placed?
+  (if (nil? dir) nil
+    ; else
+    (case dir
+      ("NORTH" (setq dir "WEST"))
+      ("SUD"   (setq dir "EAST"))
+      ("EAST"  (setq dir "NORTH"))
+      ("WEST"  (setq dir "SUD"))
+      (true nil))))
+
+Funzione RIGHT:
+
+(define (RIGHT)
+  ; robot already placed?
+  (if (nil? dir) nil
+    ; else
+    (case dir
+      ("NORTH" (setq dir "EAST"))
+      ("SUD"   (setq dir "WEST"))
+      ("EAST"  (setq dir "SUD"))
+      ("WEST"  (setq dir "NORTH"))
+      (true nil))))
+
+Funzione SHOW:
+
+(define (SHOW)
+  ; robot already placed?
+  (if (nil? dir) nil
+    ;else
+    ; tavolo di gioco 5x5 (side x side)
+    (begin
+      ; setting symbol of direction
+      (setq (table ypos xpos) (dir-symbols (find dir directions)))
+      ; print grid (as cartesian plane)
+      ; row -> y, col -> x
+      ; y is reversed
+      (for (y (- side 1) 0)
+        ; y axis
+        (print y { })
+        (for (x 0 (- side 1))
+          (print (string (table y x) " "))
+        )
+        (println)
+      )
+      ; x axis
+      (println "  " (join (map string (sequence 0 (- side 1))) " "))
+      ; clean table
+      (setq (table ypos xpos) ".")
+      '------------)))
+
+Facciamo alcune prove:
+
+Giro del tavolo in senso antiorario partendo dall'origine:
+(SETUP)
+(PLACE 0 0 "EAST")
+(REPORT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(LEFT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(LEFT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(LEFT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(SHOW)
+
+Giro del tavolo in senso orario partendo dall'origine (robot.txt):
+(SETUP)
+(PLACE 0 0 "NORTH")
+(REPORT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(RIGHT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(RIGHT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(RIGHT)
+(SHOW)
+(MOVE) (MOVE) (MOVE) (MOVE)
+(SHOW)
+
+(LOAD-FILE "robot.txt")
+;-> Robot is at (0, 0), facing NORTH
+;-> 4 . . . . .
+;-> 3 . . . . .
+;-> 2 . . . . .
+;-> 1 . . . . .
+;-> 0 ^ . . . .
+;->   0 1 2 3 4
+;-> 4 > . . . .
+;-> 3 . . . . .
+;-> 2 . . . . .
+;-> 1 . . . . .
+;-> 0 . . . . .
+;->   0 1 2 3 4
+;-> 4 . . . . !
+;-> 3 . . . . .
+;-> 2 . . . . .
+;-> 1 . . . . .
+;-> 0 . . . . .
+;->   0 1 2 3 4
+;-> 4 . . . . .
+;-> 3 . . . . .
+;-> 2 . . . . .
+;-> 1 . . . . .
+;-> 0 . . . . <
+;->   0 1 2 3 4
+;-> 4 . . . . .
+;-> 3 . . . . .
+;-> 2 . . . . .
+;-> 1 . . . . .
+;-> 0 < . . . .
+;->   0 1 2 3 4
+;-> end-of-file
+
+Nota: il programmatore Ryan Bigg ha scritto due libri sull'esercizio Toy-Robot,
+"A walkthrough for The Toy Robot - The Elixir Version" e 
+"A walkthrough for The Toy Robot - The Ruby Version"
+
+
+--------------------
+Estensioni Toy-Robot
+--------------------
+
+Alcune funzioni che estendono le funzionalità del Toy-Robot.
+
+Funzione che muove il robot di L caselle (attuale direzione):
+
+(define (MOVES L)
+  (if (nil? dir) nil
+    ;else
+    (for (i 1 L) (MOVE))))
+
+Funzione che inverte di 180 gradi la direzione del robot:
+
+(define (FLIP)
+  (if (nil? dir) nil
+    ;else
+    (LEFT) (LEFT)))
+
+Disegna un punto nella cella corrente del robot:
+
+(define (PLOT)
+  (if (nil? dir) nil
+    ;else
+    (setq (table ypos xpos) "■")))
+
+Pulisce la cella della posizione corrente del robot:
+
+(define (UNPLOT)
+  (if (nil? dir) nil
+    ;else
+    (setq (table ypos xpos) ".■")))
+
+(define (LINE L)
+  (if (nil? dir) nil
+    ;else
+    (for (i 1 L) (PLOT) (MOVE))))
+
+(SETUP)
+(PLACE 0 0 "NORTH")
+(SHOW)
+(PLOT)
+(MOVE)
+(PLOT)
+(MOVE)
+(SHOW)
+;-> 4 . . . . .
+;-> 3 . . . . .
+;-> 2 ^ . . . .
+;-> 1 ■ . . . .
+;-> 0 ■ . . . .
+;->   0 1 2 3 4
+;-> ------------
+(LINE 2)
+(SHOW)
+(RIGHT)
+(LINE 4)
+(SHOW)
+;-> 4 ■ ■ ■ ■ >
+;-> 3 ■ . . . .
+;-> 2 ■ . . . .
+;-> 1 ■ . . . .
+;-> 0 ■ . . . .
+;->   0 1 2 3 4
+;-> ------------
+
+
+--------------------
+Creare scatole ASCII
+--------------------
+
+Dati due numeri interi come altezza e larghezza, disegnare una scatola con i caratteri "[]".
+Per esempio,
+
+Input:
+  Altezza = 2
+  Larghezza = 3
+Output:
+  [][][]
+  [][][]
+
+(define (box height width) (for (i 1 height) (println (dup "[]" width))))
+
+(box 2 3)
+;-> [][][]
+;-> [][][]
+(box 3 10)
+;-> [][][][][][][][][][]
+;-> [][][][][][][][][][]
+;-> [][][][][][][][][][]
+
+
+-------------------------
+Calcolo del punteggio ELO
+-------------------------
+
+Calcolare il nuovo punteggio ELO (sistema di valutazione FIDE) per un giocatore dopo aver vinto, perso o pareggiato una partita di scacchi.
+
+Per calcolare il rating ELO sono necessarie due formule:
+
+  R' = R0 + K*(S - E)
+  E = 1 / (1 + 10 ^ ((R1 - R0) / 400))
+
+  R = R1 + K*(S - E)
+  E = 1 / (1 + 10 ^ ((R2 - R1) / 400))
+
+dove:
+  R è la nuova valutazione per player0,
+  R1 è la valutazione attuale di player1 e R2 è la valutazione attuale di player2,
+  S è il punteggio della partita: 1 se player1 vince, 0 se player1 perde o 0.5 se player1 pareggia,
+  K = 40 se la cronologia data ha una lunghezza < 30, anche se supera 2400
+  K = 20 se la cronologia data ha una lunghezza >= 30 e non raggiunge mai 2400 (<2400),
+  K = 10 se la cronologia data ha una lunghezza >= 30 e supera 2400 in qualunque punto (>=2400)
+
+Se la cronologia non esiste, allora il rating ELO corrente vale 1000.
+
+Input:
+1) Lista delle valutazioni del giocatore 1 (numeri interi positivi maggiori di 0), dove l'ultimo elemento è la valutazione attuale del giocatore. (Se non viene fornita alcuna cronologia, la valutazione corrente sarà 1000.)
+2) Valore ELO di player2 (numero intero)
+3) Punteggio/risultato: 1, 0 o 0.5
+
+Output:
+R, nuovo valore dell'ELO di player1 (numero intero)
+
+Implementazione:
+
+(define (new-ELO lst r2 result)
+  (local (r1 len k e r)
+  ; setting ELO player1 (r1)
+  (if (= lst '())
+      (setq r1 1000)
+      (setq r1 (lst -1))
+  )
+  ; setting K
+  (setq len (length lst))
+  (cond ((< len 30) (setq k 40))
+        ((and (>= len 30) (find 2400 lst <)) (setq k 10))
+        (true (setq k 20))
+  )
+  ; calculating E
+  ; E = 1 / (1 + 10 ^ ((R2 - R1) / 400))
+  (setq e (div (add 1 (pow 10 (div (sub r2 r1) 400)))))
+  (println "k = " k)
+  (println "e = " e)
+  ; calculating new ELO for player1
+  ; R = R1 + K*(S - E)
+  (setq r (add r1 (mul k (sub result e))))
+  ; round new ELO to integer
+  (int (add r 0.5))))
+
+Facciamo alcune prove:
+
+(new-ELO '() 1500 1)
+;-> 1038
+(new-ELO '(1000 1025 1050 1075 1100 1125 1150 1175 1200 1225 1250 1275 1300 1325 1350 1375 1400 1425 1450 1475 1500 1525 1550 1575 1600 1625 1650 1675 1700 1725) 1000 0)
+;-> 1705
+(new-ELO '(1000 1025 1050 1075 1100 1125 1150 1175 1200 1225 1250 1275 1300 1325 1350 1375 1400 1425 1450 1475 1500 1525 1550 1575 1600 1625 1650 1800 2100 2500) 2200 0.5)
+;-> 2497
+(new-ELO '(2256 25 1253 1278 443 789) 3999 0.5)
+;-> 809
+(new-ELO '(783 1779 495 1817 133 2194 1753 2169 834 521 734 1234 1901 637) 3291 0.5)
+;-> 657
+(new-ELO '(190 1267 567 2201 2079 1058 1694 112 780 1182 134 1077 1243 1119 1883 1837) 283 1)
+;-> 1837
+(new-ELO '(1665 718 85 1808 2546 2193 868 3514 436 2913 6 654 797 2564 3872 2250 2597 1208 1928 3478 2359 3909 581 3892 1556 1175 2221 3996 3346 238) 2080 1)
+;-> 248
+(new-ELO '(1543 2937 2267 556 445 2489 2741 3200 528 964 2346 3467 2831 3746 3824 2770 3207 613 2675 1692 2537 1715 3018 2760 2162 2038 2637 741 1849 41 193 458 2292 222 2997)  3814  0.5)
+;-> 3002
+
+
+------------------------------------------
+Probabilità di vittoria tra due rating ELO
+------------------------------------------
+
+Calcola la possibilità di vincita prevista per due giocatori in una partita di scacchi, ciascuno con il proprio punteggio ELO. Il giocatore 1 ha ELO R1 e il giocatore 2 ha ELO R2.
+
+Il punteggio previsto per il giocatore 1 (E1) vale:
+E1 = 1 / (1 + 10^((R2 - R1) / 400))
+
+Il punteggio previsto per il giocatore 2 (E2) vale:
+E2 = 1 / (1 + 10^((R1 - R2) / 400))
+
+E1 + E2 dovrebbe essere uguale a 1 (a parte gli arrotondamenti dei floating).
+
+Pertanto, il punteggio per un giocatore è il valore atteso di vincere una partita, in decimale.
+
+(define (ELO r1 r2)
+  (local (e1 e2)
+    (setq e1 (div (add 1 (pow 10 (div (sub r2 r1) 400)))))
+    (setq e2 (div (add 1 (pow 10 (div (sub r1 r2) 400)))))
+    (println (sub 1 e2) { } (sub 1 e1))
+    (list e1 e2)))
+
+Vediamo alcuni esempi:
+
+(ELO 1200 2100)
+;-> 0.005591967308834822 0.9944080326911652
+;-> (0.005591967308834779 0.9944080326911652)
+(ELO 1 1)
+;-> 0.5 0.5
+;-> (0.5 0.5)
+(ELO 1850 2400)
+;-> 0.04046332603236424 0.9595366739676356
+;-> (0.04046332603236435 0.9595366739676358)
+(ELO 2700 2500)
+;-> 0.759746926647958 0.2402530733520422
+;-> (0.7597469266479578 0.2402530733520421)
+(ELO 2500 2400)
+;-> 0.6400649998028851 0.3599350001971149
+;-> (0.6400649998028851 0.3599350001971149)
+(ELO 9999 1)
+;-> 1 0
+;-> (1 1.011579454259896e-025)
+
 =============================================================================
 

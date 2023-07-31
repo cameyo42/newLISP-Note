@@ -1935,6 +1935,11 @@ NOTE LIBERE 17
   Subset Sum Problem
   Scatola di biscotti
   Numeri armonici generalizzati
+  Esercizio Toy-Robot
+  Estensioni Toy-Robot
+  Creare scatole ASCII
+  Calcolo del punteggio ELO
+  Probabilità di vittoria tra due rating ELO
 
 PROBLEMI SUI DADI
 =================
