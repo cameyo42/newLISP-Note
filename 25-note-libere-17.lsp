@@ -5387,5 +5387,251 @@ Vediamo alcuni esempi:
 ;-> 1 0
 ;-> (1 1.011579454259896e-025)
 
+
+---------------
+newLISP QR Code
+---------------
+
+https://www.nayuki.io/page/creating-a-qr-code-step-by-step
+
+Text string: newLISP
+Error correction level: Low (Low Medium Quartile High)
+Force minimum version:  1  (between 1 and 40)
+Force mask pattern:    -1  (−1 for automatic, 0 to 7 for manual)
+
+  ██████████████    ██  ████  ██████████████
+  ██          ██    ██████    ██          ██
+  ██  ██████  ██  ████  ████  ██  ██████  ██
+  ██  ██████  ██    ██  ██    ██  ██████  ██
+  ██  ██████  ██      ██  ██  ██  ██████  ██
+  ██          ██          ██  ██          ██
+  ██████████████  ██  ██  ██  ██████████████
+                  ████  ████
+  ██████  ████████████████  ████      ██
+  ████  ██  ██      ████      ████      ████
+  ████    ██  ██  ██  ██  ██      ██████████
+      ████  ██  ██  ████      ████      ████
+  ██████    ██████████    ██  ██  ████  ██
+                  ██    ██  ██          ████
+  ██████████████  ████████  ██████████  ████
+  ██          ██  ████  ██████    ██      ██
+  ██  ██████  ██  ████████  ████  ██  ██████
+  ██  ██████  ██    ████      ██      ████
+  ██  ██████  ██  ██  ██  ██    ████  ██  ██
+  ██          ██  ██  ██      ██        ██
+  ██████████████  ██  ██  ██  ██      ██████
+
+
+--------------------------
+Cicli su simboli/variabili
+--------------------------
+
+Supponiamo di avere N diverse variabili denominate v1,v2,...vN e di voler effettuare un ciclo su di esse (da v1 fino a vN).
+
+Un primo metodo è quello di inserire tutte le variabili in una lista e poi effettuare il ciclo sulla lista:
+
+(setq v1 10 v2 20 v3 30 v4 40 v5 50)
+(setq lst (list v1 v2 v3 v4 v5))
+(dolist (el lst) (print el { }))
+;-> 10 20 30 40 50
+
+Un secondo metodo è quello di utilizzare "sym" ed "eval":
+
+(setq v1 10 v2 20 v3 30 v4 40 v5 50)
+(for (i 1 5) (print (eval (sym (string "v" i))) { }))
+;-> 10 20 30 40 50
+
+
+--------------------
+Simulazione del Golf
+--------------------
+
+Simulazione di una partita di golf (semplificata).
+
+Regole della simulazione
+------------------------
+Inizialmente la distanza dalla buca è di 700 metri.
+
+Se la distanza è maggiore o uguale a 250 metri:
+  95% di fare un colpo random tra 250 e 350 metri
+   5% di finire in acqua (+1 tiro e distanza immutata)
+
+Se la distanza è maggiore di 10 metri e minore di 250 metri:
+  80% di fare un colpo random tra il 70% e il 90% della distanza
+  14% di fare un colpo random tra il 90% e il 99% della distanza
+   5% di finire in acqua (+1 tiro e distanza immutata)
+   1% di fare il 100% della distanza (palla in buca)
+
+Se la distanza è minore o uguale a 10 metri:
+  95% di fare il 100% della distanza (palla in buca)
+   5% di fare il 75% della distanza
+
+La distanza è un numero intero.
+
+Funzione che estrae casualmente un indice della lista seguendo le probabilità assegnate:
+
+(define (rand-pick lst)
+  (local (rnd stop out)
+    ; generiamo un numero random diverso da 1
+    ; (per evitare errori di arrotondamento)
+    (while (= (setq rnd (random)) 1))
+    ;(if (= rnd 1) (println rnd))
+    (setq stop nil)
+    (dolist (p lst stop)
+      ; sottraiamo la probabilità corrente al numero random...
+      (setq rnd (sub rnd p))
+      ; se il risultato è minore di zero,
+      ; allora restituiamo l'indice della probabilità corrente
+      (if (< rnd 0)
+          (set 'out $idx 'stop true)
+      )
+    )
+    out))
+
+Funzione che simula una partita di golf per un solo giocatore:
+
+(define (golf)
+  (local (dist buca tiri lst action lancio)
+    (setq dist 700)
+    (println "Distanza dalla buca: " dist)
+    (setq buca nil)
+    (setq tiri 0)
+    (until buca
+      (cond ((>= dist 250) (lontano)) ; distanza maggiore o uguale a 250m
+            ((and (> dist 10) (< dist 250)) (medio)) ; distanza tra 11m e 249m
+            ((<= dist 10) (vicino))) ; distanza minore o uguale a 10m
+      (stato)
+      (read-line)
+    )
+    'hole))
+
+Funzione che simula un colpo da lontano (distanza >= 250m):
+
+(define (lontano)
+  (println "lontano...")
+  (++ tiri)
+  ; lista delle probabilità
+  (setq lst '(0.95 0.05))
+  (setq action (rand-pick lst))
+  (cond ((= action 0) ; 95% of distance
+          (setq lancio (+ 250 (rand 101)))
+          (setq dist (int (add (abs (- dist lancio)) 0.5)))
+          ; buca?
+          (if (zero? dist) (setq buca true)))
+        ((= action 1) ; 5% water
+         nil)))
+
+Funzione che simula un colpo da distanza media (10m < distanza < 250m):
+
+(define (medio)
+  (println "medio...")
+  (++ tiri)
+  ; lista delle probabilità
+  (setq lst '(0.80 0.14 0.05 0.01))
+  (setq action (rand-pick lst))
+  (cond ((= action 0) ; 80%
+          (setq lancio (+ 70 (rand 21))) ; 70-90% of distance
+          (setq lancio (int (add (div (mul lancio dist) 100) 0.5)))
+          (setq dist (abs (- dist lancio))))
+        ((= action 1) ; 14%
+          (setq lancio (+ 90 (rand 11))) ; 90-99% of distance
+          (setq lancio (int (add (div (mul lancio dist) 100) 0.5)))
+          (setq dist (abs (- dist lancio))))
+        ((= action 2) ; 5% water
+          nil)
+        ((= action 3) ; 1% buca
+          (setq buca true)
+          (setq lancio dist)
+          (setq dist 0))))
+
+Funzione che simula un colpo da vicino (distanza <= 10m):
+
+(define (vicino)
+  (println "vicino...")
+  (++ tiri)
+  ; lista delle probabilità
+  (setq lst '(0.95 0.05))
+  (setq action (rand-pick lst))
+  (cond ((= action 0) ; buca
+          (setq buca true)
+          (setq lancio dist)
+          (setq dist 0))
+        ((= action 1) ; 75% of distance
+          (setq lancio (int (add (mul 0.75 dist) 0.5)))
+          (setq dist (abs (- dist lancio))))))
+
+Funzione che stampa la situazione corrente:
+
+(define (stato)
+  (println "Numero di tiri: " tiri)
+  (println "Ultimo lancio: " lancio "m")
+  (println "Distanza: " dist "m")
+)
+
+Facciamo un paio di prove:
+
+(golf)
+;-> Distanza dalla buca: 700
+;-> lontano...
+;-> Numero di tiri: 1
+;-> Ultimo lancio: 335m
+;-> Distanza: 365m
+;-> 
+;-> lontano...
+;-> Numero di tiri: 2
+;-> Ultimo lancio: 261m
+;-> Distanza: 104m
+;-> 
+;-> medio...
+;-> Numero di tiri: 3
+;-> Ultimo lancio: 79m
+;-> Distanza: 25m
+;-> 
+;-> medio...
+;-> Numero di tiri: 4
+;-> Ultimo lancio: 79m
+;-> Distanza: 25m
+;-> 
+;-> medio...
+;-> Numero di tiri: 5
+;-> Ultimo lancio: 19m
+;-> Distanza: 6m
+;-> 
+;-> vicino...
+;-> Numero di tiri: 6
+;-> Ultimo lancio: 6m
+;-> Distanza: 0m
+;-> 
+;-> hole
+
+(golf)
+;-> Distanza dalla buca: 700
+;-> lontano...
+;-> Numero di tiri: 1
+;-> Ultimo lancio: 334m
+;-> Distanza: 366m
+;-> 
+;-> lontano...
+;-> Numero di tiri: 2
+;-> Ultimo lancio: 310m
+;-> Distanza: 56m
+;-> 
+;-> medio...
+;-> Numero di tiri: 3
+;-> Ultimo lancio: 42m
+;-> Distanza: 14m
+;-> 
+;-> medio...
+;-> Numero di tiri: 4
+;-> Ultimo lancio: 10m
+;-> Distanza: 4m
+;-> 
+;-> vicino...
+;-> Numero di tiri: 5
+;-> Ultimo lancio: 4m
+;-> Distanza: 0m
+;-> 
+;-> hole
+
 =============================================================================
 

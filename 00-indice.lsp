@@ -1940,6 +1940,9 @@ NOTE LIBERE 17
   Creare scatole ASCII
   Calcolo del punteggio ELO
   Probabilità di vittoria tra due rating ELO
+  newLISP QR Code
+  Cicli su simboli/variabili
+  Simulazione del Golf
 
 PROBLEMI SUI DADI
 =================
