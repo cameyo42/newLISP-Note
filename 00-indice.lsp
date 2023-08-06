@@ -1943,6 +1943,13 @@ NOTE LIBERE 17
   newLISP QR Code
   Cicli su simboli/variabili
   Simulazione del Golf
+  map sugli indici
+  La funzione "swap" per stringhe
+  Swap encoding di stringhe
+
+NOTE LIBERE 18
+==============
+  Tavola Periodica degli Elementi (ricerche)
 
 PROBLEMI SUI DADI
 =================

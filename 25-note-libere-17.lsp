@@ -5633,5 +5633,335 @@ Facciamo un paio di prove:
 ;-> 
 ;-> hole
 
+
+----------------
+map sugli indici
+----------------
+
+Nella sua forma più semplice la funzione "map" applica una funzione ad una lista.
+In questo caso vogliamo avere una funzione "mapidx" che applica una funzione ad una lista di indici di elementi di un'altra lista.
+Per esempio,
+Input:
+  funzione --> f(x) = x^2
+  lista di indici --> I = (2 4 5)
+  lista di elementi --> L = (3 6 2 -5 -2 -6 7)
+Output:
+  (mapidx f I L) --> (3 6 4 -5 4 36 7)
+
+Funzione che applica una funzione ad una lista di indici di elementi di un'altra lista:
+(define (mapidx f I L)
+  (dolist (idx I)
+    (setf (L idx) (* $it $it))
+  )
+  L)
+
+(setq indici '(2 4 5))
+(setq lst '(3 6 2 -5 -2 -6 7))
+(setq f (fn(x) (mul x x)))
+
+(mapidx f indici lst)
+;-> (3 6 4 -5 4 36 7)
+
+
+-------------------------------
+La funzione "swap" per stringhe
+-------------------------------
+
+Vediamo la definizione della funzione "swap" dal manuale di riferimento:
+
+*****************
+>>>funzione SWAP
+*****************
+sintassi: (swap place-1 place-2)
+
+I contenuti delle due posizioni place-1 e place-2 vengono scambiati. Una posizione può essere il contenuto di un simbolo non quotato o qualsiasi riferimento a una lista o a un array espresso con "n-th", "first", "last" o con indicizzazione implicita o posizioni a cui fanno riferimento "assoc" o "lookup".
+
+swap è un'operazione distruttiva che modifica il contenuto delle liste, degli array o dei simboli coinvolti.
+
+(set 'lst '(a b c d e f))
+
+(swap (first lst) (last lst))
+;-> a
+lst
+;-> (f b c d e a)
+
+(set 'lst-b '(x y z))
+
+(swap (lst 0) (lst-b -1))
+;-> f
+lst
+;-> (z b c d e a)
+lst-b
+;-> (x y f)
+
+(set 'A (array 2 3 (sequence 1 6))
+;-> ((1 2 3) (4 5 6))
+
+(swap (A 0) (A 1))
+;-> (1 2 3)
+A
+;-> ((4 5 6) (1 2 3))
+
+(set 'x 1 'y 2)
+
+(swap x y)
+;-> 1
+x
+;-> 2
+y
+;-> 1
+
+(set 'lst '((a 1 2 3) (b 10 20 30)))
+(swap (lookup 'a lst -1) (lookup 'b lst 1))
+lst
+;-> ((a 1 2 10) (b 3 20 30))
+
+(swap (assoc 'a lst) (assoc 'b lst))
+lst
+;-> ((b 3 20 30) (a 1 2 10))
+
+Due posizioni qualsiasi possono essere scambiate nello stesso oggetto o in oggetti diversi.
+
+Quindi "swap" non funziona con le stringhe!!!
+
+Per esempio:
+
+(setq b "12345")
+;-> "12345"
+(swap (b 0) (b 4))
+;-> "1"
+b
+;-> "12345" ; la stringa b non è cambiata.
+
+Scriviamo una funzione di "swap" per le stringhe:
+
+(define (swap-char str pos1 pos2)
+  (local (tmp)
+    (setq tmp (str pos1))
+    (setq (str pos1) (str pos2))
+    (setq (str pos2) tmp)
+    str))
+
+(setq b "12345")
+(setq b (swap-char b 0 4))
+;-> "52341"
+b
+;-> "52341"
+
+Oppure possiamo usare una macro:
+
+(define-macro (sw-ch str pos1 pos2)
+  (local (tmp)
+    (setq tmp ((eval str) pos1))
+    (setf ((eval str) pos1) ((eval str) pos2))
+    (setf ((eval str) pos2) tmp)
+    (eval str)))
+
+(setq c "56789")
+(sw-ch c 0 4)
+;-> "96785"
+c
+;-> "96785"
+
+Oppure una macro simile:
+
+(define-macro (sw-ch1 str pos1 pos2)
+  (local (s tmp)
+    (setq s (eval str))
+    (setq tmp (s pos1))
+    (setf (s pos1) (s pos2))
+    (setf (s pos2) tmp)
+    (setq (eval str) s)))
+
+(setq d "56789")
+(sw-ch1 d 0 4)
+;-> "96785"
+d
+;-> "96785"
+
+
+-------------------------
+Swap encoding di stringhe
+-------------------------
+
+Lo "Swap encoding" è un metodo di codifica in cui si esegue l'iterazione di una stringa, invertendone sezioni tra coppie di caratteri identici.
+
+Algoritmo di base
+Per ogni carattere della stringa:
+Verificare se la stringa contiene di nuovo lo stesso carattere dopo il carattere corrente.
+In tal caso, modificare la stringa invertendo la sezione tra il carattere corrente e l'istanza successiva del carattere, inclusa.
+Altrimenti non fare niente e continuare con il prossimo carattere.
+
+Esempio:
+Stringa da codificare: "mangia il gelato"
+
+"m" nessun carattere uguale -----------> "mangia il gelato"
+"a" --> "angia" --> "ainga" -----------> "maigna il gelato"
+"i" --> "ignai" --> "iangi" -----------> "mai angil gelato"
+" " --> " angil " --> " ligna " -------> "mai ligna gelato"
+"l" --> "ligna gel" --> "leg angil" ---> "mai leg angilato"
+"e" --> nessun carattere uguale -------> "mai leg angilato"
+"g" --> "g ang" --> "gna g" -----------> "mai legna gilato"
+"n" --> nessun carattere uguale -------> "mai legna gilato"
+"a" --> "a gila" --> "alig a" ---------> "mai legnalig ato"
+"l" --> nessun carattere uguale -------> "mai legnalig ato"
+"i" --> nessun carattere uguale -------> "mai legnalig ato"
+"g" --> nessun carattere uguale -------> "mai legnalig ato"
+" " --> nessun carattere uguale -------> "mai legnalig ato"
+"a" --> nessun carattere uguale -------> "mai legnalig ato"
+"t" --> nessun carattere uguale -------> "mai legnalig ato"
+"o" --> nessun carattere uguale -------> "mai legnalig ato"
+
+Stringa codificata: "mai legnalig ato"
+
+Funzione che inverte parte di una stringa:
+
+(define (reverse-part obj idx len)
+  (extend (slice obj 0 idx)             ; parte a sinistra dell'inversione
+          (reverse (slice obj idx len)) ; parte dell'inversione
+          (slice obj (+ idx len))))     ; parte a destra dell'inversione
+
+Funzione che cerca il prossimo carattere uguale di un dato carattere in una stringa:
+
+(define (find-next idx ch str)
+  (local (next stop)
+    (setq stop nil)
+    (setq next nil)
+    (for (k (+ idx 1) (- (length str) 1) 1 stop)
+      (if (= (str k) ch) (setq next k stop true))
+    )
+    next))
+
+Funzione di "swap encoding":
+
+(define (encode str)
+(local (ch end)
+(for (i 0 (- (length str) 2))
+  (setq ch (str i))
+  (setq end (find-next i ch str))
+  ;(println ch { } i { } end)
+  (if end (begin
+    ;(println "reverse from " i " to " (- end i (- 1)))
+    (setq str (reverse-part str i (- end i (- 1))))
+    ;(println str)
+    ;(read-line)
+    )
+  )
+  ;(println str)
+  ;(read-line)
+)
+str))
+
+Facciamo alcune prove:
+
+(encode "mangia il gelato")
+;-> "mai legnalig ato"
+
+(encode "Sandbox for Proposed Challenges")
+;-> "SahC Pr foropox dbosenallednges"
+(encode "Collatz, Sort, Repeat")
+;-> "CoS ,ztrollaepeR ,tat"
+(encode "Write a fast-growing assembly function")
+;-> "Wrgnufa ylbme asa f g-tesstcnoritiwoin"
+(encode "Decompress a Sparse Matrix")
+;-> "Dera aM ssrtapmocese Sprix"
+(encode "Rob the King: Hexagonal Mazes")
+;-> "Rog: Kinob eH lagnaM thezaxes"
+(encode "Determine if a dot(comma) program halts")
+;-> "Detoc(tlamarommi finerp ha mrgod a) ets"
+(encode "Closest Binary Fraction")
+;-> "CloinosestiB Fry tcaran"
+(encode "Quote a rational number")
+;-> "Qunatebmuoiton re al ar"
+(encode "Solve the Alien Probe puzzle")
+;-> "SorP Alveht en eilzzup elobe"
+
+Altra funzione di "swap encoding":
+
+(define (encode2 str)
+(local (lst indici len)
+  (setq lst (explode str))
+  (for (i 0 (- (length lst) 3))
+    ;(println "i: " i)
+    (setq indici (ref-all (lst i) (slice lst i)))
+    ;(println indici)
+    (if (> (length indici) 1)
+      (begin
+        (setq len (+ 1 (first (indici 1))))
+        ;(println (lst i) { } i { } (indici 0) { } (indici 1) { } "len: " len)
+        ;(print lst)
+        ;(println (join (reverse-part lst i len)))
+        (if (> len 2) (setq lst (reverse-part lst i len)))
+        ;(println (join lst))
+      )
+    )
+    ;(read-line)
+  )
+  (join lst)))
+
+Facciamo alcune prove:
+
+(encode2 "mangia il gelato")
+;-> "mai legnalig ato"
+
+(encode2 "Sandbox for Proposed Challenges")
+;-> "SahC Pr foropox dbosenallednges"
+(encode2 "Collatz, Sort, Repeat")
+;-> "CoS ,ztrollaepeR ,tat"
+(encode2 "Write a fast-growing assembly function")
+;-> "Wrgnufa ylbme asa f g-tesstcnoritiwoin"
+(encode2 "Decompress a Sparse Matrix")
+;-> "Dera aM ssrtapmocese Sprix"
+(encode2 "Rob the King: Hexagonal Mazes")
+;-> "Rog: Kinob eH lagnaM thezaxes"
+(encode2 "Determine if a dot(comma) program halts")
+;-> "Detoc(tlamarommi finerp ha mrgod a) ets"
+(encode2 "Closest Binary Fraction")
+;-> "CloinosestiB Fry tcaran"
+(encode2 "Quote a rational number")
+;-> "Qunatebmuoiton re al ar"
+(encode2 "Solve the Alien Probe puzzle")
+;-> "SorP Alveht en eilzzup elobe"
+
+La funzione di decodifica dovrebbe essere la seguente:
+
+  reverse(encode(reverse(string-encoded)))
+
+Per esempio:
+
+(reverse (encode (reverse "mai legnalig ato")))
+;-> "mangia il gelato"
+(reverse (encode (reverse (encode "mangia il gelato"))))
+;-> "mangia il gelato"
+(reverse (encode2 (reverse (encode2 "mangia il gelato"))))
+;-> "mangia il gelato"
+
+(reverse (encode (reverse (encode "Collatz, Sort, Repeat"))))
+;-> "Collatz, Sort, Repeat"
+(reverse (encode2 (reverse (encode2 "Collatz, Sort, Repeat"))))
+;-> "Collatz, Sort, Repeat"
+
+Comunque alcune frasi non vengono decodificate correttamente (ma non ho capito il perchè):
+
+(reverse (encode (reverse (encode "Solve the Alien Probe puzzle"))))
+;-> "SolveilA en eht Probe puzzle"
+(reverse (encode2 (reverse (encode2 "Solve the Alien Probe puzzle"))))
+;-> "SolveilA en eht Probe puzzle"
+
+(reverse (encode (reverse (encode "Quote a rational number"))))
+;-> "Quonar etiota la number"
+(reverse (encode2 (reverse (encode2 "Quote a rational number"))))
+;-> "Quonar etiota la number"
+
+La codifica delle formule sembra più efficace:
+
+(encode "((a + b)/(a - b))*(a * b)")
+;-> "((/)b + a(* a(a - *))b b)"
+
+Comunque dobbiamo verificare se funziona la decodifica:
+
+(reverse (encode (reverse (encode "((a + b)/(a - b))*(a * b)"))))
+;-> "((a + b)/(a - b))*(a * b)"
+
 =============================================================================
 

@@ -7260,8 +7260,8 @@ Funzione "slice" di python
 
 The syntax of slice in python is:
 
-a[start:stop]  # items start through stop-1
-a[start:]      # items start through the rest of the array
+a[start:stop]  # items from start through stop-1
+a[start:]      # items from start through the rest of the array
 a[:stop]       # items from the beginning through stop-1
 a[:]           # a copy of the whole array
 

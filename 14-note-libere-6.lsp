@@ -3576,6 +3576,56 @@ Se eliminiamo un elemento possiamo incorrere in un errore:
 ;-> ERR: invalid list index in function println
 ;-> called from user function (test1 lista)
 
+Vediamo la differenza tra "dolist", "for" e "while" quando il loro corpo modifica la lista che attraversano.
+
+(setq a '(4 5 6 7 8))
+
+dolist:
+-------
+(define (test lst)
+  (dolist (el lst)
+    (if (zero? $idx) (begin
+        (setf (lst 1) 99)
+        (push 100 lst -1))
+    )
+    (print el { })))
+
+(test a)
+;-> (4 5 6 7 8) ; la lista non viene modificata
+
+for:
+----
+(define (test2 lst)
+  (for (i 0 (- (length lst) 1))
+    (if (zero? i) (begin
+        (setf (lst 1) 99)
+        (push 100 lst -1))
+    )
+    (print (lst i) { })))
+
+(test2 a)
+;-> 4 99 6 7 8 ; gli elementi sono modificati, ma non aggiunti
+
+while:
+------
+(define (test3 lst)
+  (setq i 0)
+  (setq len (length lst))
+  (while (< i len)
+    (if (zero? i) (begin
+        (setf (lst 1) 99)
+        (push 100 lst -1))
+        ; ricalcoliamo la lunghezza della lista
+        (setq len (length lst))
+    )
+    (print (lst i) { })
+    (++ i)
+  )
+  (println))
+
+(test3 a)
+;-> 4 99 6 7 8 100 ; gli elementi vengono modificati e aggiunti
+
 
 --------------------------
 Punto interno ad una sfera
