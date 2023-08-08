@@ -6151,6 +6151,9 @@ Lista delle funzioni:
  Frasi sulla Programmazione e sul Linguaggio Lisp
 ============================================================================
 
+"I know nothing except this statement."
+- anonymous
+
 "Programs must be written for people to read, and only incidentally for machines to execute."
 - Abelson & Sussman, SICP, preface to the first edition
 

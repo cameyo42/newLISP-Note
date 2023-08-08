@@ -1950,7 +1950,12 @@ NOTE LIBERE 17
 NOTE LIBERE 18
 ==============
   Tavola Periodica degli Elementi (ricerche)
-
+  Notazione per intervalli
+  La funzione "Over"
+  Numeri di Meeker
+  Numeri primi aggiungendo un suffisso/prefisso
+  Sotto la pioggia è meglio correre o camminare per bagnarsi di meno?
+  
 PROBLEMI SUI DADI
 =================
   Problemi 1..76
