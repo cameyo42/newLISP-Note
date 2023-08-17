@@ -489,11 +489,11 @@ Un "Lisp reader" si riferisce a una procedura Lisp, vale a dire la funzione "rea
 Dal manuale di XLISP:
 read an expression
 (read [<stream> [<eofp> [<eof> [<rflag>]]]])
-<stream>	the input stream (default, or NIL, is *standard-input*, T is *terminal-io*)
-<eofp>	When T, signal an error on end of file, when NIL return <eof> (default is T)
-<eof>	the value to return on end of file (default is NIL)
-<rflag>	recursive read flag. The value is ignored
-returns	the expression read
+<stream>  the input stream (default, or NIL, is *standard-input*, T is *terminal-io*)
+<eofp>  When T, signal an error on end of file, when NIL return <eof> (default is T)
+<eof> the value to return on end of file (default is NIL)
+<rflag> recursive read flag. The value is ignored
+returns the expression read
 
 Actually the basic READ doesn't need any parameter, it uses the *standard-input*
 READ is for getting a syntactically valid S-expresseion. Only that value is returned. The S-expression is not evaluated.
@@ -4221,9 +4221,9 @@ Vediamo come convertirla in newLISP.
 (defun qsort (lst)
    (when lst
      (let* ((x  (car lst))
-	          (xs (cdr lst))
-	          (lt  (loop for y in xs when (< y x) collect y))
-	          (gte (loop for y in xs when (>= y x) collect y)))
+            (xs (cdr lst))
+            (lt  (loop for y in xs when (< y x) collect y))
+            (gte (loop for y in xs when (>= y x) collect y)))
      (append (qsort lt) (list x) (qsort gte)))))
 
 La funzione "defun" diventa "define".
@@ -4233,7 +4233,7 @@ Le funzioni "loop" e "collect" vengono sostituite con "dolist".
 (define (qsort lst)
    (when lst
      (letn ((x (first lst))
-	          (xs (rest lst))
+            (xs (rest lst))
             (lt '())
             (gte '()))
      (dolist (y xs) (if (< y x) (push y lt -1)))
@@ -5713,16 +5713,16 @@ Per finire, una serie di funzioni fizzbuzz dal forum di newLISP:
 xytroxon
 --------
 (define (fizz-buzz max-count, fizz buzz)
-	(println "Fizz-Buzz:")
-	(for (number 1 max-count)
-		(setq fizz (% number 3) buzz (% number 5))
-		(unless (or (zero? fizz) (zero? buzz))(print number))
-		(when (zero? fizz)(print "Fizz"))
-		(when (and (zero? fizz) (zero? buzz))(print "-"))
-		(when (zero? buzz)(print "Buzz"))
-		(if (< number max-count)(print ", ")(print "!"))
-	)
-	(println)
+  (println "Fizz-Buzz:")
+  (for (number 1 max-count)
+    (setq fizz (% number 3) buzz (% number 5))
+    (unless (or (zero? fizz) (zero? buzz))(print number))
+    (when (zero? fizz)(print "Fizz"))
+    (when (and (zero? fizz) (zero? buzz))(print "-"))
+    (when (zero? buzz)(print "Buzz"))
+    (if (< number max-count)(print ", ")(print "!"))
+  )
+  (println)
 )
 
 (fizz-buzz 100)
@@ -5888,19 +5888,19 @@ Ale970
 ------
 (for (x 3 100)
   (setq fac (factor x))
-	(setq f1 (find 3 fac))
-	(setq f2 (find 5 fac))
+  (setq f1 (find 3 fac))
+  (setq f2 (find 5 fac))
   (print x ": " fac " --> ")
-	(if (and f1 f2)
+  (if (and f1 f2)
       (println "Fizz Buzz")
-		  (if f1
+      (if f1
           (println "Fizz")
-			    (if f2
+          (if f2
               (println "Buzz")
               (println x)
           )
-		  )
-	)
+      )
+  )
 )
 
 
@@ -5911,9 +5911,9 @@ FOOP version:
 (define (Fizz:Fizz n) (when (zero? (% n 3)) "Fizz"))
 (define (Buzz:Buzz n) (when (zero? (% n 5)) "Buzz"))
 (define (fizz-buzz)
-	(for (n 1 100)
-		(println (or (FizzBuzz n) (Fizz n) (Buzz n) n))
-	)
+  (for (n 1 100)
+    (println (or (FizzBuzz n) (Fizz n) (Buzz n) n))
+  )
 )
 (fizz-buzz)
 
@@ -5922,9 +5922,9 @@ This could also be de-FOOPed by replacing the constructors with functions:
 (define (fizz n) (when (zero? (% n 3)) "Fizz"))
 (define (buzz n) (when (zero? (% n 5)) "Buzz"))
 ((define (fizz-buzz)
-	(for (n 1 100)
-		(println (or (fizzbuzz n) (fizz n) (buzz n) n))
-	)
+  (for (n 1 100)
+    (println (or (fizzbuzz n) (fizz n) (buzz n) n))
+  )
 ))
 
 
@@ -7910,7 +7910,7 @@ Per sparare dalla luna occorre cambiare il valore dell'accelerazione gravitazion
 Ottimizzare il taglio di un tubo
 --------------------------------
 
-Data un tubo di acciaio di una certa lunghezza e una lista di prezzi per ogni lunghezza, come dovremmo tagliare il tubo in modo da massimizzare il profitto (ogni taglio deve produrre due tubi con lunghezze intere). Ad esempio:
+Dato un tubo di acciaio di una certa lunghezza e una lista di prezzi per ogni lunghezza, come dovremmo tagliare il tubo in modo da massimizzare il profitto (ogni taglio deve produrre due tubi con lunghezze intere). Ad esempio:
 
 Lunghezza 1 2 3 4  5  6  7  8
 Prezzo    1 5 8 9 10 17 18 20
@@ -7985,7 +7985,7 @@ Versione memoization:
 (tubo-m '(1 5 8 9 10 17 18 20) 8)
 ;-> (22 (1 5 8 10 13 17 18 22)) (un pezzo lungo 2 e un pezzo lungo 6 --> 5 + 17 = 22)
 
-Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzato perché utilizza la ricorsione.
+Questa funzione impiega un tempo polinomiale per calcolare la soluzione, ma non è ancora ottimizzata perché utilizza la ricorsione.
 
 Vediamo la velocità della funzione:
 
@@ -8030,6 +8030,67 @@ Vediamo la velocità della funzione:
 
 (time (tubo-dp '(1 5 8 9 10 17 18 20) 8) 10000)
 ;-> 76.795
+
+Infine vediamo una funzione ricorsiva bottom-up che memorizza i tagli per restituire tutti i pezzi della soluzione:
+
+(define (tubo-all price)
+  (local (len val cut max-val out)
+    (setq len (length price))
+    ; valori ottimali per tagli di lunghezza 0..n
+    (setq val (array (+ len 1) '(0)))
+    ; valori ottimali per primo taglio di lunghezza 0..n
+    (setq cut (array (+ len 1) '(0)))
+    ; lenght = 0 --> price = 0
+    (push 0 price)
+    (for (i 1 len)
+      (setq max-val -99999)
+      ; trova il valore massimo di taglio per la lunghezza i
+      (for (j 1 i)
+        (if (< max-val (+ (price j) (val (- i j))))
+          (begin
+            (setq max-val (+ (price j) (val (- i j))))
+            ; memorizza il valore ottimale (i)
+            (setq (cut i) j))
+        )
+        (setf (val i) max-val)
+      )
+    )
+    (setq out '())
+    ; ricostruisce i tagli ottimali partendo dal valore ottimale finale
+    (while (> len 0)
+      ;(println (cut len) { } (price (cut len)))
+      (push (list (cut len) (price (cut len))) out -1)
+      (setq len (- len (cut len)))
+    )
+    (println (apply + (map first out)) { } (apply + (map last out)))
+    out))
+
+Facciamo alcune prove:
+
+(tubo-all '(1 5 8 9 10 17 17 20))
+;-> 8 22
+;-> ((2 5) (6 17))
+
+(tubo-all '(1 3 2 5 6 7 4 8))
+;-> 8 12
+;-> ((2 3) (2 3) (2 3) (2 3))
+
+(tubo-all '(5 6 3 2 4 6 8 7 3 4 6 2 12 4 5 7 4 3))
+;-> 18 90
+;-> ((1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) 
+;->  (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5))
+
+(tubo-all '(23 2 3 45 34 23 3143 13 13 213 1321 3123 
+       12 312 312 31 3 213 432 41 3 123 43))
+;-> 23 9475
+;-> ((1 23) (1 23) (7 3143) (7 3143) (7 3143))
+
+(tubo-all '(0 0 0 3))
+;-> 4 3
+;-> ((4 3))
+(tubo-all '(0 2 0 3))
+;-> 4 4
+;-> ((2 2) (2 2))
 
 
 --------------------------------------

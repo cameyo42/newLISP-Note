@@ -444,5 +444,411 @@ A livello umano, tuttavia, se valga o meno la pena correre sotto la pioggia è o
 Correre significa una maggiore possibilità di sguazzare nelle pozzanghere, inciampare,
 o arrivare a destinazione non solo bagnati, ma anche accaldati e sudati.
 Molte persone potrebbero preferire di camminare e bagnarsi di più (lo sforzo fisico non è sempre gradito).
+
+----------------------------------------------------------
+Ricostruzione dei numeri primi dalla lista degli esponenti
+----------------------------------------------------------
+
+Un numero primo può essere espresso nella forma:
+
+  prime = Prod[primo p](p^e) = (2^e2)*(3^e3)*(7^e7)...
+
+Possiamo quindi ricostruire un numero primo dalla lista degli esponenti:
+
+  (e2 e3 e5 e7 e11 ...)
+
+Per esempio:
+
+  E = (2 0 2 1 0 1) = 2^2 * 3^0 * 5^2 * 7^1 * 11^0 * 13^1 = 9100
+
+(* (pow 2 2) (pow 3 0) (pow 5 2) (pow 7 1) (pow 11 0) (pow 13 1))
+;-> 9100
+
+(factor 9100)
+;-> (2 2 5 5 7 13)
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Vediamo quanti primi possiamo calcolare:
+
+(time (println (length (primes-to 1e2))))
+;-> 25
+;-> 0
+(time (println (length (primes-to 500))))
+;-> 95
+;-> 0.007
+(time (println (length (primes-to 1e3))))
+;-> 168
+;-> 0.997
+(time (println (length (primes-to 1e4))))
+;-> 1229
+;-> 0.998
+(time (println (length (primes-to 1e5))))
+;-> 9592
+;-> 10.999
+(time (println (length (primes-to 1e6))))
+;-> 78498
+;-> 147.594
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (make-prime lst)
+  (local (primi len)
+    ; 25 primi
+    (setq primi '(2 3 5 7 11 13 17 19 23 29 31 37 41
+                  43 47 53 59 61 67 71 73 79 83 89 97))
+    (setq len (length lst))
+    (if (> len 25)
+        (cond ((<= len 95)    (setq primi (primes-to 500)))
+              ((<= len 168)   (setq primi (primes-to 1e3)))
+              ((<= len 1229)  (setq primi (primes-to 1e4)))
+              ((<= len 9592)  (setq primi (primes-to 1e5)))
+              ((<= len 78498) (setq primi (primes-to 1e9)))
+              (true (println "Error: length = " len " > 78498"))))
+    (apply * (map ** (slice primi 0 len) lst))))
+
+Facciamo alcune prove:
+
+(setq lst '(2 0 2 1 0 1))
+
+(make-prime lst)
+;-> 9100
+
+(make-prime '(0))
+;-> 1L ;ma non è un numero primo
+
+(make-prime '(1))
+;-> 2L ;ecco il primo numero primo
+
+(make-prime '(3 2) )
+;-> 72L
+(make-prime '(0 1 2))
+;-> 75L
+(make-prime '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+              0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+              0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1))
+;-> 347L
+(make-prime '(6 2))
+;-> 576L
+(make-prime '(1 7))
+;-> 4374L
+(make-prime '(5 7))
+;-> 69984L
+(make-prime '(10 5))
+;-> 248832L
+(make-prime '(1 0 0 8 4))
+;-> 168804902882L
+(make-prime '(3 8 10))
+;-> 512578125000L
+(make-prime '(7 9 0 8))
+;-> 14523977994624L
+(make-prime '(4 4 7 0 0 5 5))
+;-> 53377275216476250000L
+(make-prime '(1 8 1 7 8 1))
+;-> 150570936449966222190L
+(make-prime '(10 0 2 8 9))
+;-> 347983339699826969600L
+(make-prime '(4 8 2 3 7 9))
+;-> 186021488852335961308083600L
+(make-prime '(7 6 6 8 6 8 4))
+;-> 1014472920935186644572261278658000000L
+(make-prime '(9 6 7 5 1 8 10))
+;-> 8865565384329431006794755470280000000L
+
+
+-------------------
+Stringhe divisibili
+-------------------
+
+Data una stringa s, scrivere una funzione che restituisce vero se il codice ASCII di ogni lettera (32-126) è divisibile per la lunghezza di s, falso in caso contrario.
+
+(define (divisible str)
+  (let (len (length str))
+    (for-all (fn(x) (zero? (% x len))) (map char (explode str)))))
+
+Facciamo alcune prove:
+
+(divisible "lol")
+;-> true
+
+(divisible "ciao")
+;-> nil
+
+(divisible "8  8")
+;-> true
+
+
+-----------------
+Casio M functions
+-----------------
+
+La maggior parte delle calcolatrici Casio presenta una variabile M, a cui sono associati 3 operatori: M, M+ e M-.
+In questo caso aggiungiamo altri due operatori: M* e M/.
+
+Abbiamo le seguenti funzioni che agiscono sulla variabile M:
+
+  (M)    --> ritorna il valore della variabile M
+  (x M)  --> imposta il valore M = x
+  (x M+) --> ritorna il valore di M + x
+  (x M-) --> ritorna il valore di M - x
+  (x M*) --> ritorna il valore di M * x
+  (x M/) --> ritorna il valore di M / x
+
+Scrivere un programma che esegue le funzionalità elencate.
+
+(define (casio)
+  (local (M expr x op)
+    (setq M 0)
+    (setq expr "")
+    (until (= expr "exit")
+      (setq expr (read-line))
+      (cond ((!= expr "exit")
+              (setq expr (read-expr expr))
+              (cond ((and (= (length expr) 1) (= (expr 0) 'M)) 
+                      (println M))
+                    ((and (= (length expr) 1) (!= (expr 0) 'M)) 
+                      (println "error: " expr))
+                    ((> (length expr) 2)
+                      (println "error: " expr))
+                    (true
+                      (setq x (eval (expr 0)))
+                      (setq op (expr 1))
+                      (cond ((= op 'M)  (setq M x))
+                            ((= op 'M+) (setq M (add M x)))
+                            ((= op 'M-) (setq M (sub M x)))
+                            ((= op 'M*) (setq M (mul M x)))
+                            ((= op 'M/) (setq M (div M x)))
+                            (true (println "error: " expr))
+                      ))
+              ))
+      ))))
+
+(casio)
+(M)
+;-> 0
+(12 M)
+(M)
+;-> 12
+(2 M/)
+(M)
+;-> 6
+(3 M*)
+(M)
+;-> 18
+(m)
+;-> error: (m)
+(10 MM)
+;-> error: (10 MM)
+(M)
+;-> 18
+exit
+;-> nil
+
+
+----------------------------------------
+Lista con tutti numeri uguali tranne uno
+----------------------------------------
+
+Data una lista/vettore con le seguenti caratteristiche:
+
+- solo numeri interi positivi
+- almeno tre numeri
+- tutti i numeri sono uguali tranne uno.
+
+Trovare l'elemento univoco e il suo indice.
+
+Primo metodo:
+
+(define (unico lst)
+  (local (out a b c same stop)
+    (setq out '())
+    ; controlla i primi tre elementi
+    (setq a (lst 0))
+    (setq b (lst 1))
+    (setq c (lst 2))
+    (cond ((= a b c) (setq same a))
+          ((!= a b)
+            (if (= a c)
+              (setq out (list b '(1)))
+              (setq out (list a '(0)))))
+          ((!= a c)
+            (if (= a b)
+              (setq out (list c '(2)))
+              (setq out (list a '(0)))))
+          ((!= b c)
+            (if (= a b)
+                (setq (list c '(2)))
+                (setq (list b '(1)))))
+    )
+    (if (= out '()) ; primi 3 elementi tutti uguali?
+      (begin
+        ; allora cerchiamo l'elemento diverso
+        (setq stop nil)
+        (for (i 3 (- (length lst) 1) 1 stop)
+          (if (!= (lst i) same) (setq out (list (lst i) (list i)) stop true))
+        )
+      )
+    )
+    out))
+
+(setq m '(1 1 1 1 1 1 1 3 1 1 1))
+(unico m)
+;-> (3 (7))
+
+(unico '(1 2 2))
+;-> (1 (0))
+(unico '(2 1 2))
+;-> (1 (1))
+(unico '(2 2 1))
+;-> (1 (2))
+(unico '(2 2 2 3))
+;-> (3 (3))
+
+Secondo metodo:
+
+(define (unico2 lst)
+  (setq t (sort (copy lst)))
+  ; controlla il secondo e l'ultimo elemento della lista ordinata
+  (if (= (t 1) (t -1))
+      ; elementi uguali --> elemento diverso in prima posizione (0)
+      (setq out (list (t 0) (ref (t 0) lst)))
+      ; elementi diversi --> elemento diverso in ultima posizione
+      (setq out (list (t -1) (ref (t -1) lst)))))
+
+Facciamo alcune prove:
+
+(unico2 m)
+;-> (3 (7))
+
+(unico '(1 2 2))
+;-> (1 (0))
+(unico '(2 1 2))
+;-> (1 (1))
+(unico '(2 2 1))
+;-> (1 (2))
+(unico '(2 2 2 3))
+;-> (3 (3))
+
+Proviamo con due liste di numeri:
+
+(silent
+  (setq len 10000)
+  (setq x (dup 2 len))
+  (setf (x (rand len)) 3)
+  (setq y (dup 2 len))
+  (setf (y (rand len)) 1)
+)
+
+(unico x)
+;-> (3 (3502))
+(unico2 x)
+;-> (3 (3502))
+(unico y)
+;-> (1 (8959))
+(unico2 y)
+;-> (1 (8959))
+
+Tempi di esecuzione:
+
+(time (unico x) 100)
+;-> 762.909
+(time (unico2 x) 100)
+;-> 75.529
+(time (unico y) 100)
+;-> 5153.963
+(time (unico2 y) 100)
+;-> 72.59
+
+Con le liste è più veloce il secondo metodo.
+
+Proviamo con due vettori di numeri (con la seconda funzione dobbiamo usare "array-list" perchè "ref" non si applica ai vettori):
+
+(silent
+  (setq len 10000)
+  (setq x (array len (dup 2 len)))
+  (setf (x (rand len)) 3)
+  (setq y (array len (dup 2 len)))
+  (setf (y (rand len)) 1)
+)
+
+(unico x)
+;-> (3 (1741))
+(unico2 (array-list x))
+;-> (3 (1741))
+(unico y)
+;-> (1 (8589))
+(unico2 (array-list y))
+;-> (1 (8589))
+
+Tempi di esecuzione:
+
+(time (unico x) 100)
+;-> 11.044
+(time (unico2 (array-list x) 100))
+;-> 0.997
+(time (unico y) 100)
+;-> 44.332
+(time (unico2 (array-list y) 100))
+;-> 1.008
+
+Anche con i vettori il secondo metodo è il più veloce (ma prima dobbiamo trasformare il vettore in lista).
+
+
+---------------------
+La funzione di Cantor
+---------------------
+
+La funzione di Cantor è un esempio di funzione continua e crescente nonostante abbia derivata zero in quasi tutti i punti essendo costante in tutti i sottointervalli di [0,1] che non contengono punti dell'insieme di Cantor. 
+Quindi si tratta di una scala con infiniti gradini, tutti di pendenza zero, ma ad altezze progressivamente crescenti, in modo che la pendenza media risulti comunque pari a 1.
+
+La funzione può essere definita in modo ricorsivo:
+
+  f(0, x) = x
+  
+              | (1/2)*(f n 3x)                con x in [0,1/3)
+  f(n+1, x) = | 1/2                           con x in [1/3,2/3)
+              | (1/2) + (1/2)*(f n (3x - 2))  con x in [2/3,1]
+
+La funzione è il limite del processo:
+
+  lim[f(n, x)]
+  n->inf
+
+(define (cantor n x)
+  (println n { } x)
+  (cond ((zero? n) x)
+        ((and (>= x 0) (< x (div 3)))
+          (mul 0.5 (cantor (- n 1) (mul 3 x))))
+        ((and (>= x (div 3)) (< x (div 2 3))) 
+          (div 2))
+        ((and (>= x (div 2 3)) (<= x 1))
+          (add 0.5 (mul 0.5 (cantor (- n 1) (sub (mul 3 x) 2)))))))
+
+Facciamo alcune prove:
+
+(cantor 3 0.3)
+;-> 0.3874999999999999
+(cantor 0 0.1)
+;-> 0.1
+(cantor 4 0.29)
+;-> 0.375
+(cantor 5 0.11)
+;-> 0.2415624999999999
+
 =============================================================================
 

@@ -1955,6 +1955,11 @@ NOTE LIBERE 18
   Numeri di Meeker
   Numeri primi aggiungendo un suffisso/prefisso
   Sotto la pioggia è meglio correre o camminare per bagnarsi di meno?
+  Ricostruzione dei numeri primi dalla lista degli esponenti
+  Stringhe divisibili
+  Casio M functions
+  Lista con tutti numeri uguali tranne uno
+  La funzione di Cantor
   
 PROBLEMI SUI DADI
 =================

@@ -2470,7 +2470,7 @@ Numeri orari
 Determinare tutti i numeri che rappresentano un'ora della giornata in ore e minuti (da 0 a 23 e da 0 a 59).
 Per esempio, 18 rappresenta l'ora 1 e 8 minuti e l'ora 18 (le 6 di pomeriggio).
 
-Sono sufficientei due cicli "for" per risolvere il problema.
+Sono sufficienti due cicli "for" per risolvere il problema.
 
 (define (ora-esatta)
   (let (out '())
@@ -3851,7 +3851,8 @@ We are free to use any frameworks we wish in newLISP, including Fanda's. The pro
 
 Yes I agree. This was a dilemna for me before...
 
-Lutz wrote:
+Lutz:
+-----
 here: http://newlisp.org/index.cgi?page=newLISP-FOOP I have put together a page how FOOP came about and what makes it peculiar for newLISP.
 ...but Lutz's paper finishes convincing me there is a real NewLISP way (and modern way) of doing OOP.
 Nevertheless Fanda's work is an interesting and concrete demonstration of what NewLISP is able to do and as far as it can go ...
