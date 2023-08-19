@@ -795,18 +795,33 @@ Proviamo con due vettori di numeri (con la seconda funzione dobbiamo usare "arra
 (unico2 (array-list y))
 ;-> (1 (8589))
 
+(silent 
+(setq x (array 10000 (dup 2 10000)))
+(setf (x 1741) 3)
+(setq y (array 10000 (dup 2 10000)))
+(setf (y 8589) 1))
+
 Tempi di esecuzione:
 
 (time (unico x) 100)
 ;-> 11.044
-(time (unico2 (array-list x) 100))
-;-> 0.997
+(time (unico2 (array-list x)) 100)
+;-> 78.821
 (time (unico y) 100)
 ;-> 44.332
-(time (unico2 (array-list y) 100))
-;-> 1.008
+(time (unico2 (array-list y)) 100)
+;-> 73.834
 
-Anche con i vettori il secondo metodo è il più veloce (ma prima dobbiamo trasformare il vettore in lista).
+Con i vettori il primo metodo è il più veloce (ma dobbiamo considerare il tempo necessario per trasformare il vettore in lista).
+
+(setq x1 (array-list x))
+(time (unico2 x1) 100)
+;-> 78.8169999999
+(setq y1 (array-list y))
+(time (unico2 y1) 100)
+;-> 73.83
+
+Quindi il tempo per la conversione da vettore in lista è ininfluente.
 
 
 ---------------------
@@ -815,6 +830,8 @@ La funzione di Cantor
 
 La funzione di Cantor è un esempio di funzione continua e crescente nonostante abbia derivata zero in quasi tutti i punti essendo costante in tutti i sottointervalli di [0,1] che non contengono punti dell'insieme di Cantor. 
 Quindi si tratta di una scala con infiniti gradini, tutti di pendenza zero, ma ad altezze progressivamente crescenti, in modo che la pendenza media risulti comunque pari a 1.
+
+Vedi le figure "cantor_function.png" e "cantor_function.gif" nella cartella "data".
 
 La funzione può essere definita in modo ricorsivo:
 
@@ -849,6 +866,195 @@ Facciamo alcune prove:
 ;-> 0.375
 (cantor 5 0.11)
 ;-> 0.2415624999999999
+
+
+----------------
+Punti collineari
+----------------
+
+Dati 3 punti in un reticolo cartesiano 2D, determinare se sono tutti collineari.
+
+Tre punti p1(x1,y1), p2(x2,y2) e p3(x3,y3) sono collineari se risulta:
+
+  (x1-x2)*(y1-y3) = (y1-y2)*(x1-x3)
+
+(define (collinear p1 p2 p3)
+  (= (mul (sub (p1 0) (p2 0)) (sub (p1 1) (p3 1)))
+     (mul (sub (p1 1) (p2 1)) (sub (p1 0) (p3 0)))))
+
+Facciamo alcune prove:
+
+(collinear '(1 1) '(2 2) '(3 3))
+;-> true
+(collinear '(1 1) '(2 2) '(10 10))
+;-> true
+(collinear '(10 1) '(10 2) '(10 3))
+;-> true
+(collinear '(1 10) '(2 10) '(3 10))
+;-> true
+(collinear '(1 1) '(2 2) '(3 4))
+;-> nil
+(collinear '(1 1) '(2 0) '(2 2))
+;-> nil
+(collinear '(-5 70) '(2 0) '(-1 30))
+;-> true
+(collinear '(460 2363) '(1127 2392) '(-1334 2285))
+;-> true
+(collinear '(-789 -215) '(-753 -110) '(518 -780))
+;-> nil
+(collinear '(227816082 4430300) '(121709952 3976855) '(127369710 4001042))
+;-> true
+(collinear '(641027 3459466) '(475989 3458761) '(-675960 3453838))
+;-> nil
+
+
+--------------------
+Quale era e periodo?
+--------------------
+
+Dato un valore intero positivo compreso tra 0 e 542 che rappresenta milioni di anni fa, stabilire l'era e il periodo geologico.
+
+I nomi e le suddivisioni delle ere e dei periodi geologici sono i seguenti:
+
+Cenozoico  0 - 66
+  Quaternario   0 - 3
+  Neogene       4 - 23
+  Paleogene    24 - 66
+Mesozoico  67 - 252
+  Cretaceo     67 - 145
+  Giurassico  146 - 201
+  Triassico   202 - 252
+Paleozoico 253 - 542
+  Permiano    253 - 299
+  Carbonifero 300 - 359
+  Devoniano   360 - 419
+  Siluriano   420 - 444
+  Ordoviciano 445 - 485
+  Cambriano   486 - 542
+
+Cenozoic  0 - 66
+  Quaternary      0 - 3
+  Neogene         4 - 23
+  Paleogene      24 - 66
+Mesozoic  67 - 252
+  Cretaceous     67 - 145
+  Jurassic      146 - 201
+  Triassic      202 - 252
+Paleozoic 253 - 542
+  Permian       253 - 299
+  Carboniferous 300 - 359
+  Devonian      360 - 419
+  Silurian      420 - 444
+  Ordovician    445 - 485
+  Cambrian      486 - 542
+
+Esempi:
+314 -> Paleozoic/Carboniferous
+  0 -> Cenozoic/Quaternary
+542 -> Paleozoic/Cambrian
+100 -> Mesozoic/Cretaceous
+
+Definiamo le strutture dati:
+
+(setq ere '(("Cenozoico" 0 66) ("Mesozoico" 67 252) ("Paleozoico" 253 542)))
+
+(setq periodi '(
+  ("Cenozoico" (("Quaternario" 0 3)
+                ("Neogene"     4 23)
+                ("Paleogene"  24 66)))
+  ("Mesozoico" (("Cretaceo"     67 145)
+                ("Giurassico"  146 201)
+                ("Triassico"   202 252)))
+  ("Paleozoico" (("Permiano"    253 299)
+                 ("Carbonifero" 300 359)
+                 ("Devoniano"   360 419)
+                 ("Siluriano"   420 444)
+                 ("Ordoviciano" 445 485)
+                 ("Cambriano"   486 542)))))
+
+(assoc "Cenozoico" periodi)
+;-> ("Cenozoico" (("Quaternario" 0 3) ("Neogene" 4 23) ("Paleogene" 24 66)))
+
+(lookup "Cenozoico" periodi)
+;-> (("Quaternario" 0 3) ("Neogene" 4 23) ("Paleogene" 24 66))
+
+Funzione che verifica se un numero x è compreso nell intervallo chiuso [a,b]:
+
+(define (within x a b) (and (>= x a) (<= x b)))
+
+Funzione che determina l'era dato un numero che rappresenta milioni di anni fa:
+
+(define (era? num)
+  (let (era nil)
+    ; valido solo per intervalli non sovrapposti
+    (dolist (el ere)
+      (if (within num (el 1) (el 2)) (setq era (el 0)))
+    )
+    era))
+
+(era? 344)
+;-> "Paleozoico"
+
+Funzione che determina l'era e il periodo dato un numero che rappresenta milioni di anni fa:
+
+(define (which? num)
+  (local (era periodo)
+    (setq era (era? num))
+    (setq lst (lookup era periodi))
+    ; valido solo per intervalli non sovrapposti
+    (dolist (el lst)
+      (if (within num (el 1) (el 2)) (setq periodo (el 0)))
+    )
+    (list era periodo)))
+
+Facciamo alcune prove:
+
+(which? 314)
+;-> ("Paleozoico" "Carbonifero")
+(which? 0)
+;-> ("Cenozoico" "Quaternario")
+(which? 542)
+;-> ("Paleozoico" "Cambriano")
+(which? 100)
+;-> ("Mesozoico" "Cretaceo")
+
+
+--------------------------------------
+Semplificazione di una radice quadrata
+--------------------------------------
+
+Dato un intero positivo n, semplificare la radice quadrata sqrt(n) nella forma a*sqrt(b) estraendo tutti i fattori quadrati. I valori di a e b dovrebbero essere numeri interi positivi con n = a^2 * b e con b il più piccolo possibile.
+
+(define (semplifica n)
+  (let (k n)
+    ; cerca il quadrato
+    (while (!= (% n (* k k)) 0) (-- k))
+    (println k "*sqrt(" (div n k k) ")")
+    (list k (div n k k))))
+
+(map semplifica (sequence 1 20))
+;-> 1*sqrt(1)
+;-> 1*sqrt(2)
+;-> 1*sqrt(3)
+;-> 2*sqrt(1)
+;-> 1*sqrt(5)
+;-> 1*sqrt(6)
+;-> 1*sqrt(7)
+;-> 2*sqrt(2)
+;-> 3*sqrt(1)
+;-> 1*sqrt(10)
+;-> 1*sqrt(11)
+;-> 2*sqrt(3)
+;-> 1*sqrt(13)
+;-> 1*sqrt(14)
+;-> 1*sqrt(15)
+;-> 4*sqrt(1)
+;-> 1*sqrt(17)
+;-> 3*sqrt(2)
+;-> 1*sqrt(19)
+;-> 2*sqrt(5)
+;-> ((1 1) (1 2) (1 3) (2 1) (1 5) (1 6) (1 7) (2 2) (3 1) (1 10) (1 11) 
+;->  (2 3) (1 13) (1 14) (1 15) (4 1) (1 17) (3 2) (1 19) (2 5))
 
 =============================================================================
 

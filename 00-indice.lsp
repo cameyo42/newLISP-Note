@@ -1960,6 +1960,9 @@ NOTE LIBERE 18
   Casio M functions
   Lista con tutti numeri uguali tranne uno
   La funzione di Cantor
+  Punti collineari
+  Quale era e periodo?
+  Semplificazione di una radice quadrata
   
 PROBLEMI SUI DADI
 =================
