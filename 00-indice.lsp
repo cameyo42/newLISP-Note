@@ -1963,6 +1963,8 @@ NOTE LIBERE 18
   Punti collineari
   Quale era e periodo?
   Semplificazione di una radice quadrata
+  Calendario Azteco
+  Approssimazione dei numeri decimali con frazioni
   
 PROBLEMI SUI DADI
 =================

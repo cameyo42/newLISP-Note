@@ -1056,5 +1056,154 @@ Dato un intero positivo n, semplificare la radice quadrata sqrt(n) nella forma a
 ;-> ((1 1) (1 2) (1 3) (2 1) (1 5) (1 6) (1 7) (2 2) (3 1) (1 10) (1 11) 
 ;->  (2 3) (1 13) (1 14) (1 15) (4 1) (1 17) (3 2) (1 19) (2 5))
 
+
+-----------------
+Calendario Azteco
+-----------------
+
+Lo Xiuhnelpilli era usato dagli Aztechi (più propriamente, i Mexica) per denominare i loro anni.
+Ogni anno ha un numero e un segno. Ecco una parte del ciclo:
+
+  1089 -> 13 Calli                 1116 -> 1 Tecpatl
+  1090 -> 1 Tochtli                1117 -> 2 Calli 
+  1091 -> 2 Acatl                  1118 -> 3 Tochtli 
+  1092 -> 3 Tecpatl                1119 -> 4 Acatl 
+  1093 -> 4 Calli                  1120 -> 5 Tecpatl 
+  1094 -> 5 Tochtli                1121 -> 6 Calli 
+  1095 -> 6 Acatl                  1122 -> 7 Tochtli 
+  1096 -> 7 Tecpatl                1123 -> 8 Acatl 
+  1097 -> 8 Calli                  1124 -> 9 Tecpatl 
+  1098 -> 9 Tochtli                1125 -> 10 Calli 
+  1099 -> 10 Acatl                 1126 -> 11 Tochtli 
+  1100 -> 11 Tecpatl               1127 -> 12 Acatl 
+  1101 -> 12 Calli                 1128 -> 13 Tecpatl 
+  1102 -> 13 Tochtli               1129 -> 1 Calli 
+  1103 -> 1 Acatl                  1130 -> 2 Tochtli 
+  1104 -> 2 Tecpatl                1131 -> 3 Acatl 
+  1105 -> 3 Calli                  1132 -> 4 Tecpatl 
+  1106 -> 4 Tochtli                1133 -> 5 Calli 
+  1107 -> 5 Acatl                  1134 -> 6 Tochtli 
+  1108 -> 6 Tecpatl                1135 -> 7 Acatl 
+  1109 -> 7 Calli                  1136 -> 8 Tecpatl 
+  1110 -> 8 Tochtli                1137 -> 9 Calli 
+  1111 -> 9 Acatl                  1138 -> 10 Tochtli 
+  1112 -> 10 Tecpatl               1139 -> 11 Acatl 
+  1113 -> 11 Calli                 1140 -> 12 Tecpatl 
+  1114 -> 12 Tochtli               1141 -> 13 Calli 
+  1115 -> 13 Acatl                 1142 -> 1 Tochtli
+
+Lo schema è il seguente: il numero conta fino a 13 e il segno è dato dalla sequenza Tochtli, Acatl, Tecpatl, Calli.
+Dopo 52 anni lo schema si ripete.
+
+Scrivere una funzione che prende un numero intero compreso tra il 1064 (l'anno in cui i Mexica lasciarono la loro patria mitologica di Aztlan) e il 1521 (caduta di Tenochtitlan da parte degli spagnoli), inclusi, e produce il nome dell'anno corrispondente.
+
+Funzione che produce il nome dell'anno azteco dato un numero intero:
+
+(define (aztec anno)
+  (local (number name)
+    (setq number (+ 1 (% (+ anno 2) 13)))
+    (setq name ('("Tecpatl" "Calli" "Tochtli" "Acatl") (% anno 4)))
+    (list number name)))
+
+Oppure in maniera più breve:
+
+(define (aztec anno)
+    (list (+ 1 (% (+ anno 2) 13))
+          ('("Tecpatl" "Calli" "Tochtli" "Acatl") (% anno 4))))
+
+Facciamo alcune prove:
+
+(map aztec (sequence 1089 1142))
+;-> ((13 "Calli") (1 "Tochtli") (2 "Acatl") (3 "Tecpatl") (4 "Calli") 
+;->  (5 "Tochtli") (6 "Acatl") (7 "Tecpatl") (8 "Calli") (9 "Tochtli")
+;->  (10 "Acatl") (11 "Tecpatl") (12 "Calli") (13 "Tochtli") (1 "Acatl") 
+;->  (2 "Tecpatl") (3 "Calli") (4 "Tochtli") (5 "Acatl") (6 "Tecpatl")
+;->  (7 "Calli") (8 "Tochtli") (9 "Acatl") (10 "Tecpatl") (11 "Calli")
+;->  (12 "Tochtli") (13 "Acatl") (1 "Tecpatl") (2 "Calli") (3 "Tochtli")
+;->  (4 "Acatl") (5 "Tecpatl") (6 "Calli") (7 "Tochtli") (8 "Acatl")
+;->  (9 "Tecpatl") (10 "Calli") (11 "Tochtli") (12 "Acatl") (13 "Tecpatl")
+;->  (1 "Calli") (2 "Tochtli") (3 "Acatl") (4 "Tecpatl") (5 "Calli")
+;->  (6 "Tochtli") (7 "Acatl") (8 "Tecpatl") (9 "Calli") (10 "Tochtli")
+;->  (11 "Acatl") (12 "Tecpatl") (13 "Calli") (1 "Tochtli"))
+
+(aztec 2023)
+;-> (11 "Acatl")
+
+
+------------------------------------------------
+Approssimazione dei numeri decimali con frazioni
+------------------------------------------------
+
+Dato un numero decimale e un numero intero, calcolare la migliore approssimazione frazionaria (completamente semplificata) del numero decimale per tutte le frazioni fino a un denominatore del numero intero dato.
+La migliore approssimazione frazionaria sarà quella più vicina al numero decimale in valore assoluto.
+
+Esempi:
+  1.21, 8 --> 6/5
+
+  3.14159265359, 1000000 --> 3126535/995207
+
+  19.0, 10000000 --> 19/1
+
+  3.14159265359, 12 --> 22/7
+
+  2.7182818, 100 --> 193/71
+
+  0.8193927511, 22 --> 9/11
+
+  0.2557463559, 20 --> 1/4
+
+  0.2557463559, 100 --> 11/43
+
+  0.0748947977, 225 --> 14/187
+
+Algoritmo brute-force
+Provare tutti i denominatori da 1 a n, salvando tutti i risultati in una lista elenco in cui ogni elemento ha la forma (errore numeratore denominatore).
+Prendere l'elemento della lista con il minimo errore, il numeratore e il denominatore rappresentano la  frazione cercata.
+
+(define (riduce val den-max)
+  (local (out num err)
+    (setq out '())
+    (for (den 1 den-max)
+      (setq num (round (mul val den)))
+      (setq err (abs (sub val (div num den))))
+      (push (list err num den) out -1)
+    )
+    ; estrae il numeratore e il denominatore
+    ; dal primo elemento della lista out
+    ;(slice (pop (sort out)) 1)
+    ; estrae (errore numeratore denominatore)
+    (pop (sort out))))
+
+Facciamo alcune prove:
+
+(riduce 1.21 8)
+;-> (0.01 6 5)
+
+(time (println (riduce 3.14159265359 1e6)))
+;-> (1.34958710873434e-012 3126535 995207)
+;-> 1334.81
+
+(time (println (riduce 19.0 1e7)))
+;-> (0 19 1)
+;-> 7654.529
+
+(riduce 3.14159265359 12)
+;-> (0.001264489267142732 22 7)
+
+(riduce 2.7182818 100)
+;-> (2.805915492931632e-005 193 71)
+
+(riduce 0.8193927511 22)
+;-> (0.001210932918181751 9 11)
+
+(riduce 0.2557463559 20)
+;-> (0.0057463559 1 4)
+
+(riduce 0.2557463559 100)
+;-> (6.759758837210361e-005 11 43)
+
+(riduce 0.0748947977 225)
+;-> (2.848753957220007e-005 14 187)
+
 =============================================================================
 
