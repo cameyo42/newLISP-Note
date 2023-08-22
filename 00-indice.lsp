@@ -1965,6 +1965,9 @@ NOTE LIBERE 18
   Semplificazione di una radice quadrata
   Calendario Azteco
   Approssimazione dei numeri decimali con frazioni
+  Numero fattoriale?
+  Funzioni iperboliche inverse
+  Carta igienica
   
 PROBLEMI SUI DADI
 =================

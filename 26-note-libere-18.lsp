@@ -1205,5 +1205,171 @@ Facciamo alcune prove:
 (riduce 0.0748947977 225)
 ;-> (2.848753957220007e-005 14 187)
 
+
+
+------------------
+Numero fattoriale?
+------------------
+
+Dato un numero intero positivo, determinare se è un numero fattoriale.
+
+Primo metodo: divisione
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (factorial? num)
+  (local (val x)
+    (setq val num)
+    (setq x 2L)
+    (until (= val 0)
+      (setq val (/ val x))
+      (++ x)
+    )
+    (= num (fact-i (- x 2)))))
+
+Facciamo alcune prove:
+
+(factorial? 1)
+;-> true
+(factorial? 720)
+;-> true
+(factorial? 1234)
+;-> nil
+
+(ref-all true (map factorial? (sequence 0 1e6)))
+;-> ((1) (2) (6) (24) (120) (720) (5040) (40320) (362880))
+
+Secondo metodo: moltiplicazione
+
+(define (fact? num)
+  (let ( (val 1) (idx 1) (stop nil) )
+    (until stop
+      (cond ((= val num) (setq stop true) true)
+            ((> val num) (setq stop true) nil)
+            (true (++ idx) (setq val (* val idx)))))))
+
+Facciamo alcune prove:
+
+(fact? 1)
+;-> true
+(fact? 720)
+;-> true
+(fact? 1234)
+;-> nil
+
+(ref-all true (map fact? (sequence 0 1e6)))
+;-> ((1) (2) (6) (24) (120) (720) (5040) (40320) (362880))
+
+
+----------------------------
+Funzioni iperboliche inverse
+----------------------------
+
+sinh-1: Seno iperbolico inverso
+
+  sinh-1 = ln(x + sqrt(x^2 + 1))
+  
+cosh-1: Coseno iperbolico inverso (definita solo per x>=1)
+  
+  cosh-1 = ln(x + sqrt(x^2 - 1))
+  
+tanh-1: Tangente iperbolica inversa (definita solo per -1<x<1)
+
+                     1 + x 
+  tanh-1 = (1/2)*ln(-------)
+                     1 - x 
+
+Vedi immagine "iperboliche-inverse.png" nella cartella "data".
+
+(define (sinh-1 x)
+  (log (add x (sqrt (add (mul x x) 1)))))
+
+(define (cosh-1 x)
+  (log (add x (sqrt (sub (mul x x) 1)))))
+
+(define (tanh-1 x)
+  (mul 0.5 (log (div (add 1 x) (sub 1 x)))))
+
+Facciamo alcune prove:
+
+(sinh-1 0)
+;-> 0
+(cosh-1 1)
+;-> 0
+(sinh-1 5)
+;-> 2.312438341272753
+(cosh-1 5)
+;-> 2.292431669561178
+(tanh-1 0.5)
+;-> 0.5493061443340549
+
+(cosh-1 0)
+;-> 1.#QNAN
+(cosh-1 -1)
+;-> 1.#QNAN
+(tanh-1 1.5)
+;-> 1.#QNAN
+
+
+--------------
+Carta igienica
+--------------
+
+I valori numerici di un rotolo di carta igienica sono tre numeri interi I, R e G.
+  I è il raggio dell'anello interno,
+  R è il numero di rotazioni,
+  G è lo spessore. 
+Calcolare la lunghezza di tutta la carta igienica.
+
+La carta igienica può essere vista come una spirale di Archimede, che inizia alle coordinate (I,x), e ruota un totale di R volte in senso antiorario, con una distanza di G per ogni giro.
+In altre parole, la spirale di Archimede qui è definita come l'insieme di tutti i punti le cui posizioni nel tempo si allontanano dall'origine in senso antiorario a velocità costante e con velocità angolare costante.
+
+Esempio (vedi immagine "carta-igienica.png" nella cartella "data"):
+con I=5, R=3 e G=4 si ha una lunghezza L = 207.73
+
+La formula per la lunghezza L del rotolo è la seguente:
+
+                     2π(I+GR)/G 
+  L = (G/2π)*integral[sqrt(1 + x^2)]dx
+                     2πI/G
+
+  dove integral[sqrt(1 + x^2)]dx = (1/2)*(x*sqrt(1 + x^2) + sinh-1(x))
+
+Funzione soluzione dell'integrale:
+
+(define (f x)
+  (mul 0.5 (add (mul x (sqrt (add 1 (mul x x)))) (sinh-1 x))))
+
+Funzione seno iperbolico inverso:
+
+(define (sinh-1 x)
+  (log (add x (sqrt (add (mul x x) 1)))))
+
+Valore di pi greco:
+
+(setq pi 3.1415926535897931)
+
+(define (carta I R G)
+  (setq a (div (mul 2 pi I) G))
+  (setq b (div (mul 2 pi (add I (mul G R))) G))
+  (setq fa (f a))
+  (setq fb (f b))
+  (mul (div G (mul 2 pi)) (sub fb fa)))
+
+Facciamo alcune prove:
+
+(carta 0 1 1)
+;-> 3.383041769062701
+(carta 5 3 4)
+;-> 207.7338934908665
+(carta 12 9 2)
+;-> 1187.666840566463
+
 =============================================================================
 
