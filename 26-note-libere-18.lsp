@@ -1371,5 +1371,261 @@ Facciamo alcune prove:
 (carta 12 9 2)
 ;-> 1187.666840566463
 
+
+---------------------------------------
+Riflessione e inversione di una stringa
+---------------------------------------
+
+Data una stringa ASCII rifletterla e invertirla.
+Per fare questo:
+a) Sostituire qualsiasi occorrenza dei caratteri (, ), /, \, <, >, [, ], { o } nella stringa con il corrispondente carattere "speculare": ), (, \, /, >, <, ], [, }, e {.}
+b) Invertire la stringa ottenuta nel passo a).
+
+(define (mir-rev str)
+  (local (tmp ch)
+    (setq tmp str)
+    (for (i 0 (- (length str) 1))
+      (setq ch (str i))
+      (cond ((= ch "(") (setf (tmp i) ")"))
+            ((= ch ")") (setf (tmp i) "("))
+            ((= ch "/") (setf (tmp i) (char 92)))
+            ((= ch "\\") (setf (tmp i) "/"))
+            ((= ch ">") (setf (tmp i) "<"))
+            ((= ch "<") (setf (tmp i) ">"))
+            ((= ch "[") (setf (tmp i) "]"))
+            ((= ch "]") (setf (tmp i) "["))
+            ((= ch "{") (setf (tmp i) "}"))
+            ((= ch "}") (setf (tmp i) "{"))
+            (true (setf (tmp i) ch))
+      )
+    )
+    ;(println tmp)
+    (println (reverse tmp))))
+
+Facciamo alcune prove:
+
+(mir-rev "(s)t/r\i<n>g[i]e{s}")
+;-> {s}e[i]g<n>ir\t(s)
+;-> "{s}e[i]g<n>ir\\t(s)"
+
+(mir-rev "(a + b)*[(a - b)*(c -d)]")
+;-> [(d- c)*(b - a)]*(b + a)
+;-> "[(d- c)*(b - a)]*(b + a)"
+(mir-rev "])d[(d- c)*(b - a)]*(b + a)")
+;-> (a + b)*[(a - b)*(c -d)]d([
+;-> "(a + b)*[(a - b)*(c -d)]d(["
+
+(mir-rev "(newlisp)")
+;-> (psilwen)
+;-> "(psilwen)"
+
+
+------------------
+Vicino al quadrato
+------------------
+
+Dato un intero positivo c, restituire due numeri interi a e b dove a * b = c e ciascun a e b è il più vicino a sqrt(c).
+
+(define (factor-group num)
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+Il numero di divisori di un numero quadrato è dispari:
+(for (i 2 20) (print (length (divisors (* i i))) { }))
+;-> 3 3 5 3 9 3 7 5 9 3 15 3 9 9 9 3 15 3 15 " "
+
+Il valore centrale della lista dei divisori diun numero quadrato è la radice quadrata del numero:
+(divisors 144)
+;-> (1 2 3 4 6 8 9 12 16 18 24 36 48 72 144)
+Il valore centrale vale 12: 12*12 = 144
+
+Se il numero non è un quadrato, allora i valori di a e b sono i due valori centrali:
+(divisors 136)
+;-> (1 2 4 8 17 34 68 136)
+I valori centrali sono 8 e 17.
+
+Funzione che calcola i valori di a e b:
+
+(define (closest c)
+  (local (lst len)
+    (setq lst (divisors c))
+    (setq len (length lst))
+    (cond ((odd? len) (setq a (lst (/ len 2))) (setq b a))
+          ((even? len) (setq a (lst (- (/ len 2) 1))) (setq b (lst (/ len 2))))
+    )
+    (list a b)))
+
+Facciamo alcune prove:
+
+(closest 144)
+;-> (12 12)
+(closest 136)
+;-> (8 17)
+(closest 41)
+;-> (1 41)
+(closest 189)
+;-> (9 21)
+
+Nota: il primo numero (a) rappresenta la sequenza OEIS A033676,
+      il secondo numero (b) rappresenta la sequenza OEIS A033677.
+
+
+------------------------
+Zundoko Kiyoshi function
+------------------------
+
+Scrivere una funzione senza alcun input che produce il seguente comportamento:
+
+- stampa ripetutamente "zun" o "doko", scegliendo ogni volta in modo uniforme e casuale.
+- se la sequenza ("zun", "zun", "zun", "zun", "doko") appare nell'output, allora stampa "ki-yo-shi!" e si ferma.
+
+Prima versione:
+
+(define (zundoko)
+  (local (five stop tipo)
+    (setq five '())
+    (setq stop nil)
+    (until stop
+      (setq tipo (rand 2))
+      ; stampa "zun" o "doko"
+      ; e inserisce 0 o 1 nella lista five
+      (cond ((= tipo 0)
+              (println "zun") (push 0 five -1))
+            (true
+              (println "doko") (push 1 five -1))
+      )
+      ; se la lista contiene 5 elementi
+      (cond ((= (length five) 5)
+              ; verifica ultimi 5 risultati
+              (if (= five '(0 0 0 0 1))
+                (begin
+                  (println "ki-yo-shi!")
+                  (setq stop true))
+                )
+                ;else
+                ; togliere il primo elemento dalla lista
+                ; (ne rimangono 4)
+                (pop five))
+      )
+      ;(print five) (read-line)
+    ))
+
+(zundoko)
+;-> doko
+;-> doko
+;-> zun
+;-> zun
+;-> doko
+;-> ...
+;-> zun
+;-> doko
+;-> doko
+;-> doko
+;-> doko
+;-> doko
+;-> zun
+;-> zun
+;-> zun
+;-> zun
+;-> doko
+;-> ki-yo-shi!
+
+Seconda versione:
+
+(define (zundoko2)
+(local (five tipo stop)
+  (setq five '())
+  ; inserisce i primi 4 elementi
+  (for (i 1 4)
+    (setq tipo (rand 2))
+    ; stampa "zun" o "doko"
+    ; e inserisce 0 o 1 nella lista five
+    (cond ((= tipo 0)
+            (println "zun") (push 0 five -1))
+          (true
+            (println "doko") (push 1 five -1))
+    )
+  )
+  (setq stop nil)
+  (until stop
+    (setq tipo (rand 2))
+    ; stampa "zun" o "doko"
+    ; e inserisce 0 o 1 nella lista five
+    (cond ((= tipo 0)
+            (println "zun") (push 0 five -1))
+          (true
+            (println "doko") (push 1 five -1))
+    )
+    ; verifica lista five (che contiene 5 elementi)
+    (if (= five '(0 0 0 0 1))
+      (begin
+        (println "ki-yo-shi!")
+        (setq stop true)
+      )
+      ;else
+      ; togliere il primo elemento dalla lista
+      ; (ne rimangono 4)
+      (pop five)
+    )
+    ;(print five) (read-line)
+  ))
+
+(zundoko2)
+;-> zun
+;-> zun
+;-> doko
+;-> zun
+;-> doko
+;-> doko
+;-> doko
+;-> doko
+;-> zun
+;-> doko
+;-> zun
+;-> zun
+;-> doko
+;-> doko
+;-> doko
+;-> doko
+;-> zun
+;-> doko
+;-> doko
+;-> zun
+;-> zun
+;-> doko
+;-> zun
+;-> zun
+;-> doko
+;-> doko
+;-> doko
+;-> zun
+;-> zun
+;-> zun
+;-> zun
+;-> doko
+;-> ki-yo-shi!
+
 =============================================================================
 

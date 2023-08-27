@@ -1968,6 +1968,9 @@ NOTE LIBERE 18
   Numero fattoriale?
   Funzioni iperboliche inverse
   Carta igienica
+  Riflessione e inversione di una stringa
+  Vicino al quadrato
+  Zundoko Kiyoshi function
   
 PROBLEMI SUI DADI
 =================
