@@ -1627,5 +1627,103 @@ Seconda versione:
 ;-> doko
 ;-> ki-yo-shi!
 
+
+--------------------------------------------------
+Conversione numero decimale frazionario in binario
+--------------------------------------------------
+
+Dato un numero decimale frazionario n e un intero k, convertire il numero decimale n in un numero binario equivalente con precisione fino a k dopo la virgola decimale.
+
+Esempi:
+
+Input: n = 2,47, k = 5
+Output: 10.01111
+
+Input: n = 6,986 k = 8
+Output: 110.11111100
+
+A) Convertire la parte intera del numero nell'equivalente binario
+1. Dividere il numero decimale per 2 e memorizzare il resto in una lista.
+2. Dividire il quoziente per 2.
+3. Ripetere il passaggio 2 finché nonsi ottiene il quoziente pari a zero.
+4. Il numero binario equivalente è l'inverso di tutti i resti della lista.
+
+B) Convertire la parte decimale (frazionaria) del numero nell'equivalente binario
+1. Moltiplicare il numero decimale frazionario per 2.
+2. La parte intera del numero risultante sarà la prima cifra del numero binario della frazione.
+3. Ripetere il passaggio 1 utilizzando solo la parte decimale (frazionaria) del numero e quindi il passaggio 2.
+
+C) Combinare la parte intera con quella decimale del numero binario.
+
+Illustrazione :
+
+Facciamo un esempio per n = 4.47 k = 3
+
+Passaggio 1: conversione di 4 in binario
+1. 4/2 : Resto = 0 : Quoziente = 2
+2. 2/2 : Resto = 0 : Quoziente = 1
+3. 1/2 : Resto = 1 : Quoziente = 0
+
+Quindi il binario equivalente della parte intera del numero è 100.
+
+Passaggio 2: conversione di .47 in binario
+1. 0.47 * 2 = 0.94, Parte integrale: 0
+2. 0.94 * 2 = 1.88, Parte integrale: 1
+3. 0.88 * 2 = 1.76, Parte integrale: 1
+
+Quindi il binario equivalente della parte decimale (frazionaria) del numero del decimale è .011
+
+Passaggio 3: combinare il risultato dei passaggi 1 e 2.
+
+La risposta finale vale: 100 + 0.011 = 100.011
+
+(define (frac-bin num k)
+  (local (binary intera decimale resto dec-bit)
+    (setq binary "")
+    ; parte intera del numero
+    (setq intera (int num))
+    ; parte decimale del numero
+    (setq decimale (sub num intera))
+    ; conversione parte intera in binario
+    (while (> intera 0)
+      (setq resto (% intera 2))
+      (extend binary (string resto))
+      (setq intera (/ intera 2))
+    )
+    (reverse binary)
+    (extend binary ".")
+    ; conversione parte decimale (frazionaria) in binario
+    (while (> k 0)
+      (setq decimale (mul decimale 2))
+      (setq dec-bit (int decimale))
+      (cond ((= dec-bit 1)
+            (setq decimale (sub decimale dec-bit))
+            (extend binary "1"))
+            (true (extend binary "0"))
+      )
+      (-- k)
+    )
+    binary))
+
+Facciamo alcune prove:
+
+(frac-bin 4.47 3)
+;-> "100.011"
+
+(frac-bin 4.47 8)
+;-> "100.01111000"
+
+(frac-bin 4.47 25)
+;-> "100.0111100001010001111010111"
+
+(frac-bin 6.986 5)
+;-> "110.11111"
+
+(frac-bin 6.986 15)
+;-> "110.111111000110101"
+
+(frac-bin (div 1 3) 10)
+;-> ".0101010101"
+
 =============================================================================
 

@@ -1971,6 +1971,7 @@ NOTE LIBERE 18
   Riflessione e inversione di una stringa
   Vicino al quadrato
   Zundoko Kiyoshi function
+  Conversione numero decimale frazionario in binario
   
 PROBLEMI SUI DADI
 =================

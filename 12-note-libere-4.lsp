@@ -1427,9 +1427,9 @@ Serie di teste e croci (valore atteso)
 
 In media (valore atteso), quante volte dobbiamo lanciare una moneta per ottenere una serie consecutiva di N risultati uguali (N teste consecutive oppure N croci consecutive)?
 
-L'aspettativa matematica è un concetto importante nella teoria della probabilità. Matematicamente, per una variabile discreta X con funzione di probabilità P (X), il "valore atteso" E[X] è dato da Σ(xi * P(xi)) la somma ricorre su tutti i valori distinti xi che la variabile può assumere. Ad esempio, per un esperimento di lancio di dadi, l'insieme di risultati discreti è (1 2 3 4 5 6) e ciascuno di questo risultato ha la stessa probabilità 1/6. Quindi, il valore atteso di questo esperimento sarà 1/6 * (1 + 2 + 3 + 4 + 5 + 6) = 21/6 = 3.5. Per una variabile continua X con funzione di densità di probabilità P(x), il valore atteso E[X] è dato da ∫x*P(x)dx.
+L'aspettativa matematica è un concetto importante nella teoria della probabilità. Matematicamente, per una variabile discreta X con funzione di probabilità P(X), il "valore atteso" E[X] è dato da Σ(xi * P(xi)) la somma ricorre su tutti i valori distinti xi che la variabile può assumere. Ad esempio, lanciando un dado, l'insieme di risultati discreti è (1 2 3 4 5 6) e ciascuno di questo risultato ha la stessa probabilità 1/6. Quindi, il valore atteso di questo esperimento sarà 1/6 * (1 + 2 + 3 + 4 + 5 + 6) = 21/6 = 3.5. Per una variabile continua X con funzione di densità di probabilità P(x), il valore atteso E[X] è dato da ∫x*P(x)dx.
 
-È importante capire che "valore atteso" non è uguale a "valore più probabile" - piuttosto, non è nemmeno necessario che sia uno dei valori probabili. Ad esempio, in un esperimento di lancio di dadi, il valore atteso, vale a dire 3.5, non è affatto uno dei possibili risultati.
+È importante capire che "valore atteso" non è uguale a "valore più probabile" - piuttosto, non è nemmeno necessario che sia uno dei valori probabili. Nell'esempio sopra, il valore atteso, 3.5, non è affatto uno dei possibili risultati.
 
 La regola della "linearità dell'aspettativa" dice che E[x1+x2] = E[x1] + E[x2].
 
