@@ -1971,7 +1971,9 @@ NOTE LIBERE 18
   Riflessione e inversione di una stringa
   Vicino al quadrato
   Zundoko Kiyoshi function
-  Conversione numero decimale frazionario in binario
+  Metodo per memorizzare le password
+  Conversione numero decimale frazionario in binario frazionario
+  Conversione binario frazionario in numero decimale frazionario
   
 PROBLEMI SUI DADI
 =================

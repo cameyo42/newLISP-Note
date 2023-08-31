@@ -1628,9 +1628,40 @@ Seconda versione:
 ;-> ki-yo-shi!
 
 
---------------------------------------------------
-Conversione numero decimale frazionario in binario
---------------------------------------------------
+----------------------------------
+Metodo per memorizzare le password
+----------------------------------
+
+Una password è caratterizzata da:
+Lunghezza: consigliabile usare da 8 a 15 caratteri
+Caratteri usati:
+  Numeri (0-9) = 10 
+  Lettere = 52 (26 minuscole + 26 maiuscole)
+  Caratteri speciali (per es. " :&%?^|" ecc.) = 33
+Totale caratteri: 95
+
+"The only secure password is the one you can’t remember" Troy Hunt.
+
+Assegniamo un numero ad ogni sito web e usiamo una funzione matematica per generare la password:
+
+Indirizzo Web    Numero   Stringa  Funzione(tan(x)^2)    Password
+chess.com        1        uNo_     2.42551882081476      uNo_42551882               
+github.com       2        dUe_     4.774399204041917     dUe_77439920
+netflix.com      3        tRe_     0.02031951694242694   tRe_02031951
+
+(define (pwd num) (format "%.8f" (pow (tan num) 2)))
+
+(pwd 1)
+;-> "2.42551882"
+(pwd 2)
+;-> "4.77439920"
+(pwd 3)
+;-> "0.02031951"
+
+
+--------------------------------------------------------------
+Conversione numero decimale frazionario in binario frazionario
+--------------------------------------------------------------
 
 Dato un numero decimale frazionario n e un intero k, convertire il numero decimale n in un numero binario equivalente con precisione fino a k dopo la virgola decimale.
 
@@ -1691,7 +1722,10 @@ La risposta finale vale: 100 + 0.011 = 100.011
       (setq intera (/ intera 2))
     )
     (reverse binary)
-    (extend binary ".")
+    (if (zero? (length binary))
+        (extend binary "0.")
+        (extend binary ".")
+    )
     ; conversione parte decimale (frazionaria) in binario
     (while (> k 0)
       (setq decimale (mul decimale 2))
@@ -1723,7 +1757,80 @@ Facciamo alcune prove:
 ;-> "110.111111000110101"
 
 (frac-bin (div 1 3) 10)
-;-> ".0101010101"
+;-> "0.0101010101"
+
+
+--------------------------------------------------------------
+Conversione binario frazionario in numero decimale frazionario
+--------------------------------------------------------------
+
+Data una stringa di un numero binario frazionario, convertire il numero binario nel suo equivalente decimale.
+
+Esempi:
+
+Input: n = 110.101
+Output: 6.625
+
+Input: n = 101.1101
+Output: 5.8125
+
+A) Convertire la parte intera del binario nell'equivalente decimale
+1) Moltiplica ciascuna cifra separatamente dal lato sinistro del punto della radice fino alla prima cifra rispettivamente per 2^0, 2^1, 2^2,....
+2) Aggiungi tutto il risultato proveniente dal passaggio 1.
+Il numero decimale intero equivalente è sarebbe il risultato ottenuto nel passaggio 2.
+
+B) Convertire la parte frazionaria del binario nell'equivalente decimale
+1) Dividere ciascuna cifra dal lato destro del punto fino alla fine rispettivamente per 2^1, 2^2, 2^3, ....
+2) Aggiungere tutto il risultato proveniente dal passaggio 1.
+Il numero decimale frazionario equivalente sarebbe il risultato ottenuto nel passaggio 2.
+
+C) Combinare la parte intera con quella frazionaria del numero decimale.
+
+(define (bin-frac binary)
+  (setq len (length binary))
+  (setq punto (or (find "." binary) len))
+  (setq int-dec 0)
+  (setq frac-dec 0)
+  (setq due 1)
+  ; conversione parte intera del binario in decimale
+  (for (i (- punto 1) 0 -1)
+    (setq int-dec (+ int-dec (* (int (binary i)) due)))
+    (setq due (* due 2))
+  )
+  ; conversione parte frazionaria del binario in decimale
+  (setq due 2)
+  (for (i (+ punto 1) (- len 1))
+    (setq frac-dec (add frac-dec (div (int (binary i)) due)))
+    (setq due (* due 2))
+  )
+  (add int-dec frac-dec))
+
+Facciamo alcune prove:
+
+(bin-frac "110.101")
+;-> 6.625
+
+(bin-frac "101.1101")
+;-> 5.8125
+
+(bin-frac "100.011")
+;-> 4.375
+
+(bin-frac "100.01111000")
+;-> 4.46875
+
+(bin-frac  "100.0111100001010001111010111")
+;-> 4.469999998807907
+
+(bin-frac  "110.11111")
+;-> 6.96875
+
+(bin-frac "110.111111000110101")
+;-> 6.985992431640625
+
+(bin-frac "0.0101010101")
+;-> 0.3330078125
+
 
 =============================================================================
 

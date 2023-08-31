@@ -6302,7 +6302,7 @@ Probabilità di indovinare casualmente tutte le tazze:
 ;-> 0.01428571428571429
 
 Quindi la probabilità di identificare per caso tutte le tazze vale 1/70 (circa 1.42 percento).
-Possiamo concludere che la signora probabilmente aveva un gusto estremamente raffinato in grado di riconoscere la composizione delle tazze.
+Possiamo concludere che la signora probabilmente aveva un gusto estremamente raffinato in grado di riconoscere la composizione dei liquidi delle tazze.
 
 
 --------------------------------
@@ -6557,7 +6557,7 @@ Il punteggio di una partita a scacchi è il seguente:
   - 0.5 punti per una patt
   - 0 punti per una sconfitta
 
-Giocando N partite con 3 risultati possiamo utlizzare le permutazioni per generare tutti i possibili risultati.
+Giocando N partite con 3 risultati possiamo utilizzare le permutazioni per generare tutti i possibili risultati.
 
 (define (perm-rep k lst)
 "Generates all permutations of k elements with repetition from a list of items"
@@ -6657,7 +6657,7 @@ Calcoliamo i modi per tutti i punti che vanno da 0 al numero delle partite:
 ;-> 9 55
 ;-> 10 1
 
-I risultati hanno una distribuzioone gaussiana.
+I risultati hanno una distribuzione gaussiana.
 
 
 ----------------------------------------------------------
