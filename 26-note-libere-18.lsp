@@ -1832,5 +1832,183 @@ Facciamo alcune prove:
 ;-> 0.3330078125
 
 
+-----------------------------
+Ordinamento per tipo e valore
+-----------------------------
+
+Data una lista che può contenere interi, float e stringhe, ordinarla nel modo seguente:
+
+1) Prima le stringhe ordinate in modo crescente
+2) Poi gli interi ordinati in modo crescente
+3) Infine i float ordinati in modo crescente 
+
+Il "sort" di newLISp ordina nel modo seguente:
+
+(setq lst '(6 "abc" 3.1415 "zippo" 7 4 2 2.42 21.21 77))
+(sort lst)
+;-> (2 2.42 3.1415 4 6 7 21.21 77 "abc" "zippo")
+
+Ordina anche eventuali simboli:
+
+(setq lst '(6 "abc" 3.1415 "zippo" a z 7 4 2 2.42 21.21 77))
+(sort lst)
+;-> (2 2.42 3.1415 4 6 7 21.21 77 "abc" "zippo" a z)
+
+Funzione che ordina una lista in base ai tipi e ai valori degli elementi:
+
+(define (type-sort lst)
+  (extend
+    (sort (filter string? lst))
+    (sort (filter integer? lst))
+    (sort (filter float? lst))
+    (sort (filter symbol? lst))))
+
+(type-sort lst)
+;-> ("abc" "zippo" 2 4 6 7 77 2.42 3.1415 21.21 a z)
+
+
+----------------
+Stringhe lineari
+----------------
+
+Data una stringa costituita solo da caratteri minuscoli, stabilire se è lineare.
+Una stringa viene definita "lineare" se i suoi caratteri sono ordinati in modo crescente o in modo decrescente rispetto all'alfabeto ("abcdefghijklmnopqrstuvwxyz").
+
+Esempi:
+"amor" è una parola lineare perchè a <= m <= o <= r.
+"zucca"  è una parola lineare perchè z>= u >= c >= c >= a.
+"new" non è lineare perchè n >= e <= w.
+
+(define (linear? str)
+  (or (apply >= (explode str))
+      (apply <= (explode str))))
+
+Facciamo alcune prove:
+
+(linear? "amor")
+;-> true
+(linear? "zucca")
+;-> true
+(linear? "new")
+;-> nil
+(linear? "newlisp")
+;-> nil
+
+Se una stringa non è lineare, quanto è "non lineare"?
+Cioè quante volte i caratteri cambiano ordine rispetto l'alfabeto?
+
+Esempio:
+(setq s "newlisp")
+(map char (explode s))
+;-> (110 101 119 108 105 115 112)
+
+110 e 101 --> decrescente (ordine iniziale)
+101 e 119 --> crescente (change)
+119 e 108 --> decrescente (change)
+108 e 105 --> decrescente
+105 e 115 --> crescente (change)
+115 e 111 --> decrescente (change)
+
+La seguente funzione restituisce il numero di volte che i caratteri cambiano ordine (decrescente o crescente). Il valore 0 indica che la stringa è lineare.
+
+(define (linear str)
+  (local (len change s1 s2 order)
+    (setq len (length str))
+    (setq change 0)
+    (setq s1 (str 0))
+    (setq s2 (str 1))
+    (cond ((> s1 s2) (setq order "-"))
+          ((< s1 s2) (setq order "+"))
+          ((= s1 s2) (setq order "="))
+    )
+    ;(println s1 { } s2)
+    ;(println "starting order: " order)
+    (for (i 2 (- len 1))
+      ;(println "current char: " (str i))
+      (cond ((and (= order "+") (< (str i) (str (- i 1))))
+              ;(println order { } (str i) { } (str (- i 1)))
+              (++ change)
+              ;(println "change: " change)
+              (setq order "-"))
+            ((and (= order "-") (> (str i) (str (- i 1))))
+              ;(println order { } (str i) { } (str (- i 1)))
+              (++ change)
+              ;(println "change: " change)
+              (setq order "+"))
+            ((= order "=") 
+              (if (> (str i) (str (- i 1)))
+                    (setq order "+")
+                  (< (str i) (str (- i 1)))
+                    (setq order "-")
+              ))
+      )
+      ;(read-line)
+    )
+    change))
+
+Facciamo alcune prove:
+
+(linear "amor")
+;-> 0
+(linear "zucca")
+;-> 0
+(linear "newlisp")
+;-> 4
+(linear "zabc")
+;-> 1
+(linear "aaaaaaaa")
+;-> 0
+(linear "baaaaaaa")
+;-> 0
+(linear "aabbccbb")
+;-> 1
+(linear "zzccbbaabb")
+;-> 1
+(linear "zzzyyy")
+;-> 0
+(linear "zzzyyyaaddcc")
+;-> 2
+
+
+----------------------------------------------------
+Determinare se un numero è minore/uguale di un altro
+----------------------------------------------------
+
+Scrivere una funzione che restituisce true solo se un numero a è inferiore ad un numero b.
+Scrivere una funzione che restituisce true solo se un numero a è inferiore o uguale ad un numero b.
+Non è consentito utilizzare i seguenti operatori:
+- maggiore ">"
+- minore "<"
+- maggiore/uguale ">="
+- minore/uguale "<="
+- le primitive equivalenti di uguaglianza e comparazione del linguaggio (es. "eq", "equal", "greater" ecc.)
+
+Esempi:
+
+  a  b  | Output (minore) | Output (minore o uguale)
+  ------|-----------------|-------------------------
+  1, 3  | true            | true
+  2, 2  | nil             | true
+  3, 2  | nil             | nil
+
+Ecco una soluzione:
+
+(define (less-equal? a b) (zero? (max 0 (- a b))))
+
+(define (less? a b) (not (zero? (max 0 (- b a)))))
+
+(less? 1 3)
+;-> true
+(less-equal? 1 3)
+;-> true
+(less? 2 2)
+;-> nil
+(less-equal? 2 2)
+;-> true
+(less? 3 2)
+;-> nil
+(less-equal? 3 2)
+;-> nil
+
 =============================================================================
 

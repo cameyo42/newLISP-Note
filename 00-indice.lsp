@@ -1974,6 +1974,9 @@ NOTE LIBERE 18
   Metodo per memorizzare le password
   Conversione numero decimale frazionario in binario frazionario
   Conversione binario frazionario in numero decimale frazionario
+  Ordinamento per tipo e valore
+  Stringhe lineari
+  Determinare se un numero è minore/uguale di un altro
   
 PROBLEMI SUI DADI
 =================
