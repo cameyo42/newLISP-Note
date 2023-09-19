@@ -1977,6 +1977,9 @@ NOTE LIBERE 18
   Ordinamento per tipo e valore
   Stringhe lineari
   Determinare se un numero è minore/uguale di un altro
+  Semplice Profiler
+  Distanza euclidea tra matrici
+  Gesture based lock-screen on Android
   
 PROBLEMI SUI DADI
 =================

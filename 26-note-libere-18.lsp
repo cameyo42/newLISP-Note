@@ -2010,5 +2010,352 @@ Ecco una soluzione:
 (less-equal? 3 2)
 ;-> nil
 
+
+-----------------
+Semplice Profiler
+-----------------
+
+Per analizzare il tempo di esecuzione di parti di una funzione possiamo utilizzare la funzione "time".
+
+Per esempio:
+
+(define (test a b c iter)
+  ; sezione 1 da profilare
+  (setq t1 (time
+    (for (i 1 iter) (setq d (mul a b c)))
+  ))
+  ; sezione 2 da profilare
+  (setq t2 (time
+    (for (i 1 iter) (setq d (add a b c)) (setq d (mul a b c)))
+  ))
+  (list t1 t2))
+
+(test 123.123 456.456 789.789 10000000)
+;-> (432.454 787.3)
+
+In generale possiamo usare il seguente pattern (modello):
+
+(define (func x y)
+  (local (t1 t2 tn result)
+    (setq t1 (time
+      ; body of section 1
+    ))
+    (println "Section 1 time: " t1)
+    (setq t2 (time
+      ; body of section 2
+    ))
+    (println "Section 2 time: " t2)
+    ; Other sections
+    ; ...
+    ; ...
+    ; ...
+    (setq tn (time
+      ; body of section n
+    ))
+    (println "Section n time: " tn)
+    ;(setq result )
+    ; return values
+    (list result t1 t2 tn)
+
+Vedi anche:
+ "Tempo di esecuzione" in "newLISP in generale",
+ "Analisi dei tempi di esecuzione delle funzioni" in "newLISP in generale",
+ "Profiler casalingo" in "Note libere 14".
+
+
+-----------------------------
+Distanza euclidea tra matrici
+-----------------------------
+
+Date due matrici restituire la matrice delle distanze euclidee.
+La distanza euclidea tra due punti nello stesso sistema di coordinate può essere descritta dalla seguente equazione:
+
+  D = sqrt((x2-x1)^2 + (y2-y1)^2 + ... + (z2-z1)^2)
+
+La matrice della distanza euclidea è la matrice che contiene la distanza euclidea tra ciascun punto di entrambe le matrici.
+
+Esempio:
+
+Matrice 3x3:
+
+      |  1  2  3|
+  a = | -4 -5 -6|
+      |  7  8  9|
+
+Matrice 1x3 (vettore):
+
+  b = |1 2 3|
+
+Matrice 3x1:
+
+Distanza-Euclidea(a, b) = |0.0  12.4499 10.3923|
+
+Ogni riga della matrice rappresenta un punto (la cui dimensione è data dal numero delle colonne della matrice).
+
+Esempio:
+
+Matrice 3x4:
+
+      | 1  2  3  4|
+  a = |-4 -5 -6 -7|
+      | 6  7  8  9|
+
+Matrice 2x4:
+
+  b =  |1 2 3 4|
+       |1 1 1 1|
+
+Matrice 3x2:
+
+                            | 0.0     3.74166|
+  Distanza-Euclidea(a, b) = |16.6132 13.1909 |
+                            |10.0    13.1909 |
+
+Per ogni punto (riga) della prima matrice si calcola la distanza con ogni altro punto (riga) della seconda matrice.
+La matrice risultante ha dimensione (righe prima matrice)x(righe seconda matrice).
+
+  distanza (1 2 3 4) (1 2 3 4) = 0
+  distanza (1 2 3 4) (1 1 1 1) = 3.741657386773941
+  distanza (-4 -5 -6 -7) (1 2 3 4) = 16.61324772583615
+  ...
+
+Funzione che calcola la distanza cartesiana di due punti N dimensionali: P1=(x1 y1 ... z1) e P2=(x2 y2 ... z2):
+
+(define (dist-points p1 p2)
+"Calculates Cartesian distance of two points N dimensional: P1=(x1 y1 ... z1) e P2=(x2 y2 ... z2)"
+  (sqrt (apply add (map (fn(x) (mul x x)) (map sub p1 p2)))))
+
+(dist-points '(-4 -5 -6 -7) '(1 2 3 4))
+;-> 16.61324772583615
+
+Funzione che calcola la distanza euclidea tra matrici:
+
+(define (mat-dist m1 m2)
+  (local (out row1 row2)
+    (setq out '())
+    (setq row1 (length m1))
+    (setq row2 (length m2))
+    (for (r1 0 (- row1 1))
+      (for (r2 0 (- row2 1))
+        (push (dist-points (m1 r1) (m2 r2)) out -1)
+      )
+    )
+    (explode out row2)))
+
+Facciamo alcune prove:
+
+Matrice 3x4:
+
+(setq mat1 '((1 2 3 4)
+             (-4 -5 -6 -7);
+             (6 7 8 9)))
+
+Matrice 2x4:
+
+(setq mat2 '((1 2 3 4)
+             (1 1 1 1)))
+
+Matrice 3x2:
+
+(mat-dist mat1 mat2)
+;-> ((0 3.741657386773941)
+;->  (16.61324772583615 13.19090595827292)
+;->  (10 13.19090595827292))
+
+Matrice 2x2:
+
+(setq mat1 '((1  2)
+           (3.3 4.4)))
+
+Matrice 3x2:
+
+(setq mat2 '((5.5 6.6)
+             (7  8)
+             (9.9 10.1)))
+
+Matrice 2x3:
+
+(mat-dist mat1 mat2)
+;-> ((6.435060217278467 8.48528137423857 12.03411816461846) 
+;->  (3.111269837220809 5.162363799656123 8.720665112249181))
+
+
+------------------------------------
+Gesture based lock-screen on Android
+------------------------------------
+
+Uno dei metodi per sbloccare i cellulari con S.O. Android è quello di disegnare un segno (pattern) seguendo i punti di una matrice 3x3.
+
+Matrice di punti 3x3:
+
+    *    *    *
+
+    *    *    *
+
+    *    *    *
+
+Esempio di segno (pattern):
+
+     -->                   -->
+    *----*----*           1----2----3
+              |                     |
+    *    *    *           4    5    6        1-2-3-6-9-8
+              |                     |
+    *    *----*           7    8----9
+
+Quanti sono i segni (pattern) che possiamo tracciare?
+
+Se il segno utilizza tutti i punti una sola volta, allora il risultato è il fattoriale di 9:
+
+  9! = 362880
+
+Comunque ci sono alcune regole da rispettare quando si compone un segno:
+
+1) Un minimo di quattro punti devono essere connessi
+2) Ogni punto può essere usato solo una volta (ma possono essere attraversati più volte)
+3) Un punto intermedio sul percorso del segno deve essere incluso nel pattern finale, a meno che non sia già stato usato.
+
+Esempio (il 4 non viene riutilizzato quando passiamo da 1 a 7):
+
+  1----2----3
+  |-->      |
+  4----5----6        4-5-6-3-2-1-7-8
+  |
+  7----8    9
+
+Le soluzioni sono le seguenti:
+
+  +-------+---------+
+  | Punti | Pattern |
+  +-------+---------+
+  |   4   |   1624  |
+  |   5   |   7152  |
+  |   6   |  26016  |
+  |   7   |  72912  |
+  |   8   | 140704  |
+  |   9   | 140704  |
+  +-------+---------+
+            389112
+
+Somma di tutti i pattern:
+(+ 1624 7152 26016 72912 140704 140704)
+;-> 389112
+
+Somma dei pattern da 5 a 7:
+(+ 7152 26016 72912)
+;-> 106080
+
+Per risolvere il problema usiamo la ricorsione per creare un algoritmo di ricerca DFS (Depth First Search) che viene eseguito per ogni punto di partenza.
+Possiamo ottimizzare il metodo notando che alcuni punti di partenza sono simmetrici:
+- i punti 1, 3, 7 e 9 sono simmetrici e forniscono lo stesso risultato
+- i punti 2, 4, 6 e 8 sono simmetrici e forniscono lo stesso risultato
+Per considerare i patterni invalidi (cioè per codificare le regole 2 e 3) usiamo una matrice jump che contiene le possibili celle intermedie di salto.
+Per ignorare le mosse non valide, la funzione di ricerca ricorsiva non viene chiamata se lo spostamento da un punto ad un'altro coinvolge qualche punto intermedio che non è stato già visitato.
+
+(define (patterns-from-cur cur to-visit)
+  (cond
+    ; ultimo punto? restituisce 1 modo
+    ((zero? to-visit) 1)
+    ; nessun punto ulteriore? restituisce 0 modi
+    ((< to-visit 0) 0)
+    (true
+      (setq ways 0)
+      ; imposta il punto corrente come visitato
+      (setf (visited cur) 1)
+      (for (i 1 9)
+        ; se questo punto non è stato visitato (usato)
+        ; AND
+        ;    i e cur sono adiacenti
+        ;    (cioè (jump i cur) vale 0)
+        ;    OR
+        ;    i punti intermedi devono essere già stati visitati
+        ;    (cioè (visited (jump cur i)) vale 1)
+        (if (and (zero? (visited i))
+                (or (zero? (jump i cur)) (= (visited (jump i cur)) 1)))
+            (setq ways (+ ways (patterns-from-cur i (- to-visit 1))))
+        )
+      )
+      ; imposta il punto corrente come non visitato
+      ; dopo il ritorno della funzione chiamata
+      (setf (visited cur) 0)
+      ways)))
+
+(define (unlock-ways m n)
+  (local (ways totways jump visited)
+    ; matrice dei salti
+    (setq jump (array 10 10 '(0)))
+    ; lista dei punti visitati
+    (setq visited (array 10 '(0)))
+    ; 2 si trova tra 1 e 3
+    (setf (jump 1 3) 2)
+    (setf (jump 3 1) 2)
+    ; 8 si trova tra 7 e 9
+    (setf (jump 7 9) 8)
+    (setf (jump 9 7) 8)
+    ; 4 si trova tra 1 e 7
+    (setf (jump 1 7) 4)
+    (setf (jump 7 1) 4)
+    ; 6 si trova tra 3 e 9
+    (setf (jump 3 9) 6)
+    (setf (jump 9 3) 6)
+    ; 5 si trova tra 1 e 9
+    (setf (jump 1 9) 5)
+    (setf (jump 9 1) 5)
+    ; 5 si trova tra 2 e 8
+    (setf (jump 2 8) 5)
+    (setf (jump 8 2) 5)
+    ; 5 si trova tra 3 e 7
+    (setf (jump 3 7) 5)
+    (setf (jump 7 3) 5)
+    ; 5 si trova tra 4 e 6
+    (setf (jump 4 6) 5)
+    (setf (jump 6 4) 5)
+    (setq totways 0)
+    (for (i m n)
+      ; moltiplica per 4 perchè 1, 3, 7, 9 sono simmetrici
+      (setq totways (+ totways (* 4 (patterns-from-cur 1 (- i 1)))))
+      ; moltiplica per 4 perchè 2, 4, 6, 8 sono simmetrici
+      (setq totways (+ totways (* 4 (patterns-from-cur 2 (- i 1)))))
+      ; 5 non ha simmetrici
+      (setq totways (+ totways (patterns-from-cur 5 (- i 1))))
+    )
+    totways))
+
+Facciamo alcune prove:
+
+(unlock-ways 1 1)
+;-> 9
+(unlock-ways 2 2)
+;-> 56
+(unlock-ways 1 2)
+;-> 65
+(unlock-ways 4 6)
+;-> 34792
+(unlock-ways 5 7)
+;-> 106080
+(unlock-ways 8 8)
+;-> 140704
+(unlock-ways 9 9)
+;-> 140704
+(unlock-ways 4 9)
+;-> 389112
+
+Nota: questo metodo per bloccare il cellulare non è molto sicuro...
+
+"Cracking Android Pattern Lock in Five Attempts" by
+Guixin Ye, Zhanyong Tang, Dingyi Fangy, Xiaojiang Chen, Kwang In Kim, Ben Taylor, and Zheng Wang
+
+Abstract
+Pattern lock is widely used as a mechanism for authentication and authorization on Android devices.
+In this paper, we demonstrate a novel video-based attack to reconstruct Android lock patterns from video footage filmed using a mobile phone camera.
+Unlike prior attacks on pattern lock, our approach does not require the video to capture any content displayed on the screen.
+Instead, we employ a computer vision algorithm to track the fingertip movements to infer the pattern.
+Using the geometry information extracted from the tracked fingertip motions, our approach is able to accurately identify a small number of (often one) candidate patterns to be tested by an adversary.
+We thoroughly evaluated our approach using 120 unique patterns collected from 215 independent users, by applying it to reconstruct patterns from video footage filmed using smartphone cameras.
+Experimental results show that our approach can break over 95% of the patterns in five attempts before the device is automatically locked by the Android system.
+We discovered that, in contrast to many people's belief, complex patterns do not offer stronger protection under our attacking scenarios.
+This is demonstrated by the fact that we are able to break all but one complex patterns (with a 97.5% success rate) as opposed to 60% of the simple patterns in the first attempt.
+Since our threat model is common in day-to-day lives, our works calls for the community to revisit the risks of using Android pattern lock to protect sensitive information.
+
 =============================================================================
 
