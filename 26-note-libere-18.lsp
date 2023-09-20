@@ -1640,7 +1640,7 @@ Caratteri usati:
   Caratteri speciali (per es. " :&%?^|" ecc.) = 33
 Totale caratteri: 95
 
-"The only secure password is the one you can’t remember" Troy Hunt.
+"The only secure password is the one you can't remember" Troy Hunt.
 
 Assegniamo un numero ad ogni sito web e usiamo una funzione matematica per generare la password:
 
@@ -2063,6 +2063,20 @@ Vedi anche:
  "Profiler casalingo" in "Note libere 14".
 
 
+-------------------------------------
+Distanza tra due punti N-dimensionali
+-------------------------------------
+
+Funzione che calcola la distanza cartesiana di due punti N dimensionali: P1=(x1 y1 ... z1) e P2=(x2 y2 ... z2):
+
+(define (dist-points p1 p2)
+"Calculates Cartesian distance of two points N dimensional: P1=(x1 y1 ... z1) e P2=(x2 y2 ... z2)"
+  (sqrt (apply add (map (fn(x) (mul x x)) (map sub p1 p2)))))
+
+(dist-points '(-4 -5 -6 -7) '(1 2 3 4))
+;-> 16.61324772583615
+
+
 -----------------------------
 Distanza euclidea tra matrici
 -----------------------------
@@ -2356,6 +2370,309 @@ Experimental results show that our approach can break over 95% of the patterns i
 We discovered that, in contrast to many people's belief, complex patterns do not offer stronger protection under our attacking scenarios.
 This is demonstrated by the fact that we are able to break all but one complex patterns (with a 97.5% success rate) as opposed to 60% of the simple patterns in the first attempt.
 Since our threat model is common in day-to-day lives, our works calls for the community to revisit the risks of using Android pattern lock to protect sensitive information.
+
+
+-------------------------------------------------
+Paradosso Maschio o Femmina (Boy or Girl Paradox)
+-------------------------------------------------
+
+Problema 1
+----------
+Maria e Pietro hanno due figli.
+Almeno uno dei due figli è un maschio. 
+Supponiamo che la probabilità di ciascun genere sia 1/2.
+
+Qual è la probabilità che anche l'altro figlio sia maschio?
+
+Soluzione
+---------
+Elenchiamo le varie combinazioni di due figli:
+
+  1.  Maschio - Femmina
+  2.  Maschio - Maschio
+  3.  Femmina - Femmina (non possibile)
+  4.  Femmina - Maschio
+
+Poichè un figlio è maschio, allora la combinazione 3 non è possibile.
+
+La probabilità cercata vale:
+
+                casi favorevoli
+  P(maschio) = -----------------
+                casi possibili
+
+  Casi possibili = 3, (1 2 4)
+  
+  Casi favorevoli = 1, (2)
+
+                1
+  P(maschio) = --- = 1/3 = 0.333333333....
+                3
+
+Problema 2
+----------
+Maria e Pietro hanno due figli.
+Il figlio più vecchio è una femmina. 
+Supponiamo che la probabilità di ciascun genere sia 1/2.
+
+Qual è la probabilità che anche l'altro figlio sia femmina?
+
+Elenchiamo le varie combinazioni di due figli:
+
+      Vecchio   Giovane
+      -------   -------
+  1.  Maschio - Femmina (non possibile)
+  2.  Maschio - Maschio (non possibile)
+  3.  Femmina - Femmina
+  4.  Femmina - Maschio
+
+Poichè femmina è più vecchia le combinazione 1 e 2 non sono possibili.
+
+La probabilità cercata vale:
+
+                casi favorevoli
+  P(femmina) = -----------------
+                casi possibili
+
+  Casi possibili = 2, (3 4)
+  
+  Casi favorevoli = 1, (3)
+
+                1
+  P(femmina) = --- = 1/2 = 0.5
+                2
+
+Funzioni di simulazione
+-----------------------
+
+Problema 1:
+Maria e Pietro hanno due figli.
+Almeno uno dei due figli è un maschio.
+Qual è la probabilità che anche l'altro figlio sia maschio?
+
+(define (p1 iter)
+  ; M = "0", F = "1"
+  (setq genere '("M" "F"))
+  (setq ok 0)
+  (for (i 1 iter)
+    ; generazione coppia di figli scartando la configurazione ("F" "F")
+    (until (not (= (setq coppia (list (genere (rand 2)) (genere (rand 2)))) '("F" "F"))))
+    ; controllo casi favorevoli
+    (if (= coppia '("M" "M")) (++ ok))
+  )
+  ; calcolo percentuale
+  (div ok iter))
+
+Verifichiamo il risultato:
+
+(p1 1e6)
+;-> 0.333567
+(p1 1e7)
+;-> 0.3332742
+
+Problema2:
+Maria e Pietro hanno due figli.
+Il figlio più vecchio è una femmina.
+Supponiamo che la probabilità di ciascun genere sia 1/2.
+
+Qual è la probabilità che anche l'altro figlio sia femmina?
+
+(define (p2 iter)
+  ; M = "0", F = "1"
+  (setq genere '("M" "F"))
+  (setq ok 0)
+  (for (i 1 iter)
+    ; generazione coppia di figli in cui la prima è una femmina
+    ; ("F" "F") oppure ("F" "M")
+    (setq coppia (list (genere (rand 2)) (genere (rand 2))))
+    (until (or (= coppia '("F" "F")) (= coppia '("F" "M")))
+      (setq coppia (list (genere (rand 2)) (genere (rand 2))))
+    )
+    ; controllo casi favorevoli
+    (if (= coppia '("F" "F")) (++ ok))
+  )
+  ; calcolo percentuale
+  (div ok iter))
+
+Verifichiamo il risultato:
+
+(p2 1e6)
+;-> 0.500609
+(p2 1e7)
+;-> 0.4999576
+
+Altre formulazioni:
+
+Maria e Pietro hanno due bambini ed almeno uno è un maschio.
+Qual è la probabilità che l'altro bambino sia un maschio?
+
+Maria e Pietro hanno due bambini e non sono entrambi femmine.
+Qual è la probabilità che entrambi i bambini siano maschi?
+
+
+ChatGPT 3.5 (20 settembre 2023)
+-------------------------------
+
+Domanda:
+--------
+Una coppia ha due figli. Uno è un maschio. Quali sono le probabilità che anche l'altro figlio sia maschio?
+ChatGPT
+
+Risposta:
+---------
+Quando una coppia ha due figli, ci sono quattro possibili combinazioni di genere per i figli: maschio-maschio (MM), maschio-femmina (MF), femmina-maschio (FM) e femmina-femmina (FF).
+
+Poiché sappiamo che almeno uno dei figli è un maschio, possiamo escludere la combinazione femmina-femmina (FF). Rimangono tre combinazioni possibili: MM, MF e FM.
+
+Ognuna di queste tre combinazioni è equiprobabile. Quindi, la probabilità che l'altro bambino sia maschio (nell'opzione MM) è di 1/3, mentre la probabilità che l'altro bambino sia una femmina (nelle opzioni MF o FM) è anch'essa di 1/3. Quindi, la probabilità che l'altro bambino sia maschio è del 1/3.
+
+Domanda:
+--------
+Una coppia ha due figli. Il figlio maggiore è un maschio. Quali sono le probabilità che anche l'altro figlio sia maschio?
+
+Risposta:
+---------
+Se una coppia ha due figli e sappiamo che il figlio maggiore è un maschio, allora ci sono solo due possibili combinazioni di genere per i due figli: maschio-maschio (MM) e maschio-femmina (MF).
+
+Poiché queste due combinazioni sono equiprobabili, la probabilità che anche l'altro figlio sia maschio (nell'opzione MM) è del 50%, mentre la probabilità che l'altro figlio sia una femmina (nell'opzione MF) è anch'essa del 50%. Quindi, nella situazione in cui sappiamo che il figlio maggiore è un maschio, la probabilità che anche l'altro figlio sia maschio è del 50%.
+
+
+-------------
+Veleno e topi
+-------------
+
+Ci sono 1000 bottiglie d'acqua. 
+Una delle bottiglie contiene acqua avvelenata. 
+Se un topo beve acqua avvelenata, allora muore dopo 24 ore.
+
+Qual'è il numero minimo di topi necessari per capire quale bottiglia contiene acqua avvelenata?
+
+Soluzione
+---------
+Occorrono 10 topi per capire quale sia la bottiglia avvelenata.
+
+Assegniamo il relativo numero binario da 1 a 1000 ad ogni bottiglia.
+La rappresentazione binaria di 1000 vale "1111101000" ed è lunga 10 bit.
+Infatti la lunghezza di un numero binario è data da: ceil(log2 numero).
+(bits 1000)
+;-> "1111101000"
+(length (bits 1000))
+;-> 10
+(ceil (log 1000 2))
+;-> 10
+
+Adesso assegniamo un topo ad ogni bit di ogni rappresentazione binaria.
+Per esempio, la bottiglia 25 ha rappresentazione binaria pari a "0000011001".
+
+Assegniamo ad ogni topo la posizione di un bit della rappresentazione binaria.
+Nel caso di "0000011001", partendo da sinistra,:
+  il primo bit "0" rappresenta il topo 1,
+  il secondo bit "0" rappresenta il topo 2,
+  ...,
+  il sesto bit "1" rappresenta il topo 6,
+  ...,
+  il nono bit "0" rappresenta il topo 9,
+  il decimo bit "1" rappresenta il topo 10.
+
+Adesso prendiamo ogni bottiglia e la facciamo bere ai topi che nella sua rappresentazione binaria valgono "1".
+Nell'esempio, la bottiglia 25 viene fatta bere ai topi 6, 7 e 10.
+
+Notare che questa operazione (far bere ai topi l'acqua di tutte le bottiglie) deve essere svolta entro 24 ore, altrimenti alcuni topi potrebbero morire, impedendo così la conclusione dell'operazione.
+
+Al termine dell'operazione avremo alcuni topi morti.
+Supponiamo di avere come morti i topi 3, 5 e 8.
+La bottiglia avvelenata è quella in cui la rappresentazione binaria vale "1" solo in corrispondenza dei bit 3, 5 e 8, cioè "0010100100" = 164.
+(int "0010100100" 0 2)
+;-> 164
+
+Vediamo la seguente funzione per capire meglio il metodo:
+
+(define (poison num-bottiglie)
+  (local (morti veleno fmt binario out)
+    ; numero di cavie necessarie
+    (setq cavie (ceil (log num-bottiglie 2)))
+    ; all'inizio nessun topo morto
+    (setq morti '())
+    ; bottiglia avvelenata
+    (setq veleno (+ (rand num-bottiglie) 1))
+    (println "Numero di bottiglie: " num-bottiglie)
+    (println "Bottiglia avvelenata: " veleno)
+    (println "Cavie necessarie: " cavie)
+    ; Ciclo per far bere un pò d'acqua di ogni bottiglia ai topi
+    ; che valgono "1" nella rappresentazione binaria del numero della bottiglia
+    (for (bottiglia 1 num-bottiglie)
+      ; rappresentazione binaria del numero bottiglia
+      (setq fmt (string "%0" (int cavie) "d"))
+      (setq binario (format fmt (int (bits bottiglia))))
+      ; I topi con "1" in binario bevono la bottiglia corrente
+      (for (k 0 (- (length binario) 1))
+        ; il k-esimo topo muore se la bottiglia corrente è quella avvelenata
+        ; e la sua posizione viene memorizzata nella lista morti
+        (if (and (= veleno bottiglia) (= (binario k) "1")) (push k morti -1))
+      )
+    )
+    (println "Lista topi morti: " morti)
+    ; Ricostruzione del numero binario dalla posizione dei topi morti
+    (setq out (dup "0" cavie))
+    (dolist (m morti)
+      (setf (out m) "1")
+    )
+    ; rappresentazione binaria e decimale della bottiglia avvelenata
+    (list out (int out 0 2))))
+
+Facciamo alcune prove:
+
+(poison 1000)
+;-> Numero di bottiglie: 1000
+;-> Bottiglia avvelenata: 365
+;-> Cavie necessarie: 10
+;-> Lista topi morti: (1 3 4 6 7 9)
+;-> ("0101101101" 365)
+
+(poison 100)
+;-> Numero di bottiglie: 100
+;-> Bottiglia avvelenata: 15
+;-> Cavie necessarie: 7
+;-> Lista topi morti: (3 4 5 6)
+;-> ("0001111" 15)
+
+(poison 20)
+;-> Numero di bottiglie: 20
+;-> Bottiglia avvelenata: 4
+;-> Cavie necessarie: 5
+;-> Lista topi morti: (2)
+;-> ("00100" 4)
+
+Qual'è il numero massimo di topi di morti con N bottiglie?
+
+Il massimo numero di topi morti si ottiene quando la rappresentazione binaria della bottiglia avvelenata contiene il maggior numero di bit a "1".
+
+(define (max-1 limite)
+  (setq out '())
+  (setq val-max 0)
+  (setq num-bin "0")
+  (for (num 1 limite)
+    (setq conta-1 (length (ref-all "1" (explode (bits num)))))
+    (if (>= conta-1 val-max)
+        (set 'val-max conta-1 'num-bin (bits num))
+    )
+  )
+  (list val-max num-bin (int num-bin 0 2)))
+
+Facciamo alcune prove:
+
+(max-1 1000)
+;-> (9 "1111011111" 991)
+(max-1 1023)
+;-> (10 "1111111111" 1023)
+(max-1 1500)
+;-> (10 "1111111111" 1023)
+
+Quindi con N bottiglie il numero massimo di topi morti vale:
+
+          | ceil(log2 N)    , se N contiene tutti "1"
+  morti = | 
+          | ceil(log2 N) - 1, se N non contiene tutti "1"
 
 =============================================================================
 

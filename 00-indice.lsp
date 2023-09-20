@@ -1978,8 +1978,11 @@ NOTE LIBERE 18
   Stringhe lineari
   Determinare se un numero è minore/uguale di un altro
   Semplice Profiler
+  Distanza tra due punti N-dimensionali
   Distanza euclidea tra matrici
   Gesture based lock-screen on Android
+  Paradosso Maschio o Femmina (Boy or Girl Paradox)
+  Veleno e topi
   
 PROBLEMI SUI DADI
 =================
