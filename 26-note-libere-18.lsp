@@ -2674,5 +2674,62 @@ Quindi con N bottiglie il numero massimo di topi morti vale:
   morti = | 
           | ceil(log2 N) - 1, se N non contiene tutti "1"
 
+
+-------------------------------------------------------
+Calendario Maya (Maya Mesoamerican Long Count Calendar)
+-------------------------------------------------------
+
+Questo calendario conta i giorni dall'11 agosto 3114 A.C.
+Divide quel numero di giorni in periodi di diversa durata:
+- il giorno singolo,
+- il Winal (20 giorni),
+- il Tun (18 Winal, o 360 giorni),
+- il K'atun (20 Tun, 7200 giorni) e
+- il B'ak'tun (20 K'atun, 144 000 giorni).
+
+Dato un numero di giorni dal 11 agosto 3114 A.C. determinare la data del calendario Maya.
+
+Per esempio:
+Giorni: 1526484
+(setq baktun (/ 1526484 144000))
+;-> 10
+(setq resto (- 1526484 (* baktun 144000)))
+;-> 86484
+(setq katun (/ resto 7200))
+;-> 12
+(setq resto (- resto (* katun 7200)))
+;-> 84
+(setq tun (/ resto 360))
+;-> 0
+(setq resto (- resto (* tun 360)))
+;-> 84
+(setq winal (/ resto 20))
+;-> 4
+(setq giorni (- resto (* winal 20)))
+;-> 4
+Data Maya: 10.12.0.4.4
+
+(define (maya days)
+  (local (baktun katun tun winal giorni resto)
+    (setq baktun (/ days 144000))
+    (setq resto (- days (* baktun 144000)))
+    (setq katun (/ resto 7200))
+    (setq resto (- resto (* katun 7200)))
+    (setq tun (/ resto 360))
+    (setq resto (- resto (* tun 360)))
+    (setq winal (/ resto 20))
+    (setq giorni (- resto (* winal 20)))
+    (string baktun "." katun "." tun "." winal "." giorni)))
+
+Facciamo alcune prove:
+
+(maya 1526484)
+;-> "10.12.0.4.4"
+
+(maya 1)
+;-> "0.0.0.0.1"
+
+Nota: per calcolare la data Maya di una data ualsiasi occorre usare le funzioni sulle date della libreria "yo.lsp", facendo attenzione alle date con il calendario giuliano e con il calendario gregoriano.
+
 =============================================================================
 

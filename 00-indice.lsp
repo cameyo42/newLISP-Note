@@ -1983,6 +1983,7 @@ NOTE LIBERE 18
   Gesture based lock-screen on Android
   Paradosso Maschio o Femmina (Boy or Girl Paradox)
   Veleno e topi
+  Calendario Maya (Maya Mesoamerican Long Count Calendar)
   
 PROBLEMI SUI DADI
 =================
