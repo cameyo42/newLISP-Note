@@ -2680,7 +2680,7 @@ Calendario Maya (Maya Mesoamerican Long Count Calendar)
 -------------------------------------------------------
 
 Questo calendario conta i giorni dall'11 agosto 3114 A.C.
-Divide quel numero di giorni in periodi di diversa durata:
+Divide il numero di giorni trascorsi in periodi di diversa durata:
 - il giorno singolo,
 - il Winal (20 giorni),
 - il Tun (18 Winal, o 360 giorni),
@@ -2729,7 +2729,413 @@ Facciamo alcune prove:
 (maya 1)
 ;-> "0.0.0.0.1"
 
-Nota: per calcolare la data Maya di una data ualsiasi occorre usare le funzioni sulle date della libreria "yo.lsp", facendo attenzione alle date con il calendario giuliano e con il calendario gregoriano.
+Nota: per calcolare la data Maya di una data qualsiasi occorre usare le funzioni sulle date della libreria "yo.lsp", facendo attenzione alle date con il calendario giuliano e con il calendario gregoriano.
+
+
+---------------------
+Media tra due lettere
+---------------------
+
+Ogni lettera dell'alfabeto può essere rappresentata con un codice ASCII.
+Ad esempio, "a" è 97 e "S" è 83. 
+La formula per calcolare la media di due numeri xey è (x+y)/2.
+Calcolare il carattere ASCII medio di due lettere (valore intero).
+Entrambe le lettere ASCII saranno comprese nell'intervallo 97-122 o 65-90.
+Il valore ASCII medio deve essere troncato a 0 cifre decimali (parte intera della media dei valori).
+
+Esempi:
+  Input:  A, C
+  Output: B
+  Input:  a, z
+  Output: m
+  Input:  d, j
+  Output: g
+  Input:  B, e
+  Output: S
+  Input:  Z, a
+  Output: ]
+
+La funzione deve essere la più breve possibile.
+
+Prima versione:
+
+(define (m l) (char (apply add (map div (map char l) '(2 2)))))
+
+(m '("A" "C"))
+;-> "B"
+(m '("a" "z"))
+;-> "m"
+(m '("d" "j"))
+;-> "g"
+(m '("B" "e"))
+;-> "S"
+(m '("Z" "a"))
+;-> "]"
+
+Seconda versione:
+
+(define (m a b) (char (/ (+ (char a) (char b)) 2)))
+
+(m "A" "C")
+;-> "B"
+(m "a" "z")
+;-> "m"
+(m "d" "j")
+;-> "g"
+(m "B" "e")
+;-> "S"
+(m "Z" "a")
+;-> "]"
+
+
+--------------------
+Terne magiche uniche
+--------------------
+
+Abbiamo una lista di numeri interi (a1,...,an).
+Una terna magica è un insieme di tre valori (a(i), a(j), a(k)) della lista, tale che gli indici (i,j,k) sono tutti distinti, i valori sono in ordine crescente (a(i) <= a(j) <= a(k)) e la somma dei primi due valori è uguale al terzo.
+Generare tutte le triplette magiche uniche.
+
+Esempi:
+  (1 2 3 2 4) -> ((1 2 3)  (1 3 4)  (2 2 4))
+  (0 0 0 0) -> ((0 0 0))
+  (1 0 -1) -> ((-1 0 1))
+  (1 2) -> ()
+  (1 2 4 8 99) -> ()
+  (33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40) -> 
+    ((7 33 40) (32 33 65) (1 32 33) (1 90 91) (7 36 43) 
+     (24 36 60) (12 24 36) (36 60 96) (15 65 80) (40 40 80)
+
+Algoritmo forza bruta:
+
+(define (terne lst)
+  (setq len (length lst))
+  (setq out '())
+  (if (>= len 3) 
+    (for (i 0 (- len 1))
+      (for (j 0 (- len 1))
+        (for (k 0 (- len 1))
+          (setq v1 (lst i))
+          (setq v2 (lst j))
+          (setq v3 (lst k))
+          (if (and (= v3 (+ v1 v2))
+                  (>= v3 v2)
+                  (>= v2 v1)
+                  (!= i j)
+                  (!= i k)
+                  (!= j k))
+              (push (list v1 v2 v3) out -1)
+          ))))
+  )
+  (unique out))
+
+Facciamo alcune prove:
+
+(terne '(1 2 3 2 4))
+;-> ((1 2 3) (1 3 4) (2 2 4))
+(terne '(0 0 0 0))
+;-> ((0 0 0))
+(terne '(1 0 -1))
+;-> ()
+(terne '(1 2))
+;-> ()
+(terne '(1 2 4 8 99))
+;-> ()
+(terne '(33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40))
+;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80) 
+;->  (40 40 80) (36 60 96) (12 24 36) (1 90 91) (1 32 33))
+
+10 elementi:
+(silent (setq t (rand 1e6 1e1)))
+(time (terne t))
+;-> 0
+
+100 elementi:
+(silent (setq t (rand 1e6 1e2)))
+(time (terne t))
+;-> 288.834
+
+1000 elementi:
+(silent (setq t (rand 1e6 1e3)))
+(time (terne t))
+;-> 1600601.791 ;oops, 1600 secondi (quasi 27 minuti)
+
+Utilizziamo un vettore:
+
+10 elementi:
+(silent (setq t (array 1e1 (rand 1e6 1e1))))
+(time (terne t))
+;-> 0
+
+100 elementi:
+(silent (setq t (array 1e2 (rand 1e6 1e2))))
+(time (terne t))
+;-> 180.974
+
+1000 elementi:
+(silent (setq t (array 1e3 (rand 1e6 1e3))))
+(time (terne t))
+;-> 171398.926 ;171 secondi (3 minuti e 11 secondi)
+
+Proviamo con "dolist" invece del "for":
+
+(define (terne2 lst)
+  (setq len (length lst))
+  (setq out '())
+  (if (>= len 3) 
+    (dolist (v1 lst)
+      (setq i $idx)
+      (dolist (v2 lst)
+        (setq j $idx)
+        (if (!= j i)
+          (begin
+            (dolist (v3 lst)
+              (setq k $idx)
+              (if (and (!= k i) (!= k j)
+                       (= v3 (+ v1 v2))
+                       (>= v3 v2)
+                       (>= v2 v1))
+                  (push (list v1 v2 v3) out -1)
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+  (unique out))
+
+Facciamo alcune prove:
+
+(terne2 '(1 2 3 2 4))
+;-> ((1 2 3) (1 3 4) (2 2 4))
+(terne2 '(0 0 0 0))
+;-> ((0 0 0))
+(terne2 '(1 0 -1))
+;-> ()
+(terne2 '(1 2))
+;-> ()
+(terne2 '(1 2 4 8 99))
+;-> ()
+(terne2 '(33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40))
+;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80) 
+;->  (40 40 80) (36 60 96) (12 24 36) (1 90 91) (1 32 33))
+
+10 elementi:
+(silent (setq t (rand 1e6 1e1)))
+(time (terne2 t))
+;-> 0
+
+100 elementi:
+(silent (setq t (rand 1e6 1e2)))
+(time (terne2 t))
+;-> 155.533
+
+1000 elementi:
+(silent (setq t (rand 1e6 1e3)))
+(time (terne2 t))
+;-> 147819.544 ;148 secondi (3 minuti e 28 secondi)
+
+Utilizziamo un vettore:
+
+10 elementi:
+(silent (setq t (array 1e1 (rand 1e6 1e1))))
+(time (terne2 t))
+;-> 0
+
+100 elementi:
+(silent (setq t (array 1e2 (rand 1e6 1e2))))
+(time (terne2 t))
+;-> 140.614
+
+1000 elementi:
+(silent (setq t (array 1e3 (rand 1e6 1e3))))
+(time (terne2 t))
+;->  148781.185; 148 secondi (2 minuti e 28 secondi)
+
+Proviamo a spostare le condizioni "if" degli indici:
+
+(define (terne3 lst)
+  (setq len (length lst))
+  (setq out '())
+  (if (>= len 3) 
+    (dolist (v1 lst)
+      (setq i $idx)
+      (dolist (v2 lst)
+        (setq j $idx)
+        (dolist (v3 lst)
+          (setq k $idx)
+          (if (and (= v3 (+ v1 v2))
+                  (>= v3 v2)
+                  (>= v2 v1)
+                  (!= i j)
+                  (!= i k)
+                  (!= j k))
+              (push (list v1 v2 v3) out -1)
+          ))))
+  )
+  (unique out))
+
+Facciamo alcune prove:
+
+(terne3 '(1 2 3 2 4))
+;-> ((1 2 3) (1 3 4) (2 2 4))
+(terne3 '(0 0 0 0))
+;-> ((0 0 0))
+(terne3 '(1 0 -1))
+;-> ()
+(terne3 '(1 2))
+;-> ()
+(terne3 '(1 2 4 8 99))
+;-> ()
+(terne3 '(33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40))
+;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80) 
+;->  (40 40 80) (36 60 96) (12 24 36) (1 90 91) (1 32 33))
+
+10 elementi:
+(silent (setq t (rand 1e6 1e1)))
+(time (terne3 t))
+;-> 0
+
+100 elementi:
+(silent (setq t (rand 1e6 1e2)))
+(time (terne3 t))
+;-> 100.2
+
+1000 elementi:
+(silent (setq t (rand 1e6 1e3)))
+(time (terne3 t))
+;-> 98853.769 ;quasi 99 secondi
+
+Utilizziamo un vettore:
+
+10 elementi:
+(silent (setq t (array 1e1 (rand 1e6 1e1))))
+(time (terne3 t))
+
+100 elementi:
+(silent (setq t (array 1e2 (rand 1e6 1e2))))
+(time (terne3 t))
+;-> 100.233
+
+1000 elementi:
+(silent (setq t (array 1e3 (rand 1e6 1e3))))
+(time (terne3 t))
+;-> 99564.918 ;99 secondi
+
+
+--------------
+Cerchi e corde
+--------------
+
+Qual è il numero massimo di pezzi che si possono creare utilizzando N corde per tagliare il cerchio?
+
+Per esempio:
+  con 1 corda dividiamo il cerchio in  2 parti.
+  con 2 corda dividiamo il cerchio in  4 parti (al massimo).
+  con 3 corde dividiamo il cerchio in  7 parti (al massimo).
+  con 4 corde dividiamo il cerchio in 11 parti (al massimo).
+  con 5 corde dividiamo il cerchio in 16 parti (al massimo).
+  con 6 corde dividiamo il cerchio in 22 parti (al massimo).
+
+Vedi la figura "cerchio-corde.jpg" nella cartella "data".
+
+Cerchiamo di ricavare una formula generale con il "Metodo delle differenze".
+
+Vedi "Polinomi generatori di sequenze - Metodo delle differenze" su "Note libere 15".
+
+Scriviamo i valori e le differenze successive tra due elementi:
+
+  S(n) = 2 4 7 11 16 22
+          2 3 4  5  6
+           1 1  1  1
+
+Il polinomio generatore è di secondo grado, perchè abbiamo 2 righe di differenze per ottenere un valore costante (1):
+
+  P(n) = A*n^2 + B*n + C
+
+Ci servono 3 valori per determinare le variabili A, B e C:
+
+  P(1) = 2
+  P(2) = 4
+  P(3) = 7
+  
+Sostituiamo i valori e otteniamo il seguente sistema:
+
+  A + B + C = 2
+  4A + 2B + C = 4
+  9A + 3B + C = 7
+
+Risolviamo il sistema con la funzione "sislin-c" (metodo di Cramer):
+
+(define (sislin-c matrix terms)
+"Solve a linear system with Cramer's method (determinant)"
+  (local (dim detm det-i sol copia)
+    (setq dim (length matrix))
+    (setq sol '())
+    (setq copia matrix)
+    (setq detm (det copia 0.0))
+    ; la soluzione è indeterminata se il determinante vale zero.
+    (if (= detm 0) (setq sol nil)
+    ;(println detm)
+      (for (i 0 (- dim 1))
+        (for (j 0 (- dim 1))
+          (setf (copia j i) (terms j))
+        )
+        ; 0.0 -> restituisce 0 (invece di nil),
+        ; quando la matrix è singolare
+        (setq det-i (det copia 0.0))
+        (push (div det-i detm) sol -1)
+        (setq copia matrix)
+      )
+    )
+    sol))
+
+(sislin-c '((1 1 1) (4 2 1) (9 3 1)) '(2 4 7))
+;-> (0.5000000000000003 0.5000000000000009 0.9999999999999993)
+
+Quindi abbiamo i seguenti valori:
+
+  A = 0.5 = 1/2
+  B = 0.5 = 1/2
+  C = 1
+
+Verifichiamo la soluzione:
+
+(define (check-sislin matrix terms sol)
+"Check the solution of a linear system (backwards substitution)"
+  (let (err '())
+    (dolist (row matrix)
+      (push (sub (terms $idx) (apply add (map mul row sol))) err -1))))
+
+(check-sislin '((1 1 1) (4 2 1) (9 3 1)) '(2 4 7)
+              '(0.5 0.5 1))
+;-> (0 0 0)
+
+Il nostro polinomio generatore vale:
+
+  P(n) = (1/2)*n^2 + (1/2)*n + 1 =
+       = (n^2 + n)/2 + 1 =
+       = (n*(n+1))/2 + 1
+
+Scriviamo la funzione per il polinomio:
+
+(define (p n) (+ 1 (/ (* n (+ n 1)) 2)))
+
+Verifichiamo i risultati:
+
+(map s (sequence 1 6))
+;-> (2 4 7 11 16 22)
+
+Per esempio, con 100 tagli otteniamo 5051 pezzi:
+
+(s 100)
+;-> 5051
+
+Per le potenze di 10 fino a 5:
+
+(map s '(1e1 1e2 1e3 1e4 1e5))
+;-> (56 5051 500501 50005001 5000050001)
 
 =============================================================================
 

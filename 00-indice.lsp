@@ -1984,6 +1984,9 @@ NOTE LIBERE 18
   Paradosso Maschio o Femmina (Boy or Girl Paradox)
   Veleno e topi
   Calendario Maya (Maya Mesoamerican Long Count Calendar)
+  Media tra due lettere
+  Terne magiche uniche
+  Cerchi e corde
   
 PROBLEMI SUI DADI
 =================
