@@ -3137,5 +3137,313 @@ Per le potenze di 10 fino a 5:
 (map s '(1e1 1e2 1e3 1e4 1e5))
 ;-> (56 5051 500501 50005001 5000050001)
 
+
+-----------------
+Il geco e il muro
+-----------------
+
+Un geco si trova alla base di un muro alto 10 metri.
+Il geco sale per 2 metri di giorno e scende di 1 metro la notte mentre dorme.
+Quante giornate sono necessarie al geco per raggiungere la sommità del muro?
+Una giornata è composta da un giorno e una nottte.
+Quando il geco raggiunge la sommità non scende più.
+
+Si tratta di un vecchio indovinello la cui risposta è 9 giorni e 8 notti, cioè 8.5 giornate.
+Infatti il nono giorno il geco raggiunge la cima (quindi la nona notte non scende).
+
+Proviamo a scrivere una funzione considerando che:
+
+  giorno + notte = 0.5 + 0.5 = 1 giornata
+
+(define (geco muro sale scende)
+  (local (pos giornate giorni notti)
+    (setq pos 0)
+    (setq giornate 0)
+    (setq giorni 0)
+    (setq notti 0)
+    (while (< pos muro)
+      ; salita
+      (setq pos (+ pos sale))
+      (++ giorni)
+      (setq giornate (add giornate 0.5))
+      ; discesa (solo se non abbiamo raggiunto la cima del muro)
+      (if (< pos muro)
+        (begin
+          (setq pos (- pos scende))
+          (++ notti)
+          (setq giornate (add giornate 0.5))
+        )
+      )
+    )
+  (list giorni notti giornate)))
+
+Facciamo alcune prove:
+
+(geco 10 2 1)
+;-> (9 8 8.5)
+
+(geco 2 2 1)
+;-> (1 0 0.5)
+
+(geco 50 4 3)
+;-> (47 46 46.5)
+
+(geco 10 12 10)
+;-> (1 0 0.5)
+
+
+--------------------
+Cambio di pneumatici
+--------------------
+
+Un'auto ha 4 ruote e 1 ruota di scorta.
+Ogni pneumatico può percorrere una distanza massima di 20000 km prima di consumarsi.
+Qual è la distanza massima che l'auto può percorrere prima di essere costretto ad acquistare un nuovo pneumatico?
+È possibile cambiare gli pneumatici (utilizzando la ruota di scorta) un numero illimitato di volte.
+
+Soluzione:
+Dividiamo la durata della ruota di scorta in 4 parti uguali, ovvero 5000 km, e la sostituiamo dopo aver percorso 5000 km.
+Chiamiamo le 4 ruote A,B,C,D e la ruota di scorta S.
+
+Situazione iniziale:
+   A        B        C        D        S
+   0        0        0        0        0       km percorsi
+ 20000    20000    20000    20000    200000    km rimasti
+
+Passo 1: Percorro 5000 km e poi cambio A con S
+   S        B        C        D        A
+   0       5000     5000     5000     5000     km percorsi
+ 20000    15000    15000    15000    15000     km rimasti
+
+Passo 2: Percorro 5000 km, rimetto A al suo posto e cambio B con S:
+   A        S        C        D        B
+  5000     5000    10000    10000    10000     km percorsi
+ 15000    15000    10000    10000    10000     km rimasti
+
+Passo 3: Percorro 5000 km, rimetto B al suo posto e cambio C con S:
+   A        B        S        D        C
+ 10000    10000    10000    15000    15000     km percorsi
+ 10000    10000    10000     5000     5000     km rimasti
+
+Passo 4: Percorro 5000 km, rimetto C al suo posto e cambio D con S:
+   A        B        C        S        D
+ 15000    15000    15000    15000    20000     km percorsi
+  5000     5000     5000     5000      0       km rimasti
+
+Passo 5: Percorro 5000 km e tutte le gomme sono consumate:
+   A        B        C        S        D
+ 20000    20000    20000    20000    20000     km percorsi
+   0        0        0        0        0       km rimasti
+
+Abbiamo percorso 5 volte 5000 km, quindi la soluzione vale 5*5000 = 25000 km.
+
+Considerando 5 pneumatici di pari kilometraggio possiamo scrivere:
+
+(define (km? ruota)
+  ;(setq step (div ruota 4))
+  ;(setq distanza (mul step 5))
+  (mul (div ruota 4) 5))
+
+(km? 20000)
+;-> 25000
+(km? 150000)
+;-> 187500
+
+Se invece le 5 ruote hanno un kilometraggio diverso, allora utilizzare come ruota di scorta quella con kilometraggio minore.
+Per esempio:
+
+A = 10000 km
+B = 10000 km
+C = 10000 km
+D = 10000 km
+S =  8000 km
+
+In questo caso dobbiamo dividere 8000 in 4 parti uguali, quindi dobbiamo cambiare la ruota ogni 2000 km.
+
+Scriviamo una funzione che risolve il problema:
+
+(define (test r1 r2 r3 r4 s0)
+  (local (tot_km Ar Br Cr Dr Sr Ap Bp Cp Dp Sp km totale)
+    (setq tot_km 0)
+    ; kilometri rimasti per ogni pneumatico
+    (setq Ar r1 Br r2 Cr r3 Dr r4 Sr s0)
+    ; kilometri percorsi per ogni pneumatico
+    (setq Ap 0 Bp 0 Cp 0 Dp 0 Sp 0)
+    ; kilometri percorsi ad ogni passo
+    (setq km (div Sr 4))
+    (println "Situazione iniziale:")
+    (println "km rimasti pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ar "B=" Br "C=" Cr "D=" Dr "S=" Sr))
+    (println "km percorsi pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ap "B=" Bp "C=" Cp "D=" Dp "S=" Sp))
+    (println "\nPasso 1: percorro " km " km e cambio A con S")
+    (map set '(Ap Bp Cp Dp) (map (fn(x) (add x km)) (list Ap Bp Cp Dp)))
+    (map set '(Ar Br Cr Dr) (map (fn(x) (sub x km)) (list Ar Br Cr Dr)))
+    (setq tot_km (add tot_km km))
+    ; swap A S (S B C D)
+    (println "km rimasti")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "S=" Sr "B=" Br "C=" Cr "D=" Dr "A=" Ar))
+    (println "km percorsi")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "S=" Sp "B=" Bp "C=" Cp "D=" Dp "A=" Ap))
+    (println "\nPasso 2: percorro " km " km, rimonto A e cambio B con S")
+    (map set '(Sp Bp Cp Dp) (map (fn(x) (add x km)) (list Sp Bp Cp Dp)))
+    (map set '(Sr Br Cr Dr) (map (fn(x) (sub x km)) (list Sr Br Cr Dr)))
+    (setq tot_km (add tot_km km))
+    ; mount A and swap B S (A S C D)
+    (println "km rimasti pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ar "S=" Sr "C=" Cr "D=" Dr "B=" Br))
+    (println "km percorsi pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ap "S=" Sp "C=" Cp "D=" Dp "B=" Bp))
+    (println "\nPasso 3: percorro " km " km, rimonto B e cambio C con S")
+    (map set '(Ap Sp Cp Dp) (map (fn(x) (add x km)) (list Ap Sp Cp Dp)))
+    (map set '(Ar Sr Cr Dr) (map (fn(x) (sub x km)) (list Ar Sr Cr Dr)))
+    (setq tot_km (add tot_km km))
+    ; mount B and swap C S (A B S D)
+    (println "km rimasti pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ar "B=" Br "S=" Sr "D=" Dr "C=" Cr))
+    (println "km percorsi pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ap "B=" Bp "S=" Sp "D=" Dp "C=" Cp))
+    (println "\nPasso 4: percorro " km " km, rimonto C e cambio D con S")
+    (map set '(Ap Bp Sp Dp) (map (fn(x) (add x km)) (list Ap Bp Sp Dp)))
+    (map set '(Ar Br Sr Dr) (map (fn(x) (sub x km)) (list Ar Br Sr Dr)))
+    (setq tot_km (add tot_km km))
+    ; mount C and swap D S (A B C S)
+    (println "km rimasti pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ar "B=" Br "C=" Cr "S=" Sr "D=" Dr))
+    (println "km percorsi pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ap "B=" Bp "C=" Cp "S=" Sp "D=" Dp))
+    (println "\nPasso 5: percorro " km " km e rimonto D")
+    (map set '(Ap Bp Cp Sp) (map (fn(x) (add x km)) (list Ap Bp Cp Sp)))
+    (map set '(Ar Br Cr Sr) (map (fn(x) (sub x km)) (list Ar Br Cr Sr)))
+    (setq tot_km (add tot_km km))
+    ; mount D (swap D S) (A B C D)
+    (println "km rimasti pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ar "B=" Br "C=" Cr "D=" Dr "S=" Sr))
+    (println "km percorsi pneumatici:")
+    (println (format "%s%-8d%s%-8d%s%-8d%s%-8d%s%-8d" "A=" Ap "B=" Bp "C=" Cp "D=" Dp "S=" Sp))
+    (println "Totale km percorsi (fino ad esaurimento ruota di scorta): " tot_km)
+    ; kilometri da aggiungere al termine della ruota di scorta
+    (println "Totale km: " (add tot_km (min Ar Br Cr Dr)))
+  ))
+
+Facciamo alcune prove:
+
+(test 20000 20000 20000 20000 20000)
+;-> Situazione iniziale:
+;-> km rimasti pneumatici:
+;-> A=20000   B=20000   C=20000   D=20000   S=20000
+;-> km percorsi pneumatici:
+;-> A=0       B=0       C=0       D=0       S=0
+;-> 
+;-> Passo 1: percorro 5000 km e cambio A con S
+;-> km rimasti
+;-> S=20000   B=15000   C=15000   D=15000   A=15000
+;-> km percorsi
+;-> S=0       B=5000    C=5000    D=5000    A=5000
+;-> 
+;-> Passo 2: percorro 5000 km, rimonto A e cambio B con S
+;-> km rimasti pneumatici:
+;-> A=15000   S=15000   C=10000   D=10000   B=10000
+;-> km percorsi pneumatici:
+;-> A=5000    S=5000    C=10000   D=10000   B=10000
+;-> 
+;-> Passo 3: percorro 5000 km, rimonto B e cambio C con S
+;-> km rimasti pneumatici:
+;-> A=10000   B=10000   S=10000   D=5000    C=5000
+;-> km percorsi pneumatici:
+;-> A=10000   B=10000   S=10000   D=15000   C=15000
+;-> 
+;-> Passo 4: percorro 5000 km, rimonto C e cambio D con S
+;-> km rimasti pneumatici:
+;-> A=5000    B=5000    C=5000    S=5000    D=0
+;-> km percorsi pneumatici:
+;-> A=15000   B=15000   C=15000   S=15000   D=20000
+;-> 
+;-> Passo 5: percorro 5000 km e rimonto D
+;-> km rimasti pneumatici:
+;-> A=0       B=0       C=0       D=0       S=0
+;-> km percorsi pneumatici:
+;-> A=20000   B=20000   C=20000   D=20000   S=20000
+;-> Totale km percorsi (fino ad esaurimento ruota di scorta): 25000
+;-> Totale km: 25000
+
+(test 20000 20000 20000 20000 10000)
+;-> Situazione iniziale:
+;-> km rimasti pneumatici:
+;-> A=20000   B=20000   C=20000   D=20000   S=10000
+;-> km percorsi pneumatici:
+;-> A=0       B=0       C=0       D=0       S=0
+;-> 
+;-> Passo 1: percorro 2500 km e cambio A con S
+;-> km rimasti
+;-> S=10000   B=17500   C=17500   D=17500   A=17500
+;-> km percorsi
+;-> S=0       B=2500    C=2500    D=2500    A=2500
+;-> 
+;-> Passo 2: percorro 2500 km, rimonto A e cambio B con S
+;-> km rimasti pneumatici:
+;-> A=17500   S=7500    C=15000   D=15000   B=15000
+;-> km percorsi pneumatici:
+;-> A=2500    S=2500    C=5000    D=5000    B=5000
+;-> 
+;-> Passo 3: percorro 2500 km, rimonto B e cambio C con S
+;-> km rimasti pneumatici:
+;-> A=15000   B=15000   S=5000    D=12500   C=12500
+;-> km percorsi pneumatici:
+;-> A=5000    B=5000    S=5000    D=7500    C=7500
+;-> 
+;-> Passo 4: percorro 2500 km, rimonto C e cambio D con S
+;-> km rimasti pneumatici:
+;-> A=12500   B=12500   C=12500   S=2500    D=10000
+;-> km percorsi pneumatici:
+;-> A=7500    B=7500    C=7500    S=7500    D=10000
+;-> 
+;-> Passo 5: percorro 2500 km e rimonto D
+;-> km rimasti pneumatici:
+;-> A=10000   B=10000   C=10000   D=10000   S=0
+;-> km percorsi pneumatici:
+;-> A=10000   B=10000   C=10000   D=10000   S=10000
+;-> Totale km percorsi (fino ad esaurimento ruota di scorta): 12500
+;-> Totale km: 22500
+
+(test 10000 9000 10000 10000 8000)
+;-> Situazione iniziale:
+;-> km rimasti pneumatici:
+;-> A=10000   B=9000    C=10000   D=10000   S=8000
+;-> km percorsi pneumatici:
+;-> A=0       B=0       C=0       D=0       S=0
+;-> 
+;-> Passo 1: percorro 2000 km e cambio A con S
+;-> km rimasti
+;-> S=8000    B=7000    C=8000    D=8000    A=8000
+;-> km percorsi
+;-> S=0       B=2000    C=2000    D=2000    A=2000
+;-> 
+;-> Passo 2: percorro 2000 km, rimonto A e cambio B con S
+;-> km rimasti pneumatici:
+;-> A=8000    S=6000    C=6000    D=6000    B=5000
+;-> km percorsi pneumatici:
+;-> A=2000    S=2000    C=4000    D=4000    B=4000
+;-> 
+;-> Passo 3: percorro 2000 km, rimonto B e cambio C con S
+;-> km rimasti pneumatici:
+;-> A=6000    B=5000    S=4000    D=4000    C=4000
+;-> km percorsi pneumatici:
+;-> A=4000    B=4000    S=4000    D=6000    C=6000
+;-> 
+;-> Passo 4: percorro 2000 km, rimonto C e cambio D con S
+;-> km rimasti pneumatici:
+;-> A=4000    B=3000    C=4000    S=2000    D=2000
+;-> km percorsi pneumatici:
+;-> A=6000    B=6000    C=6000    S=6000    D=8000
+;-> 
+;-> Passo 5: percorro 2000 km e rimonto D
+;-> km rimasti pneumatici:
+;-> A=2000    B=1000    C=2000    D=2000    S=0
+;-> km percorsi pneumatici:
+;-> A=8000    B=8000    C=8000    D=8000    S=8000
+;-> Totale km percorsi (fino ad esaurimento ruota di scorta): 10000
+;-> Totale km: 11000
+
 =============================================================================
 

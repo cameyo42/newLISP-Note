@@ -1987,6 +1987,8 @@ NOTE LIBERE 18
   Media tra due lettere
   Terne magiche uniche
   Cerchi e corde
+  Il geco e il muro
+  Cambio di pneumatici
   
 PROBLEMI SUI DADI
 =================
