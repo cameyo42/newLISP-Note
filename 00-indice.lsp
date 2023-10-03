@@ -1989,6 +1989,8 @@ NOTE LIBERE 18
   Cerchi e corde
   Il geco e il muro
   Cambio di pneumatici
+  Il gioco di carte "SET"
+  Stampa di numeri senza usare cifre
   
 PROBLEMI SUI DADI
 =================

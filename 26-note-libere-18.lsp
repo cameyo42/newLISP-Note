@@ -3445,5 +3445,332 @@ Facciamo alcune prove:
 ;-> Totale km percorsi (fino ad esaurimento ruota di scorta): 10000
 ;-> Totale km: 11000
 
+
+-----------------------
+Il gioco di carte "SET"
+-----------------------
+
+SET (oppure Set o SET!) è un gioco di carte progettato da Marsha Falco nel 1974 e pubblicato da Set Enterprises nel 1991.
+Il mazzo è composto da 81 carte uniche che variano in quattro caratteristiche attraverso tre possibilità per ogni tipo di caratteristica:
+
+- numero di forme (una, due o tre),
+- forma (diamante, onda, ovale),
+- campitura (solida, a strisce o aperta)
+- colore (rosso, verde o viola).
+
+Ogni possibile combinazione di caratteristiche (ad esempio una carta con tre diamanti verdi a strisce) appare come una carta esattamente una volta nel mazzo.
+
+Vedi immagine "set-game.png" nella cartella "data".
+
+Con queste carte si possono fare diversi giochi, tutti basati sul concetto di "set".
+
+Un "set" è composto da tre carte che soddisfano tutte queste condizioni:
+
+- Hanno tutte lo stesso numero o tre numeri diversi.
+- Hanno tutte la stessa forma o hanno tre forme diverse.
+- Hanno tutte la stessa campitura oppure tre campiture diverse.
+- Hanno tutte lo stesso colore o hanno tre colori diversi.
+
+Cioè, le carte sono tutte uguali o tutte diverse in ciascuna delle quattro caratteristiche.
+
+Le regole sono riassunte come segue:
+Se abbiamo un gruppo di tre carte in "due di ____ e una di ____", allora non è un "set".
+
+Ad esempio, queste tre carte formano un "set":
+  1) Un diamante a strisce rosso
+  2) Due diamanti solidi rossi
+  3) Tre diamanti aperti rossi
+
+Date due carte qualsiasi del mazzo, c'è una e soltanto un'altra carta che forma un "set" con esse.
+Quindi la probabilità di avere un "set" da 3 carte estratte a caso da un mazzo completo è 1/79.
+
+Date diverse carte (solitamente 12), l'obiettivo del gioco è trovare un insieme di tre carte tale che formino un "set".
+
+Rappresentiamo una carta come una tupla di 4 numeri da 0 a 2.
+Per esempio:
+
+  0000 = un diamante solido rosso
+  0011 = uno onde a strisce rosse
+  0112 = un ovale striato verde
+  1201 = due onde viola solidi
+
+Un "cap set" è un insieme di carte che non contiene alcun "set".
+Nel 1971 è stato dimostrato che il numero massimo di carte senza un "set" è 20.
+Trovare il "set" con il maggior numero di carte per il gioco generalizzato del SET è ancora un problema aperto in matematica.
+Ci sono 682344 "cap set" da 20 carte in tutto, ma sotto trasformazioni affini sullo spazio finito quadridimensionale, si riducono tutti essenzialmente a un solo "cap set" (Donald Knuth 2001).
+
+Vediamo come trovare un qualunque "cap set" tra i 682344.
+
+Definiamo un "cap set" tutte le quadruple (a b c d) da {0,1,2}^4 dove:
+
+  a*a + b*b + c*d = 0 (mod 3)
+
+In altre parole, stiamo cercando un insieme di valori per a, b, c, d in cui la somma dei prodotti di questi valori, quando calcolata modulo 3, produce come risultato 0.
+
+L'espressione "{0, 1, 2}^4" rappresenta un insieme di quadruple di numeri dove ciascun numero può essere 0, 1 o 2.
+Questa notazione viene utilizzata per rappresentare un insieme di tuple ordinate di elementi presi da un insieme di valori possibili.
+In questo caso, stiamo considerando quadruple, quindi ci sono 4 posizioni in ciascuna quadrupla e ognuna di queste posizioni può contenere uno dei tre valori: 0, 1 o 2.
+L'insieme "{0, 1, 2}^4" sarebbe quindi composto da tutte le possibili combinazioni di quadruple di 0, 1 e 2. Ci sarebbero un totale di 3^4 = 81 diverse quadruple in questo insieme, poiché ogni posizione può avere una delle tre opzioni e ci sono 4 posizioni in totale. Ecco alcune delle possibili quadruple in questo insieme:
+
+  (0, 0, 0, 0)
+  (0, 0, 0, 1)
+  (0, 0, 0, 2)
+  (0, 0, 1, 0)
+  ...
+  (2, 2, 2, 0)
+  (2, 2, 2, 1)
+  (2, 2, 2, 2)
+
+Quindi, "{0, 1, 2}^4" rappresenta un insieme di 81 diverse quadruple di numeri composte da 0, 1 e 2.
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+Generiamo tutto il mazzo di carte del gioco:
+
+(perm-rep 4 '(0 1 2))
+;-> ((0 0 0 0)
+;->  (1 0 0 0)
+;->  (2 0 0 0)
+;->  (0 1 0 0)
+;->  (1 1 0 0)
+;->  (2 1 0 0)
+;->  ...
+;->  (2 1 2 2)
+;->  (0 2 2 2)
+;->  (1 2 2 2)
+;->  (2 2 2 2))
+
+(length (perm-rep 4 '(0 1 2)))
+;-> 81
+
+Scriviamo la funzione che trova un "cap set" di 20 carte:
+
+(define (find-capset)
+  (local (capset fours)
+    (setq capset '())
+    (setq fours (perm-rep 4 '(0 1 2)))
+    (dolist (f fours)
+      (if (and (zero? (% (+ (* (f 0) (f 0)) (* (f 1) (f 1)) (* (f 2) (f 3))) 3))
+              (!= (apply + f) 0))
+          (push f capset -1)
+      )
+    )
+    capset))
+
+(find-capset)
+;-> ((0 0 1 0) (0 0 2 0) (0 0 0 1) (1 1 1 1) (2 1 1 1)
+;->  (1 2 1 1) (2 2 1 1) (1 0 2 1) (2 0 2 1) (0 1 2 1)
+;->  (0 2 2 1) (0 0 0 2) (1 0 1 2) (2 0 1 2) (0 1 1 2)
+;->  (0 2 1 2) (1 1 2 2) (2 1 2 2) (1 2 2 2) (2 2 2 2))
+
+Adesso scriviamo una funzione per vedere se tre carte formano un "set".
+
+Abbiamo visto che un "set" è composto da tre carte che soddisfano tutte queste condizioni:
+
+- Hanno tutte lo stesso numero o tre numeri diversi.
+- Hanno tutte la stessa forma o hanno tre forme diverse.
+- Hanno tutte la stessa campitura oppure tre campiture diverse.
+- Hanno tutte lo stesso colore o hanno tre colori diversi.
+
+Cioè, le carte sono tutte uguali o tutte diverse in ciascuna delle quattro caratteristiche.
+
+(define (is-set? lst)
+  (let ((res true) (tipo '()))
+    (for (t 0 3) ; per ogni tipo
+      ; carte di quel tipo
+      (setq tipo (list (lst 0 t) (lst 1 t) (lst 2 t)))
+      ;(println tipo)
+              ; se tutti tipi uguali oppure...
+      (if (or (apply = tipo)
+              ;... tutti i tipi diversi
+              (= (unique tipo) tipo)) nil (setq res nil))
+    )
+    res))
+
+Facciamo alcuni esempi:
+
+(setq k '((0 0 1 0) (1 2 1 1) (2 2 1 1)))
+(is-set? k)
+;-> nil
+
+Esempi di set:
+
+  0000, 0001, 0002
+  0000, 1111, 2222
+  1201, 2210, 0222
+
+(setq a '((0 0 0 0) (0 0 0 1) (0 0 0 2)))
+(setq b '((0 0 0 0) (1 1 1 1) (2 2 2 2)))
+(setq c '((1 2 0 1) (2 2 1 0) (0 2 2 2)))
+
+Esempi di non-set:
+
+ 0000, 0011, 0012
+ 1020, 2110, 0102
+
+(setq x '((0 0 0 0) (0 0 1 1) (0 0 1 2)))
+(setq y '((1 0 2 0) (2 1 1 0) (0 1 0 2)))
+
+(is-set? a)
+;-> true
+(is-set? b)
+;-> true
+(is-set? c)
+;-> true
+(is-set? x)
+;-> nil
+(is-set? y)
+;-> nil
+
+Verifichiamo che il "cap set" trovato precedentemente non contiene alcun "set".
+
+(setq capset (find-capset))
+;-> ((0 0 1 0) (0 0 2 0) (0 0 0 1) (1 1 1 1) (2 1 1 1)
+;->  (1 2 1 1) (2 2 1 1) (1 0 2 1) (2 0 2 1) (0 1 2 1)
+;->  (0 2 2 1) (0 0 0 2) (1 0 1 2) (2 0 1 2) (0 1 1 2)
+;->  (0 2 1 2) (1 1 2 2) (2 1 2 2) (1 2 2 2) (2 2 2 2)))
+
+Ci sono 1140 combinazioni diverse di tre carte che possono essere scelte dal capset:
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(length (comb 3 capset))
+;-> 1140
+
+Generiamo tutte le combinazioni di tre carte:
+
+(setq all (comb 3 capset))
+;-> (((0 0 1 0) (0 0 2 0) (0 0 0 1))
+;->  ((0 0 1 0) (0 0 2 0) (1 1 1 1))
+;->  ((0 0 1 0) (0 0 2 0) (2 1 1 1))
+;->  ...
+;->  ((1 1 2 2) (2 1 2 2) (2 2 2 2))
+;->  ((1 1 2 2) (1 2 2 2) (2 2 2 2))
+;->  ((2 1 2 2) (1 2 2 2) (2 2 2 2)))
+
+Verifichiamo che non abbiamo alcun "set" in queste combinazioni:
+
+(dolist (mano all) (if (is-set? mano) (println mano)))
+;-> nil
+
+Adesso scriviamo una funzione che calcola tutti i "set" di un insieme di carte:
+
+(define (find-set lst)
+  (let ((all (comb 3 lst)) (out '()))
+    (dolist (mano all)
+      (if (is-set? mano)
+          (push mano out -1)))
+    out))
+
+(find-set capset)
+;-> ()
+
+Funzione che genera un numero determinato di carte:
+
+(define (create-cards num)
+  (let (out (unique (collect (rand 3 4) num)))
+       (until (= (length out) num)
+         (setq out (unique (collect (rand 3 4) num)))
+       )
+       out))
+
+(create-cards 5)
+;-> ((1 1 2 1) (0 2 2 1) (0 2 2 2) (0 0 1 1) (0 2 0 2))
+
+(create-cards 12)
+;-> ((1 2 0 0) (0 2 2 2) (0 0 1 0) (0 0 0 0) (2 2 0 2) (2 0 2 1)
+;->  (0 2 1 2) (0 0 1 2) (1 2 2 0) (0 2 1 1) (0 1 2 2) (0 2 2 1))
+
+Nota: non provate (create-cards 81)...
+
+Generiamo insiemi di carte e vediamo se ci sono "set":
+
+(find-set (create-cards 12))
+;-> (((0 1 1 1) (0 1 2 2) (0 1 0 0))
+;->  ((2 1 1 1) (1 2 0 0) (0 0 2 2))
+;->  ((1 2 1 0) (1 2 0 0) (1 2 2 0))
+;->  ((1 2 0 0) (0 1 2 2) (2 0 1 1)))
+
+(find-set (create-cards 12))
+;-> (((0 1 0 2) (1 2 1 0) (2 0 2 1))
+;->  ((0 1 2 0) (1 2 2 0) (2 0 2 0)))
+
+Verifichiamo che scegliendo 3 carte dal mazzo completo (81 carte) abbiamo 1/79 di probabilità di formare un "set":
+
+(setq iter 1e6)
+(setq found 0)
+(for (i 1 iter) (if (find-set (create-cards 3)) (++ found)))
+found
+;-> 12671
+(div found iter)
+;-> 0.012671
+(div 1 79)
+;-> 0.01265822784810127
+
+
+----------------------------------
+Stampa di numeri senza usare cifre
+----------------------------------
+
+Stampare un dato numero intero senza utilizzare nel codice i caratteri numerici 0..9.
+
+L'idea è quella di utilizzare i valori degli indici di due liste di simboli.
+Per esempio, per stampare il numero 2023 possiamo scrivere:
+
+(int (apply string (map (fn(x) (find x '(a b c d))) '(c a c d))))
+;-> 2023
+
+Come funziona?
+La funzione map cerca x in (a b c d) con x in (c a c d), quindi:
+1) x = c --> (find c (a b c d)) = 2
+1) x = a --> (find a (a b c d)) = 0
+1) x = c --> (find c (a b c d)) = 2
+1) x = d --> (find d (a b c d)) = 3
+Poi convertiamo la lista (2 0 2 3) in stringa e infine convertiamo la stringa nel numero intero.
+(int (apply string '(2 0 2 3)))
+;-> 2023
+
+Poichè abbiamo 10 cifre (0..9) utilizziamo la lista (a b c d e f g h i j) per la funzione "find".
+Per creare la seconda lista (quella che codifica il numero) usiamo la lista costruita con le cifre del numero dato per selezionare i simboli dalla prima lista.
+
+(define (number num)
+  (local (ns alphabet code)
+    ; lista delle cifre del numero dato
+    (setq ns (map int (explode (string num))))
+    (setq alphabet '(a b c d e f g h i j))
+    ; creazione della seconda lista
+    ; utilizzando lista delle cifre del numero dato
+    ; per selezionare i simboli corrispondenti dalla prima lista
+    (setq code (select alphabet ns))
+    (int (apply string (map (fn(x) (find x alphabet)) code)))))
+
+(number 2023)
+;-> 2023
+(number 102030405060708090)
+;-> 102030405060708090
+
+Versione minima:
+
+(define (p n)
+  (int (apply string
+       (map (fn(x) (find x '(a b c d e f g h i j)))
+            (select '(a b c d e f g h i j) (map int (explode (string n))))))))
+
+(p 2023)
+;-> 2023
+(p 102030405060708090)
+;-> 102030405060708090
+
 =============================================================================
 
