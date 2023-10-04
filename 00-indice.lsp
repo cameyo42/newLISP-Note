@@ -1991,6 +1991,7 @@ NOTE LIBERE 18
   Cambio di pneumatici
   Il gioco di carte "SET"
   Stampa di numeri senza usare cifre
+  Il pifferaio magico
   
 PROBLEMI SUI DADI
 =================

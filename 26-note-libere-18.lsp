@@ -3772,5 +3772,91 @@ Versione minima:
 (p 102030405060708090)
 ;-> 102030405060708090
 
+
+-------------------
+Il pifferaio magico
+-------------------
+
+Questo è un vecchio test di programmazione.
+
+Lungo una strada (indicata con "_"), c'è un Pifferaio Magico (indicato con "P") e diversi topi (indicati con "o" e "~", che rappresentano rispettivamente la testa e la coda di un topo).
+
+Data una stringa che rappresenta una disposizione di topi e pifferaio, scrivere una funzione che restituisce quanti topi si dirigono verso il pifferaio e quanti topi si allontanano da lui.
+
+Esempi:
+
+input: __o~P_o~~o
+output: 1 2
+
+input: __P~oo~o~_o~~o__
+output: 3 2
+
+input: ~oPo~
+output: 2 0
+
+input: o~P~o
+output: 0 2
+
+Nota: non è possibile utilizzare le espressioni regolari e le funzioni di ricerca ("find" "find-all", "ref", "ref-all", ecc.)
+
+(define (piff str)
+  (local (len p sx dx i vicino lontano)
+    (setq sx '() dx '())
+    (setq vicino 0 lontano 0)
+    (setq len (length str))
+    ; per ogni carattere della stringa
+    (setq i 0)
+    (while (< i (- len 1))
+      (cond ((= (str i) "~")   ; cerca "~o"
+              (cond ((= (str (+ i 1)) "o")
+                      (push i dx -1)
+                      (++ i 2))
+                    (true (++ i))
+              ))
+            ((= (str i) "o")  ; cerca "o~"
+              (cond ((= (str (+ i 1)) "~")
+                      (push i sx -1)
+                      (++ i 2))
+                    (true (++ i))
+              ))
+            ((= (str i) "P") ; trovato "P"
+              (setq p i)
+              (++ i))
+            ; per tutti gli altri caratteri
+            (true (++ i))
+      )
+    )
+    ; ricerca vicini-lontani per i topi
+    ; che vanno verso sinistra
+    (dolist (pos sx) ; o~
+      (if (< pos p)
+          (++ lontano)
+          (++ vicino)
+      )
+    )
+    ; ricerca vicini-lontani per i topi
+    ; che vanno verso destra
+    (dolist (pos dx) ; ~o
+      (if (< pos p)
+          (++ vicino)
+          (++ lontano)
+      )
+    )
+    (list vicino lontano)))
+
+Facciamo alcune prove:
+
+(piff "__o~P_o~~o")
+;-> (1 2)
+
+(piff "__P~oo~o~_o~~o__")
+;-> (3 2)
+
+(piff "~oPo~")
+;-> (2 0)
+
+(piff "o~P~o")
+;-> (0 2)
+
 =============================================================================
 
