@@ -1992,6 +1992,8 @@ NOTE LIBERE 18
   Il gioco di carte "SET"
   Stampa di numeri senza usare cifre
   Il pifferaio magico
+  La funzione "collect"
+  Ricerca di sottostringhe nelle stringhe
   
 PROBLEMI SUI DADI
 =================
@@ -2033,7 +2035,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (236 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (238 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

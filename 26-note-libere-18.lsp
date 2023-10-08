@@ -3750,7 +3750,7 @@ Per creare la seconda lista (quella che codifica il numero) usiamo la lista cost
     (setq ns (map int (explode (string num))))
     (setq alphabet '(a b c d e f g h i j))
     ; creazione della seconda lista
-    ; utilizzando lista delle cifre del numero dato
+    ; utilizzando la lista delle cifre del numero dato
     ; per selezionare i simboli corrispondenti dalla prima lista
     (setq code (select alphabet ns))
     (int (apply string (map (fn(x) (find x alphabet)) code)))))
@@ -3857,6 +3857,206 @@ Facciamo alcune prove:
 
 (piff "o~P~o")
 ;-> (0 2)
+
+
+---------------------
+La funzione "collect"
+---------------------
+
+********************
+>>>funzione COLLECT
+********************
+sintassi: (collect exp [int-max-count])
+
+Valuta l'espressione in exp e raccoglie i risultati in una lista finché la valutazione di exp non restituisce nil. 
+
+Facoltativamente è possibile specificare un conteggio massimo di elementi in int-max-count.
+
+; collect results until nil is returned
+(set 'x 0)
+(collect (if (<= (inc x) 10) x)) → (1 2 3 4 5 6 7 8 9 10)
+
+; collect results until nil is returned or 6 results are collected
+(set 'x 0)
+(collect (if (<= (inc x) 10) x) 6) → (1 2 3 4 5 6)
+
+Vediamo un esempio in cui vogliamo cercare tutti gli indici della sottostringa "abc" nella stringa:
+
+(setq str "abc123abcdef")
+
+(setq idx -1)
+(collect (setq idx (find "abc" str nil (+ idx 1))))
+;-> (0 6)
+
+Come funziona?
+All'inizio "find" cerca "abc" sulla stringa str partendo dall indice 0 (cioè idx + 1).
+Se troviamo "abc", allora l'indice di partenza viene aggiornato partendo dall'indice successivo a quello in cui abbiamo trovato "abc" (intanto "collect" salva il valore dell'indice corrente idx).
+Se non lo troviamo restituisce nil e "collect" si ferma.
+
+La funzione "collect" acquista importanza quando notiamo che l'espressione "exp" può essere un insieme di espressioni.
+Vediamo un altro esempio in cui dobbiamo estrarre i primi quadrati da una lista:
+
+(setq lst '(1 4 9 16 25 36 47 64 81))
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(collect (begin ; se abbiamo più di una espressione
+          (setq kk (pop lst))       ; prima espressione
+          (if (square? kk) kk nil)  ; seconda espressione
+         )
+)
+;-> (1 4 9 16 25 36)
+
+
+---------------------------------------
+Ricerca di sottostringhe nelle stringhe
+---------------------------------------
+
+Per ricercare le sottostringhe in una stringa possiamo usare le funzioni "find" o "find-all":
+
+(setq s "abc-123-abc-123-xyz")
+
+La funzione "find" trova il primo indice della sottostringa:
+
+(find "abc" s)
+;-> 0
+
+La funzione "find-all" trova tutte le occorrenze della sottostringa:
+(find-all "abc" s)
+;-> ("abc" "abc")
+
+Ma se vogliamo tutti gli indici delle occorrenze di "abc"?
+
+L'idea è quella di utilizzare la funzione "find" con incremento (offset) dell'indice di partenza.
+Partiamo dall'indice 0 e cerchiamo la sottostringa.
+Se la troviamo aumentiamo l'indice di partenza.
+Altrimenti abbiamo terminato la ricerca.
+
+L'incremento dell'indice di partenza dipende dal tipo di ricerca che vogliamo effettuare:
+a) se vogliamo ricercare tutte le sottostringhe (anche quelle con caratteri in comune), allora l'incremento vale 1.
+Esempio: 
+sottostringa "ss" 
+stringa "ssss"
+"ssss"
+ ss
+  ss
+   ss
+La sottostringa "ss" si trova a partire dagli indici 0, 1 e 2.
+b) se vogliamo ricercare solo le sottostringhe con caratteri non in comune, allora l'incremento vale: length(substring) - 1
+Esempio: 
+sottostringa "ss" 
+stringa "ssss"
+"ssss"
+ ss
+   ss
+La sottostringa "ss" si trova a partire dagli indici 0 e 2.
+
+Funzione che ricerca una sottostringa in una stringa:
+
+(define (ref-all1 s str all)
+  (local (w idx out)
+    (setq w (length s))
+    (setq out '())
+    (setq idx -1)
+    (while (!= idx nil)
+      (setq idx (find s str nil (+ idx 1)))
+      (if (!= idx nil)
+        (begin
+          (push idx out -1)
+          ; incremento dell indice
+          (if (not all) (++ idx (- w 1)))
+        )
+      )
+    )
+    out))
+
+(ref-all1 "abc" s)
+;-> (0 8)
+(ref-all1 "ss" "ssss")
+;-> (0 2)
+(ref-all1 "ss" "ssss" true)
+;-> (0 1 2)
+
+Altra funzione simile che utilizza la funzione "collect":
+
+(define (ref-all2 s str all)
+  (local (idx incr)
+    (setq idx -1)
+    (if all (setq incr 0) (setq incr (- (length s) 1)))
+    (collect (begin (setq idx (find s str nil (+ idx 1))) 
+                    (cond (idx (setq idx (+ idx incr)) ;calcola il nuovo indice
+                          (- idx incr)))) ; ma ritorna l'indice trovato
+    )))
+
+(ref-all2 "abc" s)
+;-> (0 8)
+(ref-all2 "ss" "ssss")
+;-> (0 2)
+(ref-all2 "ss" "ssss" true)
+;-> (0 1 2)
+
+La funzione può essere implementata anche senza utilizzare "find" (ma è molto lenta):
+
+(define (ref-all3 s str all)
+  (local (out w len i eq)
+    (setq out '())
+    (setq w (length s))
+    (setq len (length str))
+    ; per ogni carattere della stringa
+    (setq i 0)
+    (while (< i len)
+      ; se la somma della posizione corrente (i) sulla stringa e
+      ; della lunghezza della stringa di ricerca è minore o uguale
+      ; della lunghezza della stringa...
+      (if (<= (+ i w) len)
+        (begin
+          ; allora cerchiamo se esiste una corrispondenza
+          (setq eq true)
+          (for (k 0 (- w 1))
+            ;(println k { } i (+ k i))
+            ;(println (s k) { } (str (+ i k)))
+            ; controllo caratteri da i a (i + k)
+            (if (!= (s k) (str (+ i k))) (setq eq nil))
+            ;(read-line)
+          )
+        )
+        ;else
+        (setq eq nil)
+      )
+      ; se dalla posizione i-esima tutti i caratteri sono uguali
+      ; abbiamo trovato una corrispondenza
+      (cond ((= eq true)
+              (push i out -1)
+              ; incremento indice della stringa
+              (if all (++ i)     ; tutte le corrispondenze
+                      (++ i w))) ; solo corrispondenze univoche
+            (true (++ i))
+      )
+    )
+    out))
+
+(ref-all3 "abc" s)
+;-> (0 8)
+(ref-all3 "ss" "ssss")
+;-> (0 2)
+(ref-all3 "ss" "ssss" true)
+;-> (0 1 2)
+
+Vediamo la velocità delle tre funzioni:
+
+(setq test "dghnxcjvbhtyc72jnsdfgtycsdajkfhjkasstycsdklhj23178tycsaefjkhastyc")
+
+(= (ref-all1 "tyc" test) (ref-all2 "tyc" test) (ref-all3 "tyc" test))
+;-> true
+
+(time (ref-all1 "tyc" test) 1e5)
+;-> 174.532
+(time (ref-all2 "tyc" test) 1e5)
+;-> 123.671
+(time (ref-all3 "tyc" test) 1e5)
+;-> 6406.902
 
 =============================================================================
 
