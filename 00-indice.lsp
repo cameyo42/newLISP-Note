@@ -1994,6 +1994,10 @@ NOTE LIBERE 18
   Il pifferaio magico
   La funzione "collect"
   Ricerca di sottostringhe nelle stringhe
+  Da testo a parlato (Text to speech)
+  Angoli interni ed esterni dei poligoni regolari
+  Segni zodiacali
+  Astrologia cinese
   
 PROBLEMI SUI DADI
 =================

@@ -4058,5 +4058,362 @@ Vediamo la velocità delle tre funzioni:
 (time (ref-all3 "tyc" test) 1e5)
 ;-> 6406.902
 
+
+-----------------------------------
+Da testo a parlato (Text to speech)
+-----------------------------------
+
+Per trasformare il testo in parlato (cioè una voce che legge il testo) il s.o. macOSX ha la funzione "say" che legge un testo.
+Con il s.o. MSwindows possiamo utilizzare il servizio integrato Speech (Microsoft Speech Engine) oppure il programma "Balabolka" (balcon.exe).
+
+Balabolka Command Line Utility
+------------------------------
+The utility differs from the desktop application in that it contains no graphical user interface and works only from the command line. 
+This is useful to integrate the Text-To-Speech process to other applications, for example.
+
+- No installation required.
+- Compact.
+- Flexible and easy to use.
+- Low system requirements.
+- Microsoft Speech API 4 and 5 support.
+
+Size: 663 KB
+Version: 1.81
+Licence: Freeware
+Operating System: Microsoft Windows XP/Vista/7/8/10/11
+API: SAPI 4, SAPI 5, Microsoft Speech Platform
+
+Vediamo l'help dell'applicazione:
+
+e:\tmp>balcon
+Balabolka (Command Line Utility), version 1.81
+Copyright (c) 2013-2022 Ilya Morozov
+
+Usage: balcon [options ...]
+
+  -l              : print list of voices
+  -g              : print list of audio output devices
+  -f <file_name>  : set input text file
+  -fl <file_name> : set file with list of input file names
+  -w <file_name>  : set output file in WAV format
+  -n <voice_name> : set voice for speech
+  -id <integer>   : set voice by language code (Locale ID)
+  -m              : print voice parameters
+  -b <integer>    : set audio output device by index
+  -r <text>       : set audio output device by name
+  -c              : use text from clipboard
+  -t <text>       : use text from command line
+  -i              : use text from stdin
+  -o              : write sound data to stdout
+  -s <integer>    : set rate of speech (from -10 to 10)
+  -p <integer>    : set pitch of speech (from -10 to 10)
+  -v <integer>    : set volume of speech (from 0 to 100)
+  -e <integer>    : pause between sentences (in milliseconds)
+  -a <integer>    : pause between paragraphs (in milliseconds)
+  -d <file_name>  : apply dictionary for pronunciation correction
+  -k              : kill other copies of application
+  -ka             : kill active copy of application
+  -pr             : pause or resume reading by active copy of application
+  -q              : add application to queue
+  -lrc            : create LRC file to display synchronized text in audio players
+  -srt            : create SRT file to display synchronized text in video players
+  -vs <file_name> : create text file with synchronized visemes
+  -sub            : process input text as subtitles
+  -tray           : show icon in system tray
+  -ln <integer>   : select line by number (or range, e.g. 12-79)
+  -fr <integer>   : set output audio sampling frequency in kHz (from 8 to 48)
+  -bt <integer>   : set output audio bit depth (8 or 16)
+  -ch <integer>   : set output audio channel mode (1 or 2)
+  -enc <encoding> : set input text encoding (ansi, utf8 or unicode)
+  -sb <integer>   : silence at the beginning (in milliseconds)
+  -se <integer>   : silence at the end (in milliseconds)
+  -df             : delete text file when job is done
+  -dp             : display progress information
+  -isb            : ignore text in square brackets
+  -icb            : ignore text in curly brackets
+  -iab            : ignore text in angle brackets
+  -irb            : ignore text in round brackets
+  -iu             : ignore URLs
+  -ic             : ignore /*comments*/ in text
+  -h              : print usage information
+
+  --lrc-length <integer>  : set max length of text lines for output LRC file
+  --lrc-fname <file_name> : set filename for output LRC file
+  --lrc-enc <encoding>    : set encoding for output LRC file
+  --lrc-offset <integer>  : set time offset for output LRC file (in milliseconds)
+  --lrc-artist <text>     : artist (ID tag)
+  --lrc-album <text>      : album (ID tag)
+  --lrc-title <text>      : title (ID tag)
+  --lrc-author <text>     : author (ID tag)
+  --lrc-creator <text>    : creator of LRC file (ID tag)
+  --lrc-sent              : insert blank lines after sentences in LRC file
+  --lrc-para              : insert blank lines after paragraphs in LRC file
+  --srt-length <integer>  : set max length of text lines for output SRT file
+  --srt-fname <file_name> : set filename for output SRT file
+  --srt-enc <encoding>    : set encoding for output SRT file
+  --raw                   : output is raw PCM data (headerless)
+  --ignore-length         : omit length of audio data in WAV header
+  --sub-format <text>     : set format of subtitles (for input text)
+  --sub-fit               : increase speech rate to fit time intervals in subtitles
+  --sub-max <integer>     : set max rate of speech for subtitles
+
+  --voice1-name <voice_name>    : set voice to read foreign words in text
+  --voice1-langid <language_id> : set language ID for foreign text (e.g. en)
+  --voice1-rate <integer>       : set rate of speech for foreign text (from -10 to 10)
+  --voice1-pitch <integer>      : set pitch of speech for foreign text (from -10 to 10)
+  --voice1-volume <integer>     : set volume of speech for foreign text (from 0 to 100)
+  --voice1-roman                : use default voice to read Roman numerals
+  --voice1-digit                : use default voice to read numbers in foreign text
+  --voice1-length <integer>     : set min length of foreign text to change voice
+
+Il modo più semplice per usare il programma è il seguente:
+
+  balcon.exe -t <text>
+
+Facciamo un esempio:
+
+(define (spell num)
+  (local (out lst)
+    (setq out "")
+    (setq eng '(("0" "zero")("1" "one")("2" "two")("3" "three")("4" "four")
+                ("5" "five")("6" "six")("7" "seven")("8" "eight")("9" "nine")))
+    (setq ita '(("0" "zero")("1" "uno")("2" "due")("3" "tre")("4" "quattro")
+            ("5" "cinque")("6" "sei")("7" "sette")("8" "otto")("9" "nove")))
+    (dolist (digit (explode (string num)))
+      (extend out (lookup digit eng) ", "))
+    (chop out 2)))
+
+(spell "345180018")
+;-> "three, four, five, one, eight, zero, zero, one, eight""
+
+Per lanciare "balcon.exe" utilizziamo la primitiva "exec".
+
+Poichè il testo da leggere deve essere racchiuso da doppi apici "", possiamo scrivere:
+
+(println (string "e:\\tmp\\balcon -t " "\"" (spell "345180018") "\""))
+;-> e:\tmp\balcon -t "three, four, five, one, eight, zero, zero, one, eight"
+
+Sostituiamo "exec" a "println" ed ascoltiamo i numeri:
+
+(exec (string "e:\\tmp\\balcon -t " "\"" (spell "345180018") "\""))
+;-> ()
+
+Oppure direttamente con una stringa:
+
+(exec (string "e:\\tmp\\balcon -t " "\"" "newlisp is fun" "\""))
+;-> ()
+
+Possiamo anche utilizzare la clipboard con l'opzione -c.
+
+Copiare il testo della linea seguente:
+This is the text on clipboard
+
+ed eseguire il seguente comando dalla REPL:
+
+(exec "e:\\tmp\\balcon -c")
+
+Nota: è anche possibile modificare il tipo di voce e il linguaggio utilizzato.
+
+
+-----------------------------------------------
+Angoli interni ed esterni dei poligoni regolari
+-----------------------------------------------
+
+Calcolare gli angoli interni e gli angoli esterni di un poligono regolare di N lati.
+
+Un poligono regolare è un poligono convesso che è sia equilatero (cioè ha tutti i lati uguali fra loro), che equiangolo (cioè ha tutti gli angoli uguali fra loro).
+
+Ogni angolo interno di un poligono vale (1 - 2/n)*180 = 180 - 360/n gradi.
+Pertanto la somma degli angoli interni è (n - 2)*180.
+
+Esempi:
+In un triangolo equilatero l'angolo interno vale 60 gradi.
+In un quadrato l'angolo interno vale 90 gradi.
+In un pentagono l'angolo interno vale 108 gradi.
+...
+
+Gli angoli esterni invece misurano 360/n gradi.
+Pertanto la somma degli angoli interni è 360 gradi.
+
+Adesso possiamo facilmente scrivere le due funzioni:
+
+(define (interno lati) (sub 180 (div 360 lati)))
+
+(define (esterno lati) (div 360 lati))
+
+(map (fn(x) (list x (interno x) (esterno x))) '(3 4 5 6 7 8 9 10))
+;-> ((3 60 120)
+;->  (4 90 90) 
+;->  (5 108 72) 
+;->  (6 120 60) 
+;->  (7 128.5714285714286 51.42857142857143)
+;->  (8 135 45)
+;->  (9 140 40)
+;->  (10 144 36))
+
+Nota: Non tutti i poligoni regolari sono costruibili con riga e compasso.
+Condizione necessaria e sufficiente perché ciò accada è che i fattori primi dispari del numero di lati siano primi di Fermat distinti.
+Per esempio, il triangolo equilatero, il quadrato, il pentagono e l'esagono regolari sono costruibili con riga e compasso, mentre l'ettagono regolare non lo è.
+
+
+---------------
+Segni zodiacali
+---------------
+
+Scriviamo una funzione che dato il mese e il giorno di nascita determina il relativo segno zodiacale.
+
+Periodi dei segni zodiacali
+---------------------------
+  Ariete,     21 marzo - 19 aprile,      21/3 - 19/4
+  Toro,       20 aprile - 20 maggio,     20/4 - 20/5
+  Gemelli,    21 maggio - 20 giugno,     21/5 - 20/6
+  Cancro,     21 giugno - 22 luglio,     21/6 - 22/7
+  Leone,      23 luglio - 23 agosto,     23/7 - 23/8
+  Vergine,    24 agosto - 22 settembre,  24/8 - 22/9
+  Bilancia,   23 settembre - 22 ottobre, 23/9 - 22/10
+  Scorpione,  23 ottobre - 21 novembre,  23/10 - 21/11
+  Sagittario, 22 novembre - 21 dicembre, 22/11 - 21/12
+  Capricorno, 22 dicembre - 19 gennaio,  22/12 - 19/1
+  Acquario,   20 gennaio - 19 febbraio,  20/1 - 19/2
+  Pesci,      20 febbraio - 20 marzo,    20/2 - 20/3
+
+Codifichiamo i valori nel modo seguente: (mese * 100) + giorno
+
+Acquario,   120 - 219
+Pesci,      220 - 320
+Ariete,     321 - 419
+Toro,       420 - 520
+Gemelli,    521 - 620
+Cancro,     621 - 722
+Leone,      723 - 823
+Vergine,    824 - 922
+Bilancia,   923 - 1022
+Scorpione,  1023 - 1121
+Sagittario, 1122 - 1221
+Capricorno, 1222 - 119
+
+(define (zodiaco giorno mese)
+  (let (val (+ (* mese 100) giorno))
+    (cond ((and (>= val 120) (<= val 219)) "Acquario")
+          ((and (>= val 220) (<= val 320)) "Pesci")
+          ((and (>= val 321) (<= val 419)) "Ariete")
+          ((and (>= val 420) (<= val 520)) "Toro")
+          ((and (>= val 521) (<= val 620)) "Gemelli")
+          ((and (>= val 621) (<= val 722)) "Cancro")
+          ((and (>= val 723) (<= val 823)) "Leone")
+          ((and (>= val 824) (<= val 922)) "Vergine")
+          ((and (>= val 923) (<= val 1022)) "Bilancia")
+          ((and (>= val 1023) (<= val 1121)) "Scorpione")
+          ((and (>= val 1122) (<= val 1221)) "Sagittario")
+          ((or (>= val 1022) (<= val 119)) "Capricorno"))))
+
+Facciamo alcune prove:
+
+(zodiaco 25 12)
+;-> "Capricorno"
+(zodiaco 26 12)
+;-> "Capricorno"
+(zodiaco 27 12)
+;-> "Capricorno"
+(zodiaco 19 1)
+;-> "Capricorno"
+(zodiaco 20 1)
+;-> "Acquario"
+(zodiaco 21 12)
+;-> "Sagittario"
+(zodiaco 21 01)
+;-> "Acquario"
+(zodiaco 21 02)
+;-> "Pesci"
+(zodiaco 20 02)
+;-> "Pesci"
+(zodiaco 19 02)
+;-> "Acquario"
+(zodiaco 19 02)
+;-> "Acquario"
+(zodiaco 6 10)
+;-> "Bilancia"
+
+
+-----------------
+Astrologia cinese
+-----------------
+
+Uno dei cicli su cui si basa l'astrologia cinese è di dodici anni, ognuno dei quali corrisponde a un segno dello zodiaco:
+
+Topo: I nati sotto questo segno sono dotati di fascino ed hanno capacità di attrarre. Sono anche grandi lavoratori.
+Bufalo o Bue: I nati sotto questo segno sono pazienti e poco loquaci, ma ispirano grande fiducia.
+Tigre: I nati sotto questo segno sono sensibili ed hanno una notevole profondità di pensiero, sono coraggiosi.
+Coniglio o Lepre (兔 Tù). I nati sotto questo segno hanno molto talento e sono ambiziosi. Dimostrano notevole capacità negli affari.
+Drago: I nati sotto questo segno godono di buona salute e dispongono di grandi energie, ma sono alquanto testardi.
+Serpente: I nati sotto questo segno parlano poco, sono molto saggi e generosi.
+Cavallo: I nati sotto questo segno sono simpatici e molto gioiosi, ma rischiano di parlare un po' troppo.
+Capra o Pecora: I nati sotto questo segno sono eleganti ed hanno notevoli capacità artistiche.
+Scimmia: I nati sotto questo segno sono imprevedibili, inventivi, abili, e flessibili.
+Gallo: I nati sotto questo segno sono sempre affaccendati e ritengono di avere sempre ragione, anche se qualche volta sbagliano.
+Cane: I nati sotto questo segno sono fedeli e leali, talvolta anche egoisti ed eccentrici.
+Maiale o Cinghiale: I nati sotto questo segno sono coraggiosi e cavallereschi, non arretrano mai e si dimostrano gentili con il prossimo.
+
+La sequenza del ciclo è la seguente:
+
+  0) Scimmia,
+  1) Gallo,
+  2) Cane,
+  3) Maiale,
+  4) Topo,
+  5) Bufalo,
+  6) Tigre,
+  7) Coniglio,
+  8) Drago,
+  9) Serpente,
+ 10) Cavallo,
+ 11) Capra,
+
+Quindi basta prendere l'anno e calcolare il modulo 12: (mod anno 12)
+
+(define (cinese anno)
+ ('("Scimmia" "Gallo" "Cane" "Maiale" "Topo" "Bufalo" "Tigre"
+           "Coniglio" "Drago" "Serpente" "Cavallo" "Capra") (% anno 12)))
+
+Facciamo alcune prove:
+
+(cinese 1963)
+;-> "Coniglio"
+
+(cinese 1965)
+;-> "Serpente"
+
+(cinese 1998)
+;-> "Tigre"
+
+(map (fn(x) (println x { } (cinese x))) (sequence 2000 2023))
+;-> 2000 Drago
+;-> 2001 Serpente
+;-> 2002 Cavallo
+;-> 2003 Capra
+;-> 2004 Scimmia
+;-> 2005 Gallo
+;-> 2006 Cane
+;-> 2007 Maiale
+;-> 2008 Topo
+;-> 2009 Bufalo
+;-> 2010 Tigre
+;-> 2011 Coniglio
+;-> 2012 Drago
+;-> 2013 Serpente
+;-> 2014 Cavallo
+;-> 2015 Capra
+;-> 2016 Scimmia
+;-> 2017 Gallo
+;-> 2018 Cane
+;-> 2019 Maiale
+;-> 2020 Topo
+;-> 2021 Bufalo
+;-> 2022 Tigre
+;-> 2023 Coniglio
+;-> ("Drago" "Serpente" "Cavallo" "Capra" "Scimmia" "Gallo" "Cane" "Maiale" "Topo" "Bufalo"
+;->  "Tigre" "Coniglio" "Drago" "Serpente" "Cavallo" "Capra" "Scimmia" "Gallo" "Cane"
+;->  "Maiale" "Topo" "Bufalo" "Tigre" "Coniglio")
+
 =============================================================================
 
