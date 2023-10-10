@@ -1950,7 +1950,7 @@ NOTE LIBERE 17
 NOTE LIBERE 18
 ==============
   Tavola Periodica degli Elementi (ricerche)
-  Notazione per intervalli
+  Notazione perintervalli
   La funzione "Over"
   Numeri di Meeker
   Numeri primi aggiungendo un suffisso/prefisso
@@ -1998,6 +1998,8 @@ NOTE LIBERE 18
   Angoli interni ed esterni dei poligoni regolari
   Segni zodiacali
   Astrologia cinese
+  Ultraradicale
+  Da stringa a numero di colonna e viceversa
   
 PROBLEMI SUI DADI
 =================
@@ -2039,7 +2041,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (238 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (240 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

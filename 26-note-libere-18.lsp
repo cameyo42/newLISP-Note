@@ -4415,5 +4415,147 @@ Facciamo alcune prove:
 ;->  "Tigre" "Coniglio" "Drago" "Serpente" "Cavallo" "Capra" "Scimmia" "Gallo" "Cane"
 ;->  "Maiale" "Topo" "Bufalo" "Tigre" "Coniglio")
 
+
+-------------
+Ultraradicale
+-------------
+
+L'Ultraradicale (o radicale Bring) di un numero reale "a" è l'unica radice reale della seguente equazione di quinto grado:
+
+  x^5 + x + a = 0
+
+Metodo di Newton-Raphson con un numero fisso di iterazioni e utilizzo di (5x^4 + 5) come approssimazione di f'(x) = 5x^4 + 1.
+
+(define (solve a)
+  (setq x (div a 5))
+  (dotimes (i 100)
+    (setq x (sub x (div (add (div a (add (mul x x x x) 1)) x) 5)))
+  )
+  x)
+
+Facciamo alcune prove:
+
+(solve -100010)
+;-> 10
+(solve 0)
+;-> 0
+(solve 1)
+;-> -0.7548776662466926
+(solve -1)
+;-> 0.7548776662466926
+(solve 1.414213562)
+;-> -0.8816165664970691
+(solve 3.141592653)
+;-> -1.147965385466847
+(solve -9.515716566)
+;-> 1.515716566491764
+(solve 10)
+;-> -1.533012798646983
+(solve -100)
+;-> 2.499203570440939
+(solve 1000)
+;-> -3.977899393311168
+
+
+------------------------------------------
+Da stringa a numero di colonna e viceversa
+------------------------------------------
+
+Nei fogli elettronici (per esempio MS Excel), le colonne vanno da A-Z, AA, AB, AZ, BA, ... ,BZ e così via. 
+In realtà ciascuna di esse rappresentano un numero, ma sono codificate come stringhe alfabetiche.
+
+Data una stringa che rappresenta una colonna, scrivere una funzione che restituisce il numero corrispondente.
+
+Per esempio:
+
+  "A" restituisce 1 (il che significa che è la prima colonna)
+  "B" restituisce 2
+  "Z" restituisce 26
+  "AA" restituisce 27
+  "AB" restituisce 28
+  "AZ" restituisce 52
+  "ZZ" restituisce 702
+  "AAA" restituisce 703
+
+(define (column-value col)
+  (let (x 0)
+    ; simile ad una conversione da base-26 a base-10
+    (dostring (c col)
+      (setq x (+ (* x 26) c -64))
+    )
+    x))
+
+Facciamo alcune prove:
+
+(column-value "BZ")
+;-> 78
+(column-value "CA")
+;-> 79
+(column-value "ZZ")
+;-> 702
+(column-value "ZZZZZZZZZZ")
+;-> 146813779479510
+
+(setq lst '("A" "B" "Z" "AA" "AB" "AZ" "ZZ" "AAA" "ABC"))
+(map (fn(x) (list x (column-value x))) lst)
+;-> (("A" 1) ("B" 2) ("Z" 26) ("AA" 27) ("AB" 28) 
+;->  ("AZ" 52) ("ZZ" 702) ("AAA" 703) ("ABC" 731))
+
+Possiamo anche scrivere la funzione inversa, cioè una funzione che, dato un numero, restituisce il valore stringa della colonna.
+
+Esempio:
+Numero = 28
+Calcoliamo il resto del numero: 
+(% 28 26)
+;-> 2
+Se il resto di 26 risulta essere 0 (ovvero 26, 52 e così via), inseriamo "Z" nella stringa di output e il nuovo numero diventa numero/26 - 1 perché qui stiamo considerando 26 come 'Z' mentre in realtà è il 25esimo rispetto ad "A".
+Se il resto risulta essere diverso da zero (come 1, 2, 3 ecc.), occorre inserire nella stringa il carattere relativo e poi calcolare:
+numero = numero/26.
+Al termine occorre invertire la stringa.
+
+Esempio:
+Numero = 700
+Il resto (numero % 26) è 24. Quindi inseriamo "X" nella stringa di output e numero diventa numero/26 che è 26.
+Il resto (26 % 26) è 0. Quindi inseriamo "Z" nella stringa di output e numero diventa numero/26 - 1 che è 0.
+Invertiamo la stringa e otteniamo: "ZX"
+
+(define (column-string num)
+  (local (str rem)
+    (setq str "")
+    (while (> num 0)
+      ; calcola il resto
+      (setq rem (% num 26))
+      (cond ((zero? rem) ; rem = 0 --> "Z"
+              (extend str "Z")
+              (setq num (- (/ num 26) 1)))
+            (true ; rem != 0 --> indexed char
+              (extend str (char (+ (- rem 1) (char "A"))))
+              (setq num (/ num 26)))
+      )
+    )
+    (reverse str)))
+
+Facciamo alcune prove:
+
+(column-string 1)
+;-> "A"
+(column-string 78)
+;-> "BZ"
+(column-string 79)
+;-> "CA"
+(column-string 705)
+;-> "AAC"
+(column-string 702)
+;-> "ZZ"
+(column-string 146813779479510)
+;-> "ZZZZZZZZZZ"
+(column-string 1234567890)
+;-> "CYWOQVJ"
+
+(setq numbers '(1 2 26 27 28 52 702 703 731))
+(map (fn(x) (list x (column-string x))) numbers)
+;-> ((1 "A") (2 "B") (26 "Z") (27 "AA") (28 "AB") 
+;->  (52 "AZ") (702 "ZZ") (703 "AAA") (731 "ABC"))
+
 =============================================================================
 
