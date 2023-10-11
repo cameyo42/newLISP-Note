@@ -4173,12 +4173,12 @@ Il modo più semplice per usare il programma è il seguente:
 Facciamo un esempio:
 
 (define (spell num)
-  (local (out lst)
+  (local (out eng)
     (setq out "")
     (setq eng '(("0" "zero")("1" "one")("2" "two")("3" "three")("4" "four")
                 ("5" "five")("6" "six")("7" "seven")("8" "eight")("9" "nine")))
-    (setq ita '(("0" "zero")("1" "uno")("2" "due")("3" "tre")("4" "quattro")
-            ("5" "cinque")("6" "sei")("7" "sette")("8" "otto")("9" "nove")))
+    ;(setq ita '(("0" "zero")("1" "uno")("2" "due")("3" "tre")("4" "quattro")
+    ;        ("5" "cinque")("6" "sei")("7" "sette")("8" "otto")("9" "nove")))
     (dolist (digit (explode (string num)))
       (extend out (lookup digit eng) ", "))
     (chop out 2)))
@@ -4556,6 +4556,270 @@ Facciamo alcune prove:
 (map (fn(x) (list x (column-string x))) numbers)
 ;-> ((1 "A") (2 "B") (26 "Z") (27 "AA") (28 "AB") 
 ;->  (52 "AZ") (702 "ZZ") (703 "AAA") (731 "ABC"))
+
+
+-----------------------------------
+Cifre in lettere e lettere in cifre
+-----------------------------------
+
+Dato un numero intero convertire le sue cifre in lettere:
+1 --> one, 2 --> two ecc.
+
+  1234567890  -->  "one two three four five six seven eight nine zero"
+
+Data una stringa di cifre in lettere convertire le sue cifre in numeri:
+"one" --> 1, "two" --> 2, ecc.
+Le cifre della stringa di input sono separate da una spazio " ".
+
+  "one two three four five six seven eight nine zero"  -->  1234567890
+
+Funzione che converte da cifre a lettere:
+
+(define (cifre-lettere num)
+  (local (out eng)
+    (setq out "")
+    (setq eng '(("0" "zero") ("1" "one") ("2" "two") ("3" "three")
+                ("4" "four") ("5" "five") ("6" "six") ("7" "seven")
+                ("8" "eight") ("9" "nine")))
+    ;(setq ita '(("0" "zero") ("1" "uno") ("2" "due") ("3" "tre")
+    ;            ("4" "quattro") ("5" "cinque") ("6" "sei")
+    ;            ("7" "sette") ("8" "otto") ("9" "nove")))
+    (dolist (digit (explode (string num)))
+      (extend out (lookup digit eng) " ")
+    )
+    (chop out 1)))
+
+(cifre-lettere 1234567890)
+;-> "one two three four five six seven eight nine zero"
+
+Funzione che converte da lettere a cifre:
+
+(define (lettere-cifre str)
+  (local (out eng lst)
+    (setq out 0)
+    (setq eng '(("zero" 0) ("one" 1) ("two" 2) ("three" 3)
+                ("four" 4) ("five" 5) ("six" 6) ("seven" 7)
+                ("eight" 8) ("nine" 9)))
+    (setq lst (parse str " "))
+    ;(setq ita '(("zero" 0) ("uno" 1) ("due" 2) ("tre" 3)
+    ;            ("quattro" 4) ("cinque" 5) ("sei" 6) ("sette" 7)
+    ;            ("otto" 8) ("nove" 9))
+    (dolist (cifra (reverse lst))
+      (setq out (+ out (*  (lookup cifra eng) (pow 10 $idx))))
+    )
+    out))
+
+(lettere-cifre "one two three four five six seven eight nine zero")
+;-> 1234567890
+
+(lettere-cifre (cifre-lettere 2023))
+;-> 2023
+
+(cifre-lettere (lettere-cifre "three zero seven seven"))
+;-> "three zero seven seven"
+
+
+-----------------------
+Resistenze in parallelo
+-----------------------
+
+Due resistenze R1 e R2 in parallelo (R1||R2) hanno una resistenza totale pari a:
+
+            1          R1 * R2
+  R = ------------- = ---------
+       1/R1 + 1/R2     R1 + R2
+
+Nota che R < (min (R1 R2)), cioè la resistenza totale è minore della resistenza più piccola tra R1 e R2.
+
+Tre resistenze R1, R2 e R3 in parallelo hanno una resistenza totale pari a:
+
+                                R1 * R2
+                               --------- * R3
+               1                R1 + R2
+  R = -------------------- = ------------------
+       1/R1 + 1/R2 + 1/R3       R1 * R2
+                               --------- + R3
+                                R1 + R2
+
+In generale N resistenze in parallelo hanno una resistenza totale pari a:
+
+                  1
+  R = --------------------------
+       1/R1 + 1/R2 + ... + 1/RN
+
+Per esempio:
+
+  Resistenze                            Parallelo
+  (1,1) ----------------------------->  0.5
+
+  (1,1,1) --------------------------->  0.3333333
+
+  (4,6,3) --------------------------->  1.3333333
+
+  (20,14,18,8,2,12) ----------------->  1.1295
+
+  (10,10,20,30,40,50,60,70,80,90) --->  2.6117
+
+Scrivere una funzione che data una lista di resistenze, calcola la resistenza totale quando sono messe tutte in parallelo.
+
+(define (res-par lst) (div (apply add (map div lst))))
+
+Facciamo alcune prove:
+
+(res-par '(1 1))
+;-> 0.5
+(res-par '(1 1 1))
+;-> 0.3333333333333333
+(res-par '(4 6 3))
+;-> 1.333333333333333
+(res-par '(20 14 18 8 2 12))
+;-> 1.129538323621694
+(res-par '(10 10 20 30 40 50 60 70 80 90))
+;-> 2.611669603067675
+
+Data un'insieme di resistenze quanti valori possiamo ottenere da tutte le loro combinazioni?
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(define (parallel lst)
+  (local (prove out)
+    (setq out '())
+    (for (k 2 (length lst))
+      (setq prove (comb k lst))
+      (dolist (p prove) (push (list (round (res-par p) -4) p) out))
+    )
+    (sort out)))
+
+Facciamo alcune prove:
+
+(parallel '(10 20 30))
+;-> ((5.4545 (10 20 30)) (6.6667 (10 20)) (7.5 (10 30)) (12 (20 30)))
+
+(parallel '(10 20 30 40 50))
+;-> ((4.3796 (10 20 30 40 50)) (4.8 (10 20 30 40)) (4.918 (10 20 30 50)) 
+;->  (5.1282 (10 20 40 50)) (5.4545 (10 20 30)) (5.6075 (10 30 40 50))
+;->  (5.7143 (10 20 40)) (5.8824 (10 20 50)) (6.3158 (10 30 40))
+;->  (6.5217 (10 30 50)) (6.6667 (10 20)) (6.8966 (10 40 50)) (7.5 (10 30)) 
+;->  (7.7922 (20 30 40 50)) (8 (10 40)) (8.3333 (10 50)) (9.2308 (20 30 40))
+;->  (9.6774 (20 30 50)) (10.5263 (20 40 50)) (12 (20 30)) (12.766 (30 40 50))
+;->  (13.3333 (20 40)) (14.2857 (20 50)) (17.1429 (30 40)) (18.75 (30 50))
+;->  (22.2222 (40 50)))
+
+(length (parallel (sequence 1 10)))
+;-> 1013
+
+
+-------------------------------------------
+Punti casuali sulla superficie di una sfera
+-------------------------------------------
+
+Dobbiamo generare punti (x,y,z) e assicurarci che giacciano sulla superficie della sfera il cui centro è (0,0,0) e il cui diametro è R.
+
+L'uso della distribuzione gaussiana per tutte e tre le coordinate del punto garantirà una distribuzione uniforme sulla superficie della sfera.
+Si può procedere come segue:
+
+1) Generare tre numeri casuali x,y,z utilizzando la distribuzione gaussiana.
+2) Moltiplicare ciascun numero per sqrt(1/x^2+y2^+z^2) (ovvero Normalizzare).
+   (gestire cosa succede se x=y=z=0).
+3) Moltiplicare ogni numero per il raggio della tua sfera.
+4) Opzionale: verificare che la distanza tra (0,0,0) e (x,y,z) sia R.
+
+(define (dist3d x1 y1 z1 x2 y2 z2)
+"Calculates 3D Cartesian distance of two points P1=(x1 y1 z1) e P2=(x2 y2 z2)"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2))
+             (mul (sub z1 z2) (sub z1 z2)))))
+
+(define (cbrt x)
+"Calculates the cube root of a number"
+  (if (< x 0)
+      (sub (pow (sub x) (div 3)))
+      ;else (positive number)
+      (pow x (div 3))))
+
+Funzione che genera un punto che giace sulla superficie di una sfera con centro in (0,0,0) e raggio "radius":
+
+(define (rnd-pts radius)
+  (local (x y z norm))
+    ; generazione di tre numeri random con distribuzione Gaussiana (Normale)
+    (setq x (normal))
+    (setq y (normal))
+    (setq z (normal))
+    ; Normalizzazione dei numeri
+    (setq norm (sqrt (div (add (mul x x) (mul y y) (mul z z)))))
+    (setq x (mul x norm))
+    (setq y (mul y norm))
+    (setq z (mul z norm))
+    ; Moltiplicazione delle coordinate per il raggio della sfera
+    (setq x (mul x radius))
+    (setq y (mul y radius))
+    (setq z (mul z radius))
+    ; output: coordinate del punto + distanza del punto dal (0,0,0)
+    ; (la distanza deve essere uguale al raggio della sfera)
+    (list x y z (dist3d x y z 0 0 0)))
+
+Facciamo alcune prove:
+
+(chop '(1 2 3 4))
+
+(rnd-pts 2)
+;-> (1.210846481698793 -1.246459613513464 -0.9900450644478368 2)
+(rnd-pts 10)
+;-> (-0.5026408937663467 7.08095359093341 -7.043255523900934 10)
+
+Creiamo 500 punti sulla superficie di una sfera di raggio 10:
+
+(silent
+  (setq lst (map rnd-pts (dup 10 500)))
+  (setq lst (map chop lst))
+)
+
+Esportiamo i punti:
+
+(save "sfera500.txt" 'lst)
+;-> true
+
+Modifichiamo il file "sfera500.txt" in modo che ogni riga sia solo: x y z
+
+Da cosi:
+
+(set 'lst '(
+  (5.487372834479757 -2.828667854941998 7.86685309013912)
+  (-3.797452898396809 -3.433214776138425 8.590249576430388)
+  (9.851332250951074 0.2207698136576774 -1.703676486528114)
+...
+  (-4.707549026292338 2.932130536376371 8.321153326474839)
+  (4.671114410263778 8.70936815849182 1.525646238836153)))
+
+A cosi:
+
+5.487372834479757 -2.828667854941998 7.86685309013912
+-3.797452898396809 -3.433214776138425 8.590249576430388
+9.851332250951074 0.2207698136576774 -1.703676486528114
+...
+-4.707549026292338 2.932130536376371 8.321153326474839
+4.671114410263778 8.70936815849182 1.525646238836153
+
+Il file "sfera500.txt" si trova nella cartella "data".
+
+Visualizziamo il file con Octeve con il seguente script:
+
+  data = load('sfera1.txt')
+  figure;
+  scatter3(data(:,1), data(:,2), data(:,3), 'filled');
+  title('3D Plot');
+  xlabel('X-axis');
+  ylabel('Y-axis');
+  zlabel('Z-axis');
+
+Vedi l'immagine "sfera500.png" nella cartella "data".
 
 =============================================================================
 

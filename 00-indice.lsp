@@ -2000,6 +2000,9 @@ NOTE LIBERE 18
   Astrologia cinese
   Ultraradicale
   Da stringa a numero di colonna e viceversa
+  Cifre in lettere e lettere in cifre
+  Resistenze in parallelo
+  Punti casuali sulla superficie di una sfera
   
 PROBLEMI SUI DADI
 =================
