@@ -2003,6 +2003,14 @@ NOTE LIBERE 18
   Cifre in lettere e lettere in cifre
   Resistenze in parallelo
   Punti casuali sulla superficie di una sfera
+  newLISP per VisualNEO Win. Parte 0: Info
+  newLISP per VisualNEO Win. Parte 1: Iniziare
+  newLISP per VisualNEO Win. Parte 2: test di dati
+  newLISP Challenge!
+  newLisp per VisualNEO Win. Parte 3: Stringhe
+  newLisp per VisualNEO Win. Parte 4: Liste
+  newLisp Challenge 2!
+  newLisp per VisualNEO Win. Parte 5: alcuni argomenti
   
 PROBLEMI SUI DADI
 =================

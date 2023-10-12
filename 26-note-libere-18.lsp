@@ -4809,17 +4809,430 @@ A cosi:
 
 Il file "sfera500.txt" si trova nella cartella "data".
 
-Visualizziamo il file con Octeve con il seguente script:
+Visualizziamo il file con Octeve con il seguente script "sfera500.m":
 
-  data = load('sfera1.txt')
+  data = load('sfera500.txt');
   figure;
   scatter3(data(:,1), data(:,2), data(:,3), 'filled');
   title('3D Plot');
   xlabel('X-axis');
   ylabel('Y-axis');
   zlabel('Z-axis');
+  axis equal;
 
-Vedi l'immagine "sfera500.png" nella cartella "data".
+Esportiamo l'immagine dalla figura di Octave: File -> Save As...
+
+Vedi lo script "sfera500.m" e l'immagine "sfera500.png" nella cartella "data".
+
+
+----------------------------------------
+newLISP per VisualNEO Win. Parte 0: Info
+----------------------------------------
+Copyright: SinLios Soluciones Digitales. All rights reserved. sinlios.com
+
+visualNEO
+---------
+https://visualneo.com/
+VisualNEO Win, è un software per generare app eseguibili di Windows.
+Sviluppa tu stesso le app Windows con VisualNEO Win.
+Utilizza il linguaggio NeoScript, il linguaggio di programmazione più semplice, per codificare la logica delle tue App.
+Rimarrai sorpreso da quanto sia facile sviluppare le tue applicazioni Windows con VisualNEO Win.
+E le tue app possono essere vendute o condivise!
+I progetti VisualNEO Win completati possono essere compilati in un'applicazione Windows compatta e autonoma (exe) per una facile distribuzione.
+Per eseguire le applicazioni compilate non sono necessari lettori, driver speciali, licenze o software aggiuntivo.
+Le applicazioni create da VisualNEO Win appaiono e si comportano proprio come qualsiasi altro programma Windows, quindi nessuno ha bisogno di sapere che non hai faticato per anni imparando Java o C++.
+
+newLISP
+-------
+http://www.newlisp.org/
+Reinier Maliepaard ha scritto alcuni tutorial su questo interessante linguaggio di programmazione per VisualNEO Win.
+
+Questa è una serie di 5 tutorial su newLISP scritti da Reinier Maliepaard e tradotti da me.
+I tutorial si trovano (in inglese) al seguente indirizzo web:
+https://visualneo.com/newlisp
+
+
+--------------------------------------------
+newLISP per VisualNEO Win. Parte 1: Iniziare
+--------------------------------------------
+
+newLISP è stato compilato in una DLL di Windows (libreria a collegamento dinamico): newLISP.dll.
+Hans Peter Wickern ha creato un plugin gratuito per VisualNeo Win che rende possibile l'uso di newLISP all'interno del generatore di applicazioni GUI VisualNeo Win (scaricare hpwNewLISP da https://visualneo.com/product/hpwnewlisp).
+
+Perché utilizzare newLISP?
+a. codice più breve ed efficiente, ad es. combinando le funzioni in un unico comando
+b. in molti casi, prestazioni più veloci, ad es. in caso di cicli annidati
+c. più di 350 funzioni integrate
+d. le funzioni possono essere combinate in un unico comando
+e. ottimo uso delle espressioni regolari
+f. Le applicazioni VisualNeo con newLISP funzionano bene e velocemente sotto Wine/Linux (al contrario di VBScript, che spesso si blocca).
+g. newLISP è testato molto bene, quindi i bug saranno rari.
+
+E citando lo sviluppatore Lutz Mueller:
+
+[newLISP] si carica rapidamente e ha un ingombro di memoria ridotto.
+newLISP è veloce quanto altri linguaggi di scripting popolari e utilizza pochissime risorse.
+
+Distribuzione
+-------------
+Sebbene newLISP sia concesso in licenza come GPL 3.0, l'autore di newLISP Lutz Mueller ti consente di distribuire newLISP.dll insieme al tuo binario VisualNeo Win, senza dover rilasciare il codice newLISP sotto GPL 3.0 (restrizione: "purché i tuoi script non utilizzino altro software di terze parti protetto da GPL sotto forma di librerie importate o moduli caricati, i tuoi script newLISP non necessitano di licenza GPL.")
+http://www.newLISP.org/index.cgi?FAQ
+
+Quando si utilizza newLISP nel proprio software, menzionare sempre il sito Web www.newlisp.org nella documentazione come luogo in cui è disponibile il codice sorgente per newLISP.
+
+Per far funzionare la tua applicazione per gli utenti, devi solo distribuire il tuo binario VisualNeo, insieme a newLISP.dll e hpwNewLISP.nbr gratuito (che si trova nel pacchetto plugin di Hans-Peter Wickern. Scarica: https://visualneo.com/ prodotto/hpwnewlisp).
+
+Utilizzare codice newLISP in VisualNeo Win
+------------------------------------------
+Per testare gli esempi di VisualNeo Win è necessario scaricare hpwNewLISP da https://visualneo.com/product/hpwnewlisp e installare il plugin.
+Crea una cartella, ad es. D:\mcNewLISP e inserirvi il mio esempio 'mcTestNewLISP.exe', risorse necessarie incluse (www.mcdigit.nl/mcTestnewLISP.zip).
+
+Prova le istruzioni e gli esempi seguenti e acquisirai familiarità con l'uso di newLISP in "mcTestNewLISP.exe".
+
+Nota che a volte devi sostituire "" (doppio apostrofo) con { e } (o con [#34]) e talvolta [ con [#91] e ] con [#93].
+Faccio un'osservazione su quando questo è necessario per gli esempi newLISP presentati qui.
+
+1. Primi passi con newLISP
+--------------------------
+In questo blog non troverai alcuna discussione estesa sugli argomenti di sintassi di newLISP.
+Fornisco solo informazioni su newLISP utili per te come utente VisualNeo.
+Iniziamo con le chiamate di funzione, che ti offrono molte possibilità.
+
+Si noti che newLISP fa distinzione tra maiuscole e minuscole e utilizza (per esempio) i nomi delle funzioni in minuscolo!
+
+1.1. Sintassi delle chiamate di funzioni
+----------------------------------------
+Le chiamate di funzione in newLISP hanno una sintassi semplice e coerente.
+Studia il prossimo tipo di espressione Lisp, composto da parentesi bilanciate e uno o più elementi:
+
+  (nome-funzione argomento-1 argomento-2 ... argomento-n)
+
+Un esempio utilizzando questo modello è:
+
+(add 2 3.5)
+;-> 5.5
+
+Questa espressione Lisp contiene una chiamata alla funzione 'add' con due argomenti, ovvero 2 e 3.5.
+Il valore restituito è 5.5.
+
+Tieni presente che
+– gli argomenti sono facoltativi
+– alcune funzioni non necessitano di argomenti e altre funzioni >= 1
+
+1.2. Tutte le funzioni in newLISP restituiscono un valore
+--------------------------------------------
+Eseguire l'applicazione di esempio VisualNeo 'mcTestNewLISP.exe' e inserire l'espressione
+
+(add 2 3.5)
+;-> 5.5
+
+nel primo campo di testo, premi il pulsante 'Call Lisp' e il secondo campo di testo mostrerà il risultato, il valore 5.5.
+
+Infatti, verrà eseguito il seguente codice VisualNeo Win:
+
+  hpwnewLISPCall "(aggiungi 2 3.5)" "[DllRetvar]"
+
+Il risultato verrà valutato tramite:
+
+  If "[nlcError]" "=" ""
+   SetVar "[LispReturn]" "[DllRetvar]"
+  Else
+   SetVar "[LispReturn]" "Error: [nlcError]"
+  Endif
+
+Inserisci ora l'espressione errata
+
+(add 2 3.5
+
+nel primo campo di testo (quindi senza parentesi bilanciate) e premere il pulsante 'Call Lisp'.
+Il secondo campo di testo mostra il risultato, il messaggio Errore:
+
+6 ERR: missing parenthesis : "...(add 2 3.5"
+
+1.2.1 Evaluation of all arguments first
+---------------------------------------
+newLISP valuta innanzitutto gli argomenti, prima che la funzione venga applicata agli argomenti.
+
+(+ 2 (- 6 3) (+ 3 4))
+;-> 17
+
+Si noti che ";->" significa 'restituisce il valore:'.
+
+I passaggi in questo esempio:
+
+(+ 2 (- 6 3) (* 3 4))
+
+(- 6 3)
+;-> 3
+
+(* 3 4)
+;->  12
+
+(+ 2 3 12)
+;->  17
+
+Pertanto, le espressioni (- 6 3) e (* 3 4) vengono valutate prima di essere inviate alla funzione.
+
+Questi esempi di matematica non sono molto utili per te (VisualNeo ha semplici alternative) ma erano intesi solo come dimostrazione della sintassi elementare newLISP.
+Naturalmente presenterò nella sezione '4. Esercizi ed esempi' alcuni interessanti esempi di matematica.
+
+2. Le funzioni possono essere combinate
+---------------------------------------
+(div 8 3 2 2)
+;->  0.6666666666666666
+
+(round (div 8 3 2 2) -2)
+;->  0.67
+
+(add (round (div 8 3 2 2) -2) 5)
+;->  5.67
+
+3. TRUE o NIL
+-------------
+Alcune funzioni restituiscono TRUE o NIL.
+Per verificare che tutti i numeri siano ordinati in modo crescente, potremmo scrivere:
+
+(<2 3 5 7 8)
+
+che restituisce TRUE.
+
+(<2 3 5 4 8)
+
+restituisce NIL, che è l'equivalente newLISP di FALSE.
+
+4. Esercizi ed esempi
+-------------------------
+Per completezza, le funzioni add, sub, mul e div restituiscono un numero mobile se uno degli operandi è un numero in virgola mobile.
+Il numero in virgola mobile viene visualizzato senza decimali se i decimali sono tutti 0.
+
+(add 2 3.25 9.75)
+;->  15
+
+> (float? (add 2 3.25 9.75))
+;->  true
+
+Per l'aritmetica degli interi è anche possibile utilizzare +, -, *, /.
+Solo per chiarezza, ti presento queste chiamate di funzioni, che puoi modificare a tuo piacimento.
+
+> (* 4.5 7.5)
+;->  28
+
+> (mul 4.5 7.5)
+;->  33.75
+
+(format "%2.1f" (* 4.5 7.5))
+;->  28.0
+
+Le seguenti funzioni sono più utili per te.
+Si prega di controllare http://www.newlisp.org/downloads/manual_frame.html per la sintassi precisa delle funzioni.
+
+4.1 Aritmetica di base
+----------------------
+(max 2 1.5 3 2.7)
+;->  3
+
+(min 2 1.5 3 2.7)
+;->  1.5
+
+(log (exp 3))
+;->  3
+(log 100 10)
+;->  2
+
+(pow 100 2)
+;->  10000
+
+(pow 100 0.5)
+;->  10
+
+(pow 100 0.5 3)
+;->  1000
+
+(% 10 3)
+;->  1
+
+(% -10 3)
+;->  -1
+
+(mod 10.5 3.3)
+;->  0.6
+
+(mod -10.5 3.3)
+;->  -0.6
+
+(mod -10.5 1)
+;->  -0.5
+
+è equivalente a (mod -10.5)
+
+(inc 0.25)
+;->  1.25
+
+(dec 9 0.25)
+;->  8.75
+
+(NaN? (sqrt -1))
+;->  true
+
+(NaN? (div 0 0))
+;->  true
+
+(inf? (div 1 0))
+;->  true
+
+4.2 Funzioni trigonometriche
+----------------------------
+Funzioni disponibili:
+
+  acos, acosh, asin, asinh, atan, atanh, atan2, cos, cosh, sin, sinh, tan, tanh
+
+(acos 1)
+;->  0
+
+(acosh 2)
+;->  1.316957897
+
+(cosh (acosh 2))
+;->  2
+
+(NaN? (acosh 0.5))
+;->  true
+
+4.3 Arrotondamento
+------------------
+(round 123.49 2)
+;->  100
+
+(round 123.49 1)
+;->  120
+
+(round 123.49 0)
+;->  123
+
+(round 123.49)
+;->  123
+
+(round 123.49 -1)
+;->  123.5
+
+(round 123.49 -2)
+;->  123.49
+
+(ceil -1.5)
+;->  -1
+
+(ceil 3.4)
+;->  4
+
+(floor -1.5)
+;->  -2
+
+(floor 3.4)
+;->  3
+
+4.4 Selezioni casuali (random)
+------------------------------
+(rand 3)
+could generate 0 or 1 or 2
+
+(rand 3 10)
+could generate (2 2 0 2 2 1 0 0 2 1)
+
+(random 0 1 4) could generate
+could generate (0.1555528427991577 0.5039216284676656 0.7320169682912686 0.4055909909360027)
+
+(random 10 5)
+could generate 11.0971 (a number between 10 and 15)
+
+(random 10 7)
+could generate 11.0971 (a number between 10 and 17)
+
+(amb 1 2 3 4 5)
+could generate 1 or 2 or 3 or 4 or 5
+
+4.5 Sequenze
+------------
+(sequence 10 5)
+;->  (10 9 8 7 6 5)
+
+(sequence 0 1 0.2)
+;->  (0 0.2 0.4 0.6 0.8 1)
+
+(sequence 2 0 0.3)
+;->  (2 1.7 1.4 1.1 0.8 0.5 0.2)
+
+(series 2 2 5)
+;->  (2 4 8 16 32)
+
+(series 2 3 3)
+;->  (2 6 18)
+
+La funzione 'ssq' calcola la somma dei quadrati di una lista di numeri:
+
+(ssq (sequence 1 5))
+;->  55
+
+4.6 Liste
+---------
+Tutte le espressioni Lisp sopra riportate sono in realtà una lista, un tipico tipo di dati newLISP.
+Normalmente il primo elemento di una lista viene interpretato da newLISP come un riferimento ad una funzione, che verrà poi invocata (ricordiamo quanto detto sopra in 1.1. Sintassi delle chiamate di funzione).
+A volte non lo vuoi e ti piace passare una lista semplicemente come dati (e non come una chiamata di funzione implicita).
+In questo caso la lista deve essere "quotata", cioè preceduta da un apostrofo "'".
+Esempio:
+
+(ssq (sequence 1 5))
+
+è una chiamata alla funzione 'ssq' e al suo argomento.
+Questo argomento è una lista che verrà valutata nella lista (1 2 3 4 5).
+Possiamo saltare la chiamata alla funzione 'sequence' e passare la lista (1 2 3 4 5) direttamente alla funzione 'ssq'.
+
+(ssq '(1 2 3 4 5))
+;->  55
+
+La lista quotata '(1 2 3 4 5) significa: "prendi questa lista alla lettera", cioè come lista di numeri, come dati. (1 2 3 4 5) senza utilizzare la quotatura "'" verrebbe interpretato da newLISP come la funzione 1 e i suoi parametri 2 3 4 5. 
+Questo comando genererà ovviamente un errore.
+
+4.7 Da lista a stringa
+----------------------
+A volte il risultato di una funzione newLISP è una lista (vedere gli esempi precedenti in 4.5 Sequenze).
+Per utilizzare una lista di questo tipo in VisualNEO, potremmo convertirlo in una stringa CSV.
+Esempio:
+
+(join (map string (series 2 3 3)) ";")
+;->  "2;6;18"
+
+Cosa fa questo comando?
+
+(series 2 3 3)
+;->  (2 6 18)
+
+La lista contiene i tre numeri 2, 6 e 18.
+
+(map string (series 2 3 3))
+;->  ("2" "6" "18")
+
+La lista ora ha tre elementi di tipo stringa. 
+Le funzioni 'map' e 'string' convertono la lista di numeri in una lista di stringhe.
+
+(join (map string (series 2 3 3)) ";")
+;->  "2;6;18"
+
+La funzione 'join' concatena la lista degli elementi stringa ("2" "6" "18") in una stringa "2;6;18" inserendo il carattere ";" tra ogni elemento.
+
+Si noti che l'equivalente più breve (join '("2" "6" "18") ";") ha lo stesso risultato, ma in questo caso è necessario quotare la lista con le tre stringhe. 
+Una lista quotata significa per newLISP "prendere la lista alla lettera", cioè non interpretare il primo elemento come una funzione!
+
+5. Vuoi saperne di più su newLISP?
+----------------------------------------
+Le informazioni precedenti sulla sintassi newLISP sono tutto ciò che devi sapere per iniziare con successo ad utilizzare newLISP nella tua applicazione VisualNeo. 
+Se non vedi l'ora che vengano pubblicati i prossimi tutorial e desideri saperne di più su newLISP, ti consiglio quanto segue:
+
+– https://en.wikibooks.org/wiki/Introduction_to_newLISP è una bella introduzione a newLISP.
+– http://www.newLISP.org/downloads/manual_frame.html fornisce eccellenti informazioni su newLISP.
+
+Grazie per la lettura. Alla prossima volta!
+Reinier Maliepaard
+ultimo aggiornamento: 31-05-2019
 
 =============================================================================
 
