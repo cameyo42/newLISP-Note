@@ -2005,12 +2005,12 @@ NOTE LIBERE 18
   Punti casuali sulla superficie di una sfera
   newLISP per VisualNEO Win. Parte 0: Info
   newLISP per VisualNEO Win. Parte 1: Iniziare
-  newLISP per VisualNEO Win. Parte 2: test di dati
+  newLISP per VisualNEO Win. Parte 2: test sui dati
   newLISP Challenge!
-  newLisp per VisualNEO Win. Parte 3: Stringhe
-  newLisp per VisualNEO Win. Parte 4: Liste
-  newLisp Challenge 2!
-  newLisp per VisualNEO Win. Parte 5: alcuni argomenti
+  newLISP per VisualNEO Win. Parte 3: Stringhe
+  newLISP per VisualNEO Win. Parte 4: Liste
+  newLISP Challenge 2!
+  newLISP per VisualNEO Win. Parte 5: altri quattro argomenti
   
 PROBLEMI SUI DADI
 =================

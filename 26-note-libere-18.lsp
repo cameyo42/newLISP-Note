@@ -5189,7 +5189,7 @@ Possiamo saltare la chiamata alla funzione 'sequence' e passare la lista (1 2 3 
 (ssq '(1 2 3 4 5))
 ;->  55
 
-La lista quotata '(1 2 3 4 5) significa: "prendi questa lista alla lettera", cioè come lista di numeri, come dati. (1 2 3 4 5) senza utilizzare la quotatura "'" verrebbe interpretato da newLISP come la funzione 1 e i suoi parametri 2 3 4 5. 
+La lista quotata '(1 2 3 4 5) significa: "prendi questa lista alla lettera", cioè come lista di numeri, come dati. (1 2 3 4 5) senza utilizzare la quotatura "'" verrebbe interpretato da newLISP come la funzione 1 e i suoi parametri 2 3 4 5.
 Questo comando genererà ovviamente un errore.
 
 4.7 Da lista a stringa
@@ -5211,7 +5211,7 @@ La lista contiene i tre numeri 2, 6 e 18.
 (map string (series 2 3 3))
 ;->  ("2" "6" "18")
 
-La lista ora ha tre elementi di tipo stringa. 
+La lista ora ha tre elementi di tipo stringa.
 Le funzioni 'map' e 'string' convertono la lista di numeri in una lista di stringhe.
 
 (join (map string (series 2 3 3)) ";")
@@ -5219,12 +5219,12 @@ Le funzioni 'map' e 'string' convertono la lista di numeri in una lista di strin
 
 La funzione 'join' concatena la lista degli elementi stringa ("2" "6" "18") in una stringa "2;6;18" inserendo il carattere ";" tra ogni elemento.
 
-Si noti che l'equivalente più breve (join '("2" "6" "18") ";") ha lo stesso risultato, ma in questo caso è necessario quotare la lista con le tre stringhe. 
+Si noti che l'equivalente più breve (join '("2" "6" "18") ";") ha lo stesso risultato, ma in questo caso è necessario quotare la lista con le tre stringhe.
 Una lista quotata significa per newLISP "prendere la lista alla lettera", cioè non interpretare il primo elemento come una funzione!
 
 5. Vuoi saperne di più su newLISP?
 ----------------------------------------
-Le informazioni precedenti sulla sintassi newLISP sono tutto ciò che devi sapere per iniziare con successo ad utilizzare newLISP nella tua applicazione VisualNeo. 
+Le informazioni precedenti sulla sintassi newLISP sono tutto ciò che devi sapere per iniziare con successo ad utilizzare newLISP nella tua applicazione VisualNeo.
 Se non vedi l'ora che vengano pubblicati i prossimi tutorial e desideri saperne di più su newLISP, ti consiglio quanto segue:
 
 – https://en.wikibooks.org/wiki/Introduction_to_newLISP è una bella introduzione a newLISP.
@@ -5233,6 +5233,2060 @@ Se non vedi l'ora che vengano pubblicati i prossimi tutorial e desideri saperne 
 Grazie per la lettura. Alla prossima volta!
 Reinier Maliepaard
 ultimo aggiornamento: 31-05-2019
+
+
+-------------------------------------------------
+newLISP per VisualNEO Win. Parte 2: test sui dati
+-------------------------------------------------
+
+Questo tutorial riguarda le funzioni che verificano condizioni semplici. È possibile eseguire test più complicati combinando funzioni e operatori logici (not, and, or).
+
+newLISP ha i cosiddetti predicati, ovvero funzioni che restituiscono TRUE o NIL dopo aver eseguito un test sul suo argomento.
+Come già sai, NIL è l'equivalente newLISP di FALSE.
+Esistono alcuni predicati incorporati che ti sono utili.
+In questo tutorial ci limiteremo principalmente a numeri e stringhe.
+Le liste di elaborazione verranno trattate in seguito.
+
+Per testare il seguente codice, eseguire l'applicazione di esempio VisualNeo 'mcTestNewLISP.exe' (www.mcdigit.nl/mcTestnewLISP.zip), immettere l'espressione e analizzare il valore restituito.
+
+Si noti che newLISP fa distinzione tra maiuscole e minuscole e utilizza ad es. nomi delle funzioni in minuscolo!
+
+1. Predicati, tipo 1
+--------------------
+I predicati di tipo 1 hanno un argomento.
+Esempi:
+
+(even? 8)
+;->  true
+
+(even? 7)
+;->  nil
+
+un numero in virgola mobile verrà convertito in un numero intero tagliando la sua parte frazionaria:
+
+(even? 8.7)
+;->  true
+
+(odd? 7)
+;->  true
+
+(odd? 8)
+;->  nil
+
+(integer? 123)
+;->  true
+
+(number? 123)
+;->  true
+
+(number? 1.23)
+;->  true
+
+(float? 1.23)
+;->  true
+
+(string? "hello")
+;->  true
+
+(zero? 0)
+;->  true
+
+(null? nil)
+;->  true
+
+Studia il seguente codice VisualNeo Win:
+
+  SetVar "[x]" "1.23"
+  hpwNewLispCall "(number? [x])" "[DllRetvar]"
+  ;->  true
+
+2. Predicati, tipo 2
+--------------------
+I predicati di tipo 2 testano la relazione tra argomenti.
+
+(= (+ 3 3) 6)
+;->  true
+
+(not (= (+ 3 3) 6))
+;->  nil
+
+(null? (!= (+ 3 3) (+ 2 4)))
+;->  true
+
+(< 3 (+ 2 2) 5 (+ 3 3) 7 (+ 4 4))
+;->  true
+
+(> 6.5 7)
+;->  nil
+
+(starts-with "Reinier Maliepaard is my name." "babs|jennifer|reinier")
+;->  nil
+
+Aggiungere il numero 1 come terzo argomento per un controllo senza distinzione tra maiuscole e minuscole.
+
+(starts-with "Reinier Maliepaard is my name." "babs|jennifer|reinier" 1)
+;->  true
+
+Il secondo argomento 'babs|jennifer|reinier' è un esempio di espressione regolare (vedi sezione 4).
+
+(ends-with "My name is Reinier Maliepaard" "reinier maliepaard|babs berg|dean doe" 1)
+;->  true
+
+(member "LISP" "my-newLISP")
+;->  "LISP"
+
+(member "new" "my-newLISP")
+;->  "newLISP"
+
+(member "my" "my-newLISP")
+;->  "my-newLISP"
+
+Se la stringa di ricerca viene trovata, la funzione 'member' restituisce una stringa che inizia con la stringa di ricerca.
+Le funzioni "find" e "find-all", utili anche per i test, sono trattate in un paragrafo successivo.
+
+3. Combinazione di funzioni
+---------------------------
+Gli operatori logici "and" e "or" possono essere utilizzati per combinare due o più predicati in un test più complicato.
+
+(and (number? 123) (number? 456) (> 456 123))
+;->  true
+
+Che succede qui? Tutti e tre gli argomenti vengono valutati in ordine.
+
+Il primo argomento (numero? 123) restituisce true.
+Il secondo argomento (numero? 456) restituisce true.
+Il terzo argomento (> 456 123) restituisce true.
+Ora la funzione "and" verrà applicata agli argomenti.
+Poiché tutti gli argomenti sono true, verrà restituito il valore dell'ultima valutazione.
+
+(and (number? 123) (number? 456) (> 456 123) "456 is greater than 123")
+;->  "456 is greater than 123"
+
+Qui il quarto argomento è la stringa "456 è maggiore di 123".
+Le stringhe verranno sempre valutate su se stesse, restituendo semplicemente il loro valore letterale.
+
+(and (number? 123) (number? 456) (< 456 123) "456 is greater than 123")
+;->  nil
+
+L'argomento (< 456 123) restituisce nil, che è anche il valore restituito.
+Un esempio di codice VisualNeo di funzioni combinate:
+
+  SetVar "[x]" "123"SetVar "[y]" "456"
+  hpwNewLispCall "(and (number? [x]) (number? [y]) (< (- [x] [y]) 0 ))" "[DllRetvar]"
+  ;->  true
+
+4.Funzioni definite dall'utente per i test
+------------------------------------------
+Puoi anche ottenere risultati simili applicando le espressioni regolari.
+La corrispondenza dei modelli di espressione regolare viene eseguita con la funzione newLISP Regex.
+Sebbene questo blog non riguardi le espressioni regolari, è necessario introdurre alcune sintassi di base per comprendere la potenza delle espressioni regolari in newLISP (tornerò di nuovo sulle espressioni regolari più avanti quando descriverò le funzioni newLISP come 'find' e 'replace').
+
+I seguenti metacaratteri svolgono un ruolo importante nelle espressioni regolari:
+
+  - Ancore (Anchors): ^ e $
+  - Quantificatori (Quantifiers): * + ? e {}
+  - operatore OR: | oppure []
+  - Classi di caratteri (Character classes): es. \d \w \s
+
+Gli esempi seguenti ne dimostrano l'utilizzo.
+
+Espressione e corrispondenze (matches):
+
+  [a-c]+
+  Qualsiasi stringa (non vuota) di a, b e c (come a, abba, acbabcacaa).
+  Il quantificatore + significa "uno o più".
+
+  ^[a-c]+$
+  Qualsiasi stringa (non vuota), contenente solo a, b e c.
+  L'ancora ^ si riferisce all'inizio e l'ancora $ alla fine.
+
+  [a-c\s]+
+  Qualsiasi stringa (non vuota) di a, b, c e spazi, tab o newline.
+
+  ^\w+$
+  Una 'parola' (word), ovvero una sequenza non vuota di caratteri alfanumerici e trattini bassi (underscore).
+
+  d+ or [0-9]+
+  Una o più cifre qualsiasi
+
+  ^\d+$
+  Solo una o più cifre. Uguale a ^[0-9]+$.
+
+  ^\d{2}$
+  Una sequenza non vuota di sole due cifre. Uguale a ^[0-9]{2}$.
+
+  ^\d{2}C?$
+  Una sequenza non vuota di sole due cifre, seguita da zero o un carattere C
+  Uguale a ^[0-9]{2}C?$.
+  Il quantificatore ? significa "zero o uno".
+
+  ^[a-zA-Z]{2,3}.*$
+  Qualsiasi stringa (non vuota), che inizia con due o tre caratteri alfabetici seguiti da zero o più caratteri.
+  Il quantificatore * significa "zero o più".
+  Il punto in .* corrisponde a qualsiasi carattere.
+  The dot in .* matches any character.
+
+  ^[a-zA-Z]{2}[\.]{1}.{3}$
+  Qualsiasi stringa (non vuota), che inizia con due caratteri alfabetici seguiti da un punto e tre caratteri.
+
+  \. Corrisponde a un punto (Matches a dot).
+
+4.1 Prova
+---------
+Eseguire l'applicazione di esempio VisualNeo Win 'mcTestNewLISP.exe' (www.mcdigit.nl/mcTestnewLISP.zip), immettere un'espressione regex e analizzare il valore restituito.
+Se non viene trovata alcuna corrispondenza, verrà restituito NIL.
+Per ricercare una stringa non vuota contenente solo una o più a, b, c, si potrebbe scrivere:
+
+(regex "^[a-c]+$" "abcd")
+;->  nil
+
+Estendi il set di caratteri in [a-d] e ci sarà una corrispondenza:
+
+(regex "^[a-d]+$" "abcd")
+;->  ("abcd" 0 4)
+
+Se il valore restituito non è uguale a NIL (come in questo caso) allora esiste una corrispondenza.
+Maggiori informazioni al riguardo nella sezione 4.2.
+Per una corrispondenza senza distinzione tra maiuscole e minuscole, aggiungi l'opzione 1.
+
+(regex "^[A-D]+$" "abcd")
+;->  nil
+
+(regex "^[a-d]+$" "ABCD" 1) or (regex "^[A-D]+$" "abcd" 1)
+;->  ("abcd" 0 4)
+
+4.2 Valore restituito in caso di corrispondenza
+-----------------------------------------------
+Se esiste una corrispondenza, il valore restituito è il tipo di dati più comunemente utilizzato in newLISP: la lista.
+Nell'ultimo esempio di 4.1, il valore restituito è la lista
+
+("abcd" 0 4)
+
+Contiene tre elementi. Il primo elemento è la corrispondenza "abcd".
+Il secondo elemento è l'offset della corrispondenza, l'indice 0.
+Il terzo elemento è la lunghezza della corrispondenza 4.
+
+(regex "[a-e]+" "zzzabcdzzz")
+
+restituisce
+
+;-> ("abcd" 3 4)
+
+La corrispondenza è "abcd", il suo offset è 3 e la sua lunghezza è 4.
+
+Ovviamente puoi elaborare questa lista, ma per ora salteremo questo argomento.
+
+4.3 Invocazione di Regex in hpwNewLispCall
+------------------------------------------
+Per eseguire le espressioni precedenti in hpwNewLispCall, è necessario modificare leggermente le espressioni.
+L'ultimo esempio:
+
+(regex "[a-e]+" "zzzabcdzzz")
+
+dovrebbe essere implementato come:
+
+  hpwNewLispCall "(regex {[#91]a-e[#93]+} {zzzabcdzzz})" "[DllRetvar]"
+
+So
+
+Così
+
+- il doppio apice di apertura "" è sostituito da { e quello di chiusura da }
+- la parentesi quadra [ è sostituita da [#91] e ] da [#93].
+
+Le parentesi graffe sono utili anche quando nell'espressione sono presenti barre rovesciate, come \d
+
+  hpwNewLispCall "(regex {^\d+$} {123})" "[DllRetvar]"
+
+invece di
+
+  hpwNewLispCall "(regex [#34]^\\d+$[#34] [#34]123[#34])" "[DllRetvar]"
+
+5. Esercizi ed esempi
+---------------------
+Test per caratteri alfabetici e numerici
+(regex "[a-zA-Z0-9]+" "123abc")
+;->  ("123abc" 0 6)
+
+Test per caratteri alfabetici e numerici, spazi, tab e newline sono permessi
+(regex "[a-zA-Z0-9\\s]+" "12 3a bc@#&")
+;->  ("12 3a bc" 0 8)
+
+Test per caratteri numerici
+(regex "[0-9]+" "1234")
+;->  ("1234" 0 4)
+
+Test per esattamente 5 caratteri numerici
+(regex {\d{5}} "1234")
+;->  nil
+
+Test per 4 o 5 caratteri numerici
+(regex {\d{4,5}} "1234")
+;->  ("1234" 0 4)
+
+Test per caratteri alfabetici
+(regex "[a-zA-Z]+" "abc")
+;->  ("abc" 0 3)
+
+Test solo per caratteri alfabetici minuscoli
+(regex "[a-z]+" "abc")
+;->  ("abc" 0 3)
+
+Test solo per caratteri alfabetici maiuscoli
+(regex "[A-Z]+" "abc")
+;->  nil
+
+Test per e-mail valide (sì, è possibile creare validatori migliori...)
+(regex "^[a-zA-Z_\.]+@[a-zA-Z_]+?\.[a-zA-Z]{2,4}$" "dean.doe@some_host.info")
+;->  ("dean.doe@some_host.info" 0 23)
+
+Test per data valida con barre 26/04/2019
+(regex {^\d{1,2}\/\d{1,2}\/\d{4}$} {26/04/2019})
+;->  ("26/04/2019" 0 10)
+
+Test per data valida con punti 1.5.2019
+(regex {^\d{1,2}\.\d{1,2}\.\d{4}$} {1.5.2019})
+;->  ("1.5.2019" 0 8)
+
+Test per indirizzi IPv4:
+(regex {^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$} {172.16.254.1})
+;->  ("172.16.254.1" 0 12)
+
+6. Maggiori informazioni sull'esecuzione di test in newLISP
+-----------------------------------------------------------
+Le informazioni precedenti sui predicati e sulle espressioni regolari in newLISP riguardavano il test dei dati.
+Altri predicati e la corrispondenza dei modelli di espressioni regolari (supportati anche in altre funzioni newLISP) verranno trattati in seguito.
+
+Grazie per la lettura. Alla prossima volta!
+Reinier Maliepaard
+(ultimo aggiornamento: 31-05-2019)
+
+
+------------------
+newLISP Challenge!
+------------------
+
+Prima di continuare con il Tutorial 3 su newLISP, facciamo ora alcuni esercizi di programmazione newLISP.
+Devi risolvere alcuni piccoli problemi.
+Per farlo con successo, ricorda il contenuto dei miei primi due tutorial su newLISP.
+Inoltre, puoi utilizzare http://www.newlisp.org/downloads/manual_frame.html per informazioni sulle funzioni newLISP.
+
+[Si noti che per alcuni problemi è possibile trovare soluzioni migliori richiamando altre funzioni rispetto a quelle discusse nei primi due tutorial.]
+
+1. Determinare il valore restituito dalle seguenti espressioni:
+---------------------------------------------------------------
+a. (< 0 1 1 2 3 5 8 13 21 34 55 89 144)
+;->  nil
+
+b. '(+ 1 2 (- 1 2))
+;->  (+ 1 2 (- 1 2))
+
+Nota: un'espressione quotata, cioè un'espressione preceduta da un apostrofo, significa per newLISP: "non valutare questa espressione come una funzione, ma letteralmente, cioè come dati e restituire semplicemente l'espressione senza apostrofo."
+
+c. (add 3E4 (* 2 (pow 10 1)) 7E-2)
+;->  30020.07
+
+d. (and (> (/ 1 5) (* 5 (/ 1 30))) "Math can be very challenging!")
+;->  nil
+
+Nota: vedi perchè (and (> (div 1 5) (mul 5 (div 1 30))) "Math can be very challenging!") restituisce "Math can be very challenging!"?
+
+e. (string? '("newLISP puts the fun back in LISP"))
+;->  nil
+
+Nota: (string? "newLISP puts the fun back in LISP") restiruirebbe il valore true.
+
+f. (or (number? '(100)) (float? 3.1415))
+;->  true
+
+2. Scrivi una singola espressione che verifica se il valore assoluto della sottrazione 2 – 5 è maggiore di 0, ma restituisce il valore nil
+-------------------------------------------------------------
+(not (> (abs (- 2 5)) 0))
+;->  nil
+
+Nota: utilizzando il condizionale 'if' (di cui non abbiamo parlato nei tutorial precedenti), potresti scrivere:
+
+(if (> (abs (- 2 5)) 0) nil true)
+;->  nil
+
+Leggere: if (test-is-successful) then (expression-test-is-successful) else (expression-test-is-not-successful)
+
+Senza la parte facoltativa else: (if (> (abs (- 2 5)) 0) nil) valuta pure a nil.
+
+3. Scrivi una singola espressione che restituisca un valore float, ovvero la differenza tra il valore più alto e quello più basso della seguente serie di quattro numeri: 2 1.5 3 2.7
+-------------------------------------------------------------
+
+(sub (max 2 1.5 4 2.7) (min 2 1.5 4 2.7))
+;->  2.5
+
+Nota: cambia sub in – (meno) e il risultato sarà 3: (- 4 1.5) sarà interpretato come (- 4 1)
+
+4. Scrivi una singola espressione che restituisca un numero casuale compreso tra 1 e 10 (intero) e moltiplica il risultato per 2,5
+-------------------------------------------------------------
+
+(mul (+ 1 (rand 10)) 2.5)
+;->  il risultato potrebbe essere 22.5
+
+Nota: l'espressione (rand 10) genera un numero compreso tra 0 e 9.
+Quindi dobbiamo aggiungere 1 al risultato per ottenere un numero casuale compreso tra 1 e 10: (+ 1 (rand 10))
+
+5. Utilizzare entrambe le funzioni 'zero?' e 'mod' per il problema successivo.
+Non puoi utilizzare la funzione 'even?'
+-------------------------------------------------------------
+Problema: prova in una singola espressione se il numero 10 è pari
+
+(zero? (mod 10 2))
+;->  true
+
+6. Scrivi una singola espressione che concatena la lista degli elementi della stringa ("2" "3" "4") nella stringa "2-3-4"
+-------------------------------------------------------------
+(join '("2" "3" "4") "-")
+;->  "2-3-4"
+
+Nota: il primo parametro della funzione join è una lista di stringhe, in questo caso '("2" "3" "4")
+
+7. Scrivi una singola espressione che calcoli la somma dei quadrati della lista (3 9 27). Questa lista dovrebbe essere il risultato della funzione integrata 'series'
+-------------------------------------------------------------
+(ssq (series 3 3 3))
+;->  819
+
+8. Utilizzare entrambe le funzioni 'zero?' e 'pow' per il problema successivo.
+Non è possibile utilizzare la funzione 'sqrt'.
+-------------------------------------------------------------
+Problema: prova se il numero 9 è diverso da 0 e prova che la differenza tra la radice quadrata di 100 e la radice quadrata di 81 è uguale a 1. Naturalmente in un'unica espressione.
+Problema: prova se il numero 9 è diverso da 0 e prova che la differenza tra la radice quadrata di 100 e la radice quadrata di 81 è uguale a 1. Naturalmente in un'unica espressione.
+
+(and (not (zero? 9)) (= (- (pow 100 0.5) (pow 81 0.5)) 1))
+;->  true
+
+Nota: la sooluzione con il condizionale 'if':
+
+(if (zero? 9) nil (= (sub (pow 100 0.5) (pow 81 0.5)) 1))
+;->  true
+
+or
+
+(if (not (zero? 9)) (= (sub (pow 100 0.5) (pow 81 0.5)) 1))
+;->  true
+
+9. Scrivi una singola espressione che valida la stringa "AbcD XyZ" e mostra che la lunghezza di "AbcD XyZ" è uguale a 8
+-------------------------------------------------------------
+(regex "[a-z ]+" "AbcD XyZ" 1)
+;->  ("AbcD XyZ" 0 8)
+
+Nota: questa espressione con l'opzione di ricerca senza distinzione tra maiuscole e minuscole 1, verifica solo se la stringa AbcD XyZ è composta da caratteri alfabetici e spazi. (regex "[a-d]{4}[ ]{1}[x-z]{3}" "AbcD XyZ" 1)
+
+10. Scrivi una singola espressione che trasformi la lista (2 3 4) nella stringa "3-4-5"
+-------------------------------------------------------------
+(join (map string (map inc '(2 3 4))) "-")
+;->  "3-4-5"
+
+Nota: studiare i seguenti passaggi
+
+(map inc '(2 3 4))
+;->   (3 4 5)
+
+cioè "mappa la funzione inc su ciascun elemento della lista (2 3 4)"
+
+(map string (map inc '(2 3 4)))
+;->   ("3" "4" "5")
+
+cioè "mappa la stringa della funzione su ciascun elemento della lista (3 4 5)"
+
+(join '("3" "4" "5") "-")
+;->   "3-4-5"
+
+Quindi, non ci sono abbastanza domande?
+Ok, un'ultima complicazione:
+
+11. Scrivi una singola espressione che
+-------------------------------------------------------------
+– restituisce una sottostringa contenente le ultime tre parole di "To be or not to be"
+– e verifica se la sottostringa ha effettivamente tre parole, separate da uno spazio;
+– la sottostringa non ha spazi all'inizio e alla fine
+(regex "^\\w+[ ]{1}\\w+[ ]{1}\\w+$" (member "not" "to be or not to be"))
+;->  ("not to be" 0 9)
+
+Per evitare le doppie barre rovesciate, utilizzare le parentesi graffe:
+
+(regex {^\w+[ ]{1}\w+[ ]{1}\w+$} (member "not" "to be or not to be"))
+;->  ("not to be" 0 9)
+
+Grazie per la lettura. Alla prossima volta!
+Reinier Maliepaard
+(ultimo aggiornamento: 24-06-2019)
+
+
+--------------------------------------------
+newLISP per VisualNEO Win. Parte 3: Stringhe
+--------------------------------------------
+
+In newLISP, i tipi di dati stringhe, array unidimensionali e liste hanno molto in comune: sono tutte sequenze di alcuni elementi – in un ordine specifico.
+Non sorprende che molte delle funzioni integrate del newLISP possano essere applicate a stringhe, array e liste.
+
+In qualità di sviluppatore di newLISP, Lutz Mueller ha scritto:
+
+"Molte delle funzioni integrate di newLISP sono polimorfiche e accettano una varietà di tipi di dati e parametri opzionali.
+Ciò riduce notevolmente il numero di funzioni e forme sintattiche necessarie da apprendere e implementare."
+
+Ad esempio, la funzione 'length' può essere applicata a:
+
+1. una stringa:
+
+(length "Hello World")
+;->  11
+
+2. un vettore (array) unidimensionale:
+
+(length '(1 2 3 4 5))
+;->  5
+
+3. una lista:
+
+(length '(a b (c d) e))
+;->  4
+
+Questo tutorial riguarda le stringhe. Perché?
+Le funzioni di stringa di newLISP sono ottime per gli utenti VisualNEO.
+Nel frattempo impariamo, inconsciamente, la possibile applicazione di funzioni su vettori e liste (di cui parleremo nei tutorial successivi).
+Si noti che ho selezionato solo le funzioni newLISP che non hanno equivalenti diretti in VisualNEO.
+A volte le funzioni VisualNeo e newLISP fanno più o meno la stessa cosa.
+Ma ricorda che una delle potenti funzionalità di newLISP è la combinazione di diverse funzioni in un'unica espressione.
+
+Supponendo che tu abbia installato il plugin newLISP di Hans-Peter Wickern (https://visualneo.com/product/hpwnewlisp), probabilmente saprai come implementare il codice newLISP nel tuo script VisualNEO:
+
+  hpwNewLispCall "(length {Hello World})" "[DllRetvar]"
+  Alertbox "Result" "[DllRetvar]"
+
+Se necessario, rileggi il mio primo e secondo tutorial.
+
+Ok, diamo un'occhiata ad alcune funzioni che operano sulle stringhe.
+
+Sezione 1. Operazioni base sulle stringhe
+-----------------------------------------
+Le nuove funzioni LISP 'minuscolo' e 'maiuscolo' fanno ciò che ci aspettiamo e hanno i loro equivalenti VisualNeo. Altre due funzioni estendono i comandi VisualNeo.
+
+1.1 'reverse'
+-------------
+La funzione 'reverse' inverte una stringa:
+
+(reverse "the name reinier is a palindrom")
+;->  "mordnilap a si reinier eman eht"
+
+1.2 'title-case'
+----------------
+Per rendere maiuscolo il primo carattere di una stringa, dopo aver rimosso gli spazi all'inizio e alla fine di una stringa:
+
+(title-case (trim " reinier h. maliepaard    "))
+;->  "Reinier h. maliepaard"
+
+(cosa fa la funzione 'trim', vedere 1.5.2)
+
+1.3 'title-case' su sottostringhe
+---------------------------------
+Se la stringa di risultato nell'esempio precedente avrebbe dovuto essere "Reinier H. Maliepaard", abbiamo
+
+– per fare il parsing di una stringa in una lista di stringhe
+– per mappare 'title-case' a ciascun elemento di questa lista e
+– per unire questa lista modificata in una stringa
+
+(join (map title-case (parse "reinier h. maliepaard")) " ")
+;->  "Reinier H. Maliepaard"
+
+1.4 Sooostringhe
+----------------
+L'estrazione di sottostringhe dalle stringhe è semplice: contare in avanti dal taglio (interi positivi, 0 compreso) o all'indietro dalla fine (interi negativi).
+Gli indici negativi sono una caratteristica interessante per gli utenti di VisualNeo.
+
+("0123456" 0)
+;->  "0"
+
+Soluzione alternativa:
+(first "0123456")
+;->  "0"
+
+("0123456" -1)
+;->  "6"
+
+Soluzione alternativa:
+(last "0123456")
+;->  "6"
+
+La funzione 'slice' ti dà una nuova sezione di una stringa esistente.
+
+(slice "0123456" -1 1)
+;->  "6"
+
+(slice "0123456" -2 2)
+;->  "56"
+
+(slice "0123456" 3)
+;->  "3456"
+
+(slice "0123456" 3 -1)
+;->  "345"
+
+(slice "0123456" 3 -2)
+;->  "34"
+
+Puoi anche usare una variante più breve:
+– rimuovi 'slice' e
+– metti l'intervallo di numeri all'inizio.
+
+L'ultimo esempio potrebbe anche essere scritto come
+
+(3 -2 "0123456")
+;->  "34"
+
+Notare l'uso di 'rest' come alternativa a (slice "0123456" 1 6):
+
+(rest "0123456")
+;->  "123456"
+
+che è lo stesso di
+
+(1 "0123456")
+;->  "123456"
+
+(3 "0123456")
+;->  "3456"
+
+ecc.
+
+1.5 Modificare l'inizio e/o la fine delle stringhe
+--------------------------------------------------
+
+1.5.1 'chop'
+------------
+La funzione 'chop' rimuove i caratteri dalla fine di una stringa.
+L'impostazione predefinita rimuove l'ultimo carattere.
+
+(chop "Hello")
+;->  "Hell"
+
+Per rimuovere 3 caratteri alla fine, aggiungere il parametro 3:
+
+(chop "Hello" 3)
+;->  "He"
+
+1.5.2 'trim'
+------------
+La funzione 'trim' rimuove i caratteri dall'inizio e dalla fine di una stringa.
+Predefinito: rimozione degli spazi.
+
+(trim "        123       ")
+;->  "123"
+
+(trim  "——123——" "-")
+;->  "123"
+
+(trim "——123******" "-" "*")
+;->  "123"
+
+(trim "——123******" "-")
+;->  "123******"
+
+(trim "——123******" "*")
+;->  "——123"
+
+1.6 Modifying strings with 'setf' and 'replace'
+-----------------------------------------------
+
+1.6.1 'setf'
+------------
+Con la funzione 'setf' è possibile modificare i caratteri di una stringa (lista e array) tramite i loro numeri di indice.
+Per vedere come funziona esattamente 'setf', utilizziamo una variabile, definita con 'setq'.
+
+;definisci una variabile con 'setq'
+(setq my-string "reinier h. maliepaard")
+
+;sostituisci il primo carattere 'r' (numero di indice 0) con 'R'
+(setf (my-string 0) "R")
+;->  "R"
+
+;la stringa originale è stata modificata
+my-string
+;->  "Reinier"
+
+Se non vuoi modificare definitivamente la stringa originale (quindi 'setf' è chiamata funzione distruttiva), usa la funzione 'copy':
+
+(setf ((setq result-string (copy my-string)) 0) "R")
+;->  "R"
+
+my-string
+;->  "reinier"
+
+result-string
+;->  "Reinier"
+
+1.6.2 'replace'
+---------------
+Nessuna sorpresa, la funzione 'replace' (anche distruttiva) è molto potente usando le espressioni regolari (studia il tutorial2 per informazioni sulla sintassi di base delle espressioni regolari).
+Inoltre, 'replace' con le espressioni regolari imposta anche le variabili interne di sistema $0, $1, $2, fino a $15 con il contenuto delle espressioni e sottoespressioni trovate.
+Ultimo ma non meno importante, la funzione 'replace' ha un'opzione "sostituisci solo la prima corrispondenza".
+
+;il parametro 0 indica una ricerca con distinzione tra maiuscole e minuscole
+(replace "a" "aAa" "X" 0)
+;->  "XAX"
+
+;il parametro 1 indica una ricerca senza distinzione tra maiuscole e minuscole
+(replace "a" "aAa" "X" 1)
+;->  "XXX"
+
+Gli esempi precedenti possono essere facilmente eseguiti con StrReplace di VisualNeo.
+Ma i prossimi esempi sono piuttosto complicati da realizzare in VisualNeo.
+
+;il parametro 0x8000 indica l'opzione 'sostituisci solo la prima corrispondenza'
+(replace "a" "aAa" "X" 0x8000)
+;->  "XAa"
+
+;ora in combinazione con l'espressione regolare a|A, ovvero corrisponde al carattere 'a' o 'A'
+(replace "a|A" "AaA" "X" 0x8000)
+;->  "XaA"
+
+(replace "a|A" "aaA" "X" 0x8000)
+;->  "XaA"
+
+;le sottoespressioni trovate vengono restituite nelle variabili di sistema $1, $2 ecc.
+;$3 contiene la terza sottoespressione, $2 la seconda e $1 la prima
+;quindi '123' verrà restituito come '321' e '193' come '391'
+
+(setq my-string "—123—193—")
+(replace "(1)(.)(3)" my-string (append $3 $2 $1) 0)
+;->  "—321—391—"
+
+La funzione 'append' incolla insieme le stringhe: vedere 2.2
+
+;Le espressioni trovate vengono restituite nelle variabili di sistema $0
+(replace "t|b|n" "to be or not to be" (upper-case $0) 0)
+;->  "To Be or NoT To Be"
+
+1.6.3 'rotate'
+--------------
+(setq str "0123456")
+
+;a destra
+(rotate str 1)
+;->  "6012345"
+
+;a sinistra
+(rotate str -1)
+;->  "1234560"
+
+(rotate str 2)
+;->  "5601234"
+
+(rotate str -2)
+;->  "2345601"
+
+Sezione 2: creare stringhe
+--------------------------
+Sebbene VisualNeo disponga di diversi strumenti per creare una stringa, diamo una breve occhiata a come è possibile creare stringhe in newLISP.
+
+2.1 Costruisci una stringa con le funzioni 'sequence', 'char' a 'join'
+----------------------------------------------------------------------
+(char "a")
+;->  97
+
+(char 97)
+;->  "a"
+
+(sequence (char "a") (char "z"))
+;->  (97 98 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117  118 119 120 121 122)
+
+(map char (sequence (char "a") (char "z")))
+;->  ("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z")
+
+To transform this list of separated strings into one string, use the function 'join':
+
+(join (map char (sequence (char "a") (char "z"))))
+;->  "abcdefghijklmnopqrstuvwxyz"
+
+To make a CSV string, add an extra parameter to 'join':
+
+(join (map char (sequence (char "a") (char "z"))) ";")
+;->  "a;b;c;d;e;f;g;h;i;j;k;l;m;n;o;p;q;r;s;t;u;v;w;x;y;z"
+
+2.2 La funzione 'append' incolla insieme le stringhe
+----------------------------------------------------
+La funzione 'append' funziona sulle stringhe:
+
+(append "Hello" " world " "of newLISP!")
+;->  "Hello world of newLISP!"
+
+(append "Today " "it " "is " (date))
+;->  "Today it is Tue Jun 25 13:23:44 2019"
+
+Tieni presente che (date) restituisce una stringa.
+
+2.3 'string' come potente alternativa a 'append'
+------------------------------------------------
+Più potente di "append" è la funzione stringa: converte gli argomenti in stringhe e li aggiunge in un unico passaggio:
+
+(string "The expression " '(sequence 1 10) " produces – if unquoted! – the list " (sequence 1 10))
+;->  "The expression (sequence 1 10) produces – if unquoted! – the list (1 2 3 4 5 6 7 8 9 10)"
+
+2.4 'dup' per ripetizioni di caratteri all'interno di una stringa
+-----------------------------------------------------------------
+(dup "AB" 5)
+;->  "ABABABABAB"
+
+Sezione 3: 'find' e 'find-all'
+------------------------------
+Le funzioni 'find' e 'find-all' fanno ciò che suggerisce il nome.
+Queste funzioni sono strumenti potenti se combinate con le espressioni regolari.
+Alcuni esempi, tralasciando le applicazioni che assomigliano alla funzione VisualNeo SearchStr.
+
+;l'opzione 0 in 'find' come in altre funzioni di stringa newLISP si riferisce alla distinzione tra maiuscole e minuscole e 1 a senza distinzione tra maiuscole e minuscole:
+
+(find "cat|dog" "I have a cat" 0)
+;->  9
+
+(find "cat|dog" "I have a CAT" 0)
+;->  nil
+
+;senza distinzione tra maiuscole e minuscole
+(find "cat|dog" "I have a CAT" 1)
+;->  9
+
+;usa un offset opzionale per cercare da una posizione specifica, qui dall'indice numero 12
+(find "cat|dog" "I have a cat and a dog" 0 12)
+;->  19
+
+Sezione 4: 10 problemi da cui imparare...
+-----------------------------------------
+
+Problema 1: qual è l'ultimo carattere di una stringa?
+-------------------------------------------------------------
+Soluzione:
+(last "A secret message")
+;->  e
+
+Problema 2: scegliere uno o più caratteri dalla stringa
+-------------------------------------------------------------
+Soluzione:
+(select "abcdef" -2 -1 0)
+;->  "efa"
+
+Problema 3: convertire il primo carattere di una stringa in maiuscolo e gli altri caratteri di quella stringa in minuscolo
+-------------------------------------------------------------
+Soluzione:
+(title-case "bABS" true)
+;->  "Babs"
+
+Problema 4: ritagliare i caratteri da entrambi i lati oppure solo un lato
+-------------------------------------------------------------
+Soluzione:
+;tagliare il carattere dalla fine
+(trim "aaa12345z" "" "z")
+;->  "aaa12345"
+
+;tagliare il carattere dall'inizio
+(trim "a12345zz" "a" "")
+;->  "12345zz"
+
+;tagliare il carattere dalla fine e dall'inizio
+(trim "aa12345zzz" "a" "z")
+;->  "12345"
+
+;codice predefinito breve: taglia gli spazi da entrambi i lati
+(trim " 12345  ")
+;->  "12345"
+
+Problema 5: sostituire tutti i caratteri di una stringa con un carattere specificato
+-------------------------------------------------------------
+Cosa sapere:
+un'espressione regolare che fa riferimento a tutti i caratteri: \.
+
+Soluzione:
+(replace "\." "abcdef" "X" 1)
+;->  "XXXXXX"
+
+Problema 6: sostituire tutte le cifre di una stringa con un carattere specificato
+-------------------------------------------------------------
+Cosa sapere:
+un'espressione regolare che fa riferimento ai numeri: \d
+
+Soluzione:
+(replace "\\d" "a1c2e3" "X" 0)
+;->  "aXcXeX"
+
+Problema 7: fornire la posizione del primo carattere di una stringa inclusa in un dato sottoinsieme
+-------------------------------------------------------------
+Cosa sapere:
+classe di caratteri dell'espressione regolare: [x|y|z]
+
+Soluzione:
+(find "[x|y|z]" "abczef" 0)
+;->  3
+
+Problema 8: dare la posizione del primo carattere di una stringa che non è inclusa in un dato sottoinsieme
+-------------------------------------------------------------
+Cosa sapere:
+classe di espressione regolare dei caratteri inclusi: [x|y|z]
+classe di espressioni regolari di caratteri esclusi: [^x|y|z]
+
+Soluzione:
+(find "[^x|y|z]" "zabcxef" 0)
+;->  1
+
+Problema 9: crittografare e decrittografare una stringa
+-------------------------------------------------------------
+(setq secret (encrypt "A secret message" "my secret key"))
+;->  ",YS\022\006\017\023\017TM\014\022\n\012\030E"
+
+(encrypt secret "my secret key")
+;->  "A secret message"
+
+Problema 10: dividere una stringa in 5 gruppi di caratteri dopo aver eliminato i caratteri di interpunzione ! . e spazio
+-------------------------------------------------------------
+(setq secret "A secret message. A secret key, a secret agent!")
+(explode (replace "[,!\. ]" secret "" 0) 5)
+;->  ("Asecr" "etmes" "sageA" "secre" "tkeya" "secre" "tagen" "t")
+
+Grazie per la lettura. Alla prossima volta!
+Reinier Maliepaard
+(ultimo aggiornamento: 22-07-2019)
+
+
+-----------------------------------------
+newLISP per VisualNEO Win. Parte 4: Liste
+-----------------------------------------
+
+Nei tutorial precedenti abbiamo già incontrato il tipo di dati newLISP più importante, la lista.
+Tecnicamente una lista è una sequenza di uno o più elementi, separati da uno spazio e circondati da parentesi bilanciate (notare che esiste una lista vuota anche in newLISP).
+
+Ricordare:
+Le parentesi attorno a una lista identificano un'unità che può memorizzare dati, ma può anche chiamare e definire le funzioni.
+
+Quest'ultima opzione "chiamare e definire le funzioni" verrà discussa in un altro tutorial.
+
+Qualche esempio:
+
+;una lista di atomi numerici, o numeri, aventi cinque elementi
+(1 2 3 4 5)
+
+;una lista di tre elementi stringa
+("Reinier" "newLISP" "VisualNEO")
+
+;una lista contenente una stringa
+("this-is-the-only-string-in-this-list")
+
+;una lista di atomi simbolici, o simboli, aventi quattro elementi
+(FOO A1$2 I-AM-A-SYMBOL BWV545)
+
+I simboli possono servire come, per esempio, una variabile o il nome di una funzione (vedi sotto).
+
+Una lista può combinare diversi tipi di elementi.
+
+;una lista con numeri, stringhe e simboli, composto da sette elementi
+(5 "my-number" A B "c" 3.14 PI)
+
+Una lista può anche essere un elemento di una lista.
+
+;una lista con una lista "annidata" (nidificata).
+(1 (A1 B2,4 Hello! z-score) "2")
+
+Si noti che questa lista ha tre elementi. Per essere sicuro:
+
+(length (1 (A1 B2,4 Hello! z-score) "2"))
+;->  3
+
+Il secondo elemento, la sottolista
+
+(A1 B2,4 Hello! z-score)
+
+ha quattro elementi.
+
+Nota che lo spazio è il separatore predefinito all'interno di una lista, quindi
+– B2,4 è un elemento, nonostante la sua virgola
+– Ciao! è un elemento, nonostante il punto esclamativo.
+– e z-score è un elemento, nonostante il segno meno.
+
+Le liste annidate rendono possibili le cosiddette 'liste di associazione', che sono molto utili: vedere la Sezione 5.
+
+Gli elementi di una lista nei miei tutorial newLISP fino ad ora sono numeri, stringhe, simboli e liste.
+Sorge la domanda: in che modo newLISP valuta questi tipi di dati?
+Studia i prossimi esempi:
+
+;Reinier is the son of Balten
+(son Balten Reinier)
+;Reinier is the father of Daniel
+(father Daniel Reinier)
+
+Qui il nostro piccolo database contiene solo simboli.
+Fornisce informazioni sui rapporti familiari: Balten è il nonno di Daniel.
+Ma questi elementi non hanno alcun significato per newLISP: si valutano da soli - sono presi alla lettera - proprio come numeri e stringhe.
+
+(add 1.5 2.6)
+;->  4.1
+
+In questo caso, newLISP riconosce il simbolo 'add' come funzione e interpreta i due numeri 1.5 e 2.6 come argomenti.
+Verrà valutata l'espressione, cioè: elaborazione della funzione 'add' con due argomenti e restituzione di un valore (qui la somma tra i due numeri 1.5 e 2.6).
+
+(setq x 12)
+;->  12
+
+(+ x 13)
+;->  25
+
+Qui il simbolo 'x' è una variabile: il valore 12 è assegnato a 'x'.
+Quindi, 13 viene aggiunto a "x", il che dà come risultato 25.
+
+Quindi più precisamente, una lista può contenere atomi (ad esempio numeri, stringhe e simboli) e/o liste.
+I simboli possono avere il ruolo di identificatori, denominare variabili o funzioni.
+Per ora ti basta sapere questo.
+
+Una piccola nota sulle stringhe: le stringhe e le liste appartengono al tipo di dati sequenza (= insieme ordinato di elementi). Hanno molte funzioni in comune.
+
+Diamo ora un'occhiata a come elaborare le liste.
+Ho fatto di nuovo esempi di semplici espressioni newLISP.
+Ma credetemi, le liste si prestano a costrutti molto complessi.
+
+Sezione 1. Elaborazione delle liste
+-----------------------------------
+
+1.1 Restituisce il primo elemento della lista
+---------------------------------------------
+(first '(1 2 3 4 5))
+;->  1
+
+Si noti che se una lista è un argomento di una funzione (qui la funzione 'first'), deve essere racchiusa tra virgolette (= presa alla lettera): vedere la sezione 2.
+
+(first '((1 2 3) 4 5))
+;->  (1 2 3)
+
+1.2 Restituisce l'ultimo elemento della lista
+---------------------------------------------
+(last '(1 2 3 4 5))
+;->  5
+
+1.3 Restituisce tutti gli elementi di una lista, tranne il primo
+----------------------------------------------------------------
+(rest '(1 2 3 4 5))
+;->  (2 3 4 5)
+
+Si noti che il valore restituito è una lista.
+
+(first (rest '(1 2 3 4 5)))
+;->  2
+
+1.4 Restituire valori tramite indicizzazione implicita
+------------------------------------------------------
+(setq mc-list '(1 2 3 4 5))
+;->  (1 2 3 4 5)
+
+(1 mc-list)
+;->  (2 3 4 5)
+
+che equivale alla funzione 'rest'.
+
+(2 mc-list)
+;->  (3 4 5)
+
+che equivale a (rest (rest '(1 2 3 4 5)))
+
+(0 1 mc-list)
+;->  (1)
+
+(2 -1 mc-list)
+;->  (3 4)
+
+1.5 Liste annidate
+------------------
+(setq mc-list '(1 (2 3) 4 5))
+;->  (1 (2 3) 4 5)
+
+Questa lista ha 4 elementi. Il secondo elemento è:
+
+(1 1 mc-list)
+;->  ((2 3))
+
+Il quarto elemento è:
+
+(3 1 mc-list)
+;->  (5)
+
+Il quinto elemento è la fine della lista:
+
+(4 1 mc-list)
+;->  ()
+
+Sì, una lista vuota.
+
+1.6 Modificare una lista
+------------------------
+
+1.6.1 'setf'
+------------
+Con la funzione 'setf' è possibile modificare i caratteri di una lista (stringa o vettore) tramite i loro numeri di indice.
+
+;definisci una variabile con 'setq'
+(setq my-list '("a" "b" "c" "a"))
+
+;sostituire la prima "a" (numero indice 0) con "D"
+(setf (my-list 0) "D")
+;->  "D"
+
+;la lista originale è stata modificata
+my-list
+;->  ("D" "b" "c" "a")
+
+Vedi tutorial 3, 1.6.1 se non vuoi modificare la lista originale.
+
+1.6.2 set-ref, set-ref-all e replace
+------------------------------------
+(setf (my-list 0) "D")
+
+ha un'alternativa:
+
+(set-ref "a" my-list "D")
+
+che sostituisce la prima occorrenza.
+
+Per sostituire tutte le corrispondenze potresti usare 'set-ref-all'.
+
+(setq my-list '("a" "b" "c" "a"))
+;->  ("a" "b" "c" "a")
+
+(set-ref-all "a" my-list "D")
+;->  "D"
+
+my-list
+;->  ("D" "b" "c" "D")
+
+Naturalmente la funzione 'replace' svolge molto bene il suo lavoro sulle liste.
+Vedi www.newlisp.org/downloads/manual_frame.html
+Of course, the function 'replace' does its job on lists very well. See www.newlisp.org/downloads/manual_frame.html
+
+1.6.3 'push' e ' pop'
+---------------------
+La funzione 'push' aggiunge un nuovo elemento all'inizio di una lista se non è specificato alcun numero di indice.
+Nel prossimo esempio viene aggiunta una "X" alla fine della lista perché è dato il numero di indice -1.
+
+(setq my-list '("a" "b" "c" "a"))
+;->  ("a" "b" "c" "a")
+
+(push "X" my-list -1)
+;->  ("a" "b" "c" "a" "X")
+
+Nell'esempio successivo il numero di indice 1 si riferisce alla seconda posizione della lista, dove è inserita "Y":
+
+(push "Y" my-list 1)
+;->  ("a" "Y" "b" "c" "a" "X")
+
+La funzione 'pop' rimuove un elemento della lista:
+
+(pop my-list 0) ;lo stesso dell'impostazione predefinita (pop mylist)
+;->  "a"
+
+my-list
+;->  ("Y" "b" "c" "a" "X")
+
+1.7. Convertire una lista in stringa
+------------------------------------
+Per convertire una lista in una stringa, puoi usare la funzione 'format':
+
+(format "%d %d %d" '(1 2 3))
+"1 2 3"
+
+(format "%f %d %f" '(1.1 2 3.2))
+"1.100000 2 3.200000"
+
+oppure meglio:
+
+(format "%0.2f %d %0.1f" '(1.1 2 3.2))
+"1.10 2 3.2"
+
+(format "%0.2e %d %0.1f" '(1.1 2 3.2))
+"1.10e+00 2 3.2"
+
+(format "%s %s %s" '("a" "b" "c"))
+"a b c"
+
+(format "%c %c %c" '(65 66 67))
+"A B C"
+
+dove le cifre si riferiscono a valori ASCII in decimale.
+
+Il % (segno di percentuale) negli esempi precedenti avvia una specifica del formato: vedere la tabella seguente.
+
+formato  descrizione
+  s      text string
+  c      character (value 1 – 255)
+  d      decimal (32-bit)
+  u      unsigned decimal (32-bit)
+  x      hexadecimal lowercase
+  X      hexadecimal uppercase
+  o      octal (32-bits) (not supported on all of newLISP flavors)
+  f      floating point
+  e      scientific floating point
+  E      scientific floating point
+  g      general floating point
+
+Maggiori informazioni nella sezione 3.
+
+1.8. Lista o stringa?
+--------------------
+Probabilmente nella maggior parte dei casi le stringhe sono più convenienti per gli utenti di VisualNeo rispetto alle liste.
+Inoltre, è possibile applicare a una stringa molte funzioni di lista.
+Tuttavia, per comprendere completamente alcune utili funzioni newLISP, è necessario saperne di più sulle liste: vedere la Sezione 3.
+Ancora più importante, nella Sezione 5 incontrerete liste speciali che vi saranno utili.
+
+Sezione 2. Quotazione di una lista
+----------------------------------
+Come già detto, una lista come argomento in una funzione deve essere quotata (= presa alla lettera). Abbiamo già visto un esempio:
+
+Come già detto, una lista come argomento in una funzione deve essere racchiusa quotata (= presa alla lettera). Abbiamo già visto un esempio:
+
+(first '(1 2 3 4 5))
+;->  1
+
+Perchè è necessario quotare?
+Perché newLISP interpreta il primo elemento di una lista come una funzione e gli altri elementi come argomenti di quella funzione. Non citare la lista comporta un errore:
+
+(first (1 2 3 4 5))
+;->  ERR: illegal parameter type in function first : 2
+
+Ricordati che dimenticare di quotare una lista è una delle cause più comuni di bug nei programmi newLISP.
+
+Sezione 3. Una squadra d'oro di funzioni newLISP: 'join', 'map' e 'apply'
+-------------------------------------------------------------------------
+Gli utenti di VisualNeo possono gestire facilmente le liste, grazie alle tre funzioni 'join', 'map' e 'apply'.
+
+3.1 'join' (e 'explode')
+------------------------
+La funzione 'join' concatena la lista di stringhe fornita in una lista contenente una stringa.
+
+(join '("a" "b" "c"))
+;->  ("abc")
+
+(join '("a" "b" "c") "*")
+;->  ("a*b*c")
+
+(join '("a" "b" "c") "*" true)
+;->  ("a*b*c*")
+
+La funzione 'explode' ha un'operazione inversa di 'join':
+
+(explode "newLISP")
+;->  ("n" "e" "w" "L" "I" "S" "P")
+
+(join (explode "newLISP"))
+;->  "newLISP"
+
+3.2 'map'
+---------
+La funzione 'map' applica successivamente una funzione ai suoi argomenti, restituendo tutti i risultati in una lista.
+
+(map upper-case '("a" "b" "c"))
+;->  ("A" "B" "C")
+
+(map + '(1 1 1) '(1 2 3))
+;->  (2 3 4)
+
+3.3 'apply'
+-----------
+La funzione 'apply' applica una funzione ai suoi argomenti nel loro insieme (e non come la funzione 'map' elemento per elemento).
+
+(apply + '(1 2 3))
+;->  6
+
+che è lo stesso di
+
+(+ 1 2 3)
+;->  6
+
+Si noti che 'map' restituisce una lista, mentre 'apply' restituisce una stringa.
+
+(map upper-case '("abc"))
+;->  ("ABC")
+
+(apply upper-case '("abc"))
+;->  "ABC"
+
+Sezione 4. Imparare con l'esempio
+---------------------------------
+In questa sezione ti presenterò alcuni problemi e le relative soluzioni.
+Incontrerai nuove funzioni, che lavorano insieme a 'join', 'map' e 'apply'.
+Una lista o una stringa è l'input e una stringa l'output.
+
+4.1. Rimuovere i duplicati in una lista
+---------------------------------------
+(join (map string (unique '(1 1 2 2 2 2 2 2 2 3 2 4 4 3 2 4))))
+;->  "1234"
+
+Per rimuovere i duplicati in una stringa, potresti scrivere:
+
+(join (unique (explode "1122222223244324")))
+;->  "1234"
+
+Tieni presente che "unique" funziona più velocemente con una lista ordinata.
+
+(join (map string (unique (sort '(1 1 2 2 2 2 2 2 2 3 2 4 4 3 2 4)))))
+;->  "1234"
+
+(join (unique (sort (explode "1122222223244324"))))
+;->  "1234"
+
+4.2. Quali elementi della lista 1 non si trovano nella lista 2?
+---------------------------------------------------------------
+(join (map string (difference '(2 5 6 0 3 5 0 2) '(1 2 3 3 2 1))) "-")
+;->  "5-6-0"
+
+La stessa domanda può essere applicata alle stringhe: quali caratteri nella stringa 1 non sono nella stringa 2?
+
+(join (difference (explode "25603502") (explode "123321")) "-")
+;->  "5-6-0"
+
+4.3. Quali caratteri hanno in comune la lista 1 e la lista 2?
+-------------------------------------------------------------
+(join (map string (intersect '(3 0 1 3 2 3 4 2 1) '(1 4 2 5)) ) "-")
+;->  "2-4-1"
+
+4.4. Arrotonda (ceil) i numeri di una lista e restituisce una stringa csv
+-------------------------------------------------------------------------
+(join (map string (map ceil '(1.01 2.53 3.64))) "-")
+;->  "2-3-4"
+
+Se hai una stringa CSV con numeri float, puoi eseguire un'operazione simile:
+
+(join (map string (map ceil (map float (parse "1.01;2.53;3.64" ";"))) ) "-")
+;->  "2-3-4"
+
+4.5. Combina gli elementi di due liste in una stringa csv a due elementi
+------------------------------------------------------------------------
+(join (map append '("cats" "dogs" "birds") (dup " " 3 true) '("miaow" "bark" "tweet")) ";")
+;->  "cats miaow;dogs bark;birds tweet"
+
+Capisci cosa fa?
+
+(dup " " 3 true)
+
+Bene, restituisce una lista con tre stringhe:
+
+(" " " " " ")
+
+Notare che
+
+(dup " " 3)
+
+restituisce una stringa contenente tre spazi: "   "
+
+Se hai una stringa csv come input, potresti scrivere:
+
+(join (map append (parse "cats;dogs;birds" ";") (dup " " 3 true) (parse "miaow;bark;tweet" ";")) ";")
+;->  "cats miaow;dogs bark;birds tweet"
+
+Si noti che il numero 3 nella funzione 'dup' potrebbe essere sostituito da:
+
+(length '("cats" "dogs" "birds")) or (length (parse "cats;dogs;birds" ";"))
+
+4.6. Invertire ogni parola di una lista e restituire una stringa csv
+--------------------------------------------------------------------
+Lista: (to be or not to be!)
+
+Ricorda che:
+
+(reverse '(To be or not to be!))
+;->  (be! to not or be To)
+
+stampa la lista originale al contrario (il che è vero anche se l'argomento è una stringa).
+
+Ora dobbiamo usare la funzione 'map' per applicare la funzione 'reverse' a ciascuna parola.
+
+(join (map reverse (map string '(To be or not to be!))) " ")
+;->  "oT eb ro ton ot !eb"
+
+Quindi la lista viene trasformata in una lista di stringhe.
+Otteniamo lo stesso risultato con la funzione 'parse' applicata ad una stringa.
+
+(join (map reverse (parse "To be or not to be!")) " ")
+;->  "oT eb ro ton ot !eb"
+
+Sezione 5. Elaborazione avanzata delle liste
+--------------------------------------------
+Le cosiddette liste di associazione, in realtà una serie di liste nidificate -composte da due elementi-, sono un'estensione davvero carina della lista.
+
+((1 "a") (2 "b") (3 "c"))
+
+Essenziale per una lista di associazioni è che il primo elemento della coppia di elementi sia un indice del secondo.
+Due funzioni sono rilevanti qui: 'assoc' e 'lookup' estraggono i dati della lista di associazione
+
+5.1. 'assoc'
+------------
+(setq mc-data '((1 "a") (2 "b") (3 "c")))
+(assoc 3 mc-data)
+;->  (3 "c")
+
+5.2. 'lookup'
+-------------
+(setq mc-data '((1 "a") (2 "b") (3 "c")))
+(lookup 3 mc-data)
+;->  "c"
+
+A proposito, questo esempio può anche essere realizzato con vettore multidimensionale (di cui parleremo in un prossimo tutorial), che sembrano essere più veloci.
+
+5.3. 'assoc' con 'rest'
+-----------------------
+Naturalmente queste funzioni possono essere combinate con altre funzioni di elaborazione delle liste.
+Esempio:
+
+(setq mc-data '((1 (a b)) (2 (b c)) (3 (c d))))
+(rest (assoc 3 mc-data))
+;->  ((c d))
+
+che è quasi equivalente a:
+
+(lookup 3 mc-data)
+;-> (c d)
+
+Per ottenere lo stesso risultato invece di ((c d)) -una lista all'interno di una lista-, applica 'flat':
+
+(flat (rest (assoc 3 mc-data)))
+;->  (c d)
+
+5.4. 'find-all'
+---------------
+Utilizzare 'find-all' per cercare un sottoelenco in un elenco di associazioni che corrisponde a un modello.
+'trova tutto' accetta i caratteri jolly (wildcard).
+
+(setq math-score-semester-1-2019 '((John 7) (Tim 6) (Grace 8) (Jessica 7) ))
+
+(find-all '(* 7) math-score-semester-1-2019)
+;->  ((John 7) (Jessica 7))
+
+Oppure solo i nomi utilizzando la variabile di sistema $it:
+
+(find-all '(* 7) math-score-semester-1-2019 (first $it))
+;->  (John Jessica)
+
+Si noti che 'find-all' ha interessanti applicazioni su liste semplici: vedere www.newlisp.org/downloads/manual_frame.html
+
+6. Bonus
+--------
+Concludo questo tutorial -solo per divertimento- con due problemi, in cui le funzioni della squadra d'oro e le espressioni regolari vengono applicate ad una stringa.
+
+6.1. Dividere una stringa con un numero diverso del carattere delimitatore '-' e restituire una stringa csv, delimitata da un solo '$'
+-------------------------------------------------------------
+(join (map title-case (parse "one-two–three—four" "-+" 0)) "$")
+;->  "One$Two$Three$Four"
+
+Si noti che un'espressione regolare che corrisponde a una o più occorrenze del trattino-segno meno (-) è '-+'.
+
+6.2. Dividere una stringa che contiene diversi caratteri delimitatori e restituire una stringa CSV, delimitata da un solo "$"
+-------------------------------------------------------------
+(join (map upper-case (parse "hello, regular expression; why so tricky?" {(; *|, *| +)} 0)) "$")
+;->  "HELLO$REGULAR$EXPRESSION$WHY$SO$TRICKY?"
+
+Grazie per la lettura. Alla prossima volta!
+Reinier Maliepaard
+(ultimo aggiornamento: 18-08-2019)
+
+
+--------------------
+newLisp Challenge 2!
+--------------------
+
+Prima di continuare con il Tutorial 5 su newLISP, facciamo ora alcuni esercizi di programmazione newLISP.
+Devi risolvere alcuni problemi.
+Per farlo con successo, ricorda il contenuto dei miei primi quattro tutorial su newLISP.
+Inoltre, puoi utilizzare questo collegamento per informazioni sulle funzioni newLISP: http://www.newlisp.org/downloads/manual_frame.html
+
+Si noti che per alcuni problemi è possibile trovare soluzioni migliori richiamando altre funzioni rispetto a quelle discusse nei primi quattro tutorial.
+
+Di seguito le soluzioni prima per i compiti di livello principiante e poi per quello intermedio.
+
+A. Livello principiante
+-----------------------
+
+1. Funzione Between
+-------------------
+Restituisce la sottostringa tra ad es. { e }, se trovata, oppure restituisce nil.
+
+Esempio:
+Restituisce 12 se la sottostringa {12} esiste nell'input
+
+Soluzione:
+(if (find "{(.*)}" "There were {12} objects!" 1) $1)
+
+Valore restituito:
+"12"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#betweenstring-start-string-end–int-offset
+
+2. Funzione camelize
+--------------------
+Restituisce una versione camelCase della stringa.
+
+Requisiti:
+Rifinisce gli spazi circostanti,
+Rende maiuscole le lettere che seguono i trattini e i trattini bassi e
+Rimuove trattini e caratteri di sottolineatura.
+
+Esempi:
+Camel-Case -> camelCase
+Camel_Case -> camelCase
+Camel-case -> camelCase
+CAMEL-cASE -> camelCase
+
+Soluzione:
+(append (first (parse (lower-case {CAMEL-cASE}) {_|-} 0 )) (title-case (apply string (rest (parse (lower-case {CAMEL-cASE}) {_|-} 0)))))
+
+Da notare che questa funzione è meno complessa di quanto sembra: alla fine di questo testo la spezzerò nelle parti consistenti. Inoltre, fornirò una soluzione regex.
+
+Valore restituito:
+"camelCase"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#camelize
+
+3. Funzione Collapsewhitespace
+------------------------------
+Taglia la stringa e sostituisce i caratteri di spazio consecutivi con un singolo spazio.
+
+Soluzione:
+(replace {[ ]+} (trim { A     B           C }) { } 0)
+
+Valore restituito:
+"A B C"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#collapsewhitespace
+
+4. Funzione Return-CSV
+----------------------
+Restituisce una stringa CSV composta dai caratteri nell'input, separati ad es. dal delimitatore ";".
+
+Soluzione:
+(join (explode {ABC}) {;})
+
+Valore restituito:
+"A;B;C"
+
+Sorgente: (modified):
+https://github.com/danielstjules/Stringy#chars
+
+5. Funzione Countsubstring
+--------------------------
+Restituisce il numero di occorrenze di una sottostringa nell'input specificato.
+
+Requisito:
+Casesensitive.
+
+Solution, casesensitive:
+(if (find-all {a} {A little man shook his bald head.}) $count)
+
+Valore restituito:
+3
+
+Solution, caseinsensitive:
+(if (find-all {A|a} {A little man shook his bald head.}) $count)
+
+Valore restituito:
+4
+
+Sorgente:
+https://github.com/danielstjules/Stringy#countsubstrstring-substring–boolean-casesensitive–true-
+
+6. Funzione Dasherize
+---------------------
+Restituisce una stringa minuscola e tagliata separata da trattini.
+
+Requisiti:
+Dashes are inserted before uppercase characters (with the exception of the first character of the string).
+Spaces as well as underscores are replaced by dashes.
+
+Example:
+fooBar -> foo-bar
+
+Soluzione:
+(trim (replace {([A-Z _]{1})} {FooBar} (append {-} (trim (trim (lower-case $1) "_"))) 0) "-")
+
+Valore restituito:
+"foo-bar"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#dasherize
+
+7. Funzione EnsureLeft
+----------------------
+Garantisce che l'input inizi con un prefisso specifico.
+In caso contrario, il prefisso viene anteposto.
+
+Esempio: (with prefix "https://"):
+foobar.com -> https://foobar.com
+https://foobar.com -> https://foobar.com
+
+Soluzione:
+(if (starts-with {foobar.com} {https://} 1) {foobar.com} (append {https://} {foobar.com} ))
+
+Valore restituito:
+"https://foobar.com"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#ensureleftstring-substring
+
+8. Funzione EnsureRight
+-----------------------
+Garantisce che l'input termini con un suffisso specifico.
+In caso contrario, il suffisso viene aggiunto.
+
+Example (here with suffix ".com"):
+– foobar -> foobar.com
+– foobar.com -> foobar.com
+
+(if (ends-with {foobar} {.com} 1) {foobar} (append {foobar} {.com}))
+
+Valore restituito:
+"foobar.com"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#ensurerightstring-substring
+
+9. Funzione PadLeft
+-------------------
+Restituisce una stringa di una determinata lunghezza (qui 9) in modo tale che l'inizio della stringa sia riempito.
+
+Soluzione:
+(append (dup {$} (- 9 (length {abc}))) {abc})
+
+Valore restituito:
+"$$$$$$abc"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#padbothint-length–string-padstr—-
+
+10. Funzione PadRight
+---------------------
+Restituisce una stringa di una determinata lunghezza in modo tale che la fine della stringa sia riempita.
+
+Soluzione:
+(append {abc} (dup {$} (- 20 (length {abc}))))
+
+Valore restituito:
+"abc$$$$$$$$$$$$$$$$$"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#padbothint-length–string-padstr—-
+
+11. Funzione PadBoth
+--------------------
+Restituisce una stringa di una determinata lunghezza in modo tale che entrambi i lati della stringa siano riempiti.
+
+Requisito:
+Inoltre: il riempimento della lunghezza a sinistra e il riempimento della lunghezza a destra possono essere diversi, ma dovresti renderli uguali!
+
+Esempio:
+[new-string-length] = 10 e lunghezza [input] = 7 -> X1234567X and not XX1234567X
+
+Soluzione:
+(append (dup {X} (/ (- 10 (length {1234567})) 2) ) {1234567} (dup {X} (/ (- 10 (length {1234567})) 2) ))
+
+Valore restituito:
+"X1234567X"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#padbothint-length–string-padstr—-
+
+12. Funzione RemoveLeft
+-----------------------
+Restituisce una nuova stringa con il [prefisso] rimosso, se presente.
+Qui [prefisso] è "foo".
+
+Soluzione:
+(if (starts-with {foobar} {foo}) (slice {foobar} (length {foo})))
+
+Valore restituito:
+"bar"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#padbothint-length–string-padstr—-
+
+13. Funzione RemoveRight
+------------------------
+Restituisce una nuova stringa con il [suffisso] rimosso, se presente.
+Qui [suffisso] è "bar".
+
+Soluzione:
+(if (ends-with {foobar} {bar}) (chop {foobar} (length {bar})))
+
+Valore restituito:
+"foo"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#padbothint-length–string-padstr—-
+
+14. Funzione Shuffle
+--------------------
+Restituisce una stringa con i suoi caratteri in ordine casuale.
+
+Soluzione:
+(join (randomize (explode {abcdefg})))
+
+Return value could be:
+"cgbfead"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#shuffle
+
+15. Funzione TrimLeft
+---------------------
+Restituisce una stringa con un carattere specifico (qui: -) rimosso dall'inizio dell'input.
+
+Soluzione:
+(trim {—-abc———} {-} {})
+
+Valore restituito:
+"abc———"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#trimleft-string-chars
+
+16. Funzione TrimRight
+----------------------
+Restituisce una stringa con un carattere specifico (qui: -) rimosso dalla fine dell'input.
+
+Soluzione:
+(trim {—-abc———} {} {-})
+
+Valore restituito:
+"—-abc"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#trimright-string-chars
+
+17. Funzione TrimBoth
+---------------------
+Restituisce una stringa con un carattere specifico rimosso dall'inizio e dalla fine della stringa.
+Qui: – dall'inizio e = dalla fine.
+
+Soluzione:
+(trim {—abc=====} {-} {=})
+
+Valore restituito:
+"abc"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#trim-string-chars
+
+18. Funzione Upper-case-first
+-----------------------------
+Converte il primo carattere della stringa fornita in maiuscolo.
+
+Soluzione:
+(title-case {abc})
+
+Valore restituito:
+"Abc"
+
+Sorgente:
+https://github.com/danielstjules/Stringy#swapcase
+
+19. Funzione Upper-case-all
+---------------------------
+Converte in maiuscolo il primo carattere di ogni parola nella stringa fornita.
+
+Soluzione:
+(join (map title-case (parse {This is the end!})) { })
+
+Valore restituito:
+"This Is The End!"
+
+Spiegazione della funzione numero 2: Camelize
+(first (parse (lower-case {CAMEL_cASE}) {_|-} 0 ))
+;-> "camel"
+
+; the result is "camel", which is a string
+; the number 0 is necessary due to the regular expression {_|-}
+
+; find now the second part:
+
+(rest (parse (lower-case {CAMEL_cASE}) {_|-} 0))
+;-> ("case")
+
+; the result is ("case"), which is a list
+; to convert it to a string, use apply:
+
+(apply string (rest (parse (lower-case {CAMEL_cASE}) {_|-} 0)))
+;-> "case"
+
+; the result is "case", which is a string
+; uppercase now the first character
+
+(title-case (apply string (rest (parse (lower-case {CAMEL_cASE}) {_|-} 0))))
+;-> "Case"
+
+;to glue both results, use the function append which accept strings as parameters:
+
+(append
+(first (parse (lower-case {CAMEL-cASE}) {_|-} 0 ))
+(title-case (apply string (rest (parse (lower-case {CAMEL-cASE}) {_|-} 0)))))
+;-> "camelCase"
+
+Molto più semplice di quanto sembri, vero!
+
+Una soluzione regex (più breve) è:
+
+(replace {([_-]{1})([a-zA-Z]{1})} (lower-case {CAMEL-cASE}) (upper-case $2) 0)
+;-> "camelCase"
+
+$0 corrisponde a '-c', $1 '-' e $2 'c' (in questo esempio).
+Potresti sostituire [a-zA-Z] con il metacarattere \w
+
+B. Livello intermedio
+---------------------
+
+;definire una struttura dati: nome – genere – punteggio (name – gender – score)
+(setq mc-data-students '((John Male 6) (Tim Male 8) (Grace Female 4) (Suzanna Female 7)))
+;-> ((John Male 6) (Tim Male 8) (Grace Female 4) (Suzanna Female 7))
+
+; estrarre tutti i punteggi
+(setq mc-scores (flat (find-all '(* ?) mc-data-students (rest (rest $it)))))
+;->  (6 8 4 7)
+
+; quanti punteggi sopra 5?
+(length (find-all 5 mc-scores $it <))
+;->  3
+
+; media di tutti gli studenti
+(div (apply '+ (flat (find-all '(* * *) mc-data-students (rest (rest $it))))) $count)
+;->  6.25
+
+; media di tutte le studentesse
+(div (apply '+ (flat (find-all '(* Female *) mc-data-students (rest (rest $it))))) $count)
+;->  5.5
+
+; media di tutti gli studenti con punteggio > 5
+(div (apply '+ (find-all 5 mc-scores $it <)) $count)
+;->  7
+
+Spero che sarai ispirato dalle meravigliose possibilità di newLISP.
+Implementare il codice in VisualNEO è molto semplice, grazie all'eccellente plugin di Hans-Peter Wickern: https://visualneo.com/product/hpwnewlisp.
+
+Grazie per la lettura. Alla prossima volta!
+Reinier Maliepaard
+(ultimo aggiornamento: 09-11-2019)
+
+
+-----------------------------------------------------------
+newLISP per VisualNEO Win. Parte 5: altri quattro argomenti
+-----------------------------------------------------------
+
+Questo quinto tutorial copre quattro argomenti di newLISP che potrebbero migliorare la tua applicazione VisualNEO.
+
+A. Testare di nuovo i dati
+--------------------------
+Nel Tutorial 2 abbiamo prestato attenzione ai predicati.
+I predicati vengono utilizzati per testare i dati.
+Due funzioni non sono classificate sotto Predicati (www.newlisp.org/downloads/manual_frame.html), ma sono molto utili:
+exists and for-all.
+
+1. exists
+---------
+(setq mc-list '(2 "reinier" 1 "hello" 3 8 -1750))
+;->  (2 "reinier" 1 "hello" 3 8 -1750)
+
+(list? mc-list)
+;->  true
+
+(exists string? mc-list)
+;->  "reinier"
+
+(exists number? mc-list)
+;->  2
+
+Per verificare se il numero 0 o 0.0 fa parte della lista:
+
+(exists zero? mc-list)
+;->  nil
+
+Per verificare se un numero della lista è negativo:
+
+(exists < mc-list)
+;->  -1750
+
+Molto interessante è la possibilità di aggiungere una funzione personalizzata a "exists".
+La funzione
+
+(fn (x) (> x 3))
+
+nell'esempio successivo controlla se un numero della lista è maggiore di 3.
+Il numero 8 è il primo.
+
+(setq mc-list '(2 1 3 8 -1750))
+(exists (fn (x) (> x 3)) mc-list)
+;->  8
+
+Per verificare se un numero fa parte della lista:
+
+(exists (fn (x) (= x 10)) mc-list)
+;->  nil
+
+oppure un po' più facile
+
+(member 10 mc-list)
+;->  nil
+
+2. for-all
+----------
+La funzione 'for-all' controlla se tutti gli elementi in una lista soddisfano la condizione di una funzione. Il risultato è true o nil.
+
+(for-all number? '(2 1 3 8 -1750))
+;->  true
+
+(for-all number? '("Bach" 2 1 3 8 1750))
+;->  nil
+
+(for-all (fn (x) (= x 1750)) '(1750 1750 1750 1750))
+;->  true
+
+(for-all (fn (x) (= x 1750)) '(1685 1750))
+;->  nil
+
+Il comando (fn (x) (= x 1750)) è una cosiddetta funzione anonima (vedere la prossima sezione B).
+
+B. Funzioni personalizzate
+--------------------------
+È possibile definire una funzione. Ad esempio, la funzione somma:
+
+(define (sum x y) (add x y))
+
+È possibile richiamare la funzione come segue:
+
+(sum 2 3)
+;->  5
+
+Più interessante è la funzione anonima che puoi utilizzare in situazioni di iterazione (vedi la prossima sezione C)
+
+(fn (x y) (add x y))
+
+Questa funzione può essere chiamata ad es. nella funzione 'for-all', come hai visto nella sezione precedente.
+Altri esempi:
+
+(define double (fn (x) (+ x x)))
+(double 2)
+;->  4
+
+(apply (fn (x) (+ x x)) '(123))
+;->  246
+
+(set 'db '((a 3) (g 2) (c 5)))
+(sort db (fn (x y) (>= (last x) (last y))))
+;->  ((c 5) (a 3) (g 2))
+
+(setq mc-list '("Maeve" "Olivia" "Aurora" "Ada" "Charlotte" "Amara"))
+(find "Isla" mc-list (fn (x y) (> (length x) (length y))))
+;->  3   ; "Isla" is longer than element 3, "Ada"
+
+(map (fn (x) (pow 2 x)) (sequence 1 10))
+;->  (2 4 8 16 32 64 128 256 512 1024)
+
+Per rendere il tuo codice più leggibile, potresti assegnare la funzione a una variabile:
+
+(setq mc-pow2 '(fn (x) (pow 2 x)))
+(map mc-pow2 (sequence 1 10))
+;->  (2 4 8 16 32 64 128 256 512 1024)
+
+Questo dimostra cosa puoi leggere nei testi su newLISP e Lisp: il codice sorgente e i dati sono intercambiabili.
+Davvero, una caratteristica meravigliosa!
+
+C. Iterazione
+------------
+NewLISP ha diverse funzioni di iterazione.
+Le funzioni 'do-until', 'do- while', 'doargs', 'dolist', 'dostring' e 'dotimes' possono esserti utili.
+Ma diamo un breve sguardo alla funzione "for".
+
+Il suo uso normale è:
+
+(for (x 1 10 1) (print x))
+;->  12345678910
+
+oppure con passo 2
+
+(for (x 1 10 2) (print x))
+;->  13579
+
+oppure con passo 0.5
+
+(for (x 3 2 0.5) (print " – " x))
+;->  3 – 2.5 – 2
+
+Ma molto interessante è l'opzione per aggiungere alcune condizioni di interruzione al comando 'for':
+
+(for (x 1 100 2 (> (* x x) 30)) (print " – " x))
+;->  1 – 3 – 5
+
+D. Potenza di elaborazione
+--------------------------
+A volte è necessario velocizzare l'applicazione VisualNEO, ad es. in caso di cicli annidati.
+Bene, newLISP è tuo amico.
+Quello che non ti ho detto è che VisualNEO può comunicare facilmente con estesi script newLISP.
+L'idea è: passare le variabili allo script newLISP.
+
+Supponiamo di avere un'applicazione con un oggetto di immissione testo "Utente".
+Il contenuto di questo oggetto di immissione testo viene memorizzato nella variabile VisualNeo [mcText]. Gli utenti inseriscono il loro testo lungo.
+Vuoi elaborare quel testo con newLISP.
+Ora non è più possibile utilizzare una singola espressione newLISP. 
+Come gestirlo? 
+Soluzione: devi solo passare [mcText] al codice newLISP. 
+In pochi passaggi te lo spiegherò.
+
+Passo 1
+Crea un secondo oggetto di immissione testo "Code" con il tuo codice sorgente newLISP (posizionalo all'esterno della finestra dell'applicazione).
+Il contenuto di questo oggetto di immissione testo viene memorizzato nella variabile [mcNewLISP-code].
+
+Passo 2
+Determina la lunghezza del testo dell'utente con StrLen:
+
+  StrLen "[mcText]" "[mcTextLen]"
+
+Passo 3
+Aggiungi al secondo oggetto di immissione testo "Coce" i seguenti comandi:
+
+  (setq mcStringLen (nbget "[mcTextLen]" 255))
+  (setq size (int mcStringLen))
+  (setq mcString (nbget "[mcText]" size))
+
+o in una unica espressione:
+
+  (setq mcString (nbget "[mcText]" (int (nbget "[mcTextLen]" 255))))
+
+Passo 4
+Richiamare hpwNewLISPCall nell'applicazione VisualNEO:
+
+  hpwNewLISPCall "[mcNewLISP-code]" "[DllRetvar]"
+
+[DllRetvar] restituirà il risultato.
+
+Potresti anche memorizzare il risultato in un file separato.
+Aggiungere al codice newLISP quanto segue alla fine:
+
+  (setq mcOutputFile (replace "\\" (nbget "[Outputfile]" 255) "/"))
+  (write-file mcOutputFile mcString)
+
+La variabile VisualNeo [Outputfile] potrebbe essere definita come:
+
+  SetVar "[Outputfile]" "[PubDir]temp.txt"
+
+Il codice newLISP verrà eseguito molto velocemente, migliorando la tua applicazione VisualNEO.
+
+Debugging
+---------
+Può essere utile in caso di debug impostare una variabile VisualNEO con alcuni valori newLISP, ovvero un risultato intermedio:
+
+(nbset "[CheckVar]" (string mcString ))
+
+E. Conclusioni
+--------------
+Questo è stato il mio ultimo tutorial su newLISP e VisualNEO.
+Spero che ti sia stato utile.
+Penso che avrai informazioni sufficienti per continuare da solo il viaggio newLISP-VisualNEO.
+Grazie per aver letto i miei tutorial.
+
+Reinier Maliepaard
+(ultimo aggiornamento: 08-12-2019)
 
 =============================================================================
 
