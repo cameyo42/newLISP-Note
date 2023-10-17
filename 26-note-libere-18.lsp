@@ -7548,6 +7548,9 @@ Vediamo le probabilità di ogni combinazione:
 (prob 1e7)
 ;-> (0.1919409 0.57597 0.095969 0.1281644 0.0079557)
 
+(add 0.1919409 0.57597 0.095969 0.1281644 0.0079557)
+;-> 0.9999999999999999
+
 Notare che è più probabile ottenere un tris che una doppia coppia.
 
 Vediamo i valori della speranza matematica di ogni combinazione:
@@ -7584,7 +7587,7 @@ oppure
 and (true(x y) nil(x y)) -> y
 ...
 
-Vediamo un modo per implementare questi booleani di Church:
+Con Mathematica:
 
   t[x_, y_] := x
   f[x_, y_] := y
@@ -7592,6 +7595,8 @@ Vediamo un modo per implementare questi booleani di Church:
   or[x_, y_] := x[t, y]
   not[x_] := x[f, t]
   xor[x_, y_] := y[not[x], x]
+
+Vediamo un modo per implementare questi booleani di Church:
 
 #TRUE
 TRUE: con parametri x e y, restituisce sempre x
@@ -7657,6 +7662,48 @@ XOR con parametri x, y, j1 e j2 (j1 e j2 't' oppure 'f') restituisce:
 ;-> 10
 (xor-ch 10 20 f t)
 ;-> 10
+
+
+--------------------------
+Sequenza somma delle cifre
+--------------------------
+
+La sequenza è definita nel modo seguente:
+
+  a(0) = 1, 
+  a(1) = 1
+  a(n) = somma delle cifre di tutti i termini precedenti
+  a(n) = a(n-1) + digit-sum(a(n-1))
+
+Sequenza OEIS A004207:
+  1, 1, 2, 4, 8, 16, 23, 28, 38, 49, 62, 70, 77, 91, 101, 103, 107, 115,
+  122, 127, 137, 148, 161, 169, 185, 199, 218, 229, 242, 250, 257, 271, 
+  281, 292, 305, 313, 320, 325, 335, 346, 359, 376, 392, 406, 416, 427, 
+  440, 448, 464, 478, 497, 517, 530, 538, ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (A004207 num)
+  (cond ((= num 1) '(1))
+        ((= num 2) '(1 1))
+        (true
+          (let (out '(1 1))
+            (for (i 2 (- num 1))
+              (push (+ (out -1) (digit-sum (out -1))) out -1)
+            )
+          out))))
+
+(A004207 50)
+;-> (1 1 2 4 8 16 23 28 38 49 62 70 77 91 101 103 107 115 122 127 137
+;->  148 161 169 185 199 218 229 242 250 257 271 281 292 305 313 320 
+;->  325 335 346 359 376 392 406 416 427 440 448 464 478)
 
 =============================================================================
 

@@ -2015,6 +2015,7 @@ NOTE LIBERE 18
   Quale presidente?
   Super Mario Lucky House
   Booleani di Church (Church booleans)
+  Sequenza somma delle cifre
 
 PROBLEMI SUI DADI
 =================

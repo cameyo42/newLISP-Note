@@ -1006,7 +1006,7 @@ https://cs.stackexchange.com/questions/10318/the-math-behind-converting-from-any
 Per convertire un numero da una base ad un'altra base dobbiamo fare una considerazione astratta: un numero non è la sua rappresentazione numerica.
 Un numero è un oggetto matematico astratto, mentre la sua rappresentazione numerica è una cosa concreta, vale a dire una sequenza di simboli su un foglio (o una sequenza di bit in memoria, o una sequenza di suoni che emettiamo quando comunichiamo un numero). Ciò che confonde è il fatto che non vediamo mai un numero, ma sempre la sua rappresentazione numerica. Quindi finiamo per pensare che il numero sia la rappresentazione.
 
-Pertanto, la domanda corretta da porre non è "come convertire da una base all'altra", ma piuttosto "come faccio a scoprire quale numero è rappresentato da una determinata lista di cifre" e "come trovo la rappresentazione delle cifre di un dato il numero ".
+Pertanto, la domanda corretta da porre non è "come convertire da una base all'altra?", ma piuttosto "come faccio a scoprire quale numero è rappresentato da una determinata lista di cifre?" e "come trovo la rappresentazione delle cifre di un dato numero?".
 
 Scriviamo due funzioni, una per convertire una rappresentazione numerica in un numero e un'altra per fare il contrario.
 Nota: quando eseguiamo la funzione sullo schermo verrà visualizzato il numero ottenuto nella base 10, ma questo non significa che il computer mantenga i numeri nella base 10 (infatti non è così). Non è rilevante il modo in cui il computer rappresenta i numeri.
@@ -1077,7 +1077,6 @@ Per rappresentare le cifre contenute in digits in una simbologia standard (0..Z)
     )
     simbolo))
 
-(length alfabeto)
 (todigits 10 2)
 ;-> (1 0 1 0)
 (tosymbol '(1 0 1 0) 2)
@@ -1094,6 +1093,54 @@ Per rappresentare le cifre contenute in digits in una simbologia standard (0..Z)
 ;-> (15 15)
 (tosymbol '(15 15) 16)
 "FF"
+
+(todigits 65535 16)
+;-> (15 15 15 15)
+(tosymbol (todigits 65535 16) 16)
+;-> "FFFF"
+
+Funzione che stampa un numero nelle basi da 2 a 36:
+
+(define (basi num)
+  (for (i 2 36)
+    (println i { } (tosymbol (todigits num i) i))))
+
+(basi 65535)
+;-> 2 1111111111111111
+;-> 3 10022220020
+;-> 4 33333333
+;-> 5 4044120
+;-> 6 1223223
+;-> 7 362031
+;-> 8 177777
+;-> 9 108806
+;-> 10 65535
+;-> 11 45268
+;-> 12 31B13
+;-> 13 23AA2
+;-> 14 19C51
+;-> 15 14640
+;-> 16 FFFF
+;-> 17 D5D0
+;-> 18 B44F
+;-> 19 9AA4
+;-> 20 83GF
+;-> 21 71CF
+;-> 22 638J
+;-> 23 58K8
+;-> 24 4HIF
+;-> 25 44LA
+;-> 26 3IOF
+;-> 27 38O6
+;-> 28 2RGF
+;-> 29 2JQO
+;-> 30 2COF
+;-> 31 2661
+;-> 32 1VVV
+;-> 33 1R5U
+;-> 34 1MNH
+;-> 35 1IHF
+;-> 36 1EKF
 
 
 -------------------------------------------
