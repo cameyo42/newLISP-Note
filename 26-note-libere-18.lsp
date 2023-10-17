@@ -20,9 +20,9 @@ Per caricare il file in una lista:
 Adesso i dati si trovano nella lista "table" e il nomi dei campi si trovano nel primo elemento della lista:
 
 (table 0)
-;-> ("Atomic_Number" "Element" "Nome" "Symbol" "Atomic_Weight" "Period" 
-;->  "Group" "Phase" "Type" "Ionic_Radius" "Atomic_Radius" "Electronegativity" 
-;->  "First_Ionization_Potential" "Density" "Melting_Point(K)" 
+;-> ("Atomic_Number" "Element" "Nome" "Symbol" "Atomic_Weight" "Period"
+;->  "Group" "Phase" "Type" "Ionic_Radius" "Atomic_Radius" "Electronegativity"
+;->  "First_Ionization_Potential" "Density" "Melting_Point(K)"
 ;->  "Boiling_Point(K)" "Isotopes" "Year_Discovery" "Specific_Heat_Capacity"
 ;->  "Display_Row" "Display_Column")
 
@@ -539,8 +539,8 @@ Facciamo alcune prove:
 ;-> 72L
 (make-prime '(0 1 2))
 ;-> 75L
-(make-prime '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-              0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+(make-prime '(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+              0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
               0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1))
 ;-> 347L
 (make-prime '(6 2))
@@ -619,9 +619,9 @@ Scrivere un programma che esegue le funzionalità elencate.
       (setq expr (read-line))
       (cond ((!= expr "exit")
               (setq expr (read-expr expr))
-              (cond ((and (= (length expr) 1) (= (expr 0) 'M)) 
+              (cond ((and (= (length expr) 1) (= (expr 0) 'M))
                       (println M))
-                    ((and (= (length expr) 1) (!= (expr 0) 'M)) 
+                    ((and (= (length expr) 1) (!= (expr 0) 'M))
                       (println "error: " expr))
                     ((> (length expr) 2)
                       (println "error: " expr))
@@ -795,7 +795,7 @@ Proviamo con due vettori di numeri (con la seconda funzione dobbiamo usare "arra
 (unico2 (array-list y))
 ;-> (1 (8589))
 
-(silent 
+(silent
 (setq x (array 10000 (dup 2 10000)))
 (setf (x 1741) 3)
 (setq y (array 10000 (dup 2 10000)))
@@ -828,7 +828,7 @@ Quindi il tempo per la conversione da vettore in lista è ininfluente.
 La funzione di Cantor
 ---------------------
 
-La funzione di Cantor è un esempio di funzione continua e crescente nonostante abbia derivata zero in quasi tutti i punti essendo costante in tutti i sottointervalli di [0,1] che non contengono punti dell'insieme di Cantor. 
+La funzione di Cantor è un esempio di funzione continua e crescente nonostante abbia derivata zero in quasi tutti i punti essendo costante in tutti i sottointervalli di [0,1] che non contengono punti dell'insieme di Cantor.
 Quindi si tratta di una scala con infiniti gradini, tutti di pendenza zero, ma ad altezze progressivamente crescenti, in modo che la pendenza media risulti comunque pari a 1.
 
 Vedi le figure "cantor_function.png" e "cantor_function.gif" nella cartella "data".
@@ -836,7 +836,7 @@ Vedi le figure "cantor_function.png" e "cantor_function.gif" nella cartella "dat
 La funzione può essere definita in modo ricorsivo:
 
   f(0, x) = x
-  
+
               | (1/2)*(f n 3x)                con x in [0,1/3)
   f(n+1, x) = | 1/2                           con x in [1/3,2/3)
               | (1/2) + (1/2)*(f n (3x - 2))  con x in [2/3,1]
@@ -851,7 +851,7 @@ La funzione è il limite del processo:
   (cond ((zero? n) x)
         ((and (>= x 0) (< x (div 3)))
           (mul 0.5 (cantor (- n 1) (mul 3 x))))
-        ((and (>= x (div 3)) (< x (div 2 3))) 
+        ((and (>= x (div 3)) (< x (div 2 3)))
           (div 2))
         ((and (>= x (div 2 3)) (<= x 1))
           (add 0.5 (mul 0.5 (cantor (- n 1) (sub (mul 3 x) 2)))))))
@@ -1053,7 +1053,7 @@ Dato un intero positivo n, semplificare la radice quadrata sqrt(n) nella forma a
 ;-> 3*sqrt(2)
 ;-> 1*sqrt(19)
 ;-> 2*sqrt(5)
-;-> ((1 1) (1 2) (1 3) (2 1) (1 5) (1 6) (1 7) (2 2) (3 1) (1 10) (1 11) 
+;-> ((1 1) (1 2) (1 3) (2 1) (1 5) (1 6) (1 7) (2 2) (3 1) (1 10) (1 11)
 ;->  (2 3) (1 13) (1 14) (1 15) (4 1) (1 17) (3 2) (1 19) (2 5))
 
 
@@ -1065,31 +1065,31 @@ Lo Xiuhnelpilli era usato dagli Aztechi (più propriamente, i Mexica) per denomi
 Ogni anno ha un numero e un segno. Ecco una parte del ciclo:
 
   1089 -> 13 Calli                 1116 -> 1 Tecpatl
-  1090 -> 1 Tochtli                1117 -> 2 Calli 
-  1091 -> 2 Acatl                  1118 -> 3 Tochtli 
-  1092 -> 3 Tecpatl                1119 -> 4 Acatl 
-  1093 -> 4 Calli                  1120 -> 5 Tecpatl 
-  1094 -> 5 Tochtli                1121 -> 6 Calli 
-  1095 -> 6 Acatl                  1122 -> 7 Tochtli 
-  1096 -> 7 Tecpatl                1123 -> 8 Acatl 
-  1097 -> 8 Calli                  1124 -> 9 Tecpatl 
-  1098 -> 9 Tochtli                1125 -> 10 Calli 
-  1099 -> 10 Acatl                 1126 -> 11 Tochtli 
-  1100 -> 11 Tecpatl               1127 -> 12 Acatl 
-  1101 -> 12 Calli                 1128 -> 13 Tecpatl 
-  1102 -> 13 Tochtli               1129 -> 1 Calli 
-  1103 -> 1 Acatl                  1130 -> 2 Tochtli 
-  1104 -> 2 Tecpatl                1131 -> 3 Acatl 
-  1105 -> 3 Calli                  1132 -> 4 Tecpatl 
-  1106 -> 4 Tochtli                1133 -> 5 Calli 
-  1107 -> 5 Acatl                  1134 -> 6 Tochtli 
-  1108 -> 6 Tecpatl                1135 -> 7 Acatl 
-  1109 -> 7 Calli                  1136 -> 8 Tecpatl 
-  1110 -> 8 Tochtli                1137 -> 9 Calli 
-  1111 -> 9 Acatl                  1138 -> 10 Tochtli 
-  1112 -> 10 Tecpatl               1139 -> 11 Acatl 
-  1113 -> 11 Calli                 1140 -> 12 Tecpatl 
-  1114 -> 12 Tochtli               1141 -> 13 Calli 
+  1090 -> 1 Tochtli                1117 -> 2 Calli
+  1091 -> 2 Acatl                  1118 -> 3 Tochtli
+  1092 -> 3 Tecpatl                1119 -> 4 Acatl
+  1093 -> 4 Calli                  1120 -> 5 Tecpatl
+  1094 -> 5 Tochtli                1121 -> 6 Calli
+  1095 -> 6 Acatl                  1122 -> 7 Tochtli
+  1096 -> 7 Tecpatl                1123 -> 8 Acatl
+  1097 -> 8 Calli                  1124 -> 9 Tecpatl
+  1098 -> 9 Tochtli                1125 -> 10 Calli
+  1099 -> 10 Acatl                 1126 -> 11 Tochtli
+  1100 -> 11 Tecpatl               1127 -> 12 Acatl
+  1101 -> 12 Calli                 1128 -> 13 Tecpatl
+  1102 -> 13 Tochtli               1129 -> 1 Calli
+  1103 -> 1 Acatl                  1130 -> 2 Tochtli
+  1104 -> 2 Tecpatl                1131 -> 3 Acatl
+  1105 -> 3 Calli                  1132 -> 4 Tecpatl
+  1106 -> 4 Tochtli                1133 -> 5 Calli
+  1107 -> 5 Acatl                  1134 -> 6 Tochtli
+  1108 -> 6 Tecpatl                1135 -> 7 Acatl
+  1109 -> 7 Calli                  1136 -> 8 Tecpatl
+  1110 -> 8 Tochtli                1137 -> 9 Calli
+  1111 -> 9 Acatl                  1138 -> 10 Tochtli
+  1112 -> 10 Tecpatl               1139 -> 11 Acatl
+  1113 -> 11 Calli                 1140 -> 12 Tecpatl
+  1114 -> 12 Tochtli               1141 -> 13 Calli
   1115 -> 13 Acatl                 1142 -> 1 Tochtli
 
 Lo schema è il seguente: il numero conta fino a 13 e il segno è dato dalla sequenza Tochtli, Acatl, Tecpatl, Calli.
@@ -1114,9 +1114,9 @@ Oppure in maniera più breve:
 Facciamo alcune prove:
 
 (map aztec (sequence 1089 1142))
-;-> ((13 "Calli") (1 "Tochtli") (2 "Acatl") (3 "Tecpatl") (4 "Calli") 
+;-> ((13 "Calli") (1 "Tochtli") (2 "Acatl") (3 "Tecpatl") (4 "Calli")
 ;->  (5 "Tochtli") (6 "Acatl") (7 "Tecpatl") (8 "Calli") (9 "Tochtli")
-;->  (10 "Acatl") (11 "Tecpatl") (12 "Calli") (13 "Tochtli") (1 "Acatl") 
+;->  (10 "Acatl") (11 "Tecpatl") (12 "Calli") (13 "Tochtli") (1 "Acatl")
 ;->  (2 "Tecpatl") (3 "Calli") (4 "Tochtli") (5 "Acatl") (6 "Tecpatl")
 ;->  (7 "Calli") (8 "Tochtli") (9 "Acatl") (10 "Tecpatl") (11 "Calli")
 ;->  (12 "Tochtli") (13 "Acatl") (1 "Tecpatl") (2 "Calli") (3 "Tochtli")
@@ -1274,16 +1274,16 @@ Funzioni iperboliche inverse
 sinh-1: Seno iperbolico inverso
 
   sinh-1 = ln(x + sqrt(x^2 + 1))
-  
+
 cosh-1: Coseno iperbolico inverso (definita solo per x>=1)
-  
+
   cosh-1 = ln(x + sqrt(x^2 - 1))
-  
+
 tanh-1: Tangente iperbolica inversa (definita solo per -1<x<1)
 
-                     1 + x 
+                     1 + x
   tanh-1 = (1/2)*ln(-------)
-                     1 - x 
+                     1 - x
 
 Vedi immagine "iperboliche-inverse.png" nella cartella "data".
 
@@ -1324,7 +1324,7 @@ Carta igienica
 I valori numerici di un rotolo di carta igienica sono tre numeri interi I, R e G.
   I è il raggio dell'anello interno,
   R è il numero di rotazioni,
-  G è lo spessore. 
+  G è lo spessore.
 Calcolare la lunghezza di tutta la carta igienica.
 
 La carta igienica può essere vista come una spirale di Archimede, che inizia alle coordinate (I,x), e ruota un totale di R volte in senso antiorario, con una distanza di G per ogni giro.
@@ -1335,7 +1335,7 @@ con I=5, R=3 e G=4 si ha una lunghezza L = 207.73
 
 La formula per la lunghezza L del rotolo è la seguente:
 
-                     2π(I+GR)/G 
+                     2π(I+GR)/G
   L = (G/2π)*integral[sqrt(1 + x^2)]dx
                      2πI/G
 
@@ -1635,7 +1635,7 @@ Metodo per memorizzare le password
 Una password è caratterizzata da:
 Lunghezza: consigliabile usare da 8 a 15 caratteri
 Caratteri usati:
-  Numeri (0-9) = 10 
+  Numeri (0-9) = 10
   Lettere = 52 (26 minuscole + 26 maiuscole)
   Caratteri speciali (per es. " :&%?^|" ecc.) = 33
 Totale caratteri: 95
@@ -1645,7 +1645,7 @@ Totale caratteri: 95
 Assegniamo un numero ad ogni sito web e usiamo una funzione matematica per generare la password:
 
 Indirizzo Web    Numero   Stringa  Funzione(tan(x)^2)    Password
-chess.com        1        uNo_     2.42551882081476      uNo_42551882               
+chess.com        1        uNo_     2.42551882081476      uNo_42551882
 github.com       2        dUe_     4.774399204041917     dUe_77439920
 netflix.com      3        tRe_     0.02031951694242694   tRe_02031951
 
@@ -1840,7 +1840,7 @@ Data una lista che può contenere interi, float e stringhe, ordinarla nel modo s
 
 1) Prima le stringhe ordinate in modo crescente
 2) Poi gli interi ordinati in modo crescente
-3) Infine i float ordinati in modo crescente 
+3) Infine i float ordinati in modo crescente
 
 Il "sort" di newLISp ordina nel modo seguente:
 
@@ -1935,7 +1935,7 @@ La seguente funzione restituisce il numero di volte che i caratteri cambiano ord
               (++ change)
               ;(println "change: " change)
               (setq order "+"))
-            ((= order "=") 
+            ((= order "=")
               (if (> (str i) (str (- i 1)))
                     (setq order "+")
                   (< (str i) (str (- i 1)))
@@ -2190,7 +2190,7 @@ Matrice 3x2:
 Matrice 2x3:
 
 (mat-dist mat1 mat2)
-;-> ((6.435060217278467 8.48528137423857 12.03411816461846) 
+;-> ((6.435060217278467 8.48528137423857 12.03411816461846)
 ;->  (3.111269837220809 5.162363799656123 8.720665112249181))
 
 
@@ -2379,7 +2379,7 @@ Paradosso Maschio o Femmina (Boy or Girl Paradox)
 Problema 1
 ----------
 Maria e Pietro hanno due figli.
-Almeno uno dei due figli è un maschio. 
+Almeno uno dei due figli è un maschio.
 Supponiamo che la probabilità di ciascun genere sia 1/2.
 
 Qual è la probabilità che anche l'altro figlio sia maschio?
@@ -2402,7 +2402,7 @@ La probabilità cercata vale:
                 casi possibili
 
   Casi possibili = 3, (1 2 4)
-  
+
   Casi favorevoli = 1, (2)
 
                 1
@@ -2412,7 +2412,7 @@ La probabilità cercata vale:
 Problema 2
 ----------
 Maria e Pietro hanno due figli.
-Il figlio più vecchio è una femmina. 
+Il figlio più vecchio è una femmina.
 Supponiamo che la probabilità di ciascun genere sia 1/2.
 
 Qual è la probabilità che anche l'altro figlio sia femmina?
@@ -2435,7 +2435,7 @@ La probabilità cercata vale:
                 casi possibili
 
   Casi possibili = 2, (3 4)
-  
+
   Casi favorevoli = 1, (3)
 
                 1
@@ -2541,8 +2541,8 @@ Poiché queste due combinazioni sono equiprobabili, la probabilità che anche l'
 Veleno e topi
 -------------
 
-Ci sono 1000 bottiglie d'acqua. 
-Una delle bottiglie contiene acqua avvelenata. 
+Ci sono 1000 bottiglie d'acqua.
+Una delle bottiglie contiene acqua avvelenata.
 Se un topo beve acqua avvelenata, allora muore dopo 24 ore.
 
 Qual'è il numero minimo di topi necessari per capire quale bottiglia contiene acqua avvelenata?
@@ -2671,7 +2671,7 @@ Facciamo alcune prove:
 Quindi con N bottiglie il numero massimo di topi morti vale:
 
           | ceil(log2 N)    , se N contiene tutti "1"
-  morti = | 
+  morti = |
           | ceil(log2 N) - 1, se N non contiene tutti "1"
 
 
@@ -2737,7 +2737,7 @@ Media tra due lettere
 ---------------------
 
 Ogni lettera dell'alfabeto può essere rappresentata con un codice ASCII.
-Ad esempio, "a" è 97 e "S" è 83. 
+Ad esempio, "a" è 97 e "S" è 83.
 La formula per calcolare la media di due numeri xey è (x+y)/2.
 Calcolare il carattere ASCII medio di due lettere (valore intero).
 Entrambe le lettere ASCII saranno comprese nell'intervallo 97-122 o 65-90.
@@ -2802,8 +2802,8 @@ Esempi:
   (1 0 -1) -> ((-1 0 1))
   (1 2) -> ()
   (1 2 4 8 99) -> ()
-  (33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40) -> 
-    ((7 33 40) (32 33 65) (1 32 33) (1 90 91) (7 36 43) 
+  (33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40) ->
+    ((7 33 40) (32 33 65) (1 32 33) (1 90 91) (7 36 43)
      (24 36 60) (12 24 36) (36 60 96) (15 65 80) (40 40 80)
 
 Algoritmo forza bruta:
@@ -2811,7 +2811,7 @@ Algoritmo forza bruta:
 (define (terne lst)
   (setq len (length lst))
   (setq out '())
-  (if (>= len 3) 
+  (if (>= len 3)
     (for (i 0 (- len 1))
       (for (j 0 (- len 1))
         (for (k 0 (- len 1))
@@ -2842,7 +2842,7 @@ Facciamo alcune prove:
 (terne '(1 2 4 8 99))
 ;-> ()
 (terne '(33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40))
-;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80) 
+;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80)
 ;->  (40 40 80) (36 60 96) (12 24 36) (1 90 91) (1 32 33))
 
 10 elementi:
@@ -2882,7 +2882,7 @@ Proviamo con "dolist" invece del "for":
 (define (terne2 lst)
   (setq len (length lst))
   (setq out '())
-  (if (>= len 3) 
+  (if (>= len 3)
     (dolist (v1 lst)
       (setq i $idx)
       (dolist (v2 lst)
@@ -2918,7 +2918,7 @@ Facciamo alcune prove:
 (terne2 '(1 2 4 8 99))
 ;-> ()
 (terne2 '(33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40))
-;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80) 
+;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80)
 ;->  (40 40 80) (36 60 96) (12 24 36) (1 90 91) (1 32 33))
 
 10 elementi:
@@ -2958,7 +2958,7 @@ Proviamo a spostare le condizioni "if" degli indici:
 (define (terne3 lst)
   (setq len (length lst))
   (setq out '())
-  (if (>= len 3) 
+  (if (>= len 3)
     (dolist (v1 lst)
       (setq i $idx)
       (dolist (v2 lst)
@@ -2989,7 +2989,7 @@ Facciamo alcune prove:
 (terne3 '(1 2 4 8 99))
 ;-> ()
 (terne3 '(33 90 7 24 60 32 80 43 15 40 36 90 65 12 91 33 88 1 96 33 40))
-;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80) 
+;-> ((7 33 40) (7 36 43) (24 36 60) (32 33 65) (15 65 80)
 ;->  (40 40 80) (36 60 96) (12 24 36) (1 90 91) (1 32 33))
 
 10 elementi:
@@ -3059,7 +3059,7 @@ Ci servono 3 valori per determinare le variabili A, B e C:
   P(1) = 2
   P(2) = 4
   P(3) = 7
-  
+
 Sostituiamo i valori e otteniamo il seguente sistema:
 
   A + B + C = 2
@@ -3334,31 +3334,31 @@ Facciamo alcune prove:
 ;-> A=20000   B=20000   C=20000   D=20000   S=20000
 ;-> km percorsi pneumatici:
 ;-> A=0       B=0       C=0       D=0       S=0
-;-> 
+;->
 ;-> Passo 1: percorro 5000 km e cambio A con S
 ;-> km rimasti
 ;-> S=20000   B=15000   C=15000   D=15000   A=15000
 ;-> km percorsi
 ;-> S=0       B=5000    C=5000    D=5000    A=5000
-;-> 
+;->
 ;-> Passo 2: percorro 5000 km, rimonto A e cambio B con S
 ;-> km rimasti pneumatici:
 ;-> A=15000   S=15000   C=10000   D=10000   B=10000
 ;-> km percorsi pneumatici:
 ;-> A=5000    S=5000    C=10000   D=10000   B=10000
-;-> 
+;->
 ;-> Passo 3: percorro 5000 km, rimonto B e cambio C con S
 ;-> km rimasti pneumatici:
 ;-> A=10000   B=10000   S=10000   D=5000    C=5000
 ;-> km percorsi pneumatici:
 ;-> A=10000   B=10000   S=10000   D=15000   C=15000
-;-> 
+;->
 ;-> Passo 4: percorro 5000 km, rimonto C e cambio D con S
 ;-> km rimasti pneumatici:
 ;-> A=5000    B=5000    C=5000    S=5000    D=0
 ;-> km percorsi pneumatici:
 ;-> A=15000   B=15000   C=15000   S=15000   D=20000
-;-> 
+;->
 ;-> Passo 5: percorro 5000 km e rimonto D
 ;-> km rimasti pneumatici:
 ;-> A=0       B=0       C=0       D=0       S=0
@@ -3373,31 +3373,31 @@ Facciamo alcune prove:
 ;-> A=20000   B=20000   C=20000   D=20000   S=10000
 ;-> km percorsi pneumatici:
 ;-> A=0       B=0       C=0       D=0       S=0
-;-> 
+;->
 ;-> Passo 1: percorro 2500 km e cambio A con S
 ;-> km rimasti
 ;-> S=10000   B=17500   C=17500   D=17500   A=17500
 ;-> km percorsi
 ;-> S=0       B=2500    C=2500    D=2500    A=2500
-;-> 
+;->
 ;-> Passo 2: percorro 2500 km, rimonto A e cambio B con S
 ;-> km rimasti pneumatici:
 ;-> A=17500   S=7500    C=15000   D=15000   B=15000
 ;-> km percorsi pneumatici:
 ;-> A=2500    S=2500    C=5000    D=5000    B=5000
-;-> 
+;->
 ;-> Passo 3: percorro 2500 km, rimonto B e cambio C con S
 ;-> km rimasti pneumatici:
 ;-> A=15000   B=15000   S=5000    D=12500   C=12500
 ;-> km percorsi pneumatici:
 ;-> A=5000    B=5000    S=5000    D=7500    C=7500
-;-> 
+;->
 ;-> Passo 4: percorro 2500 km, rimonto C e cambio D con S
 ;-> km rimasti pneumatici:
 ;-> A=12500   B=12500   C=12500   S=2500    D=10000
 ;-> km percorsi pneumatici:
 ;-> A=7500    B=7500    C=7500    S=7500    D=10000
-;-> 
+;->
 ;-> Passo 5: percorro 2500 km e rimonto D
 ;-> km rimasti pneumatici:
 ;-> A=10000   B=10000   C=10000   D=10000   S=0
@@ -3412,31 +3412,31 @@ Facciamo alcune prove:
 ;-> A=10000   B=9000    C=10000   D=10000   S=8000
 ;-> km percorsi pneumatici:
 ;-> A=0       B=0       C=0       D=0       S=0
-;-> 
+;->
 ;-> Passo 1: percorro 2000 km e cambio A con S
 ;-> km rimasti
 ;-> S=8000    B=7000    C=8000    D=8000    A=8000
 ;-> km percorsi
 ;-> S=0       B=2000    C=2000    D=2000    A=2000
-;-> 
+;->
 ;-> Passo 2: percorro 2000 km, rimonto A e cambio B con S
 ;-> km rimasti pneumatici:
 ;-> A=8000    S=6000    C=6000    D=6000    B=5000
 ;-> km percorsi pneumatici:
 ;-> A=2000    S=2000    C=4000    D=4000    B=4000
-;-> 
+;->
 ;-> Passo 3: percorro 2000 km, rimonto B e cambio C con S
 ;-> km rimasti pneumatici:
 ;-> A=6000    B=5000    S=4000    D=4000    C=4000
 ;-> km percorsi pneumatici:
 ;-> A=4000    B=4000    S=4000    D=6000    C=6000
-;-> 
+;->
 ;-> Passo 4: percorro 2000 km, rimonto C e cambio D con S
 ;-> km rimasti pneumatici:
 ;-> A=4000    B=3000    C=4000    S=2000    D=2000
 ;-> km percorsi pneumatici:
 ;-> A=6000    B=6000    C=6000    S=6000    D=8000
-;-> 
+;->
 ;-> Passo 5: percorro 2000 km e rimonto D
 ;-> km rimasti pneumatici:
 ;-> A=2000    B=1000    C=2000    D=2000    S=0
@@ -3868,7 +3868,7 @@ La funzione "collect"
 ********************
 sintassi: (collect exp [int-max-count])
 
-Valuta l'espressione in exp e raccoglie i risultati in una lista finché la valutazione di exp non restituisce nil. 
+Valuta l'espressione in exp e raccoglie i risultati in una lista finché la valutazione di exp non restituisce nil.
 
 Facoltativamente è possibile specificare un conteggio massimo di elementi in int-max-count.
 
@@ -3936,8 +3936,8 @@ Altrimenti abbiamo terminato la ricerca.
 
 L'incremento dell'indice di partenza dipende dal tipo di ricerca che vogliamo effettuare:
 a) se vogliamo ricercare tutte le sottostringhe (anche quelle con caratteri in comune), allora l'incremento vale 1.
-Esempio: 
-sottostringa "ss" 
+Esempio:
+sottostringa "ss"
 stringa "ssss"
 "ssss"
  ss
@@ -3945,8 +3945,8 @@ stringa "ssss"
    ss
 La sottostringa "ss" si trova a partire dagli indici 0, 1 e 2.
 b) se vogliamo ricercare solo le sottostringhe con caratteri non in comune, allora l'incremento vale: length(substring) - 1
-Esempio: 
-sottostringa "ss" 
+Esempio:
+sottostringa "ss"
 stringa "ssss"
 "ssss"
  ss
@@ -3985,7 +3985,7 @@ Altra funzione simile che utilizza la funzione "collect":
   (local (idx incr)
     (setq idx -1)
     (if all (setq incr 0) (setq incr (- (length s) 1)))
-    (collect (begin (setq idx (find s str nil (+ idx 1))) 
+    (collect (begin (setq idx (find s str nil (+ idx 1)))
                     (cond (idx (setq idx (+ idx incr)) ;calcola il nuovo indice
                           (- idx incr)))) ; ma ritorna l'indice trovato
     )))
@@ -4068,7 +4068,7 @@ Con il s.o. MSwindows possiamo utilizzare il servizio integrato Speech (Microsof
 
 Balabolka Command Line Utility
 ------------------------------
-The utility differs from the desktop application in that it contains no graphical user interface and works only from the command line. 
+The utility differs from the desktop application in that it contains no graphical user interface and works only from the command line.
 This is useful to integrate the Text-To-Speech process to other applications, for example.
 
 - No installation required.
@@ -4243,9 +4243,9 @@ Adesso possiamo facilmente scrivere le due funzioni:
 
 (map (fn(x) (list x (interno x) (esterno x))) '(3 4 5 6 7 8 9 10))
 ;-> ((3 60 120)
-;->  (4 90 90) 
-;->  (5 108 72) 
-;->  (6 120 60) 
+;->  (4 90 90)
+;->  (5 108 72)
+;->  (6 120 60)
 ;->  (7 128.5714285714286 51.42857142857143)
 ;->  (8 135 45)
 ;->  (9 140 40)
@@ -4461,7 +4461,7 @@ Facciamo alcune prove:
 Da stringa a numero di colonna e viceversa
 ------------------------------------------
 
-Nei fogli elettronici (per esempio MS Excel), le colonne vanno da A-Z, AA, AB, AZ, BA, ... ,BZ e così via. 
+Nei fogli elettronici (per esempio MS Excel), le colonne vanno da A-Z, AA, AB, AZ, BA, ... ,BZ e così via.
 In realtà ciascuna di esse rappresentano un numero, ma sono codificate come stringhe alfabetiche.
 
 Data una stringa che rappresenta una colonna, scrivere una funzione che restituisce il numero corrispondente.
@@ -4498,14 +4498,14 @@ Facciamo alcune prove:
 
 (setq lst '("A" "B" "Z" "AA" "AB" "AZ" "ZZ" "AAA" "ABC"))
 (map (fn(x) (list x (column-value x))) lst)
-;-> (("A" 1) ("B" 2) ("Z" 26) ("AA" 27) ("AB" 28) 
+;-> (("A" 1) ("B" 2) ("Z" 26) ("AA" 27) ("AB" 28)
 ;->  ("AZ" 52) ("ZZ" 702) ("AAA" 703) ("ABC" 731))
 
 Possiamo anche scrivere la funzione inversa, cioè una funzione che, dato un numero, restituisce il valore stringa della colonna.
 
 Esempio:
 Numero = 28
-Calcoliamo il resto del numero: 
+Calcoliamo il resto del numero:
 (% 28 26)
 ;-> 2
 Se il resto di 26 risulta essere 0 (ovvero 26, 52 e così via), inseriamo "Z" nella stringa di output e il nuovo numero diventa numero/26 - 1 perché qui stiamo considerando 26 come 'Z' mentre in realtà è il 25esimo rispetto ad "A".
@@ -4554,7 +4554,7 @@ Facciamo alcune prove:
 
 (setq numbers '(1 2 26 27 28 52 702 703 731))
 (map (fn(x) (list x (column-string x))) numbers)
-;-> ((1 "A") (2 "B") (26 "Z") (27 "AA") (28 "AB") 
+;-> ((1 "A") (2 "B") (26 "Z") (27 "AA") (28 "AB")
 ;->  (52 "AZ") (702 "ZZ") (703 "AAA") (731 "ABC"))
 
 
@@ -4703,10 +4703,10 @@ Facciamo alcune prove:
 ;-> ((5.4545 (10 20 30)) (6.6667 (10 20)) (7.5 (10 30)) (12 (20 30)))
 
 (parallel '(10 20 30 40 50))
-;-> ((4.3796 (10 20 30 40 50)) (4.8 (10 20 30 40)) (4.918 (10 20 30 50)) 
+;-> ((4.3796 (10 20 30 40 50)) (4.8 (10 20 30 40)) (4.918 (10 20 30 50))
 ;->  (5.1282 (10 20 40 50)) (5.4545 (10 20 30)) (5.6075 (10 30 40 50))
 ;->  (5.7143 (10 20 40)) (5.8824 (10 20 50)) (6.3158 (10 30 40))
-;->  (6.5217 (10 30 50)) (6.6667 (10 20)) (6.8966 (10 40 50)) (7.5 (10 30)) 
+;->  (6.5217 (10 30 50)) (6.6667 (10 20)) (6.8966 (10 40 50)) (7.5 (10 30))
 ;->  (7.7922 (20 30 40 50)) (8 (10 40)) (8.3333 (10 50)) (9.2308 (20 30 40))
 ;->  (9.6774 (20 30 50)) (10.5263 (20 40 50)) (12 (20 30)) (12.766 (30 40 50))
 ;->  (13.3333 (20 40)) (14.2857 (20 50)) (17.1429 (30 40)) (18.75 (30 50))
@@ -7228,9 +7228,9 @@ L'idea è: passare le variabili allo script newLISP.
 Supponiamo di avere un'applicazione con un oggetto di immissione testo "Utente".
 Il contenuto di questo oggetto di immissione testo viene memorizzato nella variabile VisualNeo [mcText]. Gli utenti inseriscono il loro testo lungo.
 Vuoi elaborare quel testo con newLISP.
-Ora non è più possibile utilizzare una singola espressione newLISP. 
-Come gestirlo? 
-Soluzione: devi solo passare [mcText] al codice newLISP. 
+Ora non è più possibile utilizzare una singola espressione newLISP.
+Come gestirlo?
+Soluzione: devi solo passare [mcText] al codice newLISP.
 In pochi passaggi te lo spiegherò.
 
 Passo 1
@@ -7287,6 +7287,376 @@ Grazie per aver letto i miei tutorial.
 
 Reinier Maliepaard
 (ultimo aggiornamento: 08-12-2019)
+
+
+-------------------------------------------------------------
+Numeri che diminuiscono e lettere che aumentano e (viceversa)
+-------------------------------------------------------------
+
+Dato un elenco di lettere minuscole [a-z] e numeri interi (ad esempio, ("a", 2, 3, "b")) aumentare le lettere di una posizione nell'alfabeto (ritornando da z ad a) e diminuire i numeri di 1.
+Nell'esempio precedente, l'output dovrebbe essere ("b", 1, 2, "c").
+Nota: "z" va ad "a", ma 1 va a 0 e 0 va a -1, ecc.
+Esempi:
+
+Input                   Output
+("a" 2 3 "b")   -->  ("b" 1 2 "c")
+("a" "b" "z")   -->  ("b" "c" "a")
+(-1 0 257 "x")  -->  (-2 -1 256 "y")
+(0 3 1 202876)  -->  (-1 2 0 202875)
+
+(char "a")
+;-> 97
+(char "z")
+;-> 122
+
+Funzione che verifica se una stringa è un solo carattere minuscolo:
+
+(define (lower? ch)
+  (and (string? ch) (= (length ch) 1) (>= ch "a") (<= ch "z")))
+
+Numeri diminuiscono e lettere aumentano:
+
+(define (augmentin lst)
+  (let (out '())
+    (dolist (el lst)
+      (cond ((integer? el) (push (- el 1) out -1))
+            ((lower? el)
+              (if (= el "z")
+                  (push "a" out -1)
+                  (push (char (+ (char el) 1)) out -1)
+              ))
+              ; equivalente a
+              ;(push (char (+ (% (- (+ (char el) 1) 97) 26) 97)) out -1))
+            (true (println "Error: " el))
+      )
+    )
+    out))
+
+(augmentin '("a" 2 3 "b"))
+;-> ("b" 1 2 "c")
+(augmentin '("a" "b" "z"))
+;-> ("b" "c" "a")
+(augmentin '(-1 0 257 "x"))
+;-> (-2 -1 256 "y")
+(augmentin '(0 3 1 202876))
+;-> (-1 2 0 202875)
+
+Numeri aumentano e lettere diminuiscono:
+
+(define (digmentin lst)
+  (let (out '())
+    (dolist (el lst)
+      (cond ((integer? el) (push (+ el 1) out -1))
+            ((lower? el)
+              (if (= el "a")
+                  (push "z" out -1)
+                  (push (char (- (char el) 1)) out -1)
+              ))
+            (true (println "Error: " el))
+      )
+    )
+    out))
+
+(digmentin '("a" 2 3 "b"))
+;-> ("z" 3 4 "a")
+(digmentin '("a" "b" "z"))
+;-> ("z" "a" "y")
+(digmentin '(-1 0 257 "x"))
+;-> (0 1 258 "w")
+(digmentin '(0 3 1 202876))
+;-> (1 4 2 202877)
+
+(digmentin '("b" 1 2 "c"))
+;-> ("a" 2 3 "b")
+(digmentin '("b" "c" "a"))
+;-> ("a" "b" "z")
+(digmentin '(-2 -1 256 "y"))
+;-> (-1 0 257 "x")
+(digmentin '(-1 2 0 202875))
+;-> (0 3 1 202876)
+
+
+-----------------
+Quale presidente?
+-----------------
+
+Chi era il Presidente della Repubblica Italiana il giorno/mese/anno?
+
+Abbiamo i dati in una lista con il seguente formato:
+
+          Inizio mandato      Fine mandato
+  (Nome (anno mese giorno) (anno mese giorno))
+
+(setq pres
+          '(("Enrico De Nicola" (1948 1 1) (1948 5 12))
+            ("Luigi Einaudi" (1948 5 12) (1955 5 11))
+            ("Giovanni Gronchi" (1955 5 11) (1962 5 11))
+            ("Antonio Segni" (1962 5 11) (1964 12 6))
+            ("Giuseppe Saragat" (1964 12 29) (1971 12 29))
+            ("Giovanni Leone" (1971 12 29) (1978 6 15))
+            ("Sandro Pertini" (1978 7 9) (1985 6 29))
+            ("Francesco Cossiga" (1985 7 3) (1992 4 28))
+            ("Oscar Luigi Scalfaro" (1992 5 28) (1999 5 15))
+            ("Carlo Azeglio Ciampi" (1999 5 18) (2006 5 15))
+            ("Giorgio Napolitano" (2006 5 15) (2015 1 14))
+            ("Sergio Mattarella" (2015 2 3) (2029 2 3))))
+
+Convertiamo le date in numero:
+
+  numero = anno*10000 + mese*100 + giorno
+
+Una data viene rappresentata da una lista: data --> (anno mese giorno)
+
+(define (date-number lst) (+ (* (lst 0) 1e4) (* (lst 1) 1e2) (lst 2)))
+
+(date-number '(1948 1 1))
+;-> 19480101
+(date-number '(1948 12 31))
+;-> 19481231
+(date-number '(2023 12 31))
+;-> 20231231
+
+Trasformiamo le date della lista "pres":
+
+(define (trasforma lst)
+  (local (out nome start end)
+    (setq out '())
+    (dolist (el lst)
+      (setq nome (el 0))
+      (setq start (date-number (el 1)))
+      (setq end (date-number (el 2)))
+      (push (list nome start end) out -1)
+    )
+    out))
+
+(setq pres (trasforma pres))
+;-> (("Enrico De Nicola" 19480101 19480512)
+;->  ("Luigi Einaudi" 19480512 19550511)
+;->  ("Giovanni Gronchi" 19550511 19620511)
+;->  ("Antonio Segni" 19620511 19641206)
+;->  ("Giuseppe Saragat" 19641229 19711229)
+;->  ("Giovanni Leone" 19711229 19780615)
+;->  ("Sandro Pertini" 19780709 19850629)
+;->  ("Francesco Cossiga" 19850703 19920428)
+;->  ("Oscar Luigi Scalfaro" 19920528 19990515)
+;->  ("Carlo Azeglio Ciampi" 19990518 20060515)
+;->  ("Giorgio Napolitano" 20060515 20150114)
+;->  ("Sergio Mattarella" 20150203 20290203))
+
+Funzione che trova il presidente ad una certa data:
+
+(define (presidente? data)
+  (let (out '())
+    (setq num (date-number data))
+    (dolist (el pres)
+      (if (and (>= num (el 1)) (<= num (el 2))) (push (el 0) out -1))
+    )
+    out))
+
+(presidente? '(1963 8 21))
+;-> (Antonio Segni")
+
+(presidente? '(1948 5 12))
+;-> ("Enrico De Nicola" "Luigi Einaudi")
+
+(presidente? '(1978 6 21))
+;-> ()
+
+-----------------------
+Super Mario Lucky House
+-----------------------
+
+Nel gioco Super Mario 3D World esiste una slot machine con 4 blocchi chiamata Lucky House.
+
+Ogni blocco può essere uno dei seguenti 5 caratteri:
+  fiore, foglia, campana, ciliegia o boomerang
+
+Il punteggio dipende dal numero di caratteri uguali ottenuti con un tiro:
+  Tutti caratteri diversi: 10
+  Una coppia: 100
+  Due coppie: 200
+  Tris: 300
+  Poker: 777
+
+Scrivere una funzione che simula la Lucky House.
+
+(define (lh)
+  (local (out values score ch)
+    (setq out '())
+    (setq values '())
+    (setq score 0)
+    (setq ch '("fiore" "foglia" "campana" "ciliegia" "boomerang"))
+    (for (i 1 4)
+      (setq blocco (rand 5))
+      (push blocco values)
+      (push (ch blocco) out -1)
+    )
+    (setq conteggio (count '(0 1 2 3 4) values))
+    (setq val-max (apply max conteggio))
+    (cond ((= val-max 1) (setq score 10))  ; tutti diversi
+          ((= val-max 3) (setq score 300)) ; tris
+          ((= val-max 4) (setq score 777)) ; poker
+          ((= val-max 2)
+            (if (= (length (find-all 2 conteggio)) 2)
+                (setq score 200) ; doppia coppia
+                (setq score 100) ; coppia singola
+            ))
+    )
+    (list out score)))
+
+(for (i 1 20) (println (lh)))
+;-> (("boomerang" "foglia" "boomerang" "foglia") 200)
+;-> (("foglia" "campana" "boomerang" "fiore") 10)
+;-> (("fiore" "campana" "campana" "fiore") 200)
+;-> (("foglia" "boomerang" "foglia" "fiore") 100)
+;-> (("fiore" "boomerang" "fiore" "fiore") 300)
+;-> (("fiore" "foglia" "boomerang" "foglia") 100)
+;-> (("campana" "boomerang" "boomerang" "campana") 200)
+;-> (("boomerang" "ciliegia" "foglia" "foglia") 100)
+;-> (("fiore" "campana" "boomerang" "foglia") 10)
+;-> (("foglia" "campana" "foglia" "ciliegia") 100)
+;-> (("boomerang" "campana" "boomerang" "fiore") 100)
+;-> (("boomerang" "ciliegia" "ciliegia" "campana") 100)
+;-> (("fiore" "foglia" "foglia" "fiore") 200)
+;-> (("campana" "fiore" "ciliegia" "boomerang") 10)
+;-> (("fiore" "boomerang" "ciliegia" "ciliegia") 100)
+;-> (("boomerang" "campana" "ciliegia" "fiore") 10)
+;-> (("ciliegia" "ciliegia" "ciliegia" "fiore") 300)
+;-> (("boomerang" "ciliegia" "ciliegia" "fiore") 100)
+;-> (("campana" "boomerang" "fiore" "foglia") 10)
+;-> (("fiore" "boomerang" "ciliegia" "foglia") 10)
+;-> (("fiore" "boomerang" "ciliegia" "foglia") 10)
+
+Vediamo le probabilità di ogni combinazione:
+
+(define (prob iter)
+  (local (diversi coppia doppia tris poker)
+    (set 'diversi 0 'coppia 0 'doppia 0 'tris 0 'poker 0)
+    (for (i 1 iter)
+      (setq val (last (lh)))
+      (cond ((= val 10) (++ diversi))
+            ((= val 100) (++ coppia))
+            ((= val 200) (++ doppia))
+            ((= val 300) (++ tris))
+            ((= val 777) (++ poker))
+            (true (println "Error: " val))
+      )
+    )
+    (list (div diversi iter) (div coppia iter) (div doppia iter)
+          (div tris iter) (div poker iter))))
+
+(prob 1e7)
+;-> (0.1919409 0.57597 0.095969 0.1281644 0.0079557)
+
+Notare che è più probabile ottenere un tris che una doppia coppia.
+
+Vediamo i valori della speranza matematica di ogni combinazione:
+
+  speranza = probabilità * punteggio
+
+(map mul '(0.1919409 0.57597 0.095969 0.1281644 0.0079557)
+         '(10 100 200 300 777))
+;-> (1.919409 57.597 19.1938 38.44932 6.1815789)
+
+
+------------------------------------
+Booleani di Church (Church booleans)
+------------------------------------
+
+Un booleano di Church è una funzione che restituisce x per vero e y per falso dove x è il primo argomento della funzione e y è il secondo argomento della funzione.
+In notazione di calcolo lambda:
+
+  true = λa.λb.a
+  nil  = λa.λb.b
+
+Da queste si possono comporre altre funzioni logiche (and, not, xor, ecc.).
+Per esempio:
+
+true(x y) -> x
+nil(x y) -> y
+
+and (true true)(x y) -> x
+oppure
+and (true(x y) true(x y)) -> x
+
+and (true nil)(x y) -> y
+oppure
+and (true(x y) nil(x y)) -> y
+...
+
+Vediamo un modo per implementare questi booleani di Church:
+
+  t[x_, y_] := x
+  f[x_, y_] := y
+  and[x_, y_] := x[y, f]
+  or[x_, y_] := x[t, y]
+  not[x_] := x[f, t]
+  xor[x_, y_] := y[not[x], x]
+
+#TRUE
+TRUE: con parametri x e y, restituisce sempre x
+(define (t x y j) x)
+
+#FALSE
+FALSE: con parametri x e y, restituisce sempre y
+(define (f x y j) y)
+
+#NOT
+NOT: con parametri x, y e j ('t' oppure 'f'), restituisce:
+  j(y, x)
+
+(define (not-ch x y j) (j y x))
+(not-ch 10 20 t)
+;-> 20
+(not-ch 10 20 f)
+;-> 10
+Spiegazione:
+n è un'espressione lambda che accetta tre parametri: x, y e j.
+Ci si aspetta che il parametro j sia una funzione (t o f).
+Quindi chiama la funzione j con y e x come parametri e restituisce il risultato.
+Ciò significa che restituisce x (se j è t) o y (se j è f).
+
+#AND
+AND con parametri x, y, j1 e j2 (j1 e j2 't' oppure 'f') restituisce:
+  j1(j2(x, y), y)
+
+(define (a-ch x y j1 j2) (j1 (j2 x y) y))
+(a-ch 10 20 t t)
+;-> 10
+(a-ch 10 20 f f)
+;-> 20
+(a-ch 10 20 t f)
+;-> 20
+(a-ch 10 20 f t)
+;-> 20
+
+#OR
+OR con parametri x, y, j1 e j2 (j1 e j2 't' oppure 'f') restituisce:
+  j1(x, j2(x,y))
+
+(define (or-ch x y j1 j2) (j1 x (j2 x y)))
+(or-ch 10 20 t t)
+;-> 10
+(or-ch 10 20 f f)
+;-> 20
+(or-ch 10 20 t f)
+;-> 10
+(or-ch 10 20 f t)
+;-> 10
+
+#XOR
+XOR con parametri x, y, j1 e j2 (j1 e j2 't' oppure 'f') restituisce:
+  j1(j2(y,x), j2(x,y))
+
+(define (xor-ch x y j1 j2) (j1 (j2 y x) (j2 x y)))
+(xor-ch 10 20 t t)
+;-> 20
+(xor-ch 10 20 f f)
+;-> 20
+(xor-ch 10 20 t f)
+;-> 10
+(xor-ch 10 20 f t)
+;-> 10
 
 =============================================================================
 

@@ -1950,7 +1950,7 @@ NOTE LIBERE 17
 NOTE LIBERE 18
 ==============
   Tavola Periodica degli Elementi (ricerche)
-  Notazione perintervalli
+  Notazione per intervalli
   La funzione "Over"
   Numeri di Meeker
   Numeri primi aggiungendo un suffisso/prefisso
@@ -2011,7 +2011,11 @@ NOTE LIBERE 18
   newLISP per VisualNEO Win. Parte 4: Liste
   newLISP Challenge 2!
   newLISP per VisualNEO Win. Parte 5: altri quattro argomenti
-  
+  Numeri che diminuiscono e lettere che aumentano (e viceversa)
+  Quale presidente?
+  Super Mario Lucky House
+  Booleani di Church (Church booleans)
+
 PROBLEMI SUI DADI
 =================
   Problemi 1..76
