@@ -7705,5 +7705,142 @@ Sequenza OEIS A004207:
 ;->  148 161 169 185 199 218 229 242 250 257 271 281 292 305 313 320 
 ;->  325 335 346 359 376 392 406 416 427 440 448 464 478)
 
+
+--------------------------------------------------------------
+Attraversando il ponte di notte (Crossing the Bridge at Night)
+--------------------------------------------------------------
+
+Quattro persone partono dallo stesso lato di un ponte.
+Devi aiutarli ad attraversare il ponte e raggiungere l'altro lato.
+È notte. C'è una pila elettrica.
+Nel ponte possono transitare al massimo due persone alla volta.
+Qualsiasi gruppo che attraversa, una o due persone, deve avere la pila.
+La pila deve essere spostata avanti e indietro (non può essere lanciata, ecc.)
+Ogni persona cammina a una velocità diversa.
+Una coppia cammina insieme al ritmo del passo della persona più lenta.
+I tempi di percorrenza del ponte di ogni persona sono i seguenti:
+  - la persona 1 impiega t1 = 1 minuti per attraversare.
+  - la persona 2 impiega t2 = 2 minuti per attraversare.
+  - la persona 3 impiega t3 = 5 minuti per attraversare.
+  - la persona 4 impiega t4 = 10 minuti per attraversare.
+
+Scriviamo alcune funzioni che ci permettono di simulare questo processo.
+
+Utilizziamo le seguenti variabili globali:
+
+  elapsed = tempo totale di percorrenza del ponte
+  sinistra = lista delle persone a sinistra del ponte
+  destra = lista delle persone a destra del ponte
+  speed = tempi di percorrenza di ogni persona
+
+Adesso definiamo due funzioni per muovere le persone attraverso il ponte.
+
+  avanti(lst)   --> sposta le persone in lst da sinistra a destra
+  indietro(lst) --> sposta le persone in lst da destra a sinistra
+
+(define (setup tp)
+; variabili globali
+  (setq elapsed 0)
+  (setq sinistra '(1 2 3 4))
+  (setq destra '())
+  ; indice 0 = persona 0
+  (push 0 speed)
+  (setq speed (push 0 tp))
+)
+
+(define (avanti lst)
+  (local (tempi tempo-max)
+    ;(setq tempi (select speed lst))
+    ;(setq tempo-max (apply max (select speed lst)))
+    ;(println tempi { } tempo-max)
+    (++ elapsed (apply max (select speed lst)))      ; update elapsed
+    (sort (extend destra lst))                       ; update destra
+    (setq sinistra (sort (difference sinistra lst))) ; update sinistra
+    (println sinistra { } destra { } elapsed)))      ; print current status
+
+(define (indietro lst)
+  (local (tempi tempo-max)
+    ;(setq tempi (select speed lst))
+    ;(setq tempo-max (apply max tempi))
+    ;(println tempi { } tempo-max)
+    (++ elapsed (apply max (select speed lst)))  ; update elapsed
+    (sort (extend sinistra lst))                 ; update sinistra
+    (setq destra (sort (difference destra lst))) ; update destra
+    (println sinistra { } destra { } elapsed)))  ; print current status
+
+Con queste funzioni possiamo simulare il processo e cercare la soluzione ottimale (quella che impiega meno tempo per far attraversare il ponte a tutte le persone).
+
+Nota: nessun controllo di correttezza sui dati di input delle funzioni.
+
+La soluzione più ovvia è lasciare che la persona più veloce (persona 1) si accoppi a turno con ogni persona per attraversare il ponte e ritorni poi da solo con la torcia.
+Vediamo cosa comporta questo metodo:
+
+Inizializziamo la situazione:
+(setup '(1 2 5 10))
+;-> (0 1 2 5 10)
+
+1 e 2 attraversano il ponte:
+(avanti '(1 2))
+;-> (3 4) (1 2) 2
+
+L'output ha il seguente significato:
+A sinistra ci sono le persone 3 e 4. A destra ci sono le persone 1 e 2.
+Il tempo di percorrenza totale vale 2.
+
+1 torna indietro:
+(indietro '(1))
+;-> (1 3 4) (2) 3
+
+1 e 3 attraversano il ponte:
+(avanti '(1 3))
+;-> (4) (1 2 3) 8
+
+1 torna indietro:
+(indietro '(1))
+;-> (1 4) (2 3) 9
+
+1 e 4 attraversano il ponte:
+(avanti '(1 4))
+;-> () (1 2 3 4) 19
+
+Con questo metodo impieghiamo 19 minuti per attraversare il ponte.
+
+Per cercare una soluzione migliore bisogna notare che far attraversare individualmente le due persone più lente fa perdere tempo, che potrebbe essere guadagnato se entrambe attraversano insieme.
+
+Inizializziamo la situazione:
+(setup '(1 2 5 10))
+;-> (0 1 2 5 10)
+
+1 e 2 attraversano il ponte:
+(avanti '(1 2))
+;-> (3 4) (1 2) 2
+
+1 torna indietro:
+(indietro '(1))
+;-> (1 3 4) (2) 3
+
+3 e 4 attraversano il ponte:
+(avanti '(3 4))
+;-> (1) (2 3 4) 13
+
+2 torna indietro:
+(indietro '(2))
+;-> (1 2) (3 4) 15
+
+1 e 2 attraversano il ponte:
+(avanti '(1 2))
+;-> () (1 2 3 4) 17
+
+Con questo metodo impieghiamo 17 minuti per attraversare il ponte.
+
+Dal punto di vista matematico il tempo minimo per quattro persone è dato dalla seguente equazione (con t1 < t2 < t3 < t4):
+
+  min(t1 + t2 + t3 + t1 + t4, t1 + t2 + t4 + t2 + t2) =
+  = min(2t1 + t2 + t3 + t4, t1 + 3t2 + t4) =
+  = min(t1 + t3, 2t2 + t4)
+
+Per una trattazione completa del problema esteso a N persone vedi:
+"Crossing the Bridge at Night" di Rote Gunter (2002) - Istituto Informatica dell'Università di Berlino.
+
 =============================================================================
 

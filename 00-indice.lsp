@@ -2016,6 +2016,7 @@ NOTE LIBERE 18
   Super Mario Lucky House
   Booleani di Church (Church booleans)
   Sequenza somma delle cifre
+  Attraversando il ponte di notte (Crossing the Bridge at Night)
 
 PROBLEMI SUI DADI
 =================
