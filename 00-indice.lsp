@@ -2017,6 +2017,7 @@ NOTE LIBERE 18
   Booleani di Church (Church booleans)
   Sequenza somma delle cifre
   Attraversando il ponte di notte (Crossing the Bridge at Night)
+  Espansione di un numero intero
 
 PROBLEMI SUI DADI
 =================
@@ -2058,7 +2059,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (240 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (241 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

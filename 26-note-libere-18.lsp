@@ -7842,5 +7842,51 @@ Dal punto di vista matematico il tempo minimo per quattro persone è dato dalla 
 Per una trattazione completa del problema esteso a N persone vedi:
 "Crossing the Bridge at Night" di Rote Gunter (2002) - Istituto Informatica dell'Università di Berlino.
 
+
+------------------------------
+Espansione di un numero intero
+------------------------------
+
+Da bambini, in prima o seconda elementare, utilizzavamo la forma estesa per conoscere il valore posizionale dei numeri. 
+È più facile spiegarlo con un esempio.
+Consideriamo il numero 123:
+in forma estesa è rappresentato come 100 + 20 + 3. 
+In parole: cento (più) venti (più) tre.
+
+Scrivere una funzione che espande un numero intero.
+
+(define (espandi num)
+  (local (str pos cifra valore)
+    (setq str "")
+    (setq pos 0)
+    ; ciclo per ogni cifra
+    (while (!= num 0)
+      ; cifra corrente
+      (setq cifra (% num 10))
+      ; valore in base alla posizione della cifra
+      (setq valore (* cifra (pow 10 pos)))
+      ; aggiorna la stringa di output
+      (if (!= valore 0) (setq str (append (string valore " + ") str)))
+      ; prossima cifra
+      (setq num (/ num 10))
+      ; prossima posizione
+      (++ pos)
+    )
+    ; output (caso del numero 0):
+    (if (= str "") "0" (chop str 3))))
+
+Facciamo alcune prove:
+
+(espandi 1234)
+"1000 + 200 + 30 + 4"
+> (espandi 1000)
+"1000"
+> (espandi 24601)
+"20000 + 4000 + 600 + 1"
+> (espandi 8)
+"8"
+> (espandi 0)
+"0"
+
 =============================================================================
 
