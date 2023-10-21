@@ -2018,6 +2018,7 @@ NOTE LIBERE 18
   Sequenza somma delle cifre
   Attraversando il ponte di notte (Crossing the Bridge at Night)
   Espansione di un numero intero
+  Algoritmo di Luhn
 
 PROBLEMI SUI DADI
 =================

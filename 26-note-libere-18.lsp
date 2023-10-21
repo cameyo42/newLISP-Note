@@ -7888,5 +7888,142 @@ Facciamo alcune prove:
 > (espandi 0)
 "0"
 
+
+-----------------
+Algoritmo di Luhn
+-----------------
+
+Questo algoritmo, conosciuto anche come Modulo 10, che consente di generare e verificare la validità di vari numeri identificativi (es. carte di credito).
+Venne ideata nel 1954 dall'informatico dell'IBM Hans Peter Luhn, brevettata nel 1960 è ora di pubblico dominio.
+Ogni carta di credito ha un suo numero di carta (es. 0000-1234-5678-9123) dove la prima parte identifica il circuito internazionale (Visa, American Express, Mastercard...) mentre il resto la banca ed il cliente.
+
+L'algoritmo è il seguente:
+Passo 1:
+partendo dalla cifra più a destra, raddoppiare il valore di ogni seconda cifra.
+
+Passo 2:
+Se il raddoppio di un numero dà come risultato un numero a due cifre, ovvero maggiore di 9 (ad esempio, 5 * 2 = 10), allora aggiungere le cifre del prodotto (ad esempio, 10: 1 + 0 = 1) per ottenere un numero a una cifra.
+
+Passo 3:
+Sommare tutte le cifre.
+
+Passo 4:
+Se la somma modulo 10 è uguale a 0 (se il totale termina con zero) allora il numero è valido secondo la formula di Luhn, altrimenti non è valido.
+
+Per capire meglio l'algoritmo vediamo un esempio.
+Consideriamo il numero 79937291783:
+
+ 0 7 9 9 3 7 2 9 1 7 8 3  numero
+ 0   18  6   4   2   16   raddoppio dei numeri posto pari (da destra)
+     9   6   4   2   7    cifra unica
+ 0 7   9   7   9   7   3  numeri posto dispari (da destra)
+
+ 0 7 9 9 6 7 4 9 2 7 7 3  numeri da sommare
+
+(+  0 7 9 9 6 7 4 9 2 7 7 3)
+;-> 70
+
+  (70 mod 10) = 0 ==> numero valido (secondo la formula di Luhn)
+
+(define (digit-root num)
+"Calculates the repeated sum of the digits of an integer"
+    (+ 1 (% (- (abs num) 1) 9)))
+
+(define (luhn num)
+  (local (somma secondo val)
+    (setq num (reverse (explode (string num))))
+    (setq somma 0)
+    (setq secondo nil)
+    (dolist (el num)
+      (setq val (int el))
+      (if secondo
+          (++ somma (digit-root (* val 2)))
+          (++ somma val)
+      )
+      (setq secondo (not secondo))
+    )
+    ;(println somma)
+    (zero? (% somma 10))))
+
+Facciamo alcune prove:
+
+(luhn "079937291783")
+;-> true
+
+(luhn "0736892374903")
+;-> nil
+
+(luhn "0624356783073")
+;-> true
+
+Possiamo anche creare un numero di Luhn.
+
+Funzione che calcola la somma di luhn di una numero:
+
+(define (luhn-somma num)
+  (local (somma secondo val)
+    (setq num (reverse (explode (string num))))
+    (setq somma 0)
+    (setq secondo nil)
+    (dolist (el num)
+      (setq val (int el))
+      (if secondo
+          (++ somma (digit-root (* val 2)))
+          (++ somma val)
+      )
+      (setq secondo (not secondo))
+    )
+    somma))
+
+(luhn-somma "135625538987")
+;-> 55
+
+Funzione che crea un numero di luhn (12 cifre):
+
+(define (create-luhn)
+  (local (numero somma secondo val diff)
+    ; genera una lista casuale di 10 cifre
+    (setq lst (rand 10 10))
+    ; converte la lista in stringa
+    (setq numero (join (map string lst)))
+    ; calcola la somma di luhn
+    (setq somma (luhn-somma numero))
+    ; calcola il valore (cifra) da aggiungere per fare in modo che:
+    ; (somma + cifra) mod 10 = 0
+    (setq diff (% (- 10 (% somma 10)) 10))
+    ; cambiamo le ultime due cifre (a e b) con i valori più semplici (base)
+    ; diff = d1 + d2 = a*2 + b
+    ; per esempio il valore 0 potrebbe essere dato da:
+    ; a = 0, b = 0 --> 0*2 = 0 0 + 0 = 0 (caso base) oppure
+    ; a = 6, b = 7 --> 6*2=12 -> 3 + 7 = 10 
+    (cond ((= diff 0) (setq a 0) (setq b 0)) ; caso base
+          ((= diff 1) (setq a 0) (setq b 1)) ; caso base
+          ((= diff 2) (setq a 1) (setq b 0)) ; caso base
+          ((= diff 3) (setq a 1) (setq b 1)) ; caso base
+          ((= diff 4) (setq a 2) (setq b 0)) ; caso base
+          ((= diff 5) (setq a 2) (setq b 1)) ; caso base
+          ((= diff 6) (setq a 2) (setq b 2)) ; caso base
+          ((= diff 7) (setq a 3) (setq b 1)) ; caso base
+          ((= diff 8) (setq a 4) (setq b 0)) ; caso base
+          ((= diff 9) (setq a 4) (setq b 1)) ; caso base
+    )
+    (push (string a) numero -1) ; penultima cifra
+    (push (string b) numero -1) ; ultima cifra
+    numero))
+
+Facciamo alcune prove:
+
+(create-luhn)
+;-> "336928396231"
+(create-luhn)
+;-> "235220178620"
+(create-luhn)
+;-> "804692678910"
+(luhn (create-luhn))
+;-> true
+
+(for (i 1 1e5) (if (not (luhn (create-luhn))) (println "error")))
+;-> nil
+
 =============================================================================
 

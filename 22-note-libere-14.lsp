@@ -7811,6 +7811,24 @@ Vediamo un semplice utilizzo della funzione:
 ;-> b = 656
 ;-> 1284
 
+Una funzione più semplice stampa il nome del simbolo passato (quotato) e il suo valore:
+
+(define (dbg qsym) (println (string qsym ": ") (eval qsym)))
+
+(setq xx 1234)
+(setq yy 1.234)
+(setq zz "newLISP")
+(setq ww '(1 2 3 4))
+
+(dbg 'xx)
+;-> xx: 1234
+(dbg 'yy)
+;-> yy: 1.234
+(dbg 'zz)
+;-> zz: newLISP
+(dbg 'ww)
+;-> ww: (1 2 3 4)
+
 Un altro metodo è quello proposto da Fanda:
 
 ;; Copyright © 2007, Frantisek Sodomka. All rights reserved.
