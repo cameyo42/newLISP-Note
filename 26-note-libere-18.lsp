@@ -8025,5 +8025,116 @@ Facciamo alcune prove:
 (for (i 1 1e5) (if (not (luhn (create-luhn))) (println "error")))
 ;-> nil
 
+
+-------------------------------------------------------------------
+Sfida a Donald Knuth: k parole più frequenti (literate programming)
+-------------------------------------------------------------------
+
+Questa è una nota sfida sulla programmazione.
+Nel 1986 Jon Bentley chiese a Donald Knuth di scrivere un programma in grado di trovare le k parole più frequenti in un file.
+Knuth ha implementato una soluzione utilizzando gli "hash tries" in un programma di 8 pagine per illustrare la sua tecnica di "literate programming" (vedi nota alla fine).
+
+"Programming Pearls" 
+"A literate programming" Jon Bentley, Don Knuth e Doug McIlroy 
+"https://www.cs.tufts.edu/~nr/cs257/archive/don-knuth/pearls-2.pdf"
+
+Descrizione originale del problema:
+Dato un file di testo e un numero intero k, stampare le k parole più frequenti nel file (e il numero delle loro occorrenze) con frequenza decrescente.
+
+Ulteriori chiarimenti sul problema:
+- Knuth definisce una parola come una stringa di lettere latine: [A-Za-z]+
+- Tutti gli altri caratteri vengono ignorati
+- le lettere maiuscole e minuscole sono considerate equivalenti
+
+Soluzione con newLISP
+---------------------
+Possiamo utilizzare la funzione "bayes-train" per scansionare una lista di parole e memorizzare le frequenze delle parole in un nuovo contesto ctx):
+
+(bayes-train '("we" "are" "you" "we" "is" "it" "are") 'ctx)
+;-> (7) ; numero degli elementi della lista
+
+Adesso il contesto contiene un elenco di parole che compaiono nella lista e le frequenze di ciascuna. Ad esempio:
+
+(ctx)
+;-> (("are" (2)) ("is" (1)) ("it" (1)) ("we" (2)) ("you" (1)))
+
+ctx:_we
+;-> (2)
+
+I nomi delle simboli sono preceduti da "_" nel contesto.
+Comunque possiamo trasformare i simboli del contesto (e i loro valori) con una semplice assegnazione:
+
+(setq lista (ctx))
+;-> (("are" (2)) ("is" (1)) ("it" (1)) ("we" (2)) ("you" (1)))
+(list? lista)
+;-> true
+
+Per creare la lista di parole utilizziamo la funzione "parse".
+Il file di test è "dorian-grey.txt" che si trova nella cartella "data".
+
+(silent
+(setq dorian
+  (parse (lower-case
+         (read-file "dorian-grey.txt")) {\W} 0)))
+
+Il parametro {\W} indica a regex di prendere solo le parole (Words).
+
+(length dorian)
+;-> 110762
+(slice dorian 100 20)
+;-> ("are" "corrupt" "without" "" "being" "charming"
+;->  "" "" "this" "is" "a" "fault" "" "" "" ""
+;->  "those" "who" "find" "beautiful")
+
+Scriviamo la funzione finale:
+
+(define (freq file k)
+  (local (lst out)
+    ; elimina i dati dal contesto (se esiste)
+    (if (context? U) (delete 'U))
+    ; divide (parse) il file in parole
+    (setq lst (parse (lower-case (read-file file)) {\W} 0))
+    ; crea le parole (simboli) e le relative frequenze (valori) nel contesto U
+    (bayes-train lst 'U)
+    ; inserisce i simboli del contesto in una lista: (simbolo valore)
+    (setq out (U))
+    ; inserisce i simboli del contesto in una lista: (valore simbolo)
+    ;(dotree (s U true) (push (list (first (eval s)) (eval (term s))) out -1))
+    ; ordina la lista in base ai valori di frequenza
+    ; ed estrae i primi k termini
+    (slice (sort lista (fn (x y) (>= (last x) (last y)))) 0 k))
+
+Proviamo la funzione:
+
+(freq "dorian-grey.txt" 10)
+;-> ((30346 "_") (3762 "_the") (2211 "_and") (2175 "_of") 
+;->  (2101 "_to") (1694 "_i") (1672 "_a") (1541 "_he")
+;->  (1445 "_you") (1361 "_that"))
+
+Nota: Literate Programming
+--------------------------
+La "literate programming" è una tecnica di programmazione proposta da Donald Knuth negli anni '80.
+L'obiettivo della literate programming è quello di scrivere il codice in un modo che sia più comprensibile e leggibile per gli esseri umani.
+
+Nel contesto della literate programming, il programma non è scritto come una serie lineare di istruzioni, ma piuttosto come un racconto o un documento.
+Questo documento combina il codice sorgente con spiegazioni dettagliate e documentazione testuale.
+Knuth ha creato un sistema chiamato "WEB" per la scrittura di programmi con questa tecnica.
+
+Vantaggi della literate programming:
+
+Maggiore comprensibilità: La documentazione testuale inclusa nel programma aiuta gli sviluppatori a comprendere meglio il codice e le sue funzioni.
+
+Facilità di manutenzione: La documentazione dettagliata aiuta ad individuare i bug o a migliorare il codice in modo più efficace.
+
+Maggiore collaborazione: La chiarezza della documentazioni facilita la comunicazione tra gli sviluppatori.
+
+Generazione automatica della documentazione: La documentazione dei programmi può essere effettuata automaticamente a partire dal codice sorgente.
+
+Svantaggi della literate programming:
+
+Tempo di sviluppo maggiore: la literate programming richiede un impegno maggiore nella scrittura e nella documentazione (il che potrebbe renderla meno adatta a molti i tipi di progetti software).
+
+Bassa adozione: non è stata adottata in modo diffuso nel settore dell'industria del software.
+
 =============================================================================
 

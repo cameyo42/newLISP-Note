@@ -2019,6 +2019,7 @@ NOTE LIBERE 18
   Attraversando il ponte di notte (Crossing the Bridge at Night)
   Espansione di un numero intero
   Algoritmo di Luhn
+  Sfida a Donald Knuth: k parole più frequenti (literate programming)
 
 PROBLEMI SUI DADI
 =================
