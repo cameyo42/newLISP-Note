@@ -2020,6 +2020,8 @@ NOTE LIBERE 18
   Espansione di un numero intero
   Algoritmo di Luhn
   Sfida a Donald Knuth: k parole più frequenti (literate programming)
+  Elenco di Noè
+  Eliminazione dei caratteri non ASCII in un file
 
 PROBLEMI SUI DADI
 =================

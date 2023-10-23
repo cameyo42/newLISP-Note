@@ -8136,5 +8136,177 @@ Tempo di sviluppo maggiore: la literate programming richiede un impegno maggiore
 
 Bassa adozione: non è stata adottata in modo diffuso nel settore dell'industria del software.
 
+
+-------------
+Elenco di Noè
+-------------
+
+Genesi 7
+--------
+Il Signore disse a Noè:
+"Entra nell'arca tu con tutta la tua famiglia, perché ti ho visto giusto dinanzi a me in questa generazione.
+Di ogni animale puro prendine con te sette paia, il maschio e la sua femmina;
+degli animali che non sono puri un paio, il maschio e la sua femmina.
+Anche degli uccelli del cielo, sette paia, maschio e femmina, per conservarne in vita la razza su tutta la terra.
+Perché tra sette giorni farò piovere sulla terra per quaranta giorni e quaranta notti; cancellerò dalla terra ogni essere che ho fatto".
+Noè fece quanto il Signore gli aveva comandato.
+
+Nota: gli animali puri sono quelli adatti al sacrificio
+
+Tralasciando la differenza tra animali puri e impuri, chiamiamo "elenco di Noè" una lista in cui ogni intero ha una sua copia (maschio e femmina).
+In altre parole, una lista in cui tutti i numeri sono ripetuti solo due volte.
+
+Primo metodo:
+
+(define (noe1? lst)
+  (for-all (fn(x) (= x 2)) (count (unique lst) lst)))
+
+(noe1? '(7 13 9 2 10 2 4 10 7 13 4 9))
+(noe1? '(1 2 3 1 2 3))
+(noe1? '(10 100 1000 1 100 10 1000 1))
+(noe1? '(123 123))
+(noe1? '(8 22 57189 492 22 57188 8 492 57188 57189 1 1))
+(noe1? '(1 1))
+
+(noe1? '(6 4 4 6 4 7 4 7))
+(noe1? '(2 2 2 2 2 2))
+(noe1? '(5 1 4 5 1 1 4))
+(noe1? '(77 31 5 31 80 77 5 8 8))
+(noe1? '(1 2 3 2 1))
+(noe1? '(44 4 4))
+(noe1? '(500 30 1))
+(noe1? '(1 2 1 1))
+(noe1? '(2 4 6 4 4 4))
+(noe1? '(2 23 34 4))
+(noe1? '(2 23 3 3 34 4))
+
+Secondo metodo:
+
+(define (noe2? lst)
+  (let ((conta (count (unique lst) lst))
+        (len (length conta)))
+    (or (and (= (conta 0) 2) (= (length conta) 1))
+        (and (= (conta 0) 2) (apply = conta)))))
+
+(noe2? '(7 13 9 2 10 2 4 10 7 13 4 9))
+(noe2? '(1 2 3 1 2 3))
+(noe2? '(10 100 1000 1 100 10 1000 1))
+(noe2? '(123 123))
+(noe2? '(8 22 57189 492 22 57188 8 492 57188 57189 1 1))
+(noe2? '(1 1))
+
+(noe2? '(6 4 4 6 4 7 4 7))
+(noe2? '(2 2 2 2 2 2))
+(noe2? '(5 1 4 5 1 1 4))
+(noe2? '(77 31 5 31 80 77 5 8 8))
+(noe2? '(1 2 3 2 1))
+(noe2? '(44 4 4))
+(noe2? '(500 30 1))
+(noe2? '(1 2 1 1))
+(noe2? '(2 4 6 4 4 4))
+(noe2? '(2 23 34 4))
+(noe2? '(2 23 3 3 34 4))
+
+Vediamo la velocità delle due funzioni:
+
+(setq test (flat (dup '(1 2 3) 100)))
+(time (noe1? test) 1e5)
+;-> 4674.145
+(time (noe2? test) 1e5)
+;-> 4683.183
+
+(setq test (flat (dup '(1 2 3) 10000)))
+(time (noe1? test) 1e3)
+;-> 7435.053
+(time (noe2? test) 1e3)
+;-> 7412.839
+
+
+-----------------------------------------------
+Eliminazione dei caratteri non ASCII in un file
+-----------------------------------------------
+
+Dato un file di testo, scrivere una funzione che crea un nuovo file in cui sono stati eliminati tutti i caratteri non ASCII (< 127) presenti nel file di input.
+La funzione deve restituire la lista dei caratteri non ASCII.
+
+(define (ascii-file file1 file2)
+  (local (in-file out-file chr non-ascii)
+    (setq in-file (open file1 "read"))
+    (if file2
+        (setq out-file (open file2 "write"))
+        (setq out-file (open (extend file1 ".txt") "write"))
+    )
+    (setq non-ascii '())
+    (while (setq chr (read-utf8 in-file))
+        ;solo caratteri ascii
+        (if (< chr 127)
+            (write-char out-file chr)
+            (push chr non-ascii -1)
+        )
+    )
+    (close in-file)
+    (close out-file)
+    non-ascii))
+
+Usiamo il file seguente per prova:
+
+"utf8-file.txt"
+----------------
+← ↑ → ↓
+αβγδεζηθκλμνξπρστυφχψω
+π ∞ ∏ ∑
+133 à 0224 Alt+F8
+138 è 0232 Alt+F9
+141 ì 0236 Alt+F10
+149 ò 0242 Alt+F11
+151 ù 0249 Alt+F12
+254 ■
+223 ▀
+219 █
+lambda λ
+(print "╔") (print "╗") (print "╚") (print "╝")
+(char "·")
+;-> 33554432
+(char "∙")
+;-> 16777216
+(char "●")
+;-> 63
+----------------
+
+Eseguiamo la funzione:
+
+(real-path)
+(ascii-file "utf8-file.txt" "ascii-file.txt")
+;-> (8592 8593 8594 8595 945 946 947 948 949 950 951 952 954 955 956 957 958 960 961
+;->  963 964 965 966 967 968 969 960 8734 8719 8721 224 232 236 242 249 9632 9600 9608
+;->  955 9556 9559 9562 9565 183 8729 9679)
+
+Il file creato è il seguente:
+
+"ascii-file.txt"
+----------------
+   
+
+   
+133  0224 Alt+F8
+138  0232 Alt+F9
+141  0236 Alt+F10
+149  0242 Alt+F11
+151  0249 Alt+F12
+254 
+223 
+219 
+lambda 
+(print "") (print "") (print "") (print "")
+(char "")
+;-> 33554432
+(char "")
+;-> 16777216
+(char "")
+;-> 63
+----------------
+
+La lista di output contiene i valori decimali dei caratteri utf8 presenti nel file di input.
+
 =============================================================================
 
