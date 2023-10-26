@@ -2024,6 +2024,7 @@ NOTE LIBERE 18
   Eliminazione dei caratteri non ASCII in un file
   Text file utilities 2
   Roulette simulation
+  Messaggio cifrato
 
 PROBLEMI SUI DADI
 =================

@@ -8912,5 +8912,95 @@ Per finire vediamo quali sono le probabilità del giocatore e quelle del croupie
 
 Il numero "0" sposta sempre le probabilità a favore del croupier.
 
+
+-----------------
+Messaggio cifrato
+-----------------
+
+Un messaggio (stringa ASCII [32-126]) viene cifrato con il seguente algoritmo:
+
+a) Convertire ogni carattere nel relativo codice ASCII a 7 bit
+   (se il codice ASCII è inferiore a 7 bit, inserisci i bit zero iniziali)
+b) Concatenare tutti i bit
+   (bitstream lungo 7*n bit dove n è il numero di caratteri della stringa)
+c) Per ogni bit del bitstream:
+   aggiungere "1" al risultato se è diverso dal bit precedente
+   altrimenti aggiungere "0".
+   (Il primo bit del risultato è sempre 1).
+
+Esempio:
+
+  input = "newLISP"
+  "n" --> "1101110"
+  "e" --> "1100101"
+  "w" --> "1110111"
+  "L" --> "1001100"
+  "I" --> "1001001"
+  "S" --> "1010011"
+  "P" --> "1010000"
+  concatenazione = "1101110110010111101111001100100100110100111010000"
+  output = "1011001101011100011000101010110110101110100111000"
+
+Scrivere le funzioni di cifratura e decifratura di questo algoritmo.
+
+Funzione che cifra una stringa:
+
+(define (crypt str)
+  (let ((bit7 "") (out "1"))
+    (dostring (ch str)
+      (extend bit7 (format "%07s" (bits ch)))
+      ;(println (char ch) { } (format "%07s" (bits ch)))
+    )
+    ;(println bit7)
+    (for (i 1 (- (length bit7) 1))
+      (if (= (bit7 i) (bit7 (- i 1)))
+          (extend out "0")
+          (extend out "1")
+      )
+    )
+    out))
+
+(crypt "newLISP")
+;-> "1011001101011100011000101010110110101110100111000"
+
+Per decifrare il messaggio cifrato occorre conoscere se la concatenazione iniziava con "1" oppure con "0". Purtroppo questo non è possibile perchè l'algoritmo di cifratura fa iniziare l'output sempre con "1".
+Per aggirare il problema scriviamo una funzione di decifratura che prende un parametro (start) per definire il bit iniziale. 
+In questo modo possiamo provare entrambe le possibilità per capire il giusto risultato.
+
+Funzione che inverte un bit:
+
+(define (flip x)  (if (= x "0") "1" "0"))
+
+Funzione che decifra una stringa:
+
+(define (decrypt str start)
+  (let (out "")
+    (setq out start)
+    (for (i 1 (- (length str) 1))
+      (cond ((= (str i) "1") ; carattere di output diverso dal precedente
+              (extend out (flip (out (- i 1)))))
+            ((= (str i) "0") ; carattere di output uguale al precedente
+              (extend out (out (- i 1))))
+      )
+    )
+    (join (map char (map (fn(x) (int x 0 2)) (explode out 7))))))
+
+Facciamo alcune prove:
+
+(decrypt (crypt "newLISP") "0")
+;-> "\017\026\b36,/"
+(decrypt (crypt "newLISP") "1")
+;-> "newLISP"
+
+(decrypt (crypt "  newLISP") "0")
+;-> "  newLISP"
+(decrypt (crypt "  newLISP") "1")
+;-> "__\017\026\b36,/"
+
+(decrypt (crypt "warning: this is addictive.") "0")
+;-> "\b\030\r\017\022\017\024E_\011\023\022\f_\022\f_\030\027\027\022\028\011\022\t\026Q"
+(decrypt (crypt "warning: this is addictive.") "1")
+;-> "warning: this is addictive."
+
 =============================================================================
 
