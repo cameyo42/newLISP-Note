@@ -2022,6 +2022,8 @@ NOTE LIBERE 18
   Sfida a Donald Knuth: k parole più frequenti (literate programming)
   Elenco di Noè
   Eliminazione dei caratteri non ASCII in un file
+  Text file utilities 2
+  Roulette simulation
 
 PROBLEMI SUI DADI
 =================

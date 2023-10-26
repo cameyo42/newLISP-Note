@@ -1518,7 +1518,7 @@ Estrazione di dati da un file di testo
 --------------------------------------
 
 Supponiamo di voler estrarre tutti i numeri contenuti in un testo (file o stringa).
-Un trucco è quello di utlizzare la funzione "replace" con una espressione regolare nel modo seguente:
+Un trucco è quello di utilizzare la funzione "replace" con una espressione regolare nel modo seguente:
 
 ; Impostare il testo da analizzare
 ; per un file

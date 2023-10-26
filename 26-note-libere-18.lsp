@@ -7670,15 +7670,15 @@ Sequenza somma delle cifre
 
 La sequenza è definita nel modo seguente:
 
-  a(0) = 1, 
+  a(0) = 1,
   a(1) = 1
   a(n) = somma delle cifre di tutti i termini precedenti
   a(n) = a(n-1) + digit-sum(a(n-1))
 
 Sequenza OEIS A004207:
   1, 1, 2, 4, 8, 16, 23, 28, 38, 49, 62, 70, 77, 91, 101, 103, 107, 115,
-  122, 127, 137, 148, 161, 169, 185, 199, 218, 229, 242, 250, 257, 271, 
-  281, 292, 305, 313, 320, 325, 335, 346, 359, 376, 392, 406, 416, 427, 
+  122, 127, 137, 148, 161, 169, 185, 199, 218, 229, 242, 250, 257, 271,
+  281, 292, 305, 313, 320, 325, 335, 346, 359, 376, 392, 406, 416, 427,
   440, 448, 464, 478, 497, 517, 530, 538, ...
 
 (define (digit-sum num)
@@ -7702,7 +7702,7 @@ Sequenza OEIS A004207:
 
 (A004207 50)
 ;-> (1 1 2 4 8 16 23 28 38 49 62 70 77 91 101 103 107 115 122 127 137
-;->  148 161 169 185 199 218 229 242 250 257 271 281 292 305 313 320 
+;->  148 161 169 185 199 218 229 242 250 257 271 281 292 305 313 320
 ;->  325 335 346 359 376 392 406 416 427 440 448 464 478)
 
 
@@ -7847,10 +7847,10 @@ Per una trattazione completa del problema esteso a N persone vedi:
 Espansione di un numero intero
 ------------------------------
 
-Da bambini, in prima o seconda elementare, utilizzavamo la forma estesa per conoscere il valore posizionale dei numeri. 
+Da bambini, in prima o seconda elementare, utilizzavamo la forma estesa per conoscere il valore posizionale dei numeri.
 È più facile spiegarlo con un esempio.
 Consideriamo il numero 123:
-in forma estesa è rappresentato come 100 + 20 + 3. 
+in forma estesa è rappresentato come 100 + 20 + 3.
 In parole: cento (più) venti (più) tre.
 
 Scrivere una funzione che espande un numero intero.
@@ -7995,7 +7995,7 @@ Funzione che crea un numero di luhn (12 cifre):
     ; diff = d1 + d2 = a*2 + b
     ; per esempio il valore 0 potrebbe essere dato da:
     ; a = 0, b = 0 --> 0*2 = 0 0 + 0 = 0 (caso base) oppure
-    ; a = 6, b = 7 --> 6*2=12 -> 3 + 7 = 10 
+    ; a = 6, b = 7 --> 6*2=12 -> 3 + 7 = 10
     (cond ((= diff 0) (setq a 0) (setq b 0)) ; caso base
           ((= diff 1) (setq a 0) (setq b 1)) ; caso base
           ((= diff 2) (setq a 1) (setq b 0)) ; caso base
@@ -8034,8 +8034,8 @@ Questa è una nota sfida sulla programmazione.
 Nel 1986 Jon Bentley chiese a Donald Knuth di scrivere un programma in grado di trovare le k parole più frequenti in un file.
 Knuth ha implementato una soluzione utilizzando gli "hash tries" in un programma di 8 pagine per illustrare la sua tecnica di "literate programming" (vedi nota alla fine).
 
-"Programming Pearls" 
-"A literate programming" Jon Bentley, Don Knuth e Doug McIlroy 
+"Programming Pearls"
+"A literate programming" Jon Bentley, Don Knuth e Doug McIlroy
 "https://www.cs.tufts.edu/~nr/cs257/archive/don-knuth/pearls-2.pdf"
 
 Descrizione originale del problema:
@@ -8107,7 +8107,7 @@ Scriviamo la funzione finale:
 Proviamo la funzione:
 
 (freq "dorian-grey.txt" 10)
-;-> ((30346 "_") (3762 "_the") (2211 "_and") (2175 "_of") 
+;-> ((30346 "_") (3762 "_the") (2211 "_and") (2175 "_of")
 ;->  (2101 "_to") (1694 "_i") (1672 "_a") (1541 "_he")
 ;->  (1445 "_you") (1361 "_that"))
 
@@ -8240,8 +8240,8 @@ La funzione deve restituire la lista dei caratteri non ASCII.
     (while (setq chr (read-utf8 in-file))
         ;solo caratteri ascii
         (if (< chr 127)
-            (write-char out-file chr)
-            (push chr non-ascii -1)
+            (write-char out-file chr) ; write ASCII char
+            (push chr non-ascii -1)   ; put non-ASCII char on list
         )
     )
     (close in-file)
@@ -8285,18 +8285,18 @@ Il file creato è il seguente:
 
 "ascii-file.txt"
 ----------------
-   
 
-   
+
+
 133  0224 Alt+F8
 138  0232 Alt+F9
 141  0236 Alt+F10
 149  0242 Alt+F11
 151  0249 Alt+F12
-254 
-223 
-219 
-lambda 
+254
+223
+219
+lambda
 (print "") (print "") (print "") (print "")
 (char "")
 ;-> 33554432
@@ -8307,6 +8307,610 @@ lambda
 ----------------
 
 La lista di output contiene i valori decimali dei caratteri utf8 presenti nel file di input.
+
+
+---------------------
+Text file utilities 2
+---------------------
+
+filedemo.txt
+-------------------
+Line 1
+Line 2
+
+  Line 3
+Line 4
+Line 4
+  Line 4
+lambda λ
+pigreco π
+133 à 0224 Alt+F8
+138 è 0232 Alt+F9
+141 ì 0236 Alt+F10
+149 ò 0242 Alt+F11
+151 ù 0249 Alt+F12
+-------------------
+
+(define (lwc-count in-file unix)
+"Counts lines, words and chars of a text file"
+  (local (line lc wc cc)
+    (setq lc 0 wc 0 cc 0)
+    (setq in-file (open in-file "read"))
+    (while (setq line (read-line in-file))
+      ; lines count
+      (++ lc)
+      ; words count
+      (setq wc (+ wc (length (parse (trim line) "\\s+" 0))))
+      ; chars count
+      ; (+1 add back the line feed - Unix)
+      ; (+2 add back the line feed/carriage return - Windows)
+      (if unix
+        (setq cc (+ cc (length line) 1))
+        (setq cc (+ cc (length line) 2))
+      )
+    )
+    (close in-file)
+    (list lc wc cc)))
+
+(lwc-count "filedemo.txt")
+;-> (16 38 222)
+
+(define (print-file in-file pause)
+"Print a text file (stdout)"
+    (setq in-file (open in-file "read"))
+    (while (read-line in-file)
+      (cond ((nil? pause) (println (current-line)))
+            (true  (print (current-line) (read-line))))
+    )
+    (close in-file))
+
+(print-file "filedemo.txt")
+
+(define (list-file in-file)
+"Create a list with all the lines of a text in-file"
+  (let (lst '())
+    (setq in-file (open in-file "read"))
+    (while (read-line in-file)
+      (push (current-line) lst -1))
+    (close in-file)
+    lst))
+
+(list-file "filedemo.txt")
+
+(define (unique-lines in-file out-file)
+  (local (lst ext)
+    (setq lst '())
+    (setq in-file (open in-file "read"))
+    (setq out-file (open out-file "write"))
+    (while (read-line in-file)
+      (push (current-line) lst -1))
+    (close in-file)
+    (setq lst (unique lst))
+    (map (fn(line) (write-line out-file line)) lst)
+    (close out-file)))
+
+(unique-lines "filedemo.txt" "unique.txt")
+
+(define (sort-file in-file out-file order)
+"Sort the lines of a text file"
+  (let (lst '())
+    (setq in-file (open in-file "read"))
+    (setq out-file (open out-file "write"))
+    (while (read-line in-file)
+      (push (current-line) lst -1)
+    )
+    (close in-file)
+    (sort lst order)
+    (println lst)
+    (map (fn(line) (write-line out-file line)) lst)
+    (close out-file)))
+
+(sort-file "filedemo.txt" "sort.txt" >)
+(sort-file "filedemo.txt" "sort2.txt" <)
+
+(define (extract-lines start end in-file out-file)
+"Extract lines from a text file"
+  (let (lst '())
+    (setq in-file (open in-file "read"))
+    (setq out-file (open out-file "write"))
+    ; put lines on list
+    (while (read-line in-file)
+      (push (current-line) lst -1))
+    (close in-file)
+    ; extract lines from list
+    (setq lst (slice lst (- start 1) (+ (- end start) 1)))
+    (map (fn(line) (write-line out-file line)) lst)
+    (close out-file)))
+
+(extract-lines 1 5 "filedemo.txt" "linee1-5.txt")
+(print-file "linee1-5.txt")
+
+(define (cat file1 file2 out-file)
+  (local (lst ext)
+    (setq lst '())
+    (setq out-file (open out-file "write"))
+    (setq file1 (open file1 "read"))
+    (while (read-line file1)
+      (push (current-line) lst -1))
+    (close file1)
+    (setq file2 (open file2 "read"))
+    (while (read-line file2)
+      (push (current-line) lst -1))
+    (close file2)
+    (map (fn(line) (write-line out-file line)) lst)
+    (close out-file)))
+
+(cat "filedemo.txt" "filedemo.txt" "due.txt")
+(print-file "due.txt")
+
+(define (crypt-file in-file out-file pwd)
+"Crypt a text file"
+  (write-file out-file (encrypt (read-file in-file) pwd)))
+
+(crypt-file "filedemo.txt" "temp.txt" "newlisp")
+
+(define (decrypt-file in-file out-file pwd)
+"Decrypt a text file"
+  (write-file out-file (encrypt (read-file in-file) pwd)))
+
+(decrypt-file "filedemo.txt" "filedemo1.txt" "newlisp")
+
+(define-macro (println-unix)
+"Print unix style \n"
+  (apply print (map eval (args)))
+  (print "\n"))
+
+(define-macro (println-windows)
+"Print windows style \r\n"
+  (apply print (map eval (args)))
+  (print "\r\n"))
+
+(define (hex-dump file)
+"hex-dump of ASCII file"
+  (local (in-file line sofar buff)
+    (setq in-file (open file "read"))
+    (setq line 0)
+    ; read file with buffer of 16 char
+    (while (> (setq sofar (read-buffer in-file buff 16)) 0)
+      ; print number of char (es. 00000016)
+      (print (format "%08d - " (++ line 16)))
+      ; fill buffer to 16 char (if necessary)
+      (if (< sofar 16)
+          (dotimes (x (- 16 sofar))
+            (extend buff (char 0)))
+      )
+      ; print hex value of chars of buffer
+      (dolist (x (explode buff)) (print (format "%02X " (char x))))
+      ; format last line with space
+      (if (< sofar 16) (print (dup " " (* 3 (- 16 sofar)))))
+      ; print chars of buffer
+      (dolist (x (explode buff))
+        (if (and (>= (char x) 32) (<= (char x) 126))
+            (print x)   ; ASCII char: x
+            (print ".") ; non-ASCII char: "."
+        )
+      )
+      (print "\n")
+    )
+    (close in-file)))
+
+(save "dump.lsp" 'hex-dump)
+(hex-dump "dump.lsp")
+
+(define (ascii-file in-file out-file)
+"Create a file with only ASCII chars from a text file"
+  (local (chr non-ascii)
+    (setq in-file (open in-file "read"))
+    (setq out-file (open out-file "write"))
+    (setq non-ascii '())
+    (while (setq chr (read-utf8 in-file))
+        ;solo caratteri ascii
+        (if (< chr 127)
+            (write-char out-file chr) ; write ASCII char on file
+            (push chr non-ascii -1)   ; put non-ASCII char on list
+        )
+    )
+    (close in-file)
+    (close out-file)
+    non-ascii))
+
+(ascii-file "filedemo.txt" "ascii.txt")
+
+
+-------------------
+Roulette simulation
+-------------------
+
+La roulette francese ha 37 numeri (da 0 a 36), di cui 18 sono rossi e 18 sono neri. Lo zero è verde.
+Il croupier (colui che manovra la roulette) lancia una pallina che cadrà in una delle sezioni numerate.
+
+Vedi l'immagine "roulette-francese.png" nella cartella "data".
+
+Disposizione dei numeri sulla ruota della roulette:
+0-32-15-19-4-21-2-25-17-34-6-27-13-36-11-30-8-23-10-5-24-16-33-1-20-14-31-9-22-18-29-7-28-12-35-3-26
+
+Inoltre abbiamo un tavolo da gioco verde suddiviso in diverse aree, ognuna corrispondente alle diverse possibilità di puntata.
+
+                       +--------------+
+                       |      0       |
+    +---+--------------+--------------+--------------+---+
+    |   |              |  1 |  2 |  3 |              |   |
+    |   |              +----+----+----+              |   |
+    |   |              |  4 |  5 |  6 |              |   |
+    | P |    PASSE     +----+----+----+    MANQUE    | P |
+    |   |    19-36     |  7 |  8 |  9 |     1-18     |   |
+    |   |              +----+----+----+              |   |
+    |   |              | 10 | 11 | 12 |              |   |
+    +---+--------------+----+----+----+--------------+---+
+    |   |              | 13 | 14 | 15 |              |   |
+    |   |              +----+----+----+              |   |
+    |   |              | 16 | 17 | 18 |              |   |
+    | M |     PAIR     +----+----+----+    IMPAIR    | M |
+    |   |     PARI     | 19 | 20 | 21 |    DISPARI   |   |
+    |   |              +----+----+----+              |   |
+    |   |              | 22 | 23 | 24 |              |   |
+    +---+--------------+----+----+----+--------------+---+
+    |   |              | 25 | 26 | 27 |              |   |
+    |   |              +----+----+----+              |   |
+    |   |              | 28 | 29 | 30 |              |   |
+    | D |     NOIR     +----+----+----+    ROUGE     | D |
+    |   |     NERO     | 31 | 32 | 33 |    ROSSO     |   |
+    |   |              +----+----+----+              |   |
+    |   |              | 34 | 35 | 36 |              |   |
+    +---+----+----+----+----+----+----+----+----+----+---+
+        |12P |12M |12D | C1 | C2 | C3 |12D |12M |12P |
+        +----+----+----+----+----+----+----+----+----+
+
+0 -> "en prison"
+
+Ogni area del panno è abbinata ad un numero, un colore o qualche altra opzione su cui ognuno può scommettere delle fiches (cercando di indovinare dove si posizionerà la pallina nella roulette).
+Conoscere quali sono le puntate possibili e quanto pagano in caso di vittoria è fondamentale per definire le proprie strategie di gioco.
+Le combinazioni su cui è possibile puntare sono svariate, ognuna delle quali è quotata (36/N)-1, dove N è la quantità di numeri compresi nella combinazione scelta.
+
+Tipi di puntate/scommesse
+-------------------------
+1) Plein (singolo numero)
+un numero
+35 volte la somma puntata
+
+2) Cheval (cavallo o coppia di numeri)
+due numeri trasversali adiacenti (es. 8-9, 31-32)
+17 volte la somma puntata
+
+3) Transversale Pleine (terzina)
+tre numeri trasversali adiacenti (es. 4-5-6, 28-29-30)
+11 volte la somma puntata
+
+4) Carré (quartina)
+quattro numeri in quadrato (es. 29-30-32-33)
+8 volte la somma puntata
+
+5) Transversale Simple (sestina)
+sei numeri che formano un blocco 2x3 (es. 25-26-27-28-29-30)
+5 volte la somma puntata
+
+6) Douzaine - Premier, Milieu, Dernier (dozzina - prima, seconda o terza)
+1-12 Premier, 13-24 Milieu, 25-36 Dernier
+2 volte la somma puntata
+
+7) Colonne (colonna, prima, seconda o terza)
+1->34, 2->35, 3->36
+2 volte la somma puntata
+
+8) Pair ou Impair (pari o dispari)
+numeri pari o dispari
+1 volta la somma puntata
+
+9) Manque (bassi)
+numeri da 1 a 18
+1 volta la somma puntata
+
+10) Passe (alti)
+numeri da 19 a 36
+1 volta la somma puntata
+
+11) Rouge ou Noir (rosso o nero)
+numeri rossi o neri
+1 volta la somma puntata
+
+Calcoliamo quanto paga ogni combinazione in caso di successo:
+
+(define (quota n) (- (div 36 n) 1))
+
+(setq number '(("plein" 1) ("cheval" 2) ("trans3" 3) ("carre" 4)
+               ("trans6" 6) ("douzaine" 12) ("colonne" 12)
+               ("pair" 18) ("impair" 18) ("manque" 18) ("passe" 18)
+               ("rouge" 18) ("noir" 18)))
+
+(map (fn(x) (list (x 0) (quota (x 1)))) number)
+;-> (("plein" 35) ("cheval" 17) ("trans3" 11) ("carre" 8) ("trans6" 5)
+;->  ("douzaine" 2) ("colonne" 2) ("pair" 1) ("impair" 1) ("manque" 1)
+;->  ("passe" 1) ("rouge" 1) ("noir" 1))
+
+Sistemi di gioco
+----------------
+Esistono poi diversi sistemi di gioco codificati a livello internazionale.
+I più comuni sono: i vicini dello zero, la serie 5/8, gli orfanelli, gli zero spiel, i tiers press e la nassa.
+
+I "vicini dello zero" ("Les voisins du zéro") sono una serie di 17 numeri ubicati sul cilindro alla destra e alla sinistra dello zero tra il 22 e il 25 compresi, e si possono giocare con un totale di 9 fiche.
+I numeri in questione sono 0-2-3, 4-7, 12-15, 18-21, 19-22, 25-26-28-29, 32-35 con due fiche sullo 0-2-3 e sul carrè 25-29.
+
+La "serie 5/8" ("tiers du cylindre" o più semplicemente "tiers") è composta da 12 numeri giocabili con 6 fiche su 6 cavalli, i numeri sono 5-8, 10-11, 13-16, 23-24, 27-30, 33-36, e sono ubicati, sul cilindro, in maniera diametralmente opposta ai "vicini dello zero".
+
+Gli "orfanelli" (o "orphelins"), così chiamati proprio perché non facenti parte di nessuna delle due serie sopra esposte, sono gli 8 numeri rimanenti, ossia 1, 6-9, 14-17, 17-20, 31-34 (l'1 pieno, gli altri a cavallo), si possono giocare con 5 fiche e sono ubicati, in parte sul lato sinistro e in parte sul lato destro del cilindro, che per consuetudine viene rappresentato con lo "0" in alto.
+
+"Zero Spiel" è un piccolo settore di 7 numeri a destra e sinistra dello zero che vengono coperti con 4 fiche.
+In pratica una versione ridotta dei "vicini dello zero". I numeri che ne fanno parte sono 0-3, 12-15, 26 (in pieno), 32-35.
+
+"Tiers press", come la "tiers" normale (5-8-10-11-13-16-23-24-27-30-33-36) con l'aggiunta dei pieni dei primi quattro numeri (ossia 5-8-10-11) per un totale di 10 fiche.
+
+"Nassa" si effettua puntando 5 fiche, che vanno a coprire 8 numeri vicini dello zero: il 26 e il 19 pieni e i cavalli 0-3, 12-15, 32-35 (21.6% di probabilità di vincita)
+
+Nella simulazione useremo solo i tipi di scommesse e non i sistemi di gioco.
+
+; Funzione di setup per iniziare una nuova simulazione
+; (tutte le variabili sono globali)
+(define (roulette budget)
+  ; Lista delle scommesse
+  (setq bets '())
+  ; Fiches totali del giocatore
+  (setq fiches budget)
+  ; Lista delle combinazioni e delle relative quotazioni
+  (setq reward '(("plein" 35) ("cheval" 17) ("trans3" 11) ("carre" 8)
+                 ("trans6" 5) ("douzaine" 2) ("colonne" 2)
+                 ("pair" 1) ("impair" 1) ("manque" 1) ("passe" 1)
+                 ("rouge" 1) ("noir" 1)))
+  ; Liste dei numeri associati ad ogni combinazione
+  (setq red '(1 3 5 7 9 12 15 18 19 21 23 25 27 30 32 34 36))
+  (setq black '(2 4 6 810 11 13 15 17 20 22 24 26 28 29 31 33 35))
+  (setq even (sequence 2 36 2))
+  (setq odd (sequence 1 35 2))
+  (setq low (sequence 1 18))
+  (setq high (sequence 19 36))
+  (setq column (list (sequence 1 34 3) (sequence 2 35 3) (sequence 3 36 3)))
+  (setq dozen (list (sequence 1 12) (sequence 13 24) (sequence 25 36)))
+  (println "Fiches: " fiches))
+
+; Funzioni per inserire le scommesse/puntate
+; (fiches "nome") oppure (fiches "nome" numero)
+; le funzioni aggiornano la lista bets con elementi del tipo:
+; (fiches-puntate nome-puntata (lista numeri))
+;
+; Numero secco
+(define (plein num bet) (push (list bet "plein" (list num)) bets -1))
+; Coppia
+(define (cheval lst bet) (push (list bet "cheval" lst) bets -1))
+; Terzina
+(define (trans3 lst bet) (push (list bet "trans3" lst) bets -1))
+; Quadrato
+(define (carre lst bet) (push (list bet "carre" lst) bets -1))
+; Due terzine
+(define (trans6 lst bet) (push (list bet "trans6" lst) bets -1))
+; Dozzina
+(define (douzaine num bet) (push (list bet "douzaine" (dozen (- num 1))) bets -1))
+; Colonna
+(define (colonne num bet) (push (list bet "colonne" (column (- num 1))) bets -1))
+; Pari
+(define (pair bet) (push (list bet "pair" even) bets -1))
+; Dispari
+(define (impair bet) (push (list bet "impair" odd) bets -1))
+; Da 1 a 18
+(define (manque bet) (push (list bet "manque" low) bets -1))
+; Da 19 a 36
+(define (passe bet) (push (list bet "passe" high) bets -1))
+; Rosso
+(define (rouge bet) (push (list bet "rouge" red) bets -1))
+; Nero
+(define (noir bet) (push (list bet "noir" black) bets -1))
+
+; Funzione per la gestione di un lancio del croupier
+(define (croupier dbg)
+  (local (num segno)
+    (setq num (rand 37))
+    ; for test
+    (if (= dbg true) (setq num 28))
+    (println "Numero uscito: " num)
+    (println "Puntate:")
+    ; analisi delle puntate
+    (dolist (el bets)
+    ;(el 0) -> fiches puntate
+    ;(el 1) -> nome della puntata
+    ;(el 2) -> lista dei numeri della puntata
+      (if (find num (el 2))
+            (set 'get (* (lookup (el 1) reward) (el 0)) 'segno "+")
+            ;else
+            (set 'get (- (el 0)) 'segno "")
+      )
+      (++ fiches get)
+      (println {  } (el 1) { } segno get)
+    )
+    (println "Fiches: " fiches)
+    ; Annulla tutte le puntate
+    (setq bets '())
+  '----------------))
+
+Vediamo un paio di esempi.
+
+Inizializzazione:
+
+(roulette 100)
+
+Puntate:
+
+(plein 28 10)
+(plein 42 10)
+(cheval '(28 29) 5)
+(cheval '(1 2) 5)
+(trans3 '(28 29 30) 10)
+(trans3 '(13 14 15) 10)
+(carre '(28 29 31 32) 5)
+(carre '(4 5 7 8) 5)
+(douzaine 3 10)
+(douzaine 1 10)
+(rouge 5)
+(noir 5)
+(manque 10)
+(passe 10)
+(pair 5)
+(impair 5)
+(colonne 1 10)
+(colonne 2 10)
+(colonne 3 10)
+(trans6 '(28 29 30 31 32 33) 4)
+(trans6 '(7 8 9 10 11 12) 4)
+;-> ((10 "plein" (28))
+;->  (10 "plein" (42))
+;->  (5 "cheval" (28 29))
+;->  (5 "cheval" (1 2))
+;->  (10 "trans3" (28 29 30))
+;->  (10 "trans3" (13 14 15))
+;->  (5 "carre" (28 29 31 32))
+;->  (5 "carre" (4 5 7 8))
+;->  (10 "douzaine" (25 26 27 28 29 30 31 32 33 34 35 36))
+;->  (10 "douzaine" (1 2 3 4 5 6 7 8 9 10 11 12))
+;->  (5 "rouge" (1 3 5 7 9 12 15 18 19 21 23 25 27 30 32 34 36))
+;->  (5 "noir" (2 4 6 810 11 13 15 17 20 22 24 26 28 29 31 33 35))
+;->  (10 "manque" (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))
+;->  (10 "passe" (19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36))
+;->  (5 "pair" (2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36))
+;->  (5 "impair" (1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35))
+;->  (10 "colonne" (1 4 7 10 13 16 19 22 25 28 31 34))
+;->  (10 "colonne" (2 5 8 11 14 17 20 23 26 29 32 35))
+;->  (10 "colonne" (3 6 9 12 15 18 21 24 27 30 33 36))
+;->  (4 "trans6" (28 29 30 31 32 33))
+;->  (4 "trans6" (7 8 9 10 11 12)))
+
+Il Croupier gira la ruota della roulette:
+
+(croupier true)
+;-> Numero uscito: 28
+;-> Puntate:
+;->   plein +350
+;->   plein -10
+;->   cheval +85
+;->   cheval -5
+;->   trans3 +110
+;->   trans3 -10
+;->   carre +40
+;->   carre -5
+;->   douzaine +20
+;->   douzaine -10
+;->   rouge -5
+;->   noir +5
+;->   manque -10
+;->   passe +10
+;->   pair +5
+;->   impair -5
+;->   colonne +20
+;->   colonne -10
+;->   colonne -10
+;->   trans6 +20
+;->   trans6 -4
+;-> Fiches: 593
+;-> ----------------
+
+Inizializzazione:
+
+(roulette 100)
+
+Puntate:
+
+(plein 28 10)
+(plein 42 10)
+(cheval '(28 29) 5)
+(cheval '(1 2) 5)
+(trans3 '(28 29 30) 10)
+(trans3 '(13 14 15) 10)
+(carre '(28 29 31 32) 5)
+(carre '(4 5 7 8) 5)
+(douzaine 3 10)
+(douzaine 1 10)
+(rouge 5)
+(noir 5)
+(manque 10)
+(passe 10)
+(pair 5)
+(impair 5)
+(colonne 1 10)
+(colonne 2 10)
+(colonne 3 10)
+(trans6 '(28 29 30 31 32 33) 4)
+(trans6 '(7 8 9 10 11 12) 4)
+;-> ((10 "plein" (28))
+;->  (10 "plein" (42))
+;->  (5 "cheval" (28 29))
+;->  (5 "cheval" (1 2))
+;->  (10 "trans3" (28 29 30))
+;->  (10 "trans3" (13 14 15))
+;->  (5 "carre" (28 29 31 32))
+;->  (5 "carre" (4 5 7 8))
+;->  (10 "douzaine" (25 26 27 28 29 30 31 32 33 34 35 36))
+;->  (10 "douzaine" (1 2 3 4 5 6 7 8 9 10 11 12))
+;->  (5 "rouge" (1 3 5 7 9 12 15 18 19 21 23 25 27 30 32 34 36))
+;->  (5 "noir" (2 4 6 810 11 13 15 17 20 22 24 26 28 29 31 33 35))
+;->  (10 "manque" (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18))
+;->  (10 "passe" (19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36))
+;->  (5 "pair" (2 4 6 8 10 12 14 16 18 20 22 24 26 28 30 32 34 36))
+;->  (5 "impair" (1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 31 33 35))
+;->  (10 "colonne" (1 4 7 10 13 16 19 22 25 28 31 34))
+;->  (10 "colonne" (2 5 8 11 14 17 20 23 26 29 32 35))
+;->  (10 "colonne" (3 6 9 12 15 18 21 24 27 30 33 36))
+;->  (4 "trans6" (28 29 30 31 32 33))
+;->  (4 "trans6" (7 8 9 10 11 12)))
+
+Il Croupier gira la ruota della roulette:
+
+(croupier)
+;-> Numero uscito: 29
+;-> Puntate:
+;->   plein -10
+;->   plein -10
+;->   cheval +85
+;->   cheval -5
+;->   trans3 +110
+;->   trans3 -10
+;->   carre +40
+;->   carre -5
+;->   douzaine +20
+;->   douzaine -10
+;->   rouge -5
+;->   noir +5
+;->   manque -10
+;->   passe +10
+;->   pair -5
+;->   impair +5
+;->   colonne -10
+;->   colonne +20
+;->   colonne -10
+;->   trans6 +20
+;->   trans6 -4
+;-> Fiches: 321
+;-> ----------------
+
+Per finire vediamo quali sono le probabilità del giocatore e quelle del croupier per ogni combinazione:
+
+(define (probs num)
+  (local (giocatore croupier)
+    (setq giocatore (div num 37))
+    (setq croupier (sub 1 giocatore))
+    (list (format "%5.3f" giocatore) (format "%5.3f" croupier))))
+
+(map (fn(x) (list (x 0) (probs (x 1)))) number)
+;-> (("plein" ("0.027" "0.973"))
+;->  ("cheval" ("0.054" "0.946"))
+;->  ("trans3" ("0.081" "0.919"))
+;->  ("carre" ("0.108" "0.892"))
+;->  ("trans6" ("0.162" "0.838"))
+;->  ("douzaine" ("0.324" "0.676"))
+;->  ("colonne" ("0.324" "0.676"))
+;->  ("pair" ("0.486" "0.514"))
+;->  ("impair" ("0.486" "0.514"))
+;->  ("manque" ("0.486" "0.514"))
+;->  ("passe" ("0.486" "0.514"))
+;->  ("rouge" ("0.486" "0.514"))
+;->  ("noir" ("0.486" "0.514")))
+
+Il numero "0" sposta sempre le probabilità a favore del croupier.
 
 =============================================================================
 
