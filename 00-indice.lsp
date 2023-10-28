@@ -2025,6 +2025,8 @@ NOTE LIBERE 18
   Text file utilities 2
   Roulette simulation
   Messaggio cifrato
+  Comb sort
+  Attraversamento di matrici lungo le diagonali
 
 PROBLEMI SUI DADI
 =================

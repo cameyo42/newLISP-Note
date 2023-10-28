@@ -8969,8 +8969,6 @@ In questo modo possiamo provare entrambe le possibilità per capire il giusto ri
 
 Funzione che inverte un bit:
 
-(define (flip x)  (if (= x "0") "1" "0"))
-
 Funzione che decifra una stringa:
 
 (define (decrypt str start)
@@ -9001,6 +8999,146 @@ Facciamo alcune prove:
 ;-> "\b\030\r\017\022\017\024E_\011\023\022\f_\022\f_\030\027\027\022\028\011\022\t\026Q"
 (decrypt (crypt "warning: this is addictive.") "1")
 ;-> "warning: this is addictive."
+
+
+---------
+Comb sort
+---------
+
+Comb Sort è un algoritmo di ordinamento che migliora il Bubble Sort.
+Il bubble sort (ordinamento a bolle) confronta sempre i valori adiacenti, quindi tutte le inversioni vengono effettuate una per una.
+Il Comb Sort utilizza una differenza tra i valori superiore a 1.
+La differenza inizia con il valore dato dalla lunghezza della lista da ordinare e si riduce di un fattore 1.3 in ogni iterazione fino a raggiungere il valore 1.
+Pertanto Comb Sort effettua le inversioni con una differenza maggiore e questo lo rende migliore del Bubble Sort.
+Il fattore di riduzione è stato fissato empiricamente pari a 1,3 (testando Combsort su oltre 200.000 liste casuali)
+Anche se in media funziona meglio del Bubble Sort, il caso peggiore rimane O(n^2).
+
+(define (getgap gap)
+  (setq gap (div (mul gap 10) 13))
+  (if (< gap 1) 1 gap))
+
+(define (combsort lst)
+  (local (len swapped gap)
+    (setq len (length lst))
+    ; gap iniziale = lunghezza della lista
+    (setq gap len)
+    ; nessuno scambio effettuato
+    (setq swapped true)
+    (println "gap: " gap " - lst: " lst)
+    (while (or (!= gap 1) (= swapped true))
+      ; aggiorna valore di gap (dimunuisce)
+      (setq gap (getgap gap))
+      (setq swapped nil)
+      ; ciclo per scambiare coppie di elementi
+      (for (i 0 (- len gap 1))
+        (if (> (lst i) (lst (+ i gap)))
+          (begin
+            (swap (lst i) (lst (+ i gap)))
+            ; scambio effettuato
+            (setq swapped true)
+          )
+        )
+      )
+      (print "gap: " gap " - lst: " lst)
+      (read-line)
+    )
+    lst))
+
+(combsort '(10 34 23 12 67 4 7 8 23 6 9))
+;-> gap: 11 - lst: (10 34 23 12 67 4 7 8 23 6 9)
+;-> gap: 8.461538461538462 - lst: (10 6 9 12 67 4 7 8 23 34 23)
+;-> gap: 6.50887573964497 - lst: (7 6 9 12 23 4 10 8 23 34 67)
+;-> gap: 5.006827492034592 - lst: (4 6 8 12 23 7 10 9 23 34 67)
+;-> gap: 3.851405763103533 - lst: (4 6 7 10 9 8 12 23 23 34 67)
+;-> gap: 2.962619817771949 - lst: (4 6 7 8 9 10 12 23 23 34 67)
+;-> gap: 2.278938321363037 - lst: (4 6 7 8 9 10 12 23 23 34 67)
+;-> gap: 1.753029477971567 - lst: (4 6 7 8 9 10 12 23 23 34 67)
+;-> gap: 1.348484213824282 - lst: (4 6 7 8 9 10 12 23 23 34 67)
+;-> gap: 1.037295549095602 - lst: (4 6 7 8 9 10 12 23 23 34 67)
+;-> gap: 1 - lst: (4 6 7 8 9 10 12 23 23 34 67)
+;-> (4 6 7 8 9 10 12 23 23 34 67)
+
+
+---------------------------------------------
+Attraversamento di matrici lungo le diagonali
+---------------------------------------------
+
+Data una matrice vogliamo attraversarla seguendo le diagonali (2 modi).
+Per esempio:
+
+          | 1  2  3  4  5 |
+matrice = | 6  7  8  9  5 |
+          | 1  2  3  4  3 |
+
+Primo modo '/' (partendo dall'elemento in alto a sinistra (1)):
+
+  1 - 2 6 - 3 7 1 - 4 8 2 - 5 9 3 - 5 4 - 3
+
+Secondo modo '\' (partendo dall'elemento in alto a destra (5)):
+
+  5 - 4 5 - 3 9 3 - 2 8 4 - 1 7 3 - 6 2 - 1
+
+Partiamo dal primo modo '/' e osserviamo lo schema in cui ci muoviamo attraverso la matrice. 
+Possiamo notare che ciascuna diagonale può essere identificata univocamente dalla somma dei suoi indici di riga e di colonna. 
+Grazie a questa proprietà, possiamo dividere l'attraversamento in due parti: la prima parte in cui iteriamo sulla metà superiore della matrice (righe da 0 a M-1) e la seconda parte in cui iteriamo sulla metà inferiore della matrice (colonne da 1 a N-1).
+
+Funzione che attraversa una matrice in diagonale '/':
+
+(define (diag1 matrix)
+  (local (out row cols)
+    (setq out '())
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    ; prima metà
+    (for (i 0 (- cols 1))
+      (for (j i 0)
+        (if (< (- i j) rows) (push (matrix (- i j) j) out -1))
+      )
+    )
+    ;(println out)
+    ; seconda metà
+    (for (i 1 (- rows 1))
+      (setq k i)
+      (for (j (- cols 1) 0)
+        (if (< k rows) (begin (push (matrix k j) out -1) (++ k)))
+      )
+    )
+    out))
+
+(setq m '((1 2 3 4 5)
+          (6 7 8 9 5)
+          (1 2 3 4 3)))
+
+(diag1 m)
+;-> (1 2 6 3 7 1 4 8 2 5 9 3 5 4 3)
+
+Per ottenere il secondo modo '\', possiamo notare che dopo aver scambiato le colonne della matrice (0 con cols-1, 1 con cols -2, ecc.) possiamo applicare la funzione "diag1" alla matrice risultante.
+
+Funzione che scambia le colonne di una matrice:
+
+(define (swap-cols matrix)
+  (local (rows cols)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- (/ cols 2) 1))
+        (swap (matrix r c) (matrix r (- cols c 1)))
+      )
+    )
+  matrix)
+
+(setq mm (swap-cols m))
+;-> ((5 4 3 2 1) (10 9 8 7 6) 11 12 13 14 15)
+
+(diag1 mm)
+;-> (5 4 5 3 9 3 2 8 4 1 7 3 6 2 1)
+
+Funzione che attraversa una matrice in diagonale '\':
+
+(define (diag2 matrix) (diag1 (swap-cols matrix)))
+
+(diag2 m)
+;-> (5 4 5 3 9 3 2 8 4 1 7 3 6 2 1)
 
 =============================================================================
 
