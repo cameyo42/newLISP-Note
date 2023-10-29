@@ -9059,6 +9059,57 @@ Anche se in media funziona meglio del Bubble Sort, il caso peggiore rimane O(n^2
 ;-> (4 6 7 8 9 10 12 23 23 34 67)
 
 
+--------------------------------------------
+Inversione di righe e colonne di una matrice
+--------------------------------------------
+
+Funzione che inverte le colonne di una matrice:
+
+(define (swap-cols matrix)
+  (local (rows cols)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- (/ cols 2) 1))
+        (swap (matrix r c) (matrix r (- cols c 1)))
+      )
+    )
+  matrix))
+
+Funzione che inverte le righe di una matrice:
+
+(define (swap-rows matrix)
+  (local (rows cols)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (for (c 0 (- cols 1))
+      (for (r 0 (- (/ rows 2) 1))
+        (swap (matrix r c) (matrix (- rows r 1) c))
+      )
+    )
+  matrix))
+
+(setq m '((1 2 3 4)
+          (5 6 7 8)
+          (0 8 9 3)
+          (3 2 1 4)
+          (8 7 9 3)))
+
+(swap-cols m)
+;-> ((4 3 2 1)
+;->  (8 7 6 5)
+;->  (3 9 8 0)
+;->  (4 1 2 3)
+;->  (3 9 7 8))
+
+(swap-rows m)
+;-> ((8 7 9 3) 
+;->  (3 2 1 4) 
+;->  (0 8 9 3) 
+;->  (5 6 7 8) 
+;->  (1 2 3 4))
+
+
 ---------------------------------------------
 Attraversamento di matrici lungo le diagonali
 ---------------------------------------------
@@ -9125,10 +9176,10 @@ Funzione che scambia le colonne di una matrice:
         (swap (matrix r c) (matrix r (- cols c 1)))
       )
     )
-  matrix)
+  matrix))
 
 (setq mm (swap-cols m))
-;-> ((5 4 3 2 1) (10 9 8 7 6) 11 12 13 14 15)
+;-> ((5 4 3 2 1) (5 9 8 7 6) (3 4 3 2 1))
 
 (diag1 mm)
 ;-> (5 4 5 3 9 3 2 8 4 1 7 3 6 2 1)
@@ -9139,6 +9190,7 @@ Funzione che attraversa una matrice in diagonale '\':
 
 (diag2 m)
 ;-> (5 4 5 3 9 3 2 8 4 1 7 3 6 2 1)
+
 
 =============================================================================
 

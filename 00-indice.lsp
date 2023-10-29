@@ -2026,7 +2026,12 @@ NOTE LIBERE 18
   Roulette simulation
   Messaggio cifrato
   Comb sort
+  Inversione di righe e colonne di una matrice
   Attraversamento di matrici lungo le diagonali
+
+NOTE LIBERE 19
+==============
+  Gomoku
 
 PROBLEMI SUI DADI
 =================
