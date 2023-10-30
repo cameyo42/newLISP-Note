@@ -2027,11 +2027,14 @@ NOTE LIBERE 18
   Messaggio cifrato
   Comb sort
   Inversione di righe e colonne di una matrice
+  Rotazione di 90 gradi (in senso orario) di una matrice quadrata
   Attraversamento di matrici lungo le diagonali
 
 NOTE LIBERE 19
 ==============
   Gomoku
+  Rotazione di una matrice
+  Bar Dice
 
 PROBLEMI SUI DADI
 =================

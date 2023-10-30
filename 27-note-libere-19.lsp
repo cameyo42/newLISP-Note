@@ -319,5 +319,334 @@ Adesso possiamo fare una partita (9x9):
 ;-> la partita continua...
 ...
 
+
+------------------------
+Rotazione di una matrice
+------------------------
+
+Problema: ruotare di un posto gli elementi di una data matrice in senso orario. 
+Prima occore ruotare gli elementi della matrice in modo che ciascun di essi si sposti un passo avanti in senso orario lungo il confine più esterno della matrice. 
+Poi questa operazione viene eseguita iterativamente per ogni "anello" o strato della matrice, partendo dallo strato più esterno e procedendo verso il centro.
+
+Consideriamo ad esempio la seguente matrice:
+
+   1  2  3  4  5
+   6  7  8  9 10
+  11 12 13 14 15
+  16 17 18 19 20
+  21 22 23 24 25
+
+Dopo aver eseguito l’operazione di rotazione, la matrice diventa:
+
+   6  1  2  3  4
+  11 12  7  8  5
+  16 17 13 9  10
+  21 18 19 14 15
+  22 23 24 25 20
+
+Dividiamo il problema in sottoproblemi. 
+Ogni sottoproblema comporta la rotazione degli elementi di un "anello" della matrice. 
+Per ruotare gli elementi di un singolo anello, eseguiamo quattro diverse operazioni:
+
+Caso A (da basso-destra a sinistra) (0 -> 1)
+sposta gli elementi dalla riga inferiore dell'anello corrente, da destra a sinistra.
+  2----------3
+  |          |
+  |          |
+  1----------0
+
+Caso B (da basso-sinistra in alto) (0 -> 1)
+sposta gli elementi dalla colonna più a destra dell'anello corrente, dal basso verso l'alto.
+  1----------2
+  |          |
+  |          |
+  0----------3
+
+Caso C (da alto-sinistra a destra) (0 -> 1)
+sposta gli elementi dalla riga superiore dell'anello corrente, da sinistra a destra.
+  0----------1
+  |          |
+  |          |
+  3----------2
+
+Caso D (da alto-destra in basso) (0 -> 1)
+sposta gli elementi dalla colonna più a sinistra dell'anello corrente, dall'alto verso il basso.
+  3----------0
+  |          |
+  |          |
+  2----------1
+
+Applichiamo questa operazione partendo dall'anello più esterno e poi agli anelli interni fino al centro.
+
+Funzione che ruota di un posto un anello di una matrice:
+
+(define (rotate-ring matrix row col idx)
+  (local (i value temp)
+    (setq value (matrix row col))
+    (setq temp 0)
+    (setq i (- col 1))
+    ; case A
+    ; 2----------3
+    ; |          |
+    ; |          |
+    ; 1----------0
+    ; Bottom right to left    
+    (while (>= i idx)
+      (setq temp (matrix row i))
+      (setf (matrix row i) value)
+      (setq value temp)
+      (-- i)
+    )
+    ; case B
+    ; 1----------2
+    ; |          |
+    ; |          |
+    ; 0----------3
+    ; Bottom left to top    
+    (setq i (- row 1))
+    (while (>= i idx)
+      (setq temp (matrix i idx))
+      (setf (matrix i idx) value)
+      (setq value temp)
+      (-- i)
+    )
+    ; case C
+    ; 0----------1
+    ; |          |
+    ; |          |
+    ; 3----------2
+    ; Top left to right    
+    (setq i (+ idx 1))
+    (while (<= i col)
+      (setq temp (matrix idx i))
+      (setf (matrix idx i) value)
+      (setq value temp)
+      (++ i)
+    )  
+    ; case D
+    ; 3----------0
+    ; |          |
+    ; |          |
+    ; 2----------1
+    ; Top right to bottom    
+    (setq i (+ idx 1))
+    (while (<= i row)
+      (setq temp (matrix i col))
+      (setf (matrix i col) value)
+      (setq value temp)
+      (++ i)
+    )
+    matrix))
+
+(setq m '((1 2 3)
+          (4 5 6)
+          (7 8 9)))
+
+(rotate-ring m 2 2 0)
+;-> ((4 1 2)
+;->  (7 5 3)
+;->  (8 9 6)
+
+(setq q '(( 1  2  3  4  5)
+          ( 6  7  8  9 10)
+          (11 12 13 14 15) 
+          (16 17 18 19 20) 
+          (21 22 23 24 25)))
+
+(rotate-ring q 4 4 0)
+;-> (( 6  1  2  3  4) 
+;->  (11  7  8  9  5) 
+;->  (16 12 13 14 10) 
+;->  (21 17 18 19 15) 
+;->  (22 23 24 25 20))
+
+Funzione che ruota di un posto una matrice:
+
+(define (rotate-one matrix)
+  (local (row col size ring)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (setq size (min row col))
+    (setq ring 0)
+    ; rotate one ring at time (outside -> inside)
+    (while (< ring (/ size 2))
+      (-- row)
+      (-- col)
+      (setq matrix (rotate-ring matrix row col ring))
+      (++ ring)
+    )
+    matrix))
+
+(rotate-one q)
+;-> (( 6  1  2  3  4) 
+;->  (11 12  7  8  5) 
+;->  (16 17 13  9 10) 
+;->  (21 18 19 14 15) 
+;->  (22 23 24 25 20))
+
+(rotate-one m)
+;-> (4 1 2)
+;-> (7 5 3)
+;-> (8 9 6)
+
+(setq r '((1 2 3)
+          (8 9 4)
+          (7 6 5)))
+
+(rotate-one r)
+;-> ((8 1 2) 
+;->  (7 9 3)
+;->  (6 5 4))
+
+
+--------
+Bar Dice
+--------
+
+Bar Dice è un semplice gioco usato nei bar per stabilire chi paga da bere.
+Si lanciano 5 dadi a sei facce cercando di ottenere la mano migliore.
+Il punteggio si basa sulla frequenza delle facce con le stesse cifre.
+Ogni mano deve includere almeno un "uno", per essere una mano valida.
+Gli "Uno" fungono da "jolly" e possono essere abbinati a qualsiasi altra cifra.
+Il punteggio di una mano dipende innanzitutto dalla frequenza delle cifre e poi dal loro valore, cioè dalla coppia: (frequenza cifra).
+Per esempio:
+
+(1 3 3 3 5)->(3 4) vince contro (6 1 6 2 4)->(6 3) perchè la frequenza della prima coppia (4) è maggiore di quella della seconda coppia (2).
+
+(1 1 3 4 5)->(5 3) pareggia con (5 2 3 5 5)->(5 3).
+
+(1 1 2 3 4)->(4 3) perde con (6 1 2 3 6)->(6 3)).
+
+Questo significa che la mano con il punteggio più alto è composta interamente da 6 e 1, mentre la mano con il punteggio più basso è qualsiasi mano senza 1.
+
+Nota: 1-1-1-1-1 vale quanto 6-6-6-6-6.
+
+Funzione che calcola il valore di una mano.
+Restituisce una coppia: (numero con frequenza massima, frequenza massima)
+
+(define (value p)
+  (local (faces conta lst pat coppia)
+    (setq faces '(1 2 3 4 5 6))
+    ; conta la frequenza delle facce uscite dal lancio
+    (setq conta (count faces p))
+    (cond
+      ; se non esiste alcun 1, allora il valore è 0.
+      ((zero? (conta 0)) (setq coppia '(0 0)))
+      (true
+        ; lst = (1 frequenza) (2 frequenza) ... (6 frequenza)
+        (setq lst (map list faces (count faces p)))
+        ; frequenza massima
+        (setq fmax (apply max conta))
+        ; crea il pattern per cercare la frequenza massima e il numero associato
+        (setq pat (list '? fmax))
+        ; coppia = numero, frequenza massima
+        (setq coppia (last (find-all pat lst)))
+        (cond ((= (coppia 0) 1) ; 1 è il numero con maggiore frequenza
+                (if (= (coppia 1) 5)  ; se sono tutti 1
+                    (setq coppia '(6 5))
+                    ; altrimenti
+                    ; coppia = numero massimo del lancio, (numero di 1) + 1
+                    (setq coppia (list (apply max p) (+ (coppia 1) 1)))))
+              (true ; 1 non è il numero con maggiore frequenza
+              ; coppia = numero della coppia, (frequenza della coppia + numero di 1)
+                (setq coppia (list (coppia 0) (+ (coppia 1) (lst 0 1)))))
+        )
+      )
+    )
+    coppia))
+
+Facciamo alcune prove:
+
+(value '(1 1 1 1 1))
+;-> (6 5)
+(value '(1 4 4 3 3))
+;-> (4 3)
+(value '(1 5 5 5 5))
+;-> (5 5)
+(value '(2 5 5 5 5))
+;-> (0 0)
+(value '(1 1 5 1 1))
+;-> (5 5)
+(value '(1 1 1 1 1))
+;-> (6 5)
+(value '(1 4 4 3 3))
+;-> (4 3)
+(value '(1 5 5 5 5))
+;-> (5 5)
+(value '(2 5 5 5 5))
+;-> (0 0)
+(value '(1 1 5 1 1))
+;-> (5 5)
+(value '(2 3 4 5 6))
+;-> (0 0)
+
+Funzione che calcola il vincitore tra due lanci:
+
+(define (winner p1 p2)
+  (local (res1 res2 num1 num2 freq1 freq2)
+    (setq res1 (value p1))
+    (setq res2 (value p2))
+    (println res1 { } res2)
+    (setq num1 (res1 0))
+    (setq freq1 (res1 1))
+    (setq num2 (res2 0))
+    (setq freq2 (res2 1))
+    (cond ((= freq1 freq2)
+            (cond ((= num1 num2) 0)
+                  ((> num1 num2) 1)
+                  ((< num1 num2) 2)))
+          ((> freq1 freq2) 1)
+          ((< freq1 freq2) 2))))
+
+Facciamo alcune prove:
+
+(winner '(2 1 5 6 6)  '(6 2 6 6 6))
+;-> (6 3) (0 0)
+;-> 1
+
+(winner '(2 4 5 6 6)  '(6 2 6 6 6))
+;-> (0 0) (0 0)
+;-> 0
+
+(winner '(1 2 3 4 5)  '(5 4 3 2 1))
+;-> (5 2) (5 2)
+;-> 0
+
+(winner '(1 5 5 3 2)  '(5 4 1 6 6))
+;-> (5 3) (6 3)
+;-> 2
+
+(winner '(3 2 2 2 1)  '(4 1 3 6 6))
+;-> (2 4) (6 3)
+;-> 1
+
+(winner '(1 1 1 1 1)  '(6 1 1 6 6))
+;-> (6 5) (6 5)
+;-> 0
+
+(winner '(1 3 3 4 4)  '(1 2 2 5 5))
+;-> (4 3) (5 3)
+;-> 2
+
+(winner '(1 3 3 5 5)  '(1 3 3 2 2))
+;-> (5 3) (3 3)
+;-> 1
+
+(winner '(1 3 3 3 4)  '(1 1 3 3 3))
+;-> (3 4) (3 5)
+;-> 2
+
+(winner '(2 2 2 6 1)  '(5 3 3 1 2))
+;-> (2 4) (3 3)
+;-> 1
+
+(winner '(5 5 5 1 5)  '(1 1 1 1 1))
+;-> (5 5) (6 5)
+;-> 2
+
+(winner '(1 1 1 1 1)  '(1 1 5 1 1))
+;-> (6 5) (5 5)
+;-> 1
+
 =============================================================================
 

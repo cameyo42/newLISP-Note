@@ -9110,6 +9110,114 @@ Funzione che inverte le righe di una matrice:
 ;->  (1 2 3 4))
 
 
+---------------------------------------------------------------
+Rotazione di 90 gradi (in senso orario) di una matrice quadrata
+---------------------------------------------------------------
+
+Vediamo un esempio di rotazione di 90 gradi (in senso orario) di una matrice quadrata:
+
+   1  2  3  4  5  6
+   7  8  9 10 11 12
+  13 14 15 16 17 18
+  19 20 21 22 23 24
+  25 26 27 28 29 30
+  31 32 33 34 35 36
+
+Dopo aver ruotato la matrice di 90 gradi in senso orario, otteniamo:
+
+  6 12 18 24 30 36
+  5 11 17 23 29 35
+  4 10 16 22 28 34
+  3  9 15 21 27 33
+  2  8 14 20 26 32
+  1  7 13 19 25 31
+
+Algoritmo
+1) trasporre la matrice
+2) invertire le righe della matrice trasposta
+   (riga 0) con (riga (n-1)), riga 1 con (riga (n-2)), ecc.
+
+La matrice risultante dopo la trasposizione e l'inversione di ciascuna riga sarà la matrice ruotata di 90 gradi in senso orario.
+
+trasposta di m =  1  7 13 19 25 31
+                  2  8 14 20 26 32
+                  3  9 15 21 27 33
+                  4 10 16 22 28 34
+                  5 11 17 23 29 35
+                  6 12 18 24 30 36
+
+inversione delle righe = 6 12 18 24 30 36
+                         5 11 17 23 29 35
+                         4 10 16 22 28 34
+                         3  9 15 21 27 33
+                         2  8 14 20 26 32
+                         1  7 13 19 25 31
+
+Funzione che inverte le righe di una matrice:
+
+(define (swap-rows matrix)
+  (local (rows cols)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (for (c 0 (- cols 1))
+      (for (r 0 (- (/ rows 2) 1))
+        (swap (matrix r c) (matrix (- rows r 1) c))
+      )
+    )
+  matrix))
+
+(setq m '(( 1  2  3  4  5  6)
+          ( 7  8  9 10 11 12)
+          (13 14 15 16 17 18)
+          (19 20 21 22 23 24)
+          (25 26 27 28 29 30)
+          (31 32 33 34 35 36)))
+
+(setq t (transpose m))
+;-> ((1  7 13 19 25 31)
+;->  (2  8 14 20 26 32)
+;->  (3  9 15 21 27 33)
+;->  (4 10 16 22 28 34)
+;->  (5 11 17 23 29 35)
+;->  (6 12 18 24 30 36))
+
+(swap-rows t)
+;-> ((6 12 18 24 30 36)
+;->  (5 11 17 23 29 35)
+;->  (4 10 16 22 28 34)
+;->  (3  9 15 21 27 33)
+;->  (2  8 14 20 26 32)
+;->  (1  7 13 19 25 31))
+
+Funzione che ruota una matrice di 90 gradi in senso orario:
+
+(define (rot90 matrix)
+  (swap-rows (transpose matrix)))
+
+(rot90 m)
+;-> ((6 12 18 24 30 36)
+;->  (5 11 17 23 29 35)
+;->  (4 10 16 22 28 34)
+;->  (3  9 15 21 27 33)
+;->  (2  8 14 20 26 32)
+;->  (1  7 13 19 25 31))
+
+Per ruotare una matrice di 180 gradi applicare due volte "rot90":
+
+(setq g '(( 1  2  3  4  5)
+          ( 6  7  8  9 10 )
+          (11 12 13 14 15)
+          (16 17 18 19 20)
+          (21 22 23 24 25)))
+
+(rot90 (rot90 g))
+;-> ((25 24 23 22 21)
+;->  (20 19 18 17 16)
+;->  (15 14 13 12 11)
+;->  (10  9  8  7  6)
+;->  ( 5  4  3  2  1))
+
+
 ---------------------------------------------
 Attraversamento di matrici lungo le diagonali
 ---------------------------------------------
@@ -9190,7 +9298,6 @@ Funzione che attraversa una matrice in diagonale '\':
 
 (diag2 m)
 ;-> (5 4 5 3 9 3 2 8 4 1 7 3 6 2 1)
-
 
 =============================================================================
 
