@@ -2035,6 +2035,13 @@ NOTE LIBERE 19
   Gomoku
   Rotazione di una matrice
   Bar Dice
+  Numeri bilanciati
+  Numeri di Euclide
+  Numeri di Moran
+  Crivello di Sundaram (Sieve of Sundaram)
+  Numeri pari e dispari in un intervallo
+  Numeri con somma delle cifre uguale ad un quadrato perfetto
+  Numeri senza radice digitale nelle cifre
 
 PROBLEMI SUI DADI
 =================

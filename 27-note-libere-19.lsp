@@ -648,5 +648,335 @@ Facciamo alcune prove:
 ;-> (6 5) (5 5)
 ;-> 1
 
+
+-----------------
+Numeri bilanciati
+-----------------
+
+Un numero bilanciato è un numero la cui somma delle cifre a sinistra del punto centrale è uguale alla somma delle cifre a destra del punto centrale.
+
+Vediamo alcuni esempi:
+12721 è un numero bilanciato, perché la somma delle cifre a sinistra del punto medio (che è la cifra al centro del numero quando il numero di cifre è dispari) vale 3 (1 + 2), che è uguale alla somma delle cifre a destra del punto medio (2 + 1).
+1203 è un numero bilanciato, perchè 1 + 2 = 0 + 3 = 3
+13425 non è un numero bilanciato perchè 1 + 3 != 2 + 5
+
+(define (balanced? num)
+  (local (lst len mid)
+    (setq lst (explode (string num)))
+    (setq len (length lst))
+    (setq mid (/ len 2))
+    (= (apply + (map int (slice lst 0 mid)))          ; somma sx
+       (apply + (map int (slice lst (- mid) mid)))))) ; somma dx
+
+Facciamo alcune prove:
+
+(balanced? 12721)
+;-> true
+
+(balanced? 1203)
+;-> true
+
+(balanced? 13425)
+;-> nil
+
+(balanced? 1234567890987654321)
+;-> true
+
+
+-----------------
+Numeri di Euclide
+-----------------
+
+I numeri di Euclide sono una sequenza di numeri interi positivi generati utilizzando la formula:
+
+E(n) = p1*p2*p3* ... *pn + 1
+
+dove p1, p2, p3, ..., pn sono i primi n numeri primi.
+
+In altre parole, E(n) è il prodotto dei primi n numeri primi + 1
+
+I primi numeri di Euclide sono:
+
+E(1) = 3
+E(2) = 7
+E(3) = 31
+E(4) = 211
+E(5) = 2311
+E(6) = 30031
+E(7) = 510511
+...
+
+I numeri di Euclide sono rari e diventano rapidamente molto grandi all’aumentare di n.
+
+Sequenza OEIS A006862:
+  2, 3, 7, 31, 211, 2311, 30031, 510511, 9699691, 223092871, 6469693231, 
+  200560490131, 7420738134811, 304250263527211, 13082761331670031, 
+  614889782588491411, 32589158477190044731, ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Per semplicità calcoliamo sempre 10000 numeri primi.
+Vedi "Quanti numeri primi ci sono?" in "Note libere 15".
+
+(define (euclide limit)
+  (setq out '())
+  (setq primi (primes-to 10000))
+  (setq prod 1L)
+  (for (i 0 (- limit 1))
+    (setq prod (* prod (primi i)))
+    (push (+ prod 1) out -1)
+  )
+  out)
+
+(euclide 16)
+;-> (3L 7L 31L 211L 2311L 30031L 510511L 9699691L 223092871L 
+;->  6469693231L 200560490131L 7420738134811L 304250263527211L
+;->  13082761331670031L 614889782588491411L 32589158477190044731L)
+
+
+---------------
+Numeri di Moran
+---------------
+
+Un numero N è un numero di Moran se N diviso per la somma delle sue cifre produce un numero primo.
+I numeri di Moran sono un sottoinsieme dei numeri di Harshad.
+
+Sequenza OEIS A001101:
+  18, 21, 27, 42, 45, 63, 84, 111, 114, 117, 133, 152, 153, 156, 171, 190,
+  195, 198, 201, 207, 209, 222, 228, 247, 261, 266, 285, 333, 370, 372, 399,
+  402, 407, 423, 444, 465, 481, 511, 516, 518, 531, 555, 558, 592, 603, ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (moran? num)
+  (let (sum (digit-sum num))
+    (and (zero? (% num sum))
+        (prime? (/ num sum)))))
+
+Facciamo alcune prove:
+
+(moran? 61)
+;-> nil
+(moran? 63)
+;-> true
+
+(setq m (map moran? (sequence 1 100)))
+(filter true? (map (fn(x) (if x (+ $idx 1))) m))
+;-> (18 21 27 42 45 63 84)
+
+Vediamo la velocità:
+
+(time (map moran? (sequence 1 100000)))
+;-> 100.128
+(time (map moran? (sequence 1 1000000)))
+;-> 1080.027
+(time (map moran? (sequence 1 10000000)))
+;-> 12052.906
+
+(define (moran-to limit)
+  (local (out)
+    (setq out '())
+    (for (i 1 limit)
+      (if (moran? i) (push i out -1))
+    )
+    out))
+
+(moran-to 200)
+;-> (18 21 27 42 45 63 84 111 114 117 133 152 153 156 171 190 195 198)
+
+
+----------------------------------------
+Crivello di Sundaram (Sieve of Sundaram)
+----------------------------------------
+
+Il Crivello di Sundaram è un algoritmo per generare numeri primi fino a un dato numero.
+È stato ideato nel 1934 dal matematico indiano Sundaram.
+
+Algoritmo
+Dalla lista degli interi fra 1 ed n vengono rimossi tutti i numeri della forma i + j + 2ij, dove:
+- i,j sono interi naturali e 1<= i <= j
+- i + j + 2ij <= n
+I numeri rimasti vengono moltiplicati per due e ai risultati viene addizionato uno.
+Si ottiene così la lista dei numeri primi dispari inferiori a 2n + 2.
+
+(define (sundaram num)
+  (if (< num 2) '()
+  (if (= num 2) '(2)
+  ;else
+  (local (out limit sieve i j)
+    (++ num)
+    (setq out '(2))
+    (setq limit (+ (/ (- num 2) 2) 1))
+    (setq sieve (array limit '(nil)))
+    (setq i 1 j 0)
+    (while (< i limit)
+      (setq j i)
+      (while (< (+ i j (* 2 i j)) limit)
+        ; (i + j + 2ij) true (unset)
+        (setf (sieve (+ i j (* 2 i j))) true)
+        (++ j)
+      )
+      (++ i)
+    )
+    (for (i 1 (- limit 1))
+      (if (nil? (sieve i)) (push (+ (* i 2) 1) out -1))
+    )
+  out))))
+
+Facciamo alcune prove:
+
+(sundaram 2)
+;-> (2)
+(sundaram 3)
+;-> (2 3)
+(sundaram 25)
+; (2 3 5 7 11 13 17 19 23)
+(sundaram 97)
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+
+--------------------------------------
+Numeri pari e dispari in un intervallo
+--------------------------------------
+
+Quanti sono i numeri interi pari e dispari all'interno di un dato intervallo?
+Ad esempio, nell'intervallo [2, 10], ci sono 5 numeri pari (2, 4, 6, 8 e 10) e 4 numeri dispari (3, 5, 7 e 9).
+
+Dato un intervallo [a, b]:
+Controlla se "a" è maggiore di "b".
+In caso positivo, scambiare i valori (deve essere "a" minore di "b")
+Calcolare la lunghezza dell'intervallo: lunghezza = (b - a) + 1.
+Determinare se "a" è pari o dispari.
+Determinare se "b" è pari o dispari.
+Determinare la lunghezza in base alle seguenti ipotesi:
+  Se "a" è pari e "b" pari,
+  Se "a" è dispari e "b" pari,
+  Se "a" è pari e "b" dispari,
+  Se "a" è dispari e "b" dispari,
+
+(define (even-odd a b)
+  (local (len pari dispari)
+    (if (> a b) (swap a b))
+    (setq len (+ (- b a) 1))
+    (cond ((even? a) 
+            (if (even? b) 
+                (setq pari (+ (/ len 2) 1))
+                (setq pari (/ len 2))
+            )
+            (setq dispari (- len pari)))
+          ((odd? a)
+            (if (odd? b)
+                (setq dispari (+ (/ len 2) 1))
+                (setq dispari (/ len 2))
+            )
+            (setq pari (- len dispari)))
+    )
+    (list pari dispari)))
+
+Facciamo alcune prove:
+
+(even-odd 2 10)
+;-> (5 4)
+
+(even-odd 2 2)
+;-> (1 0)
+
+(even-odd 3 3)
+;-> (0 1)
+
+(even-odd 1 100)
+;-> (50 50)
+
+
+-----------------------------------------------------------
+Numeri con somma delle cifre uguale ad un quadrato perfetto
+-----------------------------------------------------------
+
+Trovare la sequenza dei numeri in cui la somma delle cifre è uguale ad un quadrato perfetto.
+
+Sequenza OEIS A028839:
+  1, 4, 9, 10, 13, 18, 22, 27, 31, 36, 40, 45, 54, 63, 72, 79, 81, 88, 90,
+  97, 100, 103, 108, 112, 117, 121, 126, 130, 135, 144, 153, 162, 169, 171,
+  178, 180, 187, 196, 202, 207, 211, 216, 220, 225, 234, 243, 252, 259, 261,
+  268, 270, 277, 286, 295, 301, 306, ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (square? num)
+"Check if an integer is a perfect square"
+  (local (a)
+    (setq a (bigint num))
+    (while (> (* a a) num)
+      (setq a (/ (+ a (/ num a)) 2))
+    )
+    (= (* a a) num)))
+
+; alternative faster version (non big-integer)
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(define (check? num)
+  (square? (digit-sum num)))
+
+(filter check? (sequence 1 200))
+;-> (1 4 9 10 13 18 22 27 31 36 40 45 54 63 72 79 81 88 90 97 100 103 
+;->  108 112 117 121 126 130 135 144 153 162 169 171 178 180 187 196)
+
+
+----------------------------------------
+Numeri senza radice digitale nelle cifre
+----------------------------------------
+
+Trovare la sequenza di numeri che non contengono la radice digitale nelle loro cifre.
+
+Sequenza OEIS A119247:
+  11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32,
+  33, 34, 35, 36, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 54,
+  55, 56, 57, 58, 61, 62, 63, 64, 65, 66, 67, 68, 71, 72, 73, 74, 75, 76,
+  77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 101, ...
+
+(define (digit-root num)
+"Calculates the repeated sum of the digits of an integer"
+    (+ 1 (% (- (abs num) 1) 9)))
+
+(define (check? num) (nil? (find (string (digit-root num)) (string num))))
+
+(filter check? (sequence 1 101))
+;-> (11 12 13 14 15 16 17 18 21 22 23 24 25 26 27 28 31 32
+;->  33 34 35 36 37 38 41 42 43 44 45 46 47 48 51 52 53 54
+;->  55 56 57 58 61 62 63 64 65 66 67 68 71 72 73 74 75 76
+;->  77 78 81 82 83 84 85 86 87 88 101)
+
+
 =============================================================================
 
