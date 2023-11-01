@@ -978,5 +978,119 @@ Sequenza OEIS A119247:
 ;->  77 78 81 82 83 84 85 86 87 88 101)
 
 
+--------------------------------------------------------
+Generazione di tutte le sottoliste contigue di una lista
+--------------------------------------------------------
+
+Data una lista, generare tutte le possibili sottoliste contigue.
+Per esempio:
+
+lista = (1 2 3 4)
+sottoliste contigue = (1) (1 2) (1 2 3) (1 2 3 4)
+                      (2) (2 3) (2 3 4)
+                      (3) (3 4)
+                      (4)
+
+(define (contigue lst)
+  (setq out '())
+  (setq len (length lst))
+  (for (i 0 (- len 1))
+    (for (j 1 (- len i))
+      ;(println i { } j)
+      (push (slice lst i j) out -1)
+    )
+  )
+  out)
+
+(contigue '(1 2 3 4))
+;-> ((1) (1 2) (1 2 3) (1 2 3 4) (2) (2 3) (2 3 4) (3) (3 4) (4))
+
+(contigue (sequence 1 5))
+;-> ((1) (1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5) 
+;->  (2) (2 3) (2 3 4) (2 3 4 5) 
+;->  (3) (3 4) (3 4 5)
+;->  (4) (4 5)
+;->  (5))
+
+
+-----------------------
+Percorsi in una matrice
+-----------------------
+
+Data una matrice di caratteri, determinare tutti i possibili percorsi dall'angolo in alto a sinistra all'angolo in basso a destra della matrice. 
+I percorsi possono muoversi solo nelle direzioni verso il basso e verso destra.
+
+Per risolvere il problema usiamo un approccio ricorsivo. 
+Ad ogni passaggio abbiamo due opzioni: spostarci verso il basso o spostarci a destra. 
+Esploriamo ricorsivamente entrambe le opzioni tenendo traccia del percorso corrente.
+
+(define (paths matrix)
+  (local (rows cols percorso out)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (setq percorso (array (+ rows cols (- 1)) '("")))
+    (setq out '())
+    (find-paths 0 0 0 (+ rows cols (- 1)))
+    out))
+
+(define (find-paths row col conta k)
+  (cond ((or (>= row rows) (>= col cols)) nil)
+        (true
+          (setf (percorso conta) (matrix row col))
+          (find-paths (+ row 1) col (+ conta 1) k)
+          (find-paths row (+ col 1) (+ conta 1) k)
+          (if (= (+ conta 1) k) (push (array-list percorso) out -1))
+        )))
+
+(setq a '(("A" "B")
+          ("C" "D")))
+(paths a)
+(pow 2 4)
+(pow 2 3)
+(setq b '(("A" "B" "C" "D")
+          ("E" "F" "G" "H")
+          ("I" "J" "K" "L")
+          ("M" "N" "O" "P")
+          ("Q" "R" "S" "T")))
+(paths b)
+;-> (("A" "E" "I" "M" "Q" "R" "S" "T") ("A" "E" "I" "M" "N" "R" "S" "T") 
+;->  ("A" "E" "I" "M" "N" "O" "S" "T") ("A" "E" "I" "M" "N" "O" "P" "T")
+;->  ("A" "E" "I" "J" "N" "R" "S" "T") ("A" "E" "I" "J" "N" "O" "S" "T")
+;->  ("A" "E" "I" "J" "N" "O" "P" "T") ("A" "E" "I" "J" "K" "O" "S" "T")
+;->  ("A" "E" "I" "J" "K" "O" "P" "T") ("A" "E" "I" "J" "K" "L" "P" "T")
+;->  ("A" "E" "F" "J" "N" "R" "S" "T") ("A" "E" "F" "J" "N" "O" "S" "T")
+;->  ("A" "E" "F" "J" "N" "O" "P" "T") ("A" "E" "F" "J" "K" "O" "S" "T")
+;->  ("A" "E" "F" "J" "K" "O" "P" "T") ("A" "E" "F" "J" "K" "L" "P" "T")
+;->  ("A" "E" "F" "G" "K" "O" "S" "T") ("A" "E" "F" "G" "K" "O" "P" "T")
+;->  ("A" "E" "F" "G" "K" "L" "P" "T") ("A" "E" "F" "G" "H" "L" "P" "T")
+;->  ("A" "B" "F" "J" "N" "R" "S" "T") ("A" "B" "F" "J" "N" "O" "S" "T")
+;->  ("A" "B" "F" "J" "N" "O" "P" "T") ("A" "B" "F" "J" "K" "O" "S" "T")
+;->  ("A" "B" "F" "J" "K" "O" "P" "T") ("A" "B" "F" "J" "K" "L" "P" "T")
+;->  ("A" "B" "F" "G" "K" "O" "S" "T") ("A" "B" "F" "G" "K" "O" "P" "T")
+;->  ("A" "B" "F" "G" "K" "L" "P" "T") ("A" "B" "F" "G" "H" "L" "P" "T")
+;->  ("A" "B" "C" "G" "K" "O" "S" "T") ("A" "B" "C" "G" "K" "O" "P" "T")
+;->  ("A" "B" "C" "G" "K" "L" "P" "T") ("A" "B" "C" "G" "H" "L" "P" "T")
+;->  ("A" "B" "C" "D" "H" "L" "P" "T"))
+
+(length (paths b))
+;-> 35
+
+Numero di percorsi su una matrice MxN: binom((M + N - 2) (N - 1))
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(binom (+ 5 4 (- 2)) (- 4 1))
+;-> 35L
+
 =============================================================================
 

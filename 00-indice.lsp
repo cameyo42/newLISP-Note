@@ -2042,6 +2042,8 @@ NOTE LIBERE 19
   Numeri pari e dispari in un intervallo
   Numeri con somma delle cifre uguale ad un quadrato perfetto
   Numeri senza radice digitale nelle cifre
+  Generazione di tutte le sottoliste contigue di una lista
+  Percorsi in una matrice
 
 PROBLEMI SUI DADI
 =================
@@ -2083,7 +2085,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (241 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (245 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

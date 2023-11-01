@@ -4440,7 +4440,7 @@ Funzione Breadth First Search di tipo Lee:
           )
         )
       )
-      ; Restituisci il risultato finale: distanza minima oppure nil.
+      ; Restituisce il risultato finale: distanza minima oppure nil.
       (if (= min-dist 9999999999)
         nil
         min-dist
