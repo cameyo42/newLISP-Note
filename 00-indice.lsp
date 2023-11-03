@@ -2044,6 +2044,8 @@ NOTE LIBERE 19
   Numeri senza radice digitale nelle cifre
   Generazione di tutte le sottoliste contigue di una lista
   Percorsi in una matrice
+  Equipaggio di volo
+  Triangoli in una lista
 
 PROBLEMI SUI DADI
 =================

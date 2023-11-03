@@ -1092,5 +1092,173 @@ Numero di percorsi su una matrice MxN: binom((M + N - 2) (N - 1))
 (binom (+ 5 4 (- 2)) (- 4 1))
 ;-> 35L
 
+
+------------------
+Equipaggio di volo
+------------------
+
+Alan, David, Tom e Bob formano un equipaggio di volo:
+pilota, copilota, navigatore e ingegnere ma non necessariamente in quest'ordine.
+Assegnare i nomi giusti al lavoro giusto sulla base delle seguenti informazioni:
+(alcune delle quali potrebbero non esserti di alcun aiuto)
+
+   1. Il pilota e il copilota sono buoni amici.
+   2. Alan e Bob non sono buoni amici.
+   3. La moglie dell'ingegnere è una passeggera.
+   4. Alan e Bob non portano gli occhiali.
+   5. Ma non sono sicuro di David o Tom.
+   6. Solo Tom e Bob sono sposati.
+   7. Tom ha pranzato con il copilota.
+   8. Il pilota non porta gli occhiali.
+   9. Ma il navigatore sì.
+  1O. Il navigatore è fidanzato con l'hostess.
+  11. L'hostess è di bell'aspetto.
+
+Estrapolazione di altre informazioni:
+  12. Alan non può essere il navigatore (da 4. e 9.)
+  12. Bob non può essere il navigatore (da 4. e 9.)
+  14. Tom o Bob è ingegnere (da 3. e 6.)
+  15. Tom non è il copilota (da 7.)
+  16. Il navigatore non è sposato (da 10.)
+  17. Alan e Bob non possono essere insieme pilota e copilota (da 1. e 2.)
+
+Da queste informazioni si ottiene:
+
+  Bob ingegnere    
+  Tom pilota       
+  Alan copilota      
+  David navigatore
+
+
+----------------------
+Triangoli in una lista
+----------------------
+
+Data una lista non ordinata di numeri interi positivi, scrivere una funzione per generare/contare il numero di possibili triangoli che possono essere formati con tre elementi qualsiasi della lista.
+I tre elementi, che rappresentano le lunghezze dei lati di un triangolo, devono soddisfare la disuguaglianza del triangolo: la somma di due lati qualsiasi deve essere maggiore del terzo lato.
+In altre parole, affinché la terna (x, y, z) formi un triangolo valido devono essere vere tutte le seguenti disuguaglianze:
+
+  1) x + y > z
+  2) y + z > x
+  3) z + x > y
+
+Soluzione brute-force
+---------------------
+Una soluzione è considerare ogni combinazione di tre elementi nella lista e verificare se soddisfano la disuguaglianza del triangolo.
+
+(define (conta-triangoli lst show)
+  (local (out conta len)
+    (setq out '())
+    (setq conta 0)
+    (setq len (length lst))
+    (for (i 0 (- len 3))
+      (for (j (+ i 1) (- len 2))
+        (for (k (+ j 1) (- len 1))
+          (if (and (> (+ (lst i) (lst j)) (lst k))
+                   (> (+ (lst i) (lst k)) (lst j))
+                   (> (+ (lst k) (lst j)) (lst i)))
+              (begin
+                (++ conta)
+                (if show (push (sort (list (lst i) (lst j) (lst k))) out -1))
+              )))))
+    (if show
+      (list out conta)
+      conta)))
+
+Facciamo alcune prove:
+
+(conta-triangoli '(4 6 3 8))
+;-> 3
+(conta-triangoli '(4 6 3 8) true)
+;-> ((3 4 6) (4 6 8) (3 6 8)) 3)
+
+(conta-triangoli '(10 21 22 100 101 200 300))
+;-> 6
+(conta-triangoli '(10 21 22 100 101 200 300) true)
+;-> (((10 21 22) (10 100 101) (21 100 101)
+;->   (22 100 101) (100 101 200) (101 200 300)) 6)
+
+Complessità temporale:
+  (tre cicli innestati) = O(n^3)
+
+Soluzione con due puntatori
+---------------------------
+Ordinare la lista ed eseguire un ciclo annidato che, preso un indice, poi prova a trovare un indice superiore e inferiore all'interno del quale tutte le lunghezze formano un triangolo con quell'indice preso.
+
+Ordinare la lista e utilizzare tre variabili sx, dx, e i, che puntano all'inizio, alla fine e all'elemento della lista a partire dalla fine.
+Attraversare l'array dalla fine (da n-1 a 2) e per ogni iterazione mantieni il valore di sx = 0 e dx = i-1.
+Ora, se è possibile formare un triangolo utilizzando lst(x) e lst(dx), è ovvio che si possano formare dei triangoli da lst[sx+1], lst[sx+2]...lst[r-1], con la coppia lst(dx) e ls(ti), perché la lista è ordinata,. Il numero di questi triangoli vale (dx - sx).
+A questo punto diminuire il valore di dx e continuare il ciclo finché sx è inferiore a dx.
+Se non è possibile formare un triangolo utilizzando lst(sx) e lst(dx), incrementare il valore di sx e continuare il ciclo finché sx è inferiore a dx.
+
+(define (conta-tri lst show)
+  (local (out len conta sx dx)
+    (setq out '())
+    (sort lst)
+    (setq len (length lst))
+    (setq conta 0)
+    (for (i (- len 1) 2 -1)
+      (setq sx 0)
+      (setq dx (- i 1))
+      (while (< sx dx)
+        (if (> (+ (lst sx) (lst dx)) (lst i))
+          (begin
+            ; Se è possibile con lst(sx), lst(dx) e lst(i) allora
+            ; è possibile anche con lst(sx+1)...lst(dx-1),
+            ; insieme a lst(dx) e lst(i)
+            (if show
+                (for (k sx (- dx 1))
+                  (push (sort (list (lst k) (lst dx) (lst i))) out -1)
+                )
+            )
+            (setq conta (+ conta dx (- sx)))
+            (-- dx)
+          )
+          ;else
+          (++ sx)
+        )
+      )
+    )
+    (if show
+      (list out conta)
+      conta)))
+
+Facciamo alcune prove:
+
+(conta-tri '(4 6 3 8))
+;-> 3
+(conta-tri '(4 6 3 8) true)
+;-> (((3 6 8) (4 6 8) (3 4 6)) 3)
+
+(conta-tri '(10 21 22 100 101 200 300))
+;-> 6
+(conta-tri '(10 21 22 100 101 200 300) true)
+;-> (((101 200 300) (100 101 200) (10 100 101)
+;->   (21 100 101) (22 100 101) (10 21 22)) 6)
+
+Complessità temporale:
+  (sort) + (due cicli innestati) =
+  = O(n*log(n)) + O(n^2) = O(n^2)
+
+Vediamo la velocità delle due funzioni:
+
+(define (test elementi iterazioni)
+  (let (lst (rand elementi (+ (rand elementi) 3)))
+    (println (time (conta-triangoli lst) iterazioni))
+    (println (time (conta-tri lst) iterazioni))
+    '------------))
+
+(test 10 100)
+;-> 2.991
+;-> 0.998
+
+(test 100 100)
+;-> 85.798
+;-> 5.985
+
+(test 100 1000)
+;-> 36187.195
+;-> 779.916
+
 =============================================================================
 
