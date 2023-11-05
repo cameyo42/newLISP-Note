@@ -94,6 +94,7 @@ Probabilità a Monopoli
 ----------------------
 
 Monopoli - Edizione Editrice Giochi
+Vedi immagine "monopoli.png" nella cartella "data".
 
 Calcoliamo le probabilità di visita di ogni casella del gioco del Monopoli da parte di un giocatore.
 

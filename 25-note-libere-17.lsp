@@ -816,7 +816,7 @@ Per N = 7, 13 e 19 non ho trovato soluzioni.
 Coppie autogrammatiche
 ----------------------
 
-Abbiamo due funzioni, P e Q, entrambi nella stesso linguaggio (newLISP).
+Abbiamo due funzioni, P e Q, entrambi nello stesso linguaggio (newLISP).
 Ciascuno di essi riceve un input di un solo carattere.
 Se P riceve il carattere K, P dice quante volte K appare in Q.
 Viceversa: se Q riceve K, Q dice quante volte K appare in P.

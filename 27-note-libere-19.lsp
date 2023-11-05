@@ -336,7 +336,7 @@ Consideriamo ad esempio la seguente matrice:
   16 17 18 19 20
   21 22 23 24 25
 
-Dopo aver eseguito l’operazione di rotazione, la matrice diventa:
+Dopo aver eseguito l'operazione di rotazione, la matrice diventa:
 
    6  1  2  3  4
   11 12  7  8  5
@@ -706,7 +706,7 @@ E(6) = 30031
 E(7) = 510511
 ...
 
-I numeri di Euclide sono rari e diventano rapidamente molto grandi all’aumentare di n.
+I numeri di Euclide sono rari e diventano rapidamente molto grandi all'aumentare di n.
 
 Sequenza OEIS A006862:
   2, 3, 7, 31, 211, 2311, 30031, 510511, 9699691, 223092871, 6469693231, 
@@ -1259,6 +1259,220 @@ Vediamo la velocità delle due funzioni:
 (test 100 1000)
 ;-> 36187.195
 ;-> 779.916
+
+
+---------------------
+Teorema di Zeckendorf
+---------------------
+
+Il teorema di Zeckendorf afferma che ogni intero positivo può essere scritto unicamente come somma di numeri di Fibonacci distinti e non contigui.
+Due numeri di Fibonacci sono contigui se si succedono uno dopo l'altro nella sequenza di Fibonacci:
+ (0, 1, 1, 2, 3, 5, ..).
+Ad esempio, 1 e 2 sono vicini, ma 1 e 5 no.
+
+Esempi:
+
+n = 6
+Zeckendorf: 5 1
+5 e 1 sono numeri di Fibonacci non consecutivi e la loro somma è 6.
+
+n = 42
+Zeckendorf: 34 8 
+34 e 8 sono due numeri di Fibonacci non consecutivi e la loro somma è 42.
+
+Scrivere una funzione che trova una rappresentazione di un numero come somma di numeri di Fibonacci non consecutivi.
+
+Vedi anche "Rappresentazione di Zeckendorf" nel capitolo "Rosetta code".
+
+Funzione che trova il più grande numero di Fibonacci minore o uguale ad un dato numero:
+
+(define (fib-less num)
+  (local (f1 f2 f3)
+    (cond ((or (= num 0) (= num 1)) num)
+          (true
+            (set 'f1 0 'f2 1 'f3 1)
+            (while (<= f3 num)
+              (setq f1 f2)
+              (setq f2 f3)
+              (setq f3 (+ f1 f2))
+            )
+            f2))))
+
+Funzione che trova la rappresentazione di Zeckendorf per un dato numero:
+
+(define (zeck num)
+  (local (f out)
+    (setq out '())
+    (while (> num 0)
+      ; trova il numero di Fibonacci più vicino (minore o uguale) a num
+      (setq f (fib-less num))
+      (push f out -1)
+      ; diminuiamo il numero (num) del numero di Fibonacci trovato (f)
+      (-- num f)
+    )
+    out))
+
+Facciamo alcune prove:
+
+(zeck 6)
+;-> (5 1)
+
+(zeck 42)
+;-> (34 8)
+
+(zeck 2023)
+;-> (1597 377 34 13 2)
+
+(map (fn(x) (list x (zeck x))) (sequence 1 20))
+;-> ((1 (1)) (2 (2)) (3 (3)) (4 (3 1)) (5 (5)) (6 (5 1)) (7 (5 2)) 
+;->  (8 (8)) (9 (8 1)) (10 (8 2)) (11 (8 3)) (12 (8 3 1)) (13 (13))
+;->  (14 (13 1)) (15 (13 2)) (16 (13 3)) (17 (13 3 1)) (18 (13 5))
+;->  (19 (13 5 1)) (20 (13 5 2)))
+
+
+---------------------------------------------------------------
+Modello abeliano del mucchio di sabbia (Abelian sandpile model)
+---------------------------------------------------------------
+
+Il modello abeliano del mucchio di sabbia è un modello matematico utilizzato per studiare il comportamento di sistemi complessi che presentano criticità auto-organizzate.
+È stato introdotto alla fine degli anni '80 da Per Bak, Chao Tang e Kurt Wiesenfeld come semplice modello per simulare il comportamento di un mucchio di sabbia che lentamente si accumula e poi crolla sotto il proprio peso.
+
+Il modello è costituito da una griglia bidimensionale di celle, ciascuna delle quali può contenere una certa quantità di granelli di "sabbia".
+Se una cella contiene più di una certa quantità di granelli di sabbia, diventa "instabile" e invia un granello di sabbia a ciascuna delle celle vicine.
+Se una qualsiasi di queste celle vicine supera la soglia, anch'essa diventa instabile e distribuisce granelli di sabbia alle celle vicine, e così via, con il processo di "distribuzione" che può continuare a lungo.
+
+La caratteristica notevole del modello abeliano dei cumuli di sabbia è che, indipendentemente dalle condizioni iniziali, il sistema alla fine raggiunge uno stato di “criticità auto-organizzata”, in cui piccole perturbazioni possono innescare valanghe su larga scala che dissipano rapidamente l'energia e ripristinano il sistema ad uno stato critico. 
+Questa proprietà ha reso il modello utile per studiare un'’ampia gamma di fenomeni in fisica, matematica e informatica, tra cui la dinamica dei terremoti, il flusso del traffico e la teoria dell'informazione.
+
+Per simulare il modello utilizziamo una matrice bidimensionale per rappresentare il mucchio di sabbia.
+Il metodo "distribute" seleziona casualmente una cella e vi aggiunge un granello di sabbia. 
+Se il numero di granelli in quella cella supera il parametro "accumulation", la cella cede e distribuisce i suoi granelli alle celle vicine.
+
+La funzione "sand-pile" accetta i seguenti parametri:
+  size = dimensione della matrice quadrata
+  accumulation = numero di granelli di sabbia che fa cadere il mucchio
+  iterations = numero di volte che immettiamo un granello di sabbia (iterazioni)
+  showstep = stampa la matrice ad ogni iterazione
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+Funzione che crea un nuovo granello e ridistribuisce i granelli nelle celle:
+
+(define (distribute)
+  (setq x (rand size))
+  (setq y (rand size))
+  (++ (grid x y))
+  (while (>= (grid x y) accumulation)
+    (-- (grid x y) accumulation)
+    (if (> x 0) (++ (grid (- x 1) y)))
+    (if (< x (- size 1) (++ (grid (+ x 1) y))))
+    (if (> y 0) (++ (grid x (- y 1))))
+    (if (< y (- size 1) (++ (grid x (+ y 1)))))
+  ))
+
+Funzione che effettua la simulazione del modello:
+
+(define (sandpile size accumulation iterations showstep)
+  (local (grid x y)
+    ; (seed 1 true) ; same random sequence
+    (seed (time-of-day)) ; different random sequence
+    (setq grid (array size size '(0)))
+    (for (i 1 iterations) 
+      (distribute)
+      (if showstep (begin (print-matrix grid) (read-line)))
+    )
+    (print-matrix grid)))
+
+Facciamo alcune prove:
+
+(sandpile 10 4 1000)
+;->  3  2 11  2  7  1  8  5  0  5
+;-> 12  4  2  9 16  7  1  6 18  2
+;->  4  9 15  4  1  7 11  0  6  5
+;->  6  0  4 25  4  4 24  6 16  4
+;->  6 20 10  0 23  1 20  3 17  3
+;->  4 13  6 17  9  4  8  7  2  3
+;->  2  3  6  2  4  9  3 18  3  8
+;->  2 11  9  6 12 26  2 24  9  2
+;->  4 11 22 11  1  6  4  6  6  5
+;->  4  1  1 13  5  8  0  9  0  4
+
+(sandpile 5 4 100 true)
+;-> 0 0 0 0 0
+;-> 0 0 0 0 0
+;-> 0 0 0 0 0
+;-> 0 1 0 0 0
+;-> 0 0 0 0 0
+;-> ...
+;-> ...
+;-> 1 1 2 0 1
+;-> 0 0 1 1 1
+;-> 0 1 0 0 0
+;-> 1 1 1 0 0
+;-> 1 2 0 0 0
+;-> 
+;-> 1 1 2 0 1
+;-> 0 0 1 2 1
+;-> 0 1 0 0 0
+;-> 1 1 1 0 0
+;-> 1 2 0 0 0
+;-> 
+;-> 1 1 2 0 1
+;-> 0 0 1 2 1
+;-> 0 1 0 0 0
+;-> 1 1 1 0 0
+;-> 2 2 0 0 0
+;-> 
+;-> 1 1 2 1 1
+;-> 0 0 1 2 1
+;-> 0 1 0 0 0
+;-> 1 1 1 0 0
+;-> 2 2 0 0 0
+;-> ...
+;-> ...
+;-> 1 2 3 6 5
+;-> 4 3 2 3 0
+;-> 1 6 1 2 4
+;-> 1 5 7 3 3
+;-> 4 3 0 3 2
+;-> 
+;-> 1 2 3 7 5
+;-> 4 3 3 0 1
+;-> 1 6 1 3 4
+;-> 1 5 7 3 3
+;-> 4 3 0 3 2
+;-> 
+;-> 2 2 3 7 5
+;-> 1 4 3 0 1
+;-> 2 6 1 3 4
+;-> 1 5 7 3 3
+;-> 4 3 0 3 2
+;-> 
+;-> 2 2 3 7 5
+;-> 1 4 3 0 1
+;-> 2 6 1 3 4
+;-> 1 5 7 3 3
+;-> 4 3 0 3 2
 
 =============================================================================
 

@@ -2046,6 +2046,8 @@ NOTE LIBERE 19
   Percorsi in una matrice
   Equipaggio di volo
   Triangoli in una lista
+  Teorema di Zeckendorf
+  Modello abeliano del mucchio di sabbia (Abelian sandpile model)
 
 PROBLEMI SUI DADI
 =================

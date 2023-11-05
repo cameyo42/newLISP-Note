@@ -411,7 +411,7 @@ Sotto la pioggia è meglio correre o camminare per bagnarsi di meno?
 
 Una domanda semplice a cui è molto complesso rispondere.
 
-Il problema se correre o camminare sotto la pioggia solleva una serie di preoccupazioni e considerazioni inaspettate, e in effetti, gran parte della discussione scientifica sulla questione tratta argomenti teorici molto specifici e aspetti del problema che non sono affatto pratici da considerare nel mondo reale.
+La domanda se correre o camminare sotto la pioggia solleva una serie di problemi e considerazioni inaspettate, e in effetti, gran parte della discussione scientifica sulla questione tratta argomenti teorici molto specifici e aspetti del problema che non sono affatto pratici da considerare nel mondo reale.
 Ci sono diversi articoli che trattano il problema matematicamente:
 
 "Walk or run in the rain?" David E. Bell

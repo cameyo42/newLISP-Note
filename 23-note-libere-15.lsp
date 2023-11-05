@@ -57,7 +57,7 @@ Facciamo alcune prove:
 Problemi di pesatura (con bilancia a due piatti)
 ------------------------------------------------
 
-Un problema di pesatura è un puzzle logico sul peso di oggetti, spesso monete, per determinare quale ha un valore diverso, utilizzando una bilancia a due piatti un numero limitato (minimo) di volte.
+Un problema di pesatura è un puzzle logico sul peso di oggetti, spesso monete, per determinare quale ha un valore diverso, utilizzando una bilancia a due piatti un numero limitato (minimo) di pesature.
 Questo tipo di puzzle comprende i seguenti tre casi:
 
 1) La moneta target è più leggera o più pesante delle altre
