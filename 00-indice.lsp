@@ -2048,6 +2048,8 @@ NOTE LIBERE 19
   Triangoli in una lista
   Teorema di Zeckendorf
   Modello abeliano del mucchio di sabbia (Abelian sandpile model)
+  Mouse e tane
+  Codice fiscale
 
 PROBLEMI SUI DADI
 =================

@@ -8,16 +8,16 @@
 Gomoku
 ------
 
-Gomoku, chiamato anche "Five in a Row", è un gioco da tavolo di strategia.
+Gomoku chiamato anche "Five in a Row", è un gioco da tavolo di strategia.
 Si gioca tradizionalmente con pezzi Go (pietre bianche e nere) su una scacchiera Go 15×15 oppure 19×19.
-Poiché i pezzi non vengono spostati o rimossi dalla scacchiera, il gomoku può anche essere giocato con carta e matita.
+Poiché i pezzi non vengono spostati o rimossi dalla scacchiera il gomoku può anche essere giocato con carta e matita.
 
 Regole
 I giocatori si alternano a turno posizionando una pietra del loro colore su un'intersezione vuota.
 Il Nero gioca per primo.
-Il vincitore è il primo giocatore che forma una linea ininterrotta di cinque pietre del proprio colore in orizzontale, verticale o diagonale.
-In alcune regole, questa linea deve essere lunga esattamente cinque pietre (sei o più pietre di fila non contano come una vittoria e vengono chiamate overline).
-Se la scacchiera è completamente piena e nessuno ha formato una linea di 5 pietre, allora la partita finisce in parità.
+Il vincitore è il primo giocatore che forma una linea ininterrotta di cinque pietre del proprio colore in orizzontale verticale o diagonale.
+In alcune regole questa linea deve essere lunga esattamente cinque pietre (sei o più pietre di fila non contano come una vittoria e vengono chiamate overline).
+Se la scacchiera è completamente piena e nessuno ha formato una linea di 5 pietre allora la partita finisce in parità.
 
 Un libro sul gomoku: https://github.com/cameyo42/gomoku
 
@@ -129,19 +129,19 @@ Vediamo un esempio con una matrice 3x3:
 
 Ricerca orizzontale:
 1) stringa = "10201200120"
-2) ricerca "111" --> non trovato, ricerca "222" --> non trovato
+2) ricerca "111" --> non trovato ricerca "222" --> non trovato
 
 Ricerca verticale:
 1) stringa = "11100220200"
-2) ricerca "111" --> trovato, ricerca "222" --> non trovato
+2) ricerca "111" --> trovato ricerca "222" --> non trovato
 
 Ricerca diagonale '/':
 1) stringa = "1001022100210"
-2) ricerca "111" --> non trovato, ricerca "222" --> non trovato
+2) ricerca "111" --> non trovato ricerca "222" --> non trovato
 
 Ricerca diagonale '\':
 1) stringa = "2000012001201"
-2) ricerca "111" --> non trovato, ricerca "222" --> non trovato
+2) ricerca "111" --> non trovato ricerca "222" --> non trovato
 
 Per ottenere le stringhe delle diagonali utilizziamo le funzioni "diag1" e "diag2" (leggermente modificate per creare una stringa) definite in "Attraversamento di matrici lungo le diagonali" in "Note libere 18".
 
@@ -324,9 +324,9 @@ Adesso possiamo fare una partita (9x9):
 Rotazione di una matrice
 ------------------------
 
-Problema: ruotare di un posto gli elementi di una data matrice in senso orario. 
-Prima occore ruotare gli elementi della matrice in modo che ciascun di essi si sposti un passo avanti in senso orario lungo il confine più esterno della matrice. 
-Poi questa operazione viene eseguita iterativamente per ogni "anello" o strato della matrice, partendo dallo strato più esterno e procedendo verso il centro.
+Problema: ruotare di un posto gli elementi di una data matrice in senso orario.
+Prima occore ruotare gli elementi della matrice in modo che ciascun di essi si sposti un passo avanti in senso orario lungo il confine più esterno della matrice.
+Poi questa operazione viene eseguita iterativamente per ogni "anello" o strato della matrice partendo dallo strato più esterno e procedendo verso il centro.
 
 Consideriamo ad esempio la seguente matrice:
 
@@ -336,7 +336,7 @@ Consideriamo ad esempio la seguente matrice:
   16 17 18 19 20
   21 22 23 24 25
 
-Dopo aver eseguito l'operazione di rotazione, la matrice diventa:
+Dopo aver eseguito l'operazione di rotazione la matrice diventa:
 
    6  1  2  3  4
   11 12  7  8  5
@@ -344,33 +344,33 @@ Dopo aver eseguito l'operazione di rotazione, la matrice diventa:
   21 18 19 14 15
   22 23 24 25 20
 
-Dividiamo il problema in sottoproblemi. 
-Ogni sottoproblema comporta la rotazione degli elementi di un "anello" della matrice. 
-Per ruotare gli elementi di un singolo anello, eseguiamo quattro diverse operazioni:
+Dividiamo il problema in sottoproblemi.
+Ogni sottoproblema comporta la rotazione degli elementi di un "anello" della matrice.
+Per ruotare gli elementi di un singolo anello eseguiamo quattro diverse operazioni:
 
 Caso A (da basso-destra a sinistra) (0 -> 1)
-sposta gli elementi dalla riga inferiore dell'anello corrente, da destra a sinistra.
+sposta gli elementi dalla riga inferiore dell'anello corrente da destra a sinistra.
   2----------3
   |          |
   |          |
   1----------0
 
 Caso B (da basso-sinistra in alto) (0 -> 1)
-sposta gli elementi dalla colonna più a destra dell'anello corrente, dal basso verso l'alto.
+sposta gli elementi dalla colonna più a destra dell'anello corrente dal basso verso l'alto.
   1----------2
   |          |
   |          |
   0----------3
 
 Caso C (da alto-sinistra a destra) (0 -> 1)
-sposta gli elementi dalla riga superiore dell'anello corrente, da sinistra a destra.
+sposta gli elementi dalla riga superiore dell'anello corrente da sinistra a destra.
   0----------1
   |          |
   |          |
   3----------2
 
 Caso D (da alto-destra in basso) (0 -> 1)
-sposta gli elementi dalla colonna più a sinistra dell'anello corrente, dall'alto verso il basso.
+sposta gli elementi dalla colonna più a sinistra dell'anello corrente dall'alto verso il basso.
   3----------0
   |          |
   |          |
@@ -390,7 +390,7 @@ Funzione che ruota di un posto un anello di una matrice:
     ; |          |
     ; |          |
     ; 1----------0
-    ; Bottom right to left    
+    ; Bottom right to left
     (while (>= i idx)
       (setq temp (matrix row i))
       (setf (matrix row i) value)
@@ -402,7 +402,7 @@ Funzione che ruota di un posto un anello di una matrice:
     ; |          |
     ; |          |
     ; 0----------3
-    ; Bottom left to top    
+    ; Bottom left to top
     (setq i (- row 1))
     (while (>= i idx)
       (setq temp (matrix i idx))
@@ -415,20 +415,20 @@ Funzione che ruota di un posto un anello di una matrice:
     ; |          |
     ; |          |
     ; 3----------2
-    ; Top left to right    
+    ; Top left to right
     (setq i (+ idx 1))
     (while (<= i col)
       (setq temp (matrix idx i))
       (setf (matrix idx i) value)
       (setq value temp)
       (++ i)
-    )  
+    )
     ; case D
     ; 3----------0
     ; |          |
     ; |          |
     ; 2----------1
-    ; Top right to bottom    
+    ; Top right to bottom
     (setq i (+ idx 1))
     (while (<= i row)
       (setq temp (matrix i col))
@@ -449,15 +449,15 @@ Funzione che ruota di un posto un anello di una matrice:
 
 (setq q '(( 1  2  3  4  5)
           ( 6  7  8  9 10)
-          (11 12 13 14 15) 
-          (16 17 18 19 20) 
+          (11 12 13 14 15)
+          (16 17 18 19 20)
           (21 22 23 24 25)))
 
 (rotate-ring q 4 4 0)
-;-> (( 6  1  2  3  4) 
-;->  (11  7  8  9  5) 
-;->  (16 12 13 14 10) 
-;->  (21 17 18 19 15) 
+;-> (( 6  1  2  3  4)
+;->  (11  7  8  9  5)
+;->  (16 12 13 14 10)
+;->  (21 17 18 19 15)
 ;->  (22 23 24 25 20))
 
 Funzione che ruota di un posto una matrice:
@@ -478,10 +478,10 @@ Funzione che ruota di un posto una matrice:
     matrix))
 
 (rotate-one q)
-;-> (( 6  1  2  3  4) 
-;->  (11 12  7  8  5) 
-;->  (16 17 13  9 10) 
-;->  (21 18 19 14 15) 
+;-> (( 6  1  2  3  4)
+;->  (11 12  7  8  5)
+;->  (16 17 13  9 10)
+;->  (21 18 19 14 15)
 ;->  (22 23 24 25 20))
 
 (rotate-one m)
@@ -494,7 +494,7 @@ Funzione che ruota di un posto una matrice:
           (7 6 5)))
 
 (rotate-one r)
-;-> ((8 1 2) 
+;-> ((8 1 2)
 ;->  (7 9 3)
 ;->  (6 5 4))
 
@@ -508,7 +508,7 @@ Si lanciano 5 dadi a sei facce cercando di ottenere la mano migliore.
 Il punteggio si basa sulla frequenza delle facce con le stesse cifre.
 Ogni mano deve includere almeno un "uno", per essere una mano valida.
 Gli "Uno" fungono da "jolly" e possono essere abbinati a qualsiasi altra cifra.
-Il punteggio di una mano dipende innanzitutto dalla frequenza delle cifre e poi dal loro valore, cioè dalla coppia: (frequenza cifra).
+Il punteggio di una mano dipende innanzitutto dalla frequenza delle cifre e poi dal loro valore cioè dalla coppia: (frequenza cifra).
 Per esempio:
 
 (1 3 3 3 5)->(3 4) vince contro (6 1 6 2 4)->(6 3) perchè la frequenza della prima coppia (4) è maggiore di quella della seconda coppia (2).
@@ -517,12 +517,12 @@ Per esempio:
 
 (1 1 2 3 4)->(4 3) perde con (6 1 2 3 6)->(6 3)).
 
-Questo significa che la mano con il punteggio più alto è composta interamente da 6 e 1, mentre la mano con il punteggio più basso è qualsiasi mano senza 1.
+Questo significa che la mano con il punteggio più alto è composta interamente da 6 e 1 mentre la mano con il punteggio più basso è qualsiasi mano senza 1.
 
 Nota: 1-1-1-1-1 vale quanto 6-6-6-6-6.
 
 Funzione che calcola il valore di una mano.
-Restituisce una coppia: (numero con frequenza massima, frequenza massima)
+Restituisce una coppia: (numero con frequenza massima frequenza massima)
 
 (define (value p)
   (local (faces conta lst pat coppia)
@@ -530,7 +530,7 @@ Restituisce una coppia: (numero con frequenza massima, frequenza massima)
     ; conta la frequenza delle facce uscite dal lancio
     (setq conta (count faces p))
     (cond
-      ; se non esiste alcun 1, allora il valore è 0.
+      ; se non esiste alcun 1 allora il valore è 0.
       ((zero? (conta 0)) (setq coppia '(0 0)))
       (true
         ; lst = (1 frequenza) (2 frequenza) ... (6 frequenza)
@@ -539,16 +539,16 @@ Restituisce una coppia: (numero con frequenza massima, frequenza massima)
         (setq fmax (apply max conta))
         ; crea il pattern per cercare la frequenza massima e il numero associato
         (setq pat (list '? fmax))
-        ; coppia = numero, frequenza massima
+        ; coppia = numero frequenza massima
         (setq coppia (last (find-all pat lst)))
         (cond ((= (coppia 0) 1) ; 1 è il numero con maggiore frequenza
                 (if (= (coppia 1) 5)  ; se sono tutti 1
                     (setq coppia '(6 5))
                     ; altrimenti
-                    ; coppia = numero massimo del lancio, (numero di 1) + 1
+                    ; coppia = numero massimo del lancio (numero di 1) + 1
                     (setq coppia (list (apply max p) (+ (coppia 1) 1)))))
               (true ; 1 non è il numero con maggiore frequenza
-              ; coppia = numero della coppia, (frequenza della coppia + numero di 1)
+              ; coppia = numero della coppia (frequenza della coppia + numero di 1)
                 (setq coppia (list (coppia 0) (+ (coppia 1) (lst 0 1)))))
         )
       )
@@ -656,8 +656,8 @@ Numeri bilanciati
 Un numero bilanciato è un numero la cui somma delle cifre a sinistra del punto centrale è uguale alla somma delle cifre a destra del punto centrale.
 
 Vediamo alcuni esempi:
-12721 è un numero bilanciato, perché la somma delle cifre a sinistra del punto medio (che è la cifra al centro del numero quando il numero di cifre è dispari) vale 3 (1 + 2), che è uguale alla somma delle cifre a destra del punto medio (2 + 1).
-1203 è un numero bilanciato, perchè 1 + 2 = 0 + 3 = 3
+12721 è un numero bilanciato perché la somma delle cifre a sinistra del punto medio (che è la cifra al centro del numero quando il numero di cifre è dispari) vale 3 (1 + 2), che è uguale alla somma delle cifre a destra del punto medio (2 + 1).
+1203 è un numero bilanciato perchè 1 + 2 = 0 + 3 = 3
 13425 non è un numero bilanciato perchè 1 + 3 != 2 + 5
 
 (define (balanced? num)
@@ -691,9 +691,9 @@ I numeri di Euclide sono una sequenza di numeri interi positivi generati utilizz
 
 E(n) = p1*p2*p3* ... *pn + 1
 
-dove p1, p2, p3, ..., pn sono i primi n numeri primi.
+dove p1 p2 p3 ..., pn sono i primi n numeri primi.
 
-In altre parole, E(n) è il prodotto dei primi n numeri primi + 1
+In altre parole E(n) è il prodotto dei primi n numeri primi + 1
 
 I primi numeri di Euclide sono:
 
@@ -709,9 +709,9 @@ E(7) = 510511
 I numeri di Euclide sono rari e diventano rapidamente molto grandi all'aumentare di n.
 
 Sequenza OEIS A006862:
-  2, 3, 7, 31, 211, 2311, 30031, 510511, 9699691, 223092871, 6469693231, 
-  200560490131, 7420738134811, 304250263527211, 13082761331670031, 
-  614889782588491411, 32589158477190044731, ...
+  2 3 7 31 211 2311 30031 510511 9699691 223092871 6469693231
+  200560490131 7420738134811 304250263527211 13082761331670031
+  614889782588491411 32589158477190044731 ...
 
 (define (primes-to num)
 "Generates all prime numbers less than or equal to a given number"
@@ -739,7 +739,7 @@ Vedi "Quanti numeri primi ci sono?" in "Note libere 15".
   out)
 
 (euclide 16)
-;-> (3L 7L 31L 211L 2311L 30031L 510511L 9699691L 223092871L 
+;-> (3L 7L 31L 211L 2311L 30031L 510511L 9699691L 223092871L
 ;->  6469693231L 200560490131L 7420738134811L 304250263527211L
 ;->  13082761331670031L 614889782588491411L 32589158477190044731L)
 
@@ -752,9 +752,9 @@ Un numero N è un numero di Moran se N diviso per la somma delle sue cifre produ
 I numeri di Moran sono un sottoinsieme dei numeri di Harshad.
 
 Sequenza OEIS A001101:
-  18, 21, 27, 42, 45, 63, 84, 111, 114, 117, 133, 152, 153, 156, 171, 190,
-  195, 198, 201, 207, 209, 222, 228, 247, 261, 266, 285, 333, 370, 372, 399,
-  402, 407, 423, 444, 465, 481, 511, 516, 518, 531, 555, 558, 592, 603, ...
+  18 21 27 42 45 63 84 111 114 117 133 152 153 156 171 190
+  195 198 201 207 209 222 228 247 261 266 285 333 370 372 399
+  402 407 423 444 465 481 511 516 518 531 555 558 592 603 ...
 
 (define (digit-sum num)
 "Calculates the sum of the digits of an integer"
@@ -815,8 +815,8 @@ Il Crivello di Sundaram è un algoritmo per generare numeri primi fino a un dato
 È stato ideato nel 1934 dal matematico indiano Sundaram.
 
 Algoritmo
-Dalla lista degli interi fra 1 ed n vengono rimossi tutti i numeri della forma i + j + 2ij, dove:
-- i,j sono interi naturali e 1<= i <= j
+Dalla lista degli interi fra 1 ed n vengono rimossi tutti i numeri della forma i + j + 2ij dove:
+- ij sono interi naturali e 1<= i <= j
 - i + j + 2ij <= n
 I numeri rimasti vengono moltiplicati per due e ai risultati viene addizionato uno.
 Si ottiene così la lista dei numeri primi dispari inferiori a 2n + 2.
@@ -862,26 +862,26 @@ Numeri pari e dispari in un intervallo
 --------------------------------------
 
 Quanti sono i numeri interi pari e dispari all'interno di un dato intervallo?
-Ad esempio, nell'intervallo [2, 10], ci sono 5 numeri pari (2, 4, 6, 8 e 10) e 4 numeri dispari (3, 5, 7 e 9).
+Ad esempio nell'intervallo [2 10], ci sono 5 numeri pari (2 4 6 8 e 10) e 4 numeri dispari (3 5 7 e 9).
 
-Dato un intervallo [a, b]:
+Dato un intervallo [a b]:
 Controlla se "a" è maggiore di "b".
-In caso positivo, scambiare i valori (deve essere "a" minore di "b")
+In caso positivo scambiare i valori (deve essere "a" minore di "b")
 Calcolare la lunghezza dell'intervallo: lunghezza = (b - a) + 1.
 Determinare se "a" è pari o dispari.
 Determinare se "b" è pari o dispari.
 Determinare la lunghezza in base alle seguenti ipotesi:
-  Se "a" è pari e "b" pari,
-  Se "a" è dispari e "b" pari,
-  Se "a" è pari e "b" dispari,
-  Se "a" è dispari e "b" dispari,
+  Se "a" è pari e "b" pari
+  Se "a" è dispari e "b" pari
+  Se "a" è pari e "b" dispari
+  Se "a" è dispari e "b" dispari
 
 (define (even-odd a b)
   (local (len pari dispari)
     (if (> a b) (swap a b))
     (setq len (+ (- b a) 1))
-    (cond ((even? a) 
-            (if (even? b) 
+    (cond ((even? a)
+            (if (even? b)
                 (setq pari (+ (/ len 2) 1))
                 (setq pari (/ len 2))
             )
@@ -917,10 +917,10 @@ Numeri con somma delle cifre uguale ad un quadrato perfetto
 Trovare la sequenza dei numeri in cui la somma delle cifre è uguale ad un quadrato perfetto.
 
 Sequenza OEIS A028839:
-  1, 4, 9, 10, 13, 18, 22, 27, 31, 36, 40, 45, 54, 63, 72, 79, 81, 88, 90,
-  97, 100, 103, 108, 112, 117, 121, 126, 130, 135, 144, 153, 162, 169, 171,
-  178, 180, 187, 196, 202, 207, 211, 216, 220, 225, 234, 243, 252, 259, 261,
-  268, 270, 277, 286, 295, 301, 306, ...
+  1 4 9 10 13 18 22 27 31 36 40 45 54 63 72 79 81 88 90
+  97 100 103 108 112 117 121 126 130 135 144 153 162 169 171
+  178 180 187 196 202 207 211 216 220 225 234 243 252 259 261
+  268 270 277 286 295 301 306 ...
 
 (define (digit-sum num)
 "Calculates the sum of the digits of an integer"
@@ -949,7 +949,7 @@ Sequenza OEIS A028839:
   (square? (digit-sum num)))
 
 (filter check? (sequence 1 200))
-;-> (1 4 9 10 13 18 22 27 31 36 40 45 54 63 72 79 81 88 90 97 100 103 
+;-> (1 4 9 10 13 18 22 27 31 36 40 45 54 63 72 79 81 88 90 97 100 103
 ;->  108 112 117 121 126 130 135 144 153 162 169 171 178 180 187 196)
 
 
@@ -960,10 +960,10 @@ Numeri senza radice digitale nelle cifre
 Trovare la sequenza di numeri che non contengono la radice digitale nelle loro cifre.
 
 Sequenza OEIS A119247:
-  11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32,
-  33, 34, 35, 36, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 54,
-  55, 56, 57, 58, 61, 62, 63, 64, 65, 66, 67, 68, 71, 72, 73, 74, 75, 76,
-  77, 78, 81, 82, 83, 84, 85, 86, 87, 88, 101, ...
+  11 12 13 14 15 16 17 18 21 22 23 24 25 26 27 28 31 32
+  33 34 35 36 37 38 41 42 43 44 45 46 47 48 51 52 53 54
+  55 56 57 58 61 62 63 64 65 66 67 68 71 72 73 74 75 76
+  77 78 81 82 83 84 85 86 87 88 101 ...
 
 (define (digit-root num)
 "Calculates the repeated sum of the digits of an integer"
@@ -982,7 +982,7 @@ Sequenza OEIS A119247:
 Generazione di tutte le sottoliste contigue di una lista
 --------------------------------------------------------
 
-Data una lista, generare tutte le possibili sottoliste contigue.
+Data una lista generare tutte le possibili sottoliste contigue.
 Per esempio:
 
 lista = (1 2 3 4)
@@ -1006,8 +1006,8 @@ sottoliste contigue = (1) (1 2) (1 2 3) (1 2 3 4)
 ;-> ((1) (1 2) (1 2 3) (1 2 3 4) (2) (2 3) (2 3 4) (3) (3 4) (4))
 
 (contigue (sequence 1 5))
-;-> ((1) (1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5) 
-;->  (2) (2 3) (2 3 4) (2 3 4 5) 
+;-> ((1) (1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5)
+;->  (2) (2 3) (2 3 4) (2 3 4 5)
 ;->  (3) (3 4) (3 4 5)
 ;->  (4) (4 5)
 ;->  (5))
@@ -1017,11 +1017,11 @@ sottoliste contigue = (1) (1 2) (1 2 3) (1 2 3 4)
 Percorsi in una matrice
 -----------------------
 
-Data una matrice di caratteri, determinare tutti i possibili percorsi dall'angolo in alto a sinistra all'angolo in basso a destra della matrice. 
+Data una matrice di caratteri determinare tutti i possibili percorsi dall'angolo in alto a sinistra all'angolo in basso a destra della matrice.
 I percorsi possono muoversi solo nelle direzioni verso il basso e verso destra.
 
-Per risolvere il problema usiamo un approccio ricorsivo. 
-Ad ogni passaggio abbiamo due opzioni: spostarci verso il basso o spostarci a destra. 
+Per risolvere il problema usiamo un approccio ricorsivo.
+Ad ogni passaggio abbiamo due opzioni: spostarci verso il basso o spostarci a destra.
 Esploriamo ricorsivamente entrambe le opzioni tenendo traccia del percorso corrente.
 
 (define (paths matrix)
@@ -1053,7 +1053,7 @@ Esploriamo ricorsivamente entrambe le opzioni tenendo traccia del percorso corre
           ("M" "N" "O" "P")
           ("Q" "R" "S" "T")))
 (paths b)
-;-> (("A" "E" "I" "M" "Q" "R" "S" "T") ("A" "E" "I" "M" "N" "R" "S" "T") 
+;-> (("A" "E" "I" "M" "Q" "R" "S" "T") ("A" "E" "I" "M" "N" "R" "S" "T")
 ;->  ("A" "E" "I" "M" "N" "O" "S" "T") ("A" "E" "I" "M" "N" "O" "P" "T")
 ;->  ("A" "E" "I" "J" "N" "R" "S" "T") ("A" "E" "I" "J" "N" "O" "S" "T")
 ;->  ("A" "E" "I" "J" "N" "O" "P" "T") ("A" "E" "I" "J" "K" "O" "S" "T")
@@ -1097,8 +1097,8 @@ Numero di percorsi su una matrice MxN: binom((M + N - 2) (N - 1))
 Equipaggio di volo
 ------------------
 
-Alan, David, Tom e Bob formano un equipaggio di volo:
-pilota, copilota, navigatore e ingegnere ma non necessariamente in quest'ordine.
+Alan David Tom e Bob formano un equipaggio di volo:
+pilota copilota navigatore e ingegnere ma non necessariamente in quest'ordine.
 Assegnare i nomi giusti al lavoro giusto sulla base delle seguenti informazioni:
 (alcune delle quali potrebbero non esserti di alcun aiuto)
 
@@ -1124,9 +1124,9 @@ Estrapolazione di altre informazioni:
 
 Da queste informazioni si ottiene:
 
-  Bob ingegnere    
-  Tom pilota       
-  Alan copilota      
+  Bob ingegnere
+  Tom pilota
+  Alan copilota
   David navigatore
 
 
@@ -1134,9 +1134,9 @@ Da queste informazioni si ottiene:
 Triangoli in una lista
 ----------------------
 
-Data una lista non ordinata di numeri interi positivi, scrivere una funzione per generare/contare il numero di possibili triangoli che possono essere formati con tre elementi qualsiasi della lista.
-I tre elementi, che rappresentano le lunghezze dei lati di un triangolo, devono soddisfare la disuguaglianza del triangolo: la somma di due lati qualsiasi deve essere maggiore del terzo lato.
-In altre parole, affinché la terna (x, y, z) formi un triangolo valido devono essere vere tutte le seguenti disuguaglianze:
+Data una lista non ordinata di numeri interi positivi scrivere una funzione per generare/contare il numero di possibili triangoli che possono essere formati con tre elementi qualsiasi della lista.
+I tre elementi che rappresentano le lunghezze dei lati di un triangolo devono soddisfare la disuguaglianza del triangolo: la somma di due lati qualsiasi deve essere maggiore del terzo lato.
+In altre parole affinché la terna (x y z) formi un triangolo valido devono essere vere tutte le seguenti disuguaglianze:
 
   1) x + y > z
   2) y + z > x
@@ -1183,11 +1183,11 @@ Complessità temporale:
 
 Soluzione con due puntatori
 ---------------------------
-Ordinare la lista ed eseguire un ciclo annidato che, preso un indice, poi prova a trovare un indice superiore e inferiore all'interno del quale tutte le lunghezze formano un triangolo con quell'indice preso.
+Ordinare la lista ed eseguire un ciclo annidato che preso un indice poi prova a trovare un indice superiore e inferiore all'interno del quale tutte le lunghezze formano un triangolo con quell'indice preso.
 
-Ordinare la lista e utilizzare tre variabili sx, dx, e i, che puntano all'inizio, alla fine e all'elemento della lista a partire dalla fine.
+Ordinare la lista e utilizzare tre variabili sx dx e i che puntano all'inizio alla fine e all'elemento della lista a partire dalla fine.
 Attraversare l'array dalla fine (da n-1 a 2) e per ogni iterazione mantieni il valore di sx = 0 e dx = i-1.
-Ora, se è possibile formare un triangolo utilizzando lst(x) e lst(dx), è ovvio che si possano formare dei triangoli da lst[sx+1], lst[sx+2]...lst[r-1], con la coppia lst(dx) e ls(ti), perché la lista è ordinata,. Il numero di questi triangoli vale (dx - sx).
+Ora se è possibile formare un triangolo utilizzando lst(x) e lst(dx), è ovvio che si possano formare dei triangoli da lst[sx+1], lst[sx+2]...lst[r-1], con la coppia lst(dx) e ls(ti), perché la lista è ordinata,. Il numero di questi triangoli vale (dx - sx).
 A questo punto diminuire il valore di dx e continuare il ciclo finché sx è inferiore a dx.
 Se non è possibile formare un triangolo utilizzando lst(sx) e lst(dx), incrementare il valore di sx e continuare il ciclo finché sx è inferiore a dx.
 
@@ -1267,8 +1267,8 @@ Teorema di Zeckendorf
 
 Il teorema di Zeckendorf afferma che ogni intero positivo può essere scritto unicamente come somma di numeri di Fibonacci distinti e non contigui.
 Due numeri di Fibonacci sono contigui se si succedono uno dopo l'altro nella sequenza di Fibonacci:
- (0, 1, 1, 2, 3, 5, ..).
-Ad esempio, 1 e 2 sono vicini, ma 1 e 5 no.
+ (0 1 1 2 3 5 ..).
+Ad esempio 1 e 2 sono vicini ma 1 e 5 no.
 
 Esempi:
 
@@ -1277,7 +1277,7 @@ Zeckendorf: 5 1
 5 e 1 sono numeri di Fibonacci non consecutivi e la loro somma è 6.
 
 n = 42
-Zeckendorf: 34 8 
+Zeckendorf: 34 8
 34 e 8 sono due numeri di Fibonacci non consecutivi e la loro somma è 42.
 
 Scrivere una funzione che trova una rappresentazione di un numero come somma di numeri di Fibonacci non consecutivi.
@@ -1324,10 +1324,20 @@ Facciamo alcune prove:
 ;-> (1597 377 34 13 2)
 
 (map (fn(x) (list x (zeck x))) (sequence 1 20))
-;-> ((1 (1)) (2 (2)) (3 (3)) (4 (3 1)) (5 (5)) (6 (5 1)) (7 (5 2)) 
+;-> ((1 (1)) (2 (2)) (3 (3)) (4 (3 1)) (5 (5)) (6 (5 1)) (7 (5 2))
 ;->  (8 (8)) (9 (8 1)) (10 (8 2)) (11 (8 3)) (12 (8 3 1)) (13 (13))
 ;->  (14 (13 1)) (15 (13 2)) (16 (13 3)) (17 (13 3 1)) (18 (13 5))
 ;->  (19 (13 5 1)) (20 (13 5 2)))
+
+Come funziona l'algoritmo (greedy strategy)?
+Sia fib(i) [i-esimo numero di Fibonacci] il più grande numero di Fibonacci minore o uguale a 'num'.
+Allora num – fib(i) avrà la propria rappresentazione come somma di numeri di Fibonacci non vicini.
+Dobbiamo solo essere sicuri che non ci siano problemi con i contigui.
+Per induzione num-fib(i) non ha problemi con i contigui quindi l'unico modo in cui num potrebbe avere un problema è se num-fib(i) utilizza fib(i-1) nella sua rappresentazione.
+Possiamo dimostrare che num-fib(i) non usa fib(i-1) nella sua rappresentazione.
+Dimostrazione per assurdo (contraddizione):
+Se num-fib(i) = fib(i-1) + fib(i-x) +..., allora fib(i) non può essere il numero di Fibonacci più piccolo più vicino a num poiché fib(i) + fib(i-1) stesso è fib(i+1).
+Quindi se num-fib(i) contiene fib(i-1) nella sua rappresentazione allora fib(i+1) sarebbe il numero di fib più piccolo più vicino a num contraddicendo la nostra ipotesi che fib(i) sia il numero di fib più piccolo più vicino a num.
 
 
 ---------------------------------------------------------------
@@ -1335,17 +1345,17 @@ Modello abeliano del mucchio di sabbia (Abelian sandpile model)
 ---------------------------------------------------------------
 
 Il modello abeliano del mucchio di sabbia è un modello matematico utilizzato per studiare il comportamento di sistemi complessi che presentano criticità auto-organizzate.
-È stato introdotto alla fine degli anni '80 da Per Bak, Chao Tang e Kurt Wiesenfeld come semplice modello per simulare il comportamento di un mucchio di sabbia che lentamente si accumula e poi crolla sotto il proprio peso.
+È stato introdotto alla fine degli anni '80 da Per Bak Chao Tang e Kurt Wiesenfeld come semplice modello per simulare il comportamento di un mucchio di sabbia che lentamente si accumula e poi crolla sotto il proprio peso.
 
-Il modello è costituito da una griglia bidimensionale di celle, ciascuna delle quali può contenere una certa quantità di granelli di "sabbia".
-Se una cella contiene più di una certa quantità di granelli di sabbia, diventa "instabile" e invia un granello di sabbia a ciascuna delle celle vicine.
-Se una qualsiasi di queste celle vicine supera la soglia, anch'essa diventa instabile e distribuisce granelli di sabbia alle celle vicine, e così via, con il processo di "distribuzione" che può continuare a lungo.
+Il modello è costituito da una griglia bidimensionale di celle ciascuna delle quali può contenere una certa quantità di granelli di "sabbia".
+Se una cella contiene più di una certa quantità di granelli di sabbia diventa "instabile" e invia un granello di sabbia a ciascuna delle celle vicine.
+Se una qualsiasi di queste celle vicine supera la soglia anch'essa diventa instabile e distribuisce granelli di sabbia alle celle vicine e così via con il processo di "distribuzione" che può continuare a lungo.
 
-La caratteristica notevole del modello abeliano dei cumuli di sabbia è che, indipendentemente dalle condizioni iniziali, il sistema alla fine raggiunge uno stato di “criticità auto-organizzata”, in cui piccole perturbazioni possono innescare valanghe su larga scala che dissipano rapidamente l'energia e ripristinano il sistema ad uno stato critico. 
-Questa proprietà ha reso il modello utile per studiare un'’ampia gamma di fenomeni in fisica, matematica e informatica, tra cui la dinamica dei terremoti, il flusso del traffico e la teoria dell'informazione.
+La caratteristica notevole del modello abeliano dei cumuli di sabbia è che indipendentemente dalle condizioni iniziali il sistema alla fine raggiunge uno stato di “criticità auto-organizzata”, in cui piccole perturbazioni possono innescare valanghe su larga scala che dissipano rapidamente l'energia e ripristinano il sistema ad uno stato critico.
+Questa proprietà ha reso il modello utile per studiare un''ampia gamma di fenomeni in fisica matematica e informatica tra cui la dinamica dei terremoti il flusso del traffico e la teoria dell'informazione.
 
 Per simulare il modello utilizziamo una matrice bidimensionale per rappresentare il mucchio di sabbia.
-Il metodo "distribute" seleziona casualmente una cella e vi aggiunge un granello di sabbia. 
+Il metodo "distribute" seleziona casualmente una cella e vi aggiunge un granello di sabbia.
 Se il numero di granelli in quella cella supera il parametro "accumulation", la cella cede e distribuisce i suoi granelli alle celle vicine.
 
 La funzione "sand-pile" accetta i seguenti parametri:
@@ -1397,7 +1407,7 @@ Funzione che effettua la simulazione del modello:
     ; (seed 1 true) ; same random sequence
     (seed (time-of-day)) ; different random sequence
     (setq grid (array size size '(0)))
-    (for (i 1 iterations) 
+    (for (i 1 iterations)
       (distribute)
       (if showstep (begin (print-matrix grid) (read-line)))
     )
@@ -1430,19 +1440,19 @@ Facciamo alcune prove:
 ;-> 0 1 0 0 0
 ;-> 1 1 1 0 0
 ;-> 1 2 0 0 0
-;-> 
+;->
 ;-> 1 1 2 0 1
 ;-> 0 0 1 2 1
 ;-> 0 1 0 0 0
 ;-> 1 1 1 0 0
 ;-> 1 2 0 0 0
-;-> 
+;->
 ;-> 1 1 2 0 1
 ;-> 0 0 1 2 1
 ;-> 0 1 0 0 0
 ;-> 1 1 1 0 0
 ;-> 2 2 0 0 0
-;-> 
+;->
 ;-> 1 1 2 1 1
 ;-> 0 0 1 2 1
 ;-> 0 1 0 0 0
@@ -1455,24 +1465,507 @@ Facciamo alcune prove:
 ;-> 1 6 1 2 4
 ;-> 1 5 7 3 3
 ;-> 4 3 0 3 2
-;-> 
+;->
 ;-> 1 2 3 7 5
 ;-> 4 3 3 0 1
 ;-> 1 6 1 3 4
 ;-> 1 5 7 3 3
 ;-> 4 3 0 3 2
-;-> 
+;->
 ;-> 2 2 3 7 5
 ;-> 1 4 3 0 1
 ;-> 2 6 1 3 4
 ;-> 1 5 7 3 3
 ;-> 4 3 0 3 2
-;-> 
+;->
 ;-> 2 2 3 7 5
 ;-> 1 4 3 0 1
 ;-> 2 6 1 3 4
 ;-> 1 5 7 3 3
 ;-> 4 3 0 3 2
+
+
+------------
+Mouse e tane
+------------
+
+Abbiamo N topi e N tane posizionati lungo una linea retta.
+Ogni tana può ospitare solo un mouse.
+Un mouse fare le seguenti mosse:
+a) restare nella sua posizione
+b) fare un passo a destra da x a x + 1
+c) fare un passo a sinistra da x a x - 1.
+Ognuna di queste mosse consuma 1 unità di tempo.
+
+Il problema è come associare le tane ai topi in modo da minimizzare il tempo necessario affinchè tutti i topi siano nelle loro tane.
+
+Esempio:
+
+Mouse: (-4 2 4)
+Tane: (0 4 5)
+
+       -4     2 4
+  ------M-----M-M------
+  ----------0----------
+  ----------T---TT-----
+            0   45
+
+Supponiamo di fare le seguenti associazioni:
+
+M(4)  --> T(4) (tempo 0)
+M(-4) --> T(0) (tempo 4)
+M(2)  --> T(5) (tempo 3)
+
+In questo caso in 4 minuti tutti i topi sono nelle loro tane.
+Si può notare che non esiste nessuna associazione che rende il tempo minore a 4 minuti.
+
+Possiamo risolvere il problema utilizzando una strategia greedy (avida):
+1) ordinare le posizioni delle tane
+2) ordinare le posizioni dei topi
+3) Trovare la massima differenza |topo(i) - tana(i)| con i=(1..N)
+
+(define (tt topi tane)
+  (sort tane)
+  (sort topi)
+  (apply max (map (fn(x y) (abs (- x y))) topi tane)))
+
+Facciamo alcune prove:
+
+(tt '(-4 2 4) '(0 4 5))
+;-> 4
+
+(setq t1 '(-3 7 5 9 16))
+(setq t2 '(1 9 15 4 14))
+(tt t1 t2)
+;-> 5
+
+(setq t1 '(23 86 20 -95 -87 46 -53 14 -92 -2))
+(setq t2 '(91 27 27 -2 0 -37 -9 -5 58 -67))
+(tt t1 t2)
+;-> 78
+
+Come al solito con le strategie greedy dobbiamo dimostrare che l'algoritmo utilizzato è corretto.
+Dimostrazione:
+Sia i1 < i2 la posizione di due topi e j1 < j2 la posizione di due tane.
+È sufficiente dimostrarlo attraverso l'analisi del caso:
+
+  max(|i1-j1|, |i2-j2|) <= max(|i1-j2|, |i2-j1|),
+
+Per induzione qualunque assegnazione può essere trasformata da una serie di scambi delle assegnazioni fatte sulle liste ordinate e dove nessuno di questi scambi aumenta il tempo massimo.
+Quindi l'algoritmo produce il risultato corretto.
+
+
+--------------
+Codice fiscale
+--------------
+
+Il codice fiscale italiano è un codice che serve ad identificare le persone fisiche (ed altri soggetti) in modo univoco.
+Per le persone fisiche è composto da 16 caratteri alfanumerici mentre per gli altri soggetti da 11 cifre.
+
+Per costruire il Codice Fiscale si utilizza il seguente algoritmo:
+
+Posizioni 1-3: cognome (tre lettere)
+------------------------------------
+Vengono prese le consonanti del cognome o dei cognomi (se ve ne è più di uno) nel loro ordine (primo cognome, di seguito il secondo e così via). Se le consonanti sono insufficienti, si prelevano anche le vocali (se non sono sufficienti le consonanti, si prelevano la prima, la seconda e la terza vocale), sempre nel loro ordine.
+Comunque, le vocali vengono riportate dopo le consonanti (per esempio: Rosi → RSO).
+Nel caso in cui un cognome abbia meno di tre lettere, la parte di codice viene completata aggiungendo la lettera X (per esempio: Fo → FOX).
+Per le donne, viene preso in considerazione il solo cognome da nubile.
+
+(setq cf "")
+(setq consonanti '("B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N"
+                   "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" ))
+(setq vocali '("A" "E" "I" "O" "U"))
+
+Dati di prova:
+
+(setq cognome "ROSSI")
+(setq nome "MARIO")
+(setq sesso "M")
+(setq data '(1970 10 4))
+(setq comune "CALTANISSETTA")
+
+; Posizioni 1-3
+; estrazione delle consonanti e delle vocali del cognome
+(setq con '())
+(setq voc '())
+(dolist (ch (explode cognome))
+  (cond ((find ch vocali) (push ch voc -1))
+        ((find ch consonanti) (push ch con -1))
+  )
+)
+; qualora le vocali non fossero sufficienti...
+(extend voc '("X" "X" "X"))
+;-> ("O" "I" "X" "X" "X")
+
+; calcolo codice del cognome p13
+(setq num-con (length con))
+(cond ((>= num-con 3)
+        (setq p13 (slice con 0 3)))
+      ((= num-con 2)
+        (setq p13 (list (con 0) (con 1) (voc 0))))
+      ((= num-con 1)
+       (setq p13 (list (con 0) (voc 0) (voc 1))))
+      ((= num-con 0)
+       (setq p13 (list (voc 0) (voc 1) (voc 2))))
+)
+(extend cf (join p13))
+;-> "RSS"
+
+Posizioni 4-6: nome (tre lettere)
+---------------------------------
+Vengono prese le consonanti del nome o dei nomi nel loro ordine (primo nome, di seguito il secondo e così via) in questo modo:
+se il nome contiene quattro o più consonanti, si scelgono la prima, la terza e la quarta (per esempio: Gianfranco → GFR), altrimenti le prime tre in ordine (per esempio: Tiziana → TZN).
+Se il nome non ha consonanti a sufficienza, si prendono anche le vocali.
+In ogni caso le vocali vengono riportate dopo le consonanti (per esempio: Luca → LCU).
+Nel caso in cui il nome abbia meno di tre lettere, la parte di codice viene completata aggiungendo la lettera X.
+
+; Posizioni 4-6
+; estrazione delle consonanti e delle vocali del nome
+(setq con '())
+(setq voc '())
+(dolist (ch (explode nome))
+  (cond ((find ch vocali) (push ch voc -1))
+        ((find ch consonanti) (push ch con -1))
+  )
+)
+; qualora le vocali non fossero sufficienti...
+(extend voc '("X" "X" "X"))
+; calcolo codice del nome p46
+(setq num-con (length con))
+(cond ((>= num-con 4)
+        (setq p46 (list (con 0) (con 2) (con 3))))
+      ((= num-con 3)
+        (setq p46 (list (con 0) (con 1) (con 2))))
+      ((= num-con 2)
+        (setq p46 (list (con 0) (con 1) (voc 0))))
+      ((= num-con 1)
+        (setq p46 (list (con 0) (voc 0) (voc 1))))
+      ((= num-con 0)
+        (setq p46 (list (voc 0) (voc 1) (voc 2))))
+)
+(extend cf (join p46))
+;-> "RSSMRA"
+
+Posizioni 7-9: anno e mese di nascita (tre caratteri alfanumerici)
+------------------------------------------------------------------
+Anno di nascita (due cifre): si prendono le ultime due cifre dell'anno di nascita;
+Mese di nascita (una lettera): a ogni mese dell'anno viene associata una lettera in base a questa tabella:
+
+  gennaio    A
+  febbraio   B
+  marzo      C
+  aprile     D
+  maggio     E
+  giugno     H
+  luglio     L
+  agosto     M
+  settembre  P
+  ottobre    R
+  novembre   S
+  dicembre   T
+
+;(setq mesi '((gennaio   A) (febbraio B) (marzo    C) (aprile   D)
+;             (maggio    E) (giugno   H) (luglio   L) (agosto   M)
+;             (settembre P) (ottobre  R) (novembre S) (dicembre T)))
+
+; Lista associativa dei mesi
+(setq mesi '((1 "A") (2 "B") (3 "C") (4 "D") (5 "E") (6 "H")
+             (7 "L") (8 "M") (9 "P") (10 "R") (11 "S") (12 "T")))
+
+; Posizioni 7-9
+; calcolo codice dell'anno e del mese p79
+(map set '(aa mm gg) data)
+(setq p79 (extend (slice (string aa) -2 2) (lookup mm mesi)))
+(extend cf p79)
+;-> "RSSMRA70R"
+
+Posizioni 10-11: giorno di nascita e sesso (due cifre)
+------------------------------------------------------
+Si prendono le due cifre del giorno di nascita (se è compreso tra 1 e 9 si pone uno zero come prima cifra)
+Per i soggetti di sesso femminile, a tale cifra va sommato il numero 40.
+In questo modo il campo contiene la doppia informazione giorno di nascita e sesso.
+Avremo pertanto la seguente casistica: gli uomini avranno il giorno con cifra da 01 a 31, mentre per le donne la cifra relativa al giorno sarà da 41 a 71.
+
+; Posizioni 10-11
+; calcolo codice del giorno per Maschio o Femmina
+(cond ((= sesso "F") (setq p1011 (format "%02d" (int (+ gg 40) 0 10))))
+      ((= sesso "M") (setq p1011 (format "%02d" (int gg 0 10))))
+)
+(extend cf p1011)
+;-> "RSSMRA70R04"
+
+Posizioni 12-15: comune (o Stato) di nascita (quattro caratteri alfanumerici)
+-----------------------------------------------------------------------------
+Per identificare il comune di nascita si utilizza il codice impropriamente detto Belfiore, composto da una lettera e tre cifre numeriche.
+Per i nati al di fuori del territorio italiano, sia che si tratti di cittadini italiani nati all'estero, oppure stranieri, si considera lo stato estero di nascita: in tal caso la sigla inizia con la lettera Z seguita dal numero identificativo dello Stato.
+Il codice Belfiore è lo stesso usato per il nuovo Codice catastale.
+
+Il file con i codici catastali è stato creato nel modo seguente:
+
+1) download del file comuni.xls dal seguente link:
+https://www4.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.xls
+
+2) conversione del file in formato csv (comma-separated-value)
+
+3) eliminazione di tutti i caratteri non-ascii (è, à, ecc.)
+
+4) importazione del file nella lista "comuni" con i seguenti comandi:
+
+(setq comuni '())
+(setq f1 (open "comuni.csv" "read"))
+(while (setq str (read-line f1)) (push (parse str ",") comuni -1))
+(close f1)
+
+5) conversione dei nomi dei comuni in maiuscolo
+
+(setq comuni (map (fn(x) (list (upper-case (x 0)) (x 1))) comuni))
+
+6) salvataggio della lista "comuni" come file "comuni.lsp".
+
+(save "comuni.lsp" 'comuni)
+
+7) Adesso possiamo caricare la lista comuni con il seguente comando:
+
+(load "comuni.lsp")
+
+Nota: il file "comuni.lsp" si trova nella cartella "data".
+
+; Posizioni 12-15
+; calcolo codice comune di nascita p1215
+(setq p1215 (lookup comune comuni))
+(extend cf p1215)
+;-> "RSSMRA70R04B429"
+
+Posizione 16: carattere di controllo (una lettera)
+--------------------------------------------------
+A partire dai quindici caratteri alfanumerici ricavati in precedenza, si determina il carattere di controllo (indicato a volte come CIN, Control Internal Number) in base a un algoritmo che opera in questo modo:
+si assegna un numero ad ogni carattere alfanumerico, partendo da 1:
+si mettono da una parte i caratteri il cui numero è dispari e da un'altra quelli pari.
+A questo punto, i caratteri vengono convertiti in valori numerici secondo le seguenti tabelle:
+
+  DISPARI
+  0  1   9 21   I 19   R 8
+  1  0   A  1   J 21   S 12
+  2  5   B  0   K  2   T 14
+  3  7   C  5   L  4   U 16
+  4  9   D  7   M 18   V 10
+  5 13   E  9   N 20   W 22
+  6 15   F 13   O 11   X 25
+  7 17   G 15   P  3   Y 24
+  8 19   H 17   Q  6   Z 23
+
+  PARI
+  0 0   9 9   I  8   R 17
+  1 1   A 0   J  9   S 18
+  2 2   B 1   K 10   T 19
+  3 3   C 2   L 11   U 20
+  4 4   D 3   M 12   V 21
+  5 5   E 4   N 13   W 22
+  6 6   F 5   O 14   X 23
+  7 7   G 6   P 15   Y 24
+  8 8   H 7   Q 16   Z 25
+
+a questo punto, i valori che si ottengono dai caratteri pari e dispari vanno sommati tra di loro e il risultato va diviso per 26.
+Il resto della divisione fornirà il codice identificativo, ottenuto dalla seguente tabella di conversione:
+
+  RESTO
+  0 A    7 H   14 O   21 V
+  1 B    8 I   15 P   22 W
+  2 C    9 J   16 Q   23 X
+  3 D   10 K   17 R   24 Y
+  4 E   11 L   18 S   25 Z
+  5 F   12 M   19 T
+  6 G   13 N   20 U
+
+Per il codice di controllo sviluppiamo una funzione apposita.
+
+(define (cin cf)
+  (local (dispari pari resto)
+    (setq dispari '(("0"  1) ("9" 21) ("I" 19) ("R" 8 )
+                    ("1"  0) ("A"  1) ("J" 21) ("S" 12)
+                    ("2"  5) ("B"  0) ("K"  2) ("T" 14)
+                    ("3"  7) ("C"  5) ("L"  4) ("U" 16)
+                    ("4"  9) ("D"  7) ("M" 18) ("V" 10)
+                    ("5" 13) ("E"  9) ("N" 20) ("W" 22)
+                    ("6" 15) ("F" 13) ("O" 11) ("X" 25)
+                    ("7" 17) ("G" 15) ("P"  3) ("Y" 24)
+                    ("8" 19) ("H" 17) ("Q"  6) ("Z" 23)))
+    (setq pari '(("0" 0) ("9" 9) ("I"  8) ("R" 17)
+                ("1" 1) ("A" 0) ("J"  9) ("S" 18)
+                ("2" 2) ("B" 1) ("K" 10) ("T" 19)
+                ("3" 3) ("C" 2) ("L" 11) ("U" 20)
+                ("4" 4) ("D" 3) ("M" 12) ("V" 21)
+                ("5" 5) ("E" 4) ("N" 13) ("W" 22)
+                ("6" 6) ("F" 5) ("O" 14) ("X" 23)
+                ("7" 7) ("G" 6) ("P" 15) ("Y" 24)
+                ("8" 8) ("H" 7) ("Q" 16) ("Z" 25)))
+    (setq resto '((0 "A") ( 7 "H") (14 "O") (21 "V")
+                  (1 "B") ( 8 "I") (15 "P") (22 "W")
+                  (2 "C") ( 9 "J") (16 "Q") (23 "X")
+                  (3 "D") (10 "K") (17 "R") (24 "Y")
+                  (4 "E") (11 "L") (18 "S") (25 "Z")
+                  (5 "F") (12 "M") (19 "T")
+                  (6 "G") (13 "N") (20 "U")))
+    (setq somma '())
+    ; creazione della lista da sommare
+    (dolist (ch (explode cf))
+      (cond ((even? $idx)
+              ; numero associato ai caratteri dispari
+              (push (lookup ch dispari) somma))
+            ((odd? $idx)
+              ; numero associato ai caratteri pari
+              (push (lookup ch pari) somma))
+      )
+    )
+    ; calcolo del carattere associato al resto della divisione
+    (lookup (% (apply + somma) 26) resto)))
+
+(cin "RSSMRA70R04B429")
+;-> "V"
+
+Omocodia
+--------
+Due diverse persone potrebbero avere uguali tutte e sedici le lettere/cifre generate usando questo schema (omocodia).
+In questo caso, si sostituiscono i soli caratteri numerici (a partire dal carattere numerico più a destra) con una lettera, secondo la seguente tabella di corrispondenza:
+
+  OMOCODIA
+  0 L   4 Q   8 U
+  1 M   5 R   9 V
+  2 N   6 S
+  3 P   7 T
+
+(setq omocodia '((0 L) (4 Q) (8 U)
+                 (1 M) (5 R) (9 V)
+                 (2 N) (6 S)
+                 (3 P) (7 T)))
+
+Dopo la sostituzione, il carattere di controllo deve essere ricalcolato.
+
+Implementazione finale
+----------------------
+
+Limiti:
+a) solo cittadini italiani (occorrono i codici degli stati)
+b) nessuna modifica in caso di omocodia (da fare a mano!)
+
+(define (codice-fiscale nome cognome sesso data comune)
+  (local (cf aa mm gg mesi consonanti vocali con voc num-con
+          p13 p46 p79 p1011 p1215 p16)
+    (setq cf "") ; codice fiscale
+    ; anno, mese, giorno di nascita
+    (map set '(aa mm gg) data)
+    ; carica la lista dei comuni
+    (load "comuni.lsp")
+    ; lista associativa dei mesi
+    (setq mesi '((1 "A") (2 "B") (3 "C") (4 "D") (5 "E") (6 "H")
+                (7 "L") (8 "M") (9 "P") (10 "R") (11 "S") (12 "T")))
+    (setq consonanti '("B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N"
+                      "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" ))
+    (setq vocali '("A" "E" "I" "O" "U"))
+    ; Posizioni 1-3
+    ; estrazione delle consonanti e delle vocali del cognome
+    (setq con '())
+    (setq voc '())
+    (dolist (ch (explode cognome))
+      (cond ((find ch vocali) (push ch voc -1))
+            ((find ch consonanti) (push ch con -1))
+      )
+    )
+    ; qualora le vocali non fossero sufficienti...
+    (extend voc '("X" "X" "X"))
+    ; calcolo codice del cognome p13
+    (setq num-con (length con))
+    (cond ((>= num-con 3)
+            (setq p13 (slice con 0 3)))
+          ((= num-con 2)
+            (setq p13 (list (con 0) (con 1) (voc 0))))
+          ((= num-con 1)
+          (setq p13 (list (con 0) (voc 0) (voc 1))))
+          ((= num-con 0)
+          (setq p13 (list (voc 0) (voc 1) (voc 2))))
+    )
+    (println "p13 = " p13)
+    (extend cf (join p13))
+    ; Posizioni 4-6
+    ; estrazione delle consonanti e delle vocali del nome
+    (setq con '())
+    (setq voc '())
+    (dolist (ch (explode nome))
+      (cond ((find ch vocali) (push ch voc -1))
+            ((find ch consonanti) (push ch con -1))
+      )
+    )
+    ; qualora le vocali non fossero sufficienti...
+    (extend voc '("X" "X" "X"))
+    ; calcolo codice del nome p46
+    (setq num-con (length con))
+    (cond ((>= num-con 4)
+            (setq p46 (list (con 0) (con 2) (con 3))))
+          ((= num-con 3)
+            (setq p46 (list (con 0) (con 1) (con 2))))
+          ((= num-con 2)
+            (setq p46 (list (con 0) (con 1) (voc 0))))
+          ((= num-con 1)
+            (setq p46 (list (con 0) (voc 0) (voc 1))))
+          ((= num-con 0)
+            (setq p46 (list (voc 0) (voc 1) (voc 2))))
+    )
+    (println "p46 = " p46)
+    (extend cf (join p46))
+    ; Posizioni 7-9
+    ; calcolo codice dell'anno e del mese p79
+    (setq p79 (extend (slice (string aa) -2 2) (lookup mm mesi)))
+    (println "p79 = " p79)
+    (extend cf p79)
+    ; Posizioni 10-11
+    ; calcolo codice del giorno per Maschio o Femmina
+    (cond ((= sesso "F") (setq p1011 (format "%02d" (int (+ gg 40) 0 10))))
+          ((= sesso "M") (setq p1011 (format "%02d" (int gg 0 10))))
+    )
+    (println "p1011 = " p1011)
+    (extend cf p1011)
+    ; Posizioni 12-15
+    ; calcolo codice comune di nascita p1215
+    (setq p1215 (lookup comune comuni))
+    (println "p1215 = " p1215)
+    (extend cf p1215)
+    ; Posizioni 16
+    ; calcolo codice di controllo (CIN)
+    (setq p16 (cin cf))
+    (println "p16 = " p16)
+    (extend cf p16)    
+))
+
+Facciamo alcune prove:
+
+(codice-fiscale "MARIO" "ROSSI" "M" '(1970 10 4) "CALTANISSETTA")
+;-> p13 = ("R" "S" "S")
+;-> p46 = ("M" "R" "A")
+;-> p79 = 70R
+;-> p1011 = 04
+;-> p1215 = B429
+;-> p16 = V
+;-> "RSSMRA70R04B429V"
+
+(codice-fiscale "MR" "RO" "M" '(1970 10 4) "CALTANISSETTA")
+;-> p13 = ("R" "O" "X")
+;-> p46 = ("M" "R" "X")
+;-> p79 = 70R
+;-> p1011 = 04
+;-> p1215 = B429
+;-> p16 = B
+;-> "ROXMRX70R04B429B"
+
+(codice-fiscale "FRANCESCA" "ROSI" "F" '(1985 2 29) "ROMA")
+;-> p13 = ("R" "S" "O")
+;-> p46 = ("F" "N" "C")
+;-> p79 = 85B
+;-> p1011 = 69
+;-> p1215 = H501
+;-> p16 = F
+;-> "RSOFNC85B69H501F"
+
+Nota: anche se questo algoritmo permette di calcolare il codice fiscale di una persona fisica, l'unico soggetto che per legge rilascia un codice fiscale validato è l'anagrafe tributaria dell'Agenzia delle entrate.
 
 =============================================================================
 
