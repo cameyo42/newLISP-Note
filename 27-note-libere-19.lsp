@@ -121,6 +121,13 @@ Ricerca diagonale '\':
 1) unire tutti i valori delle diagonali '\' in una stringa separando ogni riga con il valore "0" (cella vuota)
 2) ricercare nella stringa dei pattern "11111" (vince in nero) e "22222" (vince il bianco).
 
+Nota: se vogliamo ricercare 'esattamente' cinque "1" ("11111") o cinque "2" ("22222") possiamo usare le seguenti espressioni regolari:
+
+(regex "(?<!1)11111(?!1)" "22111111122211111")
+;-> ("11111" 12 5)
+(regex "(?<!2)[2]{5}(?!2)" "11222222111222221")
+;-> ("22222" 11 5)
+
 Vediamo un esempio con una matrice 3x3:
 
 (setq t '((1 0 2)
@@ -1966,6 +1973,202 @@ Facciamo alcune prove:
 ;-> "RSOFNC85B69H501F"
 
 Nota: anche se questo algoritmo permette di calcolare il codice fiscale di una persona fisica, l'unico soggetto che per legge rilascia un codice fiscale validato è l'anagrafe tributaria dell'Agenzia delle entrate.
+
+
+---------------
+Guardie e ladri
+---------------
+
+Consideriamo una lista che ha le seguenti specifiche:
+Ogni elemento della lista contiene una guardia (G) o un ladro (L).
+Ogni guardia può catturare un solo ladro.
+Una guardia non può catturare un ladro che si trova più distante di K unità.
+Il problema è trovare il massimo numero di ladri che possono essere catturati.
+
+Esempio: 
+lista = ("G" "L" "L" "G" "G")
+K = 1
+La guardia a 0 cattura il ladro a 1.
+La guardia a 3 cattura il ladro a 2.
+Totale: 2 catture
+
+Algoritmo
+1. Calcolare l'indice più basso tra guardia G e ladro L.
+   Fare un'assegnazione
+2. Se k >= |G-L| K fare una cattura e trovare i successivi G e L.
+   Altrimenti incrementare min(G, L) al successivo G o L trovato.
+3. Ripetere i due passi precedenti finché non vengono trovati G e L successivi.
+4. Restituire il numero di catture effettuate.
+
+(define (guardie-ladri lst k)
+  (local (our len guardie ladri sx dx)
+    (setq out 0)
+    (setq len (length lst))
+    (setq guardie '())
+    (setq ladri '())
+    ; memorizza gli indici di G e L in due liste
+    (dolist (el lst)
+      (cond ((= el "G") (push $idx guardie -1))
+            ((= el "L") (push $idx ladri -1))
+      )
+    )
+    (setq sx 0)
+    (setq dx 0)
+    ; indice minore tra L(sx) e G(dx)
+    (while (and (< sx (length ladri)) (< dx (length guardie)))
+      (cond ((>= k (abs (- (ladri sx) (guardie dx)))) ; cattura
+            (++ out) (++ sx) (++ dx))
+            ; incrementa indice minimo
+            ((< (ladri sx) (guardie dx)) (++ sx))
+            (true (++ dx))
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(guardie-ladri '("G" "L" "L" "G" "G") 1)
+;-> 2
+(guardie-ladri '("G" "L" "L" "G" "L") 1)
+;-> 2
+(guardie-ladri '("G" "L" "L" "L" "G" "L" "G" "G") 1)
+;-> 3
+(guardie-ladri '("G" "L" "L" "L" "G" "L" "G" "G") 3)
+;-> 4
+(guardie-ladri '("L" "L" "G" "G" "L" "L" "L" "G" "G") 1)
+;-> 3
+(guardie-ladri '("G" "G" "L" "G" "L" "L" "G" "L") 2)
+;-> 3
+
+
+-------------------------------------
+regex-all (trova tutte le occorrenze)
+-------------------------------------
+
+La funzione "regex" esegue una ricerca PCRE (Perl compatibile con l'espressione regolare) su "str-text" con il modello specificato in "str-pattern":
+
+  (regex str-pattern str-text [regex-option [int-offset]])
+
+Per esempio, ricerchiamo "AAA" nella stringa "AAAaBBcADccAAAA":
+
+(setq a "AAAaBBcADccAAAA")
+(regex "[A]{3}" a)
+;-> ("AAA" 0 3)
+
+Come si vede, la funzione "regex" ritorna solo la prima occorrenza del modello ("AAA").
+
+Possiamo utilizzare la seguente funzione per ottenere tutte le occorrenze del modello che si trovano nella stringa:
+
+(define (regex-all regexp str all)
+  (local (out idx res)
+    (setq out '())
+    (setq idx 0)
+    (setq res (regex regexp str 64 idx))
+    (while res
+      (push res out -1)
+      (if all
+          (setq idx (+ (res 1) 1)) ; contiguos pattern
+          ;else
+          (setq idx (+ (res 1) (res 2))) ; no contiguos pattern
+      )
+      (setq res (regex regexp str 64 idx))
+    )
+    out))
+
+Quando il parametro booleano "all" vale true, allora "regex-all" cerca i modelli successivi al primo partendo dall'indice immediatamente successivo all'inizio del modello appena trovato.
+Se "all" vale "nil", allora le ricerche succesive iniziano dall'indice successivo a quello della fine del modello.
+In altre parole:
+  all = true  --> Vengono trovate tutte le corrispondenze del modello
+  all = nil   --> Vengono trovate solo le corrispondenze uniche del modello
+
+Per esempio, se cerchiamo "AAA" nella stringa "AAAAAA" abbiamo due casi:
+
+1) all = true  --> 4 occorrenze
+    ___       ___       ___       ___
+   "AAAAAA" "AAAAAA" "AAAAAA" "AAAAAA" 
+
+2) all = nil   --> 2 orroccrenze
+    ___         ___
+   "AAAAAA" "AAAAAA"
+
+(setq b "AAAAAA")
+(regex-all "[A]{3}" b true)
+;-> (("AAA" 0 3) ("AAA" 1 3) ("AAA" 2 3) ("AAA" 3 3))
+(regex-all "[A]{3}" b)
+;-> (("AAA" 0 3) ("AAA" 3 3))
+
+(setq a "AAAaBBcADccAAAA")
+(regex-all "[A]{3}" a true)
+;-> (("AAA" 0 3) ("AAA" 11 3) ("AAA" 12 3))
+(regex-all "[A]{3}" a)
+;-> (("AAA" 0 3) ("AAA" 11 3))
+
+Comunque se usiamo il modello più restrittivo "(?<!A)[A]{3}(?!A)", che trova 'esattamente' "AAA" e non "AAAA", allora il parametro "all" non ha influenza sul risultato:
+
+(regex-all "(?<!A)[A]{3}(?!A)" a true)
+;-> (("AAA" 0 3))
+(regex-all "(?<!A)[A]{3}(?!A)" a)
+;-> (("AAA" 0 3))
+
+
+---------------------------
+Riempire una linea/segmento
+---------------------------
+
+Dato una linea/segmento lunga n e due segmenti lunghi a e b con le seguenti proprietà:
+  1) n > a e n > b e n > (a + b)
+  2) a < b
+
+Riempire la linea n con i segmenti a e b minimizzando lo spazio rimanente.
+
+Esempio:
+  n = 20
+  a = 3
+  b = 4
+Soluzioni possibili (con le loro permutazioni):
+  3 3 3 3 4 4 --> 20 (spazio rimanente 0)
+  4 4 4 4 4   --> 20 (spazio rimanente 0)
+
+Possiamo fare le seguenti considerazioni:
+
+1) (zero? (% n a)) --> linea piena
+2) (zero? (% n b)) --> linea piena
+3) (zero? (% n (+ (* a i) (* b j)))) --> forse linea piena
+   con 1 <= i <= (/ n a)
+   con 1 <= j <= (/ n b)
+
+Funzione che trova tutti i riempimenti possibili (a cui bisogna aggiungere le permutazioni) e i relativi spazi rimanenti:
+
+(define (fill n a b)
+  (local (out max-i max-j pieno vuoto)
+    (setq out '())
+    (setq max-i (/ n a))
+    (setq max-j (/ n b))
+    (for (i 0 max-i)
+      (for (j 0 max-j)
+        (cond ((not (and (zero? i) (zero? j)))
+                (setq pieno (+ (* a i) (* b j)))
+                (setq vuoto (- n pieno))
+                ; inseriamo solo i valori positivi e nulli di vuoto
+                (if (>= vuoto 0) (push (list vuoto a i b j) out -1)))
+        )
+      )
+    )
+    (sort out)))
+
+(fill 20 3 4)
+;-> ((0 3 0 4 5) (0 3 4 4 2) (1 3 1 4 4) (1 3 5 4 1) (2 3 2 4 3) (2 3 6 4 0) 
+;->  (3 3 3 4 2) (4 3 0 4 4) (4 3 4 4 1) (5 3 1 4 3) (5 3 5 4 0) (6 3 2 4 2)
+;->  (7 3 3 4 1) (8 3 0 4 3) (8 3 4 4 0) (9 3 1 4 2) (10 3 2 4 1) (11 3 3 4 0)
+;->  (12 3 0 4 2) (13 3 1 4 1) (14 3 2 4 0) (16 3 0 4 1) (17 3 1 4 0))
+
+La soluzione (0 3 0 4 5) significa:
+0 --> spazio rimanente
+3 --> lunghezza segmento a
+0 --> numero di segmenti a
+4 --> lunghezza segmento b
+5 --> numero di segmenti b
+Quindi la soluzione vale "aaabbbb" e qualunque sua permutazione.
 
 =============================================================================
 

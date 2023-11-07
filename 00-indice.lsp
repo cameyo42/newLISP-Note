@@ -2050,6 +2050,9 @@ NOTE LIBERE 19
   Modello abeliano del mucchio di sabbia (Abelian sandpile model)
   Mouse e tane
   Codice fiscale
+  Guardie e ladri
+  regex-all (trova tutte le occorrenze)
+  Riempire una linea/segmento
 
 PROBLEMI SUI DADI
 =================
