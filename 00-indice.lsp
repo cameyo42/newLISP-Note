@@ -2053,6 +2053,10 @@ NOTE LIBERE 19
   Guardie e ladri
   regex-all (trova tutte le occorrenze)
   Riempire una linea/segmento
+  Divisione intera e modulo intero in python
+  Numeri Grifon
+  Numeri con tutti 1 e 0 finale
+  Combinazioni di caratteri di una stringa
 
 PROBLEMI SUI DADI
 =================

@@ -2170,5 +2170,354 @@ La soluzione (0 3 0 4 5) significa:
 5 --> numero di segmenti b
 Quindi la soluzione vale "aaabbbb" e qualunque sua permutazione.
 
+
+------------------------------------------
+Divisione intera e modulo intero in python
+------------------------------------------
+
+In python gli operatori di divisione intera "/" e di modulo intero "%" si comportano in modo diverso da newLISP.
+
+Divisione intera
+----------------
+
+newLISP               python
+(/ 5 2)               >>> (5 / 2)
+;-> 2                 2
+(/ -5 -2)             >>> (-5 / -2)
+;-> 2                 2
+(/ 5 -2)              >>> (5 / -2)
+;-> -2                -3
+(/ -5 2)              >>> (-5 / 2)
+;-> -2                -3
+(/ 6 -2)              >>> (6 / -2)
+;-> -3                -3
+(/ -6 2)              >>> (-6 / 2)
+;-> -3                -3
+(/ 6 2)               >>> (6 / 2)
+;-> 3                 3
+(/ -6 -2)             >>> (-6 / -2)
+;-> 3                 3
+
+Funzione che opera la divisione intera in modo python:
+
+(define (python-div a b)
+  (cond ((or (and (> a 0) (> b 0)) (and (< a 0) (< b 0))) (/ a b))
+        ((zero? (% a b)) (/ a b))
+        (true (- (/ a b) 1))))
+
+(python-div 5 2)
+;-> 2
+(python-div -5 -2)
+;-> 2
+(python-div 5 -2)
+;-> -3
+(python-div -5 2)
+;-> -3
+(python-div 6 -2)
+;-> -3
+(python-div -6 2)
+;-> -3
+(python-div 6 2)
+;-> 3
+(python-div -6 -2)
+;-> 3
+
+Modulo intero
+-------------
+
+newLISP               python
+(% 5 2)               >>> (5 % 2)
+;-> 1                 1
+(% -5 -2)             >>> (-5 % -2)
+;-> -1                -1
+(% 5 -2)              >>> (5 % -2)
+;-> 1                 -1
+(% -5 2)              >>> (-5 % 2)
+;-> -1                1
+(% 6 -2)              >>> (6 % -2)
+;-> 0                 0
+(% -6 2)              >>> (-6 % 2)
+;-> 0                 0
+(% 6 2)               >>> (6 % 2)
+;-> 0                 0
+(% -6 -2)             >>> (-6 % -2)
+;-> 0                 0
+
+Funzione che opera il modulo intero in modo python:
+
+(define (python-mod a b) (% (+ (% a b) b) b))
+
+(python-mod 5 2)
+;-> 1
+(python-mod -5 -2)
+;-> -1
+(python-mod 5 -2)
+;-> -1
+(python-mod -5 2)
+;-> 1
+(python-mod 6 -2)
+;-> 0
+(python-mod -6 2)
+;-> 0
+(python-mod 6 2)
+;-> 0
+(python-mod -6 -2)
+;-> 0
+
+Nota: fare attenzione quando si convertono programmi da python.
+
+
+-------------
+Numeri Grifon
+-------------
+
+Un numero Grifon è un numero nella forma a + a^2 + ... a^x, dove sia a che x sono numeri interi maggiori o uguali a due.
+La sequenza Grifon è l'insieme di tutti i numeri Grifon in ordine crescente.
+Se esistono più modi per formare un numero Grifon (per esempio 30, che è sia 2+2^2+2^3+2^4 che 5+5^2), allora il numero viene contato solo una volta nella sequenza.
+I primi numeri Grifon sono: 6 12 14 20 30 39 42 56 62 72 84 90 110 ...
+
+(define (calc a x)
+  (setq somma a)
+  (for (i 2 x) (setq somma (+ somma (pow a i)))))
+
+(calc 3 2)
+;-> 12
+
+(define (grifon max-a max-x)
+  (setq lst '())
+  (for (a 2 max-a)
+    (for (x 2 max-x)
+      (push (calc a x) lst)
+    )
+  )
+  (unique (sort lst)))
+
+(grifon 10 10)
+;-> (6 12 14 20 30 39 42 56 62 72 84 90 110 120 126 155 254 258 340 363 399 
+;->  510 584 780 819 1022 1092 1110 1364 1554 2046 2800 3279 3905 4680 5460
+;->  7380 9330 9840 11110 19530 19607 21844 29523 37448 55986 66429 87380 
+;->  88572 97655 111110 137256 299592 335922 349524 488280 597870 960799 
+;->  1111110 1398100 2015538 2396744 2441405 5380839 6725600 11111110 
+;->  12093234 12207030 19173960 47079207 48427560 72559410 111111110 
+;->  153391688 329554456 435848049 1111111110 1227133512 3922632450
+;->  11111111110)
+
+(length (grifon 10 10))
+;-> 80
+(length (grifon 20 20))
+;-> 360
+
+
+-----------------------------
+Numeri con tutti 1 e 0 finale
+-----------------------------
+
+Trovare la sequenza dei numeri interi che se convertiti in una base minore o uguale a 10 generano un numero con tutti 1, tranne l'ultima cifra che deve valere 0: 1[1..1]0
+
+Per esempio:
+ 30(base2) = 11110
+ 42(base6) = 110
+ 72(base8) = 110 
+
+(define (b1-b2 num base1 base2)
+"Convert an integer from base1 to base2 (2 <= base <= 10)"
+  (if (zero? num) num
+      (+ (% num base2) (* base1 (b1-b2 (/ num base2) base1 base2)))))
+
+(b1-b2 30 10 2)
+;-> 11110
+(b1-b2 84 10 4)
+;-> 1110
+(b1-b2 84 10 10)
+;-> 84
+
+Funzione che verifica se un numero appartiene alla sequenza:
+
+(define (seq? num)
+  (setq str (string num))
+  (cond ((< num 2) nil)
+        ((= num 10) true)
+        (true
+          (setq found nil)
+          (for (b 10 2 -1 found)
+            (setq s (string (b1-b2 num 10 b)))
+            ;(println b { } s)
+            (if (and (= (last s) "0") 
+                     (= (first s) "1")
+                     (apply = (chop (explode s))))
+                (setq found true)
+            )
+          )
+          found)))
+
+Facciamo alcune prove:
+
+(seq? 24)
+;-> nil
+(seq? 5)
+;-> nil
+(seq? 10)
+;-> true
+(seq? 42)
+;-> true
+(seq? 155)
+;-> true
+(seq? 1110)
+;-> true
+(seq? 4692)
+;-> nil
+
+(filter seq? (sequence 1 1e3))
+;-> (6 10 12 14 20 30 39 42 56 62 72 84 90 110 120 
+;->  126 155 254 258 340 363 399 510 584 780 819)
+
+
+----------------------------------------
+Combinazioni di caratteri di una stringa
+----------------------------------------
+
+Data una stringa di caratteri diversi, generare in modo casuale le combinazioni univoche con ripetizione dei caratteri, dalla lunghezza 1 fino alla lunghezza della stringa.
+
+Esempio: stringa = "abc" (o qualsiasi combinazione dei caratteri a,b,c):
+
+ "a" "aa" "aaa" "aab" "aac" "ab" "aba" "abb" "abc" "ac" "aca" "acb" "acc"
+ "b" "ba" "baa" "bab" "bac" "bb" "bba" "bbb" "bbc" "bc" "bca" "bcb" "bcc"
+ "c" "ca" "caa" "cab" "cac" "cb" "cba" "cbb" "cbc" "cc" "cca" "ccb" "ccc"
+
+Sequenza OEIS A031972: a(n) = Sum[k=1,n](n^k)
+  0, 1, 6, 39, 340, 3905, 55986, 960799, 19173960, 435848049,
+  11111111110, 313842837671, ... ,
+
+Calcoliamo tutte le combinazioni con ripetizione dei caratteri.
+
+(define (comb-rep k lst)
+"Generates all combinations of k elements with repetition from a list of items"
+  (cond ((zero? k 0) '(()))
+        ((null? lst) '())
+        (true
+         (append (map (lambda (x) (cons (first lst) x))
+                      (comb-rep (- k 1) lst))
+                 (comb-rep k (rest lst))))))
+
+(comb-rep 1 (explode "abc"))
+;-> (("a") ("b") ("c"))
+(comb-rep 2 (explode "abc"))
+;-> (("a" "a") ("a" "b") ("a" "c") ("b" "b") ("b" "c") ("c" "c"))
+(comb-rep 3 (explode "abc"))
+;-> (("a" "a" "a") ("a" "a" "b") ("a" "a" "c") ("a" "b" "b") ("a" "b" "c")
+;->  ("a" "c" "c") ("b" "b" "b") ("b" "b" "c") ("b" "c" "c") ("c" "c" "c"))
+
+A queste tre liste occorre aggiungere le permutazioni dei caratteri.
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(perm-rep 1 (explode "abc"))
+;-> (("a") ("b") ("c"))
+(perm-rep 2 (explode "abc"))
+;-> (("a" "a") ("b" "a") ("c" "a") ("a" "b") ("b" "b") ("c" "b")
+;->  ("a" "c") ("b" "c") ("c" "c"))
+(perm-rep 3 (explode "abc"))
+;-> (("a" "a" "a") ("b" "a" "a") ("c" "a" "a") ("a" "b" "a") ("b" "b" "a")
+;->  ("c" "b" "a") ("a" "c" "a") ("b" "c" "a") ("c" "c" "a") ("a" "a" "b")
+;->  ("b" "a" "b") ("c" "a" "b") ("a" "b" "b") ("b" "b" "b") ("c" "b" "b")
+;->  ("a" "c" "b") ("b" "c" "b") ("c" "c" "b") ("a" "a" "c") ("b" "a" "c")
+;->  ("c" "a" "c") ("a" "b" "c") ("b" "b" "c") ("c" "b" "c") ("a" "c" "c")
+;->  ("b" "c" "c") ("c" "c" "c"))
+
+Adesso basta unire le liste ed eliminare i duplicati.
+
+(silent (setq lst (unique (sort (extend (comb-rep 1 (explode "abc"))
+                                        (comb-rep 3 (explode "abc"))
+                                        (comb-rep 3 (explode "abc"))
+                                        (perm-rep 1 (explode "abc"))
+                                        (perm-rep 2 (explode "abc"))
+                                        (perm-rep 3 (explode "abc")))))))
+(map join lst)
+;-> ("a" "aa" "aaa" "aab" "aac" "ab" "aba" "abb" "abc" "ac" "aca" "acb" "acc"
+;->  "b" "ba" "baa" "bab" "bac" "bb" "bba" "bbb" "bbc" "bc" "bca" "bcb" "bcc"
+;->  "c" "ca" "caa" "cab" "cac" "cb" "cba" "cbb" "cbc" "cc" "cca" "ccb" "ccc")
+
+Nella funzione finale calcoliamo anche la frequenza dei caratteri.
+
+(define (strike str)
+  (local (out len lst letter letter-count)
+    (setq out '())
+    (setq len (length str))
+    (setq lst (explode str))
+    ; combinazioni con ripetizione
+    (for (c 1 len)
+      (extend out (comb-rep c lst))
+    )
+    ; permutazioni con ripetizione
+    (for (p 1 len)
+      (extend out (perm-rep p lst))
+    )
+    ; calcolo della frequenza delle lettere di tutte le stringhe
+    (setq letter (flat out))
+    (setq letter-count (map list lst (count lst letter)))
+    (println letter-count)
+    ; ordina le stringhe ed elimina i duplicati
+    (unique (sort (map join out)))))
+
+(strike "abc")
+;-> (("a" 49) ("b" 49) ("c" 49))
+;-> ("a" "aa" "aaa" "aab" "aac" "ab" "aba" "abb" "abc" "ac" "aca" "acb" "acc"
+;->  "b" "ba" "baa" "bab" "bac" "bb" "bba" "bbb" "bbc" "bc" "bca" "bcb" "bcc"
+;->  "c" "ca" "caa" "cab" "cac" "cb" "cba" "cbb" "cbc" "cc" "cca" "ccb" "ccc")
+
+(strike "abcd")
+;-> (("a" 369) ("b" 369) ("c" 369) ("d" 369))
+;-> ("a" "aa" "aaa" "aaaa" "aaab" "aaac" "aaad" "aab" "aaba" "aabb" "aabc"
+;-> ...
+;-> "ddc" "ddca" "ddcb" "ddcc" "ddcd" "ddd" "ddda" "dddb" "dddc" "dddd")
+
+Nota: le lettere delle stringhe di output hanno tutte la stessa frequenza.
+
+Calcoliamo la lunghezza dell'output al crescere del numero di caratteri:
+
+(length (strike "a"))
+;-> (("a" 1))
+;-> 1
+
+(length (strike "ab"))
+;-> (("a" 9) ("b" 9))
+;-> 6
+
+(length (strike "abc"))
+;-> (("a" 49) ("b" 49) ("c" 49))
+;-> 39
+
+(length (strike "abcd"))
+;-> (("a" 369) ("b" 369) ("c" 369) ("d" 369))
+;-> 340
+
+(length (strike "abcde"))
+;-> (("a" 3921) ("b" 3921) ("c" 3921) ("d" 3921) ("e" 3921))
+;-> 3905
+
+(length (strike "abcdef"))
+;-> (("a" 54913) ("b" 54913) ("c" 54913) ("d" 54913) ("e" 54913) ("f" 54913))
+;-> 55986
+
+; la seguente espressione impiega alcuni minuti...
+(length (strike "abcdefgh"))
+;-> (("a" 18843009) ("b" 18843009) ("c" 18843009) ("d" 18843009)
+;->  ("e" 18843009) ("f" 18843009) ("g" 18843009) ("h" 18843009))
+;-> 19173960
+
+La lunghezza della lista risultante è equivalente alla seguente sequenza:
+
+Sequenza OEIS A031972: a(n) = Sum[k=1,n](n^k)
+  0 1 6 39 340 3905 55986 960799 19173960 435848049
+  11111111110 313842837671 9726655034460 ...
+
+La frequenza di ogni carattere genera la seguente sequenza (che non è presente in OEIS):
+
+  1 9 49 369 3921 54913 18843009 ...
+
 =============================================================================
 
