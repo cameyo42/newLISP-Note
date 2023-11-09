@@ -2057,6 +2057,8 @@ NOTE LIBERE 19
   Numeri Grifon
   Numeri con tutti 1 e 0 finale
   Combinazioni di caratteri di una stringa
+  Lanci di monete e numeri primi
+  Numeri saltellanti (jumping)
 
 PROBLEMI SUI DADI
 =================

@@ -2519,5 +2519,164 @@ La frequenza di ogni carattere genera la seguente sequenza (che non è presente 
 
   1 9 49 369 3921 54913 18843009 ...
 
+
+------------------------------
+Lanci di monete e numeri primi
+------------------------------
+
+Lanciamo una moneta N volte, qual'è la probabilità che esca M volte Testa? 
+(dove M appartiene all'insieme di tutti i numeri primi)
+
+Esempi:
+  N = 2:
+  SS = (TT TC CT CC)
+  Prob(2) = 1/4 (per il caso TT)
+
+  N = 3
+  SS = (TTT TTC TCT CTT TCC CTC CCT CCC)
+  Prob(3) = (1+3)/8 (rispettivamente per il caso di 3T e per il caso di 2T)
+
+La probabilità cercata vale:
+
+  Prob(n) = (Sum[k=2,3,5,7,11,...,primes-to(n)](binom (n k)) / (2^n))
+
+Invece di cercare tutti i primi < N possiamo cercare i primi N primi, perché ogni numero primo > N restituisce zero (0) nel binomiale.
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (prob num)
+  (local (primes sum)
+    (setq primes (primes-to num))
+    (setq sum 0L)
+    (dolist (p primes)
+      (setq sum (+ sum (binom num p)))
+    )
+    (setq power (** 2L num))
+    (list sum power (format "%6.4f" (div sum power)))))
+
+Facciamo alcune prove:
+
+(prob 3L)
+;-> (4L 8L "0.5000")
+
+(prob 100L)
+;-> (259998124633298346840532969570L 1267650600228229401496703205376L "0.2051")
+
+(prob 246L)
+;-> (15195371466230327564025395236853198786306754138691328084344452666115780909L
+;-> 113078212145816597093331040047546785012958969400039613319782796882727665664L
+;-> "0.1344")
+
+Vediamo come fare un grafico della funzione Prob(n).
+
+Creiamo una lista di punti:
+
+(setq points (map (fn(x) (list x (float ((prob x) 2)))) (sequence 2 1000)))
+;-> ((2 0.25) (3 0.5) (4 0.625) (5 0.6563) (6 0.6406) 
+;->  (7 0.6094) (8 0.5781) (9 0.5508) (10 0.5244)
+;->  ...
+;->  (995 0.1497) (996 0.1495) (997 0.1492) 
+;->  (998 0.1489) (999 0.1486) (1000 0.1483))
+
+Esportiamo la lista in un file csv (comma-separated-value):
+
+(define (list-csv lst file-str sepchar)
+"Creates a file csv from a list"
+  (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
+    (setq outfile (open file-str "write"))
+    (dolist (el lst)
+      (if (list? el)
+          (setq line (join (map string el) sepchar))
+          (setq line (string el))
+      )
+      (write-line outfile line)
+    )
+    (print outfile { })
+    (close outfile)))
+
+(list-csv points "points.csv")
+;-> 3 true
+
+Adesso possiamo importare il file dei punti con il programma preferito (gnuplot, octave, gnumeric, excel, ecc.) e plottare il grafico.
+
+Vedi figura "primi-teste.png" nella cartella "data".
+
+
+----------------------------
+Numeri saltellanti (jumping)
+----------------------------
+
+Un numero saltellante è un numero intero positivo nel quale tutte le coppie di cifre decimali consecutive differiscono di 1.
+Tutti i numeri a una cifra sono considerati numeri saltellanti.
+La differenza tra 9 e 0 non è considerata come 1.
+
+Sequenza OEIS A033075: 
+Positive numbers all of whose pairs of consecutive decimal digits differ by 1
+  1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87 89 98 
+  101 121 123 210 212 232 234 321 323 343 345 432 434 454 456 543 545 
+  565 567 654 656 676 678 765 767 787 789 876 ...
+
+Algoritmo:
+Scomponiamo il numero cifra per cifra e verifichiamo per ogni coppia di cifre contigue se la differenza assoluta risulta 1.
+
+(define (jumping? num)
+  (cond 
+    ((<= num 10) true)
+    (true
+      (setq jump true)
+      (setq temp num)
+      (setq digit (% temp 10))
+      (setq temp (/ temp 10))
+      (while (and (> temp 0) jump)
+        (if (!= (abs (- digit (% temp 10))) 1) (setq jump nil))
+        (setq digit (% temp 10))
+        (setq temp (/ temp 10))
+      )
+      jump)))
+
+(jumping? 123454545456)
+;-> true
+(jumping? 123210)
+;-> true
+(jumping? 1235)
+;-> nil
+
+(filter jumping? (sequence 1 900))
+;-> (1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87 89 98 
+;->  101 121 123 210 212 232 234 321 323 343 345 432 434 454 456 543 545 
+;->  565 567 654 656 676 678 765 767 787 789 876 878 898)
+
 =============================================================================
 
