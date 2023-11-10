@@ -2059,6 +2059,12 @@ NOTE LIBERE 19
   Combinazioni di caratteri di una stringa
   Lanci di monete e numeri primi
   Numeri saltellanti (jumping)
+  Stringa costituita solo da una sottostringa ripetuta
+  Numeri di Rocco
+  Catturare le regex errate
+  Forum: Contexts question
+  Potenze di 2 che formano un numero
+  Forum: Matching the dollar sign in a regular expression?
 
 PROBLEMI SUI DADI
 =================

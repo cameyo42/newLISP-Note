@@ -2678,5 +2678,326 @@ Scomponiamo il numero cifra per cifra e verifichiamo per ogni coppia di cifre co
 ;->  101 121 123 210 212 232 234 321 323 343 345 432 434 454 456 543 545 
 ;->  565 567 654 656 676 678 765 767 787 789 876 878 898)
 
+
+----------------------------------------------------
+Stringa costituita solo da una sottostringa ripetuta
+----------------------------------------------------
+
+Scrivere una funzione che data una stringa restituisce "true" la stringa è composta solo da una sequenza di caratteri ripetuta.
+La lunghezza della stringa è sempre maggiore di 1 e la sequenza di caratteri ha almeno una ripetizione.
+
+L'uso di una espressione regolare risolve il problema:
+
+(regex "^(.*)\\1+$" "aa")
+;-> ("aa" 0 2 "a" 0 1)
+(regex "^(.*)\\1+$" "aaa")
+;-> ("aaa" 0 3 "a" 0 1)
+(regex "^(.*)\\1+$" "abcabcabc")
+;-> ("abcabcabc" 0 9 "abc" 0 3)
+(regex "^(.*)\\1+$" "aba")
+;-> nil
+(regex "^(.*)\\1+$" "ababa")
+;-> nil
+(regex "^(.*)\\1+$" "weqweqweqweqweqw")
+;-> nil
+
+(define (subs? str) (if (regex "^(.*)\\1+$" str) true nil))
+
+(subs? "aa")
+;-> true
+(subs? "aaa")
+;-> true
+(subs? "abcabcabc")
+;-> true
+(subs? "aba")
+;-> nil
+(subs? "ababa")
+;-> nil
+(subs? "weqweqweqweqweqw")
+;-> nil
+
+
+---------------
+Numeri di Rocco
+---------------
+
+Un intero positivo N è un numero di Rocco se può essere rappresentato come:
+
+   N = P*(P + 14) oppure
+   N = P*(P - 14)
+   dove P è un numero primo.
+
+I primi 10 numeri di Rocco sono: 32,51,95,147,207,275,351,435,527,627
+
+Notare che:
+
+   P    P*(P - 14)
+   2    -24
+   3    -33
+   5    -45
+   7    -49
+  11    -33
+  13    -13
+  17     51
+
+Primo metodo:
+
+  N = P*(P + 14) --> P^2 + 14P - N = 0
+  Radice positiva: r1 = sqrt(N + 49) - 7
+  
+  N = P*(P - 14) --> P^2 + 14P - N = 0
+  Radice positiva: r2 = sqrt(N + 49) + 7
+
+Quindi basta verificare se r1 o r2 sono numeri primi.
+
+(define (square? n)
+"Check if an integer is a perfect square"
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (rocco1? num)
+  (and (square? (+ num 49))
+       (or (prime? (- (sqrt (+ num 49)) 7))
+           (prime? (+ (sqrt (+ num 49)) 7)))))
+
+(filter rocco1? (sequence 31 627))
+;-> (32 51 95 147 207 275 351 435 527 627)
+  
+Secondo metodo:
+
+Se consideriamo i fattori F della scomposizione in fattori primi del numero N possiamo dire che N è di Rocco se risulta:
+
+  |F - N/F| = 14
+
+per almeno uno dei fattori F di N.
+
+(define (rocco2? num)
+  (dolist (f (unique (factor num)))
+    (if (= (abs (- f (/ num f))) 14) true nil)
+  ))
+
+(filter rocco2? (sequence 31 627))
+;-> (32 51 95 147 207 275 351 435 527 627)
+
+Per finire una funzione che genera i primi N numeri di Rocco:
+
+(define (rocco limit)
+  (setq out '())
+  (setq conta 0)
+  (setq i 32)
+  (while (< conta limit)
+    (cond ((rocco2? i) 
+            (++ conta)
+            (push i out -1))
+    )
+    (++ i)
+  )
+  out)
+
+(rocco 50)
+;-> (32 51 95 147 207 275 351 435 527 627 851 1107 1247 1395 1551 1887 2067
+;->  2255 2451 2655 2867 3551 4047 4307 4575 5135 5427 5727 6035 6351 6675
+;->  7347 8051 8787 9167 9951 10355 10767 11187 11615 12051 12947 13407 14351
+;->  15327 16851 17375 17907 18995 20115)
+
+
+-------------------------
+Catturare le regex errate
+-------------------------
+
+La seguente espressione genera un errore:
+
+(regex "?" "abcde")
+;-> ERR: regular expression in function regex : "offset 0 nothing to repeat"
+
+Per catturare l'errore usare il seguente suggerimento di Lutz.
+
+you have to use the second syntax of 'catch' with the extra parameter symbol to check for error exceptions:
+
+ (catch (regex ".+?+" "a string") 'result)
+
+If the there was an error the whole expression will return 'nil' and you have the error message in 'result'.
+
+Else if the whole expression returns 'true', there was no error and you can inspect 'result' for the result of the the 'regex' expression, which still may be 'nil' if there was no match. Here is the whole picture:
+
+(catch (regex ".+?+" "a string") 'result)
+;-> nil
+result
+;-> ERR: regular expression in function regex: "offset 3 nothing to repeat:"
+
+(catch (regex "r" "a string") 'result)
+;-> true
+result
+;-> ("r" 4 1)
+
+(catch (regex "x" "a string") 'result)
+;-> true
+result
+;-> nil
+
+
+------------------------
+Forum: Contexts question
+------------------------ 
+
+Jeff:
+-----
+When applying a function defined in a context to a table defined outside of that context, how can you do assoc lookups?
+For example:
+
+(context 'foo)
+(define (some-fn table)
+  (lookup 'key-a table))
+
+(context 'bar)
+(some-fn '((key-a "value-a") (key-b "value-b")))
+
+some-fn may be used from various contexts. 
+In order to lookup key-a, it must know which context we are coming from. 
+I can do a (name table true), but then to get the correct symbol to look up, I'm forced to do something like:
+
+(eval-string (format "%s:key-a" (string (name table true)))
+
+...which is incredibly verbose syntax just for a table lookup. 
+
+Anyone have a solution?
+
+Jeff:
+-----
+Never mind. I've figured it out.
+
+If I create the list in question inside of a context, and then I can pass the context to the function in another context.
+With the example above:
+
+(context 'foo)
+(define (some-fn ctx)
+  (lookup 'ctx:key-a ctx:table))
+
+(context 'bar)
+(set 'table ((key-a "value-a") (key-b "value-b")))
+
+(context 'whatever)
+(foo:some-fn bar)
+
+Now, foo is reading the context of the input, and can lookup based on the context's symbols in the context's lists.
+
+Lutz:
+-----
+... and as an added benefit you have passed your bar:table by reference, which is nice if your are dealing with a lot of data.
+
+
+----------------------------------
+Potenze di 2 che formano un numero
+----------------------------------
+
+Dato un intero positivo N, restituisce il risultato delle potenze di due la cui somma è uguale a N.
+In altre parole, occorre trasformare il numero in binario e vedere quali posizioni delle potenze di 2 hanno valore 1.
+Esempio:
+
+N = 82
+(bits 82)
+;-> "1010010"
+
+  +-----+-----+-----+-----+-----+-----+-----+
+  | 2^6 | 2^5 | 2^4 | 2^3 | 2^2 | 2^1 | 2^0 | Potenze di 2
+  +-----+-----+-----+-----+-----+-----+-----+
+  | 64  | 32  | 16  |  8  |  4  |  2  |  1  | Valore delle potenze di 2
+  +-----+-----+-----+-----+-----+-----+-----+
+  |  1  |  0  |  1  |  0  |  0  |  1  |  0  | Valore binario di N
+  +-----+-----+-----+-----+-----+-----+-----+
+  | 64  |     | 16  |     |  2  |     |     |  64 + 16 + 2 = 80
+  +-----+-----+-----+-----+-----+-----+-----+
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che trasforma un numero decimale in binario (big-integer):
+
+(define (bitsL n)
+  (setq max-int (pow 2 62))
+  (define (prep s) (string (dup "0" (- 62 (length s))) s))
+  (if (<= n max-int) (bits (int n))
+      (string (bitsL (/ n max-int))
+              (prep (bits (int (% n max-int)))))))
+
+(define (sum2 num)
+  (local (out bit len val)
+    (setq out '())
+    (setq binary (bitsL num))
+    (setq bit (explode binary))
+    (setq len (length binary))
+    (dolist (b bit)
+      (if (= b "1")
+          (setq val (** 2 (- len $idx 1)))
+          (setq val 0)
+      )
+      (push val out -1)
+    )
+    out))
+
+Facciamo alcune prove:
+
+(sum2 0)
+;-> (0)
+
+(sum2 1234)
+;-> (1024L 0 0 128L 64L 0 16L 0 0 2L 0)
+
+(sum2 128)
+;-> (128L 0 0 0 0 0 0 0)
+
+(** 2 78)
+;-> 302231454903657293676544L
+(sum2 (** 2 78))
+;-> (302231454903657293676544L 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+;->  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+(length (sum2 (** 2 78)))
+;-> 79
+
+
+--------------------------------------------------------
+Forum: Matching the dollar sign in a regular expression?
+--------------------------------------------------------
+
+cormullion:
+-----------
+Is there some trick to searching for a plain unadorned dollar sign occurring in text with a regular expression?
+I'm trying to replace the two characters \$ when followed by one or two digits with a single character $ followed by the digit(s) found.
+I've lost sight of the answer in a downpour of baffling backslashes ... :-)
+
+Lutz:
+-----
+Like this:
+
+(replace {\\\$} {abc\$cde} "x" 0)
+;-> "abcxcde"
+(replace "\\\\\\$" "abc\\$cde" "x" 0)
+;-> "abcxcde"
+
+- both the backslash \ and the dollar sign are special characters in regular expression patterns (not the string, only the pattern) and have to be escaped by a \
+
+- additionally when using quotes "" than a backslash is also a special character for newLISP.\ and must be esacped by a \.
+
+- the {,} in newLISP takes all chracters literally, makeing things a bit easier.
+
+... so in my examples I am actually replacing two character: the backslash and a dollar sign with an 'x'. 
+
+Nor sure if you meant, the dollar sign only:
+
+(replace {\$} {abc$cde} "x" 0)
+;-> "abcxcde"
+(replace "\\\$" "abc$cde" "x" 0)
+ ;-> "abcxcde"
+
 =============================================================================
 
