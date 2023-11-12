@@ -5008,7 +5008,7 @@ Questo comportamento di cambio del contesto segue le stesse regole quando si app
 ==> current context: MAIN
 ==> var: 123
 
-La prima volta che Foo: func viene applicato come simbolo - quotato, la seconda volta la funzione lambda contenuta in Foo:func viene applicata direttamente, perchè apply valuta prima il suo primo argomento.
+La prima volta Foo:func viene applicata come simbolo-quotato, la seconda volta la funzione lambda contenuta in Foo:func viene applicata direttamente, perchè apply valuta prima il suo primo argomento.
 
 Spazi di nomi e il funtore di default
 -------------------------------------

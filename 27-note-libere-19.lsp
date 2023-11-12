@@ -2999,5 +2999,373 @@ Nor sure if you meant, the dollar sign only:
 (replace "\\\$" "abc$cde" "x" 0)
  ;-> "abcxcde"
 
+
+-------------------------------------
+Forum: Context switching in functions
+-------------------------------------
+
+Jeff:
+-----
+Does anyone know why this doesn't work?
+
+(context 'bar)
+;-> bar
+;-> bar> 
+(context MAIN)
+MAIN
+(define (test) (context 'bar) (set 'x 100) (context MAIN))
+;-> (lambda () (context 'bar) (set 'x 100) (context MAIN))
+x
+;-> nil
+(set 'bar:x 10)
+;-> 10
+(test)
+;-> MAIN
+bar:x
+;-> 10
+x
+;-> 100
+
+Can you not switch contexts in a function's scope?
+
+Lutz:
+-----
+The context statement only changes the context for translation of source into symbols when doing load, sym or eval-string.
+Once a symbol is translated (after newLISP read your definition of 'test') it stays in the context it was translated in (which was MAIN), this happens before evaluation of (define (test) ...).
+
+Context switches are only important when translating source into symbols.
+
+This is described in Newlisp manual (contexts).
+
+and in more detail here:
+
+http://newlisp.org/ExpressionEvaluation.html
+
+Jeff:
+-----
+But bar was defined first, before test. 
+I understood the (context 'sym) syntax to act as a procedural switch to another namespace. 
+I don't understand how switching contexts this way differs from doing it from the outermost lexical enclosure. 
+And if there is a difference, isn't that making the context function itself act within the lexical scope, rather than the dynamic scope from which it was called (as opposed to the contents of the context switched to)?
+
+Lutz:
+-----
+The context statement on the top level is functioning during loading of subsequent source. The context statement inside the function is working during function execution:
+
+(define (test) (context 'bar) (set (sym "x") 10))
+
+(test)
+;-> 10
+bar:x
+;-> 10
+
+These are the steps:
+
+(1) read top-level expression
+(2) translate symbols
+(3) evaluate top-level expression
+(4) goto (1)
+
+please read: http://newlisp.org/ExpressionEvaluation.html
+
+ps: Context switches are only important when translating source into symbols. Once a symbol is translated it stays in its context forever.
+
+Jeff:
+-----
+I read that while you were replying. 
+It explains better than the manual. 
+So the (context 'foo) syntax functions almost like a preprocessor command (or as close to that as you can get with an interpreted language).
+Because it appears inside a lambda, it is not evaluated until the lambda is applied, yes?
+
+If this is so, then I am still somewhat confused. Here is an example I am not sure I understand:
+
+(define (foo x y)
+  (context 'bar)
+  (local (a) (println (name a true)))
+  (context MAIN))
+
+In that example, local a lexically appears after the context switch. Would that be inserted into bar?
+
+Lutz:
+-----
+So the (context 'foo) syntax functions almost like a preprocessor command (or as close to that as you can get with an interpreted language). Because it appears inside a lambda, it is not evaluated until the lambda is applied, yes?
+
+yes
+
+Context switches are only important when translating source into symbols. 
+In your example is no 'sym or 'eval-string statement.
+
+All symbols in function foo where translated when reading the toplevel (define (foo x y) ...) definition.
+When evaluating the definition, the only thing which happened was assigning a lambda expression (which is already in memory translated into a binary structure) to the symbol foo.
+When evaluating (foo ...) and then (local ...) inside, all symbol translation already has happened.
+
+A context switch only has influence on subsequent 'sym and 'eval-string statements not on 'local and not on any other only 'sym and 'eval-string.
+
+There is no interpretation happening during function evaluation in newLISP. All lexical analysis and translating is done before that.
+
+ps: the best practice for 'sys and 'eval-string is to specify the context of translation in the 'sys or 'eval-string statement itself as one of the parameters.
+
+Jeff:
+-----
+Ok, I think I have a better understanding of it now. The walkthrough on the low-level docs is helpful.
+
+
+---------------------------------
+ABC triple, ABC-hit, ABC-superhit
+---------------------------------
+
+ABC-triple
+----------
+Tre interi positivi A, B, C sono ABC-triple se risulta:
+
+  1) A,B,C sono coprimi tra loro (cioè gcd(A, B, C) = 1)
+  2) A < B
+  3) A + B = C
+
+Esempi:
+
+1, 8, 9 è una ABC-triple poiché sono coprimi, 1 < 8 e 1 + 8 = 9
+5, 7, 12 è una ABC-triple poiché sono coprimi, 5 < 7 e 5 + 7 = 12
+4, 3, 7 non è una ABC-triple perché 4 > 3
+
+(define (coprime? a b)
+"Check if two integer are coprime"
+  (= (gcd a b) 1))
+
+Funzione che verifica se una terna di numeri interi positivi è ABC-triple:
+
+(define (abc-triple? a b c)
+  (and (= (+ a b) c) (< a b) (= (gcd a b c) 1)))
+
+Facciamo alcune prove:
+
+(abc-triple? 1 8 9)
+;-> true
+
+(abc-triple? 5 7 12)
+;-> true
+
+; 2, 4 e 6 non sono coprimi tra loro
+(abc-triple? 2 4 6)
+;-> nil
+
+; 13 > 5
+(abc-triple? 13 5 18)
+;-> nil
+
+ABC-hit
+-------
+Tre interi positivi A, B, C sono ABC-hit se risulta:
+
+  radicale(A*B*C) < C
+
+Il radicale di un numero intero positivo è il prodotto dei distinti fattori primi del numero.
+
+(define (radical num)
+  (if (= num 1) 1
+      (apply * (unique (factor num)))))
+
+Funzione che verifica se una terna di numeri interi positivi è ABC-hit:
+
+(define (abc-hit? a b c)
+  (< (radical (* a b c)) c))
+
+(abc-hit? 1 8 9)
+;-> true
+
+(abc-hit? 5 7 12)
+;-> true
+
+
+; 2, 4 e 6 non sono coprimi tra loro
+(abc-hit? 2 4 6)
+;-> nil
+
+; 13 > 5
+(abc-hit? 13 5 18)
+;-> nil
+
+a) Tra tutte le 15*10^6 ABC-triple con C < 10000 abbiamo 120 ABC-hit.
+
+b) Tra tutte le 380*10^6 ABC-triple con C < 50000 abbiamo 276 ABC-hit.
+
+Teorema: Ci sono infinite terne ABC-hit.
+
+Vedi "The ABC-conjecture" di Frits Beukers, ABC-day, Leiden 9 september 2005.
+https://web.archive.org/web/20181227041615/http://www.staff.science.uu.nl/%7Ebeuke106/ABCpresentation.pdf
+
+Proviamo a verificare a) e b) in modo brute-force (3 cicli for):
+
+(define (test1 max-c)
+  (let ( (triple 0) (hit 0) )
+    (for (a 1 max-c)
+      (for (b 1 max-c)
+        (for (c 1 max-c)
+          (cond ((abc-triple? a b c)
+                  (++ triple)
+                  ;(println triple " triple: " (list a b c))
+                  (if (abc-hit? a b c) (++ hit)))
+                  ;(println hit " hit: " (list a b c))))
+          )
+        )
+      )
+    )
+    (list triple hit)))
+
+Proviamo:
+
+(test1 10)
+;-> (15 1)
+(test1 100)
+;-> (1521 6)
+(time (println (test 1000)))
+;-> (152095 31)
+;-> 119291.338
+
+; Don't try...
+;(time (println (test 9999)))
+
+Ottimizziamo un pò le cose:
+
+- Facciamo partire il ciclo "for" con B da A + 1
+
+- Invece del ciclo "for" con C, poniamo C = A + B (scartando i valori di C che non soddisfano ABC-triple)
+
+- Se A e B sono coprimi, allora anche la loro somma è coprima con A e B:
+  (gcd a b c) = (gcd a b)
+
+- Inseriamo il codice delle funzioni "abc-triple" e "abc-hit" nella funzione finale.
+
+(define (test2 max-c)
+  (let ( (triple 0) (hit 0) )
+    (for (a 1 max-c)
+      (for (b (+ a 1) max-c 1 (> (+ a b) max-c))
+        (setq c (+ a b))
+          (cond ((and (< a b) (= (gcd a b) 1))
+                  (++ triple)
+                  (if (< (apply * (unique (factor (* a b c)))) c) (++ hit)))
+          )
+      )
+    )
+    (list triple hit)))
+
+Proviamo:
+
+(test2 10)
+;-> (15 1)
+(test2 100)
+;-> (1521 6)
+(time (println (test2 1000)))
+;-> (152095 31)
+;-> 275.797
+(time (println (test2 9999)))
+;-> (15196742 120)
+;-> 52222.693
+
+Siamo arrivati a verificare C < 10000.
+
+Eseguiamo la seguente espressione e andiamo a leggere un libro...
+
+(time (println (test2 49999)))
+;-> (379952131 276)
+;-> 3311592.318 ; 55m 11s 592ms
+
+In qualche modo siamo arrivati a verificare C < 50000.
+
+ABC-superhit
+------------
+Tre interi positivi A, B, C sono ABC-superhit se risulta:
+
+  (radicale(A*B*C))^k < C, con k > 1
+
+(define (abc-superhit? a b c k)
+  (< (pow (radical (* a b c)) k) c))
+
+(define (test3 max-c k)
+  (let ( (triple 0) (superhit 0) )
+    (for (a 1 max-c)
+      (for (b (+ a 1) max-c 1 (> (+ a b) max-c))
+        (setq c (+ a b))
+          (cond ((and (< a b) (= (gcd a b) 1))
+                  (++ triple)
+                  (if (abc-superhit? a b c k) (begin
+                      (println a { } b { } c { } k) (++ superhit))))
+          )
+      )
+    )
+    (list triple superhit)))
+
+Congettura ABC (Masser-Oesterle, 1985)
+--------------------------------------
+Sia k > 1. Allora, con un numero finito di eccezioni risulta:
+  C < radicale(ABC)^k.
+
+Proviamo a cercare qualche ABC-triple che è anche ABC-superhit:
+
+(setq k 2)
+(test3 100 k)
+;-> (1521 0)
+(test3 1000 k)
+;-> (152095 0)
+(time (println (test3 9999 2)))
+;-> (15196742 0)
+;-> 55852.736
+
+(setq k 1.5)
+(test3 100 k)
+;-> (1521 0)
+(test3 1000 k)
+;-> (152095 0)
+(time (println (test3 9999 1.5)))
+;-> 1 4374 4375 1.5
+;-> (15196742 1)
+;-> 56713.125
+(abc-superhit? 1 4374 4375 1.5)
+;-> true
+
+(setq k 1.1)
+(test3 100 k)
+;-> 1 8 9 1.1
+;-> 1 63 64 1.1
+;-> 1 80 81 1.1
+;-> 32 49 81 1.1
+;-> (1521 4)
+;-> (1521 4)
+(test3 1000 k)
+;-> 1 8 9 1.1
+;-> 1 63 64 1.1
+;-> 1 80 81 1.1
+;-> 1 242 243 1.1
+;-> 1 288 289 1.1
+;-> 1 512 513 1.1
+;-> 3 125 128 1.1
+;-> 13 243 256 1.1
+;-> 25 704 729 1.1
+;-> 32 49 81 1.1
+;-> 32 343 375 1.1
+;-> 49 576 625 1.1
+;-> 104 625 729 1.1
+;-> 169 343 512 1.1
+;-> (152095 14)
+(time (println (test3 9999 k)))
+;-> 1 8 9 1.1
+;-> 1 63 64 1.1
+;-> 1 80 81 1.1
+;-> 1 242 243 1.1
+;-> 1 288 289 1.1
+;-> 1 512 513 1.1
+;-> 1 1024 1025 1.1
+;-> ...
+;-> 625 2048 2673 1.1
+;-> 1024 1377 2401 1.1
+;-> 1024 2187 3211 1.1
+;-> 1125 8192 9317 1.1
+;-> 1183 8192 9375 1.1
+;-> 2401 4160 6561 1.1
+;-> (15196742 50)
+;-> 56561.055
+
+Con k < 2 qualche ABC-superhit esiste.
+
 =============================================================================
 
