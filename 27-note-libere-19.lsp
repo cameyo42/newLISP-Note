@@ -3176,7 +3176,6 @@ Funzione che verifica se una terna di numeri interi positivi è ABC-hit:
 (abc-hit? 5 7 12)
 ;-> true
 
-
 ; 2, 4 e 6 non sono coprimi tra loro
 (abc-hit? 2 4 6)
 ;-> nil
@@ -3366,6 +3365,180 @@ Proviamo a cercare qualche ABC-triple che è anche ABC-superhit:
 ;-> 56561.055
 
 Con k < 2 qualche ABC-superhit esiste.
+
+
+-------------------------
+Somma massima con N liste
+-------------------------
+
+Date N liste con lunghezze non necessariamente uguali contenenti numeri interi, risolvere i seguenti due problemi.
+
+Problema 1
+----------
+Trovare la somma massima selezionando un elemento per ogni lista.
+Poichè abbiamo N liste la somma è costituita da N numeri interi.
+
+Il problema si risolve facilmente selezionando il numero massimo di ogni lista.
+
+(define (max-sum1 lst)
+  (let (sum 0)
+    (dolist (el lst)
+      (++ sum (apply max el))
+    )
+    sum))
+
+(setq a '((21 15 3) (19 5 14 1) (20 2 18 4 4)))
+(max-sum1 a)
+;-> 60
+
+Problema 2
+----------
+Trovare la somma massima selezionando un elemento per ogni lista in modo che non esistano indici uguali tra gli elementi che compongono la somma massima.
+
+Esempio:
+lst1 = (10 5 8)
+lst2 = (20 6 12)
+
+Nel caso del primo problema abbiamo:
+somma massima = 10 + 20 = 30
+
+Nel secondo problema abbiamo:
+somma massima = 8 + 20 = 28
+Infatti non possiamo scegliere i valori 10 e 20 perchè entrambi hanno indice 0.
+Invece 8 ha indice 2 e 20 ha indice 0.
+
+Questo secondo problema è più difficle...
+
+Per trovare la somma massima dobbiamo verificare tutte le combinazioni tra gli elementi delle liste e assicurarsi che i loro indici non siano uguali.
+Usiamo il prodotto cartesiano tra liste per generare tutte le combinazioni, poi scegliamo quelle valide e poi calcoliamo la somma massima.
+Non possiamo utilizzare le liste per il prodotto cartesiano perchè dobbiamo verificare che gli indici siano validi.
+Generiamo il prodotto cartesiano utilizzando le liste degli indici per ogni lista.
+
+(define (cartesian-product lst-lst)
+"Calculates the cartesian product of a list of lists"
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1)
+    )
+    out))
+; auxiliary function: cartesian product of two list
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        '()
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(define (max-sum2 lst)
+  (let ( (seq '()) (all-index '()) (valid-index '())
+         (values '()) 
+         (somma 0) (somma-max -999999999) )
+    ; genera la lista delle liste/sequenze) degli indici
+    ; ((0 1 2) (0 1 2 3 4) ... (0 1))
+    (dolist (el lst)
+      (setq el-index (sequence 0 (- (length el) 1)))
+      (push el-index seq -1)
+    )
+    ; calcola il prodotto cartesiano delle liste/sequenze degli indici
+    (setq all-index (cartesian-product seq))
+    ; filtra solo le combinazioni valide delle sequenze
+    ; cioè quelle che hanno tutti gli indici diversi
+    (setq valid-index (filter (fn(x) (= x (unique x))) all-index))
+    ; Calcolo della somma massima
+    ; per ogni combinazione,
+    ; estrae i valori da sommare dalla lista relativa e verifica
+    ; se il risultato supera la somma massima.
+    ; In caso positivo aggiorna la soluzione che è del tipo:
+    ; (somma-massima (val1 val2 ... valN) (idx1 idx2 ... idxN)
+    (dolist (vi valid-index)
+      (setq values '())
+      ; recupera i valori dalle relative liste 
+      ; utilizzando la combinazione corrente di indici
+      (dolist (el vi)
+        ; valore all'indice corrente nella relativa lista
+        (push (select (lst $idx) el) values)
+      )
+      ; valori da sommare
+      (setq values (flat values))
+      (setq somma (apply + values))
+      ; per vedere come viene aggiornata la somma massima
+      ; togliere il commento ";" alla linea seguente
+      ;(print (list somma-max values vi)) (read-line)
+      ; verifica se somma > somma massima
+      (if (> somma somma-max)
+          (begin
+            (setq somma-max somma)
+            (setq out (list somma-max values vi)))
+      )
+    )
+    out))
+
+Proviamo:
+
+(setq a '((21 15 3) (19 5 14 1) (20 2 18 4 4)))
+(max-sum2 a)
+;-> (-999999999 (18 5 21) (0 1 2))
+;-> (44 (4 5 21) (0 1 3))
+;-> (44 (4 5 21) (0 1 4))
+;-> (44 (2 14 21) (0 2 1))
+;-> ...
+;-> (52 (2 1 3) (2 3 1))
+;-> (52 (4 1 3) (2 3 4))
+;-> (52 (18 19 15) (1 0 2))
+;-> (52 (18 19 15) (1 0 2))
+
+La lista di output ha la seguente struttura: 
+  (somma-massima (val1 val2 ... valN) (idx1 idx2 ... idxN)
+
+(max-sum2 '((1 3) (1 3)))
+;-> (4 (3 1) (0 1))
+(max-sum2 '((1 4 2) (5 6 1)))
+;-> (9 (5 4) (1 0))
+(max-sum2 '((-2 -21)(18 2)))
+;-> (0 (2 -2) (0 1))
+(max-sum2 '((1 2 3) (4 5 6) (7 8 9)))
+;-> (15 (9 5 1) (0 1 2))
+(max-sum2 '((1 2 3 4) (5 4 3 2) (6 2 7 1)))
+;-> (16 (7 5 4) (3 0 2))
+
+Nota: il prodotto cartesiano di N liste genera una lista con il seguente numero di elementi:
+
+Numero di elementi = Lunghezza del primo elenco *
+                     Lunghezza del secondo elenco *
+                     ...
+                     Lunghezza dell'N-esimo elenco
+
+Vediamo la velocità della funzione:
+
+(define (make-list num-lst min-len max-len max-val)
+  (let (lst '())
+    (for (i 1 num-lst) (push (rand max-val (+ min-len (rand (- max-len min-len)))) lst))
+  lst))
+
+5 liste da 5 a 10 elementi con valore massimo 100
+(setq t1 (make-list 5 5 10 100))
+;-> ((52 95 7 87 65 32 10 50) (31 95 87 72 30 94 12 6 78) 
+;->  (44 29 46 50 15 32 73) (85 15 32 7 7 64 82 54)
+;->  (4 97 31 56 30 17 10 86))
+(apply * (map length t1))
+;-> 32256
+
+8 liste da 5 a 10 elementi con valore massimo 100
+(setq t2 (make-list 8 5 10 100))
+(apply * (map length t2))
+;-> 9483264 ;oops...
+(time (println (max-sum2 t2)))
+;-> (676 (69 96 93 89 85 90 74 80) (1 6 5 4 0 7 3 2))
+;-> 20675.646
+
+10 liste da 5 a 10 elementi con valore massimo 100
+(setq t3 (make-list 10 5 10 100))
+(apply * (map length t3))
+;-> 180633600 ; 180 milioni 633 mila 600
+Se proviamo con 10 liste newLISP va in crash (e forse anche windows)...
+; (time (println (max-sum2 t2)))
+;-> CRASH
 
 =============================================================================
 
