@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2019-2021 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2023 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ Traduzione in italiano del 4 febbraio 2021 (Google Translate e modifiche):
 
 Licenza MIT
 
-Copyright (c) 2019-2021 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2023 Massimo Corinaldesi aka cameyo
 
 L'autorizzazione è concessa, gratuitamente, a chiunque ottenga una copia di questo software e dei file di documentazione associati (il "Software"), di trattare il Software senza restrizioni, inclusi senza limitazione i diritti di utilizzare, copiare, modificare, unire, pubblicare, distribuire, concedere in licenza e/o vendere copie del Software e per consentirlo anche alle persone a cui è destinato il Software, alle seguenti condizioni:
 
