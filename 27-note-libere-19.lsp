@@ -3540,5 +3540,173 @@ Se proviamo con 10 liste newLISP va in crash (e forse anche windows)...
 ; (time (println (max-sum2 t2)))
 ;-> CRASH
 
+
+-------------
+Polilogaritmo
+-------------
+
+Il polilogaritmo è una funzione speciale che generalizza il logaritmo.
+Dato un numero complesso, si definisce la funzione polilogaritmo di ordine s e argomento (complesso) z la serie di potenze:
+
+  Li[s](z) = Sum[k=1..inf](z^k/k^s) = (z + z^2/s^2 + z^3/s^3 + ...)
+             per ogni |z| < 1.
+
+Per s = 1, otteniamo il classico logaritmo:
+
+  Li[1](z) = Sum[k=1..inf](z^k)/k = -ln(1 - z)
+
+(define (polylog s z)
+  (let (sum 0)
+    (for (k 1 1e3)
+      ;(print sum) (read-line)
+      (setq sum (add sum (div (pow z k) (pow k s))))
+    )
+    sum))
+
+Proviamo:
+
+(polylog 2 0.95)
+;-> 1.440633796970039
+
+(polylog 2 0.5)
+;-> 0.5822405264650125
+
+(polylog -3 0.95)
+;-> 866779.9999999995
+
+(polylog -3 0.5)
+;-> 26
+;-> 0.5822405264650125
+
+Per |z| > 1, vedere l'articolo:
+"Note on fast polylogarithm computation" by R. E. Crandall
+https://www.reed.edu/physics/faculty/crandall/papers/Polylog.pdf
+
+
+------------------------------------------------
+Ordinare una lista con un'altra lista (variante)
+------------------------------------------------
+
+Vedi anche "Ordinare una lista con un'altra lista" su "Note libere 5".
+
+Data una lista di nomi di colori univoci, ordinarli nell'ordine in cui appaiono per primi nella lista seguente:
+
+colori = ("red" "yellow" "green" "brown" "scarlet" "black" "ochre"
+          "peach" "ruby" "olive" "violet" "fawn" "lilac" "gold"
+          "chocolate" "mauve" "cream" "crimson" "silver" "rose"
+          "azure" "lemon" "russet" "grey" "purple" "white" "pink"
+          "orange" "blue")
+          
+Per esempio:
+lista = blue, green, red
+ordinamento = red, green, blue
+
+(setq colori '("red" "yellow" "green" "brown" "scarlet" "black" "ochre"
+               "peach" "ruby" "olive" "violet" "fawn" "lilac" "gold"
+               "chocolate" "mauve" "cream" "crimson" "silver" "rose"
+               "azure" "lemon" "russet" "grey" "purple" "white" "pink"
+               "orange" "blue"))
+
+Creiamo una lista associativa con elementi del tipo: (colore posizione)
+
+(setq col-pos (map (fn(x) (list x $idx)) colori))
+;-> (("red" 0) ("yellow" 1) ("green" 2) ("brown" 3) ("scarlet" 4) 
+;->  ("black" 5) ("ochre"6) ("peach" 7) ("ruby" 8) ("olive" 9)
+;->  ("violet" 10) ("fawn" 11) ("lilac" 12) ("gold" 13) ("chocolate" 14)
+;->  ("mauve" 15) ("cream" 16) ("crimson" 17) ("silver" 18) ("rose" 19)
+;->  ("azure" 20) ("lemon" 21) ("russet" 22) ("grey" 23) ("purple" 24)
+;->  ("white" 25) ("pink" 26) ("orange" 27) ("blue" 28))
+
+Per vedere la posizione di un colore usiamo "lookup":
+
+(lookup "ruby" col-pos)
+;-> 8
+
+Funzione che ordina due colori in base alla posizione sulla lista col-pos:
+
+(define (check x y)
+  (<= (lookup x col-pos) (lookup y col-pos)))
+
+Adesso basta usare "sort" sulla lista di input:
+
+(sort '("blue" "green" "red") check)
+;-> ("red" "green" "blue")
+
+Scriviamo la funzione finale:
+
+(define (ordina lst base)
+  (define (check x y) (<= (lookup x base-pos) (lookup y base-pos)))
+  (let (base-pos (map (fn(x) (list x $idx)) base))
+    (sort lst check)))
+
+Proviamo:
+(ordina '("green" "blue" "red" "brown") colori)
+;-> ("red" "green" "brown" "blue")
+
+(ordina '("gold" "grey" "green") colori)
+;-> ("green" "gold" "grey")
+
+(ordina '("ruby" "yellow" "red" "grey") colori)
+;-> ("red" "yellow" "ruby" "grey")
+
+(ordina '("gold" "green" "fawn" "white" "azure" "rose" "black" "purple" 
+        "orange" "silver" "ruby" "blue" "lilac" "crimson" "pink" "cream"
+        "lemon" "russet" "grey" "olive" "violet" "mauve" "chocolate" 
+        "yellow" "peach" "brown" "ochre" "scarlet" "red") colori)
+;-> ("red" "yellow" "green" "brown" "scarlet" "black" "ochre" "peach"
+;->  "ruby" "olive" "violet" "fawn" "lilac" "gold" "chocolate" "mauve"
+;->  "cream" "crimson" "silver" "rose" "azure" "lemon" "russet" "grey"
+;->  "purple" "white" "pink" "orange" "blue")
+
+La funzione può essere applicata anche a liste con altri tipi di elementi oltre alle stringhe.
+Per esempio:
+
+(setq order '(1 9 2 8 3 7 4 5 6))
+
+(ordina '(1 2 3 4 5 6 7 8 9) order)
+;-> (1 9 2 8 3 7 4 5 6)
+
+
+----------------
+Digital sumorial
+----------------
+
+Il digital sumorial di un numero N è dato dalla somma delle somme digitali di N per tutte le basi da 1 a N.
+
+La formula è la seguente:
+
+  Sum[b=2..(n+1)](Sum[i=0..(n-1)](floor(n/b^i)) mod b)
+
+Sequenza OEIS A131383:
+Total digital sum of n: sum of the digital sums of n for all the bases 1 to n
+  1, 3, 6, 8, 13, 16, 23, 25, 30, 35, 46, 46, 59, 66, 75, 74, 91, 91, 110, 
+  112, 125, 136, 159, 152, 169, 182, 195, 199, 228, 223, 254, 253, 274, 291,
+  316, 297, 334, 353, 378, 373, 414, 409, 452, 460, 475, 498, 545, 520, 557,
+  565, 598, 608, 661, 652, 693, 690, ...
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che calcola il digital sumorial di un numero:
+
+(define (sumorial num)
+  (let ( (sumor 0) (val 0) )
+    (setq sumor 0)
+    (for (b 2 (+ num 1))
+      (setq val 0)
+      (for (i 0 (- num 1)) (++ val (% (floor (div num (** b i))) b)))
+      (++ sumor val)
+    )
+  sumor))
+
+(map sumorial (sequence 1 50))
+;-> (1 3 6 8 13 16 23 25 30 35 46 46 59 66 75 74 91 91 110 112 125 136
+;->  159 152 169 182 195 199 228 223 254 253 274 291 316 297 334 353 378
+;->  373 414 409 452 460 475 498 545 520 557 565)
+
 =============================================================================
 

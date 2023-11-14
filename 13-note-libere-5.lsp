@@ -836,6 +836,8 @@ Nota: newLISP ha la funzione primitiva "select" che produce lo stesso risultato 
 (select nums idx)
 ;-> (8 2 5 6 4 3)
 
+Vedi anche "Ordinare una lista con un'altra lista (variante)" su "Note libere 19".
+
 
 --------------------
 Test di Lucas-Lehmer

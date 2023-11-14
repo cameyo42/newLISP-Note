@@ -2068,6 +2068,9 @@ NOTE LIBERE 19
   Forum: Context switching in functions
   ABC triple, ABC-hit, ABC-superhit
   Somma massima con N liste
+  Polilogaritmo
+  Ordinare una lista con un'altra lista (variante)
+  Digital sumorial
 
 PROBLEMI SUI DADI
 =================
@@ -2109,7 +2112,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (245 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (249 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
