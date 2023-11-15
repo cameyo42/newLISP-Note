@@ -2048,7 +2048,7 @@ NOTE LIBERE 19
   Triangoli in una lista
   Teorema di Zeckendorf
   Modello abeliano del mucchio di sabbia (Abelian sandpile model)
-  Mouse e tane
+  Topi e tane
   Codice fiscale
   Guardie e ladri
   regex-all (trova tutte le occorrenze)
@@ -2071,6 +2071,11 @@ NOTE LIBERE 19
   Polilogaritmo
   Ordinare una lista con un'altra lista (variante)
   Digital sumorial
+  Quanti giri fa una boccia?
+  Excel Date code
+  Il topo goloso
+  Ordinare una lista di numeri in base alle cifre più grandi
+  Numeri lessicograficamenti crescenti
 
 PROBLEMI SUI DADI
 =================

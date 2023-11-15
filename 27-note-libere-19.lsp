@@ -1492,9 +1492,9 @@ Facciamo alcune prove:
 ;-> 4 3 0 3 2
 
 
-------------
-Mouse e tane
-------------
+-----------
+Topi e tane
+-----------
 
 Abbiamo N topi e N tane posizionati lungo una linea retta.
 Ogni tana può ospitare solo un mouse.
@@ -3708,5 +3708,452 @@ Funzione che calcola il digital sumorial di un numero:
 ;->  159 152 169 182 195 199 228 223 254 253 274 291 316 297 334 353 378
 ;->  373 414 409 452 460 475 498 545 520 557 565)
 
-=============================================================================
+
+--------------------------
+Quanti giri fa una boccia?
+--------------------------
+
+"Non sa neanche quanti giri fa una boccia"
+Questo è un detto delle mie parti per indicare una persona ignorante.
+
+Ma quanti giri fa una boccia per percorrere una certa distanza?
+
+Supponiamo che una boccia che rotola possa essere rappresentata da un cerchio che rotola lungo la sua circonferenza.
+Per trovare il numero di rotazioni necessarie ad un cerchio (boccia) per percorrere una determinata distanza, possiamo utilizzare la formula:
+
+                           Distanza
+  Numero di Rotazioni = ---------------
+                         Circonferenza
+
+La circonferenza di un cerchio (boccia) è data dalla formula:
+
+  Circonferenza = 2*π*Raggio
+
+Quindi la formula per il numero di rotazioni diventa:
+
+                          Distanza
+  Numero di Rotazioni = ------------
+                         2*π*Raggio
+
+(define (rotations distance radius)
+  (div distance (mul 2 3.1415926535897931 radius)))
+
+Le ruote di una bicicletta da 28'' (pollici) hanno un diametro di 622 mm (millimetri).
+Quanti giri deve fare la ruota per percorrere 1 km (kilometro)?
+
+  Raggio(metri) = 0.622/2 = 0.311 m (metri)
+
+(rotations 1000 0.311)
+;-> 511.7522285913034
+
+
+---------------
+Excel Date code
+---------------
+
+Il foglio elettronico Excel tratta (internamente) le date con un numero intero positivo (date-code).
+
+Il date-code viene calcolato da Excel nel modo seguente:
+I giorni vengono contati partendo da 0 per lo 0 gennaio 1900 (che non esiste).
+Quindi il date-code indica con 1 il 1 gennaio 1900.
+Inoltre esiste il 29 febbraio 1900 con indice 60 (1900 viene considerato bisestile anche se non lo è).
+Quindi il date-code indica con 61 il 1 marzo 1900.
+
+Vediamo una tabella riassuntiva:
+
+     0  -> (1900 01 00)    Nota: Non (1899 12 31)
+     1  -> (1900 01 01)
+     2  -> (1900 01 02)
+    59  -> (1900 02 28)
+    60  -> (1900 02 29)    Nota: Non (1900 03 01)
+    61  -> (1900 03 01)
+   100  -> (1900 04 09)
+  1000  -> (1902 09 26)
+ 10000  -> (1927 05 18)
+100000  -> (2173 10 14)
+
+Usiamo due funzioni per le date.
+
+(define (gdate-julian gdate)
+"Convert gregorian date to julian day number (valid only from 15 ottobre 1582 A.D.)"
+  (local (a y m)
+    (setq a (/ (- 14 (gdate 1)) 12))
+    (setq y (+ (gdate 0) 4800 (- a)))
+    (setq m (+ (gdate 1) (* 12 a) (- 3)))
+    (+ (gdate 2) (/ (+ (* 153 m) 2) 5) (* y 365) (/ y 4) (- (/ y 100)) (/ y 400) (- 32045))))
+
+(define (julian-gdate jd)
+"Convert julian day number to gregorian date (valid only from 15 ottobre 1582 A.D.)"
+  (local (a b c d e m)
+    (setq a (+ jd 32044))
+    (setq b (/ (+ (* 4 a) 3) 146097))
+    (setq c (- a (/ (* b 146097) 4)))
+    (setq d (/ (+ (* 4 c) 3) 1461))
+    (setq e (- c (/ (* 1461 d) 4)))
+    (setq m (/ (+ (* 5 e) 2) 153))
+    (list
+      (+ (* b 100) d (- 4800) (/ m 10))
+      (+ m 3 (- (* 12 (/ m 10))))
+      (+ e (- (/ (+ (* 153 m) 2) 5)) 1))))
+
+Facendo alcune prove troviamo i valori del numero giuliano per le date particolari.
+
+(gdate-julian '(1900 1 0))
+;-> 2415020
+(julian-gdate 2415020)
+;-> (1899 12 31)
+
+(gdate-julian '(1900 1 1))
+;-> 2415021
+(julian-gdate 2415021)
+;-> (1900 1 1)
+
+(gdate-julian '(1900 2 29))
+;-> 2415080
+(julian-gdate 2415080)
+;-> (1900 3 1)
+
+Il numero giuliano di base è 2415021 a cui bisogna:
+- aggiungere il date-code e togliere 2 (se date-code > 60)
+- aggiungere il date-code e togliere 1 (se date-code < 60)
+I casi (date-code = 0) e (date-code = 60) vengono trattati singolarmente
+
+Funzione che converte un date-code di Excel nella data corrispondente:
+
+(define (excel-date date-code)
+  (cond ((= date-code 0)  '(1900 1 0))
+        ((= date-code 60) '(1900 2 29))
+        ((> date-code 60) (julian-gdate (+ 2415021 date-code (- 2))))
+        ((< date-code 60) (julian-gdate (+ 2415021 date-code (- 1))))))
+
+Proviamo:
+
+(excel-date 0)
+;-> (1900 1 0)
+(excel-date 1)
+;-> (1900 1 1)
+(excel-date 2)
+;-> (1900 1 2)
+(excel-date 59)
+;-> (1900 2 28)
+(excel-date 60)
+;-> (1900 2 29)
+(excel-date 61)
+;-> (1900 3 1)
+(excel-date 1000)
+;-> (1902 9 26)
+(excel-date 10000)
+;-> (1927 5 18)
+(excel-date 100000)
+;-> (2173 10 14)
+
+Perchè Excel tratta il 1900 come anno bisestile?
+------------------------------------------------
+Uno dei primi fogli elettronici è stato "Lotus 1-2-3" sviluppato dal 1983.
+All'epoca la RAM era di 640kb e i programmatori della Lotus decisero di considerare bisestile gli anni che erano divisibili per 4 (mentre un anno divisibile per 100 è bisestile solo se è anche divisibile per 400).
+In questo modo coprivano un arco di tempo dal 1900 al 2100 (che sembrava più che sufficiente).
+"Excel" è stato sviluppato dopo "Lotus-123" e per ragioni di compatibilità (possibilità di importare i file di Lotus 1-2-3) ha mantenuto questo comportamento (controlled-bug).
+Anche il foglio elettronico "Calc" di OpenOffice si comporta in modo simile.
+Il foglio elettronico "gnumeric" ha il seguente output:
+
+     0	 1899-12-31
+     1	 1900-01-01
+    59	 1900-02-28
+    60	 ##########
+    61	 1900-03-01
+   100	 1900-04-09
+  1000	 1902-09-26
+  10000	 1927-05-18
+
+
+--------------
+Il topo goloso
+--------------
+
+Ci sono N pile di formaggio accatastate in modo rettangolare per R righe e C colonne.
+Ogni pila è formata da un certo numero di formaggi
+La pila più piccola contiene 1 formaggio e quella più grande K formaggi.
+Possiamo rappresentare le pile con una matrice:
+
+  3 7 10  5
+  6 8 12 13
+ 15 9 11  4
+ 14 1 16  2
+
+In questo esempio ci sono 16 pile disposte in modo 4x4.
+La pila (0 0) contiene 3 formaggi.
+La pila (0 2) contiene 10 formaggi.
+
+Il topo goloso parte da una pila casuale, la mangia, e poi passa alla pila vicina più grande, la mangia, e continua cosi finchè non ha più alcuna pila vicino.
+Una pila può avere da 3 a 8 vicini (orizzontale, verticale e diagonale).
+
+(setq m '((3 7 10 5)
+          (6 8 12 13)
+          (15 9 11 4)
+          (14 1 16 2)))
+
+(setq row-len (length m))
+(setq col-len (length (m 0)))
+
+Funzione che calcola la pila vicina con il valore massimo:
+(restituisce una lista (valore-massimo riga colonna))
+
+(define (max-vicino matrix r c)
+  (let ( (val 0) (val-max 0) (r-idx -1) (c-idx -1) )
+    ; muove in basso
+    (cond ((> r 0)
+            (setq val (matrix (- r 1) c))
+            (if (> val val-max) (set 'val-max val 'r-idx (- r 1) 'c-idx c))))
+    ; muove in alto
+    (cond ((< r (- row-len 1))
+            (setq val (matrix (+ r 1) c))
+            (if (> val val-max) (set 'val-max val 'r-idx (+ r 1) 'c-idx c))))
+    ; muove a sinistra
+    (cond ((> c 0)
+            (setq val (matrix r (- c 1)))
+            (if (> val val-max) (set 'val-max val 'r-idx r 'c-idx (- c 1)))))
+    ; muove a destra
+    (cond ((< c (- col-len 1))
+            (setq val (matrix r (+ c 1)))
+            (if (> val val-max) (set 'val-max val 'r-idx r 'c-idx (+ c 1)))))
+    ; muove in alto a sinistra
+    (cond ((and (> r 0) (> c 0))
+            (setq val (matrix (- r 1) (- c 1)))
+            (if (> val val-max) (set 'val-max val 'r-idx (- r 1) 'c-idx (- c 1)))))
+    ; muove in alto a destra
+    (cond ((and (> r 0) (< c (- col-len 1)))
+            (setq val (matrix (- r 1) (+ c 1)))
+            (if (> val val-max) (set 'val-max val 'r-idx (- r 1) 'c-idx (+ c 1)))))
+    ; muove in basso a sinistra
+    (cond ((and (< r (- row-len 1)) (> c 0))
+            (setq val (matrix (+ r 1) (- c 1)))
+            (if (> val val-max) (set 'val-max val 'r-idx (+ r 1) 'c-idx (- c 1)))))
+    ; muove in basso a destra
+    (cond ((and (< r (- row-len 1)) (< c (- col-len 1)))
+            (setq val (matrix (+ r 1) (+ c 1)))
+            (if (> val val-max) (set 'val-max val 'r-idx (+ r 1) 'c-idx (+ c 1)))))
+    (list val-max r-idx c-idx)))
+
+Proviamo la funzione:
+
+(for (r 0 3) (for (c 0 3) (println (list (m r c) (max-vicino m r c)))))
+;-> (3 (7 0 1)) (7 (10 0 2)) (10 (7 0 1)) (5 (10 0 2)) (6 (8 1 1))
+;-> (8 (12 1 2)) (12 (13 1 3)) (13 (12 1 2)) (15 (9 2 1)) (9 (15 2 0))
+;-> (11 (13 1 3)) (4 (13 1 3)) (14 (15 2 0)) (1 (16 3 2)) (16 (11 2 2)) 
+;-> (2 (16 3 2))
+
+Scriviamo la funzione finale:
+
+(define (mouse matrix start-row start-col)
+  (local (row-len col-len somma cell rimasti)
+    (setq row-len (length matrix))
+    (setq col-len (length (matrix 0)))  
+    (setq somma (matrix start-row start-col))
+    (print "Formaggi: " somma)
+    (setq cell (max-vicino matrix start-row start-col))
+    (setf (matrix start-row start-col) -1)
+    ; se (cell 0) = 0, allora il topo non ha più pile vicine da mangiare
+    (until (zero? (cell 0))
+      (setf (matrix (cell 1) (cell 2)) -1)
+      (setq somma (+ somma (cell 0)))
+      (print { } (cell 0))
+      (setq cell (max-vicino matrix (cell 1) (cell 2)))
+    )
+    (setq rimasti (clean (fn(x) (= x -1)) (flat matrix)))
+    (println "\nTotale formaggi: " somma)
+    (println "Rimasti: " rimasti " = " (apply + rimasti))
+    matrix))
+
+Facciamo alcune prove con il topo:
+
+(mouse m 3 2)
+;-> Formaggi: 16 11 13 12 10 8 15 14 9 6 7 3
+;-> Totale formaggi: 124
+;-> Rimasti: (5 4 1 2) = 12
+;-> ((-1 -1 -1 5) (-1 -1 -1 -1) (-1 -1 -1 4) (-1 1 -1 2))
+
+(setq m1 '((1 6 4)
+           (2 3 5)
+           (6 8 2)))
+
+(mouse m1 0 0)
+;-> Formaggi: 1 6 5 8 6 3 4
+;-> Totale formaggi: 33
+;-> Rimasti: (2 2) = 4
+;-> ((-1 -1 -1) (2 -1 -1) (-1 -1 2))
+
+(mouse m1 2 2)
+;-> Formaggi: 2 8 6 3 6 5 4
+;-> Totale formaggi: 34
+;-> Rimasti: (1 2) = 3
+;-> ((1 -1 -1) (2 -1 -1) (-1 -1 -1))
+
+(mouse '(( 4  3  2  1) ( 5  6  7  8) (12 11 10  9) (13 14 15 16)) 3 3)
+;-> Formaggi: 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1
+;-> Totale formaggi: 136
+;-> Rimasti: () = 0
+;-> ((-1 -1 -1 -1) (-1 -1 -1 -1) (-1 -1 -1 -1) (-1 -1 -1 -1))
+
+(mouse '(( 8  1  9 14) (11  6  5 16) (13 15  2  7) (10  3 12  4)) 1 3)
+;-> Formaggi: 16 14 9 6 15 13 11 8 1 5 7 12 4 2 3 10
+;-> Totale formaggi: 136
+;-> Rimasti: () = 0
+;-> ((-1 -1 -1 -1) (-1 -1 -1 -1) (-1 -1 -1 -1) (-1 -1 -1 -1))
+
+(mouse '(( 1  2  3  4) ( 5  6  7  8) ( 9 10 11 12) (13 14 15 16)) 3 3)
+;-> Formaggi: 16 15 14 13 10 11 12 8 7 6 9 5 2 3 4
+;-> Totale formaggi: 135
+;-> Rimasti: (1) = 1
+;-> ((1 -1 -1 -1) (-1 -1 -1 -1) (-1 -1 -1 -1) (-1 -1 -1 -1))
+
+(mouse '((10 15 14 11) ( 9  3  1  7) (13  5 12  6) ( 2  8  4 16)) 3 3)
+;-> Formaggi: 16 12 8 13 9 15 14 11 7 6 4 5 3 10
+;-> Totale formaggi: 133
+;-> Rimasti: (1 2) = 3
+;-> ((-1 -1 -1 -1) (-1 -1 1 -1) (-1 -1 -1 -1) (2 -1 -1 -1))
+
+(mouse '(( 3  7 10  5) ( 6  8 12 13) (15  9 11  4) (14  1 16  2)) 3 2)
+;-> Formaggi: 16 11 13 12 10 8 15 14 9 6 7 3
+;-> Totale formaggi: 124
+;-> Rimasti: (5 4 1 2) = 12
+;-> ((-1 -1 -1 5) (-1 -1 -1 -1) (-1 -1 -1 4) (-1 1 -1 2))
+
+(mouse '(( 8  9  3  6) (13 11  7 15) (12 10 16  2) ( 4 14  1  5)) 2 2)
+;-> Formaggi: 16 15 7 11 13 12 14 10 4
+;-> Totale formaggi: 102
+;-> Rimasti: (8 9 3 6 2 1 5) = 34
+;-> ((8 9 3 6) (-1 -1 -1 -1) (-1 -1 -1 2) (-1 -1 1 5))
+
+(mouse '(( 8 11 12  9) (14  5 10 16) ( 7  3  1  6) (13  4  2 15)) 1 3)
+;-> Formaggi: 16 12 11 14 8 5 10 9
+;-> Totale formaggi: 85
+;-> Rimasti: (7 3 1 6 13 4 2 15) = 51
+;-> ((-1 -1 -1 -1) (-1 -1 -1 -1) (7 3 1 6) (13 4 2 15))
+
+(mouse '((13 14  1  2) (16 15  3  4) ( 5  6  7  8) ( 9 10 11 12)) 1 0)
+;-> Formaggi: 16 15 14 13
+;-> Totale formaggi: 58
+;-> Rimasti: (1 2 3 4 5 6 7 8 9 10 11 12) = 78
+;-> ((-1 -1 1 2) (-1 -1 3 4) (5 6 7 8) (9 10 11 12))
+
+(mouse '(( 9 10 11 12) ( 1  2  4 13) ( 7  8  5 14) ( 3 16  6 15)) 3 1)
+;-> Formaggi: 16 8 7 3
+;-> Totale formaggi: 34
+;-> Rimasti: (9 10 11 12 1 2 4 13 5 14 6 15) = 102
+;-> ((9 10 11 12) (1 2 4 13) (-1 -1 5 14) (-1 -1 6 15))
+
+(mouse '(( 9 10 11 12) ( 1  2  7 13) ( 6 16  4 14) ( 3  8  5 15)) 2 1)
+;-> Formaggi: 16 8 6 3
+;-> Totale formaggi: 33
+;-> Rimasti: (9 10 11 12 1 2 7 13 4 14 5 15) = 103
+;-> ((9 10 11 12) (1 2 7 13) (-1 -1 4 14) (-1 -1 5 15))
+
+
+----------------------------------------------------------
+Ordinare una lista di numeri in base alle cifre più grandi
+----------------------------------------------------------
+
+Data una lista di numeri interi, ordinarli in ordine discendente in base alle singole cifre più grandi.
+L'ordine dei numeri con la stessa cifra più grande viene quindi ordinato in base alla seconda cifra più grande, ecc.
+La prima cifra dei numeri negativi viene considerata positiva.
+Per esempio:
+  lista = (346 834 789 134 198 -910)
+  lista ordinata in base alle cifre maggiori = (789 198 -910 834 346 134)
+
+Possiamo ordinare le cifre di ogni numero, ordinare i numeri risultanti e poi sostituirli con i loro valori originali.
+
+(setq nums '(346 834 789 134 198 -910))
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Scomposizione dei numeri in cifre:
+(setq a (map (fn(x) (int-list (abs x))) nums))
+;-> ((3 4 6) (8 3 4) (7 8 9) (1 3 4) (1 9 8) (9 1 0))
+
+Ordinamento delle cifre per ogni numero:
+(setq b (map (fn(x) (sort x >)) a))
+;-> ((6 4 3) (8 4 3) (9 8 7) (4 3 1) (9 8 1) (9 1 0))
+
+Creazione dei numeri dei nuovi numeri:
+(setq c (map list-int b))
+;-> (643 843 987 431 981 910)
+
+Ordinamento dei nuovi numeri:
+(setq d (sort c >))
+
+A questo punto non sappiamo quali siano i valori originali associati a questi numeri, cioè, per esempio, quale valore era associato al numero 987?
+
+Dobbiamo fare tutte le precedenti operazioni portandoci dietro i valori originali.
+Poichè dobbiamo operare sempre sul risultato della precedente operazione, possiamo scrivere le espressioni in modo concatenato:
+
+Lista con elementi: (nuovo numero, numero originale)
+(map (fn(x) (list (list-int (sort (int-list (abs x)) >)) x)) nums)
+;-> ((643 346) (843 834) (987 789) (431 134) (981 198) (910 -910))
+
+Ordinamento decrescente (nuovo numero) della lista:
+(sort (map (fn(x) (list (list-int (sort (int-list (abs x)) >)) x)) nums) >)
+;-> ((987 789) (981 198) (910 -910) (843 834) (643 346) (431 134))
+
+Estrazione dei numeri originali dalla lista precedente:
+(map last (sort (map (fn(x) (list (list-int (sort (int-list (abs x)) >)) x)) nums) >))
+;-> (789 198 -910 834 346 134)
+
+La funzione finale è composta da una singola espresione:
+
+(define (sort-digits lst)
+  (map last 
+       (sort 
+       (map (fn(x) (list (list-int (sort (int-list (abs x)) >)) x)) nums) >)))
+
+(sort-digits nums)
+;-> (789 198 -910 834 346 134)
+
+
+------------------------------------
+Numeri lessicograficamenti crescenti
+------------------------------------
+
+Un numero lessicograficamente crescente è un numero intero naturale (non negativo) le cui cifre sono in ordine strettamente crescente.
+
+Scrivere una funzione che elenca questi numeri da un valore minimo "a" a un valore massimo "b".
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che verifica se un numero è lessicograficamente crescente:
+
+(define (lexical? num)
+  (or (< num 10) (apply < (int-list num))))
+
+Nota: (apply < lst) restituisce true solo se gli elementi della lista "lst" sono ordinati in modo strettamente decrescente.
+
+Funzione che trova tutti i numeri lessicograficamente crescente da "a" a "b":
+
+(define (lexical a b)
+  (filter lexical? (sequence a b)))
+
+(lexical 0 1000)
+;-> (0 1 2 3 4 5 6 7 8 9 12 13 14 15 16 17 18 19 23 24 25 26 27 28 29
+;->  34 35 36 37 38 39 45 46 47 48 49 56 57 58 59 67 68 69 78 79 89 123
+;->  124 125 126 127 128 129 134 135 136 137 138 139 145 146 147 148 149
+;->  156 157 158 159 167 168 169 178 179 189 234 235 236 237 238 239 245
+;->  246 247 248 249 256 257 258 259 267 268 269 278 279 289 345 346 347
+;->  348 349 356 357 358 359 367 368 369 378 379 389 456 457 458 459 467
+;->  468 469 478 479 489 567 568 569 578 579 589 678 679 689 789)
+
+============================================================================
 
