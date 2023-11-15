@@ -1154,6 +1154,8 @@ Calcoliamo sqrt(4):
 
 Nota: usare una nuova REPL dopo queste funzioni :-)
 
+Vedi anche "Perchè (sqrt x) restituisce solo la radice positiva?" in "Note libere 19".
+
 
 ------------------------------
 Distributore d'acqua difettoso

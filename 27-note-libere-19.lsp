@@ -4155,5 +4155,58 @@ Funzione che trova tutti i numeri lessicograficamente crescente da "a" a "b":
 ;->  348 349 356 357 358 359 367 368 369 378 379 389 456 457 458 459 467
 ;->  468 469 478 479 489 567 568 569 578 579 589 678 679 689 789)
 
+
+----------------------------------------------------
+Perchè (sqrt x) restituisce solo la radice positiva?
+----------------------------------------------------
+
+Perchè i linguaggi di programmazione calcolano solo la soluzione positiva della radice quadrata di un numero intero positivo?
+Per esempio: sqrt(4) = 2 e -2, infatti 2*2 = 4 e (-2)*(-2) = 4.
+
+Quando i linguaggi di programmazione calcolano la radice quadrata di un intero positivo, in genere restituiscono solo la soluzione positiva, nota come radice quadrata principale.
+Questa decisione viene presa per ragioni pratiche e di semplicità.
+
+Coerenza e prevedibilità
+------------------------
+Restituire solo la radice quadrata positiva garantisce coerenza e prevedibilità nei risultati.
+Per ogni dato numero positivo, gli utenti possono aspettarsi lo stesso risultato su diverse piattaforme e linguaggi di programmazione.
+
+Semplicità
+----------
+La maggior parte dei linguaggi di programmazione punta alla semplicità per rendere più semplice l'utilizzo e la comprensione del linguaggio da parte degli sviluppatori.
+Restituire solo la radice quadrata positiva semplifica l'implementazione e riduce la necessità di casi speciali o logica aggiuntiva.
+
+Casi d'uso comuni
+-----------------
+In molte applicazioni del mondo reale, la radice quadrata positiva è la soluzione rilevante.
+Ad esempio, quando si ha a che fare con misurazioni quali lunghezze, aree o volumi, i valori negativi potrebbero non avere senso.
+Fornendo costantemente la radice quadrata positiva, i linguaggi di programmazione si allineano con questi casi d'uso comuni.
+
+Convenzione matematica
+----------------------
+La radice quadrata principale è una convenzione matematica ben consolidata. 
+Quando i matematici si riferiscono alla radice quadrata, in genere intendono la radice quadrata principale.
+Questa convenzione viene applicata ai linguaggi di programmazione per mantenere la compatibilità con le aspettative matematiche.
+
+Se abbiamo bisogno di radici quadrate sia positive che negative, possiamo ottenere la soluzione negativa moltiplicando la soluzione positiva per -1. 
+Per esempio:
+
+(define (sqrt2 num) 
+  (letn ( (a (sqrt num)) (b (mul a -1)) ) (list a b)))
+
+(sqrt2 4)
+;-> (2 -2)
+
+Questo approccio consente flessibilità pur rispettando la convenzione di restituire la radice quadrata principale per impostazione predefinita.
+
+Per finire troviamo tutte le soluzioni dell'equazione: x^4 = 16.
+(ricordi di scuola superiore)
+
+  x^4 = 16  -->  x^4 - 16 = 0  -->  (x^2 - 4)*(x^2 + 4) = 0
+  (x^2 - 4) = 0  -->  x^2 =  4  -->  x1 = 2,  x2 = -2
+  (x^2 + 4) = 0  -->  x^2 = -4  -->  x3 = 2i, x4 = -2i
+
+Vedi anche "Radice quadrata di numeri complessi" in "Note libere 12".
+
 ============================================================================
 

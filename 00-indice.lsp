@@ -2076,6 +2076,7 @@ NOTE LIBERE 19
   Il topo goloso
   Ordinare una lista di numeri in base alle cifre più grandi
   Numeri lessicograficamenti crescenti
+  Perchè (sqrt x) restituisce solo la radice positiva?
 
 PROBLEMI SUI DADI
 =================
