@@ -687,7 +687,7 @@ NOTE LIBERE 2
   fizzbuzz esteso
   Conversione tra liste, stringhe, caratteri e simboli
   Divisori di un numero
-  Sequenza di Collatz
+  Sequenza di Collatz/Hailstone
   Generatore
   Multiplo con tutti 1 e 0
   Risolvere i sistemi lineari
@@ -1063,7 +1063,7 @@ NOTE LIBERE 7
   Numeri casuali e intervalli
   Distribuzione casuale modificata
   Short-circuit evaluation
-  Algoritmo di Bellman-Ford
+  Algoritmo di Bellman-Ford (bellman-ford and dijskstra)
   Fattoriale quasi esatto
   Algoritmo "Fast inverse square root" e 0x5f3759df
   Composizione multipla di funzioni
@@ -2077,6 +2077,10 @@ NOTE LIBERE 19
   Ordinare una lista di numeri in base alle cifre più grandi
   Numeri lessicograficamenti crescenti
   Perchè (sqrt x) restituisce solo la radice positiva?
+  La congettura di Collatz inversa
+  Un altro problema algebrico
+  Divisione tra numeri interi (stringhe)
+  Il teorema di Ryley
 
 PROBLEMI SUI DADI
 =================

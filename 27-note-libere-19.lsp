@@ -4208,5 +4208,508 @@ Per finire troviamo tutte le soluzioni dell'equazione: x^4 = 16.
 
 Vedi anche "Radice quadrata di numeri complessi" in "Note libere 12".
 
+
+--------------------------------
+La congettura di Collatz inversa
+--------------------------------
+
+La sequenza di Collatz viene generata partendo da un numero intero positivo iniziale N >= 1 e seguendo le seguenti regole:
+
+  N = 1 -> stop
+  N -> N / 2 (se N è pari)
+  N -> 3 * N + 1 (se N è dispari)
+
+(define (collatz num)
+  (let (out (list num))
+    (while (!= num 1)
+      (if (even? num)
+          (setq num (/ num 2))
+          (setq num (+ (* 3 num) 1))
+      )
+      (push num out -1)
+    )
+    out))
+
+(collatz 13)
+;-> (13 40 20 10 5 16 8 4 2 1)
+
+La sequenza di Collatz inversa viene generata partendo da un numero intero positivo iniziale n >= 1 e seguendo le seguenti regole:
+
+  N = 0 -> stop
+  N = (3*N + 1) (se N pari)
+  N = (N - 1)/2 (se N dispari)
+
+(define (ztalloc num)
+  (let (out (list num))
+    (while (!= num 0)
+      (if (even? num)
+          (setq num (+ (* 3 num) 1))
+          (setq num (/ (- num 1) 2))
+      )
+      (print num { }) (read-line)
+      (push num out -1)
+    )
+    out))
+
+Proviamo:
+
+(ztalloc 2)
+;-> 7
+;-> 3
+;-> 1
+;-> 0
+;-> (2 7 3 1 0)
+
+(ztalloc 14)
+;-> 43
+;-> 21
+;-> 10
+;-> 31
+;-> 15
+;-> 7
+;-> 3
+;-> 1
+;-> 0
+;-> (14 43 21 10 31 15 7 3 1 0)
+
+In questo caso il problema è che alcuni numeri generano delle sequenze ripetute (loop di una stessa sequenzaa di numeri):
+
+(ztalloc 12)
+;-> 37
+;-> 18
+;-> 55
+;-> 27
+;-> 13
+;-> 6
+;-> 19
+;-> 9
+;-> 4
+;-> 13 ; numero già incontrato
+
+Modifichiamo la funzione per arrestare il calcolo quando incontriamo un loop.
+
+(define (ztalloc num)
+  (let (out (list num))
+    (while (!= num 0)
+      (if (even? num)
+          (setq num (+ (* 3 num) 1))
+          (setq num (/ (- num 1) 2))
+      )
+      (if-not (ref num out)
+          (push num out -1)
+          (begin (push (list num) out -1) (setq num 0)))
+    )
+    out))
+
+Proviamo:
+
+(ztalloc 14)
+;-> (14 43 21 10 31 15 7 3 1 0)
+(ztalloc 12)
+;-> (12 37 18 55 27 13 6 19 9 4 (13))
+
+(map ztalloc (sequence 1 16))
+;-> ((1 0) 
+;->  (2 7 3 1 0) 
+;->  (3 1 0) 
+;->  (4 13 6 19 9 (4)) 
+;->  (5 2 7 3 1 0) 
+;->  (6 19 9 4 13 (6)) 
+;->  (7 3 1 0)
+;->  (8 25 12 37 18 55 27 13 6 19 9 4 (13))
+;->  (9 4 13 6 19 (9))
+;->  (10 31 15 7 3 1 0)
+;->  (11 5 2 7 3 1 0)
+;->  (12 37 18 55 27 13 6 19 9 4 (13))
+;->  (13 6 19 9 4 (13))
+;->  (14 43 21 10 31 15 7 3 1 0)
+;->  (15 7 3 1 0)
+;->  (16 49 24 73 36 109 54 163 81 40 121 60 181 90 271 135 67 33 (16)))
+
+Vediamo le lunghezze delle sequenze:
+
+(define (ztalloc-length num) (length (ztalloc num)))
+
+(map ztalloc-length (sequence 1 100))
+;-> (2 5 3 6 6 6 4 13 6 7 7 11 6 10 5 19 14 9 6 25 8 20 8 19 12 9 7 11
+;->  11 23 6 30 19 15 15 19 10 14 7 19 26 9 9 24 21 18 9 28 19 13 13 17
+;->  10 19 8 30 12 12 12 19 24 21 7 38 31 22 19 20 16 20 16 26 19 11 11
+;->  15 15 15 8 24 19 27 27 28 10 41 10 37 25 19 22 19 19 23 10 36 29
+;->  22 20 36)
+
+(apply max (map ztalloc-length (sequence 0 1e2)))
+;-> 41
+(apply max (map ztalloc-length (sequence 0 1e3)))
+;-> 133
+(apply max (map ztalloc-length (sequence 0 1e4)))
+;-> 245
+(apply max (map ztalloc-length (sequence 0 1e5)))
+;-> 339
+
+(time (println (apply max (map ztalloc-length (sequence 0 1e6)))))
+;-> 572
+;-> 59943.3
+(ref 572 (map ztalloc-length (sequence 0 1e6)))
+;-> 858340
+(ztalloc-length 858340)
+;-> 572
+(ztalloc 858340)
+;-> (858340 2575021 1287510 3862531 1931265 965632 2896897 1448448 4345345
+;->  2172672 6518017 3259008 9777025 4888512 14665537 7332768 21998305
+;-> ...
+;->  391 195 97 48 145 72 217 108 325 162 487 243 121 60 181 90 271 135
+;->  67 33 16 49 24 73 36 109 54 163 81 40
+;->  (121))
+
+Una funzione in stile LISP che funziona solo per sequenze che terminano.
+Le sequenze che hanno un loop generano un errore di stack overflow (ricorsione infinita).
+
+(define (z n) (cons n (if (zero? n) nil (if (even? n) (z (+ (* n 3) 1)) (z (/ (- n 1) 2))))))
+
+Proviamo:
+(z 14)
+;-> (14 43 21 10 31 15 7 3 1 0 nil)
+(z 10)
+;-> (10 31 15 7 3 1 0 nil)
+(z 12)
+;-> ERR: call or result stack overflow in function if : even?
+;-> called from user function (z (/ (- n 1) 2))
+;-> called from user function (z (+ (* n 3) 1))
+;-> ...
+
+Versione estesa:
+
+(define (z n) (cons n (if (zero? n)
+                          nil
+                          (if (even? n)
+                              (z (+ (* n 3) 1))
+                              (z (/ (- n 1) 2))
+                          )
+                      )
+              )
+)
+
+
+---------------------------
+Un altro problema algebrico
+---------------------------
+
+Se a + b = 1 e a^2 + b^2 = 2, quanto vale a^3 + b^3 ?
+
+  a + b = 1         (1)
+  a^2 + b^2 = 2     (2)
+  a^3 + b^3 = ?     (3)
+
+Per prima cosa troviamo ab:
+
+Dal quadrato di (1) otteniamo:
+
+  (a + b)^2 = 1^2 = 1             (4)
+
+Espansione del quadrato di (a + b):
+
+  (a + b)^2 = a^2 + b^2 + 2ab     (5)
+
+Dalla parte destra di (4) e (5) ricaviamo ab:
+
+  a^2 + b^2 + 2ab = 1             (6)
+
+       1 - (a^2 + b^2)
+  ab = --------------- = -1/2 = -0.5       (7)
+              2
+
+Ricaviamo a e b dalla (1) e (7):
+
+  (a + b) = 1
+  ab = -1/2
+  
+  a = -1/2b 
+  (-1/2b + b) = 1 --> 2b^2 - 2b - 1 = 0     (8)
+
+Risolviamo l'equazione di secondo grado:
+
+(define (quadratic a b c)
+"Find the solutions of the quadratic equation: A*x^2 + B*x + C = 0"
+  (local (x1 i1 x2 i2 delta)
+    (setq delta (sub (mul b b) (mul 4 a c)))
+    (cond ((= a 0) ; equazione di primo grado
+            (if (!= b 0) (setq x1 (sub 0 (div c b)))))
+          ((> delta 0) ; due radici reali
+            (setq x1 (div (add (sub 0 b) (sqrt delta)) (mul 2 a)))
+            (setq x2 (div (sub (sub 0 b) (sqrt delta)) (mul 2 a)))
+            (setq i1 0.0)
+            (setq i2 0.0))
+          ((< delta 0) ; due radici complesse
+            (setq x1 (div (sub 0 b) (mul 2 a)))
+            (setq x2 (div (sub 0 b) (mul 2 a)))
+            (setq i1 (div (sqrt (sub 0 delta)) (mul 2 a)))
+            (setq i2 (sub 0 (div (sqrt (sub 0 delta)) (mul 2 a)))))
+          (true ;((= delta 0) ; due radici coincidenti
+            (setq x1 (sub 0 (div b (mul 2 a))))
+            (setq x2 (sub 0 (div b (mul 2 a))))
+            (setq i1 0.0)
+            (setq i2 0.0))
+    )
+    (list (list x1 i1) (list x2 i2))))
+
+(quadratic 2 -2 -1)
+;-> ((1.366025403784439 0) (-0.3660254037844386 0))
+
+Le Soluzioni di (8) sono le seguenti:
+
+  b1 = 1.366025403784439
+  a1 = 1 - b = -0.3660254037844386
+  b2 = -0.3660254037844386
+  a2 = 1 - b2 =  1.366025403784439
+
+A questo punto possiamo calcolare a^3 + b^3 analiticamente:
+
+(setq a1 -0.3660254037844386)
+(setq b1 1.366025403784439)
+(setq a2 1.366025403784439)
+(setq b2 -0.3660254037844386)
+
+(add (pow a1 3) (pow b1 3))
+;-> 2.500000000000002
+(add (pow a2 3) (pow b2 3))
+;-> 2.500000000000002
+
+Oppure possiamo continuare in modo algebrico:
+
+Dal cubo di (1) otteniamo:
+
+  (a + b)^3 = 1^3 = 1              (9)
+  
+Espansione del cubo di (a + b):
+
+  a^3 + b^3 + 3ab(a + b)           (10)
+
+Dalla (9) e (10) otteniamo:
+
+  a^3 + b^3 + 3ab(a + b) = 1       (11)
+
+Adesso sostituiamo in (11) ab con -1/2 e (a + b) con 1:
+
+  a^3 + b^3 + 3(-1/2)1 = 1         (12)
+
+Da cui possiamo ricavare il valore di a^3 + b^3:
+
+  a^3 + b^3 = 1 + 3/2 = 5/2 = 2.5
+
+
+--------------------------------------
+Divisione tra numeri interi (stringhe)
+--------------------------------------
+
+Funzione che restituisce true se str1 < str2:
+
+(define (smaller? str1 str2)
+  (local (n1 n2 out)
+    (setq n1 (length str1))
+    (setq n2 (length str2))
+    (cond ((> n1 n2) (setq out nil))
+          ((< n1 n2) (setq out true))
+          (true
+            (setq out nil)
+            (setq stop nil)
+            (for (i 0 (- n1 1) 1 stop)
+              (cond ((< (str1 i) (str2 i))
+                     (set 'out true 'stop true))
+                    ((> (str1 i) (str2 i))
+                     (set 'out nil 'stop true))
+              )
+            )
+          )
+    )
+    out))
+
+(< "1234" "98")
+;-> true
+(smaller? "1234" "98")
+;-> nil
+
+Funzione che sottrae due numeri interi passati come stringhe:
+
+(define (sub- str1 str2)
+  (local (n1 n2 str val carry z)
+    (setq z (char "0"))
+    ; str1 deve essere maggiore o uguale a str2
+    (if (smaller? str1 str2) (swap str1 str2))
+    (setq str "")
+    (setq n1 (length str1))
+    (setq n2 (length str2))
+    ; inversione delle stringhe
+    (reverse str1)
+    (reverse str2)
+    (setq carry 0)
+    ; Ciclo per tutta la stringa più corta
+    ; sottrae le cifre di str1 a str2
+    (for (i 0 (- n2 1))
+      (setq val (int (str1 i)))
+      (setq val (- (- (char (str1 i)) z)
+                   (- (char (str2 i)) z)
+                   carry))
+      ; Se la sottrazione è minore di zero
+      ; allora aggiungiamo 10 a val e
+      ; poniamo il riporto (carry) a 1
+      (if (< val 0)
+          (set 'val (+ val 10) 'carry 1)
+          ; else
+          (set 'carry 0)
+      )
+      (extend str (char (+ val z)))
+    )
+    ; sottrae le cifre rimanenti del numero maggiore
+    (if (!= n1 n2) (begin
+        ; sottrae le cifre che rimangono di str1
+        (for (i n2 (- n1 1))
+          (setq val (- (- (char (str1 i)) z) carry))
+          ; se il valore val è negativo, allora lo rende positivo
+          (if (< val 0)
+            (set 'val (+ val 10) 'carry 1)
+            ;else
+            (set 'carry 0)
+          )
+          (extend str (char (+ val z)))
+        ))
+    )
+    (reverse str)
+    ; toglie gli (eventuali) zeri iniziali
+    (while (= (str 0) "0") (pop str))
+    (if (= str "") (setq str "0"))
+    str))
+
+Funzione che divide due numeri interi passati come stringhe:
+
+(define (div-str str1 str2)
+  (let (conta 0)
+    (cond
+      ((= str1 str2 0) (setq conta "0/0"))
+      ((= str1 0) (setq conta "0"))
+      ((= str2 0) (setq conta "1/0"))
+      ((smaller? str1 str2) (setq conta "0"))
+      ((= str1 str2) (setq conta "1"))
+      (true
+        (while (smaller? str2 str1)
+          (setq str1 (sub- str1 str2))
+          (++ conta)
+        )
+        (if (= str1 str2) (++ conta)))
+    )
+    (string conta)))
+
+Proviamo:
+
+(div-str "100" "200")
+;-> "0"
+(div-str "111" "111")
+;-> 1"
+(div-str "222" "110")
+;-> "2"
+(div-str "222" "112")
+;-> "1"
+(div-str "222" "111")
+;-> "2"
+(div-str "123456789" "1234")
+;-> "100046"
+
+(= (extend (sub- "3827461234561879235612789356172345617823456213564823456125634923451276345123764512763451276384"
+                 "1563876348596238947562389745628937456237894657823945646375623945623456723465798263495639245384") "L")
+   (string (- 3827461234561879235612789356172345617823456213564823456125634923451276345123764512763451276384
+              1563876348596238947562389745628937456237894657823945646375623945623456723465798263495639245384)))
+;-> true
+
+(define (test iter)
+  (local (a b as bs)
+    (for (i 1 iter)
+      (setq a (+ (rand 1e6) 1)) ; not zero
+      (setq b (+ (rand 1e6) 1)) ; not zero
+      (if (< a b) (swap a b))
+      (setq as (string a))
+      (setq bs (string b))
+      (if (!= (string (/ a b)) (div-str as bs))
+          (println a { } b { } as { } bs { } (+ a b) { } (sub- as bs))))))
+
+(time (test 1e5))
+;-> 27049.179
+
+Nessun errore su 1e5 divisioni.
+
+
+-------------------
+Il teorema di Ryley
+-------------------
+
+S. Ryley dimostrò il seguente teorema nel 1825:
+
+Ogni numero razionale può essere espresso come somma di tre cubi razionali.
+
+   x^3 + y^3 + z^3 = r
+
+La seguente formula si trova in:
+Richmond, H. (1930) "On Rational Solutions of x^3+y^3+z^3=R"
+Proceedings of the Edinburgh Mathematical Society, 2(2), 92-100.
+https://doi.org/10.1017/S0013091500007604
+
+         27r^3 + 1
+  x = ----------------
+       27r^2 - 9r + 3
+
+      -27r^3 + 9r - 1
+  y = ----------------
+       27r^2 - 9r + 3
+
+        -27r^2 + 9r
+  z = ----------------
+       27r^2 - 9r + 3
+
+(define (solve r)
+  (local (a b c den x y z xx yy zz x y z)
+    (setq a (mul 27 r r r))
+    (setq b (mul 27 r r))
+    (setq c (mul 9 r))
+    (setq den (add b (- c) 3))
+    ;(println den)
+    (setq xx (list (add a 1) den))
+    (setq yy (list (add (- a) c (- 1)) den))
+    (setq zz (list (add (- b) c) den))
+    (println "Soluzione con frazioni: \n" xx { } yy { } zz)
+    (setq x (div (xx 0) (xx 1)))
+    (setq y (div (yy 0) (yy 1)))
+    (setq z (div (zz 0) (zz 1)))
+    (println "Soluzione con numeri reali: \n" x { } y { } z)
+    (println "Valore di verifica: "
+             (add (mul x x x) (mul y y y) (mul z z z)))))
+
+Proviamo:
+
+(solve 1)
+;-> Soluzione con frazioni:
+;-> (28 21) (-19 21) (-18 21)
+;-> Soluzione con numeri reali:
+;-> 1.333333333333333 -0.9047619047619048 -0.8571428571428571
+;-> Valore di verifica: 1
+
+(solve 42)
+;-> Soluzione con frazioni:
+;-> (2000377 47253) (-1999999 47253) (-47250 47253)
+;-> Soluzione con numeri reali:
+;-> 42.33333333333334 -42.32533384123759 -0.9999365119674941
+;-> Valore di verifica: 42.00000000001698
+
+(solve 30)
+;-> Soluzione con frazioni:
+;-> (729001 24033) (-728731 24033) (-24030 24033)
+;-> Soluzione con numeri reali:
+;-> 30.33333333333333 -30.32209878084301 -0.9998751716389964
+;-> Valore di verifica: 30.00000000000289
+
+(solve 33)
+;-> Soluzione con frazioni:
+;-> (970300 29109) (-970003 29109) (-29106 29109)
+;-> Soluzione con numeri reali:
+;-> 33.33333333333334 -33.32313030334261 -0.9998969390910028
+;-> Valore di verifica: 33.00000000000826
+
 ============================================================================
 

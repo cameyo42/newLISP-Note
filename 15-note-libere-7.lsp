@@ -3582,9 +3582,9 @@ Quindi newLISP è un linguaggio con valutazione short-circuit.
 Nota: questo può servire per velocizzare i programmi facendo eseguire prima le funzioni più veloci (nel caso di valutazioni booleane).
 
 
--------------------------
-Algoritmo di Bellman-Ford
--------------------------
+------------------------------------------------------
+Algoritmo di Bellman-Ford (bellman-ford and dijskstra)
+------------------------------------------------------
 
 L'algoritmo di Bellman-Ford ci permette di trovare il percorso più breve da un vertice a tutti gli altri vertici di un grafo diretto pesato. È simile all'algoritmo di Dijkstra, ma funziona anche con grafi in cui gli archi hanno pesi negativi. I pesi negativi si trovano in varie applicazioni dei grafi. Ad esempio, invece di pagare un costo per un percorso, potremmo ottenere qualche vantaggio se seguiamo il percorso.
 Bellman-Ford funziona meglio di Dijkstra per i sistemi distribuiti. A differenza di Dijkstra dove dobbiamo trovare il valore minimo di tutti i vertici, in Bellman-Ford, i vertici sono considerati uno per uno.
