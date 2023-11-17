@@ -4457,9 +4457,9 @@ Facciamo alcune prove:
 ;-> -3.977899393311168
 
 
-------------------------------------------
-Da stringa a numero di colonna e viceversa
-------------------------------------------
+-------------------------------------------------------------
+Da stringa a numero di colonna e viceversa (colonne di Excel)
+-------------------------------------------------------------
 
 Nei fogli elettronici (per esempio MS Excel), le colonne vanno da A-Z, AA, AB, AZ, BA, ... ,BZ e così via.
 In realtà ciascuna di esse rappresentano un numero, ma sono codificate come stringhe alfabetiche.
@@ -4870,7 +4870,7 @@ g. newLISP è testato molto bene, quindi i bug saranno rari.
 
 E citando lo sviluppatore Lutz Mueller:
 
-[newLISP] si carica rapidamente e ha un ingombro di memoria ridotto.
+newLISP si carica rapidamente e ha un ingombro di memoria ridotto.
 newLISP è veloce quanto altri linguaggi di scripting popolari e utilizza pochissime risorse.
 
 Distribuzione
@@ -5001,7 +5001,7 @@ che restituisce TRUE.
 restituisce NIL, che è l'equivalente newLISP di FALSE.
 
 4. Esercizi ed esempi
--------------------------
+---------------------
 Per completezza, le funzioni add, sub, mul e div restituiscono un numero mobile se uno degli operandi è un numero in virgola mobile.
 Il numero in virgola mobile viene visualizzato senza decimali se i decimali sono tutti 0.
 
@@ -5223,7 +5223,7 @@ Si noti che l'equivalente più breve (join '("2" "6" "18") ";") ha lo stesso ris
 Una lista quotata significa per newLISP "prendere la lista alla lettera", cioè non interpretare il primo elemento come una funzione!
 
 5. Vuoi saperne di più su newLISP?
-----------------------------------------
+----------------------------------
 Le informazioni precedenti sulla sintassi newLISP sono tutto ciò che devi sapere per iniziare con successo ad utilizzare newLISP nella tua applicazione VisualNeo.
 Se non vedi l'ora che vengano pubblicati i prossimi tutorial e desideri saperne di più su newLISP, ti consiglio quanto segue:
 

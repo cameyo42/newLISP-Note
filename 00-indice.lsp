@@ -1999,7 +1999,7 @@ NOTE LIBERE 18
   Segni zodiacali
   Astrologia cinese
   Ultraradicale
-  Da stringa a numero di colonna e viceversa
+  Da stringa a numero di colonna e viceversa (colonne di Excel)
   Cifre in lettere e lettere in cifre
   Resistenze in parallelo
   Punti casuali sulla superficie di una sfera
@@ -2081,6 +2081,13 @@ NOTE LIBERE 19
   Un altro problema algebrico
   Divisione tra numeri interi (stringhe)
   Il teorema di Ryley
+  Numeri sparsi (numeri di Fibbinacci)
+  Numeri stabili e instabili
+  Numeri odiosi (odious) e numeri malvagi (evil)
+  Numeri puri
+  Numeri di Kynea
+  Numeri di Mersenne e numeri primi di Mersenne
+  Numeri di Fermat
 
 PROBLEMI SUI DADI
 =================

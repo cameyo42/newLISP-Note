@@ -4640,7 +4640,7 @@ Nessun errore su 1e5 divisioni.
 Il teorema di Ryley
 -------------------
 
-S. Ryley dimostrò il seguente teorema nel 1825:
+Il matematico inglese Samuel Ryley dimostrò il seguente teorema nel 1825:
 
 Ogni numero razionale può essere espresso come somma di tre cubi razionali.
 
@@ -4710,6 +4710,413 @@ Proviamo:
 ;-> Soluzione con numeri reali:
 ;-> 33.33333333333334 -33.32313030334261 -0.9998969390910028
 ;-> Valore di verifica: 33.00000000000826
+
+
+------------------------------------
+Numeri sparsi (numeri di Fibbinacci)
+------------------------------------
+
+Un numero sparso, o numero di Fibbinacci (Marc LeBrun), è un intero positivo la cui rappresentazione binaria non ha 1 consecutivi.
+Ad esempio, 5 (101 in binario) e 21 (10101) sono numeri sparsi, ma 6 (110) e 13 (1101) non lo sono.
+
+A003714
+  0, 1, 2, 4, 5, 8, 9, 10, 16, 17, 18, 20, 21, 32, 33, 34, 36, 37, 40, 
+  41, 42, 64, 65, 66, 68, 69, 72, 73, 74, 80, 81, 82, 84, 85, 128, 129,
+  130, 132, 133, ...
+
+(define (sparse? num)
+  (not (find "11" (bits num))))
+
+(filter sparse? (sequence 0 100))
+;-> (0 1 2 4 5 8 9 10 16 17 18 20 21 32 33 34 36 37 40
+;->  41 42 64 65 66 68 69 72 73 74 80 81 82 84 85)
+
+Nota: il numero di tali numeri con n bit è fibonacci(n), per n > 2.
+
+Per semplicità precalcoliamo i primi 1e5 numeri sparsi:
+
+(silent (setq sparsi (filter sparse? (sequence 0 1e5))))
+
+(define (fibbinacci num)
+  (++ num 2)
+  (setq fib 0)
+  (dolist (s sparsi)
+    (setq binary (bits s))
+    (cond ((= (length binary) num) (++ fib))))
+  fib)
+
+(map fibbinacci (sequence 0 15))
+;-> (1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597)
+
+
+--------------------------
+Numeri stabili e instabili
+--------------------------
+
+Un numero stabile è quello in cui tutte le cifre hanno la stessa frequenza, mentre un numero instabile ha frequenze diverse per le sue cifre.
+Ad esempio, il numero 112233 è stabile perché la cifra "1" appare due volte, "2" appare due volte e "3" appare due volte.
+Invece il numero 44277 è instabile perché la cifra "4" appare due volte, "2" appare una volta e "7" appare due volte.
+
+(define (stable? num)
+  (cond ((< num 10) true)
+        (true
+          (setq str (explode (string num)))
+          (setq freq (count (unique str) str))
+          (or (= (length freq) 1) (apply = freq)))))
+
+Proviamo: 
+
+(stable? 112233)
+;-> true
+(stable? 44277)
+;-> nil
+
+Numeri stabili fino a 20:
+
+(filter stable? (sequence 1 20))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+Numeri instabili fino a 1000:
+
+(clean stable? (sequence 1 200))
+;-> (100 101 110 112 113 114 115 116 117 118 119 121 122 131 
+;->  133 141 144 151 155 161 166 171 177 181 188 191 199 200)
+
+Conteggio dei numeri stabili fino a N = 10, 100, 1e3, 1e4, 1e5, 1e6 ,1e7, 1e8:
+
+(length (filter stable? (sequence 1 1e1)))
+;-> 10
+(length (filter stable? (sequence 1 1e2)))
+;-> 99
+(length (filter stable? (sequence 1 1e3)))
+;-> 756
+(length (filter stable? (sequence 1 1e4)))
+;-> 5544
+(length (filter stable? (sequence 1 1e5)))
+;-> 32769
+(length (filter stable? (sequence 1 1e6)))
+;-> 179388
+
+La frequenza dei numeri stabili diminuisce con l'aumentare di N:
+
+(time (println (div (length (filter stable? (sequence 1 1e1))) 1e1)))
+;-> 1
+;-> 0
+(time (println (div (length (filter stable? (sequence 1 1e2))) 1e2)))
+;-> 0.99
+;-> 0
+(time (println (div (length (filter stable? (sequence 1 1e3))) 1e3)))
+;-> 0.756
+;-> 2.823
+(time (println (div (length (filter stable? (sequence 1 1e4))) 1e4)))
+;-> 0.5544
+;-> 23.938
+(time (println (div (length (filter stable? (sequence 1 1e5))) 1e5)))
+;-> 0.32769
+;-> 270.424
+(time (println (div (length (filter stable? (sequence 1 1e6))) 1e6)))
+;-> 0.179388
+;-> 2936.176
+(time (println (div (length (filter stable? (sequence 1 1e7))) 1e7)))
+;-> 0.0723717
+;-> 31749.101
+(time (println (div (length (filter stable? (sequence 1 1e8))) 1e8)))
+;-> 0.02835801
+;-> 339428.42
+
+Vedi il grafico "stabili.png" nella cartella "data".
+
+
+----------------------------------------------
+Numeri odiosi (odious) e numeri malvagi (evil)
+----------------------------------------------
+
+I numeri malvagi (Evil numbers) sono numeri interi non negativi che hanno un numero pari di 1 nello loro rappresntazione binaria.
+
+Sequenza OEIS A001969:
+  0, 3, 5, 6, 9, 10, 12, 15, 17, 18, 20, 23, 24, 27, 29, 30, 33, 34, 36,
+  39, 40, 43, 45, 46, 48, 51, 53, 54, 57, 58, 60, 63, 65, 66, 68, 71, 72,
+  75, 77, 78, 80, 83, 85, 86, 89, 90, 92, 95, 96, 99, 101, 102, 105, 106,
+  108, 111, 113, 114, 116, 119, 120, 123, 125, 126, 129, ...
+
+I numeri odiosi (Odious numbers) sono numeri interi positivi che hanno un numero dispari di 1 nello loro rappresntazione binaria.
+
+Sequenza OEIS A000069:
+
+  1, 2, 4, 7, 8, 11, 13, 14, 16, 19, 21, 22, 25, 26, 28, 31, 32, 35, 37,
+  38, 41, 42, 44, 47, 49, 50, 52, 55, 56, 59, 61, 62, 64, 67, 69, 70, 73,
+  74, 76, 79, 81, 82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103, 104, 107,
+  109, 110, 112, 115, 117, 118, 121, 122, 124, 127, 128, ...
+
+(define (conta-1 num)
+  (first (count '("1") (explode (bits num)))))
+
+(define (odious? num) (even? (conta-1 num)))
+(define (evil? num)   (odd?  (conta-1 num)))
+
+(filter odious? (sequence 0 100))
+;-> (0 3 5 6 9 10 12 15 17 18 20 23 24 27 29 30 33 34 36 39 40 43 45 46 48 51 
+;->  53 54 57 58 60 63 65 66 68 71 72 75 77 78 80 83 85 86 89 90 92 95 96 99)
+
+(filter evil? (sequence 0 100))
+;-> (1 2 4 7 8 11 13 14 16 19 21 22 25 26 28 31 32 35 37 38 41 42 44 47 49 50 52
+;->  55 56 59 61 62 64 67 69 70 73 74 76 79 81 82 84 87 88 91 93 94 97 98 100)
+
+(define (evil-odious num)
+  (let ((evil '()) (odious '()) (val 0))
+    (for (i 0 num)
+      (setq val (conta-1 i))
+      (if (even? val)
+          (push i evil -1)
+          (push i odious -1)
+      )
+    )
+    (list evil odious)))
+
+(evil-odious 50)
+;-> ((0 3 5 6 9 10 12 15 17 18 20 23 24 27 29 30 33 34 36 39 40 43 45 46 48)
+;->  (1 2 4 7 8 11 13 14 16 19 21 22 25 26 28 31 32 35 37 38 41 42 44 47 49 50))
+
+
+-----------
+Numeri puri
+-----------
+
+Un numero puro è un numero che soddisfa le seguenti tre condizioni:
+  1) Il numero ha un numero pari di cifre.
+  2) Tutte le sue cifre sono 4 o 5.
+  3) Il numero rimane lo stesso quando le sue cifre vengono invertite.
+
+La funzione non è difficile da scrivere, ma il problema è quale ordine di condizioni rende la funzione più veloce?
+
+(define (pure1? num)
+  (let (str (string num))
+    (and (even? (length str))         ; condizione 1
+         (= str (reverse (copy str))) ; condizione 3
+         (regex "^(4|5)+$" str))))    ; condizione 2
+
+(time (println (filter pure1? (sequence 1 1e6))))
+;-> (44 55 4444 4554 5445 5555 444444 445544 
+;->  454454 455554 544445 545545 554455 555555)
+;-> 837.683
+
+(define (pure2? num)
+  (let (str (string num))
+    (and (even? (length str))            ; condizione 1
+         (regex "^(4|5)+$" str)          ; condizione 2
+         (= str (reverse (copy str)))))) ; condizione 3
+
+(time (println (filter pure2? (sequence 1 1e6))))
+;-> (44 55 4444 4554 5445 5555 444444 445544 
+;->  454454 455554 544445 545545 554455 555555)
+;-> 800.396
+
+(define (pure3? num)
+  (let (str (string num))
+    (and (regex "^(4|5)+$" str)          ; condizione 2
+         (even? (length str))            ; condizione 1
+         (= str (reverse (copy str)))))) ; condizione 3
+
+(time (println (filter pure3? (sequence 1 1e6))))
+;-> (44 55 4444 4554 5445 5555 444444 445544
+;->  454454 455554 544445 545545 554455 555555)
+;-> 768.281
+
+(define (pure4? num)
+  (let (str (string num))
+    (and (regex "^(4|5)+$" str)       ; condizione 2
+         (= str (reverse (copy str))) ; condizione 3
+         (even? (length str)))))      ; condizione 1
+
+(time (println (filter pure4? (sequence 1 1e6))))
+;-> (44 55 4444 4554 5445 5555 444444 445544 
+;->  454454 455554 544445 545545 554455 555555)
+;-> 768.757
+
+(define (pure5? num)
+  (let (str (string num))
+    (and (= str (reverse (copy str))) ; condizione 3
+         (regex "^(4|5)+$" str)       ; condizione 2
+         (even? (length str)))))      ; condizione 1
+
+(time (println (filter pure5? (sequence 1 1e6))))
+;-> (44 55 4444 4554 5445 5555 444444 445544
+;->  454454 455554 544445 545545 554455 555555)
+;-> 816.811
+
+(define (pure6? num)
+  (let (str (string num))
+    (and (= str (reverse (copy str))) ; condizione 3
+         (even? (length str))         ; condizione 1
+         (regex "^(4|5)+$" str))))    ; condizione 2
+
+(time (println (filter pure6? (sequence 1 1e6))))
+;-> (44 55 4444 4554 5445 5555 444444 445544 
+;->  454454 455554 544445 545545 554455 555555)
+;-> 806.77
+
+Le funzioni più veloci sono la 3 e la 4 che hanno come prima condizione la "regex":
+
+"^(4|5)+$"
+  ^: asserisce l'inizio della stringa
+  $: asserisce la fine della stringa. 
+  (4|5): corrisponde a 4 oppure 5 
+  +: garantisce che una o più occorrenze di 4 o 5 corrispondano.
+
+
+---------------
+Numeri di Kynea
+---------------
+
+I numeri di Kynea sono definiti dalla seguente espressione:
+
+  K(n) = (2^n + 1)^2 - 2, con n intero non negativo.
+
+Sequenza OEIS A093069:
+  7, 23, 79, 287, 1087, 4223, 16639, 66047, 263167, 1050623, 4198399, 
+  16785407, 67125247, 268468223, 1073807359, 4295098367, 17180131327, 
+  68720001023, 274878955519, 1099513724927, 4398050705407, 17592194433023,
+  70368760954879, 281475010265087, 1125899973951487, ...
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (kynea num) (- (** (+ (** 2 num) 1) 2) 2))
+
+(map kynea (sequence 1 21))
+;-> (7L 23L 79L 287L 1087L 4223L 16639L 66047L 263167L 1050623L 4198399L
+;->  16785407L 67125247L 268468223L 1073807359L 4295098367L 17180131327L
+;->  68720001023L 274878955519L 1099513724927L 4398050705407L)
+
+(kynea 50)
+;-> 1267650600228231653296516890623L
+
+
+---------------------------------------------
+Numeri di Mersenne e numeri primi di Mersenne
+---------------------------------------------
+
+In generale, un numero di Mersenne è della forma M(n) = 2^n - 1 anche quando n non è un numero primo.
+Un numero primo di Mersenne è un numero primo nella forma M(p) = 2^p - 1, dove p è anche un numero primo.
+Questi numeri prendono il nome da Marin Mersenne, un monaco francese del XVII secolo.
+
+I numeri primi di Mersenne hanno sempre suscitato grande interesse tra i matematici a causa della loro rara presenza e della loro connessione con molte aree della matematica, tra cui la teoria dei numeri e la crittografia.
+Nel 2023 si conoscono solo 51 numeri primi di Mersenne, il più grande dei quali ha oltre 24 milioni di cifre.
+https://www.mersenne.org/
+
+Uno dei motivi per cui i numeri primi di Mersenne sono così interessanti è che sono strettamente correlati ai numeri perfetti.
+Un numero perfetto è un intero positivo uguale alla somma dei suoi divisori propri (cioè tutti i suoi divisori tranne se stesso).
+Risulta che ogni numero perfetto pari può essere espresso come 2^(p-1)(2^p-1), dove 2^p-1 è un primo di Mersenne.
+Tuttavia, è ancora una questione aperta se esistano numeri perfetti dispari.
+
+Sequenza OEIS A001348:
+  3, 7, 31, 127, 2047, 8191, 131071, 524287, 8388607, 536870911, 2147483647,
+  137438953471, 2199023255551, 8796093022207, 140737488355327,
+  9007199254740991, 576460752303423487, 2305843009213693951,
+  147573952589676412927, 2361183241434822606847, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che calcola i numeri di Mersenne:
+
+(define (mersenne num) (- (** 2 num) 1))
+
+(map mersenne (sequence 1 20))
+;-> (1L 3L 7L 15L 31L 63L 127L 255L 511L 1023L 2047L 4095L 8191L 16383L
+;->  32767L 65535L 131071L 262143L 524287L 1048575L)
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Funzione che calcola i numeri primi di Mersenne:
+
+(define (mersenne-primi num) (map (fn(x) (- (** 2 x) 1)) (primes-to num)))
+
+(mersenne-primi 100)
+;-> (3L 7L 31L 127L 2047L 8191L 131071L 524287L 8388607L 536870911L 2147483647L
+;->  137438953471L 2199023255551L 8796093022207L 140737488355327L
+;->  9007199254740991L 576460752303423487L 2305843009213693951L
+;->  147573952589676412927L 2361183241434822606847L 9444732965739290427391L
+;->  604462909807314587353087L 9671406556917033397649407L
+;->  618970019642690137449562111L 158456325028528675187087900671L)
+
+
+----------------
+Numeri di Fermat
+----------------
+
+I numeri di Fermat sono una sequenza di numeri della forma 2^(2^n) + 1, dove n è un numero intero non negativo.
+Prendono il nome dal matematico francese Pierre de Fermat che li studiò nel XVII secolo.
+
+I primi numeri di Fermat sono:
+
+ F(0) = 2^(2^0) + 1 = 3
+ F(1) = 2^(2^1) + 1 = 5
+ F(2) = 2^(2^2) + 1 = 17
+ F(3) = 2^(2^3) + 1 = 257
+ F(4) = 2^(2^4) + 1 = 65537
+ F(5) = 2^(2^5) + 1 = 4294967297
+
+I numeri di Fermat hanno molte proprietà interessanti e collegamenti con altre aree della matematica.
+Uno dei più famosi è il Piccolo Teorema di Fermat, il quale afferma che se p è un numero primo, allora per ogni intero a non divisibile per p, a^(p-1) - 1 è divisibile per p.
+Questo teorema può essere usato per dimostrare che se n è un intero non negativo e 2^(2^n) + 1 è primo, allora n deve essere una potenza di 2.
+
+Tuttavia non tutti i numeri di Fermat sono primi. 
+Infatti, F(5) è composto.
+Si ipotizza che esistano infiniti numeri primi di Fermat, ma ciò non è stato dimostrato.
+
+Sequenza OEIS A000215:
+  3, 5, 17, 257, 65537, 4294967297, 18446744073709551617, 
+  340282366920938463463374607431768211457, 
+  115792089237316195423570985008687907853
+  269984665640564039457584007913129639937, ...
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che calcola l'n-esimo numero di Fermat:
+
+(define (fermat num) (+ (** 2 (** 2 num)) 1))
+
+(map fermat (sequence 1 5))
+;-> (5L 17L 257L 65537L 4294967297L)
+
+(factor (fermat 5))
+;-> (641 6700417)
+
+(fermat 10)
+;-> 1797693134862315907729305190789024733617976978942306572734300811577326
+;-> 7580550096313270847732240753602112011387987139335765878976881441662249
+;-> 2847430639474124377767893424865485276302219601246094119453082952085005
+;-> 7688381506823424628814739131105408272371633505106845862982399472459384
+;-> 79716304835356329624224137217L
 
 ============================================================================
 
