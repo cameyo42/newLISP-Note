@@ -6229,14 +6229,15 @@ Facciamo alcune prove:
 ;-> 5.984
 
 
-------------------------------------
-Numero successivo con cifre distinte
-------------------------------------
+-------------------------------------------------
+Numero successivo e precedente con cifre distinte
+-------------------------------------------------
 
 Dato un numero intero N, trovare il numero successivo che ha cifre tutte distinte.
 
-(setq MAX-INT 9223372036854775807)
+Funzione che trova il numero successivo con cifre tutte distinte:
 
+(setq MAX-INT 9223372036854775807)
 (define (next-distinct num)
   (local (totale distinte continua out)
     (setq continua true)
@@ -6253,6 +6254,31 @@ Dato un numero intero N, trovare il numero successivo che ha cifre tutte distint
     out))
 
 (next-distinct 2023)
+;-> 2031
+(next-distinct 1234)
+;-> 1235
+
+Funzione che trova il numero precedente con cifre tutte distinte:
+
+(setq MIN-INT -9223372036854775808)
+(define (previous-distinct num)
+  (local (totale distinte continua out)
+    (setq continua true)
+    (while (and (> num MIN-INT) continua)
+      (setq distinte (length (unique (explode (string (abs (- num 1)))))))
+      (setq totale (length (+ num 1)))
+      (println num { } totale { } distinte) (read-line)
+      (if (= distinte totale)
+          (set 'out (- num 1) 'continua nil)
+          ;else
+          (-- num)
+      )
+    )
+    out))
+
+(previous-distinct 2031)
+;-> 2019
+(next-distinct 2019)
 ;-> 2031
 
 

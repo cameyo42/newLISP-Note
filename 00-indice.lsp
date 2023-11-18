@@ -1679,7 +1679,7 @@ NOTE LIBERE 14
   Network programming and distributed scripting with newLISP
   Convertire una espressione in stringa
   Sequenze di interi con somma N
-  Numero successivo con cifre distinte
+  Numero successivo e precedente con cifre distinte
   Differenza tra i caratteri "" e i caratteri {}
   Cryptography fun with newLISP
   sym e context
@@ -2088,6 +2088,9 @@ NOTE LIBERE 19
   Numeri di Kynea
   Numeri di Mersenne e numeri primi di Mersenne
   Numeri di Fermat
+  Numeri misteriosi (mystery)
+  Numeri primi contorti (twisted)
+  Numero successivo e precedente con cifre distinte dal numero
 
 PROBLEMI SUI DADI
 =================

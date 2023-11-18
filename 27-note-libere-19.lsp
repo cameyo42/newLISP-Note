@@ -5118,5 +5118,323 @@ Funzione che calcola l'n-esimo numero di Fermat:
 ;-> 7688381506823424628814739131105408272371633505106845862982399472459384
 ;-> 79716304835356329624224137217L
 
+
+---------------------------
+Numeri misteriosi (mystery)
+---------------------------
+
+Un numero misterioso è un numero che può essere espresso come la somma di due numeri che devono essere l'uno l'inverso dell'altro.
+In forma algebrica:
+
+  M = a + b, con a = (d1..dn) = (dn..d1) = b
+  dove d1..dn sono le cifre dei numeri a e b.
+
+Per esempio:
+33 è misterioso perchè 33 = 21 + 12 e i numeri sono uno l'inverso dell'altro.
+110 è misterioso perchè 110 = 28 + 82 e i numeri sono uno l'inverso dell'altro.
+
+Algoritmo
+Ciclo per a da 1 n/2
+  b = inverso di a
+  se n = (+ a b), allora il numero n è misterioso
+
+Funzione che verifica se un numero dato è misterioso:
+
+(define (mystery? num)
+  (let ( (b 0) (found nil) )
+    (for (a 1 (/ num 2) 1 found)
+      (setq b (int (reverse (string a)) 0 10))
+      ;(print a { } b) (read-line)
+      (if (= num (+ a b)) (setq found (list num a b)))
+    )
+    found))
+
+Proviamo:
+
+(mystery? 66)
+;-> (66 15 51)
+(mystery 21)
+;-> ()
+
+(filter true? (map mystery? (sequence 1 200)))
+;-> ((2 1 1) (4 2 2) (6 3 3) (8 4 4) (10 5 5) (12 6 6) (14 7 7) (16 8 8)
+;->  (18 9 9) (22 11 11) (33 12 21) (44 13 31) (55 14 41) (66 15 51)
+;->  (77 16 61) (88 17 71) (99 18 81) (110 19 91) (121 29 92) (132 39 93)
+;->  (143 49 94) (154 59 95) (165 69 96) (176 79 97) (187 89 98) (198 99 99))
+
+(map first (filter true? (map mystery? (sequence 1 200))))
+;-> (2 4 6 8 10 12 14 16 18 22 33 44 55 66 77
+;-> 88 99 110 121 132 143 154 165 176 187 198)
+
+Comunque alcuni numeri hanno soluzioni multiple, per esempio:
+
+  110 = 55 + 55 = 46 + 64 = 37 + 73 = 28 + 82 = 19 + 91
+
+(define (mystery-all? num)
+  (let ( (b 0) (out '()) )
+    (for (a 1 (/ num 2) 1 found)
+      (setq b (int (reverse (string a)) 0 10))
+      ;(print a { } b) (read-line)
+      (if (= num (+ a b)) (push (list a b) out))
+    )
+    (if (not (null? out))
+        (push num out)
+        '())))
+
+(mystery-all? 110)
+;-> (110 (55 55) (46 64) (37 73) (28 82) (19 91))
+(mystery-all? 21)
+;-> ()
+
+(filter true? (map mystery-all? (sequence 1 200)))
+;-> ((2 (1 1)) (4 (2 2)) (6 (3 3)) (8 (4 4)) (10 (5 5))
+;->  (12 (6 6)) (14 (7 7)) (16 (8 8)) (18 (9 9))
+;->  (22 (11 11))
+;->  (33 (12 21))
+;->  (44 (22 22) (13 31))
+;->  (55 (23 32) (14 41))
+;->  (66 (33 33) (24 42) (15 51))
+;->  (77 (34 43) (25 52) (16 61))
+;->  (88 (44 44) (35 53) (26 62) (17 71))
+;->  (99 (45 54) (36 63) (27 72) (18 81))
+;->  (110 (55 55) (46 64) (37 73) (28 82) (19 91))
+;->  (121 (56 65) (47 74) (38 83) (29 92))
+;->  (132 (66 66) (57 75) (48 84) (39 93))
+;->  (143 (67 76) (58 85) (49 94))
+;->  (154 (77 77) (68 86) (59 95))
+;->  (165 (78 87) (69 96))
+;->  (176 (88 88) (79 97))
+;->  (187 (89 98))
+;->  (198 (99 99)))
+
+Calcoliamo il numero di modi in cui un numero misterioso può esserlo:
+
+(define (mystery-count? num)
+  (local (conta b)
+    (setq conta 0)
+    (for (a 1 (/ num 2))
+      (setq b (int (reverse (string a)) 0 10))
+      ;(print a { } b) (read-line)
+      (if (= num (+ a b)) (++ conta))
+    )
+    (if (not (zero? conta)) (list num conta) '())))
+
+(mystery-count? 110)
+;-> (110 5)
+(mystery-count? 21)
+;-> '()
+
+(filter true? (map mystery-count? (sequence 1 200)))
+;-> ((2 1) (4 1) (6 1) (8 1) (10 1) (12 1) (14 1) (16 1) (18 1) (22 1) (33 1)
+;->  (44 2) (55 2) (66 3) (77 3) (88 4) (99 4) (110 5) (121 4) (132 4) (143 3)
+;->  (154 3) (165 2) (176 2) (187 1) (198 1))
+
+(define (mystery-count-max limit)
+  (local (max-count max-value)
+    (setq max-value 0)
+    (setq max-count 0)
+    (for (num 1 limit)
+      (setq m (mystery-count? num))
+      (if (not (null? m))
+          (if (> (m 1) max-count) (set 'max-value (m 0) 'max-count (m 1))))
+    )
+    (list max-value max-count)))
+
+(mystery-count-max 1e3)
+;-> (110 5)
+
+(time (println (mystery-count-max 1e4)))
+;-> (9999 40)
+;-> 12747.692
+
+(mystery-all? 9999)
+;-> (9999 (4905 5094) (4815 5184) (4725 5274) (4635 5364) (4545 5454) 
+;->  (4455 5544) (4365 5634) (4275 5724) (4185 5814) (4095 5904) (3906 6093)
+;->  (3816 6183) (3726 6273) (3636 6363) (3546 6453) (3456 6543) (3366 6633)
+;->  (3276 6723) (3186 6813) (3096 6903) (2907 7092) (2817 7182) (2727 7272)
+;->  (2637 7362) (2547 7452) (2457 7542) (2367 7632) (2277 7722) (2187 7812)
+;->  (2097 7902) (1908 8091) (1818 8181) (1728 8271) (1638 8361) (1548 8451)
+;->  (1458 8541) (1368 8631) (1278 8721) (1188 8811) (1098 8901))
+
+Comunque queste funzioni sono molto lente O(n^2):
+
+(time (println (mystery-count-max 1e5)))
+;-> (11000 45)
+;-> 1335498.278 ; 22m 15s 498ms
+
+Nota: abbiamo considerato i numeri "d0" diversi da "0d" (per esempio, 40 è diverso da 04)
+
+Se vogliamo trovare tutti i numeri misteriosi che sono composti da numeri di una determinata lunghezza basta utilizzare un ciclo "for":
+Per esempio, supponiamo di voler trovare tutti i numeri misteriosi composti da numeri di 3 cifre.
+
+(define (mysteryN digit)
+  (local (out a b)
+    (setq out '())
+    (for (a (pow 10 (- digit 1)) (- (pow 10 digit) 1))
+      (setq b (int (reverse (string a)) 0 10))
+      (if (= (length a) (length b)) (push (list (+ a b) a b) out -1))
+    )
+    out))
+
+Per esempio, supponiamo di voler trovare tutti i numeri misteriosi composti da numeri di 2 cifre:
+
+(mysteryN 2)
+;-> ((22 11 11) (33 12 21) (44 13 31) (55 14 41) (66 15 51) (77 16 61) 
+;->  (88 17 71) (99 18 81) (110 19 91) (33 21 12) (44 22 22) (55 23 32)
+;-> ...
+;->  (165 87 78) (176 88 88) (187 89 98) (110 91 19) (121 92 29) (132 93 39)
+;->  (143 94 49) (154 95 59) (165 96 69) (176 97 79) (187 98 89) (198 99 99))
+
+(length (mysteryN 3))
+;-> 810
+
+Con questa funzione possiamo calcolare tutti i numeri misteriosi fino a un dato numero.
+Per esempio, quanti sono i numeri misteriosi fino a 10000 (potenza di 10):
+
+(setq m 0)
+(for (i 1 4) (++ m (length (mysteryN i))))
+;-> 9000
+
+
+-------------------------------
+Numeri primi contorti (twisted)
+-------------------------------
+
+Un numero primo contorto è un numero primo che rimane primo quando alcune delle sue cifre vengono scambiate.
+Ad esempio, il numero 113 è un numero primo contorto perché se scambiamo la prima e l'ultima cifra, otteniamo 311, che è un numero primo diverso.
+Ad esempio, il numero 11 è primo, ma se ne scambiamo le cifre, otteniamo comunque 11, che non è un numero primo diverso.
+
+Esistono infiniti numeri primi contorti, ma diventano sempre più rari all'aumentare dei numeri primi.
+
+Sequenza OEIS A225035:
+Primes such that there is a nontrivial rearrangement of the digits which is a prime.
+  13, 17, 31, 37, 71, 73, 79, 97, 101, 103, 107, 109, 113, 127, 131, 137,
+  139, 149, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 239, 241,
+  251, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 347, 349,
+  359, 367, 373, 379, 389, 397, 401, 419, 421, ...
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (twisted? num show)
+  (local (twisted permute primo)
+    (cond ((prime? num)
+        (setq twisted nil)
+        (setq permute (map (fn(x) (int (join x) 0 10))
+                           (perm (explode (string num)))))
+         (dolist (p permute twisted)
+          (if (and (!= num p) (prime? p)) (set 'twisted true 'primo p))
+        )
+        (if (and twisted show) (println (list num primo))))
+    )
+    twisted))
+
+Proviamo:
+
+(twisted? 113)
+;-> true
+(twisted? 113 true)
+;-> (113 311)
+;-> true
+
+(filter twisted? (sequence 1 500))
+;-> (13 17 31 37 71 73 79 97 101 103 107 109 113 127 131 137 139 149 157
+;->  163 167 173 179 181 191 193 197 199 239 241 251 271 277 281 283 293
+;->  307 311 313 317 331 337 347 349 359 367 373 379 389 397 401 419 421
+;->  439 457 461 463 467 479 491)
+
+
+------------------------------------------------------------
+Numero successivo e precedente con cifre distinte dal numero
+------------------------------------------------------------
+
+Dato un numero intero N, trovare il numero successivo e precedente che ha cifre tutte distinte da quelle del numero dato.
+
+(setq MAX-INT 9223372036854775807)
+(define (next-distinct num)
+  (local (base totale distinte continua out)
+    (setq base (explode (string num)))
+    (setq continua true)
+    (while (and (< num MAX-INT) continua)
+      (if (null? (intersect base (explode (string (+ num 1)))))
+          (set 'out (+ num 1) 'continua nil)
+          ;else
+          (++ num)
+      )
+    )
+    out))
+
+Proviamo:
+
+(next-distinct 1)
+;-> 2
+(next-distinct 10)
+;-> 22
+(next-distinct 1234)
+;-> 5000
+(next-distinct 2023)
+;-> 4111
+(next-distinct 1456789)
+
+Funzione che trova il numero precedente con cifre tutte distinte:
+
+(setq MIN-INT -9223372036854775808)
+(define (previous-distinct num)
+  (local (base totale distinte continua out)
+    (setq base (explode (string num)))
+    (setq continua true)
+    (while (and (> num MIN-INT) continua)
+      (if (null? (intersect base (explode (string (- num 1)))))
+          (set 'out (- num 1) 'continua nil)
+          ;else
+          (-- num)
+      )
+    )
+    out))
+
+Proviamo:
+
+(previous-distinct 1)
+;-> 0
+(previous-distinct 10)
+;-> 9
+(previous-distinct 1234)
+;-> 999
+(previous-distinct 2023)
+;-> 1999
+(previous-distinct 22)
+;-> 19
+
+Nota: se passiamo un numero con tutte le cifre (0..9), le funzioni arrivano a MAX-INT e MIN-INT.
+
 ============================================================================
 
