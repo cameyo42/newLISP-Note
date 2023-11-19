@@ -2091,6 +2091,8 @@ NOTE LIBERE 19
   Numeri misteriosi (mystery)
   Numeri primi contorti (twisted)
   Numero successivo e precedente con cifre distinte dal numero
+  Putnam mathematical competition
+  Contatore con simboli predefiniti
 
 PROBLEMI SUI DADI
 =================

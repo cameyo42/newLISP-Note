@@ -8123,6 +8123,8 @@ Supponiamo di voler utilizzare il range da "baaa" a "dddd":
 
 Nota: in questo caso il simbolo "a" vale 0, quindi non possiamo avere nessuna valore contatore che inizia per "a".
 
+Vedi anche "Contatore con simboli predefiniti" in "Note libere 19".
+
 
 ---------------------------------------------
 Invertire parte di una lista o di una stringa

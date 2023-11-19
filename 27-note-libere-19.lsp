@@ -5436,5 +5436,214 @@ Proviamo:
 
 Nota: se passiamo un numero con tutte le cifre (0..9), le funzioni arrivano a MAX-INT e MIN-INT.
 
+
+-------------------------------
+Putnam mathematical competition
+-------------------------------
+
+Da "The 69th William Lowell Putnam Mathematical Competition" Saturday, December 6, 2008
+https://kskedlaya.org/putnam-archive/2008.pdf
+
+Problema A3
+-----------
+"Iniziare con una sequenza finita a1,a2,...,an di interi positivi.
+Se possibile, scegliere due indici j < k tali che a(j) non divida a(k), e sostituisci a(j) e a(k) rispettivamente con gcd(a(j),a(k)) e lcm(a(j),a(k)).
+Dimostrare che se questo processo si ripete, prima o poi si fermerà e la sequenza finale non dipende dalle scelte effettuate.
+(Nota: "gcd" greatest common divisor (massimo comun divisore) e "lcm" least common multiple (minimo comune multiplo.)"
+
+Scrivere una funzione che effettua il processo descritto per verificare l'assunto del problema.
+
+Dal punto di vista matematico risulta che il k-esimo elemento del risultato è il GCD degli LCM di tutti i sottoinsiemi con k elementi:
+
+  el(k) = gcd( (lcm(ai1,...,aik) | 1 <= i1 <...< ik <= n) )
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (args) 2))
+
+Esempio:
+(setq a '(3 6 21 77 42 36))
+
+elemento 1:
+(apply gcd a)
+;-> 1
+
+elemento 2:
+(apply gcd (map (fn(x) (apply lcm x)) (comb 2 a)))
+;-> 3
+
+elemento 3:
+(apply gcd (map (fn(x) (apply lcm x)) (comb 3 a)))
+;-> 3
+
+elemento 4:
+(apply gcd (map (fn(x) (apply lcm x)) (comb 4 a)))
+;-> 42
+
+elemento 5:
+(apply gcd (map (fn(x) (apply lcm x)) (comb 5 a)))
+;-> 42
+
+elemento 6:
+(apply gcd (map (fn(x) (apply lcm x)) (comb 6 a)))
+;-> 2773
+
+Funzione che calcola la sequenza finale:
+
+(define (math lst)
+  (local (len out)
+    (setq len (length lst))
+    (setq out (list (apply gcd lst)))
+    (for (i 2 len)
+      (push (apply gcd (map (fn(x) (apply lcm x)) (comb i lst))) out -1)
+    )
+    out))
+
+(math a)
+;-> (1 3 3 42 42 2772)
+
+Funzione che calcola la sequenza finale (senza "for"):
+
+(define (math lst)
+  (let (out (list (apply gcd lst)))
+    (extend out 
+        (map (fn(z) (apply gcd (map (fn(x) (apply lcm x)) (comb z lst)))) 
+             (sequence 2 (length lst))))))
+
+Facciamo alcune prove:
+
+(math a)
+;-> (1 3 3 42 42 2772)
+
+(math '(1 2 4 8 16 32))
+;-> (1 2 4 8 16 32)
+
+(math '(120 24 6 2 1 1))
+;-> (1 1 2 6 24 120)
+
+(math '(97 41 48 12 98 68))
+;-> (1 1 2 4 12 159016368)
+
+(math '(225 36 30 1125 36 18 180))
+;-> (3 9 18 90 180 900 4500)
+
+(math '(17 17 17 17))
+;-> (17 17 17 17)
+
+(math '(1 2 3 4 5 6 7 8 9 10))
+;-> (1 1 1 1 1 2 2 6 60 2520)
+
+
+---------------------------------
+Contatore con simboli predefiniti
+---------------------------------
+
+Scrivere una funzione data una stringa di simboli genera una sequenza di simboli ordinati fino ad un dato numero di simboli.
+Per esempio:
+
+stringa di simboli = "ABC"
+
+Simboli ordinati = 1
+Output = A B C
+
+Simboli ordinati = 2
+Output = AA AB AC BA BB BC CA CB CC
+
+Simboli ordinati = 3
+Output = AAA AAB AAC ABA ABB ABC ACA ACB ACC BAA BAB BAC BBA BBB
+         BBC BCA BCB BCC CAA CAB CAC CBA CBB CBC CCA CCB CCC
+
+Simboli ordinati = 4
+Output = AAAA AAAB AAAC AABA AABB AABC ... CCBB CCBC CCCA CCCB CCCC
+
+Per generare in ordine i simboli utilizziamo una lista di posizioni con un ciclo che incrementare progressivamente le posizioni.
+
+(define (genera simboli num)
+  (local (out len posizioni break numero pos)
+    (setq out '())
+    (setq len (length simboli))
+    ; Creazione di un array con num zeri
+    (setq posizioni (array num '(0)))
+    (setq break nil)
+    (until break
+      ; Creazione del numero corrente
+      (setq numero "")
+      (dolist (i posizioni) (extend numero (simboli i)))
+      ;(println numero)
+      (push numero out -1)
+      ; Incrementa le posizioni dall'ultima
+      (setq pos (- num 1))
+      (while (and (>= pos 0) (= (posizioni pos) (- len 1)))
+        (setf (posizioni pos) 0)
+        (-- pos)
+      )
+      ; Se tutte le posizioni sono arrivate alla fine, esce
+      (if (< pos 0) 
+          (setq break true)
+          ;else
+          ; Altrimenti, incrementa la posizione corrente
+          (++ (posizioni pos))
+      )
+    )
+    out))
+
+Proviamo a generare qualche sequenza ordinata:
+
+(genera "0123456789" 2)
+;-> ("00" "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12" "13"
+;->  "14" "15" "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27"
+;->  "28" "29" "30" "31" "32" "33" "34" "35" "36" "37" "38" "39" "40" "41"
+;->  "42" "43" "44" "45" "46" "47" "48" "49" "50" "51" "52" "53" "54" "55"
+;->  "56" "57" "58" "59" "60" "61" "62" "63" "64" "65" "66" "67" "68" "69"
+;->  "70" "71" "72" "73" "74" "75" "76" "77" "78" "79" "80" "81" "82" "83"
+;->  "84" "85" "86" "87" "88" "89" "90" "91" "92" "93" "94" "95" "96" "97"
+;->  "98" "99")
+
+(genera "ABC" 3)
+;-> ("AAA" "AAB" "AAC" "ABA" "ABB" "ABC" "ACA" "ACB" "ACC" "BAA" "BAB" "BAC"
+;->  "BBA" "BBB" "BBC" "BCA" "BCB" "BCC" "CAA" "CAB" "CAC" "CBA" "CBB" "CBC"
+;->  "CCA" "CCB" "CCC")
+
+Numeri binari:
+
+(genera "01" 4)
+;-> ("0000" "0001" "0010" "0011" "0100" "0101" "0110" "0111" "1000" "1001"
+;->  "1010" "1011" "1100" "1101" "1110" "1111")
+
+Numeri esadecimali:
+
+(genera "0123456789ABCDEF" 2)
+;-> ("00" "01" "02" "03" "04" "05" "06" "07" "08" "09" "0A" "0B" "0C" "0D"
+;->  "0E" "0F" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "1A" "1B"
+;->  "1C" "1D" "1E" "1F" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29"
+;->  "2A" "2B" "2C" "2D" "2E" "2F" "30" "31" "32" "33" "34" "35" "36" "37"
+;->  "38" "39" "3A" "3B" "3C" "3D" "3E" "3F" "40" "41" "42" "43" "44" "45"
+;->  "46" "47" "48" "49" "4A" "4B" "4C" "4D" "4E" "4F" "50" "51" "52" "53"
+;->  "54" "55" "56" "57" "58" "59" "5A" "5B" "5C" "5D" "5E" "5F" "60" "61"
+;->  "62" "63" "64" "65" "66" "67" "68" "69" "6A" "6B" "6C" "6D" "6E" "6F"
+;->  "70" "71" "72" "73" "74" "75" "76" "77" "78" "79" "7A" "7B" "7C" "7D"
+;->  "7E" "7F" "80" "81" "82" "83" "84" "85" "86" "87" "88" "89" "8A" "8B"
+;->  "8C" "8D" "8E" "8F" "90" "91" "92" "93" "94" "95" "96" "97" "98" "99"
+;->  "9A" "9B" "9C" "9D" "9E" "9F" "A0" "A1" "A2" "A3" "A4" "A5" "A6" "A7"
+;->  "A8" "A9" "AA" "AB" "AC" "AD" "AE" "AF" "B0" "B1" "B2" "B3" "B4" "B5"
+;->  "B6" "B7" "B8" "B9" "BA" "BB" "BC" "BD" "BE" "BF" "C0" "C1" "C2" "C3"
+;->  "C4" "C5" "C6" "C7" "C8" "C9" "CA" "CB" "CC" "CD" "CE" "CF" "D0" "D1"
+;->  "D2" "D3" "D4" "D5" "D6" "D7" "D8" "D9" "DA" "DB" "DC" "DD" "DE" "DF"
+;->  "E0" "E1" "E2" "E3" "E4" "E5" "E6" "E7" "E8" "E9" "EA" "EB" "EC" "ED"
+;->  "EE" "EF" "F0" "F1" "F2" "F3" "F4" "F5" "F6" "F7" "F8" "F9" "FA" "FB"
+;->  "FC" "FD" "FE" "FF")
+
+Vedi anche "Contatore universale" in "Note libere 16".
+
 ============================================================================
 
