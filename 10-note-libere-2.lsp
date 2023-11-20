@@ -4692,7 +4692,7 @@ Non possiamo modificare i loro valori.
   ; il simbolo "from" del ciclo non è modificabile
   (setq from 100)
   ; questa espressione crea un nuovo simbolo "to"
-  ; il simbolo "to" del ciclo non è modificabile  
+  ; il simbolo "to" del ciclo non è modificabile
   (setq to 200)
 )
 ;-> from: 1
@@ -7251,7 +7251,9 @@ Un altro sudoku difficile con la tecnica brute-force:
 Integrali definiti
 ------------------
 
-Gli integrali... proprio quelli delle superiori e (per qualcuno) dell'università. Vediamo alcuni metodi per calcolare l'integrale definito di una funzione nell'intervallo [a,b]. Ricordiamo che per calcolare l'integrale definito la funzione deve essere continua in tutto l'intervallo [a,b].
+Gli integrali... proprio quelli delle superiori e (per qualcuno) dell'università.
+Vediamo alcuni metodi per calcolare l'integrale definito di una funzione nell'intervallo [a,b].
+Ricordiamo che per calcolare l'integrale definito la funzione deve essere continua in tutto l'intervallo [a,b].
 
 Metodo del trapezio
 -------------------
@@ -7261,7 +7263,8 @@ La regola del trapezio approssima l'integrale, cioè l'area della regione piana 
 ∫ f(x)dx ≈ (b - a)*---------------
 a                         2
 
-Questa approssimazione è accettabile se nell'intervallo di integrazione la funzione ha un andamento quasi sempre lineare. Se questo non accade si può suddividere l'intervallo complessivo [a,b] in un numero n di sottointervalli: in questo modo in ciascun sottointervallo accade (in genere) che la funzione ha un andamento quasi lineare. Quindi la regola del trapezio applicata a tutti i sottointervalli genera la seguente formula:
+Questa approssimazione è accettabile se nell'intervallo di integrazione la funzione ha un andamento quasi sempre lineare.
+Se questo non accade si può suddividere l'intervallo complessivo [a,b] in un numero n di sottointervalli: in questo modo in ciascun sottointervallo accade (in genere) che la funzione ha un andamento quasi lineare. Quindi la regola del trapezio applicata a tutti i sottointervalli genera la seguente formula:
 
 
  b                      f(a) + f(b)                          (b - a)
@@ -7269,7 +7272,7 @@ Questa approssimazione è accettabile se nell'intervallo di integrazione la funz
 a                            2                                  n
 
 Questo metodo è generalmente efficace, ma non approssima molto bene le funzioni che variano velocemente (es. e^x).
-Maggiore è la pendenza della funzione, maggiore è l'errore che dobbiamo aspettarci dall'utilizzo del metodo trapezioale. Comunque possiamo sempre aumentare il numero di iterazioni per migliorare il risultato.
+Maggiore è la pendenza della funzione, maggiore è l'errore che dobbiamo aspettarci dall'utilizzo del metodo trapeziodale. Comunque possiamo sempre aumentare il numero di iterazioni per migliorare il risultato.
 
 (define (trapezio func a b iter)
   (local (h s x)
@@ -7283,7 +7286,7 @@ Maggiore è la pendenza della funzione, maggiore è l'errore che dobbiamo aspett
 
 Metodo di Romberg
 -----------------
-L'algoritmo di romberg è l'applicazione dell'interpolazione di Richardson a ciascuna iterazione delle approssimazioni trapezioali. Questo permette di ottenere un'interpolazione di ordine superiore e quindi un risultato più preciso.
+L'algoritmo di romberg è l'applicazione dell'interpolazione di Richardson a ciascuna iterazione delle approssimazioni trapeziodali. Questo permette di ottenere un'interpolazione di ordine superiore e quindi un risultato più preciso.
 
 (define (romberg func a b iter)
   (local (r h sum)
@@ -7445,6 +7448,31 @@ Valore vero: 2
 (gauss-quad3p g5 0 1 100000)
 ;-> 3.141552653589891
 Valore vero: 3.1415926535897931 (pi greco)
+
+Qualcosa di più difficile: arctan(x)/(1 - x^2)^(1/2) da 0 a 1
+
+Con WolframAlpha:
+N[Integrate[ArcTan[x]/Sqrt[1 - x^2], {x, 0, 1}]] = 0.845291...
+
+[Integrate[ArcTan[x]/Sqrt[1 - x^2], {x, 0, 1}]] = 
+1/4 (4 Li_2(1 - sqrt(2)) - 4 Li_2(-1 + sqrt(2)) + π^2 + log(17 - 12 sqrt(2)) sinh^(-1)(1)) = 0.845291...
+dove LI_n è la funzione polilogaritmica
+
+(define (f x) (div (atan x) (sqrt (sub 1 (mul x x)))))
+
+(gauss-quad3p f 0 1 10)
+;-> 0.7965149217541934
+(gauss-quad3p f 0 1 100)
+;-> 0.8314038436296235
+(gauss-quad3p f 0 1 1000)
+;-> 0.8409148581441811
+(gauss-quad3p f 0 1 100000)
+;-> 0.8448533026236686
+(gauss-quad3p f 0 1 1000000)
+;-> 0.8451524855193109
+(gauss-quad3p f 0 1 10000000)
+;-> 0.8452470954382294
+Valore vero = 0.845291...
 
 
 ---------------
@@ -8124,10 +8152,10 @@ Facciamo alcune prove:
 
 (tubo-all '(5 6 3 2 4 6 8 7 3 4 6 2 12 4 5 7 4 3))
 ;-> 18 90
-;-> ((1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) 
+;-> ((1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5)
 ;->  (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5) (1 5))
 
-(tubo-all '(23 2 3 45 34 23 3143 13 13 213 1321 3123 
+(tubo-all '(23 2 3 45 34 23 3143 13 13 213 1321 3123
        12 312 312 31 3 213 432 41 3 123 43))
 ;-> 23 9475
 ;-> ((1 23) (1 23) (7 3143) (7 3143) (7 3143))

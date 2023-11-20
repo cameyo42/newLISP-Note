@@ -2093,6 +2093,12 @@ NOTE LIBERE 19
   Numero successivo e precedente con cifre distinte dal numero
   Putnam mathematical competition
   Contatore con simboli predefiniti
+  Numeri Tech (tecnici)
+  Numeri insoliti (unusual)
+  Numeri Bleak (spogli) o Colombiani
+  Numeri Triperfetti (Triperfect)
+  Numeri Progressivi (Stepping)
+  Numeri Duck
 
 PROBLEMI SUI DADI
 =================

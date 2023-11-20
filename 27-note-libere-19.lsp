@@ -5645,5 +5645,281 @@ Numeri esadecimali:
 
 Vedi anche "Contatore universale" in "Note libere 16".
 
+
+---------------------
+Numeri Tech (tecnici)
+---------------------
+
+Un numero Tech è un numero in cui la somma della prima metà e della seconda metà delle cifre, elevata al quadrato, produce come risultato il numero stesso.
+Un numero Tech ha un numero di cifre pari.
+Esempi:
+  81 = ((8) + (1))^2 = 9^2 = 81   -->  Numero Tech
+  24 = ((2) + (4))^2 = 6^2 = 36   -->  Numero non Tech
+  134 --> numero di cifre dispari -->  Numero non Tech
+
+Sequenza OEIS A238237:
+  81, 2025, 3025, 9801, 494209, 998001, 24502500, 25502500, 52881984, 
+  60481729, 99980001, 6049417284, 6832014336, 9048004641, 9999800001,
+  101558217124, 108878221089, 123448227904, 127194229449, 152344237969,
+  213018248521, 217930248900, 249500250000, 250500250000, ...
+
+(define (tech? num)
+  (local (str len a b)
+    (setq str (string num))
+    (setq len (length num))
+    (cond ((odd? len) nil)
+          (true
+            ; parte sinistra del numero
+            (setq a (int (slice str 0 (/ len 2)) 0 10))
+            ; parte destra del numero
+            (setq b (int (slice str (/ len 2)) 0 10))
+            (= num (* (+ a b) (+ a b)))))))
+
+Proviamo:
+
+(tech? 81)
+;-> true
+(tech? 24)
+;-> nil
+(tech? 134)
+;-> nil
+
+(filter tech? (sequence 1 1e5))
+;-> (81 2025 3025 9801)
+
+(time (println (filter tech? (sequence 1 1e6))))
+;-> (81 2025 3025 9801 494209 998001)
+;-> 1610.413
+
+ALtro metodo (senza convertire il numero in stringa):
+
+(define (tech?? num)
+  (local (len a b)
+    (setq len (length num))
+    (cond ((odd? len) nil)
+          (true
+            ; parte sinistra del numero
+            (setq a (/ num (pow 10 (/ len 2))))
+            ; parte destra del numero
+            (setq b (% num (pow 10 (/ len 2))))
+            (= num (* (+ a b) (+ a b)))))))
+
+Proviamo:
+
+(tech?? 81)
+;-> true
+(tech?? 24)
+;-> nil
+(tech?? 134)
+;-> nil
+
+(filter tech?? (sequence 1 1e5))
+;-> (81 2025 3025 9801)
+
+(time (println (filter tech?? (sequence 1 1e6))))
+;-> (81 2025 3025 9801 494209 998001)
+;-> 962.25
+
+(time (println (filter tech?? (sequence 1 1e8))))
+;-> (81 2025 3025 9801 494209 998001 24502500
+;->  25502500 52881984 60481729 99980001)
+;-> 95893.062
+ 
+
+-------------------------
+Numeri insoliti (unusual)
+-------------------------
+
+Un numero insolito è definito come un numero per il quale il fattore primo più grande è maggiore della radice quadrata del numero.
+
+Sequenza OEIS A064052:
+  2, 3, 5, 6, 7, 10, 11, 13, 14, 15, 17, 19, 20, 21, 22, 23, 26, 28, 29, 
+  31, 33, 34, 35, 37, 38, 39, 41, 42, 43, 44, 46, 47, 51, 52, 53, 55, 57,
+  58, 59, 61, 62, 65, 66, 67, 68, 69, 71, 73, 74, 76, 77, 78, 79, 82, 83,
+  85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 97, 99, 101, 102, ...
+
+(define (unusual? num) (> (last (factor num)) (sqrt num)))
+
+Proviamo:
+
+(filter unusual? (sequence 2 102))
+;-> (2 3 5 6 7 10 11 13 14 15 17 19 20 21 22 23 26 28 29
+;->  31 33 34 35 37 38 39 41 42 43 44 46 47 51 52 53 55 57
+;->  58 59 61 62 65 66 67 68 69 71 73 74 76 77 78 79 82 83
+;->  85 86 87 88 89 91 92 93 94 95 97 99 101 102)
+
+
+----------------------------------
+Numeri Bleak (spogli) o Colombiani
+----------------------------------
+
+Un numero Bleak è un numero intero positivo N che non può essere rappresentato come la somma di qualsiasi numero intero positivo K e il conteggio dei bit attivi (1) di K.
+
+Notiamo che il numero di bit a 1 in qualunque numero inferiore a N non può superare log2(N).
+Quindi dobbiamo controllare solo i numeri dall'intervallo (N – ceil(log2(N))) a N.
+
+In altre parole, se K + bit1(K) diventa N, allora N non può essere Bleak.
+
+Sequenza OEIS A010061:
+  1, 4, 6, 13, 15, 18, 21, 23, 30, 32, 37, 39, 46, 48, 51, 54, 56, 63, 71,
+  78, 80, 83, 86, 88, 95, 97, 102, 104, 111, 113, 116, 119, 121, 128, 130,
+  133, 135, 142, 144, 147, 150, 152, 159, 161, 166, 168, 175, 177, 180, 
+  183, 185, 192, 200, 207, 209, 212, 215, ...
+
+(define (bleak? num)
+  (let (stop nil)
+    (for (k (- num (ceil (log num 2))) num 1 stop)
+      (if (= (+ k (first (count '("1") (explode (bits k))))) num)
+          (setq stop true)
+      )
+    )
+    (not stop)))
+
+Proviamo:
+
+(filter bleak? (sequence 1 200))
+;-> (1 4 6 13 15 18 21 23 30 32 37 39 46 48 51 54 56 63 71
+;->  78 80 83 86 88 95 97 102 104 111 113 116 119 121 128 130
+;->  133 135 142 144 147 150 152 159 161 166 168 175 177 180
+;->  183 185 192 200)
+
+
+-------------------------------
+Numeri Triperfetti (Triperfect)
+-------------------------------
+
+Il Numero Triperfetto è un concetto della teoria dei numeri.
+Un intero positivo N si dice triperfetto se la somma dei suoi divisori propri (escluso N stesso) è uguale a tre volte il numero N.
+In altre parole, se la somma dei divisori di N (escluso N) è uguale a 3 volte N, allora N è un numero triperfetto.
+
+Sequenza OEIS: A005820
+  120, 672, 523776, 459818240, 1476304896, 51001180160, ...
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors-sum num)
+"Sum all the divisors of integer number"
+  (local (sum out)
+    (if (= num 1)
+        1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum)))))))
+
+(define (triperfect? num) (= (/ (divisors-sum num) 3) num))
+
+Proviamo:
+
+(triperfect? 120)
+;-> true
+
+(triperfect? 567)
+;-> nil
+
+(time (println (filter triperfect? (sequence 2 1e6))))
+;-> (120 672 523776)
+;-> 3500.36
+
+(map triperfect? '(459818240 1476304896 51001180160))
+;-> (true true true)
+
+
+-----------------------------
+Numeri Progressivi (Stepping)
+-----------------------------
+
+Un numero Stepping (progressivo) è un numero in cui le cifre adiacenti hanno una differenza di 1.
+Esempi:
+234 è un numero Stepping poiché |2-3|=1 e |3-4|=1.
+346 non è un numero Stepping poiché |3-4|=1, ma |4-6|=2.
+
+Sequenza OEIS A033075:
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 21, 23, 32, 34, 43, 45, 54, 56, 65,
+  67, 76, 78, 87, 89, 98, 101, 121, 123, 210, 212, 232, 234, 321, 323,
+  343, 345, 432, 434, 454, 456, 543, 545, 565, 567, 654, 656, 676, 678,
+  765, 767, 787, 789, 876, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (pair-func lst func rev)
+"Produces a list applying a function to each pair of elements of a list"
+      (if rev
+          (map func (chop lst) (rest lst))
+          (map func (rest lst) (chop lst))))
+
+(pair-func '(1 2 3 4 5 6 8) -)
+;-> (1 1 1 1 1 2)
+(pair-func '(8 6 5 4 3 2 1) -)
+;-> (-2 -1 -1 -1 -1 -1)
+
+(define (stepping? num)
+  (letn ( (lst (int-list num))
+          (pair-diff (map (fn(x y) (abs (- x y))) (chop lst) (rest lst))) )
+    (for-all (fn(x) (= x 1)) pair-diff)))
+
+Proviamo:
+
+(stepping? 234)
+;-> true
+(stepping? 346)
+;-> nil
+
+(filter stepping? (sequence 1 250))
+;-> (1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 
+;->  67 76 78 87 89 98 101 121 123 210 212 232 234)
+
+Vedi anche "Numeri estetici" in "Note libere 10".
+
+
+-----------
+Numeri Duck
+-----------
+
+Un numero Duck è un numero positivo che contiene zeri.
+Ad esempio 1203, 89800, 12340 sono tutti numeri Duck.
+Nota che i numeri con solo 0 iniziali non sono considerati numeri Duck.
+Ad esempio, numeri come 012 o 0021 non sono considerati numeri Duck.
+
+Sequenza OEIS A011540:
+  0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 101, 102, 103, 104, 105, 
+  106, 107, 108, 109, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+  201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 220, 230, 240, 250,
+  260, 270, 280, 290, 300, 301, 302, ...
+
+(define (duck? num)
+  (let (str (string num))
+    (cond ((= "0" (str 0)) nil)
+          ((find "0" str) true)
+          (true nil))))
+
+Proviamo:
+
+(duck? "0200")
+;-> nil
+(duck? "123405")
+;-> true
+
+(filter duck? (sequence 123 456))
+;-> (130 140 150 160 170 180 190 200 201 202 203 204 205 206 207 208 209 210
+;->  220 230 240 250 260 270 280 290 300 301 302 303 304 305 306 307 308 309
+;->  310 320 330 340 350 360 370 380 390 400 401 402 403 404 405 406 407 408
+;->  409 410 420 430 440 450)
+
 ============================================================================
 

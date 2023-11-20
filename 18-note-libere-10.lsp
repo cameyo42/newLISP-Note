@@ -5110,6 +5110,8 @@ Funzione che calcola i numeri estetici in un intervallo di numeri:
 ;->  123456545 123456565 123456567 123456765 123456767 123456787 123456789)
 ;-> 21134.084 ; 21 secondi circa
 
+Vedi anche "Numeri progressivi (Stepping)" in "Note libere 19".
+
 
 -------------------
 Colore dei cappelli
