@@ -7724,6 +7724,8 @@ Nel caso k sia sempre uguale a 2, allora possiamo utilizzare un altro metodo:
 (giuseppe 5)
 ;-> 3
 
+Vedi anche "Numeri Giuseppe Flavio (Setaccio di Flavio Giuseppe)" in "Note libere 19".
+
 
 ------
 ROT-13

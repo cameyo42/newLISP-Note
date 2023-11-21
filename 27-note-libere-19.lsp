@@ -5566,7 +5566,7 @@ Output = AAA AAB AAC ABA ABB ABC ACA ACB ACC BAA BAB BAC BBA BBB
 Simboli ordinati = 4
 Output = AAAA AAAB AAAC AABA AABB AABC ... CCBB CCBC CCCA CCCB CCCC
 
-Per generare in ordine i simboli utilizziamo una lista di posizioni con un ciclo che incrementare progressivamente le posizioni.
+Per generare in ordine i simboli/caratteri utilizziamo una lista di posizioni con un ciclo che incrementare progressivamente le posizioni.
 
 (define (genera simboli num)
   (local (out len posizioni break numero pos)
@@ -5578,6 +5578,8 @@ Per generare in ordine i simboli utilizziamo una lista di posizioni con un ciclo
     (until break
       ; Creazione del numero corrente
       (setq numero "")
+      ; Con questo ciclo abbiamo a disposizione i simboli/caratteri
+      ; per costruire il valore corrente
       (dolist (i posizioni) (extend numero (simboli i)))
       ;(println numero)
       (push numero out -1)
@@ -5788,8 +5790,7 @@ Proviamo:
 Numeri Triperfetti (Triperfect)
 -------------------------------
 
-Il Numero Triperfetto è un concetto della teoria dei numeri.
-Un intero positivo N si dice triperfetto se la somma dei suoi divisori propri (escluso N stesso) è uguale a tre volte il numero N.
+Un intero positivo N si dice Triperfetto se la somma dei suoi divisori propri (escluso N stesso) è uguale a tre volte il numero N.
 In altre parole, se la somma dei divisori di N (escluso N) è uguale a 3 volte N, allora N è un numero triperfetto.
 
 Sequenza OEIS: A005820
@@ -5920,6 +5921,327 @@ Proviamo:
 ;->  220 230 240 250 260 270 280 290 300 301 302 303 304 305 306 307 308 309
 ;->  310 320 330 340 350 360 370 380 390 400 401 402 403 404 405 406 407 408
 ;->  409 410 420 430 440 450)
+
+
+----------------------------------------------------
+Numeri Flavio Giuseppe (Setaccio di Flavio Giuseppe)
+----------------------------------------------------
+
+I numeri nel Setaccio di Flavio sono chiamati Numeri di Flavio.
+Il setaccio di Flavio inizia con i numeri naturali e continua a ripetere il passaggio seguente:
+Al k-esimo passo di setacciatura, rimuovi ogni (k+1)-esimo termine della sequenza rimanente di N numeri naturali dopo il (k-1)-esimo passo di setacciatura.
+
+In altre parole, dato un numero N effettuare i seguenti passi:
+
+Iniziare con:
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 .... N e cancellare ogni 2 termini, che risulta
+1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 ... N e cancellare ogni 3 termini, che risulta
+1 3 7 9 13 15 19 21 25 27 ................. N e cancellare ogni 4 termini, che risulta
+1 3 7 13 15 19 25 27 ...................... N e cancellare ogni 5 termini, che risulta
+... 
+Continuare fino a eliminare ogni N termini e ciò che rimane è la sequenza.
+
+Sequenza OEIS A000960:
+Flavius Josephus's sieve: 
+1) Start with the natural numbers; 
+2) at the k-th sieving step, remove every (k+1)-st term of the sequence remaining after the (k-1)-st sieving step
+3) iterate.
+  1, 3, 7, 13, 19, 27, 39, 49, 63, 79, 91, 109, 133, 147, 181, 207, 223,
+  253, 289, 307, 349, 387, 399, 459, 481, 529, 567, 613, 649, 709, 763,
+  807, 843, 927, 949, 1009, 1093, 1111, 1189, 1261, 1321, 1359, 1471, 
+  1483, 1579, 1693, 1719, 1807, 1899, 1933, 2023, ...
+
+Il setaccio di Flavio Giuseppe Flavio:
+1) iniziare con i numeri naturali, 
+2) alla k-esima fase di setacciatura, rimuovere ogni (k-1)-esimo termine della sequenza rimanente dopo la (k-1)-esima fase di setacciatura
+3) ripetere.
+
+Funzione che rimuove gli elementi di una lista in posizione k e multipli di k:
+
+(define (remove-k lst k)
+  (let (out '())
+    (dolist (el lst) (if (!= (% (+ $idx 1) k) 0) (push el out -1)))
+    out))
+
+Funzione che verifica se un numero è di Flavio Giuseppe:
+
+(define (flavio? num show)
+  (if (= num 1)
+      true
+      (let (seq (sequence 1 num))
+        (for (i 2 num)
+          (setq seq (remove-k seq i))
+        )
+        (if show (println (unique (sort seq))))
+        (if (ref num seq) true nil))))
+
+Proviamo:
+
+(flavio? 20 true)
+;-> (1 3 7 13 19)
+;-> nil
+
+(filter flavio? (sequence 1 1000))
+;-> (1 3 7 13 19 27 39 49 63 79 91 109 133 147 181 207 223
+;->  253 289 307 349 387 399 459 481 529 567 613 649 709 763 
+;->  807 843 927 949)
+
+Vedi anche "Il problema di Giuseppe (Josephus Problem)" in "Rosetta Code".
+
+
+------------------------------
+Coppie di fattori di un numero
+------------------------------
+
+Una coppia di fattori di un numero N è composta da due numeri interi positivi 'a' e 'b', tali che a * b = N.
+In altre parole, sia 'a' che 'b' sono divisori di N e, se moltiplicati insieme, danno il numero originale.
+
+Scrivere una funzione che trova tutte le coppie di fattori per un dato numero N.
+
+(define (factor-pairs1 num)
+  (if (= num 1) '(1 1)
+      (let (out '())
+        (for (i 1 (/ num 2))
+          (if (zero? (% num i))
+              (push (list i (/ num i)) out -1)
+          )
+        )
+        (push (list num 1) out -1)
+        out)))
+
+Proviamo:
+
+(factor-pairs1 1)
+;-> (1 1)
+(factor-pairs1 12)
+;-> ((1 12) (2 6) (3 4) (4 3) (6 2) (12 1))
+(factor-pairs1 36)
+;-> ((1 36) (2 18) (3 12) (4 9) (6 6) (9 4) (12 3) (18 2) (36 1))
+(factor-pairs1 760)
+;-> ((1 760) (2 380) (4 190) (5 152) (8 95) (10 76) (19 40) (20 38)
+;->  (38 20) (40 19) (76 10) (95 8) (152 5) (190 4) (380 2) (760 1))
+
+Se vogliamo solo una coppia tra (a * b) e (b * a) possiamo inserire un controllo di uscita nel ciclo "for" (uscire dal ciclo quando (<= i (/ num i)):
+
+(define (factor-pairs2 num)
+  (if (= num 1) '(1 1)
+      (let (out '())
+        (for (i 1 (/ num 2) 1 (> i (/ num i)))
+          (if (zero? (% num i))
+              (push (list i (/ num i)) out -1)
+          )
+        )
+        out)))
+
+Proviamo:
+
+(factor-pairs2 1)
+;-> (1 1)
+(factor-pairs2 12)
+;-> ((1 12) (2 6) (3 4))
+(factor-pairs2 36)
+;-> ((1 36) (2 18) (3 12) (4 9) (6 6))
+(factor-pairs2 760)
+;-> ((1 760) (2 380) (4 190) (5 152) (8 95) (10 76) (19 40) (20 38))
+
+Vediamo la velocità delle due funzioni:
+
+(silent (setq t (sequence 1 10000)))
+(time (map factor-pairs1 t))
+;-> 1346.204
+(time (map factor-pairs2 t)
+;-> 84.026
+
+
+-----------------------
+Numeri polite (educati)
+-----------------------
+
+Un numero Educato è un numero intero positivo che può essere scritto come la somma di due o più numeri interi positivi consecutivi.
+Un numero intero positivo che non è educato è detto Scortese.
+I numeri Scortesi sono esattamente le potenze di due, mentre i numeri Educati sono i numeri naturali che non sono potenze di due.
+Sulla base di questo fatto, esiste la seguente formula (teorema di Lambek-Moser) per l'N-esimo numero educato:
+
+  E(N) = (N+1) + floor(log2((N+1) + log2(N+1)))
+
+Sequenza OEIS A138591: Sums of two or more consecutive nonnegative integers
+  1, 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24,
+  25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
+  44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
+  62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, ...
+In questa sequenza 1 = 0 + 1 viene considerato un numero educato.
+
+Sequenza OEIS A057716: The nonpowers of 2
+  0, 3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21, 22, 23, 24,
+  25, 26, 27, 28, 29, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43,
+  44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
+  62, 63, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, ...
+In questa sequenza 1 = 0 + 1 non viene considerato un numero educato.
+
+(define (polite N)
+  (let (N (+ N 1))
+    (+ N (floor (log (+ N (log N 2)) 2)))))
+
+Proviamo:
+
+(polite 0)
+;-> 1
+(polite 1)
+;-> 3
+(polite 7)
+;-> 11
+
+(map polite (sequence 0 50))
+;-> (1 3 5 6 7 9 10 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+;->  31 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55
+;->  56)
+
+Politeness (Cortesia)
+La Cortesia di un numero positivo è definita come il numero di modi in cui può essere espresso come somma di numeri interi consecutivi.
+Per ogni N, la Cortesia di N è uguale al numero di divisori dispari di N maggiori di uno.
+Per esempio, la Cortesia di 15 è 3 perché ha tre divisori dispari, 3, 5 e 15, e tre rappresentazioni educate:
+
+  15 = 4 + 5 + 6
+  15 = 1 + 2 + 3 + 4 + 5
+  15 = 7 + 8
+
+Sequenza OEIS A069283:
+  0, 0, 0, 1, 0, 1, 1, 1, 0, 2, 1, 1, 1, 1, 1, 3, 0, 1, 2, 1, 1, 3, 1, 1,
+  1, 2, 1, 3, 1, 1, 3, 1, 0, 3, 1, 3, 2, 1, 1, 3, 1, 1, 3, 1, 1, 5, 1, 1,
+  1, 2, 2, 3, 1, 1, 3, 3, 1, 3, 1, 1, 3, 1, 1, 5, 0, 3, 3, 1, 1, 3, 3, 1,
+  2, 1, 1, 5, 1, 3, 3, 1, 1, 4, 1, 1, 3, 3, 1, 3, 1, 1, 5, 3, 1, 3, 1, 3,
+  1, 1, 2, 5, 2, ...
+
+Ecco un modo semplice per calcolare la Cortesia di un numero positivo:
+1) scomporre il numero nei suoi fattori primi,
+2) prendere le potenze di tutti i fattori primi maggiori di 2 (dispari)
+3) sommare 1 ad ognuna potenza presa
+4) moltiplicare tutti i numeri ottenuti e poi sommare 1
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+(define (politeness num)
+  (if (zero? num) 0
+      (local (fg seq)
+        ;scompone il numero in fattori primi
+        (setq fg (factor-group num))
+        (setq seq '())
+        ; seleziona tutte le potenze maggiori di 2 e somma 1 ad ognuna
+        ; mettendole in una lista
+        (dolist (f fg)
+          (if (> (f 0) 2) (push (+ (f 1) 1) seq))
+        )
+        ; moltiplica i numeri della lista e poi somma 1
+        (- (apply * seq) 1))))
+
+Proviamo:
+
+(politeness 15)
+;-> 3
+
+(politeness 90)
+;-> 5
+
+(map politeness (sequence 0 100))
+;-> (0 0 0 1 0 1 1 1 0 2 1 1 1 1 1 3 0 1 2 1 1 3 1 1
+;->  1 2 1 3 1 1 3 1 0 3 1 3 2 1 1 3 1 1 3 1 1 5 1 1
+;->  1 2 2 3 1 1 3 3 1 3 1 1 3 1 1 5 0 3 3 1 1 3 3 1
+;->  2 1 1 5 1 3 3 1 1 4 1 1 3 3 1 3 1 1 5 3 1 3 1 3 1 1 2 5 2)
+
+Per trovare la sequenza di interi positivi consecutivi che si somma a un dato numero gentile N, possiamo utilizzare il seguente algoritmo:
+
+1. Inizializzazione
+    - Sia N il numero per cui vogliamo trovare la sequenza (se esiste).
+    - Inizializzare due puntatori, "inizio" e "fine", entrambi inizialmente puntano a 1.
+    - Mantenere una variabile "SommaCorrente" per memorizzare la somma della sequenza tra "inizio" e "fine".
+
+2. Iterare
+    - Avviare un ciclo incrementando il puntatore "fine".
+    - In ogni iterazione, aggiungere il valore "fine" corrente a "SommaCorrente".
+    - Controllare se "SommaCorrente" è uguale a N:
+      - Se uguale, abbiamo trovato la sequenza.
+      - Se "SommaCorrente" è maggiore di N, incrementare "inizio" e aggiornare "SommaCorrente" di conseguenza.
+
+3. Continuare l'iterazione
+    - Continuare questo processo finché "inizio" non è maggiore di N/2.
+    - A questo punto non ci sarà alcuna sequenza possibile.
+
+(define (polite? num)
+  (local (out inizio fine somma-corrente)
+    (setq out '())
+    (setq inizio 1)
+    (setq fine 1)
+    (setq somma-corrente 1)
+    (while (<= inizio (/ num 2))
+      (cond ((= somma-corrente num)
+            (push (sequence inizio fine) out -1)
+            ;(println (sequence inizio fine))
+            (-- somma-corrente inizio)
+            (++ inizio))
+            ((< somma-corrente num)
+              (++ fine)
+              (++ somma-corrente fine))
+            ((> somma-corrente num)
+              (-- somma-corrente inizio)
+              (++ inizio))
+      )
+    )
+    out))
+
+Proviamo:
+
+(polite? 15)
+;-> ((1 2 3 4 5) (4 5 6) (7 8))
+
+(polite? 90)
+;-> ((2 3 4 5 6 7 8 9 10 11 12 13)
+;->  (6 7 8 9 10 11 12 13 14)
+;->  (16 17 18 19 20)
+;->  (21 22 23 24)
+;->  (29 30 31))
+
+(polite? 20)
+;-> (3 4 5 6)
+
+Supponiamo di voler generare tutte le possibili somme (con almeno due addendi) fino a un dato numero N.
+Per esempio, con N = 3, vogliamo generare: 1+2, 1+2+3 e 2+3.
+Per fare questo bastano due cicli "for" annidati:
+
+(define (generate-all-sums N)
+  (let (out '())
+    (for (inizio 1 (- N 1))
+      (for (fine (+ inizio 1) N)
+        (push (sequence inizio fine) out -1)
+        ;(println (sequence inizio fine))
+      )
+    )
+    out))
+
+Proviamo:
+
+(generate-all-sums 5)
+;-> ((1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5) 
+;->  (2 3) (2 3 4) (2 3 4 5) 
+;->  (3 4) (3 4 5)
+;->  (4 5))
+
+(generate-all-sums 7)
+;-> ((1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5) (1 2 3 4 5 6) (1 2 3 4 5 6 7) 
+;->  (2 3) (2 3 4) (2 3 4 5) (2 3 4 5 6) (2 3 4 5 6 7)
+;->  (3 4) (3 4 5) (3 4 5 6) (3 4 5 6 7)
+;->  (4 5) (4 5 6) (4 5 6 7) 
+;->  (5 6) (5 6 7) (6 7))
+
+(length (generate-all-sums 100))
+;-> 4950
+
+(length (generate-all-sums 1000))
+;-> 499500
 
 ============================================================================
 

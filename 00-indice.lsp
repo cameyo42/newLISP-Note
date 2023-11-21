@@ -2099,6 +2099,9 @@ NOTE LIBERE 19
   Numeri Triperfetti (Triperfect)
   Numeri Progressivi (Stepping)
   Numeri Duck
+  Numeri Flavio Giuseppe (Setaccio di Flavio Giuseppe)
+  Coppie di fattori di un numero
+  Numeri polite (educati)
 
 PROBLEMI SUI DADI
 =================
