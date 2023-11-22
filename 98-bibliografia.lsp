@@ -14,8 +14,10 @@
   http://www.newLISP.org/newLISP_in_21_minutes.html
 
   Forum ufficiale di newLISP
+  Vecchio forum:
   http://www.newLISPfanclub.alh.net/forum/
-  https://newlispfanclub.com/ (2023)
+  Nuovo forum (2023)
+  https://newlispfanclub.com/
 
   Johu's Blog
   https://johu02.wordpress.com/

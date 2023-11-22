@@ -1940,7 +1940,7 @@ b) nessuna modifica in caso di omocodia (da fare a mano!)
     ; calcolo codice di controllo (CIN)
     (setq p16 (cin cf))
     (println "p16 = " p16)
-    (extend cf p16)    
+    (extend cf p16)
 ))
 
 Facciamo alcune prove:
@@ -1985,7 +1985,7 @@ Ogni guardia può catturare un solo ladro.
 Una guardia non può catturare un ladro che si trova più distante di K unità.
 Il problema è trovare il massimo numero di ladri che possono essere catturati.
 
-Esempio: 
+Esempio:
 lista = ("G" "L" "L" "G" "G")
 K = 1
 La guardia a 0 cattura il ladro a 1.
@@ -2085,7 +2085,7 @@ Per esempio, se cerchiamo "AAA" nella stringa "AAAAAA" abbiamo due casi:
 
 1) all = true  --> 4 occorrenze
     ___       ___       ___       ___
-   "AAAAAA" "AAAAAA" "AAAAAA" "AAAAAA" 
+   "AAAAAA" "AAAAAA" "AAAAAA" "AAAAAA"
 
 2) all = nil   --> 2 orroccrenze
     ___         ___
@@ -2157,7 +2157,7 @@ Funzione che trova tutti i riempimenti possibili (a cui bisogna aggiungere le pe
     (sort out)))
 
 (fill 20 3 4)
-;-> ((0 3 0 4 5) (0 3 4 4 2) (1 3 1 4 4) (1 3 5 4 1) (2 3 2 4 3) (2 3 6 4 0) 
+;-> ((0 3 0 4 5) (0 3 4 4 2) (1 3 1 4 4) (1 3 5 4 1) (2 3 2 4 3) (2 3 6 4 0)
 ;->  (3 3 3 4 2) (4 3 0 4 4) (4 3 4 4 1) (5 3 1 4 3) (5 3 5 4 0) (6 3 2 4 2)
 ;->  (7 3 3 4 1) (8 3 0 4 3) (8 3 4 4 0) (9 3 1 4 2) (10 3 2 4 1) (11 3 3 4 0)
 ;->  (12 3 0 4 2) (13 3 1 4 1) (14 3 2 4 0) (16 3 0 4 1) (17 3 1 4 0))
@@ -2293,12 +2293,12 @@ I primi numeri Grifon sono: 6 12 14 20 30 39 42 56 62 72 84 90 110 ...
   (unique (sort lst)))
 
 (grifon 10 10)
-;-> (6 12 14 20 30 39 42 56 62 72 84 90 110 120 126 155 254 258 340 363 399 
+;-> (6 12 14 20 30 39 42 56 62 72 84 90 110 120 126 155 254 258 340 363 399
 ;->  510 584 780 819 1022 1092 1110 1364 1554 2046 2800 3279 3905 4680 5460
-;->  7380 9330 9840 11110 19530 19607 21844 29523 37448 55986 66429 87380 
-;->  88572 97655 111110 137256 299592 335922 349524 488280 597870 960799 
-;->  1111110 1398100 2015538 2396744 2441405 5380839 6725600 11111110 
-;->  12093234 12207030 19173960 47079207 48427560 72559410 111111110 
+;->  7380 9330 9840 11110 19530 19607 21844 29523 37448 55986 66429 87380
+;->  88572 97655 111110 137256 299592 335922 349524 488280 597870 960799
+;->  1111110 1398100 2015538 2396744 2441405 5380839 6725600 11111110
+;->  12093234 12207030 19173960 47079207 48427560 72559410 111111110
 ;->  153391688 329554456 435848049 1111111110 1227133512 3922632450
 ;->  11111111110)
 
@@ -2317,7 +2317,7 @@ Trovare la sequenza dei numeri interi che se convertiti in una base minore o ugu
 Per esempio:
  30(base2) = 11110
  42(base6) = 110
- 72(base8) = 110 
+ 72(base8) = 110
 
 (define (b1-b2 num base1 base2)
 "Convert an integer from base1 to base2 (2 <= base <= 10)"
@@ -2342,7 +2342,7 @@ Funzione che verifica se un numero appartiene alla sequenza:
           (for (b 10 2 -1 found)
             (setq s (string (b1-b2 num 10 b)))
             ;(println b { } s)
-            (if (and (= (last s) "0") 
+            (if (and (= (last s) "0")
                      (= (first s) "1")
                      (apply = (chop (explode s))))
                 (setq found true)
@@ -2368,7 +2368,7 @@ Facciamo alcune prove:
 ;-> nil
 
 (filter seq? (sequence 1 1e3))
-;-> (6 10 12 14 20 30 39 42 56 62 72 84 90 110 120 
+;-> (6 10 12 14 20 30 39 42 56 62 72 84 90 110 120
 ;->  126 155 254 258 340 363 399 510 584 780 819)
 
 
@@ -2524,7 +2524,7 @@ La frequenza di ogni carattere genera la seguente sequenza (che non è presente 
 Lanci di monete e numeri primi
 ------------------------------
 
-Lanciamo una moneta N volte, qual'è la probabilità che esca M volte Testa? 
+Lanciamo una moneta N volte, qual'è la probabilità che esca M volte Testa?
 (dove M appartiene all'insieme di tutti i numeri primi)
 
 Esempi:
@@ -2601,10 +2601,10 @@ Vediamo come fare un grafico della funzione Prob(n).
 Creiamo una lista di punti:
 
 (setq points (map (fn(x) (list x (float ((prob x) 2)))) (sequence 2 1000)))
-;-> ((2 0.25) (3 0.5) (4 0.625) (5 0.6563) (6 0.6406) 
+;-> ((2 0.25) (3 0.5) (4 0.625) (5 0.6563) (6 0.6406)
 ;->  (7 0.6094) (8 0.5781) (9 0.5508) (10 0.5244)
 ;->  ...
-;->  (995 0.1497) (996 0.1495) (997 0.1492) 
+;->  (995 0.1497) (996 0.1495) (997 0.1492)
 ;->  (998 0.1489) (999 0.1486) (1000 0.1483))
 
 Esportiamo la lista in un file csv (comma-separated-value):
@@ -2642,17 +2642,17 @@ Un numero saltellante è un numero intero positivo nel quale tutte le coppie di 
 Tutti i numeri a una cifra sono considerati numeri saltellanti.
 La differenza tra 9 e 0 non è considerata come 1.
 
-Sequenza OEIS A033075: 
+Sequenza OEIS A033075:
 Positive numbers all of whose pairs of consecutive decimal digits differ by 1
-  1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87 89 98 
-  101 121 123 210 212 232 234 321 323 343 345 432 434 454 456 543 545 
+  1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87 89 98
+  101 121 123 210 212 232 234 321 323 343 345 432 434 454 456 543 545
   565 567 654 656 676 678 765 767 787 789 876 ...
 
 Algoritmo:
 Scomponiamo il numero cifra per cifra e verifichiamo per ogni coppia di cifre contigue se la differenza assoluta risulta 1.
 
 (define (jumping? num)
-  (cond 
+  (cond
     ((<= num 10) true)
     (true
       (setq jump true)
@@ -2674,8 +2674,8 @@ Scomponiamo il numero cifra per cifra e verifichiamo per ogni coppia di cifre co
 ;-> nil
 
 (filter jumping? (sequence 1 900))
-;-> (1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87 89 98 
-;->  101 121 123 210 212 232 234 321 323 343 345 432 434 454 456 543 545 
+;-> (1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87 89 98
+;->  101 121 123 210 212 232 234 321 323 343 345 432 434 454 456 543 545
 ;->  565 567 654 656 676 678 765 767 787 789 876 878 898)
 
 
@@ -2744,7 +2744,7 @@ Primo metodo:
 
   N = P*(P + 14) --> P^2 + 14P - N = 0
   Radice positiva: r1 = sqrt(N + 49) - 7
-  
+
   N = P*(P - 14) --> P^2 + 14P - N = 0
   Radice positiva: r2 = sqrt(N + 49) + 7
 
@@ -2767,7 +2767,7 @@ Quindi basta verificare se r1 o r2 sono numeri primi.
 
 (filter rocco1? (sequence 31 627))
 ;-> (32 51 95 147 207 275 351 435 527 627)
-  
+
 Secondo metodo:
 
 Se consideriamo i fattori F della scomposizione in fattori primi del numero N possiamo dire che N è di Rocco se risulta:
@@ -2791,7 +2791,7 @@ Per finire una funzione che genera i primi N numeri di Rocco:
   (setq conta 0)
   (setq i 32)
   (while (< conta limit)
-    (cond ((rocco2? i) 
+    (cond ((rocco2? i)
             (++ conta)
             (push i out -1))
     )
@@ -2843,7 +2843,7 @@ result
 
 ------------------------
 Forum: Contexts question
------------------------- 
+------------------------
 
 Jeff:
 -----
@@ -2857,13 +2857,13 @@ For example:
 (context 'bar)
 (some-fn '((key-a "value-a") (key-b "value-b")))
 
-some-fn may be used from various contexts. 
-In order to lookup key-a, it must know which context we are coming from. 
+some-fn may be used from various contexts.
+In order to lookup key-a, it must know which context we are coming from.
 I can do a (name table true), but then to get the correct symbol to look up, I'm forced to do something like:
 
 (eval-string (format "%s:key-a" (string (name table true)))
 
-...which is incredibly verbose syntax just for a table lookup. 
+...which is incredibly verbose syntax just for a table lookup.
 
 Anyone have a solution?
 
@@ -2990,7 +2990,7 @@ Like this:
 
 - the {,} in newLISP takes all chracters literally, makeing things a bit easier.
 
-... so in my examples I am actually replacing two character: the backslash and a dollar sign with an 'x'. 
+... so in my examples I am actually replacing two character: the backslash and a dollar sign with an 'x'.
 
 Nor sure if you meant, the dollar sign only:
 
@@ -3010,7 +3010,7 @@ Does anyone know why this doesn't work?
 
 (context 'bar)
 ;-> bar
-;-> bar> 
+;-> bar>
 (context MAIN)
 MAIN
 (define (test) (context 'bar) (set 'x 100) (context MAIN))
@@ -3043,9 +3043,9 @@ http://newlisp.org/ExpressionEvaluation.html
 
 Jeff:
 -----
-But bar was defined first, before test. 
-I understood the (context 'sym) syntax to act as a procedural switch to another namespace. 
-I don't understand how switching contexts this way differs from doing it from the outermost lexical enclosure. 
+But bar was defined first, before test.
+I understood the (context 'sym) syntax to act as a procedural switch to another namespace.
+I don't understand how switching contexts this way differs from doing it from the outermost lexical enclosure.
 And if there is a difference, isn't that making the context function itself act within the lexical scope, rather than the dynamic scope from which it was called (as opposed to the contents of the context switched to)?
 
 Lutz:
@@ -3072,8 +3072,8 @@ ps: Context switches are only important when translating source into symbols. On
 
 Jeff:
 -----
-I read that while you were replying. 
-It explains better than the manual. 
+I read that while you were replying.
+It explains better than the manual.
 So the (context 'foo) syntax functions almost like a preprocessor command (or as close to that as you can get with an interpreted language).
 Because it appears inside a lambda, it is not evaluated until the lambda is applied, yes?
 
@@ -3092,7 +3092,7 @@ So the (context 'foo) syntax functions almost like a preprocessor command (or as
 
 yes
 
-Context switches are only important when translating source into symbols. 
+Context switches are only important when translating source into symbols.
 In your example is no 'sym or 'eval-string statement.
 
 All symbols in function foo where translated when reading the toplevel (define (foo x y) ...) definition.
@@ -3432,7 +3432,7 @@ Generiamo il prodotto cartesiano utilizzando le liste degli indici per ogni list
 
 (define (max-sum2 lst)
   (let ( (seq '()) (all-index '()) (valid-index '())
-         (values '()) 
+         (values '())
          (somma 0) (somma-max -999999999) )
     ; genera la lista delle liste/sequenze) degli indici
     ; ((0 1 2) (0 1 2 3 4) ... (0 1))
@@ -3453,7 +3453,7 @@ Generiamo il prodotto cartesiano utilizzando le liste degli indici per ogni list
     ; (somma-massima (val1 val2 ... valN) (idx1 idx2 ... idxN)
     (dolist (vi valid-index)
       (setq values '())
-      ; recupera i valori dalle relative liste 
+      ; recupera i valori dalle relative liste
       ; utilizzando la combinazione corrente di indici
       (dolist (el vi)
         ; valore all'indice corrente nella relativa lista
@@ -3488,7 +3488,7 @@ Proviamo:
 ;-> (52 (18 19 15) (1 0 2))
 ;-> (52 (18 19 15) (1 0 2))
 
-La lista di output ha la seguente struttura: 
+La lista di output ha la seguente struttura:
   (somma-massima (val1 val2 ... valN) (idx1 idx2 ... idxN)
 
 (max-sum2 '((1 3) (1 3)))
@@ -3518,7 +3518,7 @@ Vediamo la velocità della funzione:
 
 5 liste da 5 a 10 elementi con valore massimo 100
 (setq t1 (make-list 5 5 10 100))
-;-> ((52 95 7 87 65 32 10 50) (31 95 87 72 30 94 12 6 78) 
+;-> ((52 95 7 87 65 32 10 50) (31 95 87 72 30 94 12 6 78)
 ;->  (44 29 46 50 15 32 73) (85 15 32 7 7 64 82 54)
 ;->  (4 97 31 56 30 17 10 86))
 (apply * (map length t1))
@@ -3596,7 +3596,7 @@ colori = ("red" "yellow" "green" "brown" "scarlet" "black" "ochre"
           "chocolate" "mauve" "cream" "crimson" "silver" "rose"
           "azure" "lemon" "russet" "grey" "purple" "white" "pink"
           "orange" "blue")
-          
+
 Per esempio:
 lista = blue, green, red
 ordinamento = red, green, blue
@@ -3610,7 +3610,7 @@ ordinamento = red, green, blue
 Creiamo una lista associativa con elementi del tipo: (colore posizione)
 
 (setq col-pos (map (fn(x) (list x $idx)) colori))
-;-> (("red" 0) ("yellow" 1) ("green" 2) ("brown" 3) ("scarlet" 4) 
+;-> (("red" 0) ("yellow" 1) ("green" 2) ("brown" 3) ("scarlet" 4)
 ;->  ("black" 5) ("ochre"6) ("peach" 7) ("ruby" 8) ("olive" 9)
 ;->  ("violet" 10) ("fawn" 11) ("lilac" 12) ("gold" 13) ("chocolate" 14)
 ;->  ("mauve" 15) ("cream" 16) ("crimson" 17) ("silver" 18) ("rose" 19)
@@ -3649,9 +3649,9 @@ Proviamo:
 (ordina '("ruby" "yellow" "red" "grey") colori)
 ;-> ("red" "yellow" "ruby" "grey")
 
-(ordina '("gold" "green" "fawn" "white" "azure" "rose" "black" "purple" 
+(ordina '("gold" "green" "fawn" "white" "azure" "rose" "black" "purple"
         "orange" "silver" "ruby" "blue" "lilac" "crimson" "pink" "cream"
-        "lemon" "russet" "grey" "olive" "violet" "mauve" "chocolate" 
+        "lemon" "russet" "grey" "olive" "violet" "mauve" "chocolate"
         "yellow" "peach" "brown" "ochre" "scarlet" "red") colori)
 ;-> ("red" "yellow" "green" "brown" "scarlet" "black" "ochre" "peach"
 ;->  "ruby" "olive" "violet" "fawn" "lilac" "gold" "chocolate" "mauve"
@@ -3679,7 +3679,7 @@ La formula è la seguente:
 
 Sequenza OEIS A131383:
 Total digital sum of n: sum of the digital sums of n for all the bases 1 to n
-  1, 3, 6, 8, 13, 16, 23, 25, 30, 35, 46, 46, 59, 66, 75, 74, 91, 91, 110, 
+  1, 3, 6, 8, 13, 16, 23, 25, 30, 35, 46, 46, 59, 66, 75, 74, 91, 91, 110,
   112, 125, 136, 159, 152, 169, 182, 195, 199, 228, 223, 254, 253, 274, 291,
   316, 297, 334, 353, 378, 373, 414, 409, 452, 460, 475, 498, 545, 520, 557,
   565, 598, 608, 661, 652, 693, 690, ...
@@ -3939,7 +3939,7 @@ Proviamo la funzione:
 (for (r 0 3) (for (c 0 3) (println (list (m r c) (max-vicino m r c)))))
 ;-> (3 (7 0 1)) (7 (10 0 2)) (10 (7 0 1)) (5 (10 0 2)) (6 (8 1 1))
 ;-> (8 (12 1 2)) (12 (13 1 3)) (13 (12 1 2)) (15 (9 2 1)) (9 (15 2 0))
-;-> (11 (13 1 3)) (4 (13 1 3)) (14 (15 2 0)) (1 (16 3 2)) (16 (11 2 2)) 
+;-> (11 (13 1 3)) (4 (13 1 3)) (14 (15 2 0)) (1 (16 3 2)) (16 (11 2 2))
 ;-> (2 (16 3 2))
 
 Scriviamo la funzione finale:
@@ -3947,7 +3947,7 @@ Scriviamo la funzione finale:
 (define (mouse matrix start-row start-col)
   (local (row-len col-len somma cell rimasti)
     (setq row-len (length matrix))
-    (setq col-len (length (matrix 0)))  
+    (setq col-len (length (matrix 0)))
     (setq somma (matrix start-row start-col))
     (print "Formaggi: " somma)
     (setq cell (max-vicino matrix start-row start-col))
@@ -4111,8 +4111,8 @@ Estrazione dei numeri originali dalla lista precedente:
 La funzione finale è composta da una singola espresione:
 
 (define (sort-digits lst)
-  (map last 
-       (sort 
+  (map last
+       (sort
        (map (fn(x) (list (list-int (sort (int-list (abs x)) >)) x)) nums) >)))
 
 (sort-digits nums)
@@ -4184,14 +4184,14 @@ Fornendo costantemente la radice quadrata positiva, i linguaggi di programmazion
 
 Convenzione matematica
 ----------------------
-La radice quadrata principale è una convenzione matematica ben consolidata. 
+La radice quadrata principale è una convenzione matematica ben consolidata.
 Quando i matematici si riferiscono alla radice quadrata, in genere intendono la radice quadrata principale.
 Questa convenzione viene applicata ai linguaggi di programmazione per mantenere la compatibilità con le aspettative matematiche.
 
-Se abbiamo bisogno di radici quadrate sia positive che negative, possiamo ottenere la soluzione negativa moltiplicando la soluzione positiva per -1. 
+Se abbiamo bisogno di radici quadrate sia positive che negative, possiamo ottenere la soluzione negativa moltiplicando la soluzione positiva per -1.
 Per esempio:
 
-(define (sqrt2 num) 
+(define (sqrt2 num)
   (letn ( (a (sqrt num)) (b (mul a -1)) ) (list a b)))
 
 (sqrt2 4)
@@ -4309,12 +4309,12 @@ Proviamo:
 ;-> (12 37 18 55 27 13 6 19 9 4 (13))
 
 (map ztalloc (sequence 1 16))
-;-> ((1 0) 
-;->  (2 7 3 1 0) 
-;->  (3 1 0) 
-;->  (4 13 6 19 9 (4)) 
-;->  (5 2 7 3 1 0) 
-;->  (6 19 9 4 13 (6)) 
+;-> ((1 0)
+;->  (2 7 3 1 0)
+;->  (3 1 0)
+;->  (4 13 6 19 9 (4))
+;->  (5 2 7 3 1 0)
+;->  (6 19 9 4 13 (6))
 ;->  (7 3 1 0)
 ;->  (8 25 12 37 18 55 27 13 6 19 9 4 (13))
 ;->  (9 4 13 6 19 (9))
@@ -4422,8 +4422,8 @@ Ricaviamo a e b dalla (1) e (7):
 
   (a + b) = 1
   ab = -1/2
-  
-  a = -1/2b 
+
+  a = -1/2b
   (-1/2b + b) = 1 --> 2b^2 - 2b - 1 = 0     (8)
 
 Risolviamo l'equazione di secondo grado:
@@ -4479,7 +4479,7 @@ Oppure possiamo continuare in modo algebrico:
 Dal cubo di (1) otteniamo:
 
   (a + b)^3 = 1^3 = 1              (9)
-  
+
 Espansione del cubo di (a + b):
 
   a^3 + b^3 + 3ab(a + b)           (10)
@@ -4719,8 +4719,8 @@ Numeri sparsi (numeri di Fibbinacci)
 Un numero sparso, o numero di Fibbinacci (Marc LeBrun), è un intero positivo la cui rappresentazione binaria non ha 1 consecutivi.
 Ad esempio, 5 (101 in binario) e 21 (10101) sono numeri sparsi, ma 6 (110) e 13 (1101) non lo sono.
 
-A003714
-  0, 1, 2, 4, 5, 8, 9, 10, 16, 17, 18, 20, 21, 32, 33, 34, 36, 37, 40, 
+Sequenza OEIS A003714:
+  0, 1, 2, 4, 5, 8, 9, 10, 16, 17, 18, 20, 21, 32, 33, 34, 36, 37, 40,
   41, 42, 64, 65, 66, 68, 69, 72, 73, 74, 80, 81, 82, 84, 85, 128, 129,
   130, 132, 133, ...
 
@@ -4764,7 +4764,7 @@ Invece il numero 44277 è instabile perché la cifra "4" appare due volte, "2" a
           (setq freq (count (unique str) str))
           (or (= (length freq) 1) (apply = freq)))))
 
-Proviamo: 
+Proviamo:
 
 (stable? 112233)
 ;-> true
@@ -4779,7 +4779,7 @@ Numeri stabili fino a 20:
 Numeri instabili fino a 1000:
 
 (clean stable? (sequence 1 200))
-;-> (100 101 110 112 113 114 115 116 117 118 119 121 122 131 
+;-> (100 101 110 112 113 114 115 116 117 118 119 121 122 131
 ;->  133 141 144 151 155 161 166 171 177 181 188 191 199 200)
 
 Conteggio dei numeri stabili fino a N = 10, 100, 1e3, 1e4, 1e5, 1e6 ,1e7, 1e8:
@@ -4855,7 +4855,7 @@ Sequenza OEIS A000069:
 (define (evil? num)   (odd?  (conta-1 num)))
 
 (filter odious? (sequence 0 100))
-;-> (0 3 5 6 9 10 12 15 17 18 20 23 24 27 29 30 33 34 36 39 40 43 45 46 48 51 
+;-> (0 3 5 6 9 10 12 15 17 18 20 23 24 27 29 30 33 34 36 39 40 43 45 46 48 51
 ;->  53 54 57 58 60 63 65 66 68 71 72 75 77 78 80 83 85 86 89 90 92 95 96 99)
 
 (filter evil? (sequence 0 100))
@@ -4896,7 +4896,7 @@ La funzione non è difficile da scrivere, ma il problema è quale ordine di cond
          (regex "^(4|5)+$" str))))    ; condizione 2
 
 (time (println (filter pure1? (sequence 1 1e6))))
-;-> (44 55 4444 4554 5445 5555 444444 445544 
+;-> (44 55 4444 4554 5445 5555 444444 445544
 ;->  454454 455554 544445 545545 554455 555555)
 ;-> 837.683
 
@@ -4907,7 +4907,7 @@ La funzione non è difficile da scrivere, ma il problema è quale ordine di cond
          (= str (reverse (copy str)))))) ; condizione 3
 
 (time (println (filter pure2? (sequence 1 1e6))))
-;-> (44 55 4444 4554 5445 5555 444444 445544 
+;-> (44 55 4444 4554 5445 5555 444444 445544
 ;->  454454 455554 544445 545545 554455 555555)
 ;-> 800.396
 
@@ -4929,7 +4929,7 @@ La funzione non è difficile da scrivere, ma il problema è quale ordine di cond
          (even? (length str)))))      ; condizione 1
 
 (time (println (filter pure4? (sequence 1 1e6))))
-;-> (44 55 4444 4554 5445 5555 444444 445544 
+;-> (44 55 4444 4554 5445 5555 444444 445544
 ;->  454454 455554 544445 545545 554455 555555)
 ;-> 768.757
 
@@ -4951,7 +4951,7 @@ La funzione non è difficile da scrivere, ma il problema è quale ordine di cond
          (regex "^(4|5)+$" str))))    ; condizione 2
 
 (time (println (filter pure6? (sequence 1 1e6))))
-;-> (44 55 4444 4554 5445 5555 444444 445544 
+;-> (44 55 4444 4554 5445 5555 444444 445544
 ;->  454454 455554 544445 545545 554455 555555)
 ;-> 806.77
 
@@ -4959,8 +4959,8 @@ Le funzioni più veloci sono la 3 e la 4 che hanno come prima condizione la "reg
 
 "^(4|5)+$"
   ^: asserisce l'inizio della stringa
-  $: asserisce la fine della stringa. 
-  (4|5): corrisponde a 4 oppure 5 
+  $: asserisce la fine della stringa.
+  (4|5): corrisponde a 4 oppure 5
   +: garantisce che una o più occorrenze di 4 o 5 corrispondano.
 
 
@@ -4973,8 +4973,8 @@ I numeri di Kynea sono definiti dalla seguente espressione:
   K(n) = (2^n + 1)^2 - 2, con n intero non negativo.
 
 Sequenza OEIS A093069:
-  7, 23, 79, 287, 1087, 4223, 16639, 66047, 263167, 1050623, 4198399, 
-  16785407, 67125247, 268468223, 1073807359, 4295098367, 17180131327, 
+  7, 23, 79, 287, 1087, 4223, 16639, 66047, 263167, 1050623, 4198399,
+  16785407, 67125247, 268468223, 1073807359, 4295098367, 17180131327,
   68720001023, 274878955519, 1099513724927, 4398050705407, 17592194433023,
   70368760954879, 281475010265087, 1125899973951487, ...
 
@@ -5084,13 +5084,13 @@ I numeri di Fermat hanno molte proprietà interessanti e collegamenti con altre 
 Uno dei più famosi è il Piccolo Teorema di Fermat, il quale afferma che se p è un numero primo, allora per ogni intero a non divisibile per p, a^(p-1) - 1 è divisibile per p.
 Questo teorema può essere usato per dimostrare che se n è un intero non negativo e 2^(2^n) + 1 è primo, allora n deve essere una potenza di 2.
 
-Tuttavia non tutti i numeri di Fermat sono primi. 
+Tuttavia non tutti i numeri di Fermat sono primi.
 Infatti, F(5) è composto.
 Si ipotizza che esistano infiniti numeri primi di Fermat, ma ciò non è stato dimostrato.
 
 Sequenza OEIS A000215:
-  3, 5, 17, 257, 65537, 4294967297, 18446744073709551617, 
-  340282366920938463463374607431768211457, 
+  3, 5, 17, 257, 65537, 4294967297, 18446744073709551617,
+  340282366920938463463374607431768211457,
   115792089237316195423570985008687907853
   269984665640564039457584007913129639937, ...
 
@@ -5248,7 +5248,7 @@ Calcoliamo il numero di modi in cui un numero misterioso può esserlo:
 ;-> 12747.692
 
 (mystery-all? 9999)
-;-> (9999 (4905 5094) (4815 5184) (4725 5274) (4635 5364) (4545 5454) 
+;-> (9999 (4905 5094) (4815 5184) (4725 5274) (4635 5364) (4545 5454)
 ;->  (4455 5544) (4365 5634) (4275 5724) (4185 5814) (4095 5904) (3906 6093)
 ;->  (3816 6183) (3726 6273) (3636 6363) (3546 6453) (3456 6543) (3366 6633)
 ;->  (3276 6723) (3186 6813) (3096 6903) (2907 7092) (2817 7182) (2727 7272)
@@ -5279,7 +5279,7 @@ Per esempio, supponiamo di voler trovare tutti i numeri misteriosi composti da n
 Per esempio, supponiamo di voler trovare tutti i numeri misteriosi composti da numeri di 2 cifre:
 
 (mysteryN 2)
-;-> ((22 11 11) (33 12 21) (44 13 31) (55 14 41) (66 15 51) (77 16 61) 
+;-> ((22 11 11) (33 12 21) (44 13 31) (55 14 41) (66 15 51) (77 16 61)
 ;->  (88 17 71) (99 18 81) (110 19 91) (33 21 12) (44 22 22) (55 23 32)
 ;-> ...
 ;->  (165 87 78) (176 88 88) (187 89 98) (110 91 19) (121 92 29) (132 93 39)
@@ -5516,8 +5516,8 @@ Funzione che calcola la sequenza finale (senza "for"):
 
 (define (math lst)
   (let (out (list (apply gcd lst)))
-    (extend out 
-        (map (fn(z) (apply gcd (map (fn(x) (apply lcm x)) (comb z lst)))) 
+    (extend out
+        (map (fn(z) (apply gcd (map (fn(x) (apply lcm x)) (comb z lst))))
              (sequence 2 (length lst))))))
 
 Facciamo alcune prove:
@@ -5590,7 +5590,7 @@ Per generare in ordine i simboli/caratteri utilizziamo una lista di posizioni co
         (-- pos)
       )
       ; Se tutte le posizioni sono arrivate alla fine, esce
-      (if (< pos 0) 
+      (if (< pos 0)
           (setq break true)
           ;else
           ; Altrimenti, incrementa la posizione corrente
@@ -5660,7 +5660,7 @@ Esempi:
   134 --> numero di cifre dispari -->  Numero non Tech
 
 Sequenza OEIS A238237:
-  81, 2025, 3025, 9801, 494209, 998001, 24502500, 25502500, 52881984, 
+  81, 2025, 3025, 9801, 494209, 998001, 24502500, 25502500, 52881984,
   60481729, 99980001, 6049417284, 6832014336, 9048004641, 9999800001,
   101558217124, 108878221089, 123448227904, 127194229449, 152344237969,
   213018248521, 217930248900, 249500250000, 250500250000, ...
@@ -5726,7 +5726,7 @@ Proviamo:
 ;-> (81 2025 3025 9801 494209 998001 24502500
 ;->  25502500 52881984 60481729 99980001)
 ;-> 95893.062
- 
+
 
 -------------------------
 Numeri insoliti (unusual)
@@ -5735,7 +5735,7 @@ Numeri insoliti (unusual)
 Un numero insolito è definito come un numero per il quale il fattore primo più grande è maggiore della radice quadrata del numero.
 
 Sequenza OEIS A064052:
-  2, 3, 5, 6, 7, 10, 11, 13, 14, 15, 17, 19, 20, 21, 22, 23, 26, 28, 29, 
+  2, 3, 5, 6, 7, 10, 11, 13, 14, 15, 17, 19, 20, 21, 22, 23, 26, 28, 29,
   31, 33, 34, 35, 37, 38, 39, 41, 42, 43, 44, 46, 47, 51, 52, 53, 55, 57,
   58, 59, 61, 62, 65, 66, 67, 68, 69, 71, 73, 74, 76, 77, 78, 79, 82, 83,
   85, 86, 87, 88, 89, 91, 92, 93, 94, 95, 97, 99, 101, 102, ...
@@ -5765,7 +5765,7 @@ In altre parole, se K + bit1(K) diventa N, allora N non può essere Bleak.
 Sequenza OEIS A010061:
   1, 4, 6, 13, 15, 18, 21, 23, 30, 32, 37, 39, 46, 48, 51, 54, 56, 63, 71,
   78, 80, 83, 86, 88, 95, 97, 102, 104, 111, 113, 116, 119, 121, 128, 130,
-  133, 135, 142, 144, 147, 150, 152, 159, 161, 166, 168, 175, 177, 180, 
+  133, 135, 142, 144, 147, 150, 152, 159, 161, 166, 168, 175, 177, 180,
   183, 185, 192, 200, 207, 209, 212, 215, ...
 
 (define (bleak? num)
@@ -5882,7 +5882,7 @@ Proviamo:
 ;-> nil
 
 (filter stepping? (sequence 1 250))
-;-> (1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 
+;-> (1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65
 ;->  67 76 78 87 89 98 101 121 123 210 212 232 234)
 
 Vedi anche "Numeri estetici" in "Note libere 10".
@@ -5898,7 +5898,7 @@ Nota che i numeri con solo 0 iniziali non sono considerati numeri Duck.
 Ad esempio, numeri come 012 o 0021 non sono considerati numeri Duck.
 
 Sequenza OEIS A011540:
-  0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 101, 102, 103, 104, 105, 
+  0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 101, 102, 103, 104, 105,
   106, 107, 108, 109, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
   201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 220, 230, 240, 250,
   260, 270, 280, 290, 300, 301, 302, ...
@@ -5938,21 +5938,21 @@ Iniziare con:
 1 3 5 7 9 11 13 15 17 19 21 23 25 27 29 ... N e cancellare ogni 3 termini, che risulta
 1 3 7 9 13 15 19 21 25 27 ................. N e cancellare ogni 4 termini, che risulta
 1 3 7 13 15 19 25 27 ...................... N e cancellare ogni 5 termini, che risulta
-... 
+...
 Continuare fino a eliminare ogni N termini e ciò che rimane è la sequenza.
 
 Sequenza OEIS A000960:
-Flavius Josephus's sieve: 
-1) Start with the natural numbers; 
+Flavius Josephus's sieve:
+1) Start with the natural numbers;
 2) at the k-th sieving step, remove every (k+1)-st term of the sequence remaining after the (k-1)-st sieving step
 3) iterate.
   1, 3, 7, 13, 19, 27, 39, 49, 63, 79, 91, 109, 133, 147, 181, 207, 223,
   253, 289, 307, 349, 387, 399, 459, 481, 529, 567, 613, 649, 709, 763,
-  807, 843, 927, 949, 1009, 1093, 1111, 1189, 1261, 1321, 1359, 1471, 
+  807, 843, 927, 949, 1009, 1093, 1111, 1189, 1261, 1321, 1359, 1471,
   1483, 1579, 1693, 1719, 1807, 1899, 1933, 2023, ...
 
 Il setaccio di Flavio Giuseppe Flavio:
-1) iniziare con i numeri naturali, 
+1) iniziare con i numeri naturali,
 2) alla k-esima fase di setacciatura, rimuovere ogni (k-1)-esimo termine della sequenza rimanente dopo la (k-1)-esima fase di setacciatura
 3) ripetere.
 
@@ -5983,7 +5983,7 @@ Proviamo:
 
 (filter flavio? (sequence 1 1000))
 ;-> (1 3 7 13 19 27 39 49 63 79 91 109 133 147 181 207 223
-;->  253 289 307 349 387 399 459 481 529 567 613 649 709 763 
+;->  253 289 307 349 387 399 459 481 529 567 613 649 709 763
 ;->  807 843 927 949)
 
 Vedi anche "Il problema di Giuseppe (Josephus Problem)" in "Rosetta Code".
@@ -6225,16 +6225,16 @@ Per fare questo bastano due cicli "for" annidati:
 Proviamo:
 
 (generate-all-sums 5)
-;-> ((1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5) 
-;->  (2 3) (2 3 4) (2 3 4 5) 
+;-> ((1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5)
+;->  (2 3) (2 3 4) (2 3 4 5)
 ;->  (3 4) (3 4 5)
 ;->  (4 5))
 
 (generate-all-sums 7)
-;-> ((1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5) (1 2 3 4 5 6) (1 2 3 4 5 6 7) 
+;-> ((1 2) (1 2 3) (1 2 3 4) (1 2 3 4 5) (1 2 3 4 5 6) (1 2 3 4 5 6 7)
 ;->  (2 3) (2 3 4) (2 3 4 5) (2 3 4 5 6) (2 3 4 5 6 7)
 ;->  (3 4) (3 4 5) (3 4 5 6) (3 4 5 6 7)
-;->  (4 5) (4 5 6) (4 5 6 7) 
+;->  (4 5) (4 5 6) (4 5 6 7)
 ;->  (5 6) (5 6 7) (6 7))
 
 (length (generate-all-sums 100))
@@ -6243,5 +6243,273 @@ Proviamo:
 (length (generate-all-sums 1000))
 ;-> 499500
 
-============================================================================
 
+---------------
+MS-DOS codepage
+---------------
+
+L'interprete dei comandi di Windows (CMD.exe) e quindi qualsiasi file batch DOS utilizzano una codepage diversa (437) rispetto ad altre applicazioni Windows (ad esempio Notepad/Blocco note).
+Ciò potrebbe causare problemi con i caratteri speciali.
+
+Per esempio supponiamo di avere una cartella con i file colò.html e galà.html.
+Dal Command Prompt di una finestra DOS digitiamo:
+
+dir /B /On > list.txt
+
+Abbiamo creato il file list.txt con l'elenco dei file della cartella corrente.
+
+Se apriamo il file list.txt con notepad di windows otteniamo il seguente risultato:
+
+  col•.html
+  gal….html
+  list.txt
+
+La soluzione è modificare la codepage all'inizio del file batch utilizzando il comando CHCP.
+
+Dal Command Prompt di una finestra DOS digitiamo:
+
+chcp
+;-> Active code page: 437
+
+Il codepage corrente è il 437.
+
+Per modificare la codepage in 1252 (ANSI - Latin I), digitare:
+
+chcp 1252
+
+Adesso dal Command Prompt di una finestra DOS digitiamo:
+
+dir /B /On > list2.txt
+
+Adesso se apriamo il file list.txt con notepad di windows otteniamo il seguente risultato:
+
+  colò.html
+  galà.html
+  list.txt
+  list2.txt
+
+Per ulteriori informazioni sul comando CHCP, digitare dal Command Prompt:
+
+chcp /?
+
+Dalla REPL di newLISP:
+
+(exec "chcp /?")
+("Displays or sets the active code page number."
+ ""
+ "CHCP [nnn]" "" "  nnn   Specifies a code page number."
+ ""
+ "Type CHCP without a parameter to display the active code page number.")
+
+Vediamo una tabella con i valori numerici di alcuni codepage
+
+  437 - United States ("PC-ASCII")
+  850 - Multilingual (Latin I), euro version
+  912 - ISO 8859-2 (Latin)
+ 1252 - ANSI - Latin I)
+65001 - UTF-8
+
+Nel forum di newLISP IVShilov ha mostrato come importare delle funzioni da "kernel.dll" per leggere e impostare il codepage.
+
+; Imposta il codepage per le operazioni di input
+(import "kernel32.dll" "SetConsoleCP")
+; Restituisce il codepage corrente per le operazioni di input
+(import "kernel32.dll" "GetConsoleCP")
+; Imposta il codepage per le operazioni di output
+(import "kernel32.dll" "SetConsoleOutputCP")
+; Restituisce il codepage corrente per le operazioni di output
+(import "kernel32.dll" "GetConsoleOutputCP")
+
+(GetConsoleCP)
+;-> 437
+
+(GetConsoleOutputCP)
+;-> 437
+
+; utf8
+(SetConsoleOutputCP 65001)
+;-> 1
+
+(GetConsoleOutputCP)
+;-> 65001
+
+Nota: non modificare il registro di windows per cambiare il codepage per tutto il sistema.
+In Windows 10 Pro Version: 22H2 OS build: 19045.3693 possiamo utilizzare il codice dei caratteri utf-8 con i seguenti passi:
+
+  Settings --> Language settings --> Administrative language settings
+  Cliccare su Change system locale...
+  Selezionare la casella:
+      "Beta: Use Unicode UTF-8 for worldwide language support"
+  Riavviare il computer.
+
+In questo modo viene applicato a tutti i programmi, anche quelli che non si avviano dal prompt dei comandi.
+
+
+----------------------------------
+Stringhe con una linea di tastiera
+----------------------------------
+
+Data una stringa, determinare se può essere scritta solo con una linea della tastiera.
+
+US international keyboard Layout
+--------------------------------
+Linea 1: `1234567890-=
+Linea 2: qwertyuiop[]\
+Linea 3: asdfghjkl;' con CapsLock: ASDFGHJKL
+Linea 4: zxcvbnm,./ con Shift: ZXCVBNM<>?
+Linea 5: spazio (Space Bar)
+
+Algoritmo
+1. Inserire i caratteri di ogni linea in una lista (ogni elemento rappresenta una linea di caratteri)
+2. Trovare i caratteri unici della stringa data
+3. Ciclo sulla lista delle linee
+   Calcolare l'intersezione tra la linea corrente e i caratteri unici.
+   Se l'intersezione è uguale a caratteri-unici, allora la linea corrente può stampare la stringa data.
+
+(define (line? str)
+  (local (out strings lines letter)
+    (setq out "")
+    (setq strings '("`1234567890-=" "qwertyuiop[]\\" "asdfghjkl;'ASDFGHJKL"
+                    "zxcvbnm,./ZXCVBNM<>?" " "))
+    (setq lines '())
+    (dolist (s strings)
+      (push (explode s) lines -1)
+    )
+    (setq letter (unique (explode str)))
+    (dolist (l lines)
+      ;(println l { } letter)
+      ;(print (intersect letter l))
+      ;(read-line)
+      (if (= (intersect letter l) letter)
+          (setq out (string "line" (+ $idx 1))))
+    )
+    out))
+
+Proviamo:
+
+(line? "pippo")
+;-> "line2"
+
+(line? "qa")
+;-> ""
+
+(line? "zxc/?")
+;-> "line4"
+
+(line? "234`-=")
+;-> "line1"
+;-> -----
+
+(line? "aAf;'")
+;-> "line3"
+
+(line? "   ")
+;-> "line5"
+
+
+-------------------------------------------------
+Probabilità di eventi ripetuti K volte su N prove
+-------------------------------------------------
+
+Uno dei problemi che capitano frequentemente nel calcolo di probabilità' è quello di calcolare la probabilità' che un dato evento accada K volte su N prove effettuate.
+
+Per esempio, se lanciamo una moneta 5 volte qual'è la probabilità che escano tutte Croci? Qual'è la probabilità che escano 2 Teste e 3 Croci?
+Nel primo caso:
+
+  P(1) = 1/2 * 1/2 * 1/2 * 1/2 * 1/2 = (1/2)^5
+          C     C     C     C     C
+
+Nel secondo caso:
+
+  P(2) = 1/2 * 1/2 * 1/2 * 1/2 * 1/2 = (1/2)^5
+          T     T     C     C     C
+
+Il calcolo di P(2) è corretto solo se intendiamo l'evento come l'esatta sequenza TTCCC.
+Se invece consideriamo validi anche gli altri eventi in cui sono uscite 2 Teste e 3 Croci in qualunque ordine (cioè TCTCC, CCCTT, CTCTC, ecc.) allora dobbiamo utilizzare la formula di Bernoulli.
+
+Per calcolare la probabilità che un evento si verifichi K volte su N prove, quando l'evento ha una probabilità di successo P in ciascuna prova, possiamo utilizzare la distribuzione binomiale.
+La formula di Bernoulli che utilizza la distribuzione binomiale è:
+
+  P(X=K) = binom(N, K) * P^K * (1 - P)^(N - K)
+
+dove:
+  - P(X=K) è la probabilità che l'evento si verifichi esattamente K volte su N prove.
+  - binom(N, K) è il coefficiente binomiale, che rappresenta il numero di modi diversi in cui K successi possono verificarsi in N prove ed è calcolato come N!/K!(N-K)!
+  - P è la probabilità di successo in una singola prova.
+  - (1 - P) è la probabilità di fallimento in una singola prova.
+  - N è il numero totale di prove.
+  - K è il numero di successi che vogliamo.
+
+Se invece vogliamo calcolare la probabilità che un evento si verifichi K o più volte su N prove, possiamo sommare le probabilità di K successi, K + 1 successi, K + 2 successi, e così via fino a N successi.
+La formula per calcolare questa probabilità cumulativa è la seguente:
+
+  P(X>=K) = Sum[i=K..N](binom(N, i) * P^i * (1 - P)^(N - i))
+
+dove:
+  - P(X>=K)è la probabilità che l'evento si verifichi K o più volte su mprove.
+  - binom(N, K) è il coefficiente binomiale.
+  - P è la probabilità di successo in una singola prova.
+  - (1 - P) è la probabilità di fallimento in una singola prova.
+  - N è il numero totale di prove.
+  - K è il numero minimo di successi che stiamo cercando.
+
+Questa formula tiene conto di tutte le possibilità in cui l'evento si verifica almeno K volte su N prove.
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (evento p k n)
+  (mul (binom n k) (pow p k) (pow (sub 1 p) (- n k))))
+
+Proviamo:
+
+(evento 0.5 1 10)
+;-> 0.009765625
+(evento 0.5 5 10)
+;-> 0.24609375
+(add (evento 0.5 5 10) (evento 0.5 6 10) (evento 0.5 7 10)
+     (evento 0.5 8 10) (evento 0.5 9 10) (evento 0.5 10 10))
+;-> 0.623046875
+
+(evento 0.6 1 10)
+;-> 0.001572864
+(evento 0.6 5 10)
+;-> 0.2006581248
+(add (evento 0.6 5 10) (evento 0.6 6 10) (evento 0.6 7 10)
+     (evento 0.6 8 10) (evento 0.6 9 10) (evento 0.6 10 10))
+;-> 0.8337613824
+
+Vediamo i risultati di una simulazione.
+
+(define (simula p k n iter)
+  (local (event conta)
+    (setq event 0)
+    (for (i 1 iter)
+      (setq conta 0)
+      (for (e 1 n)
+        (if (< (random) p) (++ conta))
+      )
+      (if (= conta k) (++ event))
+    )
+    (div event iter)))
+
+Proviamo:
+
+(simula 0.6 1 10 1e6)
+;-> 0.001578
+(simula 0.6 5 10 1e6)
+;-> 0.200347
+(add (simula 0.6 5 10 1e6) (simula 0.6 6 10 1e6) (simula 0.6 7 10 1e6)
+     (simula 0.6 8 10 1e6) (simula 0.6 9 10 1e6) (simula 0.6 10 10 1e6))
+;-> 0.833485
+
+============================================================================

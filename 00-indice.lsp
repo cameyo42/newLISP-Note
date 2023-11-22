@@ -2102,6 +2102,9 @@ NOTE LIBERE 19
   Numeri Flavio Giuseppe (Setaccio di Flavio Giuseppe)
   Coppie di fattori di un numero
   Numeri polite (educati)
+  MS-DOS codepage
+  Stringhe con una linea di tastiera
+  Probabilità di eventi ripetuti K volte su N prove
 
 PROBLEMI SUI DADI
 =================
