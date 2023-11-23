@@ -4293,10 +4293,10 @@ Per verificare le telescriventi in genere veniva utilizzzato il pangramma:
 
 "Fabrizio ha visto Max acquistandogli juta per New York".
 
-Alfabeto inglese:
+Alfabeto inglese (26 lettere):
 (setq alfabeth '(A B C D E F G H I J K L M N O P Q R S T U V W X Y Z))
 
-Alfabeto italiano:
+Alfabeto italiano (21 lettere):
 (setq alfabeto '(A B C D E F G H I L M N O P Q R S T U V Z))
 
 Funzione che verifica se una frase è un pangramma (inglese e italiano con it = true):
@@ -4331,6 +4331,17 @@ Un pangramma inglese è anche un pangramma per la lingua italiana (perchè l'alf
 ;-> true
 (pangram? "How vexingly quick daft zebras jump!" true)
 ;-> true
+
+La seguente espressione regolare restituisce true se la stringa passata ha 26 lettere tutte diverse:
+
+  "(?!.*(.).*\1).{26}"
+
+(regex "(?!.*(.).*\1).{26}" "abcdefgh")
+;-> nil
+(regex "(?!.*(.).*\1).{26}" "abcdefghijklmnopqrstuvwxyz")
+;-> ("abcdefghijklmnopqrstuvwxyz" 0 26)
+(regex "(?!.*(.).*\1).{26}" "thequickbrownfoxjumpsoverthelazydog")
+;-> ("thequickbrownfoxjumpsovert" 0 26)
 
 
 ------------------

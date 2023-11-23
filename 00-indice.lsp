@@ -2105,6 +2105,10 @@ NOTE LIBERE 19
   MS-DOS codepage
   Stringhe con una linea di tastiera
   Probabilità di eventi ripetuti K volte su N prove
+  Funzione che stampa la propria lunghezza
+  Colori True color
+  Stringhe gonfiate (inflated)
+  Interlacciamento di stringhe
 
 PROBLEMI SUI DADI
 =================

@@ -1129,7 +1129,7 @@ Estrapolazione di altre informazioni:
   16. Il navigatore non è sposato (da 10.)
   17. Alan e Bob non possono essere insieme pilota e copilota (da 1. e 2.)
 
-Da queste informazioni si ottiene:
+Ora assegniamo i nomi ai ruoli sulla base di queste informazioni:
 
   Bob ingegnere
   Tom pilota
@@ -6511,5 +6511,198 @@ Proviamo:
 (add (simula 0.6 5 10 1e6) (simula 0.6 6 10 1e6) (simula 0.6 7 10 1e6)
      (simula 0.6 8 10 1e6) (simula 0.6 9 10 1e6) (simula 0.6 10 10 1e6))
 ;-> 0.833485
+
+
+----------------------------------------
+Funzione che stampa la propria lunghezza
+----------------------------------------
+
+Scrivere una funzione che restituisce la propria lunghezza in byte (caratteri).
+
+Per calcolare la lunghezza di una funzione consideriamo la sua rappresentazione all'interno di newLISP.
+Per esempio la funzione (define (test a b) (+ a b))
+ha rappresentazione interna (lambda (a b) (+ a b)).
+
+Il simbolo 'test' è una lista lambda:
+
+(list? test)
+;-> true
+(lambda? test)
+;-> true
+
+Parametri della funzione:
+(nth 0 test)
+;-> (a b)
+
+Corpo della funzione:
+(nth 1 test)
+;-> (+ a b)
+
+Quindi per sapere la lunghezza della funzione possiamo convertire la lista in stringa e poi calcolare quanti sono i caratteri che la compongono.
+
+Funzione di base (50 caratteri):
+
+(define (bytes) (println (length (string bytes))))
+
+Rappresentazione della funzione internamente a newLISP (45 caratteri):
+
+(lambda () (println (length (string bytes))))
+
+(bytes)
+;-> 45
+
+Possiamo modificare la funzione di base ed ottenere sempre la lunghezza della nuova funzione.
+
+Funzione di base modificata (85 caratteri):
+(define (bytes1 a b) (local (c) (setq c (+ a b)) (println (length (string bytes1)))))
+
+Rappresentazione della funzione internamente a newLISP (78 caratteri):
+(lambda (a b) (local (c) (setq c (+ a b)) (println (length (string bytes1)))))
+
+(bytes1 2 3)
+;-> 78
+
+
+-----------------
+Colori True color
+-----------------
+
+I colori True color (24-bit) usano 8 bit per ognuna delle componenti R, G e B (Red, Green, Blue).
+32-bit color significa che oltre ai 24 bit del colore vengono usati 8 bit per il canale Alpha (trasparenza).
+2^24 fornisce 16.777.216 variazioni di colore (16milioni 777mila 216).
+L'occhio umano può discriminare fino a dieci milioni di colori e poiché la gamma di un display è inferiore alla gamma della visione umana, ciò significa che dovrebbe coprire quella gamma con più dettagli di quanto possa essere percepito.
+
+I colori possono essere rappresentati con terne RGB in cui i valori R,G,B variano da 0 a 255.
+In questo modo si ottengono 256 x 256 x 256 = 16777216 combinazioni di colori.
+Alle volte i valori RGB vengono rappresentati con valori Esadecimali.
+
+Esempi:
+
+  RGB decimale   RGB esadecinale
+  (131,0,0)      #830000
+  (139,77,0)     #8b4d00
+  (102,103,0)    #666700
+  (0,81,14)      #00510e
+  (0,4,64)       #000440
+
+Scrivere una funzione che genera tutti i codici RGB dei 16.677.216 colori.
+
+(define (truecolor)
+  (let (out '())
+    (for (r 255 0)
+      (for (g 255 0)
+        (for (b 255 0)
+          (push (list r g b 
+                (string (format "%02X" r) (format "%02X" g) (format "%02X" b))) out)
+        )
+      )
+    )
+    out))
+
+(time (setq colors (truecolor)))
+;-> 34342.34
+
+(length colors)
+;-> 16777216
+
+(colors 0)
+;-> (0 0 0 "000000")
+(colors -1)
+;-> (255 255 255 "FFFFFF")
+
+
+----------------------------
+Stringhe gonfiate (inflated)
+----------------------------
+
+Data una stringa, una stringa gonfiata si ottiene calcolando le frequenze dei suoi caratteri e riscrivendo la stringa con la seguente regola:
+ogni carattere della stringa originale deve essere ripetuto per la sua frequenza.
+
+Esempi:
+  massimo --> m=2, a=1, s=2, i=1, o=1 --> mmassssimmo
+  pippo --> p=3, i=1, o=1 --> pppippppppo
+  stop --> (nessun carattere con frequenza > 1) --> stop 
+
+
+(define (inflate str)
+  (local (out uniq alst)
+    (setq out "")
+    (setq str (explode str))
+    ; calcola i caratteri unici della stringa
+    (setq uniq (unique str))
+    ; crea una lista di elementi (carattere frequenza)
+    (setq alst (map (fn(x y) (list x y)) uniq (count uniq str)))
+    ; gonfia la stinga
+    (dolist (c str)
+      (extend out (dup c (lookup c alst)))
+    )
+    out))
+
+Proviamo:
+
+(inflate "massimo")
+;-> "mmassssimmo"
+
+(inflate "pippo")
+;-> "pppippppppo"
+
+(inflate "stop")
+;-> "stop"
+
+(inflate "newlisp")
+;-> "newlisp"
+
+(inflate "mamma mia")
+;-> "mmmmaaammmmmmmmaaa mmmmiaaa"
+
+
+----------------------------
+Interlacciamento di stringhe
+----------------------------
+
+Date due stringhe, generare tutte le sequenze interlacciate di caratteri di queste due stringhe preservando il loro ordine originale.
+Ciò significa che ogni carattere nella sequenza di output deve provenire dalla prima o dalla seconda stringa e il loro ordine deve essere mantenuto così come appare nelle stringhe di input.
+
+Esempio:
+str1 = "abc"
+str2 = "xy"
+Sequenze interlacciate = ("abcxy" "abxcy" "axbcy" "xabcy" "abxyc" "axbyc" "xabyc" "axybc" "xaybc" "xyabc")
+
+Usiamo un approccio ricorsivo. 
+Attraversiamo ogni carattere nelle stringhe di input e consideraimo due possibilità: o scegliamo il carattere dalla prima stringa o dalla seconda stringa.
+Esploriamo ricorsivamente tutte le possibilità aggiungendo il carattere scelto al risultato e spostandoci alla posizione successiva nel risultato e alla stringa corrispondente.
+
+(define (interleave str1 str2)
+  (local (out len1 len2 idx cur-str)
+    (setq out '())
+    (setq len1 (length str1))
+    (setq len2 (length str2))
+    (setq idx (+ len1 len2))
+    (setq cur-str (dup " " idx))
+    (interleave-aux str1 str2 cur-str (- len1 1) (- len2 1) (- idx 1))
+    out))
+
+(define (interleave-aux a b cur-str n m idx)
+  (cond ((and (= n -1) (= m -1)) (push cur-str out))
+        (true
+          (if (>= n 0) (begin
+              (setf (cur-str idx) (a n))
+              (interleave-aux a b cur-str (- n 1) m (- idx 1))))
+          (if (>= m 0) (begin 
+              (setf (cur-str idx) (b m))
+              (interleave-aux a b cur-str n (- m 1) (- idx 1)))))))
+
+Proviamo:
+
+(interleave "abc" "xy")
+;-> ("abcxy" "abxcy" "axbcy" "xabcy" "abxyc" 
+;->  "axbyc" "xabyc" "axybc" "xaybc" "xyabc")
+
+(interleave "abcd" "xyz")
+;-> ("abcdxyz" "abcxdyz" "abxcdyz" "axbcdyz" "xabcdyz" "abcxydz" "abxcydz"
+;->  "axbcydz" "xabcydz" "abxycdz" "axbycdz" "xabycdz" "axybcdz" "xaybcdz"
+;->  "xyabcdz" "abcxyzd" "abxcyzd" "axbcyzd" "xabcyzd" "abxyczd" "axbyczd"
+;->  "xabyczd" "axybczd" "xaybczd" "xyabczd" "abxyzcd" "axbyzcd" "xabyzcd"
+;->  "axybzcd" "xaybzcd" "xyabzcd" "axyzbcd" "xayzbcd" "xyazbcd" "xyzabcd")
 
 ============================================================================
