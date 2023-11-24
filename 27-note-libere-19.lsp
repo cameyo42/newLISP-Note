@@ -6623,7 +6623,6 @@ Esempi:
   pippo --> p=3, i=1, o=1 --> pppippppppo
   stop --> (nessun carattere con frequenza > 1) --> stop 
 
-
 (define (inflate str)
   (local (out uniq alst)
     (setq out "")
@@ -6654,6 +6653,9 @@ Proviamo:
 
 (inflate "mamma mia")
 ;-> "mmmmaaammmmmmmmaaa mmmmiaaa"
+
+(inflate "mississippi")
+;-> "miiiissssssssiiiissssssssiiiippppiiii"
 
 
 ----------------------------
@@ -6705,4 +6707,194 @@ Proviamo:
 ;->  "xabyczd" "axybczd" "xaybczd" "xyabczd" "abxyzcd" "axbyzcd" "xabyzcd"
 ;->  "axybzcd" "xaybzcd" "xyabzcd" "axyzbcd" "xayzbcd" "xyazbcd" "xyzabcd")
 
+
+------------------
+Residui quadratici
+------------------
+
+Un intero r è detto residuo quadratico modulo n se esiste un intero x tale che:
+
+   x^2 ≡ r (mod n)
+
+L'insieme dei residui quadratici modulo n può essere generato calcolando (x^2 mod n) per 0 <= x <= floor(n/2).
+
+(define (residui x n)
+  (map (fn(x) (% (* x x) n)) (sequence 0 (floor (/ n 2)))))
+
+Proviamo:
+
+(residui 10 3)
+;-> (0 1)
+
+(residui 10 10)
+;-> ( 0 1 4 9 6 5)
+
+(residui 13 11)
+;-> (0 1 4 9 5 3)
+
+
+--------
+Zip Bomb
+--------
+
+Una Zip Bomb (Bomba Zip) è solitamente un piccolo file facile da trasportare che non genera sospetti.
+Tuttavia, quando il file viene decompresso, il suo contenuto è maggiore di quanto il sistema possa gestire.
+Le Zip Bomb possono essere annoverate dagli attacchi di tipo DoS (Denial of Service) perché il loro obiettivo è quello di appesantire la macchina dell'utente così da renderla inutilizzabile.
+
+Un esempio di Zip Bomb è il file 42.zip.
+Il file contiene 16 file zippati, che a sua volta contiene 16 file zippati, che ancora contiene 16 file zippati, che ancora contiene 16 file zippati, che ancora contiene 16 file zippati, che contengono 1 file, con la dimensione di 4,3 GB.
+
+Quindi, se estrai tutti i file, molto probabilmente rimarrai senza spazio :-)
+
+  16 x 4294967295       = 68.719.476.720 (68GB)
+  16 x 68719476720      = 1.099.511.627.520 (1TB)
+  16 x 1099511627520    = 17.592.186.040.320 (17TB)
+  16 x 17592186040320   = 281.474.976.645.120 (281TB)
+  16 x 281474976645120  = 4.503.599.626.321.920 (4,5PB)
+
+In realtà esistono due versioni di 42.zip, una versione precedente di 42.374 byte e una versione più recente di 42.838 byte. 
+La differenza è che la versione più recente richiede una password prima di decomprimere.
+
+42.zip (42.838 bytes)
+Password: 42
+
+42-old.zip (42.374 bytes)
+
+Potete trovare il file 42.zip nella cartella "data".
+
+Al seguente link web è possibile trovare entrambi i file:
+
+https://theaviary.me/Zip-Bomb/42.html
+
+Una forma sofisticata di Zip Bomb sfrutta le specifiche dei file zip e l'algoritmo di compressione Deflate per creare bombe senza l'uso di livelli nidificati come quelli utilizzati in 42.zip.
+
+42.838 bytes
+
+Esistono vari tipi di Zip Bomb:
+
+Multilivello: è il caso del file 42.zip. Questa tipologia di attacco utilizzi file Zip ricorsivi "incastonati" l'uno dento l'altro.
+
+Single-layered: in questo caso gli aggressori utilizzano un unico livello di compressione, senza usare l'approccio ricorsivo. 
+Gli autori della Zip Bomb progettano attentamente il set di file di dati per ottenere il miglior rapporto di compressione. 
+Esempi famosi sono le Zip Bomb chiamate zbsm, zblg e zbxl.
+
+Autoreplicante: l'esemplare di Zip Bomb più complesso. 
+Si tratta di un file Zip che si replica quando viene decompresso, creando un processo ricorsivo. 
+Un esempio noto di tale categoria è il file r.zip.
+
+Comunque la maggior parte dei moderni programmi antivirus e dei programmi di compressione (7-zip, Rar) è in grado di rilevare se un file è uno Zip Bomb, per evitare di decomprimerlo.
+
+
+---------------------------------------------------------------
+Sottosequenza ripetuta più lunga di una singola cifra/carattere
+---------------------------------------------------------------
+
+Dato un numero intero positivo, restituisce la sottosequenza a cifra singola più lunga che si verifica almeno due volte e ha i limiti di un'altra cifra (o l'inizio/fine del numero intero).
+
+Esempio: 7888885466662716666
+La sottosequenza più lunga di una singola cifra sarebbe 88888 (7[88888]5466662716666) con una lunghezza pari a 5. 
+Tuttavia, questa sottosequenza si verifica solo una volta nell'intero.
+Invece il risultato dovrebbe essere 6666 (78888854[6666]271[6666]), poiché ricorre (almeno) due volte.
+
+La lunghezza delle sottosequenze ha la priorità rispetto al numero di volte in cui si verificano. 
+(Cioè con 8888858888866656665666, restituiamo 88888 ([88888]5[88888]66656665666, lunghezza 5, si verifica due volte), e non 666 (88888588888[666]5[666]5[666], lunghezza 3, si verifica tre volte).
+
+Se la lunghezza di più sottosequenze è uguale, viene generata quella con il valore più grande. 
+Cioè, con 3331113331119111, restituiamo 333 ([333]111[333]1119111, lunghezza 3, valore 3) e non 111 (333[111]333[111]9[111], lunghezza 3, valore 1)
+
+La sottosequenza deve avere limiti di altre cifre (o l'inizio/fine dell'intero). 
+Cioè, con l'input 122222233433 il risultato è 33 (1222222[33]4[33], lunghezza 2, si verifica due volte) e non 222 (1[222][222]33433, lunghezza 3, si verifica due volte con entrambi non validi).
+
+Questo vale per tutti i numeri che vengono conteggiati nel contatore delle occorrenze. 
+Cioè, con l'input 811774177781382 il risultato è 8 ([8]117741777[8]13[8]2, lunghezza 1, si verifica tre volte) e non 77 (811[77]41[77]781382 / 811[77]417[77]81382, lunghezza 2, ricorre due volte con uno non valido) né 1 (8[1][1]774[1]7778[1]382, lunghezza 1, ricorre quattro volte con due non validi).
+
+La stringa di input può essere alfanumeric (cifre e caratteri).
+
+(define (rle-encode lst)
+"Encode list with Run Length Encoding"
+  (local (palo conta out)
+    (cond ((= lst '()) '())
+          (true
+           (setq out '())
+           (setq palo (first lst))
+           (setq conta 0)
+           (dolist (el lst)
+              ; se l'elemento è uguale al precedente aumentiamo il suo conteggio
+              (if (= el palo) (++ conta)
+                  ; altrimenti costruiamo la coppia (conta el) e la aggiungiamo al risultato
+                  (begin (extend out (list(list conta palo)))
+                         (setq conta 1)
+                         (setq palo el)
+                  )
+              )
+           )
+           ; aggiungiamo l'ultima coppia di valori
+           (extend out (list(list conta palo)))
+          )
+    )
+    out))
+
+(rle-encode (explode "911133111339339339339339"))
+;-> ((1 "9") (3 "1") (2 "3") (3 "1") (2 "3") (1 "9") (2 "3")
+;->  (1 "9") (2 "3") (1 "9") (2 "3") (1 "9") (2 "3") (1 "9"))
+
+(sort (rle-encode (explode "911133111339339339339339")) >)
+;-> ((3 "1") (3 "1") (2 "3") (2 "3") (2 "3") (2 "3") (2 "3") 
+;->  (2 "3") (1 "9") (1 "9") (1 "9") (1 "9") (1 "9") (1 "9"))
+
+A questo punto basta fare un ciclo per ogni elemento della lista per trovare il primo elemento che compare più di una volta.
+
+(define (longest str)
+  (setq lst (sort (rle-encode (explode str)) >))
+  (setq stop nil)
+  (dolist (el lst stop)
+    ; se l'elemento corrente compare più di una volta,
+    ; allora è la soluzione    
+    (cond ((> (first (count (list el) lst)) 1)
+           (println (dup (el 1) (el 0)))
+           (setq stop true)))))
+
+Proviamo:
+
+(longest "911133111339339339339339")
+;-> 111
+(longest "900033000339339339339339")
+;-> 000
+(longest "BAAACCAAACCBCCBCCBCCBCCB")
+;-> AAA
+
+(longest "7888885466662716666")
+;-> 6666
+
+(longest "3331113331119111")
+;-> 333
+
+(longest "777333777333")
+;-> 777
+
+(longest "122222233433")
+;-> 33
+
+(longest "811774177781382")
+;-> 8
+
+(longest "555153333551")
+;-> 1
+
+(longest "12321")
+;-> 2
+
+(longest "944949949494999494")
+;-> 9
+
+(longest "8888858888866656665666")
+;-> 88888
+
+(longest "1112221112221111")
+;-> 222
+
+(longest "911133111339339339339339")
+;-> 111
+
 ============================================================================
+

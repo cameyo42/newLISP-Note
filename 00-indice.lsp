@@ -2109,6 +2109,13 @@ NOTE LIBERE 19
   Colori True color
   Stringhe gonfiate (inflated)
   Interlacciamento di stringhe
+  Residui quadratici
+  Zip Bomb
+  Sottosequenza ripetuta più lunga di una singola cifra/carattere
+
+NOTE LIBERE 20
+==============
+  Segment tree
 
 PROBLEMI SUI DADI
 =================
