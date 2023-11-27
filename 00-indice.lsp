@@ -2116,6 +2116,8 @@ NOTE LIBERE 19
 NOTE LIBERE 20
 ==============
   Segment tree
+  Somma quadrata dei quadrati dei divisori
+  I tre numeri interi sono distinti?
 
 PROBLEMI SUI DADI
 =================

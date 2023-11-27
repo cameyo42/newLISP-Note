@@ -343,5 +343,103 @@ L'articolo continua con versioni avanzate della struttura segment tree "Advanced
  - Finding the k-th smallest number in a range
  - Dynamic segment tree (implicit segment tree or sparse segment tree)
 
+
+----------------------------------------
+Somma quadrata dei quadrati dei divisori
+----------------------------------------
+
+Determinare la sequenza dei numeri la cui somma dei quadrati dei divisori è anch'essa un numero quadrato.
+
+Sequenza OEIS A046655:
+Numbers whose sum of the squares of divisors is also a square number
+  1, 42, 246, 287, 728, 1434, 1673, 1880, 4264, 6237, 9799, 9855, 18330,
+  21352, 21385, 24856, 36531, 39990, 46655, 57270, 66815, 92664, 125255,
+  156570, 182665, 208182, 212949, 242879, 273265, 380511, 391345, 411558,
+  539560, 627215, 693160, 730145, 741096, ...
+
+Esempio:
+Numero = 42
+Divisori: 1 2 3 6 7 14 21 42
+Quadrati dei divisori: 1, 4, 9, 36, 49, 196, 441, 1764
+Somma dei Quadrati dei divisori = 2500
+Poichè 50x50 = 2500 si tratta di un quadrato perfetto, quindi il numero 42 fa parte della sequenza.
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+Funzione che fattorizza un numero intero:
+
+(define (factor-group num)
+  (if (= num 1) '((1 1))
+    (letn (fattori (factor num)
+          unici (unique fattori))
+      (transpose (list unici (count unici fattori))))))
+
+Funzione che verifica se un numero intero è un quadrato perfetto:
+
+(define (square? n) (let (v (+ (sqrt n 0.5))) (= n (* v v))))
+
+Funzione che verifica se un numero appartiene alla sequenza:
+
+(define (seq? num)
+  (square? (apply + (map (fn(x) (* x x)) (divisors num)))))
+
+(time (println (filter seq? (sequence 1 1e6))))
+;-> (1 42 246 287 728 1434 1673 1880 4264 6237 9799 9855 18330
+;->  21352 21385 24856 36531 39990 46655 57270 66815 92664 125255
+;->  156570 182665 208182 212949 242879 273265 380511 391345 411558
+;->  539560 627215 693160 730145 741096 773224 814463 931722 992680)
+;-> 19144.706
+
+
+----------------------------------
+I tre numeri interi sono distinti?
+----------------------------------
+
+Dati tre numeri a, b e c determinare quanti sono quelli distinti.
+
+Esempi:
+  numeri: 1 2 3 (3 numeri distinti: 1, 2 e 3)
+  numeri: 1 2 2 (2 numeri distinti: 1 e 2)
+  numeri: 2 2 2 (1 numero distinto: 2)
+
+(define (check a b c)
+  (cond ((!= a b c) 3) ; numeri tutti diversi
+        ((= a b c) 1)  ; numeri tutti uguali
+        (true 2)))     ; numeri in cui uno di loro è duplicato
+
+(check 1 2 3)
+;-> 3
+(check 1 2 2)
+;-> 2
+(check 2 2 2)
+;-> 1
+
+Se i numeri vengono dati come elementi di una lista possiamo usare "apply":
+
+(apply check '(1 2 3))
+;-> 3
+(apply check '(1 2 2))
+;-> 2
+(apply check '(2 2 2))
+;-> 1
+
 ============================================================================
 

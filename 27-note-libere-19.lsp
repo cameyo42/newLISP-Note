@@ -1972,7 +1972,7 @@ Facciamo alcune prove:
 ;-> p16 = F
 ;-> "RSOFNC85B69H501F"
 
-Nota: anche se questo algoritmo permette di calcolare il codice fiscale di una persona fisica, l'unico soggetto che per legge rilascia un codice fiscale validato è l'anagrafe tributaria dell'Agenzia delle entrate.
+Nota: anche se questo algoritmo permette di calcolare il codice fiscale di una persona fisica, l'unico soggetto che per legge rilascia un codice fiscale validato è l'anagrafe tributaria dell'Agenzia delle Entrate.
 
 
 ---------------
@@ -6767,8 +6767,6 @@ Al seguente link web è possibile trovare entrambi i file:
 https://theaviary.me/Zip-Bomb/42.html
 
 Una forma sofisticata di Zip Bomb sfrutta le specifiche dei file zip e l'algoritmo di compressione Deflate per creare bombe senza l'uso di livelli nidificati come quelli utilizzati in 42.zip.
-
-42.838 bytes
 
 Esistono vari tipi di Zip Bomb:
 
