@@ -441,5 +441,148 @@ Se i numeri vengono dati come elementi di una lista possiamo usare "apply":
 (apply check '(2 2 2))
 ;-> 1
 
+
+--------------------
+Un problema del 1953
+--------------------
+
+Il 20 giugno 1953 George Gamow inviò il seguente telegramma a Stanislaw Ulam:
+
+"Caro Stan, un problema per te: usando 20 lettere diverse scrivi una lunga parola contenente qualche migliaio di lettere.
+Quanto dovrebbe essere lunga questa parola per avere buone probabilità di trovarci dentro tutte le parole di 10 lettere?
+Pregoti telegrafarmi risposta."
+
+Stan rispose immediatamente da Los Alamos:
+
+"Pregoti telegrafarmi se consentito saltare lettere in parola lunga per formare parole 10 lettere. Se si, risposta abbastanza breve.
+Se solo lettere contigue consentite risposta molto maggiore dieci alla ventesima potenza e Carson spedirà questa parola a carico destinatario.
+Con affetto, Stan."
+
+Quante parole di 10 lettere posso generare con un alfabeto di 20 simboli?
+
+Se ogni simbolo può essere utilizzato più volte in una parola e l'ordine dei simboli è significativo, allora abbiamo 20^10 possibilità.
+Questo è perché abbiamo 20 opzioni per il primo simbolo, 20 per il secondo, e così via, fino al decimo simbolo.
+Quindi, il numero totale di parole possibili sarà 10^20.
+
+Se, invece, l'ordine dei simboli non è significativo e possiamo utilizzare ciascun simbolo solo una volta, allora stiamo parlando di una combinazione.
+In questo caso, il numero di combinazioni è data da:
+
+  (n−r)!r!
+  --------
+     n!
+
+  dove, n è il numero totale di simboli (20).
+        r è la lunghezza della parola (10)
+
+Quindi abbiamo:
+
+  (20-10)!10!
+  -----------
+      20!
+
+Questo rappresenta il numero di parole uniche di 10 simboli che possiamo generare usando 20 simboli diversi senza ripetizione e con l'ordine non significativo.
+
+La probabilità di trovare una specifica parola di 10 lettere in una sequenza di k lettere, dove ogni lettera può essere una delle 20 diverse lettere con probabilità uniforme, è data da:
+
+  P = 1 - (1 - 1/20^10)^k
+
+Nell'equazione, la probabilità P rappresenta la probabilità di trovare almeno una volta la parola di 10 lettere in una sequenza di k lettere.
+
+Possiamo fissare un valore desiderato per P (ad esempio, 0.95 per una probabilità del 95%) e risolvere l'equazione per k:
+
+  0.95 = 1 - (1 - 1/20^10)^k
+
+  0.95 + (10239999999999/10240000000000)^k = 1
+
+  (10239999999999/10240000000000)^k = 0.05
+
+  k ≈ 3.12305×10^13
+
+Quindi con una parola lunga 3.12305×10^13 abbiamo il 95% di probabilità di trovare tutte le parole di 10 lettere che si possono creare con 20 simboli.
+
+
+-----------------------
+Software version number
+-----------------------
+
+Quando viene pubblicato un software, gli viene assegnato un numero di versione.
+Per aggiornare il software all'ultima versione, gli utenti devono capire quale versione dovrebbe essere più recente.
+Consideriamo solo i numeri di versione che sono alcune cifre intervallate da punti.
+In particolare:
+   - Un numero di versione è una stringa non vuota che può contenere solo cifre (0..9) e punti (.).
+   - I punti non sarebbero il primo/ultimo carattere di un numero di versione.
+   - Ci devono essere alcune cifre tra i punti. Non possono apparire due punti consecutivi.
+
+Esempi:
+  2         1        18.04     18.4     
+  1.0.0     1        7.010     7.8      
+  1.0       1.0.0    1.0.0.1.0 1.00.00.2
+  1.2.42    1.2.41   00.00.01  0.0.0.1  
+  1.1.56789 1.2.0    0.0.1     0.1      
+  1.10      1.2      42.0      4.2.0    
+  1.20      1.150    999.999   999.999.1
+  2018.08.1 2018.08
+
+Questo problema può essere risolto usando il natural-sort.
+
+(define (natural-sort l)
+  (let (natural-key (lambda (s) (filter true?
+    (flat (transpose (list
+            (parse s "[0-9]+" 0)
+            (map int (find-all "[0-9]+" s))))))))
+    (sort l (fn (x y) (< (natural-key x)
+            (natural-key y))))
+))
+
+(setq lst '("2" "1" "1.0.0" "1" "1.0" "1.0.0" "1.2.42" "1.2.41" "1.1.56789"
+            "1.2.0" "1.10" "1.2" "1.20" "1.150" "18.04" "18.4" "7.010" "7.8"
+            "1.0.0.1.0" "1.00.00.2" "00.00.01" "0.0.0.1" "0.0.1" "0.1" "42.0"
+            "4.2.0" "999.999" "999.999.1" "2018.08.1" "2018.08"))
+
+(natural-sort lst)
+;-> ("0.0.0.1" "0.0.1" "00.00.01" "0.1" "1" "1" "1.0" "1.0.0" "1.0.0"
+;->  "1.0.0.1.0" "1.00.00.2" "1.1.56789" "1.2" "1.2.0" "1.2.41" "1.2.42"
+;->  "1.10" "1.20" "1.150" "2" "4.2.0" "7.8" "7.010" "18.4" "18.04" "42.0"
+;->  "999.999" "999.999.1" "2018.08" "2018.08.1")
+
+
+------------------
+Primi in un numero
+------------------
+
+Dato un numero trovare al suo interno i "sottonumeri" primi.
+Un "sottonumero" primo è una sequenza consecutiva di cifre (prese dal numero dato), che rappresenta un numero primo.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (find-primi num)
+  (local (out len str val)
+    (setq out '())
+    (setq len (length num))
+    (setq str (string num))
+    (for (i 0 (- len 1))
+      (for (j 1 (- len i))
+        ;(println i { } j)
+        (setq val (int (slice str i j) 0 10))
+        ;(print val { })
+        (if (prime? val) (push val out -1))
+      )
+    )
+    out))
+
+Proviamo:
+
+(find-primi 1234567890)
+;-> (2 23 23456789 3 4567 5 67 7 89)
+
+(find-primi 1234567891011121314)
+;-> (1234567891 12345678910111 2 23 23456789 3 4567 4567891 45678910111
+;->  45678910111213 5 56789101 67 67891 678910111213 7 789101 78910111213
+;->  89 89101 9101112131 101 10111 11 1112131 11 1112131 11 11213 1213 2 
+;->  2131 13 131 3 31)
+
 ============================================================================
 

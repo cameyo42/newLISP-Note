@@ -999,15 +999,18 @@ sottoliste contigue = (1) (1 2) (1 2 3) (1 2 3 4)
                       (4)
 
 (define (contigue lst)
-  (setq out '())
-  (setq len (length lst))
-  (for (i 0 (- len 1))
-    (for (j 1 (- len i))
-      ;(println i { } j)
-      (push (slice lst i j) out -1)
+  (local (out len)
+    (setq out '())
+    (setq len (length lst))
+    (for (i 0 (- len 1))
+      (for (j 1 (- len i))
+        ;(println i { } j)
+        (push (slice lst i j) out -1)
+      )
     )
-  )
-  out)
+    out))
+
+Proviamo:
 
 (contigue '(1 2 3 4))
 ;-> ((1) (1 2) (1 2 3) (1 2 3 4) (2) (2 3) (2 3 4) (3) (3 4) (4))
@@ -1018,6 +1021,8 @@ sottoliste contigue = (1) (1 2) (1 2 3) (1 2 3 4)
 ;->  (3) (3 4) (3 4 5)
 ;->  (4) (4 5)
 ;->  (5))
+
+Nota: lo stesso metodo può essere applicato alle stringhe.
 
 
 -----------------------
@@ -1049,11 +1054,13 @@ Esploriamo ricorsivamente entrambe le opzioni tenendo traccia del percorso corre
           (if (= (+ conta 1) k) (push (array-list percorso) out -1))
         )))
 
+Proviamo:
+
 (setq a '(("A" "B")
           ("C" "D")))
 (paths a)
-(pow 2 4)
-(pow 2 3)
+;-> (("A" "C" "D") ("A" "B" "D"))
+
 (setq b '(("A" "B" "C" "D")
           ("E" "F" "G" "H")
           ("I" "J" "K" "L")

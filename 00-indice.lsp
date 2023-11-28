@@ -2118,6 +2118,9 @@ NOTE LIBERE 20
   Segment tree
   Somma quadrata dei quadrati dei divisori
   I tre numeri interi sono distinti?
+  Un problema del 1953
+  Software version number
+  Primi in un numero
 
 PROBLEMI SUI DADI
 =================
