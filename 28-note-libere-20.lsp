@@ -584,5 +584,58 @@ Proviamo:
 ;->  89 89101 9101112131 101 10111 11 1112131 11 1112131 11 11213 1213 2 
 ;->  2131 13 131 3 31)
 
+
+--------------------------------------------------
+Selezionare/rimuovere elementi da una lista ogni k
+--------------------------------------------------
+
+Vediamo due funzioni per selezionare e rimuovere gli elementi di una lista ogni k elementi.
+
+Funzione che rimuove gli elementi ogni k:
+
+(define (remove-k lst k)
+  (let (out '())
+    (dolist (el lst) (if (!= (% (+ $idx 1) k) 0) (push el out -1)))
+    out))
+
+Proviamo:
+
+(setq a (sequence 1 50))
+
+(remove-k a 3)
+;-> (1 2 4 5 7 8 10 11 13 14 16 17 19 20 22 23 25 26 28 
+;->  29 31 32 34 35 37 38 40 41 43 44 46 47 49 50)
+
+(remove-k a 1)
+;-> ()
+
+Funzione che seleziona gli elementi ogni k:
+
+(define (select-k lst k)
+  (let (out '())
+    (dolist (el lst) (if (= (% (+ $idx 1) k) 0) (push el out -1)))
+    out))
+
+Proviamo:
+(select-k a 3)
+;-> (3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48)
+
+(select-k a 1)
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+;->  20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35
+;->  36 37 38 39 40 41 42 43 44 45 46 47 48 49 50)
+
+Verifichiamo la correttezza delle due funzioni:
+
+(= (sort (extend (select-k a 3) (remove-k a 3))) (sort a))
+;-> true
+
+(setq b '(46 45 94 74 10 59 38 73 60 57 36 15 22
+          42 80 51 98 75 34 16 65 49 6 69 50))
+
+(= (sort (extend (select-k b 7) (remove-k b 7))) (sort b))
+;-> true
+
+
 ============================================================================
 

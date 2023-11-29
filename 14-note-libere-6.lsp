@@ -2272,6 +2272,116 @@ Test di velocità tra le tre funzioni:
 La funzione del primo metodo funzionale è 3 volte più veloce delle altre due funzioni.
 
 
+-----------------------------------------------
+Selezione di elementi con indice pari o dispari
+-----------------------------------------------
+
+Data una lista scrivere due funzioni, una che seleziona gli elementi che hanno indice pari e una che seleziona gli elementi che hanno indice dispari.
+
+Metodo iterativo:
+
+(setq data '(0 1 2 3 4 5 6 7 8 9 10))
+(setq data1 '(0 1 2 3 4 5 6 7 8 9 10 11 12 13))
+
+(define (select-even lst)
+  (let (out '())
+    (dolist (el lst)
+      ; l'indice 0 è pari
+      (if (even? $idx) (push el out -1)))
+    out))
+
+(select-even data)
+;-> (0 2 4 6 8 10)
+
+(select-even data1)
+;-> (0 2 4 6 8 10 12)
+
+(define (select-odd lst)
+  (let (out '())
+    (dolist (el lst)
+      ; l'indice 0 è pari
+      (if (odd? $idx) (push el out -1)))
+    out))
+
+(select-odd data)
+;-> (1 3 5 7 9)
+(select-odd data1)
+;-> (1 3 5 7 9 11 13)
+
+Primo metodo funzionale:
+
+(define (select-even2 lst)
+    (if (odd? (setq len (length lst)))
+        (select lst (sequence 0 len 2))
+        (select lst (sequence 0 (- len 1) 2))))
+
+(select-even2 data)
+;-> (0 2 4 6 8 10)
+(select-even2 data1)
+;-> (0 2 4 6 8 10)
+
+(define (select-odd2 lst)
+    (if (even? (setq len (length lst)))
+        (select lst (sequence 1 len 2))
+        (select lst (sequence 1 (- len 1) 2))))
+
+(select-odd2 data)
+;-> (1 3 5 7 9)
+(select-odd2 data1)
+;-> (1 3 5 7 9 11 13)
+
+Secondo metodo funzionale:
+
+(define (select-odd3 lst)
+  (select lst (index odd? lst)))
+
+(select-odd3 data)
+;-> (1 3 5 7 9)
+(select-odd3 data1)
+;-> (1 3 5 7 9 11 13)
+
+(define (select-even3 lst)
+  (select lst (index even? lst)))
+
+(select-even3 data)
+;-> (2 4 6 8 10)
+(select-even3 data1)
+;-> (2 4 6 8 10 12)
+
+Test di velocità tra le tre funzioni:
+
+(silent (setq test (sequence 1 1001)))
+
+(time (select-odd test) 10000)
+;-> 564.974
+(time (select-odd2 test) 10000)
+;-> 141.665
+(time (select-odd3 test) 10000)
+;-> 544.01
+(time (select-even test) 10000)
+;-> 580.453
+(time (select-even2 test) 10000)
+;-> 141.65
+(time (select-even3 test) 10000)
+;-> 543.01
+
+(silent (setq test (sequence 1 1000000)))
+(time (select-odd test) 10)
+;-> 668.664
+(time (select-odd2 test) 10)
+;-> 208.706
+(time (select-odd3 test) 10)
+;-> 600.422
+(time (select-even test) 10)
+;-> 674.777
+(time (select-even2 test) 10)
+;-> 206.541
+(time (select-even3 test) 10)
+;-> 597.54
+
+La funzione del primo metodo funzionale è 3 volte più veloce delle altre due funzioni.
+
+
 -----------------------------
 Numero interno all'intervallo
 -----------------------------

@@ -6414,6 +6414,26 @@ Kelsey Hightower
 "There are only two hard things in Computer Science: cache invalidation and naming things."
 - Phil Karlton
 
+"È più facile scrivere un codice nuovo che capirne uno vecchio."
+John Von Neumann
+
+"Se è così semplice creare organismi viventi, perchè non ne create uno voi?"
+Nils Aaal Barricelli
+
+"L'assenza di segnalew non dovrebbe mai essere usata come segnale"
+Julian Bigelow
+
+"La parte che è stabile la prevederemo. E la parte che è instabile la controlleremo."
+John Von Neumann
+
+"Il fattore 4 è un dono di Dio (o dell'altra fazione)."
+John Von Neumann
+
+"Non vedo il problema dal punto di vista del matematico, come fece per esempio Von Neumann, lo vedo dal punto di vista dell'ingegnere.
+Forse è un bene che manchi quasi totalmente un supporto per idee del genere.
+Magari c'è pure il diavolo dietro."
+Konrad Zuse
+
 
 ============================================================================
  Prefissi del Sistema Internazionale di unità di misura
