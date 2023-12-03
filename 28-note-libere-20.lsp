@@ -637,5 +637,119 @@ Verifichiamo la correttezza delle due funzioni:
 ;-> true
 
 
+---------------------
+La regola di Naismith
+---------------------
+
+La regola di Naismith aiuta nella pianificazione di una spedizione a piedi o di una escursione calcolando quanto tempo ci vorrà per percorrere il percorso previsto, compreso l'eventuale tempo extra impiegato quando si cammina in salita.
+Questa regola pratica fu ideata da William W. Naismith, un alpinista scozzese, nel 1892.
+Una versione moderna può essere formulata come segue:
+"Calcolare un'ora ogni 5 km in piano, più un'ora aggiuntiva per ogni 600 m di salita"
+Questa regola di base presuppone che gli escursionisti abbiano una forma fisica ragionevole, su un terreno tipico e in condizioni normali.
+Non tiene conto dei ritardi, come le pause prolungate per riposarsi o visitare la città, o degli ostacoli alla navigazione.
+
+  velocità-piana = 5000 / 60 = 83.333333 metri/min
+  velocità-salità = 600 / 60 = 10 metri/min
+
+(define (naismith dist-piana dist-salita)
+  (local (v1 v2 t1 t2)
+    (setq v1 (div 5000 60))
+    (setq v2 (div 600 60))
+    (setq t1 (div dist-piana v1))
+    (setq t2 (div dist-salita v2))
+    (add t1 t2))
+
+Proviamo:
+
+(naismith 2000 1000)
+;-> 124 ;minuti
+
+(naismith 1000 2000)
+;-> 212 ;minuti
+
+
+-------------------
+Prodotto più comune
+-------------------
+
+Dato un elenco di numeri interi positivi con più di un elemento, restituisce il prodotto più comune di due elementi nell'array.
+
+Ad esempio, l'MCM della lista (2 3 4 5 6) è 12, poiché una tabella di prodotti è:
+
+      2  3  4  5  6
+    +---------------
+  2 | -  6  8  10 12
+  3 | -  -  12 15 18
+  4 | -  -  -  20 24
+  5 | -  -  -  -  30
+  6 | -  -  -  -  -
+
+Poiché 12 appare più volte (due volte come 2*6 e 3*4).
+Non vengono considerati i prodotti di un elemento per se stesso.
+Tuttavia, gli elementi identici vengono comunque moltiplicati, quindi la tabella per (2 3 3) avrà il seguente aspetto:
+
+      2  3  3
+    +--------
+  2 | -  6  6
+  3 | -  -  9
+  3 | -  -  -
+
+Con l'MCM pari a 6.
+
+(setq lst '(2 3 4 5 6))
+
+(define (mcm lst)
+  (local (out freq uniq)
+    (setq out '())
+    (setq freq '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+        ;(println (lst i) { } (lst j))
+        (push (* (lst i) (lst j)) freq -1)
+      )
+    )
+    (setq uniq (unique freq))
+    (setq freq (sort (map (fn(x y) (list x y)) (count uniq freq) uniq) >))
+    ;(println freq)
+    (setq massimo (freq 0 0))
+    ;(println massimo)
+    (dolist (el freq) 
+      ;(println el)
+      (if (= (el 0) massimo) (push el out -1))
+    )
+    out))
+
+Facciamo alcune prove:
+
+(mcm (sequence 1 10))
+;-> ((2 40) (2 30) (2 24) (2 20) (2 18) (2 12) (2 10) (2 8) (2 6))
+
+(mcm '(2 3 4 5 6))
+;-> ((2 12))
+
+(mcm '(7 2))
+;-> ((1 14))
+
+(mcm '(2 3 3))
+;-> ((2 6))
+
+(mcm '(3 3 3))
+;-> ((3 9))
+
+(mcm '(1 1 1 1 2 2))
+;-> ((8 2))
+
+(mcm '(6 200 10 120))
+;-> ((2 1200))
+
+(mcm '(2 3 4 5 6 7 8 8))
+;-> ((3 24))
+
+(mcm '(5 2 9 10 3 4 4 4 7))
+;-> ((4 20))
+
+(mcm '(9 7 10 9 7 8 5 10 1))
+;-> ((4 90) (4 70) (4 63))
+
 ============================================================================
 

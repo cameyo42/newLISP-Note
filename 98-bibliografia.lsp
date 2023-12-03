@@ -56,6 +56,7 @@
   http://www.nhplace.com/kent/Papers/Special-Forms.html
 
   Libri:
+  ------
   "The Littler Schemer", Friedman-Felleiser, 4ed, 1996
 
   "The Art of Computer Programming", Donald Knuth, 4 volumi, 1968..2015
@@ -88,8 +89,11 @@
 
   "Duelling Idiots and Other Probability Puzzlers", Paul Nahin, 2000
   "Digital Dice Computational Solutions to Practical Probability Problems", Paul Nahin, 2008
+  
+  "La Cattedrale di Turing: le origini dell'universo digitale", George Dyson, 2012
 
   Siti web:
+  ---------
   Cut-the-knot è un sito web dedicato alla divulgazione di una grande varietà di argomenti matematici amministrato da Alexander Bogomolny fino alla sua scomparsa l'8 luglio 2018
   https://www.cut-the-knot.org/
 

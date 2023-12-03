@@ -2122,6 +2122,8 @@ NOTE LIBERE 20
   Software version number
   Primi in un numero
   Selezionare/rimuovere elementi da una lista ogni k
+  Prodotto più comune
+  La regola di Naismith
 
 PROBLEMI SUI DADI
 =================
