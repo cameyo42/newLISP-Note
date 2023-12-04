@@ -751,5 +751,43 @@ Facciamo alcune prove:
 (mcm '(9 7 10 9 7 8 5 10 1))
 ;-> ((4 90) (4 70) (4 63))
 
+
+----------------------------------------------------
+A Million Random Digits with 100,000 Normal Deviates
+----------------------------------------------------
+
+"A Million Random Digits with 100,000 Normal Deviates" è un libro di numeri casuali pubblicato dalla RAND Corporation nel 1955.
+Il libro, composto da un elenco di numeri casuali, è stato un importante strumento nel settore della statistica.
+È stato creato a partire dal 1947 usando la simulazione elettronica di una roulette connessa ad un computer i cui risultati, adeguatamente filtrati, sono stati inseriti nel libro. Questo fu molto importante in quanto non esisteva un elenco di numeri casuali di tali dimensioni.
+Oggi siamo abituati ad utilizzare il generatore di numeri pseudo-casuali codificato in una routine, ma all'epoca questo non era possibile.
+
+Nel 1949, durante la progettazione del computer Manchester Mark I, Alan Turing progettò un generatore di numeri casuali che sfruttava una sorgente di rumore elettronico veramente casuale.
+
+John Von Neumann disse che "Any one who considers arithmetical methods of producing random digits is, of course, in a state of sin."
+In italiano, "chiunque prenda in considerazione i metodi aritmetici per generare numeri casuali commette, ovviamente, peccato."
+
+"Random numbers should not be generated with a method chosen at random."
+"I numeri casuali non dovrebbero essere generati con un metodo scelto a caso."
+Donald E. Knuth
+
+Esistono due categorie principali di generatori di numeri casuali:
+A) Generatori di numeri Pseudo Random (Generatori lineari congruenti, Mersenne Twister, altri)
+B) Generatori di numeri random veri (Generatori fisici di rumore, caos, altri)
+
+I numeri, che sono di pubblico dominio, sono riportati nel file "rand-million.txt" nella cartella "data".
+Ogni riga contiene una cifra da 0 a 9.
+
+Vediamo per curiosità la frequenza delle cifre contenute nel file:
+
+(silent (setq nums (parse (read-file "rand-million.txt"))))
+
+(setq digit (map string (sequence 0 9)))
+;-> ("0" "1" "2" "3" "4" "5" "6" "7" "8" "9")
+
+(count digit nums)
+;-> (99803 100050 100640 100311 100094 100214 99942 99559 100107 99280)
+
+Vedi anche "Generatore di numeri casuali" su "Note libere 1".
+
 ============================================================================
 

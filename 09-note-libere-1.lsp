@@ -7034,6 +7034,7 @@ Vediamo un generatore di numeri casuali fornito da Lutz:
 (gen_random 100)
 ;-> 63.64669067215363
 
+Vedi anche "A Million Random Digits with 100,000 Normal Deviates" in "Note libere 20".
 
 ---------------------
 Liste di associazione
