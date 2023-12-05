@@ -789,5 +789,238 @@ Vediamo per curiosità la frequenza delle cifre contenute nel file:
 
 Vedi anche "Generatore di numeri casuali" su "Note libere 1".
 
+
+-----------------------------
+Partizioni prime di un numero
+-----------------------------
+
+La partizione prima si riferisce al processo di divisione di un dato numero in un insieme di numeri primi.
+Ad esempio, se il numero è 6, può essere partizionato come 2 + 2 + 2 o 3 + 3 (nota che 1 non viene considerato primo).
+L'obiettivo di generare tutte le partizioni prime di un dato numero è elencare tutti i modi possibili per dividere il numero in numeri primi .
+
+Per generare tutte le partizioni prime di un numero, possiamo utilizzare un approccio ricorsivo.
+Per prima cosa identifichiamo i numeri primi che possono essere utilizzati per la partizione.
+Quindi prendiamo ciascun numero primo e partizioniamo ricorsivamente il numero rimanente finché non raggiungiamo una partizione in cui tutti i numeri sono primi.
+
+Sequenza OEIS A000607: Number of partitions of n into prime parts
+  1, 0, 1, 1, 1, 2, 2, 3, 3, 4, 5, 6, 7, 9, 10, 12, 14, 17, 19, 23, 26, 30,
+  35, 40, 46, 52, 60, 67, 77, 87, 98, 111, 124, 140, 157, 175, 197, 219,
+  244, 272, 302, 336, 372, 413, 456, 504, 557, 614, 677, 744, 819, 899, 987,
+  1083, 1186, 1298, 1420, 1552, 1695, 1850, 2018, 2198, 2394, 2605, 2833,
+  3079, 3344, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che genera una lista con valori true negli indici primi:
+
+(define (primes num) (map prime? (sequence 0 num)))
+
+Funzione che genera le partizioni in modo ricorsivo:
+
+(define (partition value idx sum num)
+  (cond ((= sum num) 
+          (push (slice result 0 idx) out -1)
+          (if show (println (slice result 0 idx))))
+        ((or (>= idx (/ num 2)) (> sum num)) nil) ; condizione di stop
+        (true
+          (for (i value num)
+            (if (prime i)
+              (begin
+                (setf (result idx) i)
+                ; trova il prossimo elemento
+                (partition i (+ idx 1) (+ sum i) num)
+              ))))))
+
+Funzione che genera tutte le partizioni di un numero con tutti numeri primi:
+
+(define (prime-part num show)
+  (local (out result prime)
+    (setq out '())
+    (setq result (array (/ num 2) '(0)))
+    (setq prime (primes num))
+    (partition 2 0 0 num)
+    out))
+
+Facciamo alcune prove:
+
+(prime-part 7)
+;-> ((2 2 3) (2 5) (7))
+
+(prime-part 9)
+;-> ((2 2 2 3) (2 2 5) (2 7) (3 3 3))
+
+(prime-part 17)
+;-> ((2 2 2 2 2 2 2 3) (2 2 2 2 2 2 5) (2 2 2 2 2 7) (2 2 2 2 3 3 3) 
+;->  (2 2 2 3 3 5) (2 2 2 11) (2 2 3 3 7) (2 2 3 5 5) (2 2 13) (2 3 3 3 3 3)
+;->  (2 3 5 7) (2 5 5 5) (3 3 3 3 5) (3 3 11) (3 7 7) (5 5 7) (17))
+
+(prime-part 21 true)
+;-> (2 2 2 2 2 2 2 2 2 3)
+;-> (2 2 2 2 2 2 2 2 5)
+;-> (2 2 2 2 2 2 2 7)
+;-> (2 2 2 2 2 2 3 3 3)
+;-> (2 2 2 2 2 3 3 5)
+;-> (2 2 2 2 2 11)
+;-> (2 2 2 2 3 3 7)
+;-> (2 2 2 2 3 5 5)
+;-> (2 2 2 2 13)
+;-> (2 2 2 3 3 3 3 3)
+;-> (2 2 2 3 5 7)
+;-> (2 2 2 5 5 5)
+;-> (2 2 3 3 3 3 5)
+;-> (2 2 3 3 11)
+;-> (2 2 3 7 7)
+;-> (2 2 5 5 7)
+;-> (2 2 17)
+;-> (2 3 3 3 3 7)
+;-> (2 3 3 3 5 5)
+;-> (2 3 3 13)
+;-> (2 3 5 11)
+;-> (2 5 7 7)
+;-> (2 19)
+;-> (3 3 3 3 3 3 3)
+;-> (3 3 3 5 7)
+;-> (3 3 5 5 5)
+;-> (3 5 13)
+;-> (3 7 11)
+;-> (5 5 11)
+;-> (7 7 7)
+;-> ((2 2 2 2 2 2 2 2 2 3) (2 2 2 2 2 2 2 2 5) (2 2 2 2 2 2 2 7) 
+;->  (2 2 2 2 2 2 3 3 3) (2 2 2 2 2 3 3 5) (2 2 2 2 2 11) (2 2 2 2 3 3 7)
+;->  (2 2 2 2 3 5 5) (2 2 2 2 13) (2 2 2 3 3 3 3 3) (2 2 2 3 5 7) 
+;->  (2 2 2 5 5 5) (2 2 3 3 3 3 5) (2 2 3 3 11) (2 2 3 7 7) (2 2 5 5 7)
+;->  (2 2 17) (2 3 3 3 3 7) (2 3 3 3 5 5) (2 3 3 13) (2 3 5 11) (2 5 7 7)
+;->  (2 19) (3 3 3 3 3 3 3) (3 3 3 5 7) (3 3 5 5 5) (3 5 13) (3 7 11) 
+;->  (5 5 11) (7 7 7))
+
+(length (prime-part 42))
+;-> 372
+
+(time (println (length (prime-part 99))))
+;-> 38257
+;-> 5280.173
+
+(map (fn(x) (length (prime-part x))) (sequence 2 42))
+;-> (1 1 1 2 2 3 3 4 5 6 7 9 10 12 14 17 19 23 26 30 35 40 46 52 60 67
+;->  77 87 98 111 124 140 157 175 197 219 244 272 302 336 372)
+
+Il numero di partizioni di un numero N in numeri primi può essere calcolato con la seguente formula:
+
+  k(N) = (1/N) * (SFP(N) + Sum[j=1..(N-1)](SFP(j)*k(N-j)))
+  k(0) = 1 
+  k(1) = 0
+
+dove SFP(N) è la somma dei fattori primi distinti di N:
+
+(define (SFP num) (apply + (unique (factor num))))
+(SFP 12)
+;-> 5
+
+Vedi anche "Lista di tutte le partizioni di un numero" su "Funzioni varie".
+
+
+---------------------------------
+Percorsi Hamiltoniani in un grafo
+---------------------------------
+
+Dato un grafo con N vertici, calcolare tutti i percorsi (cammini) hamiltoniani presenti nel grafo. 
+Un percorso hamiltoniano è un percorso che visita ogni vertice esattamente una volta e ritorna al vertice di partenza.
+
+Usiamo un algoritmo che esplora tutti i possibili percorsi nel grafico utilizzando il backtracking.
+Inizia da ciascun vertice del grafico ed esploriamo ricorsivamente tutti i vertici adiacenti, contrassegnandoli come visitati.
+Se viene trovato un percorso di lunghezza N (numero di vertici) e il vertice corrente è il vertice iniziale, significa che è stato trovato un percorso hamiltoniano.
+
+L'algoritmo utilizza un array (visited) per tenere traccia dei vertici visitati e un array (result) per memorizzare il percorso corrente esplorato.
+L'array dei vertici visitati viene azzerato all'inizio di ogni iterazione
+La funzione "hamilton" avvia il processo di esplorazione partendo da ciascun vertice del grafo chiamando la funzione "findHamiltonian".
+
+La complessità temporale di questo algoritmo è esponenziale, poiché esplora tutti i possibili percorsi nel grafico.
+Nel caso peggiore, il numero di percorsi da esplorare può essere N!. Questo perché per ogni vertice può esserci (N-1)! possibili permutazioni dei restanti vertici in un cammino hamiltoniano. Pertanto, la complessità temporale dell'algoritmo è O(N!*N^2). Questo rende l'algoritmo inefficiente per grafi di grandi dimensioni.
+
+(define (findHamilton graph visited result node start counter)
+  (cond ((and (= counter N) (= node start))
+          (setf (result counter) node)
+          (println result))
+        ((or (>= counter N) (!= (visited node) -1)) nil)
+        (true
+          (setf (visited node) 1)
+          (setf (result counter) node)
+          (for (i 0 (- N 1))
+            (if (= (graph node i) 1)
+                (findHamilton graph visited result i start (+ counter 1))
+            )
+          )
+          (setf (visited node) -1))))
+
+(define (hamilton graph)
+  (local (N result visited)
+    (setq N (length graph))
+    (setq result (array (+ N 1) '(nil)))
+    (for (i 0 (- N 1))
+      (setq visited (array N '(-1)))
+      (findHamilton graph visited result i i 0)
+    )
+    '---------))
+
+Proviamo con il seguente grafo:
+
+           0-------5
+           │       │\
+           │       │ \
+        1--|-------|--4
+        │\ │       │ /
+        │ \│       │/
+        │  2-------3    
+        │          │
+        +----------+
+
+(setq g '((0 0 1 0 0 1)  
+          (0 0 1 1 1 0)  
+          (1 1 0 1 0 0)  
+          (0 1 1 0 1 1)  
+          (0 1 0 1 0 1)  
+          (1 0 0 1 1 0)))
+
+(hamilton g)
+;-> (0 2 1 3 4 5 0)
+;-> (0 2 1 4 3 5 0)
+;-> (0 2 3 1 4 5 0)
+;-> (0 5 3 4 1 2 0)
+;-> (0 5 4 1 3 2 0)
+;-> (0 5 4 3 1 2 0)
+;-> (1 2 0 5 3 4 1)
+;-> (1 2 0 5 4 3 1)
+;-> (1 3 2 0 5 4 1)
+;-> (1 3 4 5 0 2 1)
+;-> (1 4 3 5 0 2 1)
+;-> (1 4 5 0 2 3 1)
+;-> (2 0 5 3 4 1 2)
+;-> (2 0 5 4 1 3 2)
+;-> (2 0 5 4 3 1 2)
+;-> (2 1 3 4 5 0 2)
+;-> (2 1 4 3 5 0 2)
+;-> (2 3 1 4 5 0 2)
+;-> (3 1 2 0 5 4 3)
+;-> (3 1 4 5 0 2 3)
+;-> (3 2 0 5 4 1 3)
+;-> (3 4 1 2 0 5 3)
+;-> (3 4 5 0 2 1 3)
+;-> (3 5 0 2 1 4 3)
+;-> (4 1 2 0 5 3 4)
+;-> (4 1 3 2 0 5 4)
+;-> (4 3 1 2 0 5 4)
+;-> (4 3 5 0 2 1 4)
+;-> (4 5 0 2 1 3 4)
+;-> (4 5 0 2 3 1 4)
+;-> (5 0 2 1 3 4 5)
+;-> (5 0 2 1 4 3 5)
+;-> (5 0 2 3 1 4 5)
+;-> (5 3 4 1 2 0 5)
+;-> (5 4 1 3 2 0 5)
+;-> (5 4 3 1 2 0 5)
+
 ============================================================================
 

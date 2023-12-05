@@ -2125,6 +2125,8 @@ NOTE LIBERE 20
   La regola di Naismith
   Prodotto più comune
   A Million Random Digits with 100,000 Normal Deviates
+  Partizioni prime di un numero
+  Percorsi Hamiltoniani in un grafo
 
 PROBLEMI SUI DADI
 =================
