@@ -4,6 +4,17 @@
 
 ================
 
+-------
+For Fun
+-------
+
+  π to √-1: get real
+  √-1 to π: be rational
+
+  π to √-1: π/π
+  √-1 to π: (√-1)²
+
+
 ------------
 Segment Tree
 ------------
@@ -1021,6 +1032,98 @@ Proviamo con il seguente grafo:
 ;-> (5 3 4 1 2 0 5)
 ;-> (5 4 1 3 2 0 5)
 ;-> (5 4 3 1 2 0 5)
+
+
+--------
+List Mix
+--------
+
+Date N liste L1, L2, ..., LN con lo stesso numero di elementi M generare una lista con il seguente formato:
+
+  (L1(0) L2(0) ... LN(0) L1(1) L2(1) ... LN(1) ... L1(M-1) L2(M-1) ... LN(M-1))
+
+In altre parole, la lista da generare è fatta nel modo seguente:
+(primo elemento prima lista, primo elemento seconda lista, ... primo elemento N-esima lista
+ secondo elemento prima lista, secondo elemento seconda lista, ... secondo elemento N-esima lista
+ ...
+ ultimo elemento prima lista, ultimo elemento seconda lista, ... ultimo elemento N-esima lista)
+
+Esempio:
+L1 = (1 2 3)
+L2 = (a b c)
+L3 = (+ - *)
+
+Output = (1 a + 2 b - 3 c *)
+
+Poichè non sappiamo a priori quante liste vengono passate alla funzione e quanti sono gli elementi di queste liste, dobbiamo usare la funzione "args".
+Poi con due cicli innestati possiamo creare la lista richiesta.
+
+(define (mixxa)
+  (local (out num-args elements)
+    (setq out '())
+    ; numero di argomenti (liste)
+    (setq num-args (length (args)))
+    ; numero di elementi delle liste
+    (setq elements (length (args 0)))
+    ;(println num-args { } elements)
+    ; ciclo per ogni elemento
+    (for (e 0 (- elements 1))
+      ; ciclo per ogni argomento (lista)
+      (for (a 0 (- num-args 1))
+        ; inserisce elemento e-esimo dell'argomento (lista) a-esimo
+        ; nella lista di output
+        (push ((args a) e) out -1)))
+    out))
+
+Proviamo:
+
+(mixxa '(1 2 3) '(a b c) '(+ - *))
+;-> (1 a + 2 b - 3 c *)
+
+Un altro metodo è quello di utilizzare la funzione "transpose":
+
+**********************
+>>>funzione TRANSPOSE
+**********************
+sintassi: (transpose matrix)
+
+Traspone una matrice invertendo le righe e le colonne.
+Qualsiasi tipo di matrice-lista può essere trasposta.
+Le matrici vengono rese rettangolari riempiendo nil per gli elementi mancanti, omettendo elementi dove appropriato o espandendo gli atomi nelle righe in elenchi.
+Le dimensioni della matrice vengono calcolate utilizzando il numero di righe nella matrice originale per le colonne e il numero di elementi nella prima riga come numero di righe per la matrice trasposta.
+
+La matrice da trasporre può contenere qualsiasi tipo di dati.
+
+Le dimensioni di una matrice sono definite dal numero di righe e dal numero di elementi nella prima riga.
+Una matrice può essere una lista annidata o un array.
+
+(set 'A '((1 2 3) (4 5 6)))
+(transpose A)
+;-> ((1 4) (2 5) (3 6))
+(transpose (list (sequence 1 5)))
+;-> ((1) (2) (3) (4) (5))
+
+; any data type is allowed in the matrix
+(transpose '((a b) (c d) (e f)))
+;-> ((a c e) (b d f))
+
+; arrays can be transposed too
+(set 'A (array 2 3 (sequence 1 6)))
+(set 'M (transpose A))
+M
+;-> ((1 4) (2 5) (3 6))
+
+Quindi possiamo semplicemente scrivere:
+
+(define (mix) (flat (transpose (args))))
+
+(mix '(1 2 3) '(a b c) '(+ - *))
+;-> (1 a + 2 b - 3 c *)
+
+Oppure se le liste da mixare sono elementi di una lista:
+
+(apply mix '((1 2 3) (a b c) (+ - *)))
+;-> (1 a + 2 b - 3 c *)
 
 ============================================================================
 

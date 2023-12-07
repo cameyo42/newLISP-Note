@@ -2115,6 +2115,7 @@ NOTE LIBERE 19
 
 NOTE LIBERE 20
 ==============
+  For fun
   Segment tree
   Somma quadrata dei quadrati dei divisori
   I tre numeri interi sono distinti?
@@ -2127,6 +2128,7 @@ NOTE LIBERE 20
   A Million Random Digits with 100,000 Normal Deviates
   Partizioni prime di un numero
   Percorsi Hamiltoniani in un grafo
+  List Mix
 
 PROBLEMI SUI DADI
 =================
