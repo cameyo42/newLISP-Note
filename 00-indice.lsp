@@ -2129,6 +2129,10 @@ NOTE LIBERE 20
   Partizioni prime di un numero
   Percorsi Hamiltoniani in un grafo
   List Mix
+  I punteggi del gioco 421
+  Sort pari e dispari
+  Ordinare una lista in base alla radice digitale dei numeri
+  Il gioco Tac Tix
 
 PROBLEMI SUI DADI
 =================

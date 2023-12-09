@@ -1043,6 +1043,7 @@ Date N liste L1, L2, ..., LN con lo stesso numero di elementi M generare una lis
   (L1(0) L2(0) ... LN(0) L1(1) L2(1) ... LN(1) ... L1(M-1) L2(M-1) ... LN(M-1))
 
 In altre parole, la lista da generare è fatta nel modo seguente:
+
 (primo elemento prima lista, primo elemento seconda lista, ... primo elemento N-esima lista
  secondo elemento prima lista, secondo elemento seconda lista, ... secondo elemento N-esima lista
  ...
@@ -1100,6 +1101,7 @@ Una matrice può essere una lista annidata o un array.
 (set 'A '((1 2 3) (4 5 6)))
 (transpose A)
 ;-> ((1 4) (2 5) (3 6))
+
 (transpose (list (sequence 1 5)))
 ;-> ((1) (2) (3) (4) (5))
 
@@ -1113,7 +1115,7 @@ Una matrice può essere una lista annidata o un array.
 M
 ;-> ((1 4) (2 5) (3 6))
 
-Quindi possiamo semplicemente scrivere:
+Quindi per risolvere il nostro problema possiamo semplicemente scrivere:
 
 (define (mix) (flat (transpose (args))))
 
@@ -1124,6 +1126,333 @@ Oppure se le liste da mixare sono elementi di una lista:
 
 (apply mix '((1 2 3) (a b c) (+ - *)))
 ;-> (1 a + 2 b - 3 c *)
+
+
+------------------------
+I punteggi del gioco 421
+------------------------
+
+Il gioco del 421 utilizza 3 dadi. In questo articolo consideriamo soltanto i punteggi del gioco.
+Vediamo quali sono questi punteggi basati sull'uscita dei dadi:
+
+421
+---
+Un 4, un 2 e un 1. Valore = 10
+
+Triple 1
+--------
+Tre 1. Valore = 7
+
+Two Alike and One Different
+---------------------------
+Due dadi uguali e uno differente. Valore = dado differente
+Esempio: 663, valore = 3.
+
+Barracks
+--------
+Tre dadi uguali. Valore = dado
+Esempio: 222, valore = 2.
+
+Sequence
+--------
+Tre cifre consecutive. Valore = 2.
+
+Nenette
+-------
+Due 1 e un 2. Valore = 2.
+
+Qualsiasi altra combinazione ha valore 1.
+
+Scrivere una funzione che calcola i punti di un lancio di 3 dadi.
+
+(define (p421 a b c)
+  (let (d (sort (list a b c) >))
+    (cond ((and (= (d 0) 4) (= (d 1) 2) (= (d 2) 1))
+            (list "421" 10))
+          ((and (= a 1) (= b 1) (= c 1))
+            (list "Triple 1" 7))
+          ((apply = d)
+            (list "Barracks" (d 0)))
+          ((and (= (d 0) (+ (d 1) 1)) (= (d 1) (+ (d 2) 1)))
+            (list "Sequence" 2))
+          ((and (= (d 0) 2) (= (d 1) 2) (= (d 2) 1))
+            (list "Nenette" 2))
+          ((and (= a b) (!= b c)) (list "Two alike" c))
+          ((and (= a c) (!= a b)) (list "Two alike" b))
+          ((and (= b c) (!= a b)) (list "Two alike" a))
+          (true (list "Other" 1)))))
+
+Proviamo:
+
+(p421 4 2 1)
+;-> ("421" 10)
+
+(p421 1 1 1)
+;-> ("Triple 1" 7)
+
+(p421 4 5 6)
+;-> ("Sequence" 2)
+
+(p421 2 1 3)
+;-> ("Sequence" 2)
+
+(p421 4 4 2)
+;-> ("Two alike" 2)
+
+(p421 6 3 6)
+;-> ("Two alike" 3)
+
+(p421 2 2 1)
+;-> ("Nenette" 2)
+
+(p421 1 1 2)
+;-> ("Two alike" 2)
+
+(p421 1 3 5)
+;-> ("Other" 1)
+
+
+-------------------
+Sort pari e dispari
+-------------------
+
+Data una lista di numeri interi scrivere una funzione che permette di ordinare la lista in due modi:
+1) prima i numeri dispari ordinati e poi i numeri pari ordinati
+oppure
+2) prima i numeri pari ordinati e poi i numeri dispari ordinati
+
+(define (sort-odd-even lst flag)
+  (if flag
+    ; numeri pari prima (even)
+    (extend (sort (filter even? lst)) (sort (filter odd? lst)))
+    ; numeri dispari prima (odd)
+    (extend (sort (filter odd? lst)) (sort (filter even? lst)))))
+
+(sort-odd-even '(1 2))
+;-> (1 2)
+(sort-odd-even '(1 2) true)
+;-> (2 1)
+
+(sort-odd-even '(3 4 3))
+;-> (3 3 4)
+(sort-odd-even '(3 4 3) true)
+;-> (4 3 3)
+
+(setq a '(98 44 -11 0 0 -37 -53 57 -60 60 -16 -66 -45 35 -5 -60 78 -80 51 -30))
+
+(sort-odd-even a)
+;-> (-53 -45 -37 -11 -5 35 51 57 -80 -66 -60 -60 -30 -16 0 0 44 60 78 98)
+
+(sort-odd-even a true)
+;-> (-80 -66 -60 -60 -30 -16 0 0 44 60 78 98 -53 -45 -37 -11 -5 35 51 57)
+
+
+----------------------------------------------------------
+Ordinare una lista in base alla radice digitale dei numeri
+----------------------------------------------------------
+
+Data una lista di numeri interi, ordinare la lista in base alla radice digitale dei numeri e al valore del numero (ordine crescente).
+In altre parole, se due numeri hanno la stessa radice digitale, allora deve comparire prima il numero più piccolo.
+Per esempio:
+
+(setq a '((1 4) (1 3) (3 2) (3 1) (2 10)))
+(sort a)
+;-> ((1 3) (1 4) (2 10) (3 1) (3 2))
+
+La radice digitale di un numero è la somma delle cifre fino a che non si ottiene una singola cifra.
+Per esempio:
+
+  35 -> 3 + 5 = 8
+  3624 -> 3 + 6 + 2 + 4 = 15 -> 1 + 5 = 6
+
+(define (digit-root num)
+"Calculates the repeated sum of the digits of an integer"
+    (+ 1 (% (- (abs num) 1) 9)))
+
+(define (sort-digital-root lst)
+  (sort (map (fn(x) (list (digit-root x) x)) lst)))
+
+(setq a '(6724 6309 7456 8974 550 9401 1206 8431 711 1394 3603 8707 9683
+          8455 349 5089 9443 6147 5288 9448 9169 7559 2266 5916 4459 6923
+          520 5963 8351 7788 6422 4425 9478 9802 9374 3063 7669 3170 4682
+          3185 2299 4852 1217 3934 3704 5564 6663 7764 2980 1634))
+
+(sort-digital-root a)
+;-> ((1 550) (1 2980) (1 3934) (1 4852) (1 6724) (1 7669) (1 8974) (1 9478)
+;->  (1 9802) (2 1217) (2 3170) (2 4682) (2 5564) (2 6923) (2 9443) (3 3063)
+;->  (3 3603) (3 5916) (3 6663) (3 7788) (4 2299) (4 4459) (4 5089) (4 7456)
+;->  (4 8455) (4 8707) (5 1634) (5 3704) (5 5288) (5 5963) (5 6422) (5 9374)
+;->  (5 9401) (6 4425) (6 7764) (7 349) (7 520) (7 2266) (7 8431) (7 9169)
+;->  (7 9448) (8 1394) (8 3185) (8 7559) (8 8351) (8 9683) (9 711) (9 1206)
+;->  (9 6147) (9 6309))
+
+(sort-digital-root (sequence 1 100))
+;-> ((1 1) (1 10) (1 19) (1 28) (1 37) (1 46) (1 55) (1 64) (1 73) (1 82)
+;->  (1 91) (1 100) (2 2) (2 11) (2 20) (2 29) (2 38) (2 47) (2 56) (2 65)
+;->  (2 74) (2 83) (2 92) (3 3) (3 12) (3 21) (3 30) (3 39) (3 48) (3 57)
+;->  (3 66) (3 75) (3 84) (3 93) (4 4) (4 13) (4 22) (4 31) (4 40) (4 49)
+;->  (4 58) (4 67) (4 76) (4 85) (4 94) (5 5) (5 14) (5 23) (5 32) (5 41)
+;->  (5 50) (5 59) (5 68) (5 77) (5 86) (5 95) (6 6) (6 15) (6 24) (6 33)
+;->  (6 42) (6 51) (6 60) (6 69) (6 78) (6 87) (6 96) (7 7) (7 16) (7 25)
+;->  (7 34) (7 43) (7 52) (7 61) (7 70) (7 79) (7 88) (7 97) (8 8) (8 17)
+;->  (8 26) (8 35) (8 44) (8 53) (8 62) (8 71) (8 80) (8 89) (8 98) (9 9)
+;->  (9 18) (9 27) (9 36) (9 45) (9 54) (9 63) (9 72) (9 81) (9 90) (9 99))
+
+
+----------------
+Il gioco Tac Tix
+----------------
+
+TacTix è un semplice gioco in cui si prendono pezzi, una sorta di "Nim bidimensionale".
+Due giocatori si alternano nel prendere pezzi dalla scacchiera: un numero qualsiasi di pezzi contigui in una riga o colonna.
+Perde chi prende l'ultimo pezzo.
+TacTix è stato inventato da Piet Hein e reso popolare da Martin Gardner nella sua rubrica sui giochi matematici del febbraio 1958.
+
+Il gioco si svolge con un quadrato di pezzi NxN (i numeri servono solo per riferimento al testo) da cui i giocatori prendono a turno pedine da una qualsiasi riga orizzontale o verticale, però sempre in modo che le pedine risultino adiacenti fra loro, senza spazi vuoti intermedi.
+
+   1  2  3  4
+   5  6  7  8
+   9 10 11 12
+  13 14 15 16
+
+Se per esempio un giocatore ha preso in una mossa 8 e 12, l'avversario non può prendere in una sola mossa 4 e 16 perché non adiacenti, mentre potrà prendere 12 e 16 se il primo giocatore avrà preso 4 e 8.
+Nel classico "Tac Tix" "Misere" perde il giocatore che prende l'ultimo pezzo.
+Nel "Tac Tix" "Non-Misere" vince il giocatore che prende l'ultimo pezzo.
+L'introduzione di queste semplici regole ha reso l'analisi matematica del gioco estremamente complessa.
+Secondo Martin Gardner, la dimensione migliore è 6x6, perché "è abbastanza piccola da evitare che il gioco sia lungo e noioso, ma abbastanza complessa da renderlo emozionante e imprevedibile".
+
+Nota:  La versione "Non-Misere" non viene utilizzata perchè esiste una strategia vincente:
+
+Primo Giocatore Se N è Dispari (Non-Misere):
+Prendere il pezzo centrale. 
+Poi copiare ogni mossa che il tuo avversario fa simmetricamente. 
+Alla fine prendere l'ultimo pezzo per vincere.
+
+Secondo Giocatore Se N è Pari (Non-Misere):
+Copiare le mosse dell' avversario simmetricamente. 
+Alla fine prendere l'ultimo pezzo per vincere.
+
+Due problemi in cui bisogna trovare la mossa vincente:
+
+Problema 1:
+
+            4
+      6  7  8
+   9 10 11 12
+  13 14 15 16
+
+Problema 2:
+
+      2
+      6
+   9 10 11 12
+        15
+
+Soluzioni:
+Problema 1: varie soluzioni, prendere 9, 10, 11, 12 oppure 4, 8, 12, 16.
+Problema 2: prendere 9 oppure 10.
+
+Scriviamo alcune funzioni per poter giocare a Tac Tix.
+
+Funzione che stampa la griglia di gioco:
+
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    (println "  " (join (map (fn(x) (format "%2d" x)) (sequence 0 (- col 1)))))
+    (for (i 0 (- row 1))
+      ;(setq fmt (string "%2d "))
+      (print (format "%2d " i))
+      (for (j 0 (- col 1))
+        (cond ((= (grid i j) 0) (print "· ")) ; libera
+              ((= (grid i j) 1) (print "x ")) ; occupata
+              (true (println "Error: cell " i j ": " (grid i j)))
+        )
+      )
+      (println)))
+      '-----------)
+
+(print-grid '((1 1 1 1 1 1) (1 1 1 1 1 1) (1 1 1 1 1 1)
+              (1 1 1 1 1 1) (1 1 1 1 1 1) (1 1 1 1 1 1)))
+
+Funzione che verifica se due coordinate sono contigue:
+
+(define (contigui r1 c1 r2 c2)
+  (let (valid true)
+    (cond ((and (!= r1 r2) (!= c1 c2)) (setq valid nil))
+          ((= r1 r2)
+            (for (c c1 c2)
+              (if (zero? (grid r1 c)) (setq valid nil))
+            ))
+          ((= c1 c2)
+            (for (r r1 r2)
+              (if (zero? (grid r c1)) (setq valid nil))
+            ))
+    )
+    valid))
+
+Funzione che effettua una mossa sulla griglia:
+
+(define (move r1 c1 r2 c2)
+  (if (contigui r1 c1 r2 c2)
+      (cond ((= r1 r2) (for (c c1 c2) (setf (grid r1 c) 0)))
+            ((= c1 c2) (for (r r1 r2) (setf (grid r c1) 0)))
+      )
+      ;else
+      (println "Impossible move")
+  )
+  (print-grid grid))
+
+Funzione che inizia una nuova partita:
+
+(define (new-game N)
+  (setq grid (array N N '(1)))
+  (print-grid grid))
+
+Iniziamo una partita:
+
+(new-game 4)
+;->    0 1 2 3
+;->  0 x x x x
+;->  1 x x x x
+;->  2 x x x x
+;->  3 x x x x
+;-> -----------
+
+(move 0 0 0 2)
+;->    0 1 2 3
+;->  0 · · · x
+;->  1 x x x x
+;->  2 x x x x
+;->  3 x x x x
+;-> -----------
+
+(move 1 0 3 0)
+;->    0 1 2 3
+;->  0 · · · x
+;->  1 · x x x
+;->  2 · x x x
+;->  3 · x x x
+;-> -----------
+
+(move 1 1 3 3)
+;-> Impossible move
+;->    0 1 2 3
+;->  0 · · · x
+;->  1 · x x x
+;->  2 · x x x
+;->  3 · x x x
+;-> -----------
+
+(move 1 0 1 2)
+;-> Impossible move
+;->    0 1 2 3
+;->  0 · · · x
+;->  1 · x x x
+;->  2 · x x x
+;->  3 · x x x
+;-> -----------
 
 ============================================================================
 
