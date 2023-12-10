@@ -1454,5 +1454,210 @@ Iniziamo una partita:
 ;->  3 · x x x
 ;-> -----------
 
+
+----------------------------
+Calcolo dei punti a Briscola
+----------------------------
+
+La briscola è un gioco che viene fatto con un mazzo di 40 carte con i valori asso, 2, 3, 4, 5, 6, 7, fante, cavallo, re, di semi italiani o francesi.
+Si può giocare in due o in quattro a coppie.
+I punteggi delle carte sono elencati nella seguente tabella:
+
+ +---------+--------------+--------+
+ |  Carta  |   Numero     | Valore |
+ +---------+--------------+--------+
+ | Asso    |  (1)         |   11   |
+ | Tre     |  (3)         |   10   |
+ | Re      | (10)         |    4   |
+ | Cavallo |  (9)         |    3   |
+ | Fante   |  (8)         |    2   |
+ | Altre   |  (2,4,5,6,7) |    0   |
+ +---------+--------------+--------+
+
+Date due liste che rappresentano le prese di due giocatori, calcolare i rispettivi punteggi.
+Il punteggio totale di tutte le carte vale 120.
+
+Le due liste, insieme, contengono tutte le 40 carte della briscola, ma sono distribuite in modo casuale.
+Poichè il seme delle carte (Spade, Denari, Coppe e Bastoni) non conta per il punteggio, supponiamo che le 40 carte siano rappresentate dai numeri 1..10 ripetuti 4 volte. Per esempio:
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (1 3 10 3 6 2 8 7 5 4 6 6 2 7 6 1 9 5 5 2 10
+;->  10 5 4 10 1 4 9 2 9 3 8 7 3 8 9 1 7 8 4)
+
+(define (briscola lst1 lst2)
+  (local (pair p1 p2)
+    (setq pair '((1 11) (2 0) (3 10) (4 0) (5 0) 
+                 (6 0) (7 0) (8 2) (9 3) (10 4)))
+    (setq p1 (apply + (map (fn(x) (lookup x pair)) lst1)))
+    (setq p2 (apply + (map (fn(x) (lookup x pair)) lst2)))
+    (list p1 p2)))
+
+Facciamo alcune prove:
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (10 6 5 8 1 7 6 9 3 6 3 5 2 10 4 4 1 3 9 7 
+;->  5 5 3 4 9 9 6 2 10 1 10 8 8 8 7 2 7 1 4 2)
+(setq lst1 (slice carte 0 20))
+;-> (10 6 5 8 1 7 6 9 3 6 3 5 2 10 4 4 1 3 9 7)
+(setq lst2 (slice carte 20))
+;-> (5 5 3 4 9 9 6 2 10 1 10 8 8 8 7 2 7 1 4 2)
+(briscola lst1 lst2)
+;-> (68 52)
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (2 10 4 5 3 2 5 8 10 6 6 5 10 4 3 9 6 5 2 7
+;->  7 10 3 1 9 8 7 6 8 3 7 1 1 4 9 8 1 2 4 9)
+(setq lst1 (slice carte 0 10))
+;-> (2 10 4 5 3 2 5 8 10 6)
+(setq lst2 (slice carte 10))
+;-> (6 5 10 4 3 9 6 5 2 7 7 10 3 1 9 8 7 6 8 3 7 1 1 4 9 8 1 2 4 9)
+(briscola lst1 lst2)
+;-> (20 100)
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (3 9 10 9 5 1 4 7 6 4 5 9 9 2 3 10 5 2 10 1
+;->  2 3 4 7 7 1 8 2 4 6 8 5 8 1 3 10 6 8 6 7)
+(setq lst1 (slice carte 0 24))
+;-> (3 9 10 9 5 1 4 7 6 4 5 9 9 2 3 10 5 2 10 1 2 3 4 7)
+(setq lst2 (slice carte 24))
+;-> (7 1 8 2 4 6 8 5 8 1 3 10 6 8 6 7)
+(briscola lst1 lst2)
+;-> (76 44)
+
+
+-----------------------------
+Calcolo dei punti a Tressette
+-----------------------------
+
+Il Tressette è un gioco che viene fatto con un mazzo di 40 carte con i valori asso, 2, 3, 4, 5, 6, 7, fante, cavallo, re, di semi italiani o francesi.
+Si può giocare in due o in quattro a coppie.
+I punteggi delle carte sono elencati nella seguente tabella:
+
+ +---------+------------+--------+
+ |  Carta  |   Numero   | Valore |
+ +---------+------------+--------+
+ | Asso    |  (1)       |    11  |
+ | Re      | (10)       |   1/3  |
+ | Cavallo |  (9)       |   1/3  |
+ | Fante   |  (8)       |   1/3  |
+ | Tre     |  (3)       |   1/3  |
+ | Due     |  (2)       |   1/3  |
+ | Altre   |  (4,5,6,7) |     0  |
+ +---------+------------+--------+
+
+Date due liste che rappresentano le prese di due giocatori, calcolare i rispettivi punteggi.
+Il punteggio totale di tutte le carte vale 10 e 2/3 (10.666...).
+
+Le due liste, insieme, contengono tutte le 40 carte del tressette, ma sono distribuite in modo casuale.
+Poichè il seme delle carte (Spade, Denari, Coppe e Bastoni) non conta per il punteggio, supponiamo che le 40 carte siano rappresentate dai numeri 1..10 ripetuti 4 volte. Per esempio:
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (7 6 1 8 2 3 4 10 1 6 9 3 3 2 7 9 7 1 5 10 
+;->  8 6 2 8 10 9 4 2 7 8 5 5 4 5 10 9 3 6 1 4)
+
+(define (tressette lst1 lst2)
+  (local (pair p1 p2 val)
+    (setq val (div 1 3))
+    (setq pair '((1 1) (2 val) (3 val) (4 0) (5 0)
+                 (6 0) (7 0) (8 val) (9 val) (10 val)))
+    (setq p1 (apply add (map (fn(x) (eval (lookup x pair))) lst1)))
+    (setq p2 (apply add (map (fn(x) (eval (lookup x pair))) lst2)))
+    (list (format "%2.2f" p1) (format "%2.2f" p2))))
+
+Facciamo alcune prove:
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (4 10 5 4 9 2 7 5 1 8 9 1 2 3 2 6 6 6 10 7
+;->  9 1 4 8 5 8 8 6 4 10 5 2 1 9 3 10 7 7 3 3)
+
+(setq lst1 (slice carte 0 20))
+;-> (4 10 5 4 9 2 7 5 1 8 9 1 2 3 2 6 6 6 10 7)
+(setq lst2 (slice carte 20))
+;->  (9 1 4 8 5 8 8 6 4 10 5 2 1 9 3 10 7 7 3 3)
+(tressette lst1 lst2)
+("5.00" "5.67")
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (6 2 1 6 8 5 4 1 6 7 7 10 7 9 8 4 9 3 8 4 5
+;->  10 9 5 2 3 3 1 3 4 2 5 7 2 10 9 10 8 1 6)
+(setq lst1 (slice carte 0 10))
+;-> (6 2 1 6 8 5 4 1 6 7)
+(setq lst2 (slice carte 10))
+;-> (7 10 7 9 8 4 9 3 8 4 5 10 9 5 2 3 3 1 3 4 2 5 7 2 10 9 10 8 1 6)
+> (tressette lst1 lst2)
+;-> ("2.67" "8.00")
+
+(setq carte (randomize (flat (dup (sequence 1 10) 4))))
+;-> (9 7 2 5 4 9 1 2 7 10 7 6 5 3 8 1 6 5 8 6 4
+;->  8 4 9 3 6 8 10 3 1 5 7 1 9 10 3 2 2 4 10)
+(setq lst1 (slice carte 0 24))
+;-> (9 7 2 5 4 9 1 2 7 10 7 6 5 3 8 1 6 5 8 6 4 8 4 9)
+(setq lst2 (slice carte 24))
+;-> (3 6 8 10 3 1 5 7 1 9 10 3 2 2 4 10)
+(tressette lst1 lst2)
+;-> ("5.33" "5.33")
+
+
+---------------------------------------------
+Distanze minime tra gli elementi di due liste
+---------------------------------------------
+
+Calcolare le distanze assolute per ogni intero di una lista L1 e l'intero più vicino di una lista L2.
+
+Esempi:
+
+X = (1 5,9)
+Y = (3,4,7)
+Le distanze sono 2 (1 da 3), 1 (5 da 4) e 2 (9 da 7).
+
+X = (1,2,3)
+Y = (0,8)
+Le distanze sono 1 (1 da 0), 2 (2 da 0) e 3 (3 da 0).
+
+Algoritmo
+Ordinare le liste in modo crescente.
+Iterare sulla lista L1 tenendo traccia dell'elemento L2(j) più vicino a L1(i) e confrontarlo con L2(j) e L2(j+1) (questo è possibile poiché uno di questi è il più vicino a L1(i+1).
+
+(define (distanze X Y)
+  (setq i 0 j 0 s 0)
+  (while (< i (length X))
+    (setq v (abs (- (Y j) (X i))))
+    (if (and (< (+ j 1) (length Y)) (> v (- (Y (+ j 1)) (X i))))
+        (++ j)
+        ;else
+        (begin (println v)
+        (setq s (+ s v))
+        (++ i)))
+  )
+  s)
+
+
+(define (distanze l1 l2)
+  (local (i j len1 len2 d out)
+    (setq out '())
+    (setq len1 (length l1))
+    (setq len2 (length l2))
+    (sort l1)
+    (sort l2)
+    (set 'i 0 'j 0)
+    (while (< i len1)
+      (setq d (abs (- (l2 j) (l1 i))))
+      (if (and (< (+ j 1) len2) (> d (- (l2 (+ j 1)) (l1 i))))
+          (++ j)
+          ;else
+          (begin (push d out -1) (++ i))
+      )
+    )
+    out))
+
+Proviamo:
+
+(distanze '(5 1 9) '(4 7 3))
+;-> 2 1 2
+(distanze '(3 1 2) '(8 0))
+;-> (1 2 3)
+(distanze '(1 2 3 4 5 6) '(-1 -2 -3 -4 -5 -6))
+;-> (2 3 4 5 6 7)
+
 ============================================================================
 

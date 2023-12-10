@@ -2133,6 +2133,9 @@ NOTE LIBERE 20
   Sort pari e dispari
   Ordinare una lista in base alla radice digitale dei numeri
   Il gioco Tac Tix
+  Calcolo dei punti a Briscola
+  Calcolo dei punti a Tressette
+  Distanze minime tra gli elementi di due liste
 
 PROBLEMI SUI DADI
 =================
