@@ -1659,5 +1659,118 @@ Proviamo:
 (distanze '(1 2 3 4 5 6) '(-1 -2 -3 -4 -5 -6))
 ;-> (2 3 4 5 6 7)
 
+
+---------------------------------
+Algoritmo Round-Robin (scheduler)
+---------------------------------
+
+Il round-robin (RR) è uno degli algoritmi utilizzati dagli scheduler di rete e dei processi.
+Gli intervalli di tempo (noti anche come quanti di tempo) vengono assegnati a ciascun processo in parti uguali e in una sequenza circolare, rendendo tutti i processi senza priorità (cyclic executive).
+Lo scheduler round-robin è semplice e viene utilizzato anche nella pianificazione dei pacchetti di dati nelle reti di computer.
+
+Waiting Time:
+L'intero tempo trascorso dal processo nello stato pronto in attesa della CPU è noto come tempo di attesa.
+
+Burst Time:
+Ogni operazione del sistema richiede del tempo per essere completata.
+In questo calcolo sono inclusi sia il tempo CPU che quello I/O.
+Il tempo della CPU è la quantità di tempo necessaria alla CPU per completare un'attività.
+La quantità di tempo necessaria a un processo per eseguire un'operazione di I/O è nota come tempo di I/O.
+Quando analizziamo un processo, solitamente ignoriamo il tempo di I/O e consideriamo solo il tempo della CPU.
+Di conseguenza, il tempo di burst è il tempo totale necessario per l'esecuzione del processo sulla CPU.
+
+Turnaround Time:
+L'intervallo di tempo tra il momento in cui un processo viene inviato e il momento in cui viene completato è noto come turnarounnd time (TAT).
+Può anche essere pensato come la somma del tempo impiegato nell'attesa di entrare in memoria o il tempo passato nella coda dei processi pronti, nonché del tempo impiegato nell'esecuzione del codice sulla CPU e nell'esecuzione di input/output.
+Il turnaround time è un parametro importante negli algoritmi di un sistema operativo.
+
+
+; Calculate waiting time of given process by using quantum time
+(define (find-waiting-time processes bt wt quantum n)
+  (local (pending-bt process-time work)
+    ; Array used to find waiting time
+    (setq pending-bt (array n '(0)))
+    ; Get burst time
+    (setq pending-bt bt)
+    ; Current time
+    (setq process-time 0)
+    (setq work true)
+    ; Execute round robin process until work are not complete
+    (while (= work true)
+      ; Set that initial no work at this time
+      (setq work nil)
+      ; Execute process one by one repeatedly
+      (for (i 0 (- n 1))
+        (if (> (pending-bt i) 0)
+        ; When pending process are exists: Active work
+          (begin
+            (setq work true)
+            (if (> (pending-bt i) quantum)
+              (begin
+                ; Update the process time
+                (++ process-time quantum)
+                ; Reduce padding burst time of current process
+                (-- (pending-bt i) quantum)
+              )
+              ;else
+              (begin
+                ; Add the remains padding BT (burst time)
+                (++ process-time (pending-bt i))
+                ; Get waiting time of i process
+                (setf (wt i) (- process-time (bt i)))
+                ; Set that no remaining pending time
+                (setf (pending-bt i) 0)
+              )
+            )
+          )
+        )
+      )
+    )
+    ; update global waiting-time array
+    (setq waiting-time wt)))
+
+(define (find-avg-time processes burst-time quantum n)
+  (local (turnaround-time waiting-time
+          total-waiting-time total-turnaround-time i)
+    ; Arrays to store waiting time and turnaround time          
+    (setq turnaround-time (array n '(0)))
+    (setq waiting-time (array n '(0)))
+    (setq total-waiting-time 0)
+    (setq total-turnaround-time 0)
+    (find-waiting-time processes burst-time waiting-time quantum n)
+    ; Calculate turnaround time 
+    (setq i 0)
+    (for (i 0 (- n 1))
+      ; Get turn around time for ith processes
+      (setf (turnaround-time i) (+ (burst-time i) (waiting-time i)))
+    )
+    ; Display result
+    (println " (Process) (Burst Time) (Waiting Time) (Turn Around Time)")
+    (for (i 0 (- n 1))
+      ; Calculate waiting time
+      (setq total-waiting-time (+ total-waiting-time (waiting-time i)))
+      ; Calculate turnaround time
+      (setq total-turnaround-time (+ total-turnaround-time (turnaround-time i)))
+      ; Calculate the average waiting time and average turn around time
+      (println "  " (processes i) " \t\t" (burst-time i) " \t\t" (waiting-time i) " \t\t" (turnaround-time i))
+    )
+    (println "Average Waiting Time: " (div total-waiting-time n))
+    (println "Average Turn Around Time: " (div total-turnaround-time n))))
+
+Proviamo:
+
+(setq processes '(1 2 3 4))
+(setq burst-time '(4 3 5 9))
+(setq n (length processes))
+(setq quantum 2)
+(find-avg-time processes burst-time quantum n)
+;->  (Process) (Burst Time) (Waiting Time) (Turn Around Time)
+;->   1             4               6               10
+;->   2             3               8               11
+;->   3             5               11              16
+;->   4             9               12              21
+;-> Average Waiting Time: 9.25
+;-> Average Turn Around Time: 14.5
+
 ============================================================================
 
