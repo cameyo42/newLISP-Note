@@ -2137,6 +2137,10 @@ NOTE LIBERE 20
   Calcolo dei punti a Tressette
   Distanze minime tra gli elementi di due liste
   Algoritmo Round-Robin (scheduler)
+  Isogrammi
+  Alfabeto Farfallino
+  Orario minimo e massimo
+  Numeri di Schlosberg
 
 PROBLEMI SUI DADI
 =================

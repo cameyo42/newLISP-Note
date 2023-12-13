@@ -1684,7 +1684,6 @@ L'intervallo di tempo tra il momento in cui un processo viene inviato e il momen
 Può anche essere pensato come la somma del tempo impiegato nell'attesa di entrare in memoria o il tempo passato nella coda dei processi pronti, nonché del tempo impiegato nell'esecuzione del codice sulla CPU e nell'esecuzione di input/output.
 Il turnaround time è un parametro importante negli algoritmi di un sistema operativo.
 
-
 ; Calculate waiting time of given process by using quantum time
 (define (find-waiting-time processes bt wt quantum n)
   (local (pending-bt process-time work)
@@ -1771,6 +1770,220 @@ Proviamo:
 ;->   4             9               12              21
 ;-> Average Waiting Time: 9.25
 ;-> Average Turn Around Time: 14.5
+
+Nota: il codice è una traduzione dal linguaggio python e non ho adattato lo stile a newLISP.
+
+
+---------
+Isogrammi
+---------
+
+Un isogramma è una parola composta solo da lettere senza duplicati (senza distinzione tra maiuscole e minuscole).
+La stringa vuota è un isogramma.
+
+(define (isogram? str)
+  (let (lst (explode (lower-case str)))
+    (= (unique lst) lst)))
+
+Proviamo:
+
+(isogram? "ciao")
+;-> true
+
+(isogram? "Dermatoglyphics")
+;-> true
+
+(isogram? "Oaxaca")
+;-> nil
+
+(isogram? "")
+;-> true
+
+
+-------------------
+Alfabeto Farfallino
+-------------------
+
+Il farfallino o alfabeto farfallino è una lingua in cui le vocali vengono "codificate" per parlare in codice segreto (molto usato dai bambini).
+Per trasformare una generica stringa in una stringa in farfallino occorre raddoppiare ogni vocale con l'aggiunta di una f interposta.
+In altre parole occorre effettuare le seguenti sostituzioni nella stringa generica:
+
+  a -> afa
+  e -> efe
+  i -> ifi
+  o -> ofo
+  u -> ufu
+
+Per esempio:
+
+ciao --> cifiafaofo
+alfabeto farfallino --> afalfafabefetofo fafarfafallifinofo
+
+Funzione che trasforma (codifica) una stringa generica in una stringa in farfallino:
+Prima versione
+
+(define (farfallino1 str)
+  (replace "a" str "afa")
+  (replace "e" str "efe")
+  (replace "i" str "ifi")
+  (replace "o" str "ofo")
+  (replace "u" str "ufu"))
+
+(farfallino1 "ciao")
+;-> "cifiafaofo"
+(farfallino1 "alfabeto farfallino")
+;-> "afalfafabefetofo fafarfafallifinofo"
+
+Funzione che trasforma (codifica) una stringa generica in una stringa in farfallino:
+Seconda versione
+
+(define (farfallino2 str)
+  (let (sost '(("a" "afa") ("e" "efe") ("i" "ifi") ("o" "ofo") ("u" "ufu")))
+    (dolist (s sost) 
+      (replace (first s) str (last s)))))
+
+(farfallino2 "ciao")
+;-> "cifiafaofo"
+(farfallino2 "alfabeto farfallino")
+;-> "afalfafabefetofo fafarfafallifinofo"
+
+Funzione che trasforma (decodifica) una stringa in farfallino in una stringa generica:
+
+(define (normale str)
+  (let (sost '(("afa" "a") ("efe" "e") ("ifi" "i") ("ofo" "o") ("ufu" "u")))
+    (dolist (s sost) 
+      (replace (first s) str (last s)))))
+
+(normale "cifiafaofo")
+;-> "ciao"
+(normale "afalfafabefetofo fafarfafallifinofo")
+;-> "alfabeto farfallino"
+
+
+-----------------------
+Orario minimo e massimo
+-----------------------
+
+Abbiamo una lista di numeri interi nell'intervallo (0..9).
+Questi numeri rappresentano un'orario del tipo HH:MM:SS.
+
+Per esempio:
+lista = (1 2 3 4 5 6)
+orario = 12:34:56 (12 hours, 34 minutes 56 seconds)
+
+Gli orari HH:MM:SS hanno la seguente struttura:
+  HH = Hours:   (0..23)
+  MM = Minutes: (0..59)
+  SS = Seconds: (0..59)
+
+Se consideriamo tutte le permutazioni dei numeri della lista otteniamo 6! = 720 orari diversi.
+Comunque non tutti gli orari sono validi (es. 12:60:21 non è valido).
+
+Scrivere una funzione che restituisce gli orari validi minimo e massimo.
+
+Esempio:
+
+lista = (2 3 7 1 9 3)
+
+Orari = 
+  "123739" "123739" "123937" "123937" "132739" "132739" "132937" "132937"
+  "133729" "133729" "133927" "133927" "172339" "172339" "172933" "172933"
+  "173239" "173239" "173329" "173329" "173923" "173923" "173932" "173932"
+  "192337" "192337" "192733" "192733" "193237" "193237" "193327" "193327"
+  "193723" "193723" "193732" "193732" "213739" "213739" "213937" "213937"
+  "231739" "231739" "231937" "231937" "233719" "233719" "233917" "233917"
+
+Orario minimo e massimo = ("12:37:39" "23:39:17")
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che restituisce gli orari validi minimo e massimo:
+
+(define (times lst)
+  (local (tt permutation h m s t1 t2)
+    (setq tt '())
+    (setq permutation (perm lst))
+    (dolist (p permutation)
+      (setq h (+ (* 10 (p 0)) (p 1)))
+      (setq m (+ (* 10 (p 2)) (p 3)))
+      (setq s (+ (* 10 (p 4)) (p 5)))
+      (if (and (<= h 23) (<= m 59) (<= s 59))
+        (push (string h m s) tt)
+      )
+    )
+    (cond ((!= tt '())
+            (sort tt)
+            ;(println tt)
+            (setq t1 (tt 0))
+            (setq t2 (tt -1))
+            (setq t1 (string (t1 0) (t1 1)":"(t1 2)(t1 3)":"(t1 4) (t1 5)))
+            (setq t2 (string (t2 0) (t2 1)":"(t2 2)(t2 3)":"(t2 4) (t2 5)))
+            (list t1 t2))
+          (true (list "" "")))))
+
+Proviamo:
+
+(times '(2 3 7 1 9 3))
+;-> ("12:37:39" "23:39:17")
+
+(times '(2 3 6 7 8 4))
+;-> ("" "")
+
+(times '(1 2 3 4 5 6))
+;-> ("12:34:56" "23:56:41")
+
+
+--------------------
+Numeri di Schlosberg
+--------------------
+
+I numeri di Schlosberg sono i numeri interi positivi che soddisfano la seguente espressione:
+
+  Sum[k=1..n]floor(n/k) = numero intero pari
+
+Questo avviene per i numeri in cui risulta:
+
+  floor(sqrt(n)) = intero pari
+
+Sequenza OEIS A280682:
+  0, 4, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22, 23, 24, 36, 37, 38, 39,
+  40, 41, 42, 43, 44, 45, 46, 47, 48, 64, 65, 66, 67, 68, 69, 70, 71, 
+  72, 73, 74, 75, 76, 77, 78, 79, 80, 100, 101, 102, 103, 104, 105, 106,
+  107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, ...
+
+(define (schlosberg? num) (even? (floor (sqrt num))))
+
+
+(filter schlosberg? (sequence 0 120))
+;-> (0 4 5 6 7 8 16 17 18 19 20 21 22 23 24 36 37 38 39 40 41 42 43 44
+;->  45 46 47 48 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 100
+;->  101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117
+;->  118 119 120)
 
 ============================================================================
 
