@@ -2141,6 +2141,7 @@ NOTE LIBERE 20
   Alfabeto Farfallino
   Orario minimo e massimo
   Numeri di Schlosberg
+  Matrici di Walsh
 
 PROBLEMI SUI DADI
 =================

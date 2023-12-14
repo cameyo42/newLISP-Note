@@ -1985,5 +1985,307 @@ Sequenza OEIS A280682:
 ;->  101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117
 ;->  118 119 120)
 
+
+----------------
+Matrici di Walsh
+----------------
+
+Una matrice di Walsh è un tipo speciale di matrice quadrata che viene usata nelle applicazioni per il processo dei segnali (es. CDMA - Code Division Multiple Access).
+Entrambe le dimensioni della matrice sono sempre una potenza di 2.
+Se indichiamo queste matrici con W(0), W(1), W(2), ... possiamo scrivere:
+
+  W(0) = ((1))
+
+  W(n) = ((W(n-1)  W(n-1))
+          (W(n-1) -W(n-1))) per n > 0
+
+Esempi:
+
+W(1) = ((1  1)
+        (1 -1))
+
+W(2) = ((1  1  1  1)
+        (1 -1  1 -1)
+        (1  1 -1 -1)
+        (1 -1 -1  1))
+
+Scrivere una funzione che genera la matrice di Walsh W(n), con n numero intero positivo.
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    ; converto matrice in lista?
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    ; righe della matrice
+    (setq row (length matrix))
+    ; colonne della matrice
+    (setq col (length (first matrix)))
+    ; valore massimo della lunghezza di un elemento (come stringa)
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    ; calcolo spazio per gli elementi
+    (setq digit (+ 1 lenmax))
+    ; creo stringa di formattazione
+    (setq fmtstr (append "%" (string digit) "s"))
+    ; stampa la matrice
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println))))
+
+(define (merge-matrix A B position mtx)
+"Merge two matrix"
+  (local (out rowsA colsA rowsB colsB)
+    (setq out '())
+    (setq rowsA (length A))
+    (setq colsA (length (A 0)))
+    (setq rowsB (length B))
+    (setq colsB (length (B 0)))
+    (cond ((= position "n") ; B sopra A (nord) con (colsA == colsB)
+            (dolist (r B) (push r out -1))
+            (dolist (r A) (push r out -1)))
+          ((= position "s") ; B sotto A (sud) con (colsA == colsB)
+            (dolist (r A) (push r out -1))
+            (dolist (r B) (push r out -1)))
+          ((= position "e") ; B a destra di A (est) con (rowsA == rowsB)
+            (dolist (r A)
+              (push (append r (B $idx)) out -1)))
+          ((= position "o") ; B a sinistra di A (ovest) con (rowsA == rowsB)
+            (dolist (r A)
+              (push (append (B $idx) r) out -1)))
+    )
+    ; mtx = true --> matrice di output è un array
+    ; mtx = nil  --> matrice di output è una lista (default)
+    (if mtx (array (length out) out)
+            out)))
+
+(setq m1 '((1 2 3 4) (5 6 7 8)))
+;-> ((1 2 3 4)
+;->  (5 6 7 8))
+(setq m2 '((11 22 33 44) (55 66 77 88)))
+;-> ((11 22 33 44)
+;->  (55 66 77 88))
+
+(merge-matrix m1 m2 "e")
+;-> ((1  2  3  4 11 22 33 44)
+;->  (5  6  7  8 55 66 77 88))
+
+(merge-matrix m1 m2 "o")
+;-> ((11 22 33 44  1  2  3  4)
+;->  (55 66 77 88  5  6  7  8))
+
+(merge-matrix m1 m2 "n")
+;-> ((11 22 33 44)
+;->  (55 66 77 88)
+;->  ( 1  2  3  4)
+;->  ( 5  6  7  8))
+
+(merge-matrix m1 m2 "s")
+;-> (( 1  2  3  4)
+;->  ( 5  6  7  8)
+;->  (11 22 33 44)
+;->  (55 66 77 88))
+
+Funzione che genera la matrice di Walsh W(n):
+
+(define (walsh num)
+  (local (w wi wup wdown)
+    (cond ((= num 0) (print-matrix '((1))))
+          ((= num 1) (print-matrix '((1 1) (1 -1))))
+          (true
+            (setq w (array 2 2 '(1 1 1 -1)))
+            (setq wi (mat * w -1))
+            (for (i 2 num)
+              (setq wup   (merge-matrix w w "e"))
+              (setq wdown (merge-matrix w wi "e"))
+              (setq w (merge-matrix wup wdown "s" true))
+              (setq wi (mat * w -1))
+            )
+            w))))
+
+Proviamo:
+
+(print-matrix (walsh 0))
+;-> 1
+
+(print-matrix (walsh 1))
+;-> 1  1
+;-> 1 -1
+
+(print-matrix (walsh 2))
+;-> 1  1  1  1
+;-> 1 -1  1 -1
+;-> 1  1 -1 -1
+;-> 1 -1 -1  1
+
+(print-matrix (walsh 3))
+;-> 1  1  1  1  1  1  1  1
+;-> 1 -1  1 -1  1 -1  1 -1
+;-> 1  1 -1 -1  1  1 -1 -1
+;-> 1 -1 -1  1  1 -1 -1  1
+;-> 1  1  1  1 -1 -1 -1 -1
+;-> 1 -1  1 -1 -1  1 -1  1
+;-> 1  1 -1 -1 -1 -1  1  1
+;-> 1 -1 -1  1 -1  1  1 -1
+
+(print-matrix (walsh 4))
+;-> 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+;-> 1 -1  1 -1  1 -1  1 -1  1 -1  1 -1  1 -1  1 -1
+;-> 1  1 -1 -1  1  1 -1 -1  1  1 -1 -1  1  1 -1 -1
+;-> 1 -1 -1  1  1 -1 -1  1  1 -1 -1  1  1 -1 -1  1
+;-> 1  1  1  1 -1 -1 -1 -1  1  1  1  1 -1 -1 -1 -1
+;-> 1 -1  1 -1 -1  1 -1  1  1 -1  1 -1 -1  1 -1  1
+;-> 1  1 -1 -1 -1 -1  1  1  1  1 -1 -1 -1 -1  1  1
+;-> 1 -1 -1  1 -1  1  1 -1  1 -1 -1  1 -1  1  1 -1
+;-> 1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1
+;-> 1 -1  1 -1  1 -1  1 -1 -1  1 -1  1 -1  1 -1  1
+;-> 1  1 -1 -1  1  1 -1 -1 -1 -1  1  1 -1 -1  1  1
+;-> 1 -1 -1  1  1 -1 -1  1 -1  1  1 -1 -1  1  1 -1
+;-> 1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1  1  1  1  1
+;-> 1 -1  1 -1 -1  1 -1  1 -1  1 -1  1  1 -1  1 -1
+;-> 1  1 -1 -1 -1 -1  1  1 -1 -1  1  1  1  1 -1 -1
+;-> 1 -1 -1  1 -1  1  1 -1 -1  1  1 -1  1 -1 -1  1
+
+La funzione è un pò lenta:
+
+(time (walsh 10))
+;-> 265.555
+(time (walsh 11))
+;-> 1125.12
+(time (walsh 12))
+;-> 7172.301
+
+Invece di combinare le sotto-matrici possiamo riempire la matrice copiando gli elementi.
+Per fare questo usiamo due cicli per copiare il primo quarto della matrice (alto-sinistra) su tutti gli altri quarti della matrice.
+
+(define (walsh2 num)
+  (local (dim out)
+    (setq dim (pow 2 num))
+    (setq out (array dim dim '(0)))
+    ; aggiorna elemento (0 0)
+    (setf (out 0 0) 1)
+    (setq k 1)
+    (while (< k dim)
+      ; Cicli per copiare gli elementi sugli altri quarti della matrice
+      (for (i 0 (- k 1))
+        (for (j 0 (- k 1))
+          (setf (out (+ i k) j) (out i j))
+          (setf (out i (+ j k)) (out i j))
+          (setq (out (+ i k) (+ j k)) (- (out i j)))
+        )
+      )
+      (++ k k)
+    )
+    out))
+
+Proviamo:
+
+(print-matrix (walsh2 2))
+;-> 1  1  1  1
+;-> 1 -1  1 -1
+;-> 1  1 -1 -1
+;-> 1 -1 -1  1
+(print-matrix (walsh2 4))
+;-> 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+;-> 1 -1  1 -1  1 -1  1 -1  1 -1  1 -1  1 -1  1 -1
+;-> 1  1 -1 -1  1  1 -1 -1  1  1 -1 -1  1  1 -1 -1
+;-> 1 -1 -1  1  1 -1 -1  1  1 -1 -1  1  1 -1 -1  1
+;-> 1  1  1  1 -1 -1 -1 -1  1  1  1  1 -1 -1 -1 -1
+;-> 1 -1  1 -1 -1  1 -1  1  1 -1  1 -1 -1  1 -1  1
+;-> 1  1 -1 -1 -1 -1  1  1  1  1 -1 -1 -1 -1  1  1
+;-> 1 -1 -1  1 -1  1  1 -1  1 -1 -1  1 -1  1  1 -1
+;-> 1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1
+;-> 1 -1  1 -1  1 -1  1 -1 -1  1 -1  1 -1  1 -1  1
+;-> 1  1 -1 -1  1  1 -1 -1 -1 -1  1  1 -1 -1  1  1
+;-> 1 -1 -1  1  1 -1 -1  1 -1  1  1 -1 -1  1  1 -1
+;-> 1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1  1  1  1  1
+;-> 1 -1  1 -1 -1  1 -1  1 -1  1 -1  1  1 -1  1 -1
+;-> 1  1 -1 -1 -1 -1  1  1 -1 -1  1  1  1  1 -1 -1
+;-> 1 -1 -1  1 -1  1  1 -1 -1  1  1 -1  1 -1 -1  1
+
+Vediamo la velocità di questa funzione:
+
+(time (walsh2 10))
+;-> 155.941
+(time (walsh2 11))
+;-> 614.845
+(time (walsh2 12))
+;-> 2532.056
+(time (walsh2 13))
+;-> 18985.052
+
+Questa funzione è molto più veloce, ma le dimensioni delle matrici di Walsh crescono molto velocemente (es 2^13 = 8192).
+I due cicli innestati rendono la complessità temporale pari a O(n^2).
+
+Dal punto di vista matematico è stato dinostrato che il valore della coordinata (x y) della matrice vale:
+
+  (-1)^popcount(x & y)
+
+dove "popcount" è una funzione che conta i bit a 1 di un numero e "&" è l'operatore bitwise "and".
+
+(define (popcount num)
+  (let (conta 0)
+    (while (> num 0)
+      (setq num (& num (- num 1)))
+      (++ conta)
+    )
+    conta))
+
+(define (walsh3 num)
+  (local (dim out)
+    (setq dim (pow 2 num))
+    (setq out (array dim dim '(0)))
+    ; aggiorna elemento (0 0)
+    (setf (out 0 0) 1)
+    ; Cicli per copiare gli elementi sugli altri quarti della matrice
+    (for (i 0 (- dim 1))
+        (for (j 0 (- dim 1))
+          (setf (out i j) (pow -1 (popcount (& i j))))
+        )
+    )
+    out))
+
+> (print-matrix (walsh3 2))
+;-> 1  1  1  1
+;-> 1 -1  1 -1
+;-> 1  1 -1 -1
+;-> 1 -1 -1  1
+
+> (print-matrix (walsh3 4))
+;-> 1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+;-> 1 -1  1 -1  1 -1  1 -1  1 -1  1 -1  1 -1  1 -1
+;-> 1  1 -1 -1  1  1 -1 -1  1  1 -1 -1  1  1 -1 -1
+;-> 1 -1 -1  1  1 -1 -1  1  1 -1 -1  1  1 -1 -1  1
+;-> 1  1  1  1 -1 -1 -1 -1  1  1  1  1 -1 -1 -1 -1
+;-> 1 -1  1 -1 -1  1 -1  1  1 -1  1 -1 -1  1 -1  1
+;-> 1  1 -1 -1 -1 -1  1  1  1  1 -1 -1 -1 -1  1  1
+;-> 1 -1 -1  1 -1  1  1 -1  1 -1 -1  1 -1  1  1 -1
+;-> 1  1  1  1  1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1
+;-> 1 -1  1 -1  1 -1  1 -1 -1  1 -1  1 -1  1 -1  1
+;-> 1  1 -1 -1  1  1 -1 -1 -1 -1  1  1 -1 -1  1  1
+;-> 1 -1 -1  1  1 -1 -1  1 -1  1  1 -1 -1  1  1 -1
+;-> 1  1  1  1 -1 -1 -1 -1 -1 -1 -1 -1  1  1  1  1
+;-> 1 -1  1 -1 -1  1 -1  1 -1  1 -1  1  1 -1  1 -1
+;-> 1  1 -1 -1 -1 -1  1  1 -1 -1  1  1  1  1 -1 -1
+;-> 1 -1 -1  1 -1  1  1 -1 -1  1  1 -1  1 -1 -1  1
+
+Vediamo se le funzioni producono gli stessi risultati:
+
+(= (walsh 4) (walsh2 4) (walsh3 4))
+;-> true
+(= (walsh 8) (walsh2 8) (walsh3 8))
+;-> true
+
+Vediamo la velocità di questa funzione:
+
+(time (walsh3 10))
+;-> 642.185
+(time (walsh3 11))
+;-> 2639.838
+(time (walsh3 12))
+;-> 11005.218
+(time (walsh3 13))
+;-> 55119.123
+
 ============================================================================
 
