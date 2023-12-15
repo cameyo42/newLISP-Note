@@ -33,17 +33,14 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 25) Note libere 17 (80)
 26) Note libere 18 (80)
 27) Note libere 19 (80)
-28) Note libere 20 (27)
+28) Note libere 20 (29)
 96) Problemi sui dadi (76)
 97) Appendici (28)
 98) Bibliografia
-99) yo library (yo.zip) (249)
+99) yo library (yo.zip) (252)
 
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  
 B) Code Patterns (by Lutz Mueller)  
 C) The Little newLISPER  
 D) Kazimir-Blog (by Kazimir Majorinc)  
-
-"Ogni cosa può accadere solo una volta"
-Philip Morrison

@@ -5,6 +5,8 @@
  MIT License
 ============================================================================
 
+"Ogni cosa può accadere solo una volta" Philip Morrison
+
 ========
 
  INDICE
@@ -2122,7 +2124,7 @@ NOTE LIBERE 20
   Un problema del 1953
   Software version number
   Primi in un numero
-  Selezionare/rimuovere elementi da una lista ogni k
+  Selezionare/rimuovere/inserire elementi da una lista ogni k
   La regola di Naismith
   Prodotto più comune
   A Million Random Digits with 100,000 Normal Deviates
@@ -2142,6 +2144,8 @@ NOTE LIBERE 20
   Orario minimo e massimo
   Numeri di Schlosberg
   Matrici di Walsh
+  Somma delle rotazioni distinte di un numero
+  Simbolo di Levi-Civita
 
 PROBLEMI SUI DADI
 =================
@@ -2183,7 +2187,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (249 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (252 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

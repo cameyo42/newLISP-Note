@@ -596,11 +596,11 @@ Proviamo:
 ;->  2131 13 131 3 31)
 
 
---------------------------------------------------
-Selezionare/rimuovere elementi da una lista ogni k
---------------------------------------------------
+-----------------------------------------------------------
+Selezionare/rimuovere/inserire elementi da una lista ogni k
+-----------------------------------------------------------
 
-Vediamo due funzioni per selezionare e rimuovere gli elementi di una lista ogni k elementi.
+Vediamo tre funzioni per selezionare, rimuovere e inserire elementi di una lista ogni k elementi.
 
 Funzione che rimuove gli elementi ogni k:
 
@@ -646,6 +646,28 @@ Verifichiamo la correttezza delle due funzioni:
 
 (= (sort (extend (select-k b 7) (remove-k b 7))) (sort b))
 ;-> true
+
+Per finire la funzione che inserisce un elemento in una lista ogni k:
+
+(define (insert-k val lst k)
+"Inserts element into a list every k"
+  (let (out '())
+    (dolist (el lst) 
+      (if (zero? (% (+ $idx 1) k))
+          (extend out (list el val))
+          (push el out -1)))
+    out))
+
+Proviamo:
+
+(insert-k ', '(1 2 3 4 5 6 7 8 9) 1)
+;-> (1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 ,)
+(insert-k ', '(1 2 3 4 5 6 7 8 9) 2)
+;-> (1 2 , 3 4 , 5 6 , 7 8 , 9)
+(insert-k ', '(1 2 3 4 5 6 7 8 9) 3)
+;-> (1 2 3 , 4 5 6 , 7 8 9 ,)
+(insert-k ', '(1 2 3 4 5 6 7 8 9) 4)
+;-> (1 2 3 4 , 5 6 7 8 , 9)
 
 
 ---------------------
@@ -2286,6 +2308,245 @@ Vediamo la velocità di questa funzione:
 ;-> 11005.218
 (time (walsh3 13))
 ;-> 55119.123
+
+
+-------------------------------------------
+Somma delle rotazioni distinte di un numero
+-------------------------------------------
+
+Dato un intero positivo calcolare la somma di tutte le permutazioni.
+
+Esempi:
+num = 123
+Le rotazioni sono 123 (nessuna rotazione), 231 (una rotazione) e 312 (due rotazioni).
+La somma di questi vale 123 + 231 + 312 = 666.
+
+num = 4928. 
+Le rotazioni sono 4928, 9284, 2849 e 8492. 
+La somma di questi quattro numeri vale 4928 + 9284 + 2849 + 8492 = 25553.
+
+num = 445445, 
+Le rotazioni distinte sono 445445, 454454 e 544544.
+La somma vale 445445 + 454454 + 544544 = 1444443.
+
+num = 777
+Esiste solo una rotazione distinta che vale 777.
+
+Sequenza OEIS A045876:
+Sum of different permutations of digits of n (leading 0's allowed)
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 11, 33, 44, 55, 66, 77, 88, 99, 110, 22,
+  33, 22, 55, 66, 77, 88, 99, 110, 121, 33, 44, 55, 33, 77, 88, 99, 110, 
+  121, 132, 44, 55, 66, 77, 44, 99, 110, 121, 132, 143, 55, 66, 77, 88, 
+  99, 55, 121, 132, 143, 154, 66, 77, 88, 99, 110, 121, 66, 143, ...
+
+(define (rotate-sum num)
+  (let ( (lst '()) (s (string num)) )
+    (for (i 0 (- (length num) 1))
+      (push (int (rotate s) 0 10) lst)
+    )
+    (apply + (unique lst))))
+
+Proviamo:
+
+(rotate-sum 1)
+;-> 1
+(rotate-sum 123)
+;-> 666
+(rotate-sum 4892)
+;-> 25553
+(rotate-sum 445445)
+;-> 1444443
+(rotate-sum 777)
+;-> 777
+
+(map rotate-sum (sequence 1 100))
+;-> (1 2 3 4 5 6 7 8 9 11 11 33 44 55 66 77 88 99 110 22
+;->  33 22 55 66 77 88 99 110 121 33 44 55 33 77 88 99 110
+;->  121 132 44 55 66 77 44 99 110 121 132 143 55 66 77 88
+;->  99 55 121 132 143 154 66 77 88 99 110 121 66 143 154 
+;->  165 77 88 99 110 121 132 143 77 165 176 88 99 110 121
+;->  132 143 154 165 88 187 99 110 121 132 143 154 165 176 
+;->  187 99 111)
+
+
+----------------------
+Simbolo di Levi-Civita
+----------------------
+
+The three-dimensional Levi-Civita symbol is a function f taking triples of numbers (i,j,k) each in {1,2,3}, to {-1,0,1}, defined as:
+
+f(i,j,k) = 0 when i,j,k are not distinct, i.e. i=j or j=k or k=i
+f(i,j,k) = 1 when (i,j,k) is a cyclic shift of (1,2,3), that is one of (1,2,3), (2,3,1), (3,1,2).
+f(i,j,k) = -1 when (i,j,k) is a cyclic shift of (3,2,1), that is one of (3,2,1), (2,1,3), (1,3,2).
+The result is the sign of a permutation of (1,2,3), with non-permutations giving 0. Alternatively, if we associate the values 1,2,3 with orthogonal unit basis vectors e_1, e_2, e_3, then f(i,j,k) is the determinant of the 3x3 matrix with columns e_i, e_j, e_k.
+
+There are 27 possible inputs.
+
+Il simbolo tridimensionale di Levi-Civita è una funzione f che prende triple di numeri (i,j,k) ciascuno in (1..3) restituisce un valore tra (-1,0,1).
+La funzione viene definita come:
+
+f(i,j,k) = 0 quando i,j,k non sono distinti, cioè i=j o j=k o k=i
+
+f(i,j,k) = 1 quando (i,j,k) è uno spostamento ciclico di (1,2,3), ovvero uno tra (1,2,3), (2,3,1), (3,1,2).
+
+f(i,j,k) = -1 quando (i,j,k) è uno spostamento ciclico di (3,2,1), cioè uno tra (3,2,1), (2,1,3 ), (1,3,2).
+
+Quindi il risultato è il segno di una permutazione di (1,2,3), con le non-permutazioni che danno 0.
+In alternativa, se associamo i valori 1,2,3 ai vettori base unitari ortogonali e_1, e_2, e_3, allora f(i,j,k) è il determinante della matrice 3x3 con colonne e_i, e_j, e_k.
+
+Ci sono 27 possibili input con relativi output:
+
+  (1 1 1) --> 0
+  (1 1 2) --> 0
+  (1 1 3) --> 0
+  (1 2 1) --> 0
+  (1 2 2) --> 0
+  (1 2 3) --> 1
+  (1 3 1) --> 0
+  (1 3 2) --> -1
+  (1 3 3) --> 0
+  (2 1 1) --> 0
+  (2 1 2) --> 0
+  (2 1 3) --> -1
+  (2 2 1) --> 0
+  (2 2 2) --> 0
+  (2 2 3) --> 0
+  (2 3 1) --> 1
+  (2 3 2) --> 0
+  (2 3 3) --> 0
+  (3 1 1) --> 0
+  (3 1 2) --> 1
+  (3 1 3) --> 0
+  (3 2 1) --> -1
+  (3 2 2) --> 0
+  (3 2 3) --> 0
+  (3 3 1) --> 0
+  (3 3 2) --> 0
+  (3 3 3) --> 0
+
+1) Versione banale:
+
+(define (levi1 i j k)
+  (let (val (+ (* i 100) (* j 10) k))
+    (cond ((= val 111) 0 )
+          ((= val 112) 0 )
+          ((= val 113) 0 )
+          ((= val 121) 0 )
+          ((= val 122) 0 )
+          ((= val 123) 1 )
+          ((= val 131) 0 )
+          ((= val 132) -1)
+          ((= val 133) 0 )
+          ((= val 211) 0 )
+          ((= val 212) 0 )
+          ((= val 213) -1)
+          ((= val 221) 0 )
+          ((= val 222) 0 )
+          ((= val 223) 0 )
+          ((= val 231) 1 )
+          ((= val 232) 0 )
+          ((= val 233) 0 )
+          ((= val 311) 0 )
+          ((= val 312) 1 )
+          ((= val 313) 0 )
+          ((= val 321) -1)
+          ((= val 322) 0 )
+          ((= val 323) 0 )
+          ((= val 331) 0 )
+          ((= val 332) 0 )
+          ((= val 333) 0 ))))
+
+Verifichiamo la correttezza della funzione:
+
+(setq input '((1 1 1) (1 1 2) (1 1 3) (1 2 1) (1 2 2) (1 2 3) (1 3 1) (1 3 2)
+              (1 3 3) (2 1 1) (2 1 2) (2 1 3) (2 2 1) (2 2 2) (2 2 3) (2 3 1)
+              (2 3 2) (2 3 3) (3 1 1) (3 1 2) (3 1 3) (3 2 1) (3 2 2) (3 2 3)
+              (3 3 1) (3 3 2) (3 3 3)))
+
+(setq output '(0 0 0 0 0 1 0 -1 0 0 0 -1 0 0 0 1 0 0 0 1 0 -1 0 0 0 0 0))
+
+(= (map (fn(x) (apply levi1 x)) input) output)
+;-> true
+
+2) Versione banale compressa:
+
+(define (levi2 i j k)
+  (let (val (+ (* i 100) (* j 10) k))
+    (cond ((or (= val 111) (= val 112) (= val 113) (= val 121) (= val 122)
+               (= val 131) (= val 133) (= val 211) (= val 212) (= val 221)
+               (= val 222) (= val 223) (= val 232) (= val 233) (= val 311)
+               (= val 313) (= val 322) (= val 323) (= val 331) (= val 332)
+               (= val 333)) 0)
+          ((or (= val 123) (= val 231) (= val 312)) 1)
+          ((or (= val 132) (= val 213) (= val 321)) -1))))
+
+Verifichiamo la correttezza della funzione:
+
+(= (map (fn(x) (apply levi2 x)) input) output)
+;-> true
+
+3) Versione matematica:
+
+Se associamo i valori 1,2,3 ai vettori base unitari ortogonali e_1, e_2, e_3, allora f(i,j,k) è il determinante della matrice 3x3 con colonne e_i, e_j, e_k.
+Esempi:
+
+i=1 j=1 k=1
+Matrice:
+  e1 e1 e1
+   1  1  1
+   0  0  0
+   0  0  0
+
+i=1 j=2 k=2
+Matrice:
+  e1 e2 e2
+   1  0  0
+   0  1  1
+   0  0  0
+
+i=1 j=3 k=2
+Matrice:
+  e1 e3 e2
+   1  0  0
+   0  0  1
+   0  1  0
+
+(define (levi3 i j k)
+  (setq matrix (array 3 3 '(0)))
+  (setf (matrix (- i 1) 0) 1)
+  (setf (matrix (- j 1) 1) 1)
+  (setf (matrix (- k 1) 2) 1)
+  (or (det matrix) 0))
+
+Verifichiamo la correttezza della funzione:
+
+(= (map (fn(x) (apply levi3 x)) input) output)
+
+4) Versione analizzando le differenze degli indici
+
+Consideriamo le differenze i-j, j-k, k-i.
+
+Se (i, j, k) è una rotazione di (1, 2, 3), le differenze sono una rotazione di (-1, -1, 2). Prendendo il prodotto, otteniamo (-1) * (-1) * 2 = 2.
+Se (i, j, k) è una rotazione di (3, 2, 1), le differenze sono una rotazione di (1, 1, -2). Prendendo il prodotto, otteniamo 1 * 1 * (-2) = -2.
+Per (i, i, j) (o una rotazione), dove i e j possono essere uguali, le differenze sono (0, i-j, j-i). Prendendo il prodotto, otteniamo 0 * (i-j) * (j-i) = 0.
+Quindi per ottenere il risultato corretto è sufficiente dividere per 2 il prodotto delle differenze (i-j), (j-k) e (k-i).
+
+(define (levi4 i j k) (/ (* (- i j) (- j k) (- k i)) 2))
+
+Verifichiamo la correttezza della funzione:
+
+(= (map (fn(x) (apply levi4 x)) input) output)
+;-> true
+
+Vediamo la velocità delle funzioni:
+(time (map (fn(x) (apply levi1 x)) input) 1e4)
+;-> 461.832
+(time (map (fn(x) (apply levi2 x)) input) 1e4)
+;-> 401.342
+(time (map (fn(x) (apply levi3 x)) input) 1e4)
+;-> 1049.973
+(time (map (fn(x) (apply levi4 x)) input) 1e4)
+;-> 131.559
 
 ============================================================================
 

@@ -3787,12 +3787,13 @@ https://proj.goldencode.com/downloads/libffi/libffi_3.2.1_prebuilt_mingw_4.9.0_6
 
 Scompattare il file nella cartella: c:\newLISP-10.7.5\libffi-3.2.1-prebuilt_mingw490_64bit
 
-Copiare i file "libffi.a" e "libffi.dll.a" nella cartella:
+Copiare i file "libffi.a" e "libffi.dll.a" "libffi-6.dll" nella cartella:
 
 c:\TDM-GCC-64\lib\gcc\x86_64-w64-mingw32\5.1.0\
 
 (c:\TDM-GCC-64\lib\gcc\x86_64-w64-mingw32\5.1.0\libffi.a)
 (c:\TDM-GCC-64\lib\gcc\x86_64-w64-mingw32\5.1.0\libffi.dll.a)
+(c:\TDM-GCC-64\lib\gcc\x86_64-w64-mingw32\5.1.0\libffi-6.dll)
 
 Adesso dobbiamo modificare un makefile che si trova nella cartella dei sorgenti.
 
@@ -3807,7 +3808,10 @@ Aprire una finestra DOS (command prompt - cmd.exe) e dalla cartella dei sorgenti
 
 make -f makefile_mingw64_utf8_ffi
 
-Se tutto va bene, dopo alcuni secondi avrete il vostro file "newLISP.exe" insieme a diversi altri file che  hanno estensione ".o".
+Oppure, mingw32-make -f makefile_mingw64_utf8_ffi
+
+Se tutto va bene, dopo alcuni secondi avrete il vostro file "newLISP.exe" insieme a diversi altri file che hanno estensione ".o".
+Adesso occorre copiare il file "libffi-6.dll"
 
 Prima di creare la dll di newLISP dobbiamo eliminare tutti i file ".o" che sono stati creati.
 
