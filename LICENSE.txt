@@ -1,4 +1,4 @@
-MIT License
+Licence "MIT No Attribution" (MIT-0)
 
 Copyright (c) 2019-2023 Massimo Corinaldesi aka cameyo
 
@@ -7,31 +7,38 @@ of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+furnished to do so.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 ------------------------------------------------------------------------------
 
 Traduzione in italiano del 4 febbraio 2021 (Google Translate e modifiche):
 
-Licenza MIT
+Licenza "MIT No Attribution" (MIT-0)
 
 Copyright (c) 2019-2023 Massimo Corinaldesi aka cameyo
 
-L'autorizzazione è concessa, gratuitamente, a chiunque ottenga una copia di questo software e dei file di documentazione associati (il "Software"), di trattare il Software senza restrizioni, inclusi senza limitazione i diritti di utilizzare, copiare, modificare, unire, pubblicare, distribuire, concedere in licenza e/o vendere copie del Software e per consentirlo anche alle persone a cui è destinato il Software, alle seguenti condizioni:
+L'autorizzazione è concessa, gratuitamente, a chiunque ottenga una copia 
+di questo software e dei file di documentazione associati (il "Software"),
+di trattare il Software senza restrizioni, inclusi senza limitazione i diritti
+di utilizzare, copiare, modificare, unire, pubblicare, distribuire,
+concedere in licenza e/o vendere copie del Software e per consentirlo anche 
+alle persone a cui è destinato il Software.
 
-L'avviso di copyright di cui sopra e questo avviso di autorizzazione devono essere inclusi in tutte le copie o porzioni sostanziali del Software.
+IL SOFTWARE VIENE FORNITO "COSÌ COM'È", SENZA GARANZIA DI ALCUN TIPO, 
+ESPRESSA O IMPLICITA, INCLUSE MA NON SOLO LE GARANZIE DI COMMERCIABILITÀ,
+IDONEITÀ PER UNO SCOPO PARTICOLARE E NON VIOLAZIONE. IN NESSUN CASO 
+GLI AUTORI O I TITOLARI DEL COPYRIGHT SONO RESPONSABILI DI QUALSIASI
+RIVENDICAZIONE, DANNO O ALTRO RESPONSABILITÀ, SIA IN UN'AZIONE CONTRATTUALE,
+TORTO O ALTRO, DERIVANTE DA, FUORI O IN CONNESSIONE AL SOFTWARE O ALL'USO O 
+AD ALTRI TRATTAMENTI IN SOFTWARE.
 
-IL SOFTWARE VIENE FORNITO "COSÌ COM'È", SENZA GARANZIA DI ALCUN TIPO, ESPRESSA O IMPLICITA, INCLUSE MA NON SOLO LE GARANZIE DI COMMERCIABILITÀ, IDONEITÀ PER UNO SCOPO PARTICOLARE E NON VIOLAZIONE. IN NESSUN CASO GLI AUTORI O I TITOLARI DEL COPYRIGHT SONO RESPONSABILI DI QUALSIASI RIVENDICAZIONE, DANNO O ALTRO RESPONSABILITÀ, SIA IN UN'AZIONE CONTRATTUALE, TORTO O ALTRO, DERIVANTE DA, FUORI O IN CONNESSIONE AL SOFTWARE O ALL'USO O AD ALTRI TRATTAMENTI IN SOFTWARE.
-
-Nota: la versione italiana della licenza viene riportata solo per comodità. La licenza ufficiale è la versione inglese.
+Nota: la versione italiana della licenza viene riportata solo per comodità.
+La licenza ufficiale è la versione inglese.

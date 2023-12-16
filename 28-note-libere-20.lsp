@@ -2548,5 +2548,370 @@ Vediamo la velocità delle funzioni:
 (time (map (fn(x) (apply levi4 x)) input) 1e4)
 ;-> 131.559
 
+
+------------------------------------
+La funzione "GetTickCount" (windows)
+------------------------------------
+
+Funzione "GetTickCount" (sysinfoapi.h) (kernel32.dll)
+
+La funzione restituisce il numero di millisecondi trascorsi dall'avvio del sistema (boot).
+La risoluzione della funzione GetTickCount è limitata alla risoluzione del timer di sistema, che in genere è compreso tra 10 millisecondi e 16 millisecondi.
+Il tempo trascorso viene memorizzato come valore DWORD.
+Pertanto, il valore tornerà a zero se il sistema viene eseguito ininterrottamente per 49.7 giorni.
+Per evitare questo problema, utilizzare la funzione "GetTickCount64".
+
+Facciamo una prova:
+
+(import "kernel32.dll" "GetTickCount")
+(import "kernel32.dll" "GetTickCount64")
+(GetTickCount64) (GetTickCount)
+
+(define (test iter)
+  (let (start (GetTickCount))
+    (for (i 1 iter) (for (j 1 iter)))
+    (- (GetTickCount) start)))
+
+(test 10000)
+;-> 734
+
+(time (test 10000))
+;-> 731.947
+
+
+---------------------------------------------------------------
+G. Polya e "How to Solve It!" (G. Polya and "How to Solve It!")
+---------------------------------------------------------------
+
+***Versione Italiana***
+
+Un quadro generale per la risoluzione dei problemi è stato descritto da G. Polya in un libro intitolato "How to Solve It!" (2a edizione, Princeton University Press).
+Sebbene l’attenzione di Polya fosse rivolta alla risoluzione di problemi di matematica, le strategie sono molto più generali e ampiamente applicabili.
+Il ragionamento induttivo è alla base della maggior parte dei processi creativi nel "mondo reale".
+La programmazione fornisce un'attività ideale per sviluppare abilità nel ragionamento induttivo e nella scoperta.
+
+Ecco uno schema della struttura di Polya:
+
+1. Comprendere il problema [Identificare l'obiettivo]
+-----------------------------------------------------
+Il primo passo è leggere il problema e assicurarsi di averlo compreso chiaramente.
+
+Poniti le seguenti domande:
+
+- Quali sono le incognite?
+
+-Quali sono le quantità indicate?
+
+- Quali sono le condizioni previste?
+
+- Ci sono dei vincoli?
+
+Per molti problemi è utile
+
+- tracciare un diagramma
+
+e identificare le quantità date e richieste sul diagramma.
+
+Di solito è necessario
+
+- introdurre una notazione adeguata
+
+Nella scelta dei simboli per le quantità sconosciute usiamo spesso lettere come a, b, c, x e y, ma nella maggior parte dei casi è utile usare le iniziali come simboli suggestivi, ad esempio V per volume o t per tempo.
+
+2. Elaborare un piano
+---------------------
+Trova una connessione tra le informazioni fornite e l'ignoto che ti consentirà di calcolare l'ignoto.
+Spesso ti aiuta a chiederti esplicitamente: "Come posso mettere in relazione il dato con l'ignoto?"
+Se non vedi immediatamente una connessione, le seguenti idee potrebbero essere utili per elaborare un piano.
+
+- Stabilire sotto-obiettivi (dividerli in sottoproblemi)
+In un problema complesso è spesso utile stabilire dei sotto-obiettivi.
+Se riusciamo prima a raggiungere questi sotto-obiettivi, allora potremmo essere in grado di basarci su di essi per raggiungere il nostro obiettivo finale.
+
+- Prova a riconoscere qualcosa di familiare
+Collegare la situazione data alle conoscenze precedenti.
+Guarda l'ignoto e prova a ricordare un problema più familiare che ha un'incognita simile o coinvolge principi simili.
+
+- Prova a riconoscere i modelli
+Alcuni problemi vengono risolti riconoscendo che si sta verificando un qualche tipo di schema.
+Il modello potrebbe essere geometrico, numerico o algebrico.
+Se riesci a vedere la regolarità o la ripetizione in un problema, potresti essere in grado di indovinare qual è lo schema continuo e quindi dimostrarlo.
+[Questo è uno dei motivi per cui devi risolvere molti problemi, in modo da sviluppare una base di schemi!]
+
+- Usa l'analogia
+Prova a pensare a un problema analogo, cioè un problema simile, correlato, ma più semplice del problema originale.
+Se riesci a risolvere un problema simile e più semplice, questo potrebbe darti gli indizi necessari per risolvere il problema originale, più difficile.
+Ad esempio, se il problema riguarda la geometria tridimensionale, potresti cercare un problema simile nella geometria bidimensionale.
+Oppure, se il problema con cui inizi è generale, potresti prima provare un caso speciale. [
+Bisogna fare molti problemi per costruire un database di analogie!]
+
+- Introduci qualcosa in più
+A volte può essere necessario introdurre qualcosa di nuovo, un aiuto ausiliario, per aiutare a stabilire la connessione tra il dato e l'ignoto.
+Ad esempio, in un problema in cui un diagramma è utile, l'aiuto ausiliario potrebbe essere una nuova linea tracciata in un diagramma.
+In un problema più algebrico potrebbe essere una nuova incognita correlata all'incognita originale.
+
+- Prendi i casi
+A volte potremmo dover suddividere un problema in diversi casi e fornire una soluzione diversa per ciascuno dei casi.
+Ad esempio, spesso dobbiamo utilizzare questa strategia quando si tratta di valore assoluto.
+
+- Lavora all'indietro (assumi la risposta)
+Spesso è utile immaginare che il proprio problema sia risolto e lavorare a ritroso, passo dopo passo, fino ad arrivare ai dati forniti.
+Quindi potresti essere in grado di invertire i tuoi passi e quindi costruire una soluzione al problema originale.
+Questa procedura è comunemente usata per risolvere le equazioni.
+Ad esempio, nel risolvere l'equazione 3x-5 = 7, supponiamo che x sia un numero che soddisfa 3x-5=7 e lavoriamo all'indietro.
+Aggiungiamo 5 a ciascun lato dell'equazione e poi dividiamo ciascun lato per 3 per ottenere x = 4.
+Poiché ciascuno di questi passaggi può essere invertito, abbiamo risolto il problema.
+
+- Ragionamento indiretto
+A volte è opportuno affrontare un problema indirettamente.
+Utilizzando la prova per assurdo per dimostrare che P implica Q, assumiamo che P sia vero e Q sia falso e proviamo a vedere perché ciò non può accadere.
+
+3. Realizzare il Piano
+----------------------
+Nella fase 2 è stato ideato un piano.
+Nell'attuare quel piano dobbiamo controllare ogni fase del piano e scrivere i dettagli che dimostrano che ogni fase è corretta.
+Una serie di equazioni non è sufficiente!
+
+4. Guarda indietro
+------------------
+Sii critico nei confronti del tuo risultato.
+Cerca difetti nelle tue soluzioni (ad esempio, incoerenze, ambiguità o passaggi errati).
+Sii il critico più duro di te stesso!
+Puoi controllare il risultato? Lista di controllo:
+
+- Esiste un metodo alternativo che possa fornire una risposta almeno parziale?
+
+- Prova lo stesso approccio per qualche problema simile ma più semplice.
+
+- Controllare le unità (sempre, sempre, sempre!).
+
+- Se esiste una risposta numerica, l'ordine di grandezza è corretto o ragionevole?
+
+- Tendenze. La risposta varia come previsto se si variano uno o più parametri?
+Ad esempio, se è coinvolta la gravità, la risposta cambia come previsto se si varia g?
+
+- Controlla i casi limite in cui la risposta è facile o conosciuta.
+Prendi il limite poiché le variabili o i parametri raggiungono determinati valori.
+Ad esempio, supponiamo che la massa sia zero o infinita.
+
+- Controllare casi particolari in cui la risposta è facile o conosciuta.
+Potrebbe trattarsi di un angolo speciale (0, 45 o 90 gradi) o del caso in cui tutte le masse sono impostate uguali tra loro.
+
+- Usa la simmetria.
+La tua risposta riflette qualche simmetria della situazione fisica?
+
+- Se possibile, fai un semplice esperimento per vedere se la tua risposta ha senso.
+
+Esamineremo le potenziali strategie mentre risolviamo i problemi.
+L'enfasi qui è sull'essere consapevoli delle nostre strategie di risoluzione dei problemi e sulla costruzione di una soluzione che rifletta i passaggi sopra delineati.
+
+***English Version***
+
+An overall framework for problem solving was described by G. Polya in a book called "How to Solve It!" (2nd Ed., Princeton University Press).
+Although Polya’s focus was on solving math problems, the strategies are much more general and are broadly applicable.
+Inductive reasoning is the basis of most of the creative processes in the "real world".
+Programming provides an ideal activity for building skill in inductive reasoning and discovery.
+
+Here is an outline of Polya’s framework:
+
+1. Understand the Problem [Identify the goal]
+----------------------------------------------
+The first step is to read the problem and make sure that you understand it clearly.
+
+Ask yourself the following questions:
+
+- What are the unknowns?
+
+- What are the given quantities?
+
+- What are the given conditions?
+
+- Are there any constraints?
+
+For many problems it is useful to
+
+- draw a diagram
+
+and identify the given and required quantities on the diagram.
+
+Usually it is necessary to
+
+- introduce suitable notation
+
+In choosing symbols for the unknown quantities we often use letters such as a, b, c, x, and y, but in most cases it helps to use initials as suggestive symbols, for instance, V for volume or t for time.
+
+2. Devise a Plan
+----------------
+Find a connection between the given information and the unknown that will enable you to calculate the unknown. 
+It often helps you to ask yourself explicitly: "How can I relate the given to the unknown?" 
+If you do not see a connection immediately, the following ideas may be helpful in devising a plan.
+
+- Establish subgoals (divide into subproblems)
+In a complex problem it is often useful to set subgoals. 
+If we can first reach these subgoals, then we may be able to build on them to reach our final goal.
+
+- Try to recognize something familiar
+Relate the given situation to previous knowledge. 
+Look at the unknown and try to recall a more familiar problem that has a similar unknown or involves similar principles.
+
+- Try to recognize patterns
+Some problems are solved by recognizing that some kind of pattern is occurring.
+The pattern could be geometric, or numerical, or algebraic.
+If you can see regularity or repetition in a problem, you might be able to guess what the continuing pattern is and then prove it.
+[This is one reason you need to do lots of problems, so that you develop a base of patterns!]
+
+- Use analogy
+Try to think of an analogous problem, that is, a similar problem, a related problem, but one that is easier than the original problem.
+If you can solve the similar, simpler problem, then it might give you the clues you need to solve the original, more difficult problem.
+For instance, if the problem is in three-dimensional geometry, you could look for a similar problem in two-dimensional geometry.
+Or if the problem you start with is a general one, you could first try a special case. [
+One must do many problems to build a database of analogies!]
+
+-  Introduce something extra
+It may sometimes be necessary to introduce something new, an auxiliary aid, to help make the connection between the given and the unknown.
+For instance, in a problem where a diagram is useful the auziliary aid could be a new line drawn in a diagram.
+In a more algebraic problem it could be a new unknown that is related to the original unknown.
+
+-  Take cases
+We may sometimes have to split a problem into several cases and give a di.erent solution for each of the cases.
+For instance, we often have to use this strategy in dealing with absolute value.
+
+-  Work backward (assume the answer)
+It is often useful to imagine that your problem is solved and work backward, step by step, until you arrive at the given data.
+Then you may be able to reverse your steps and thereby construct a solution to the original problem.
+This procedure is commonly used in solving equations.
+For instance, in solving the equation 3x-5 = 7, we suppose that x is a number that satisfies 3x-5=7 and work backward.
+We add 5 to each side of the equation and then divide each side by 3 to get x = 4.
+Since each of these steps can be reversed, we have solved the problem.
+
+-  Indirect reasoning
+Sometimes it is appropriate to attack a problem indirectly.
+In using proof by contradiction to prove that P implies Q we assume that P is true and Q is false and try to see why this cannot happen.
+
+3. Carry out the Plan
+---------------------
+In step 2 a plan was devised.
+In carrying out that plan we have to check each stage of the plan and write the details that prove that each stage is correct.
+A string of equations is not enough!
+
+4. Look Back 
+------------
+Be critical of your result. 
+Look for flaws in your solutions (e.g., inconsistencies or ambiguities or incorrect steps).
+Be your own toughest critic!
+Can you check the result? Checklist of checks:
+
+- Is there an alternate method that can yield at least a partial answer?
+
+- Try the same approach for some similar but simpler problem.
+
+- Check units (always, always, always!).
+
+- If there is a numerical answer, is the order of magnitude correct or reasonable?
+
+- Trends. Does the answer vary as you expect if you vary one or more parameters? 
+For example, if gravity is involved, does the answer change as expected if you vary g?
+
+- Check limiting cases where the answer is easy or known.
+Take the limit as variables or parameters reach certain values.
+For example, take a mass to be zero or infinite.
+
+- Check special cases where the answer is easy or known.
+This might be a special angle (0 or 45 or 90 degrees) or the case when all masses are set equal to each other.
+
+- Use symmetry.
+Does your answer reflect any symmetries of the physical situation?
+
+- If possible, do a simple experiment to see if your answer makes sense.
+
+We will examine potential strategies as we solve problems. 
+The emphasis here is on being conscious of our problem-solving strategies and on constructing a solution that reflects the steps outlined above.
+
+
+-------------------------
+Lunghezza di una funzione
+-------------------------
+
+Alle volte abbiamo la necessità/curiosità di conoscere quanto ♪ lunga una funzione (in termini di caratteri).
+La seguente funzione risolve il problema convertendo la funzione (che è una lista speciale) in stringa e poi calcolando la sua lunghezza.
+
+(define (length-f func) (length (string func)))
+
+(length-f length-f)
+;-> 38
+
+Anche autoreferenziale::
+
+(define (howlong) (length (string howlong?)))
+(howlong)
+;-> 38
+
+
+--------------------
+Intersezione di geni
+--------------------
+
+Vediamo un esempio per capire cosa intendiamo per intersezione dei geni.
+Abbiamo due sequenze di DNA (G C C G G G C A) e (A A A T T T T T) e due punti di crossover 2 e 5.
+La sequenza risultante vale (G C A T T G C A) perchè:
+
+CrossOver:   |     |
+Indici:  0 1 2 3 4 5 6 7
+
+Gene 1:  G C C G G G C A
+Gene 2:  A A A T T T T T
+
+Output:  G C A T T G C A
+
+Nota: Nucleotidi DNA: adenina (A), citosina (C), guanina (G) e timina (T).
+
+Condizioni:
+Le sequenze sono sempre della stessa lunghezza.
+I punti crossover possono essere 0 o più di uno.
+I punti crossover sono tutti distinti e ordinati in modo crescente.
+Il valore dei punti crossover è minore della lunghezza delle sequenze (0-index).
+
+(define (geni g1 g2 cross)
+  (local (out len idx k break seq)
+    (setq out '())
+    (setq len (length cross))
+    (set 'idx 0 'k 0)
+    ; primo punto crossover
+    (setq break (cross 0))
+    ; partenza con la prima sequenza
+    (setq seq 1)
+    ; ciclo per ogni gene della sequenza
+    (for (g 0 (- (length g1) 1))
+      ; indice-corrente = punto-crossover ?
+      (cond ((= g break)
+        (setq seq (- 3 seq)) ; flip tra 1 e 2
+        ; imposta il punto crossover corrente
+        (if (< k (- len 1)) (set 'k (+ k 1) 'break (cross k))))
+      )
+      (if (= seq 1)
+        ; inserisce gene dalla prima sequenza
+        (push (g1 idx) out -1)
+        ; inserisce gene dalla seconda sequenza
+        (push (g2 idx) out -1)
+      )
+      ; aggiorna indice (prossimo gene)
+      (++ idx)
+    )
+    (join out)))
+
+Proviamo:
+
+(geni "GCCGGGCA" "AAATTTTT" '(2 5))
+;-> "GCATTGCA"
+
+(geni "AAAAAAA" "TTTTTTT" '(2 5))
+;-> "AATTTAA"
+
+(geni '("G" "C" "C" "G" "G" "A") '("T" "T" "T" "T" "T" "A") '(1 3 5))
+;-> "GTTGGA"
+
+(geni '("G" "C" "C" "G" "G" "A") '("T" "T" "T" "T" "T" "A") '(0))
+;-> "TTTTTA"
+
 ============================================================================
 

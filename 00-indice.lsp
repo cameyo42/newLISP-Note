@@ -2,7 +2,7 @@
 ============================================================================
  Note su newLISP
  © copyright 2019-2023 Massimo Corinaldesi aka cameyo
- MIT License
+ MIT-0 License
 ============================================================================
 
 "Ogni cosa può accadere solo una volta" Philip Morrison
@@ -2146,6 +2146,10 @@ NOTE LIBERE 20
   Matrici di Walsh
   Somma delle rotazioni distinte di un numero
   Simbolo di Levi-Civita
+  La funzione "GetTickCount" (windows)
+  G. Polya e "How to Solve It!" (G. Polya and "How to Solve It!")
+  Lunghezza di una funzione
+  Intersezione di geni
 
 PROBLEMI SUI DADI
 =================
@@ -2198,9 +2202,9 @@ DOCUMENTAZIONE EXTRA
 
 ==========================================================================
 
-LICENSE
+LICENSE 
 
-MIT License
+"MIT No Attribution" (MIT-0)
 
 Copyright (c) 2019-2023 Massimo Corinaldesi aka cameyo
 
@@ -2209,18 +2213,15 @@ of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+furnished to do so.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 ==========================================================================
 Klaatu barada nikto
