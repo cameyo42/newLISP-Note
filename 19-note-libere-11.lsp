@@ -4309,6 +4309,22 @@ Facciamo alcune prove:
 ;->  . . . . . . . .
 ;-> (("Kd8" "Pe7" "Pc2" "Pf2") ("qf8" "kf3"))
 
+Nota: funzioni "mat-alg" e "alg-mat" migliori,
+
+(define (mat-alg ij)
+  (local (col-char row-num)
+    (setq col-char (char (+ 97 (ij 1))))
+    (setq row-num (- 8 (ij 0)))
+    (string col-char row-num)))
+
+(define (alg-mat c)
+  (local (i j)
+    (setq j (- (char (c 0)) 97))
+    (setq i (- 8 (int (c 1))))
+    (list i j)))
+
+Vedi anche "La mossa del Cavallo" in "Note libere 20".
+
 
 -----------------------
 Struttura dati generica

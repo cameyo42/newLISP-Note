@@ -8952,9 +8952,6 @@ Creiamo lo script eseguibile con il seguente comando:
 
 (make-exe "script.nl" "script.exe")
 
-
-
-
 Adesso, dal Command Prompt, eseguiamo "script.exe" oppure "script.nl" in diversi modi e vediamo come cambiano gli argomenti della linea di comando all'interno dello script stesso:
 
 1) Tramite newlisp eseguiamo lo script "script.nl" (con tre parametri)
@@ -9021,7 +9018,8 @@ Uso l'estensione .nl per gli script che dovranno essere convertiti in eseguibili
 ;-> arg0 = newlisp.exe
 ;-> nil
 
-Come si nota, i valori dei parametri della linea di comando nello script variano in base alla modalità che viene usata per eseguire lo script. Questo comportamento deve essere considerato quando usiamo gli argomenti all'interno dello script.
+Come si nota, i valori dei parametri della linea di comando nello script variano in base alla modalità che viene usata per eseguire lo script.
+Questo comportamento deve essere considerato quando usiamo gli argomenti all'interno dello script.
 
 
 --------------------------------

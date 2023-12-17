@@ -2588,7 +2588,7 @@ G. Polya e "How to Solve It!" (G. Polya and "How to Solve It!")
 Un quadro generale per la risoluzione dei problemi è stato descritto da G. Polya in un libro intitolato "How to Solve It!" (2a edizione, Princeton University Press).
 Sebbene l’attenzione di Polya fosse rivolta alla risoluzione di problemi di matematica, le strategie sono molto più generali e ampiamente applicabili.
 Il ragionamento induttivo è alla base della maggior parte dei processi creativi nel "mondo reale".
-La programmazione fornisce un'attività ideale per sviluppare abilità nel ragionamento induttivo e nella scoperta.
+La Fisica (N.d.T. e anche la Programmazione) fornisce un'attività ideale per sviluppare abilità nel ragionamento induttivo e nella scoperta.
 
 Ecco uno schema della struttura di Polya:
 
@@ -2710,7 +2710,7 @@ L'enfasi qui è sull'essere consapevoli delle nostre strategie di risoluzione de
 An overall framework for problem solving was described by G. Polya in a book called "How to Solve It!" (2nd Ed., Princeton University Press).
 Although Polya’s focus was on solving math problems, the strategies are much more general and are broadly applicable.
 Inductive reasoning is the basis of most of the creative processes in the "real world".
-Programming provides an ideal activity for building skill in inductive reasoning and discovery.
+Physics provides an ideal activity for building skill in inductive reasoning and discovery.
 
 Here is an outline of Polya’s framework:
 
@@ -2912,6 +2912,761 @@ Proviamo:
 
 (geni '("G" "C" "C" "G" "G" "A") '("T" "T" "T" "T" "T" "A") '(0))
 ;-> "TTTTTA"
+
+
+------------------------------
+Le mosse del Cavallo (scacchi)
+------------------------------
+
+Vedi anche "Posizione di scacchi casuale - random chess position" su "Note libere 11".
+
+Un Cavallo (kNight) degli Scacchi è posizionato in una casella della scacchiera.
+Scrivere una funzione che genera tutte le mosse possibili del Cavallo.
+
+La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
+
+Negli scacchi, un Cavallo sulla casella (x y) può muoversi in:
+
+   (x−2,y−1), (x−2,y+1), (x−1,y−2), (x−1,y+2),
+   (x+1,y−2), (x+1,y+2), (x+2,y−1) o (x+2,y+1)
+
+con una sola mossa.
+
+     Scacchiera con                          Matrice della posizione
+     coordinate algebriche                   (riga = x, colonna = y)
+                                              0   1   2   3   4   5   6   7
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  8 |   |   |   |   |   |   |   |   |     0 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  7 |   |   |   |   |   |   |   |   |     1 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  6 |   |   |   |   |   |   |   |   |     2 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  5 |   |   |   |   |   |   |   |   |     3 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  4 |   |   |   |   |   |   |   |   |     4 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  3 |   |   |   |   |   |   |   |   |     5 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  2 |   |   |   |   |   |   |   |   |     6 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+  1 |   |   |   |   |   |   |   |   |     7 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+       +---+---+---+---+---+---+---+---+
+      a   b   c   d   e   f   g   h
+
+Funzione che converte da notazione matriciale a notazione algebrica:
+
+(char "a")
+;-> 97
+
+(define (mat-alg ij)
+  (local (col-char row-num)
+    (setq col-char (char (+ 97 (ij 1))))
+    (setq row-num (- 8 (ij 0)))
+    (string col-char row-num)))
+
+(define (mat-alg ij) (string (char (+ 97 (ij 1))) (- 8 (ij 0))))
+
+(mat-alg '(3 4))
+;-> "e5"
+
+Funzione che converte da notazione algebrica a notazione matriciale:
+
+(define (alg-mat c)
+  (local (i j)
+    (setq j (- (char (c 0)) 97))
+    (setq i (- 8 (int (c 1))))
+    (list i j)))
+
+(define (alg-mat c) (list (- 8 (int (c 1))) (- (char (c 0)) 97)))
+
+(alg-mat "e5")
+;-> (3 4)
+
+(mat-alg (alg-mat "a1"))
+;-> "a1"
+
+(alg-mat (mat-alg '(7 0)))
+;-> (7 0)
+
+Funzione che stampa la scacchiera:
+
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))))
+    (println)))
+
+Funzione che verifica se gli indici (i j) di una casella sono interni alla scacchiera:
+
+(define (valid? x y) (and (>= x 0) (<= x 7) (>= y 0) (<= y 7)))
+
+Funzione che genera le mosse di un Cavallo posizionato in una casella (notazione algebrica) della scacchiera:
+
+(define (knight-from cell)
+  (local (out board moves coord x y nx ny)
+    (setq out '())
+    (setq board (array 8 8 '(" ")))
+    (setq moves '(((− x 2) (− y 1)) ((− x 2) (+ y 1))
+                  ((− x 1) (− y 2)) ((− x 1) (+ y 2))
+                  ((+ x 1) (− y 2)) ((+ x 1) (+ y 2))
+                  ((+ x 2) (− y 1)) ((+ x 2) (+ y 1))))
+    (setq coord (alg-mat cell))
+    (setq x (coord 0))
+    (setq y (coord 1))
+    (setf (board x y) "N")
+    ; creazione di tutte le mosse valide
+    (dolist (m moves)
+      (setq nx (eval (m 0)))
+      (setq ny (eval (m 1)))
+      ;(println nx ny)
+      (if (valid? nx ny)
+        (begin
+          (setf (board nx ny) "x")
+          (push (mat-alg (list nx ny)) out)))
+          ;(println " N" cell "-" (mat-alg (list nx ny)))))
+    )
+    (print-board board)
+    out))
+
+Proviamo:
+
+(knight-from "c3")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . x . x . . . .
+;->  x . . . x . . .
+;->  . . N . . . . .
+;->  x . . . x . . .
+;->  . x . x . . . .
+;-> ("d1" "b1" "e2" "a2" "e4" "a4" "d5" "b5")
+
+(knight-from "a1")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . x . . . . . .
+;->  . . x . . . . .
+;->  N . . . . . . .
+;-> ("c2" "b3")
+
+
+---------------------------------------
+Le mosse dell'Alfiere/Vescovo (scacchi)
+---------------------------------------
+
+Un Alfiere (Bishop -> Vescovo) degli Scacchi è posizionato in una casella della scacchiera.
+Scrivere una funzione che genera tutte le mosse possibili dell'Alfiere.
+
+La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
+
+Negli scacchi, un Alfiere sulla casella (x y) può muoversi in:
+
+  basso-destra:   (x+1,y+1)...(7, 7)
+  basso-sinistra: (x+1,y-1)...(7, 0)
+  alto-sinistra:  (x-1,y-1)...(0, 0)
+  alto-destra:    (x-1,y+1)...(0, 7)
+
+con una sola mossa.
+
+Funzioni ausiliarie:
+
+(define (mat-alg ij) (string (char (+ 97 (ij 1))) (- 8 (ij 0))))
+(define (alg-mat c) (list (- 8 (int (c 1))) (- (char (c 0)) 97)))
+(define (valid? x y) (and (>= x 0) (<= x 7) (>= y 0) (<= y 7)))
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))))
+    (println)))
+
+Funzione che genera le mosse di un Alfiere posizionato in una casella (notazione algebrica) della scacchiera:
+
+(define (bishop-from cell)
+  (local (out board moves coord x y nx ny)
+    (setq out '())
+    (setq board (array 8 8 '(" ")))
+    (setq moves '())
+    (setq coord (alg-mat cell))
+    (setq x (coord 0))
+    (setq y (coord 1))
+    (setf (board x y) "B")
+    ; creazione della lista di tutte le mosse
+    (for (k 1 7)
+      ; basso-destra
+      (push (list (+ x k) (+ y k)) moves)
+      ; basso-sinistra
+      (push (list (+ x k) (- y k)) moves)
+      ; alto-sinistra
+      (push (list (- x k) (- y k)) moves)
+      ; alto-destra
+      (push (list (- x k) (+ y k)) moves)
+    )
+    ; ricerca mosse valide
+    (dolist (el moves)
+      (if (valid? (el 0) (el 1))
+        (begin
+          (setf (board (el 0) (el 1)) "x")
+          (push (mat-alg el) out)))
+          ;(println " B" cell "-" (mat-alg (list nx ny)))))
+    )
+    (print-board board)
+    out))
+
+Proviamo:
+
+(bishop-from "a1")
+;->  . . . . . . . x
+;->  . . . . . . x .
+;->  . . . . . x . .
+;->  . . . . x . . .
+;->  . . . x . . . .
+;->  . . x . . . . .
+;->  . x . . . . . .
+;->  B . . . . . . .
+;-> ("b2" "c3" "d4" "e5" "f6" "g7" "h8")
+
+(bishop-from "e4")
+;->  x . . . . . . .
+;->  . x . . . . . x
+;->  . . x . . . x .
+;->  . . . x . x . .
+;->  . . . . B . . .
+;->  . . . x . x . .
+;->  . . x . . . x .
+;->  . x . . . . . x
+;-> ("a8" "b1" "b7" "c2" "c6" "d3" "d5" "f3" "f5" "g2" "g6" "h1" "h7")
+
+
+------------------------------
+Le mosse della Torre (scacchi)
+------------------------------
+
+Una Torre (Rook) degli Scacchi è posizionata in una casella della scacchiera.
+Scrivere una funzione che genera tutte le mosse possibili della Torre.
+
+La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
+
+Negli scacchi, una Torre sulla casella (x y) può muoversi in:
+
+  basso:    (x+1,y)...(7, y)
+  sinistra: (x,y-1)...(x, 0)
+  alto:     (x-1,y)...(0, y)
+  destra:   (x,y+1)...(x, 7)
+
+con una sola mossa.
+
+Funzioni ausiliarie:
+
+(define (mat-alg ij) (string (char (+ 97 (ij 1))) (- 8 (ij 0))))
+(define (alg-mat c) (list (- 8 (int (c 1))) (- (char (c 0)) 97)))
+(define (valid? x y) (and (>= x 0) (<= x 7) (>= y 0) (<= y 7)))
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))))
+    (println)))
+
+Funzione che genera le mosse di una Torre posizionata in una casella (notazione algebrica) della scacchiera:
+
+(define (rook-from cell)
+  (local (out board moves coord x y nx ny)
+    (setq out '())
+    (setq board (array 8 8 '(" ")))
+    (setq moves '())
+    (setq coord (alg-mat cell))
+    (setq x (coord 0))
+    (setq y (coord 1))
+    (setf (board x y) "R")
+    ; creazione della lista di tutte le mosse
+    (for (k 1 7)
+      ; basso
+      (push (list (+ x k) y) moves)
+      ; sinistra
+      (push (list x (- y k)) moves)
+      ; alto
+      (push (list (- x k) y) moves)
+      ; destra
+      (push (list x (+ y k)) moves)
+    )
+    ; ricerca mosse valide
+    (dolist (el moves)
+      (if (valid? (el 0) (el 1))
+        (begin
+          (setf (board (el 0) (el 1)) "x")
+          (push (mat-alg el) out)))
+          ;(println " R" cell "-" (mat-alg (list nx ny)))))
+    )
+    (print-board board)
+    out))
+
+Proviamo:
+
+(rook-from "a1")
+;->  x . . . . . . .
+;->  x . . . . . . .
+;->  x . . . . . . .
+;->  x . . . . . . .
+;->  x . . . . . . .
+;->  x . . . . . . .
+;->  x . . . . . . .
+;->  R x x x x x x x
+;-> ("a2" "b1" "a3" "c1" "a4" "d1" "a5" "e1" "a6" "f1" "a7" "g1" "a8" "h1")
+
+(rook-from "d4")
+;->  . . . x . . . .
+;->  . . . x . . . .
+;->  . . . x . . . .
+;->  . . . x . . . .
+;->  x x x R x x x x
+;->  . . . x . . . .
+;->  . . . x . . . .
+;->  . . . x . . . .
+;-> ("d3" "c4" "d5" "e4" "d2" "b4" "d6" "f4" "d1" "a4" "d7" "g4" "d8" "h4")
+
+
+-------------------------------------
+Le mosse della Regina/Donna (scacchi)
+-------------------------------------
+
+Una Regina/Donna (Queen) degli Scacchi è posizionata in una casella della scacchiera.
+Scrivere una funzione che genera tutte le mosse possibili della Regina.
+
+La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
+
+Negli scacchi, una Regina sulla casella (x y) può muoversi in:
+
+   (mosse di una Torre)
+   basso:    (x+1,y)...(7, y)
+   sinistra: (x,y-1)...(x, 0)
+   alto:     (x-1,y)...(0, y)
+   destra:   (x,y+1)...(x, 7)
+
+   (mosse di un Alfiere)
+   basso-destra:   (x+1,y+1)...(7, 7)
+   basso-sinistra: (x+1,y-1)...(7, 0)
+   alto-sinistra:  (x-1,y-1)...(0, 0)
+   alto-destra:    (x-1,y+1)...(0, 7)
+
+con una sola mossa.
+
+Funzioni ausiliarie:
+
+(define (mat-alg ij) (string (char (+ 97 (ij 1))) (- 8 (ij 0))))
+(define (alg-mat c) (list (- 8 (int (c 1))) (- (char (c 0)) 97)))
+(define (valid? x y) (and (>= x 0) (<= x 7) (>= y 0) (<= y 7)))
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))))
+    (println)))
+
+Funzione che genera le mosse di una Torre posizionata in una casella (notazione algebrica) della scacchiera:
+
+(define (queen-from cell)
+  (local (out board moves coord x y nx ny)
+    (setq out '())
+    (setq board (array 8 8 '(" ")))
+    (setq moves '())
+    (setq coord (alg-mat cell))
+    (setq x (coord 0))
+    (setq y (coord 1))
+    (setf (board x y) "Q")
+    ; creazione della lista di tutte le mosse
+    ; mosse da Torre
+    (for (k 1 7)
+      ; basso
+      (push (list (+ x k) y) moves)
+      ; sinistra
+      (push (list x (- y k)) moves)
+      ; alto
+      (push (list (- x k) y) moves)
+      ; destra
+      (push (list x (+ y k)) moves)
+    )
+    ; mosse da Alfiere
+    (for (k 1 7)
+      ; basso-destra
+      (push (list (+ x k) (+ y k)) moves)
+      ; basso-sinistra
+      (push (list (+ x k) (- y k)) moves)
+      ; alto-sinistra
+      (push (list (- x k) (- y k)) moves)
+      ; alto-destra
+      (push (list (- x k) (+ y k)) moves)
+    )
+    ; ricerca mosse valide
+    (dolist (el moves)
+      (if (valid? (el 0) (el 1))
+        (begin
+          (setf (board (el 0) (el 1)) "x")
+          (push (mat-alg el) out)))
+          ;(println " Q" cell "-" (mat-alg (list nx ny)))))
+    )
+    (print-board board)
+    out))
+
+Proviamo:
+
+(queen-from "a1")
+;->  x . . . . . . x
+;->  x . . . . . x .
+;->  x . . . . x . .
+;->  x . . . x . . .
+;->  x . . x . . . .
+;->  x . x . . . . .
+;->  x x . . . . . .
+;->  Q x x x x x x x
+;-> ("a2" "b1" "a3" "c1" "a4" "d1" "a5" "e1" "a6" "f1" "a7" 
+;->  "g1" "a8" "h1" "b2" "c3" "d4" "e5" "f6" "g7" "h8")
+
+(queen-from "d4")
+;->  . . . x . . . x
+;->  x . . x . . x .
+;->  . x . x . x . .
+;->  . . x x x . . .
+;->  x x x Q x x x x
+;->  . . x x x . . .
+;->  . x . x . x . .
+;->  x . . x . . x .
+;-> ("d3" "c4" "d5" "e4" "d2" "b4" "d6" "f4" "d1" "a4" "d7" "g4" "d8" "h4"
+;->  "e3" "c3" "c5" "e5" "f2" "b2" "b6" "f6" "g1" "a1" "a7" "g7" "h8")
+
+
+-------------------------
+Le mosse del Re (scacchi)
+-------------------------
+
+Un Re (King) degli Scacchi è posizionato in una casella della scacchiera.
+Scrivere una funzione che genera tutte le mosse possibili della Re.
+
+La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
+
+Negli scacchi, una Re sulla casella (x y) può muoversi in:
+  
+  (mosse da Torre di un passo)
+  basso:    (x+1,y)
+  sinistra: (x,y-1)
+  alto:     (x-1,y)
+  destra:   (x,y+1)
+
+  (mosse da Alfiere di un passo)
+  basso-destra:   (x+1,y+1)
+  basso-sinistra: (x+1,y-1)
+  alto-sinistra:  (x-1,y-1)
+  alto-destra:    (x-1,y+1)
+
+con una sola mossa.
+
+Funzioni ausiliarie:
+
+(define (mat-alg ij) (string (char (+ 97 (ij 1))) (- 8 (ij 0))))
+(define (alg-mat c) (list (- 8 (int (c 1))) (- (char (c 0)) 97)))
+(define (valid? x y) (and (>= x 0) (<= x 7) (>= y 0) (<= y 7)))
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))))
+    (println)))
+
+Funzione che genera le mosse di una Torre posizionata in una casella (notazione algebrica) della scacchiera:
+
+(define (king-from cell)
+  (local (out board moves coord x y nx ny)
+    (setq out '())
+    (setq board (array 8 8 '(" ")))
+    (setq moves '())
+    (setq coord (alg-mat cell))
+    (setq x (coord 0))
+    (setq y (coord 1))
+    (setf (board x y) "K")
+    ; creazione della lista di tutte le mosse
+    ; mosse da Torre di un passo
+    ; basso
+    (push (list (+ x 1) y) moves)
+    ; sinistra
+    (push (list x (- y 1)) moves)
+    ; alto
+    (push (list (- x 1) y) moves)
+    ; destra
+    (push (list x (+ y 1)) moves)
+    ; mosse da Alfiere di un passo
+    ; basso-destra
+    (push (list (+ x 1) (+ y 1)) moves)
+    ; basso-sinistra
+    (push (list (+ x 1) (- y 1)) moves)
+    ; alto-sinistra
+    (push (list (- x 1) (- y 1)) moves)
+    ; alto-destra
+    (push (list (- x 1) (+ y 1)) moves)
+    ; ricerca mosse valide
+    (dolist (el moves)
+      (if (valid? (el 0) (el 1))
+        (begin
+          (setf (board (el 0) (el 1)) "x")
+          (push (mat-alg el) out)))
+          ;(println " K" cell "-" (mat-alg (list nx ny)))))
+    )
+    (print-board board)
+    out))
+
+Proviamo:
+
+(king-from "a1")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  x x . . . . . .
+;->  K x . . . . . .
+;-> ("a2" "b1" "b2")
+
+(king-from "d4")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . x x x . . .
+;->  . . x K x . . .
+;->  . . x x x . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;-> ("d3" "c4" "d5" "e4" "e3" "c3" "c5" "e5")
+
+
+-----------------------------
+Le mosse del Pedone (scacchi)
+-----------------------------
+
+Un Pedone (Pawn) degli Scacchi è posizionato in una casella della scacchiera.
+Scrivere una funzione che genera tutte le mosse possibili della Pedone.
+
+La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
+
+Negli scacchi, un Pedone Bianco sulla casella (x y) può muoversi in:
+  
+  0 caselle: per x = 7 o x = 0
+  
+  1 casella:
+  (x-1, y) per (1 <= x <= 5)
+  
+  2 caselle:
+  (x-1, y) e (x-2, y) per (x = 6)
+  
+  caselle controllate:
+  (x-1, y-1) e (x-1, y+1)
+
+con una sola mossa.
+
+Negli scacchi, un Pedone Nero sulla casella (x y) può muoversi in:
+
+  0 caselle: per x = 0 o y = 7
+  1 casella:
+  (x+1, y) per (2 <= x <= 6)
+  2 caselle:
+  (x+1, y) e (x+2, y) per (x = 1)
+  caselle controllate:
+  (x+1, y-1) e (x+1, y+1)
+
+con una sola mossa.
+
+Funzioni ausiliarie:
+
+(define (mat-alg ij) (string (char (+ 97 (ij 1))) (- 8 (ij 0))))
+(define (alg-mat c) (list (- 8 (int (c 1))) (- (char (c 0)) 97)))
+(define (valid? x y) (and (>= x 0) (<= x 7) (>= y 0) (<= y 7)))
+(define (print-board board)
+  (for (r 0 7)
+    (for (c 0 7)
+      (if (= (board r c) " ")
+          (print " .")
+          (print " " (board r c))))
+    (println)))
+
+Funzione che genera le mosse di un Pedone Bianco posizionato in una casella (notazione algebrica) della scacchiera:
+
+(define (pawn-white-from cell)
+  (local (out board moves coord x y nx ny)
+    (setq out '())
+    (setq board (array 8 8 '(" ")))
+    (setq moves '())
+    (setq coord (alg-mat cell))
+    (setq x (coord 0))
+    (setq y (coord 1))
+    ; creazione della lista di tutte le mosse
+    (cond ((or (= x 0) (= x 7)) 
+            (push (list x y) moves))
+          ((= x 6)
+            (push (list (- x 1) y) moves)
+            (push (list (- x 2) y) moves))
+          (true ; x in (1..5)
+            (push (list (- x 1) y) moves))
+    )
+    ; caselle controllate
+    (push (list (- x 1) (- y 1)) moves)
+    (push (list (- x 1) (+ y 1)) moves)
+    ; ricerca mosse valide
+    (dolist (el moves)
+      (if (valid? (el 0) (el 1))
+        (begin
+          (setf (board (el 0) (el 1)) "x")
+          (push (mat-alg el) out)))
+          ;(println " P" cell "-" (mat-alg (list nx ny)))))
+    )
+    (setf (board x y) "P")
+    (print-board board)
+    out))
+
+Proviamo:
+
+(pawn-white-from "d1")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . x . x . . .
+;->  . . . P . . . .
+;-> ("d1" "c2" "e2")
+
+(pawn-white-from "d2")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . x . . . .
+;->  . . x x x . . .
+;->  . . . P . . . .
+;->  . . . . . . . .
+;-> ("d3" "d4" "c3" "e3")
+
+(pawn-white-from "d7")
+;->  . . x x x . . .
+;->  . . . P . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;-> ("d8" "c8" "e8")
+
+(pawn-white-from "d8")
+;->  . . . P . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;-> ("d8")
+
+Funzione che genera le mosse di un Pedone Nero posizionato in una casella (notazione algebrica) della scacchiera:
+
+(define (pawn-black-from cell)
+  (local (out board moves coord x y nx ny)
+    (setq out '())
+    (setq board (array 8 8 '(" ")))
+    (setq moves '())
+    (setq coord (alg-mat cell))
+    (setq x (coord 0))
+    (setq y (coord 1))
+    ; creazione della lista di tutte le mosse
+    (cond ((or (= x 0) (= x 7)) 
+            (push (list x y) moves))
+          ((= x 1)
+            (push (list (+ x 1) y) moves)
+            (push (list (+ x 2) y) moves))
+          (true ; x in (2..6)
+            (push (list (+ x 1) y) moves))
+    )
+    ; caselle controllate
+    (push (list (+ x 1) (- y 1)) moves)
+    (push (list (+ x 1) (+ y 1)) moves)
+    ; ricerca mosse valide
+    (dolist (el moves)
+      (if (valid? (el 0) (el 1))
+        (begin
+          (setf (board (el 0) (el 1)) "x")
+          (push (mat-alg el) out)))
+          ;(println " p" cell "-" (mat-alg (list nx ny)))))
+    )
+    (setf (board x y) "p")
+    (print-board board)
+    out))
+
+Proviamo:
+
+(pawn-black-from "b8")
+;->  . p . . . . . .
+;->  x . x . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;-> ("b8" "a7" "c7")
+
+(pawn-black-from "b7")
+;->  . . . . . . . .
+;->  . p . . . . . .
+;->  x x x . . . . .
+;->  . x . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;-> ("b6" "b5" "a6" "c6")
+
+(pawn-black-from "b4")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . p . . . . . .
+;->  x x x . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;-> ("b3" "a3" "c3")
+
+(pawn-black-from "b2")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . p . . . . . .
+;->  x x x . . . . .
+;-> ("b1" "a1" "c1")
+
+(pawn-black-from "b1")
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . . . . . . . .
+;->  . p . . . . . .
+;-> ("b1")
 
 ============================================================================
 

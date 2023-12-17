@@ -2150,6 +2150,12 @@ NOTE LIBERE 20
   G. Polya e "How to Solve It!" (G. Polya and "How to Solve It!")
   Lunghezza di una funzione
   Intersezione di geni
+  Le mosse del Cavallo (scacchi)
+  Le mosse dell'Alfiere/Vescovo (scacchi)
+  Le mosse della Torre (scacchi)
+  Le mosse della Regina/Donna (scacchi)
+  Le mosse del Re (scacchi)
+  Le mosse del Pedone (scacchi)
 
 PROBLEMI SUI DADI
 =================
