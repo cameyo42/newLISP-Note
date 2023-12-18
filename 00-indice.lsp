@@ -2156,6 +2156,8 @@ NOTE LIBERE 20
   Le mosse della Regina/Donna (scacchi)
   Le mosse del Re (scacchi)
   Le mosse del Pedone (scacchi)
+  Antistringa (funzione swap-case)
+  Spalmare i valori di una lista
 
 PROBLEMI SUI DADI
 =================

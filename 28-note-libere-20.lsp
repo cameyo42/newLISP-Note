@@ -3668,5 +3668,209 @@ Proviamo:
 ;->  . p . . . . . .
 ;-> ("b1")
 
+
+--------------------------------
+Antistringa (funzione swap-case)
+--------------------------------
+
+L'anti-stringa di una data stringa è la stringa con tutte le lettere invertite.
+Per esempio:  AmmmOrE -> aMMMoRe
+
+Scrivere la funzione più corta possibile che restituisce l'antistringa di una stringa.
+La stringa in input è costituita solo da lettere minuscole e maiuscole.
+
+(char "A")
+;-> 65
+(char "Z")
+;-> 90
+
+(char "a")
+;-> 97
+(char "z")
+;-> 122
+;-> 32
+
+(- 97 65)
+;-> 32
+(- 122 90)
+;-> 32
+
+Prima funzione:
+
+(define (anti1 str)
+  (let (out "")
+    (dostring (c str)
+      (if (and (>= c 97) (<= c 122)) (push (char (- c 32)) out -1)
+          (and (>= c 65) (<= c 92))  (push (char (+ c 32)) out -1)))))
+
+(anti1 "AbCdEfGhIlMnOp")
+;-> "aBcDeFgHiLmNoP"
+
+Per calcolare la lunghezza della funzione vediamo come viene memorizzata da newLISP:
+
+anti1
+;-> (lambda (str)
+;->  (let (out "")
+;->   (dostring (c str)
+;->    (if (and (>= c 97) (<= c 122))
+;->     (push (char (- c 32)) out -1)
+;->     (and (>= c 65) (<= c 92))
+;->     (push (char (+ c 32)) out -1)))))
+
+Quindi convertiamo la funzione in stringa e poi ne calcoliamo la lunghezza:
+
+(length (string anti1))
+;-> 166
+
+Nota: cambiare il nome della funzione non modifica la sua lunghezza perchè il nome della funzione non compare nella rappresentazione interna.
+
+Poichè la stringa è costituita solo da lettere minuscole e maiuscole risulta:
+
+  se (char c) >= 97, allora c è maiuscolo, altrimenti è minuscolo  
+
+Inoltre, usiamo "extend" invece di "push" e accorciamo il nome delle variabili.
+
+Seconda funzione:
+
+(define (anti2 s)
+  (let (o "")
+    (dostring (c s)
+      (if (>= c 97) (extend o (char (- c 32)))
+                    (extend o (char (+ c 32)))))))
+
+(anti2 "AbCdEfGhIlMnOp")
+;-> "aBcDeFgHiLmNoP"
+
+Rappresentazione della funzione in newLISP:
+
+anti2
+;-> (lambda (s)
+;->  (let (o "")
+;->   (dostring (c s)
+;->    (if (>= c 97)
+;->     (extend o (char (- c 32)))
+;->     (extend o (char (+ c 32)))))))
+
+Lunghezza della funzione:
+
+(length (string anti2))
+;-> 111
+
+Adesso usiamo "map".
+
+Terza funzione:
+
+(define (anti3 s)
+  (join (map (fn(x) (if (>= x "a") (char (- (char x) 32)) (char (+ (char x) 32)))) (explode s))))
+
+(anti3 "AbCdEfGhIlMnOp")
+;-> "aBcDeFgHiLmNoP"
+
+Rappresentazione della funzione:
+
+anti3
+;-> (lambda (s) (join (map (lambda (x)
+;->     (if (>= x "a")
+;->      (char (- (char x) 32))
+;->      (char (+ (char x) 32))))
+;->    (explode s))))
+
+Lunghezza della funzione:
+
+(length (string anti3))
+;-> 112
+
+(define (anti4 s)
+(define (do k) (char c) k)
+(define (do k) (char (k (char "a") 32)))
+(do -)
+(char (- (char x) 32))  
+  (for (i 0 (- (length s) 1))
+    (if (>= (s i) "a") (setq (s i) (char (- (char (s i)) 32)))
+                       (setq (s i) (char (+ (char (s i)) 32)))))
+  s)
+
+(anti4  "AbCdEfGhIlMnOp")
+(length (string anti4))
+(setq maiuscole (map char (sequence 65 90))
+(setq minuscole (map char (sequence 97 122))
+(time )
+
+Per finire scriviamo la funzione "swap-case" generica:
+
+(define (swap-case str)
+  (let (out "")
+    (dostring (c str)
+      (cond ((and (>= c 97) (<= c 122)) ; minuscolo -> maiuscolo
+              (extend out (char (- c 32))))
+            ((and (>= c 65) (<= c 92))  ; maiuscolo -> minuscolo
+              (extend out (char (+ c 32))))
+            (true ; altro carattere -> altro carattere
+              (extend out (char c)))))))
+
+(swap-case "a.B.c.D_e_F_g~H~i~L^m^N^o*P")
+;-> "A.b.C.d_E_f_G~h~I~l^M^n^O*p"
+
+
+------------------------------
+Spalmare i valori di una lista
+------------------------------
+
+Data una lista di numeri interi, generare una lista ordinata con il carattere "." al posto dei numeri mancanti.
+
+Esempio:
+Input  = (3 5 -2 -1 -6 7 -1)
+Output = (-6 . . . -2 -1 . . . 3 . 5 . 7)
+
+Inoltre la funzione deve avere come argomenti due valori (minimo e massimo) che rappresentano i valori di inizio e di fine (che possono anche non essere presenti nei numeri della lista di input).
+
+I numeri duplicati nella lista di input vengono riportati sono una volta nella lista di output.
+
+Esempio:
+Input  = (3 5 -2 -1 -6 7 3)
+         Valore minimo = -8
+         Valore massimo = 10
+Output = (. . -6 . . . -2 -1 . . . 3 . 5 . 7 . . .)
+
+(define (spread lst a b)
+  (local (vmin vmax len ar)
+    (setq vmin (or a (apply min lst)))
+    (setq vmax (or b (apply max lst)))
+    (setq len (- vmax vmin (- 1)))
+    (setq ar (array len '(.)))
+    (for (i 0 (- (length lst) 1))
+      ; (- (lst i) vmin) is the index of ar for the value (lst i)
+      (setf (ar (- (lst i) vmin)) (lst i))
+    )
+    ar))
+
+Proviamo:
+
+(spread '(3 5 -2 -1 -6 7 3))
+;-> (-6 . . . -2 -1 . . . 3 . 5 . 7)
+
+(spread '(3 5 -2 -1 -6 7 -1) -8 10)
+;-> (. . -6 . . . -2 -1 . . . 3 . 5 . 7 . . .)
+
+(spread (sequence 1 11 2))
+;-> (1 . 3 . 5 . 7 . 9 . 11)
+
+(spread (sequence 1 11 2) 0 12)
+;-> (. 1 . 3 . 5 . 7 . 9 . 11 .)
+
+(define (carte num)
+  (let (seq (sequence 1 13))
+    (println "Cuori:  " (spread (slice (randomize seq) 0 num) 1 13))
+    (println "Quadri: " (spread (slice (randomize seq) 0 num) 1 13))
+    (println "Fiori:  " (spread (slice (randomize seq) 0 num) 1 13))
+    (println "Picche: " (spread (slice (randomize seq) 0 num) 1 13))
+    '--------))
+
+(carte 6)
+;-> Cuori:  (. 2 3 . . . 7 8 . . 11 . 13)
+;-> Quadri: (. 2 3 4 5 . . . . 10 . 12 .)
+;-> Fiori:  (. . . 4 5 6 . . 9 10 11 . .)
+;-> Picche: (. 2 . 4 . . 7 . 9 . 11 . 13)
+
 ============================================================================
 
