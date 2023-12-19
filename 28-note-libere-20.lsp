@@ -3872,5 +3872,375 @@ Proviamo:
 ;-> Fiori:  (. . . 4 5 6 . . 9 10 11 . .)
 ;-> Picche: (. 2 . 4 . . 7 . 9 . 11 . 13)
 
+
+-------------------------------
+Forum: Address of list elements
+-------------------------------
+
+m35:
+----
+I'm working with a DLL that takes a char** as an argument (an array of char*).
+It would be nice it I could keep the strings being passed in a list, and just pack the addresses of those list elements.
+
+e.g.
+
+(setq x '("a" "b" "c"))
+(setq arg (eval (cons pack (cons (dup "ld" (length x)) (map address x)))))
+(My_Dll_Func arg)
+
+However, my tests don't suggest I'm getting the addresses of the list elements:
+
+(setq x '("a" "b" "c"))
+;-> ("a" "b" "c")
+(address x)
+;-> 12081232
+(address (x 0))
+;-> 12209376
+(address (x 1))
+;-> 12209776
+(address (x 2))
+;-> 12209296
+(address (nth 0 x))
+;-> 12209376
+(address (nth 1 x))
+;-> 12209776
+(address (nth 2 x))
+;-> 12209296
+(map address x)
+;-> (12209152 12209440 12209408)
+
+Work-arounds I've considered:
+* Put every string into a separate symbol so I can get the addresses.
+* Pack every string into one big string, then get the address of this big string, and add the offsets of each substring.
+
+Neither of these work-arounds make me very happy.
+Is there any better solution?
+
+Lutz:
+-----
+* Put every string into a separate symbol so I can get the addresses.
+* Pack every string into one big string, then get the address of this big string, and add the offsets of each substring.
+
+Either one would work. Only the symbol (variable) guarantees you a fixed addresss for the string contained. All other methods just get addresses of volatile memory objects. The symbol acts like a pointer to the string contained.
+
+(set 'V '(v1 v2 v3))
+;-> (v1 v2 v3)
+(map set V '("A" "B" "C"))
+;-> ("A" "B" "C")
+
+(set 'char** (eval (append (cons pack (dup "lu" (length V))) V)))
+"PN║\000`M║\000 L║\000" ; 3 32-bit addresses = 12 bytes
+
+(length char**) ; the length function works on binary contents
+;-> 12
+
+(get-string (get-int (+ (address char**) 0)))
+;-> "A"
+(get-string (get-int (+ (address char**) 4)))
+;-> "B"
+(get-string (get-int (+ (address char**) 8)))
+;-> "C"
+
+Similar to your first approach, but the difference is that the strings are referenced via the symbols v1,v2,v3.
+Symbols holding strings work like C pointers.
+
+ps:
+(append (cons 'pack (dup "lu" (length V))) V)
+;-> (pack "lululu" v1 v2 v3)
+
+The quote before the pack isn't really required, but makes for better looking output ;)
+
+
+-----------------------------------------
+Postulato di Bertrand e primi di Bertrand
+-----------------------------------------
+
+Il postulato di Bertrand (1845) afferma che per ogni intero n > 3 esiste almeno un numero primo p tale che n < p < 2n − 2.
+Una formulazione più debole, ma più concisa è: tra un numero n > 1 ed il suo doppio esiste almeno un numero primo.
+Un'altra formulazione, dove p(n) è l'n-esimo primo, è la seguente: p(n+1) < 2*p(n).
+Questa congettura fu completamente dimostrata da Chebyshev nel 1852 e quindi il postulato è anche chiamato teorema di Bertrand-Chebyshev o teorema di Chebyshev.
+
+I Primi di Bertrand sono definiti nel modo seguente: 
+  a(1) = 2
+  a(n) è il primo più grande < 2*a(n-1), per n > 1
+
+Sequenza OEIS A006992:
+Bertrand primes: a(n) is largest prime < 2*a(n-1) for n > 1, with a(1) = 2.
+  2, 3, 5, 7, 13, 23, 43, 83, 163, 317, 631, 1259, 2503, 5003, 9973, 19937,
+  39869, 79699, 159389, 318751, 637499, 1274989, 2549951, 5099893, 10199767,
+  20399531, 40799041, 81598067, 163196129, 326392249, 652784471, 1305568919,
+  2611137817, ...
+
+Scrivere una funzione per generare la sequenza dei Primi di Bertrand:
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (previous-prime num)
+  (until (prime? (-- num)))
+  num)
+
+(define (bertrand limit)
+  (let (out '(2))
+    (for (i 1 limit) 
+      (push (previous-prime (* 2 (out (- i 1)))) out -1))
+    out))
+
+Proviamo:
+
+(bertrand 30)
+;-> (2 3 5 7 13 23 43 83 163 317 631 1259 2503 5003 9973 19937 39869 79699
+;->  159389 318751 637499 1274989 2549951 5099893 10199767 20399531 40799041
+;->  81598067 163196129 326392249 652784471)
+
+
+---------------------------------
+Forum: Controlling function scope
+---------------------------------
+
+Jeff:
+-----
+Is there a way to control the context in which code is evaluated at runtime? For example, let's say I have this context:
+
+(context 'foo)
+(set 'a 10)
+(context MAIN)
+
+If I have a function, (fn () (println a)), is there a way I can apply it in the context of foo?
+
+In Javascript, you can do some_function.apply(foo, args), which is the same as:
+
+foo.fn = some_function;
+foo.fn(args);
+delete foo.fn;
+
+From within the function call, the 'this' keyword would then refer to the scope 'foo'. Can this be done in newLISP?
+
+cormullion:
+-----------
+I'm not too sure what you mean, Jeff. My reading of your question, based on my limited understanding of newLISP, leads to this:
+
+(context 'foo)
+;-> (set 'a 10)
+
+(context 'bar)
+;-> (set 'a 20)
+
+(context MAIN)
+;-> MAIN
+
+(define (p c s)
+   (println (eval (sym s c))))
+
+(p 'foo 'a)
+;-> 10
+
+(p 'bar 'a)
+;-> 20
+
+But I suspect that you don't mean anything as simple as this...?! :-)
+
+Jeff:
+-----
+I'm talking about dynamically binding a function to a context for the period of execution, something perhaps along the lines of:
+
+(set 'foo:a 10)
+(set 'a 20)
+(define (f) (println a))
+(def-new 'f 'foo:f)
+;-> (foo:f)
+(delete 'foo:f)
+;-> true
+
+Lutz:
+-----
+
+I'm talking about dynamically binding a function to a context for the period of execution.
+
+no, all symbols occuring in your function are bound during code translation, not application.
+
+For example: (in a new REPL)
+
+(set 'x "hello")
+;-> "hello"
+(set 'x "main hello")
+;-> "main hello"
+(set 'ctx:x "ctx hello")
+;-> "ctx hello"
+(define (foo) (println x))
+;-> (lambda () (println x))
+(set 'ctx:foo foo)
+;-> (lambda () (println x))
+(ctx:foo)
+;-> main hello
+;-> "main hello"
+(foo)
+;-> main hello
+;-> "main hello"
+
+Jeff:
+-----
+Does def-new and new bind new symbols in the target context, then? What about a dynamically built lambda or a lambda templated from a macro? Are their symbols late-bound in the context in which they were created? Or are they bound in the context in which the forming function is defined?
+
+Lutz:
+-----
+
+Does def-new and new bind new symbols in the target context, then?
+
+yes, they create new symbols in the target context
+
+What about a dynamically built lambda or a lambda templated from a macro?
+
+yes, you can build lambda expressions dynamically, just like you can create lists dynamically, but using existing symbols.
+
+Are their symbols late-bound in the context in which they were created?
+
+yes, for example in this case (in a new REPL):
+
+(define (foo ctx value) (set 'ctx:data value))
+;-> (lambda (ctx value) (set 'ctx:data value))
+
+(context 'myctx) (context MAIN)
+;-> myctx
+;-> MAIN
+(foo myctx 123)
+;-> 123
+myctx:data
+;-> 123
+
+When foo is called with 'myctx' as a context, 'myctx:data' does not yet exist, but gets created on demand. Before 'foo' was called the first time 'data' did not exist in any context. After the call it exists in 'myctx'.
+When calling 'foo' again with yet another context, a new 'data' in that other context could be created if it does not exist yet.
+
+Any object system for newLISP should not try to build objects as namespaces but rather use lists and use the namespace only to store class methods.
+Read the new chapter "17. Object-Oriented Programming in newLISP" in the latest development release regarding all this.
+Any object system trying to imitate Scheme closures or JavaScript like function namespaces will not work well for newLISP because of the relative inefficiency of deleting symbols.
+
+For newLISP the best way to do OO programming is, to use namespaces only for organizing methods into classes and build objects using lists, where the first list member points to the class, and the new ':' colon operator implements polymorphism (read chapter 17).
+Doing it this way objects can be anonymous, have very little overhead and can be memory managed by newLISP efficiently.
+
+Jeff:
+-----
+I wasn't intending to use newLISP for OOP. I was writing an event-based application and one thing that is extremely helpful in that is controlling the environment in which a callback is executed. Javascript has a very neat model for this. The ability to dynamically bind a function to the scope desired makes event-based programming efficient and elegant. It's a shame newLISP can't do this.
+
+Lutz:
+-----
+The ability to dynamically bind a function to the scope desired makes event-based programming efficient and elegant.
+
+Event-based programming is very much related to OO programming and message passing. Originally OO programming was developed for implementening event based programs (see the Simula programming language). In the new newLISP OOP model you could see objects as implementing different scopes receiving a message:
+
+(:message object)
+
+The : operator ensures the late binding of the message to the suiting scope and method of the object.
+
+ps: there is a second (older) method of binding functions to different scopes based on the dynamic scoping mechanism inside one namespace in newISP. You could pass your function as parameter to another lambda-object:
+
+(define (report-message)
+    (print x))
+
+(define (object-a f (x "hello"))
+    (f x))
+
+(define (object-b f (x "world"))
+    (f x))
+
+(object-a report-message) 
+;-> hello"hello"
+(object-b report-message) 
+;-> world"world"
+
+of course this works only if objects are in the same namespace. 
+The OOP based method would not have this limitation.
+
+Fanda:
+------
+I also tried:
+
+(context 'foo)
+(set 'x 5)
+(define (ctx-eval-string)
+   (apply eval-string (args)))
+
+(context 'bar)
+(set 'x 10)
+(define (ctx-eval-string)
+   (apply eval-string (args)))
+
+(context MAIN)
+
+(define (f) x)
+(define (g a) (* a x))
+
+(define (fn->ctx-fn _ctx _f)
+   (apply (sym 'ctx-eval-string _ctx) (list (string _f))))
+
+Example:
+
+f
+;-> (lambda () x)
+g
+;-> (lambda (a) (* a x))
+(fn->ctx-fn 'foo f)
+;-> (lambda () foo:x)
+(fn->ctx-fn 'bar f)
+;-> (lambda () bar:x)
+(fn->ctx-fn 'foo g)
+;-> (lambda (foo:a) (* foo:a foo:x))
+(fn->ctx-fn 'bar g)
+;-> (lambda (bar:a) (* bar:a bar:x))
+((fn->ctx-fn 'foo f))
+;-> 5
+((fn->ctx-fn 'foo g) 10)
+;-> 50
+((fn->ctx-fn 'bar f))
+;-> 10
+((fn->ctx-fn 'bar g) 10)
+;-> 100
+
+(set 'myg (fn->ctx-fn 'foo g))
+;-> (lambda (foo:a) (* foo:a foo:x))
+(myg 10)
+;-> 50
+
+It works as long as 'ctx-eval-string' function is in every context you want to work with.
+
+
+--------------------------------
+Rotazione di colonne di stringhe
+--------------------------------
+
+Date le seguenti tre stringhe, ruotare n volte l'n-ennesima colonna verso il basso.
+
+  " bC#eF&hI)kL,nO/qR2tU5wX8z"
+  "A!cD$fG'iJ*lM-oP0rS3uV6xY9"
+  "aB"dE%gH(jK+mN.pQ1sT4vW7yZ"
+
+  " !"#$%&'()*+,-./0123456789"
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  "abcdefghijklmnopqrstuvwxyz"
+
+(define (ruota-stringhe)
+  (local (m mt)
+    (setq m '(
+      (" " "b" "C" "#" "e" "F" "Z" "h" "I" "Z" "k" "L" "," "n" "O" "/" "q" "R" "2" "t" "U" "5" "w" "X" "8" "z" )
+      ("A" "!" "c" "D" "$" "f" "G" "'" "i" "J" "*" "l" "M" "-" "o" "P" "0" "r" "S" "3" "u" "V" "6" "x" "Y" "9" )
+      ("a" "B" "\"" "d" "E" "%" "g" "H" "(" "j" "K" "+" "m" "N" "." "p" "Q" "1" "s" "T" "4" "v" "W" "7" "y" "Z")))
+    (setq mt (transpose m))
+    ;(print-matrix mt)
+    (for (r 0 (- (length mt) 1)) (rotate (mt r) (- (% r len))))
+    (print-matrix (transpose mt))
+    (dolist (el (transpose mt)) (println (join el)))
+    '--------))
+
+(ruota-stringhe)
+;->   ! " # $ % Z ' ( Z * + , - . / 0 1 2 3 4 5 6 7 8 9
+;-> A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+;-> a b c d e f g h i j k l m n o p q r s t u v w x y z
+;-> !"#$%Z'(Z*+,-./0123456789
+;-> ABCDEFGHIJKLMNOPQRSTUVWXYZ
+;-> abcdefghijklmnopqrstuvwxyz
+;-> --------
+
 ============================================================================
 

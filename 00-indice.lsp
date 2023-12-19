@@ -2158,6 +2158,10 @@ NOTE LIBERE 20
   Le mosse del Pedone (scacchi)
   Antistringa (funzione swap-case)
   Spalmare i valori di una lista
+  Forum: Address of list elements
+  Postulato di Bertrand e primi di Bertrand
+  Forum: Controlling function scope
+  Rotazione di colonne di stringhe
 
 PROBLEMI SUI DADI
 =================
