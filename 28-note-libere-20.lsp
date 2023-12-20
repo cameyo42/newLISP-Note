@@ -4242,5 +4242,231 @@ Date le seguenti tre stringhe, ruotare n volte l'n-ennesima colonna verso il bas
 ;-> abcdefghijklmnopqrstuvwxyz
 ;-> --------
 
+
+---------------------------
+Acquisto e vendita di merce
+---------------------------
+
+Abbiamo una certa quantità di soldi da investire e conosciamo i prezzi di vendita/acquisto di una certa merce per i prossimi N giorni.
+Possiamo effettuare solo un'operazione al giorno (comprare o vendere).
+Scrivere una funzione che massimizza il guadagno.
+
+Per esempio, immaginiamo di acquistare e vendere vino con i seguenti dati:
+Soldi da investire = 10$
+Prezzo di 1 litro di vino nei prossimi 4 giorni: (4 10 5 20)
+Per massimizzare il profitto occorre:
+Il primo giorno acquistiamo 10$ di vino a 4$/l, (10$ / 4$/l = 2.5l), 2.5l
+Il secondo giorno vendiamo 2.5l di vino a 10$/l, (2.5l * 10$/l = 25$), 25$
+Il terzo giorno acquistiamo 25$ di vino a 5$/l (25$ / 5$/l = 5l), 5l
+Il quarto giorno vendiamo 5l di vino a 20$, (5l * 20$/l = 100$), 100$
+
+Vediamo altri esempi:
+
+Soldi = 20$
+Prezzi = (10 8 3)
+Profitto max = 20
+Perché è meglio non comprare/vendere la merce.
+
+Soldi = 10$
+Prezzi = 8 10 14
+Profitto max = 17.5
+Si acquista la merce il primo giorno e si rivende al terzo giorno.
+
+Soldi = 10
+Prezzi = (4 2 10 5 20)
+Profitto max = 200
+Molto simile al primo esempio, ma questa volta aspettiamo che il prezzo scenda a 2 prima di effettuare il primo acquisto.
+
+Algoritmo
+I rapporti tra il termine successivo e il termine precedente di ogni termine della lista dei prezzi produce il valore del rendimento di quell'acquisto/vendita combinato.
+Per esempio con i prezzi (2 4 10 5) otteniamo:
+
+  ((4 / 2) (10 / 4) (5 /10)) = (2 2.5 0.5)
+
+Se acquistiamo il primo giorno e vendiamo il secondo giorno abbiamo un rendimento pari a (4 / 2) = 2
+Se acquistiamo il secondo giorno e vendiamo il terzo giorno abbiamo un rendimento pari a (10 /4) = 2.5
+Se acquistiamo il terzo giorno e vendiamo il quarto giorno abbiamo un rendimento pari a (5 / 10) = 0.5
+
+Poichè il nostro scopo è di massimizzare il guadagno, allora dobbiamo acquistare/vendere nei giorni in cui il rendimento è maggiore di 1.
+Inoltre, poichè la nostra cifra inziale viene moltiplicata per tutti i rendimenti, per ottenere il rendimento massimo basta moltiplicare la cifra iniziale per tutti i rendimenti maggiori di 1.
+
+(define (commerce money lst)
+  (local (pair ones max-values))
+    ; divisione a coppie di numeri (secondo / primo)
+    (setq pair (map div (rest lst) (chop lst)))
+    ; genera una lista con tutti 1
+    (setq ones (dup 1 (length pair)))
+    ; calcola il valore max tra le coppie di elementi di pair e ones
+    ; (in pratica imposta a 1 tutti i valori inferiori a 1)
+    (setq max-values (map max pair ones))
+    (println "pair: " pair)
+    (println "ones: " ones)
+    (println "max-values: " max-values)
+    ; calcola il profitto max moltiplicando tutti i rendimenti
+    ; e il capitale iniziale
+    ; (i rendimenti minori di 1 sono stati posti a 1
+    ; e non influiscono nella moltiplicazione)
+    (mul money (apply mul max-values)))
+
+Proviamo:
+
+(commerce 12 '(4 10 5 20))
+;-> pair: (2.5 0.5 4)
+;-> ones: (1 1 1)
+;-> max-values: (2.5 1 4)
+;-> 120
+
+(commerce 20 '(10 8 3))
+;-> pair: (0.8 0.375)
+;-> ones: (1 1)
+;-> max-values: (1 1)
+;-> 20
+
+(commerce 10 '(8 10 14))
+;-> pair: (1.25 1.4)
+;-> ones: (1 1)
+;-> max-values: (1.25 1.4)
+;-> 17.5
+
+(commerce 10 '(4 2 10 5 20))
+;-> pair: (0.5 5 0.5 4)
+;-> ones: (1 1 1 1)
+;-> max-values: (1 5 1 4)
+;-> 200
+
+Se vogliamo conoscere quando comprare e quando vendere esplicitamente possiamo scrivere:
+
+(define (comme money lst)
+  (local (pair ones max-values)
+    ; divisione a coppie di numeri (secondo / primo)
+    (setq pair (map div (rest lst) (chop lst)))
+    (dolist (r pair)
+      (cond ((> r 1)
+              (println "Giorno " (+ $idx 1) ": comprare a " (lst $idx))
+              (println "Giorno " (+ $idx 2) ": vendere a " (lst (+ $idx 1))))
+      ))))
+
+Comunque questa funzione non restituisce sempre i valori corretti:
+
+; corretto
+(comme 12 '(4 10 5 20))
+;-> Giorno 1: comprare a 4
+;-> Giorno 2: vendere a 10
+;-> Giorno 3: comprare a 5
+;-> Giorno 4: vendere a 20
+
+; corretto
+(comme 20 '(10 8 3))
+;-> nil
+
+; errato
+(comme 10 '(8 10 14))
+;-> Giorno 1: comprare a 8
+;-> Giorno 2: vendere a 10
+;-> Giorno 2: comprare a 10
+;-> Giorno 3: vendere a 14
+
+; corretto
+(comme 10 '(4 2 10 5 20))
+;-> Giorno 2: comprare a 2
+;-> Giorno 3: vendere a 10
+;-> Giorno 4: comprare a 5
+;-> Giorno 5: vendere a 20
+
+Il caso errato dipende dal fatto che non si può comprare e vendere nello stesso giorno.
+Allora eliminiamo tutti i valori doppi.
+
+(define (commercio money lst)
+  (local (out pair len parziale qty one max-values)
+    (setq out '())
+    ; divisione a coppie di numeri (secondo / primo)
+    (setq pair (map div (rest lst) (chop lst)))
+    ;(println pair)
+    (setq len (length pair))
+    ; guadagno parziale
+    (setq parziale money)
+    ; ciclo per ogni rendimento
+    (for (i 0 (- len 1))
+      ;se rendimento > 1, allora inseriamo in una lista:
+      ; (giorno di acquisto, prezzo) e
+      ; (giorno di vendita, prezzo)
+      (if (> (pair i) 1) (begin
+          (push (list (+ i 1) (lst i)) out -1)
+          (push (list (+ i 2) (lst (+ i 1))) out -1)))
+          ; the following don't work when we wait for a better price
+          ;(println "xxx Giorno " (+ i 1) ": comprare a " (lst i))
+          ;(println "xxx Giorno " (+ i 2) ": vendere a " (lst (+ i 1)))))
+    )
+    ;(println out)
+    ; elimina tutte le coppie di valori duplicate (diverso da "unique")
+    ; es. ((1 8) (2 10) (2 10) (3 14)) --> ((1 8) (3 14))
+    (setq out (filter (fn(x) (= (count (list x) out) '(1))) out))
+    ; stampa le azioni per massimizzare il profitto
+    (dolist (el out)
+      (cond 
+        ((even? $idx)
+         ; quantità di merce acquistata
+         (setq qty (div parziale (el 1)))
+         (println "Giorno " (el 0) ": comprare a " (el 1) "$ (" qty " unità)"))
+        ((odd? $idx)
+         ; guadagno parziale
+         (setq parziale (mul qty (el 1)))
+         (println "Giorno " (el 0) ": vendere a " (el 1) "$ (" parziale "$)"))
+      )
+    )
+    ; calcolo del guadagno totale
+    (setq ones (dup 1 (length pair)))
+    (setq max-values (map max pair ones))
+    (mul money (apply mul max-values))
+    (println "Guadagno totale = " (mul money (apply mul max-values)) "$")
+    out
+    '------------))
+
+Proviamo:
+
+(commercio 12 '(4 10 5 20))
+;-> Giorno 1: comprare a 4$ (3 unità)
+;-> Giorno 2: vendere a 10$ (30$)
+;-> Giorno 3: comprare a 5$ (6 unità)
+;-> Giorno 4: vendere a 20$ (120$)
+;-> Guadagno totale = 120$
+;-> ------------
+
+(commercio 21 '(10 8 3))
+;-> Guadagno totale = 21$
+;-> ------------
+
+(commercio 10 '(8 10 14))
+;-> Giorno 1: comprare a 8$ (1.25 unità)
+;-> Giorno 3: vendere a 14$ (17.5$)
+;-> Guadagno totale = 17.5$
+;-> ------------
+
+(commercio 10 '(4 2 10 5 20))
+;-> Giorno 2: comprare a 2$ (5 unità)
+;-> Giorno 3: vendere a 10$ (50$)
+;-> Giorno 4: comprare a 5$ (10 unità)
+;-> Giorno 5: vendere a 20$ (200$)
+;-> Guadagno totale = 200$
+;-> ------------
+
+Vediamo la funzione più corta per risolvere il problema iniziale:
+
+(define (solve money lst)
+    (mul money (apply mul 
+        (map max (map div (rest lst) (chop lst))
+                 (dup 1 (length pair))))))
+
+(solve 12 '(4 10 5 20))
+;-> 120
+(solve 20 '(10 8 3))
+;-> 20
+(solve 10 '(8 10 14))
+;-> 17.5
+(solve 10 '(4 2 10 5 20))
+;-> 100
+
+Vedi anche "Acquistare e vendere azioni" in "Note libere 5".
+
 ============================================================================
 

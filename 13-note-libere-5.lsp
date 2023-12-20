@@ -4822,6 +4822,8 @@ Vediamo la differenza di velocità tra le due funzioni:
 ;-> 9860
 ;-> 22.303
 
+Vedi anche "Acquisto e vendita di merce" in "Note libere 20".
+
 
 ---------------
 Numeri armonici

@@ -2162,6 +2162,7 @@ NOTE LIBERE 20
   Postulato di Bertrand e primi di Bertrand
   Forum: Controlling function scope
   Rotazione di colonne di stringhe
+  Acquisto e vendita di merce
 
 PROBLEMI SUI DADI
 =================
@@ -2203,7 +2204,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (252 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (255 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
