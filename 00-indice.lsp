@@ -2163,6 +2163,8 @@ NOTE LIBERE 20
   Forum: Controlling function scope
   Rotazione di colonne di stringhe
   Acquisto e vendita di merce
+  Confrontare due liste di numeri
+  Radici, minimi e massimi di polinomi con coefficienti interi
 
 PROBLEMI SUI DADI
 =================

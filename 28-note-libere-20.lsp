@@ -4468,5 +4468,237 @@ Vediamo la funzione più corta per risolvere il problema iniziale:
 
 Vedi anche "Acquistare e vendere azioni" in "Note libere 5".
 
+
+-------------------------------
+Confrontare due liste di numeri
+-------------------------------
+
+Possiamo confrontare due liste di numeri con gli operatori ">", "<", ">=", "<=" e "=".
+
+(setq a '(3 4 7 2))
+(setq b '(4 2 1 3))
+(< a b)
+;-> true
+Perchè il primo numero della lista "a" (3) è minore del primo numero della lista "b" (4).
+
+Se i primi numeri delle due liste sono uguali, allora newLISP confronta i secondi numeri e cosi via.
+
+(setq a '(3 4 7 2))
+(setq b '(3 2 1 3))
+(> a b)
+;-> true
+Perchè 3=3 e 4>2.
+
+Questo metodo di confronto si applica anche alle liste annidate.
+
+(setq a '(3 (4 1) 3))
+(setq b '(3 (3 7) 3))
+(> a b)
+;-> true
+(setq a '(3 (4 7) 3))
+(setq b '(3 (4 7) 2))
+(> a b)
+;-> true
+
+(setq a '((1 2) (1 3) (4 2) (4 2) (4 3) (4 3 (9)) (4 3 (1 3)) (4 3 (1 4))))
+(setq b '((1 2) (1 3) (4 2) (4 2) (4 3) (4 3 (1)) (4 3 (1 3)) (4 3 (1 4))))
+(> a b)
+;-> true
+
+Nota: anche la funzione "sort" ha questo comportamento, cioè ordina anche le sottoliste.
+(setq a '((4 3 (1 4)) (4 3 (1 3)) (1 3) (1 2 3 4) (1 2) (4 3) (4 3 (1)) (4 2)))
+(sort a)
+;-> ((1 2) (1 2 3 4) (1 3) (4 2) (4 3) (4 3 (1)) (4 3 (1 3)) (4 3 (1 4)))
+
+
+------------------------------------------------------------
+Radici, minimi e massimi di polinomi con coefficienti interi
+------------------------------------------------------------
+
+Per trovare le radici di un polinomio con coefficienti interi abbiamo a disposizione diverse tecniche di analisi (metodo di Newton, algoritmo di Bairstow, ecc).
+Per trovare i minimi e i massimi locali possiamo uguagliare a 0 la derivata prima del polinomio e calcolare le sue radici.
+Per esempio, calcoliamo i minimi e massimi del seguente polinomio:
+
+  p(x) = x^3 - 12x^2 + 45x + 8.
+  Derivata prima: 3x^2 − 24x + 45
+  Radici dell'equazione: 3x^2 − 24x + 45 = 0, x = 3 e x = 5.
+  p(3) = 62 (massimo locale)
+  p(5) = 58 (minimo locale)
+
+Comunque in questo caso proviamo a risolvere il problema non con tecniche di analisi, ma con tecniche numeriche di forza bruta.
+
+Per calcolare i minimi e i massimi di un polinomio possiamo calcolare i valori della funzione in un determinato intervallo (con un certo passo di campionamento) e controllare se e dove la funzione cambia da crescente in decrescente (massimo locale) o viceversa da decrescente a crescente (minimo locale).
+La precisione del risultato aumenta con il diminuire del passo di campionamento (step).
+
+(define (min-max func xmin xmax step)
+  (local (up) ; up = true -> direzione crescente
+    ; controllo dei primi due valori di f(x) per determinare se 
+    ; la funzione è crescente o decrescente
+    (if (>= (func (add xmin step)) (func xmin)) (setq up true) (setq up nil))
+    ; ciclo da xmin a xmax con passo step
+    (for (x (add xmin (mul 2 step)) xmax step)
+            ; cambio della funzione da decrescente a crescente (minimo locale)
+      (cond ((and (> (func x) (func (sub x step))) (= up nil))
+              (setq up true)
+              (println "Minimo per x = " (format "%4.4f" x)
+                        " e y = " (format "%4.4f" (func x))))
+            ; cambio della funzione da crescente a decrescente (massimo locale)
+            ((and (< (func x) (func (sub x step))) (= up true))
+              (setq up nil)
+              (println "Massimo per x = " (format "%4.4f" x)
+                        " e y = " (format "%4.4f" (func x))))))))
+
+Facciamo qualche prova:
+
+p(x) = x^3 - 12x^2 + 45x + 8
+(define (f x) (add (mul x x x) (mul -12 x x) (mul 45 x) 8))
+(solve f -10 10 0.001)
+;-> Massimo per x = 3.0010 e y = 62.0000
+;-> Minimo per x = 5.0010 e y = 58.0000
+
+Poichè le soluzioni sono 3 e 5, possiamo diminuire l'intervallo e il passo di campionamento per migliorare il risultato:
+
+(solve f 2 6 0.00001)
+;-> Minimo o Massimo per x = 3.0000 e y = 62.0000
+;-> Minimo o Massimo per x = 5.0000 e y = 58.0000
+
+Possiamo verificare i valori:
+(f 3)
+;-> 62
+(f 5)
+;-> 58
+
+p(x) = x^2 - 2
+(define (f x) (add (mul x x) -2))
+(solve f -10 10 0.001)
+;-> Minimo o Massimo per x = 0.0010 e y = -2.0000
+(solve f -1 1 0.00001)
+;-> Minimo o Massimo per x = 0.0000 e y = -2.0000
+
+p(x) = 2x^3 + 3x^2 - 36x + 10
+(define (f x) (add (mul 2 x x x) (mul 3 x x) (mul -36 x) 10))
+(solve f -10 10 0.001)
+;-> Minimo o Massimo per x = -2.9990 e y = 91.0000
+;-> Minimo o Massimo per x = 2.0010 e y = -34.0000
+(solve f -4 3 0.00001)
+;-> Minimo o Massimo per x = -3.0000 e y = 91.0000
+;-> Minimo o Massimo per x = 2.0000 e y = -34.0000
+
+p(x) = x^4 - 8x^3 +22x^2 - 24x + 8
+(define (f x) (add (mul x x x x) (mul -8 x x x) (mul 22 x x) (mul -24 x) 8))
+(solve f -10 10 0.001)
+;-> Minimo o Massimo per x = 1.0010 e y = -1.0000
+;-> Minimo o Massimo per x = 2.0010 e y = -0.0000
+;-> Minimo o Massimo per x = 3.0010 e y = -1.0000
+(solve f 0 4 0.00001)
+;-> Minimo o Massimo per x = 1.0000 e y = -1.0000
+;-> Minimo o Massimo per x = 2.0000 e y = -0.0000
+;-> Minimo o Massimo per x = 3.0000 e y = -1.0000
+
+La velocità della funzione dipende dalla dimensione dell'intevallo e dal valore del passo di campionamento:
+(define (f x) (add (mul x x x x) (mul -8 x x x) (mul 22 x x) (mul -24 x) 8))
+(time (solve f -10 10 0.001))
+;-> 11.948
+(time (solve f -10 10 0.0001))
+;-> 106.184
+(time (solve f -10 10 0.00001))
+;-> 1035.695
+(time (solve f -20 20 0.00001))
+;-> 2061.509
+
+Per quanto riguarda il calcolo delle radici del polinomio, adottiamo la stessa tecnica (intervallo di campionamento) verificando se due valori f(x) e f(x+step) sono uno maggiore di zero e uno minore di zero.
+In questo caso poniamo la radice uguale a (f(x) + f(x+step))/2.
+
+(define (roots func xmin xmax step)
+  (for (x xmin xmax step)
+       (if (or (and (>= (f x) 0)  (< (f (add x step)) 0))
+               (and (<= (f x) 0)  (> (f (add x step)) 0)))
+            (println "Radice: " (div (add x (add x step)) 2)))))
+
+Funzione molto simile:
+
+(define (roots func xmin xmax step)
+  (for (x xmin xmax step)
+    (cond ((zero? (f x)) (println "Radice: " x { } (f x)))
+          ((or (and (> (f x) 0)  (< (f (add x step)) 0))
+               (and (< (f x) 0)  (> (f (add x step)) 0)))
+            (println "Radice: " (div (add x (add x step)) 2))))))
+
+Nota: per polinomi con coefficienti interi, il valore assoluto di qualsiasi radice è strettamente inferiore alla somma dei valori assoluti dei coefficienti.
+Questo ci permette di limitare l'intervallo di campionamento.
+Per esempio, la somma dei valori assoluti dei coefficienti del polinomio p(x) = (x+1)(x-2)(x-3) = x^3 - 4 x^2 + x + 6 vale 1 + 4 + 1 + 6 = 12. Quindi non possono esistere radici al di fuori dell'intervallo (-12, 12).
+
+Facciamo alcune prove:
+
+(define (f x) (add (mul x x x) (mul -4 x x) x 6))
+(roots f -10 10 0.001)
+;-> Radice: -1.0005             ; -1
+;-> Radice: -0.9995000000000001 ; -1
+;-> Radice: 1.999500000000001   ; 2
+;-> Radice: 2.0005              ; 2
+;-> Radice: 3.0005
+(roots f -2 4 0.000001)
+;-> Radice: -0.9999994999999999
+;-> Radice: 2.0000005
+;-> Radice: 3.0000005
+
+(define (f x) (add (mul x x x) (mul -12 x x) (mul 45 x) 8))
+(roots f -66 66 0.001)
+;-> Radice: -0.1695000000000017
+(roots f -1 0 0.000001)
+;-> Radice: -0.1699655000000001
+(f -0.1699655000000001)
+;-> -1.676373999259795e-005
+
+(define (f x) (add (mul x x) 2))
+(roots f -10 10 0.001)
+;-> nil
+
+(define (f x) (add (mul x x) -2))
+(roots f -3 3 0.001)
+;-> Radice: -1.4145
+;-> Radice: 1.4145
+(roots f -2 2 0.000001)
+;-> Radice: -1.4142135
+;-> Radice: 1.4142135
+(f 1.4142135)
+;-> -1.764177499641306e-007
+(f -1.4142135)
+;-> -1.764177499641306e-007
+
+(define (f x) (add (mul 2 x x x) (mul 3 x x) (mul -36 x) 10))
+(roots f -51 51 0.001)
+;-> Radice: -5.169500000000001
+;-> Radice: 0.2855000000000037
+;-> Radice: 3.383500000000002
+(roots f -6 4 0.000001)
+;-> Radice: -5.1692485
+;-> Radice: 0.2858864999999996
+;-> Radice: 3.383361499999999
+(f -5.1692485)
+;-> 1.325659076201191e-005
+(f 0.2858864999999996)
+;-> 1.09036737789836e-005
+(f 3.383361499999999)
+;-> -1.692382952001026e-005
+
+(define (f x) (add (mul x x x x) (mul -8 x x x) (mul 22 x x) (mul -24 x) 8))
+(roots f -65 65 0.001)
+;-> Radice: 0.5855000000000079
+;-> Radice: 2.0005
+;-> Radice: 3.414500000000001
+(roots f 0 4 0.000001)
+;-> Radice: 0.5857865
+;-> Radice: 2.0000005
+;-> Radice: 3.4142135
+(f 0.5857865)
+;-> -3.528354692861058e-007
+(f 2.0000005)
+;-> -4.973799150320701e-013
+(f 3.4142135)
+;-> -3.528355136950268e-007
+
+Nota: questi metodi per calcolare le radici e i minimi/massimi di un polinomio sono molto spartani, ma a volte possono essere utili per una valutazione di massima.
+
 ============================================================================
 
