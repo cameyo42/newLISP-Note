@@ -2165,6 +2165,8 @@ NOTE LIBERE 20
   Acquisto e vendita di merce
   Confrontare due liste di numeri
   Radici, minimi e massimi di polinomi con coefficienti interi
+  Matrice (Grafo) connessa
+  Hitori
 
 PROBLEMI SUI DADI
 =================
@@ -2200,6 +2202,7 @@ APPENDICI
   Colori HTML
   Codici nazionali (ISO 3166)
   Codici ASCII
+  Considerazioni lungo il tragitto
 
 BIBLIOGRAFIA/WEB
 ==================

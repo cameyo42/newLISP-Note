@@ -4700,5 +4700,485 @@ Facciamo alcune prove:
 
 Nota: questi metodi per calcolare le radici e i minimi/massimi di un polinomio sono molto spartani, ma a volte possono essere utili per una valutazione di massima.
 
+
+------------------------
+Matrice (Grafo) connessa
+------------------------
+
+Un grafo G = (V, E) è detto connesso se, per ogni coppia di vertici (u, v) di V, esiste un cammino che collega u a v.
+Un grafo è connesso se esso è composto di una sola componente connessa.
+
+Se in un grafo esiste una coppia di vertici (u, v) di V che non ammette un cammino che li colleghi, tale grafo si dice disconnesso.
+
+Nel caso di una matrice di 0 e 1 possiamo dire che la matrice è connessa se da ogni cella della matrice che contiene un 1 è possibile raggiungere tutte le altre celle con valore 1.
+Abbiamo due tipi di connessione tra le celle:
+- connessione con le quattro celle adiacenti (alto, basso, sinistra, destra)
+- connessione con le otto celle adiacenti (alto, basso, sinistra, destra, basso-sinistra, basso-destra, alto-sinistra, alto-destra)
+
+Possiamo risolvere il problema con una ricerca (BST, Breadth-First Search) o DFS (depth-first-search).
+
+Vedi "Attraversamento di grafi - Algoritmo BFS (Breadth-First Search)" e "Attraversamento di grafi - Algoritmo DFS (Depth-First Search)" in "Note libere 8".
+
+Funzione che controlla se la cella rientra nei limiti della matrice, è un '1' e non è stata ancora visitata:
+
+(define (isvalid matrix row col rows cols)
+  (and (>= row 0) (< row rows) (>= col 0) (< col cols)
+       (= (matrix row col) 1)
+       (not (visited row col))))
+
+Funzione che effettua la ricerca DFS:
+
+(define (dfs matrix row col rows cols)
+  ;Mosse possibili(4): alto, basso, sinistra, destra
+  (setq moves '((-1 0) (1 0) (0 -1) (0 1)))
+  (setf (visited row col) true)
+  (dolist (m moves)
+    (setq newrow (+ row (m 0)))
+    (setq newcol (+ col (m 1)))
+    (if (isvalid matrix newrow newcol rows cols)
+        (dfs matrix newrow newcol rows cols))))
+
+Funzione che verifica se una matrice è connessa:
+
+(define (isconnected matrix)
+  (setq out true)
+  (setq rows (length matrix))
+  (setq cols (length (matrix 0)))
+  (setq visited (array rows cols '(nil)))
+  ; Cerca il primo '1' nella matrice sui cui avviare il DFS
+  (for (r 0 (- rows 1))
+    (for (c 0 (- cols 1))
+      (if (and (= (matrix r c) 1) (not (visited r c)))
+          (dfs matrix r c rows cols)
+          ; controlla se c'è qualche cella '1' che non è stata visitata
+          (for (i 0 (- rows 1))
+            (for (j 0 (- cols 1))
+              (if (and (= (matrix i j) 1) (not (visited i j)))
+                  (setq out nil)
+              )
+            )
+          )
+      )
+    )
+  )
+  out)
+
+Facciamo alcune prove:
+
+(setq m '((1 1 0 0)
+          (1 0 0 1)
+          (0 0 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> nil
+
+(setq m '((1 1 0 0)
+          (1 1 0 1)
+          (0 1 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> true
+
+(setq m '((1 1 0 0)
+          (1 1 0 1)
+          (0 0 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> nil
+
+(setq m '((1 1 1 1)
+          (1 0 0 1)
+          (1 0 0 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> true
+
+Possiamo ottimizzare le funzioni sfruttando l'ambito dinamico.
+
+Le variabili 'matrix', 'cols' e 'rows' non cambiano, quindi possiamo non passarle alle funzioni:
+Funzione che controlla se la cella rientra nei limiti della matrice, è un '1' e non è stata ancora visitata:
+
+(define (isvalid row col)
+  (and (>= row 0) (< row rows) (>= col 0) (< col cols)
+       (= (matrix row col) 1)
+       (not (visited row col))))
+
+Funzione che effettua la ricerca DFS:
+
+(define (dfs row col)
+  (local (newrow newcol)
+    (setf (visited row col) true)
+    (dolist (m moves)
+      (setq newrow (+ row (m 0)))
+      (setq newcol (+ col (m 1)))
+      (if (isvalid newrow newcol)
+          (dfs newrow newcol)))))
+
+I cicli 'for' che controllano gli '1' visitati possono essere interrotti al primo nil.
+Inoltre aggiungiamo un parametro 'mosse' che permette di specificare il tipo di connessione: 4 per quattro movimenti e 8 per otto movimenti.
+
+Funzione che verifica se una matrice è connessa:
+
+(define (isconnected matrice mosse)
+  (local (out rows cols visited matrix moves)
+    (setq out true)
+    (setq matrix matrice)
+    (if (or (= mosse 4) (= mosse nil))
+        ; Mosse possibili(4): alto, basso, sinistra, destra
+        (setq moves '((-1 0) (1 0) (0 -1) (0 1)))
+        ;else
+        ; Mosse possibili(8): alto, basso, sinistra, destra, 
+        ; basso-sinistra, basso-destra, alto-sinistra, alto-destra
+        (setq moves '((-1 0) (1 0) (0 -1) (0 1) (1 1) (-1 1) (-1 -1) (1 -1)))
+    )
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (setq visited (array rows cols '(nil)))
+    ; Cerca il primo '1' nella matrice sui cui avviare il DFS
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+        (if (and (= (matrix r c) 1) (not (visited r c)))
+            (dfs r c)
+            ; controlla se c'è qualche cella '1' che non è stata visitata
+            (for (i 0 (- rows 1) 1 (not out))
+              (for (j 0 (- cols 1) 1 (not out))
+                (if (and (= (matrix i j) 1) (not (visited i j)))
+                    (setq out nil)
+                )
+              )
+            )
+        )
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(setq m '((1 1 0 0)
+          (1 0 0 1)
+          (0 0 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> nil
+
+(setq m '((1 1 0 0)
+          (1 1 0 1)
+          (0 1 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> true
+
+(setq m '((1 1 0 0)
+          (1 1 0 1)
+          (0 0 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> nil
+Con 8 direzioni possibili la matrice è connessa:
+(isconnected m 8) 
+;-> true
+
+(setq m '((1 1 1 1)
+          (1 0 0 1)
+          (1 0 0 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> true
+
+(setq m '((1 0 0 1)
+          (0 1 1 0)
+          (0 1 1 0)
+          (1 0 0 1)))
+(isconnected m)
+;-> true
+(isconnected m 8)
+;-> true
+
+
+------
+Hitori
+------
+
+Hitori si gioca con una griglia di quadrati o celle, dove ciascuna cella inizialmente contiene un numero.
+Il gioco si gioca eliminando i quadrati/numeri e questo viene fatto oscurandoli (casella nera).
+L'obiettivo è trasformare la griglia in uno stato in cui tutte e tre le seguenti regole siano vere:
+1) nessuna riga o colonna può avere più di una occorrenza di un dato numero
+2) le celle nere non possono essere adiacenti orizzontalmente o verticalmente, sebbene possano essere diagonali tra loro.
+3) le restanti celle numerate devono essere tutte collegate tra loro, orizzontalmente o verticalmente (cioè devono essere connesse).
+
+Tecniche di risoluzione
+Una volta stabilito che una cella non può essere nera, alcuni giocatori trovano utile cerchiare il numero, poiché rende più facile la lettura del puzzle man mano che la soluzione procede. Di seguito assumiamo che questa convenzione venga seguita.
+
+- Quando viene stabilito che una cella deve essere nera, tutte le celle ortogonalmente adiacenti non possono essere nere e quindi possono essere cerchiate.
+
+- Se una cella è stata cerchiata per indicare che non può essere nera, tutte le celle contenenti lo stesso numero in quella riga e colonna devono essere nere.
+
+- Se oscurando una cella si causa la separazione di un'area connessa non nera in diversi componenti non collegati, la cella non può essere nera e quindi può essere cerchiata.
+
+- In una sequenza di tre numeri identici e adiacenti, il numero centrale non può essere nero e le celle su entrambi i lati devono essere nere. Il motivo è che se uno dei numeri finali rimane non nero, ciò risulterà in due celle nere adiacenti o in due celle con lo stesso numero nella stessa riga o colonna, nessuna delle quali è consentita. (Questo è un caso speciale dell'elemento successivo.)
+
+- In caso di due numeri identici e adiacenti, se nella stessa riga o colonna è presente un'altra cella contenente lo stesso numero, quest'ultima cella deve essere nera. Altrimenti, se rimane non nero, ciò risulterebbe in due celle con lo stesso numero nella stessa riga o colonna, oppure in due celle nere adiacenti, nessuna delle quali è consentita.
+
+- Qualsiasi numero che abbia due numeri identici su lati opposti non può essere nero, perché uno dei due numeri identici deve essere nero e non può essere adiacente a un'altra cella nera.
+
+- Quando due coppie di numeri identici si trovano in un quadrato a due a due sulla griglia, due di essi devono essere neri lungo una diagonale. Ci sono solo due combinazioni possibili, e talvolta è possibile decidere quale sia quella corretta determinando se una variazione taglierà i quadrati non neri dal resto della griglia.
+
+- Quando due coppie di numeri identici formano un quadrato nell'angolo di una griglia, il quadrato d'angolo e quello diagonalmente opposto devono essere neri. L'alternativa lascerebbe la casella d'angolo isolata dagli altri numeri non neri.
+
+Nota: Hitori è NP-completo.
+Il nome "NP-completo" è l'abbreviazione di "nondeterministic polynomial-time complete".
+Nella teoria della complessità computazionale, un problema è NP-completo quando:
+1) È un problema decisionale, nel senso che per qualsiasi input al problema, l'output è "sì" o "no".
+2) Quando la risposta è "sì", ciò può essere dimostrato attraverso l'esistenza di una soluzione breve (di lunghezza polinomiale).
+3) La correttezza di ciascuna soluzione può essere verificata rapidamente (cioè in tempo polinomiale) e un algoritmo di ricerca a forza bruta può trovare una soluzione provando tutte le soluzioni possibili.
+4) Il problema può essere utilizzato per simulare ogni altro problema per il quale possiamo verificare rapidamente che una soluzione sia corretta.
+In questo senso, i problemi NP-completi sono i problemi più difficili le cui soluzioni possono essere verificate rapidamente.
+Se potessimo trovare rapidamente le soluzioni di qualche problema NP-completo, potremmo trovare rapidamente le soluzioni di ogni altro problema per il quale una data soluzione può essere facilmente verificata.
+
+Funzioni del gioco implementate:
+
+(newgame)   -> inizia un nuovo puzzle
+(black r c) -> attiva/disattiva la casella nera (r = riga, c = colonna)
+(mark r c)  -> attiva/disattiva la sottolineatura (marcatura)
+(automark)  -> sottolinea le caselle adiacenti alle caselle nere
+(solved?)   -> verifica se il gioco è risolto
+(restart)   -> reinizializza il puzzle corrente
+(puzzle)    -> stampa il puzzle corrente
+
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    ; indici della griglia in verde
+    (println "  \027[0;32m"
+             (join (map (fn(x) (format "%2d" x)) (sequence 0 (- col 1))))
+             "\027[0m")
+    (for (i 0 (- row 1))
+      ;(setq fmt (string "%2d "))
+      ; indici della griglia in verde
+      (print "\027[0;32m" (format "%2d " i) "\027[0m")
+      (for (j 0 (- col 1))
+        (cond ((= (grid i j) -1) (print "\027[0;31m# \027[0m")) ; casella nera (rosso)
+              (true
+                (if (= (marked i j) 0)
+                    ; numero normale
+                    (print (grid i j) " ")
+                    ; numero sottolineato
+                    (print "\027[4m"(grid i j) "\027[0m ")))
+        )
+      )
+      (println)))
+      '---------------------)
+
+Funzione che stampa il puzzle:
+
+(define (puzzle (print-grid grid)))
+
+Funzione che verifica se due indici indicano una casella valida:
+
+(define (valid? r c) (and (>= r 0) (< r N) (>= c 0) (< c N)))
+
+Funzione che attiva/disattiva una casella nera:
+
+(define (black r c)
+  (cond ((and (valid? r c) (= (grid r c) -1))
+          (setf (grid r c) (base r c)))
+        ((and (valid? r c) (!= (grid r c) -1))
+          (setf (grid r c) -1))
+        (true (println "Mossa impossibile: " r {, } c)))
+  (print-grid grid))
+
+Funzione che attiva/disattiva la sottolineatura di una casella:
+
+(define (mark r c)
+  (if (and (valid? r c) (!= (grid r c) -1))
+      (setf (marked r c) (- 1 (marked r c)))
+      ;else
+      (println "Impossibile sottolineare: " r {, } c))
+  (print-grid grid))
+
+Funzione che sottolinea tutte le caselle che sono adiacenti alle caselle nere:
+
+(define (automark)
+  ; toglie tutte le sottolineature
+  (setq marked (array N N '(0)))
+  ; ciclo per ogni casella
+  (for (r 0 (- N 1))
+    (for (c 0 (- N 1))
+      ; se incontra una casella nera...
+      (cond ((= (grid r c) -1)
+              ; allora sottolinea le caselle (valide) adiacenti.
+              (if (valid? (+ r 1) c) (setf (marked (+ r 1) c) 1))
+              (if (valid? (- r 1) c) (setf (marked (- r 1) c) 1))
+              (if (valid? r (+ c 1)) (setf (marked r (+ c 1)) 1))
+              (if (valid? r (- c 1)) (setf (marked r (- c 1)) 1))))))
+  (print-grid grid))
+
+Funzione che reinizializza il puzzle corrente:
+
+(define (restart)
+  (setq grid base)
+  (setq marked (array N N '(0)))
+  (print-grid grid))
+
+Funzione che genera un nuovo puzzle:
+
+(define (newgame dim)
+  (setq N dim)
+  (setq grid (array N N (slice (randomize (flat (dup (sequence 1 9) N))) 0 (* N N))))
+  ; matrice per reinizializzare il gioco e annullare le operazioni
+  (setq base grid)
+  (setq marked (array N N '(0)))
+  (print-grid grid))
+
+Funzioni per verificare se una matrice è connessa:
+
+(define (isvalid matrix row col rows cols)
+  (and (>= row 0) (< row rows) (>= col 0) (< col cols)
+       (= (matrix row col) 1)
+       (not (visited row col))))
+
+(define (dfs matrix row col rows cols)
+  (setq moves '((-1 0) (1 0) (0 -1) (0 1)))
+  (setf (visited row col) true)
+  (dolist (m moves)
+    (setq newrow (+ row (m 0)))
+    (setq newcol (+ col (m 1)))
+    (if (isvalid matrix newrow newcol rows cols)
+        (dfs matrix newrow newcol rows cols))))
+
+(define (isconnected matrix)
+  (setq out true)
+  (setq rows (length matrix))
+  (setq cols (length (matrix 0)))
+  (setq visited (array rows cols '(nil)))
+  (for (r 0 (- rows 1))
+    (for (c 0 (- cols 1))
+      (if (and (= (matrix r c) 1) (not (visited r c)))
+          (dfs matrix r c rows cols)
+          (for (i 0 (- rows 1))
+            (for (j 0 (- cols 1))
+              (if (and (= (matrix i j) 1) (not (visited i j)))
+                  (setq out nil)))))))
+  out)
+
+Proviamo:
+
+(setq m '((1 1 0 0)
+          (1 0 0 1)
+          (0 0 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> nil
+
+(setq m '((1 1 0 0)
+          (1 1 0 1)
+          (0 1 1 1)
+          (1 1 1 1)))
+(isconnected m)
+;-> true
+
+Funzione che verifica se un puzzle è risolto:
+
+(define (solved?)
+  (let ( (ok true) (nere 0) )
+    ; controllo per le caselle nere adiacenti
+    (for (r 0 (- N 1))
+      (for (c 0 (- N 1))
+        ; se incontriamo una casella nera...
+        (cond ((= (grid r c) -1)
+                (++ nere)
+                ; controlliamo che non ci sia una casella nera adiacente
+                ; in basso, alto, destra, sinistra
+                (if (and (valid? (+ r 1) c) (= (grid (+ r 1) c) -1)) (begin
+                    (println "Errore: " r "," c " e " (+ r 1) "," c " caselle nere adiacenti")
+                    (setq ok nil)))
+                (if (and (valid? (- r 1) c) (= (grid (- r 1) c) -1)) (begin
+                    (println "Errore: " r "," c " e " (- r 1) "," c " caselle nere adiacenti")
+                    (setq ok nil)))
+                (if (and (valid? r (+ c 1)) (= (grid r (+ c 1)) -1)) (begin
+                    (println "Errore: " r "," c " e " r "," (+ c 1) " caselle nere adiacenti")
+                    (setq ok nil)))
+                (if (and (valid? r (- c 1)) (= (grid r (- c 1)) -1)) (begin
+                    (println "Errore: " r "," c " e " r "," (- c 1) " caselle nere adiacenti")
+                    (setq ok nil))))
+        )
+      )
+    )
+    ; controllo se tutti i numeri sono diversi per ogni riga
+    (for (r 0 (- N 1))
+      (setq nums (filter integer? (array-list (grid r))))
+      (if (!= nums (unique nums)) (begin
+          (println "Errore: riga " r " = "  (grid r) ", numeri duplicati")
+          (setq ok nil)))
+    )
+    ; controllo se tutti i numeri sono diversi per ogni colonna
+    ; (controllo le righe della matrice trasposta)
+    (setq tr (transpose grid))
+    (for (r 0 (- N 1))
+      (setq nums (filter integer? (array-list (tr r))))
+      (if (!= nums (unique nums)) (begin
+          (println "Errore: colonna " r " = " (tr r) ", numeri duplicati")
+          (setq ok nil)))
+    )
+    ; controllo se i numeri sono tutti connessi
+    ; trasforma la matrice grid in una matrice di 0 e 1 'bin'
+    ; 0 per grid(x y) = -1 (casella nera)
+    ; 1 per tutti gli altri valori
+    (setq bin (array N N '(0)))
+    (for (r 0 (- N 1))
+      (for (c 0 (- N 1))
+        (if (= (grid r c) -1)
+            (setf (bin r c) 0)
+            (setf (bin r c) 1))))
+    ; verifica se la matrice è connessa
+    (setq out (isconnected bin))
+    ; risultato restituito
+    (list ok nere)))
+
+Facciamo una prova:
+
+(newgame 6)
+(print-grid base)
+(black 0 0)
+(black 0 5)
+(black 2 3)
+(black 1 1)
+(black 0 0)
+(mark 0 1)
+(mark 0 2)
+(automark)
+(black 0 2)
+(automark)
+(mark 0 0)
+(solved?)
+(restart)
+;->    0 1 2 3 4 5
+;->  0 8 5 7 1 2 9
+;->  1 9 7 4 8 2 7
+;->  2 8 5 2 7 1 6
+;->  3 5 4 5 6 5 4
+;->  4 2 5 6 6 9 6
+;->  5 8 8 1 1 4 7
+
+Per finire vediamo alcuni puzzle con soluzione:
+
+  2 4 1 3       2 4 1 3      
+  2 2 4 1       N 2 N 1
+  1 3 4 3       N 3 4 N
+  
+  5 5 2 2 5     N 5 N 2 N   
+  3 1 2 5 6     3 1 2 5 6
+  3 3 3 1 6     N 3 N 1 N
+  5 2 6 3 4     5 2 6 3 4
+  2 2 4 2 1     2 N 4 N 1
+
+  5 6 5 1 2 4   N 6 5 N 2 4
+  2 4 6 1 5 5   2 4 6 1 N 5
+  4 5 4 6 5 2   4 N 4 6 5 2
+  6 2 4 5 3 1   6 2 N 5 3 1
+  4 3 1 2 1 6   N 3 1 2 N 6
+  3 1 4 4 6 5   3 1 N 4 6 N
+
 ============================================================================
 

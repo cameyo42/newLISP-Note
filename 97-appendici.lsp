@@ -7090,9 +7090,20 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 |  ≡  |  alt + 240  |    |  °  |  alt + 248  |
 
 
+
 ============================================================================
- TRUE? or NIL?
+ Considerazioni lungo il tragitto
 ============================================================================
+
+Dal 2019 al 2023 sono 4 anni...
+Scrivo questi articoli per tenere allenata la mente (over 60...).
+Non sono un programmatore. Solo un amatore.
+Niente di trascendentale, ma di tutto un pò (e ci saranno anche argomenti ripetuti...dovuti alla mia labile memoria).
+Quando incontro un problema o un argomento che mi interessa (leggendo un libro o sul web o sul lavoro), cerco di risolverlo/capirlo anche con l'aiuto di newLISP.
+Gli articoli non hanno tutti la stessa profondità o spiegazioni complete, ma i sorgenti sono commentati.
+Ogni articolo è autosufficiente, nel senso che in ognuno sono riportate tutte le funzioni necessarie per eseguire i programmi.
+In genere i programmi (funzioni) sono scritti per essere leggibili e possono essere sicuramente migliorati/ottimizzati.
+Ci sono degli errori? Sicuramente si (anche se mi sono impegnato abbastanza).
 
 Non sei roba tua
 Non sei il tuo lavoro
