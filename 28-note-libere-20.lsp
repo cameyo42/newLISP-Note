@@ -302,7 +302,7 @@ int sum(int v, int tl, int tr, int l, int r) {
            + sum(v*2+1, tm+1, tr, max(l, tm+1), r);
 }
 
-Infine la query di aggiornamento. 
+Infine la query di aggiornamento.
 La funzione riceverà anche informazioni sul vertice/segmento corrente e inoltre anche il parametro della query di aggiornamento (ovvero la posizione dell'elemento e il suo nuovo valore).
 
 void update(int v, int tl, int tr, int pos, int new_val) {
@@ -525,12 +525,12 @@ In particolare:
    - Ci devono essere alcune cifre tra i punti. Non possono apparire due punti consecutivi.
 
 Esempi:
-  2         1        18.04     18.4     
-  1.0.0     1        7.010     7.8      
+  2         1        18.04     18.4
+  1.0.0     1        7.010     7.8
   1.0       1.0.0    1.0.0.1.0 1.00.00.2
-  1.2.42    1.2.41   00.00.01  0.0.0.1  
-  1.1.56789 1.2.0    0.0.1     0.1      
-  1.10      1.2      42.0      4.2.0    
+  1.2.42    1.2.41   00.00.01  0.0.0.1
+  1.1.56789 1.2.0    0.0.1     0.1
+  1.10      1.2      42.0      4.2.0
   1.20      1.150    999.999   999.999.1
   2018.08.1 2018.08
 
@@ -592,7 +592,7 @@ Proviamo:
 (find-primi 1234567891011121314)
 ;-> (1234567891 12345678910111 2 23 23456789 3 4567 4567891 45678910111
 ;->  45678910111213 5 56789101 67 67891 678910111213 7 789101 78910111213
-;->  89 89101 9101112131 101 10111 11 1112131 11 1112131 11 11213 1213 2 
+;->  89 89101 9101112131 101 10111 11 1112131 11 1112131 11 11213 1213 2
 ;->  2131 13 131 3 31)
 
 
@@ -614,7 +614,7 @@ Proviamo:
 (setq a (sequence 1 50))
 
 (remove-k a 3)
-;-> (1 2 4 5 7 8 10 11 13 14 16 17 19 20 22 23 25 26 28 
+;-> (1 2 4 5 7 8 10 11 13 14 16 17 19 20 22 23 25 26 28
 ;->  29 31 32 34 35 37 38 40 41 43 44 46 47 49 50)
 
 (remove-k a 1)
@@ -652,7 +652,7 @@ Per finire la funzione che inserisce un elemento in una lista ogni k:
 (define (insert-k val lst k)
 "Inserts element into a list every k"
   (let (out '())
-    (dolist (el lst) 
+    (dolist (el lst)
       (if (zero? (% (+ $idx 1) k))
           (extend out (list el val))
           (push el out -1)))
@@ -746,7 +746,7 @@ Con l'MCM pari a 6.
     ;(println freq)
     (setq massimo (freq 0 0))
     ;(println massimo)
-    (dolist (el freq) 
+    (dolist (el freq)
       ;(println el)
       (if (= (el 0) massimo) (push el out -1))
     )
@@ -854,7 +854,7 @@ Funzione che genera una lista con valori true negli indici primi:
 Funzione che genera le partizioni in modo ricorsivo:
 
 (define (partition value idx sum num)
-  (cond ((= sum num) 
+  (cond ((= sum num)
           (push (slice result 0 idx) out -1)
           (if show (println (slice result 0 idx))))
         ((or (>= idx (/ num 2)) (> sum num)) nil) ; condizione di stop
@@ -886,7 +886,7 @@ Facciamo alcune prove:
 ;-> ((2 2 2 3) (2 2 5) (2 7) (3 3 3))
 
 (prime-part 17)
-;-> ((2 2 2 2 2 2 2 3) (2 2 2 2 2 2 5) (2 2 2 2 2 7) (2 2 2 2 3 3 3) 
+;-> ((2 2 2 2 2 2 2 3) (2 2 2 2 2 2 5) (2 2 2 2 2 7) (2 2 2 2 3 3 3)
 ;->  (2 2 2 3 3 5) (2 2 2 11) (2 2 3 3 7) (2 2 3 5 5) (2 2 13) (2 3 3 3 3 3)
 ;->  (2 3 5 7) (2 5 5 5) (3 3 3 3 5) (3 3 11) (3 7 7) (5 5 7) (17))
 
@@ -921,12 +921,12 @@ Facciamo alcune prove:
 ;-> (3 7 11)
 ;-> (5 5 11)
 ;-> (7 7 7)
-;-> ((2 2 2 2 2 2 2 2 2 3) (2 2 2 2 2 2 2 2 5) (2 2 2 2 2 2 2 7) 
+;-> ((2 2 2 2 2 2 2 2 2 3) (2 2 2 2 2 2 2 2 5) (2 2 2 2 2 2 2 7)
 ;->  (2 2 2 2 2 2 3 3 3) (2 2 2 2 2 3 3 5) (2 2 2 2 2 11) (2 2 2 2 3 3 7)
-;->  (2 2 2 2 3 5 5) (2 2 2 2 13) (2 2 2 3 3 3 3 3) (2 2 2 3 5 7) 
+;->  (2 2 2 2 3 5 5) (2 2 2 2 13) (2 2 2 3 3 3 3 3) (2 2 2 3 5 7)
 ;->  (2 2 2 5 5 5) (2 2 3 3 3 3 5) (2 2 3 3 11) (2 2 3 7 7) (2 2 5 5 7)
 ;->  (2 2 17) (2 3 3 3 3 7) (2 3 3 3 5 5) (2 3 3 13) (2 3 5 11) (2 5 7 7)
-;->  (2 19) (3 3 3 3 3 3 3) (3 3 3 5 7) (3 3 5 5 5) (3 5 13) (3 7 11) 
+;->  (2 19) (3 3 3 3 3 3 3) (3 3 3 5 7) (3 3 5 5 5) (3 5 13) (3 7 11)
 ;->  (5 5 11) (7 7 7))
 
 (length (prime-part 42))
@@ -943,7 +943,7 @@ Facciamo alcune prove:
 Il numero di partizioni di un numero N in numeri primi può essere calcolato con la seguente formula:
 
   k(N) = (1/N) * (SFP(N) + Sum[j=1..(N-1)](SFP(j)*k(N-j)))
-  k(0) = 1 
+  k(0) = 1
   k(1) = 0
 
 dove SFP(N) è la somma dei fattori primi distinti di N:
@@ -959,7 +959,7 @@ Vedi anche "Lista di tutte le partizioni di un numero" su "Funzioni varie".
 Percorsi Hamiltoniani in un grafo
 ---------------------------------
 
-Dato un grafo con N vertici, calcolare tutti i percorsi (cammini) hamiltoniani presenti nel grafo. 
+Dato un grafo con N vertici, calcolare tutti i percorsi (cammini) hamiltoniani presenti nel grafo.
 Un percorso hamiltoniano è un percorso che visita ogni vertice esattamente una volta e ritorna al vertice di partenza.
 
 Usiamo un algoritmo che esplora tutti i possibili percorsi nel grafico utilizzando il backtracking.
@@ -1006,15 +1006,15 @@ Proviamo con il seguente grafo:
         1--|-------|--4
         │\ │       │ /
         │ \│       │/
-        │  2-------3    
+        │  2-------3
         │          │
         +----------+
 
-(setq g '((0 0 1 0 0 1)  
-          (0 0 1 1 1 0)  
-          (1 1 0 1 0 0)  
-          (0 1 1 0 1 1)  
-          (0 1 0 1 0 1)  
+(setq g '((0 0 1 0 0 1)
+          (0 0 1 1 1 0)
+          (1 1 0 1 0 0)
+          (0 1 1 0 1 1)
+          (0 1 0 1 0 1)
           (1 0 0 1 1 0)))
 
 (hamilton g)
@@ -1346,12 +1346,12 @@ Secondo Martin Gardner, la dimensione migliore è 6x6, perché "è abbastanza pi
 Nota:  La versione "Non-Misere" non viene utilizzata perchè esiste una strategia vincente:
 
 Primo Giocatore Se N è Dispari (Non-Misere):
-Prendere il pezzo centrale. 
-Poi copiare ogni mossa che il tuo avversario fa simmetricamente. 
+Prendere il pezzo centrale.
+Poi copiare ogni mossa che il tuo avversario fa simmetricamente.
 Alla fine prendere l'ultimo pezzo per vincere.
 
 Secondo Giocatore Se N è Pari (Non-Misere):
-Copiare le mosse dell' avversario simmetricamente. 
+Copiare le mosse dell' avversario simmetricamente.
 Alla fine prendere l'ultimo pezzo per vincere.
 
 Due problemi in cui bisogna trovare la mossa vincente:
@@ -1508,7 +1508,7 @@ Poichè il seme delle carte (Spade, Denari, Coppe e Bastoni) non conta per il pu
 
 (define (briscola lst1 lst2)
   (local (pair p1 p2)
-    (setq pair '((1 11) (2 0) (3 10) (4 0) (5 0) 
+    (setq pair '((1 11) (2 0) (3 10) (4 0) (5 0)
                  (6 0) (7 0) (8 2) (9 3) (10 4)))
     (setq p1 (apply + (map (fn(x) (lookup x pair)) lst1)))
     (setq p2 (apply + (map (fn(x) (lookup x pair)) lst2)))
@@ -1517,7 +1517,7 @@ Poichè il seme delle carte (Spade, Denari, Coppe e Bastoni) non conta per il pu
 Facciamo alcune prove:
 
 (setq carte (randomize (flat (dup (sequence 1 10) 4))))
-;-> (10 6 5 8 1 7 6 9 3 6 3 5 2 10 4 4 1 3 9 7 
+;-> (10 6 5 8 1 7 6 9 3 6 3 5 2 10 4 4 1 3 9 7
 ;->  5 5 3 4 9 9 6 2 10 1 10 8 8 8 7 2 7 1 4 2)
 (setq lst1 (slice carte 0 20))
 ;-> (10 6 5 8 1 7 6 9 3 6 3 5 2 10 4 4 1 3 9 7)
@@ -1574,7 +1574,7 @@ Le due liste, insieme, contengono tutte le 40 carte del tressette, ma sono distr
 Poichè il seme delle carte (Spade, Denari, Coppe e Bastoni) non conta per il punteggio, supponiamo che le 40 carte siano rappresentate dai numeri 1..10 ripetuti 4 volte. Per esempio:
 
 (setq carte (randomize (flat (dup (sequence 1 10) 4))))
-;-> (7 6 1 8 2 3 4 10 1 6 9 3 3 2 7 9 7 1 5 10 
+;-> (7 6 1 8 2 3 4 10 1 6 9 3 3 2 7 9 7 1 5 10
 ;->  8 6 2 8 10 9 4 2 7 8 5 5 4 5 10 9 3 6 1 4)
 
 (define (tressette lst1 lst2)
@@ -1753,13 +1753,13 @@ Il turnaround time è un parametro importante negli algoritmi di un sistema oper
 (define (find-avg-time processes burst-time quantum n)
   (local (turnaround-time waiting-time
           total-waiting-time total-turnaround-time i)
-    ; Arrays to store waiting time and turnaround time          
+    ; Arrays to store waiting time and turnaround time
     (setq turnaround-time (array n '(0)))
     (setq waiting-time (array n '(0)))
     (setq total-waiting-time 0)
     (setq total-turnaround-time 0)
     (find-waiting-time processes burst-time waiting-time quantum n)
-    ; Calculate turnaround time 
+    ; Calculate turnaround time
     (setq i 0)
     (for (i 0 (- n 1))
       ; Get turn around time for ith processes
@@ -1861,7 +1861,7 @@ Seconda versione
 
 (define (farfallino2 str)
   (let (sost '(("a" "afa") ("e" "efe") ("i" "ifi") ("o" "ofo") ("u" "ufu")))
-    (dolist (s sost) 
+    (dolist (s sost)
       (replace (first s) str (last s)))))
 
 (farfallino2 "ciao")
@@ -1873,7 +1873,7 @@ Funzione che trasforma (decodifica) una stringa in farfallino in una stringa gen
 
 (define (normale str)
   (let (sost '(("afa" "a") ("efe" "e") ("ifi" "i") ("ofo" "o") ("ufu" "u")))
-    (dolist (s sost) 
+    (dolist (s sost)
       (replace (first s) str (last s)))))
 
 (normale "cifiafaofo")
@@ -1907,7 +1907,7 @@ Esempio:
 
 lista = (2 3 7 1 9 3)
 
-Orari = 
+Orari =
   "123739" "123739" "123937" "123937" "132739" "132739" "132937" "132937"
   "133729" "133729" "133927" "133927" "172339" "172339" "172933" "172933"
   "173239" "173239" "173329" "173329" "173923" "173923" "173932" "173932"
@@ -1994,7 +1994,7 @@ Questo avviene per i numeri in cui risulta:
 
 Sequenza OEIS A280682:
   0, 4, 5, 6, 7, 8, 16, 17, 18, 19, 20, 21, 22, 23, 24, 36, 37, 38, 39,
-  40, 41, 42, 43, 44, 45, 46, 47, 48, 64, 65, 66, 67, 68, 69, 70, 71, 
+  40, 41, 42, 43, 44, 45, 46, 47, 48, 64, 65, 66, 67, 68, 69, 70, 71,
   72, 73, 74, 75, 76, 77, 78, 79, 80, 100, 101, 102, 103, 104, 105, 106,
   107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, ...
 
@@ -2321,11 +2321,11 @@ num = 123
 Le rotazioni sono 123 (nessuna rotazione), 231 (una rotazione) e 312 (due rotazioni).
 La somma di questi vale 123 + 231 + 312 = 666.
 
-num = 4928. 
-Le rotazioni sono 4928, 9284, 2849 e 8492. 
+num = 4928.
+Le rotazioni sono 4928, 9284, 2849 e 8492.
 La somma di questi quattro numeri vale 4928 + 9284 + 2849 + 8492 = 25553.
 
-num = 445445, 
+num = 445445,
 Le rotazioni distinte sono 445445, 454454 e 544544.
 La somma vale 445445 + 454454 + 544544 = 1444443.
 
@@ -2335,8 +2335,8 @@ Esiste solo una rotazione distinta che vale 777.
 Sequenza OEIS A045876:
 Sum of different permutations of digits of n (leading 0's allowed)
   1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 11, 33, 44, 55, 66, 77, 88, 99, 110, 22,
-  33, 22, 55, 66, 77, 88, 99, 110, 121, 33, 44, 55, 33, 77, 88, 99, 110, 
-  121, 132, 44, 55, 66, 77, 44, 99, 110, 121, 132, 143, 55, 66, 77, 88, 
+  33, 22, 55, 66, 77, 88, 99, 110, 121, 33, 44, 55, 33, 77, 88, 99, 110,
+  121, 132, 44, 55, 66, 77, 44, 99, 110, 121, 132, 143, 55, 66, 77, 88,
   99, 55, 121, 132, 143, 154, 66, 77, 88, 99, 110, 121, 66, 143, ...
 
 (define (rotate-sum num)
@@ -2363,9 +2363,9 @@ Proviamo:
 ;-> (1 2 3 4 5 6 7 8 9 11 11 33 44 55 66 77 88 99 110 22
 ;->  33 22 55 66 77 88 99 110 121 33 44 55 33 77 88 99 110
 ;->  121 132 44 55 66 77 44 99 110 121 132 143 55 66 77 88
-;->  99 55 121 132 143 154 66 77 88 99 110 121 66 143 154 
+;->  99 55 121 132 143 154 66 77 88 99 110 121 66 143 154
 ;->  165 77 88 99 110 121 132 143 77 165 176 88 99 110 121
-;->  132 143 154 165 88 187 99 110 121 132 143 154 165 176 
+;->  132 143 154 165 88 187 99 110 121 132 143 154 165 176
 ;->  187 99 111)
 
 
@@ -2742,16 +2742,16 @@ In choosing symbols for the unknown quantities we often use letters such as a, b
 
 2. Devise a Plan
 ----------------
-Find a connection between the given information and the unknown that will enable you to calculate the unknown. 
-It often helps you to ask yourself explicitly: "How can I relate the given to the unknown?" 
+Find a connection between the given information and the unknown that will enable you to calculate the unknown.
+It often helps you to ask yourself explicitly: "How can I relate the given to the unknown?"
 If you do not see a connection immediately, the following ideas may be helpful in devising a plan.
 
 - Establish subgoals (divide into subproblems)
-In a complex problem it is often useful to set subgoals. 
+In a complex problem it is often useful to set subgoals.
 If we can first reach these subgoals, then we may be able to build on them to reach our final goal.
 
 - Try to recognize something familiar
-Relate the given situation to previous knowledge. 
+Relate the given situation to previous knowledge.
 Look at the unknown and try to recall a more familiar problem that has a similar unknown or involves similar principles.
 
 - Try to recognize patterns
@@ -2794,9 +2794,9 @@ In step 2 a plan was devised.
 In carrying out that plan we have to check each stage of the plan and write the details that prove that each stage is correct.
 A string of equations is not enough!
 
-4. Look Back 
+4. Look Back
 ------------
-Be critical of your result. 
+Be critical of your result.
 Look for flaws in your solutions (e.g., inconsistencies or ambiguities or incorrect steps).
 Be your own toughest critic!
 Can you check the result? Checklist of checks:
@@ -2809,7 +2809,7 @@ Can you check the result? Checklist of checks:
 
 - If there is a numerical answer, is the order of magnitude correct or reasonable?
 
-- Trends. Does the answer vary as you expect if you vary one or more parameters? 
+- Trends. Does the answer vary as you expect if you vary one or more parameters?
 For example, if gravity is involved, does the answer change as expected if you vary g?
 
 - Check limiting cases where the answer is easy or known.
@@ -2824,7 +2824,7 @@ Does your answer reflect any symmetries of the physical situation?
 
 - If possible, do a simple experiment to see if your answer makes sense.
 
-We will examine potential strategies as we solve problems. 
+We will examine potential strategies as we solve problems.
 The emphasis here is on being conscious of our problem-solving strategies and on constructing a solution that reflects the steps outlined above.
 
 
@@ -3328,7 +3328,7 @@ Proviamo:
 ;->  x . x . . . . .
 ;->  x x . . . . . .
 ;->  Q x x x x x x x
-;-> ("a2" "b1" "a3" "c1" "a4" "d1" "a5" "e1" "a6" "f1" "a7" 
+;-> ("a2" "b1" "a3" "c1" "a4" "d1" "a5" "e1" "a6" "f1" "a7"
 ;->  "g1" "a8" "h1" "b2" "c3" "d4" "e5" "f6" "g7" "h8")
 
 (queen-from "d4")
@@ -3354,7 +3354,7 @@ Scrivere una funzione che genera tutte le mosse possibili della Re.
 La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
 
 Negli scacchi, una Re sulla casella (x y) può muoversi in:
-  
+
   (mosse da Torre di un passo)
   basso:    (x+1,y)
   sinistra: (x,y-1)
@@ -3458,15 +3458,15 @@ Scrivere una funzione che genera tutte le mosse possibili della Pedone.
 La casella è in notazione algebrica: colonna (a..h) e traversa (riga) (1..8).
 
 Negli scacchi, un Pedone Bianco sulla casella (x y) può muoversi in:
-  
+
   0 caselle: per x = 7 o x = 0
-  
+
   1 casella:
   (x-1, y) per (1 <= x <= 5)
-  
+
   2 caselle:
   (x-1, y) e (x-2, y) per (x = 6)
-  
+
   caselle controllate:
   (x-1, y-1) e (x-1, y+1)
 
@@ -3508,7 +3508,7 @@ Funzione che genera le mosse di un Pedone Bianco posizionato in una casella (not
     (setq x (coord 0))
     (setq y (coord 1))
     ; creazione della lista di tutte le mosse
-    (cond ((or (= x 0) (= x 7)) 
+    (cond ((or (= x 0) (= x 7))
             (push (list x y) moves))
           ((= x 6)
             (push (list (- x 1) y) moves)
@@ -3588,7 +3588,7 @@ Funzione che genera le mosse di un Pedone Nero posizionato in una casella (notaz
     (setq x (coord 0))
     (setq y (coord 1))
     ; creazione della lista di tutte le mosse
-    (cond ((or (= x 0) (= x 7)) 
+    (cond ((or (= x 0) (= x 7))
             (push (list x y) moves))
           ((= x 1)
             (push (list (+ x 1) y) moves)
@@ -3726,7 +3726,7 @@ Nota: cambiare il nome della funzione non modifica la sua lunghezza perchè il n
 
 Poichè la stringa è costituita solo da lettere minuscole e maiuscole risulta:
 
-  se (char c) >= 97, allora c è maiuscolo, altrimenti è minuscolo  
+  se (char c) >= 97, allora c è maiuscolo, altrimenti è minuscolo
 
 Inoltre, usiamo "extend" invece di "push" e accorciamo il nome delle variabili.
 
@@ -3784,7 +3784,7 @@ Lunghezza della funzione:
 (define (do k) (char c) k)
 (define (do k) (char (k (char "a") 32)))
 (do -)
-(char (- (char x) 32))  
+(char (- (char x) 32))
   (for (i 0 (- (length s) 1))
     (if (>= (s i) "a") (setq (s i) (char (- (char (s i)) 32)))
                        (setq (s i) (char (+ (char (s i)) 32)))))
@@ -3960,7 +3960,7 @@ Una formulazione più debole, ma più concisa è: tra un numero n > 1 ed il suo 
 Un'altra formulazione, dove p(n) è l'n-esimo primo, è la seguente: p(n+1) < 2*p(n).
 Questa congettura fu completamente dimostrata da Chebyshev nel 1852 e quindi il postulato è anche chiamato teorema di Bertrand-Chebyshev o teorema di Chebyshev.
 
-I Primi di Bertrand sono definiti nel modo seguente: 
+I Primi di Bertrand sono definiti nel modo seguente:
   a(1) = 2
   a(n) è il primo più grande < 2*a(n-1), per n > 1
 
@@ -3984,7 +3984,7 @@ Scrivere una funzione per generare la sequenza dei Primi di Bertrand:
 
 (define (bertrand limit)
   (let (out '(2))
-    (for (i 1 limit) 
+    (for (i 1 limit)
       (push (previous-prime (* 2 (out (- i 1)))) out -1))
     out))
 
@@ -4145,12 +4145,12 @@ ps: there is a second (older) method of binding functions to different scopes ba
 (define (object-b f (x "world"))
     (f x))
 
-(object-a report-message) 
+(object-a report-message)
 ;-> hello"hello"
-(object-b report-message) 
+(object-b report-message)
 ;-> world"world"
 
-of course this works only if objects are in the same namespace. 
+of course this works only if objects are in the same namespace.
 The OOP based method would not have this limitation.
 
 Fanda:
@@ -4403,7 +4403,7 @@ Allora eliminiamo tutti i valori doppi.
     (setq out (filter (fn(x) (= (count (list x) out) '(1))) out))
     ; stampa le azioni per massimizzare il profitto
     (dolist (el out)
-      (cond 
+      (cond
         ((even? $idx)
          ; quantità di merce acquistata
          (setq qty (div parziale (el 1)))
@@ -4453,7 +4453,7 @@ Proviamo:
 Vediamo la funzione più corta per risolvere il problema iniziale:
 
 (define (solve money lst)
-    (mul money (apply mul 
+    (mul money (apply mul
         (map max (map div (rest lst) (chop lst))
                  (dup 1 (length pair))))))
 
@@ -4532,7 +4532,7 @@ La precisione del risultato aumenta con il diminuire del passo di campionamento 
 
 (define (min-max func xmin xmax step)
   (local (up) ; up = true -> direzione crescente
-    ; controllo dei primi due valori di f(x) per determinare se 
+    ; controllo dei primi due valori di f(x) per determinare se
     ; la funzione è crescente o decrescente
     (if (>= (func (add xmin step)) (func xmin)) (setq up true) (setq up nil))
     ; ciclo da xmin a xmax con passo step
@@ -4715,7 +4715,7 @@ Abbiamo due tipi di connessione tra le celle:
 - connessione con le quattro celle adiacenti (alto, basso, sinistra, destra)
 - connessione con le otto celle adiacenti (alto, basso, sinistra, destra, basso-sinistra, basso-destra, alto-sinistra, alto-destra)
 
-Possiamo risolvere il problema con una ricerca (BST, Breadth-First Search) o DFS (depth-first-search).
+Possiamo risolvere il problema con una ricerca (BFS, Breadth-First Search) o DFS (Depth-First-search).
 
 Vedi "Attraversamento di grafi - Algoritmo BFS (Breadth-First Search)" e "Attraversamento di grafi - Algoritmo DFS (Depth-First Search)" in "Note libere 8".
 
@@ -4827,7 +4827,7 @@ Funzione che verifica se una matrice è connessa:
         ; Mosse possibili(4): alto, basso, sinistra, destra
         (setq moves '((-1 0) (1 0) (0 -1) (0 1)))
         ;else
-        ; Mosse possibili(8): alto, basso, sinistra, destra, 
+        ; Mosse possibili(8): alto, basso, sinistra, destra,
         ; basso-sinistra, basso-destra, alto-sinistra, alto-destra
         (setq moves '((-1 0) (1 0) (0 -1) (0 1) (1 1) (-1 1) (-1 -1) (1 -1)))
     )
@@ -4875,7 +4875,7 @@ Facciamo alcune prove:
 (isconnected m)
 ;-> nil
 Con 8 direzioni possibili la matrice è connessa:
-(isconnected m 8) 
+(isconnected m 8)
 ;-> true
 
 (setq m '((1 1 1 1)
@@ -4958,7 +4958,7 @@ Funzioni del gioco implementate:
       ; indici della griglia in verde
       (print "\027[0;32m" (format "%2d " i) "\027[0m")
       (for (j 0 (- col 1))
-        (cond ((= (grid i j) -1) (print "\027[0;31m# \027[0m")) ; casella nera (rosso)
+        (cond ((= (grid i j) -1) (print "\027[0;31m* \027[0m")) ; casella nera (rossa)
               (true
                 (if (= (marked i j) 0)
                     ; numero normale
@@ -5023,53 +5023,77 @@ Funzione che reinizializza il puzzle corrente:
 
 Funzione che genera un nuovo puzzle:
 
-(define (newgame dim)
-  (setq N dim)
-  (setq grid (array N N (slice (randomize (flat (dup (sequence 1 9) N))) 0 (* N N))))
+(define (newgame hitori)
+  (cond ((integer? hitori)
+         (setq N hitori)
+         ; genera una griglia casuale (può non essere risolvibile)
+         (setq grid (array N N (slice (randomize (flat (dup (sequence 1 9) N))) 0 (* N N)))))
+        (true
+          (setq N (length hitori))
+          (setq grid (array N N (flat hitori))))
+  )
   ; matrice per reinizializzare il gioco e annullare le operazioni
   (setq base grid)
   (setq marked (array N N '(0)))
   (print-grid grid))
 
-Funzioni per verificare se una matrice è connessa:
+Funzioni per verificare se una matrice è connessa.
 
-(define (isvalid matrix row col rows cols)
+(define (isvalid row col)
   (and (>= row 0) (< row rows) (>= col 0) (< col cols)
        (= (matrix row col) 1)
        (not (visited row col))))
 
-(define (dfs matrix row col rows cols)
-  (setq moves '((-1 0) (1 0) (0 -1) (0 1)))
-  (setf (visited row col) true)
-  (dolist (m moves)
-    (setq newrow (+ row (m 0)))
-    (setq newcol (+ col (m 1)))
-    (if (isvalid matrix newrow newcol rows cols)
-        (dfs matrix newrow newcol rows cols))))
+Funzione che effettua la ricerca DFS:
 
-(define (isconnected matrix)
-  (setq out true)
-  (setq rows (length matrix))
-  (setq cols (length (matrix 0)))
-  (setq visited (array rows cols '(nil)))
-  (for (r 0 (- rows 1))
-    (for (c 0 (- cols 1))
-      (if (and (= (matrix r c) 1) (not (visited r c)))
-          (dfs matrix r c rows cols)
-          (for (i 0 (- rows 1))
-            (for (j 0 (- cols 1))
-              (if (and (= (matrix i j) 1) (not (visited i j)))
-                  (setq out nil)))))))
-  out)
+(define (dfs row col)
+  (local (newrow newcol)
+    (setf (visited row col) true)
+    (dolist (m moves)
+      (setq newrow (+ row (m 0)))
+      (setq newcol (+ col (m 1)))
+      (if (isvalid newrow newcol)
+          (dfs newrow newcol)))))
+
+Funzione che verifica se una matrice è connessa:
+
+(define (isconnected matrice mosse)
+  (local (out rows cols visited matrix moves)
+    (setq out true)
+    (setq matrix matrice)
+    (if (or (= mosse 4) (= mosse nil))
+        ; Mosse possibili(4): alto, basso, sinistra, destra
+        (setq moves '((-1 0) (1 0) (0 -1) (0 1)))
+        ;else
+        ; Mosse possibili(8): alto, basso, sinistra, destra,
+        ; basso-sinistra, basso-destra, alto-sinistra, alto-destra
+        (setq moves '((-1 0) (1 0) (0 -1) (0 1) (1 1) (-1 1) (-1 -1) (1 -1)))
+    )
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (setq visited (array rows cols '(nil)))
+    ; Cerca il primo '1' nella matrice sui cui avviare il DFS
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+        (if (and (= (matrix r c) 1) (not (visited r c)))
+            (dfs r c)
+            ; controlla se c'è qualche cella '1' che non è stata visitata
+            (for (i 0 (- rows 1) 1 (not out))
+              (for (j 0 (- cols 1) 1 (not out))
+                (if (and (= (matrix i j) 1) (not (visited i j)))
+                    (setq out nil)))))))
+    out))
 
 Proviamo:
 
 (setq m '((1 1 0 0)
-          (1 0 0 1)
+          (1 1 0 1)
           (0 0 1 1)
           (1 1 1 1)))
 (isconnected m)
 ;-> nil
+(isconnected m 8)
+;-> true
 
 (setq m '((1 1 0 0)
           (1 1 0 1)
@@ -5107,7 +5131,8 @@ Funzione che verifica se un puzzle è risolto:
     )
     ; controllo se tutti i numeri sono diversi per ogni riga
     (for (r 0 (- N 1))
-      (setq nums (filter integer? (array-list (grid r))))
+      ;(setq nums (filter integer? (array-list (grid r))))
+      (setq nums (replace -1 nums))
       (if (!= nums (unique nums)) (begin
           (println "Errore: riga " r " = "  (grid r) ", numeri duplicati")
           (setq ok nil)))
@@ -5116,7 +5141,8 @@ Funzione che verifica se un puzzle è risolto:
     ; (controllo le righe della matrice trasposta)
     (setq tr (transpose grid))
     (for (r 0 (- N 1))
-      (setq nums (filter integer? (array-list (tr r))))
+      ;(setq nums (filter integer? (array-list (tr r))))
+      (setq nums (replace -1 nums))
       (if (!= nums (unique nums)) (begin
           (println "Errore: colonna " r " = " (tr r) ", numeri duplicati")
           (setq ok nil)))
@@ -5133,52 +5159,200 @@ Funzione che verifica se un puzzle è risolto:
             (setf (bin r c) 1))))
     ; verifica se la matrice è connessa
     (setq out (isconnected bin))
-    ; risultato restituito
+    ; risultato
     (list ok nere)))
 
-Facciamo una prova:
+Facciamo alcune prove:
 
-(newgame 6)
-(print-grid base)
-(black 0 0)
-(black 0 5)
-(black 2 3)
-(black 1 1)
-(black 0 0)
-(mark 0 1)
-(mark 0 2)
-(automark)
-(black 0 2)
-(automark)
-(mark 0 0)
+(newgame 4)
+;->    0 1 2 3
+;->  0 8 1 4 8
+;->  1 3 6 7 9
+;->  2 7 2 6 7
+;->  3 6 3 2 2
+---------------------
+(black 0 3)
+;->    0 1 2 3
+;->  0 8 1 4 *
+;->  1 3 6 7 9
+;->  2 7 2 6 7
+;->  3 6 2 2 2
+;-> ---------------------
+
+(black 2 0)
+;->    0 1 2 3
+;->  0 8 1 4 *
+;->  1 3 6 7 9
+;->  2 * 2 6 7
+;->  3 6 3 2 2
+;-> ---------------------
+
+(black 3 3)
+;->    0 1 2 3
+;->  0 8 1 4 *
+;->  1 3 6 7 9
+;->  2 * 2 6 7
+;->  3 6 3 2 *
+
+(automark) ; i numeri sottolineati non si vedono qui
+;->    0 1 2 3
+;->  0 8 1 4 *
+;->  1 3 6 7 9
+;->  2 * 2 6 7
+;->  3 6 3 2 *
 (solved?)
-(restart)
-;->    0 1 2 3 4 5
-;->  0 8 5 7 1 2 9
-;->  1 9 7 4 8 2 7
-;->  2 8 5 2 7 1 6
-;->  3 5 4 5 6 5 4
-;->  4 2 5 6 6 9 6
-;->  5 8 8 1 1 4 7
+;-> (true 3)
+
+(newgame '((9 5 7 3)
+           (5 5 7 9)
+           (2 1 4 9)
+           (8 2 3 1)))
+(black 0 2)
+;->    0 1 2 3
+;->  0 9 5 * 3
+;->  1 5 5 7 9
+;->  2 2 1 4 9
+;->  3 8 2 3 1
+;-> ---------------------
+(black 1 1)
+;->    0 1 2 3
+;->  0 9 5 * 3
+;->  1 5 * 7 9
+;->  2 2 1 4 9
+;->  3 8 2 3 1
+;-> ---------------------
+(black 2 3)
+;->    0 1 2 3
+;->  0 9 5 * 3
+;->  1 5 * 7 9
+;->  2 2 1 4 *
+;->  3 8 2 3 1
+(automark)
+(solved?)
+;-> (true 3)
 
 Per finire vediamo alcuni puzzle con soluzione:
 
-  2 4 1 3       2 4 1 3      
-  2 2 4 1       N 2 N 1
-  1 3 4 3       N 3 4 N
-  
-  5 5 2 2 5     N 5 N 2 N   
-  3 1 2 5 6     3 1 2 5 6
-  3 3 3 1 6     N 3 N 1 N
-  5 2 6 3 4     5 2 6 3 4
-  2 2 4 2 1     2 N 4 N 1
+  5 5 2 2 5   * 5 * 2 *
+  3 1 2 5 6   3 1 2 5 6
+  3 3 3 1 6   * 3 * 1 *
+  5 2 6 3 4   5 2 6 3 4
+  2 2 4 2 1   2 * 4 * 1
 
-  5 6 5 1 2 4   N 6 5 N 2 4
-  2 4 6 1 5 5   2 4 6 1 N 5
-  4 5 4 6 5 2   4 N 4 6 5 2
-  6 2 4 5 3 1   6 2 N 5 3 1
-  4 3 1 2 1 6   N 3 1 2 N 6
-  3 1 4 4 6 5   3 1 N 4 6 N
+  1 1 3 3 1   * 1 * 3 *
+  3 4 2 5 1   3 4 2 5 1
+  1 1 3 4 3   1 * 3 4 *
+  3 5 5 1 3   * 5 * 1 3
+  5 3 1 2 2   5 3 1 2 *
+
+  5 6 5 1 2 4   * 6 5 * 2 4
+  2 4 6 1 5 5   2 4 6 1 * 5
+  4 5 4 6 5 2   4 * 4 6 5 2
+  6 2 4 5 3 1   6 2 * 5 3 1
+  4 3 1 2 1 6   * 3 1 2 * 6
+  3 1 4 4 6 5   3 1 * 4 6 *
+
+
+---------------------------------------------
+Distanze tra coppie di numeri primi adiacenti
+---------------------------------------------
+
+Consideriamo tutti i numeri primi fino a N.
+Quante coppie di primi adiacenti hanno distanza k?
+
+Per esempio con N = 30 abbiamo:
+
+Numeri primi = 2 3 5 7 11 13 17 19 23 29 31
+Distanza tra i numeri primi adiacenti = 1 2 2 4 2 4 2 4 6 2
+Con il seguente risultato,
+    1 coppia con distanza 1
+    5 coppie con distanza 2
+    3 coppie con distanza 4
+    1 coppia con distanza 6
+
+Nota: non esistono coppie adiacenti con distanza dispari (a parte la prima 2 e 3 che ha distanza 1).
+Infatti se aggiungiamo un numero dispari ad un numero primo (a parte il 2) otteniamo un numero pari, che non è primo.
+
+(setq d (map - (rest pri) (chop pri)))
+
+(define (prime? n)
+  (if (< n 2) nil
+      (= 1 (length (factor n)))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (coppia dist limite)
+  (local (out primi trovato)
+    (setq out nil)
+    (setq primi (primes-to limite))
+    (setq trovato nil)
+    (dolist (p primi trovato)
+      (if (prime? (+ p dist))
+        (begin
+          (setq trovato true)
+          (setq out (list p (+ p dist)))
+        )
+      )
+    )
+    out))
+
+(define (coppie N)
+  (local (out primi dist d num-coppie)
+    (setq out '((1 1)))
+    (setq primi (primes-to N))
+    (setq dist (map - (rest primi) (chop primi)))
+    (setq d 2)
+    (while (> (setq num-coppie (first (count (list d) dist))) 0)
+      (push (list num-coppie d) out -1)
+      (++ d 2)
+    )
+    out))
+
+Facciamo alcune prove:
+
+(coppie 1e3)
+;-> (1 1) (35 2) (40 4) (44 6) (15 8) (16 10) (7 12) (7 14))
+
+(time (println (coppie 1e6)))
+;-> ((1 1) (8169 2) (8143 4) (13549 6) (5569 8) (7079 10) (8005 12) (4233 14)
+;->  (2881 16) (4909 18) (2401 20) (2172 22) (2682 24) (1175 26) (1234 28)
+;->  (1914 30) (550 32) (557 34) (767 36) (330 38) (424 40) (476 42) (202 44)
+;->  (155 46) (196 48) (106 50) (77 52) (140 54) (53 56) (54 58) (96 60) (16 62)
+;->  (24 64) (48 66) (13 68) (22 70) (13 72) (12 74) (6 76) (13 78) (3 80) (5 82)
+;->  (6 84) (4 86) (1 88) (4 90) (1 92))
+;-> 836.302
+
+(time (println (coppie 1e7)))
+;-> ((1 1) (58980 2) (58621 4) (99987 6) (42352 8) (54431 10) (65513 12)
+;->  (35394 14) (25099 16) (43851 18) (22084 20) (19451 22) (27170 24)
+;->  (12249 26) (13255 28) (21741 30) (6364 32) (6721 34) (10194 36)
+;->  (4498 38) (5318 40) (7180 42) (2779 44) (2326 46) (3784 48) (2048 50)
+;->  (1449 52) (2403 54) (1072 56) (1052 58) (1834 60) (543 62) (559 64)
+;->  (973 66) (358 68) (524 70) (468 72) (218 74) (194 76) (362 78) (165 80)
+;->  (100 82) (247 84) (66 86) (71 88) (141 90) (37 92) (39 94) (65 96)
+;->  (29 98) (36 100) (34 102) (21 104) (12 106) (26 108) (11 110) (11 112)
+;->  (11 114) (7 116) (4 118) (10 120) (3 122) (4 124) (8 126) (2 128) 
+;->  (1 130) (5 132) (1 134) (2 136) (2 138) (2 140))
+;-> 23487.007
+
+Nota:
+Il divario tra due numeri primi consecutivi non è prevedibile con assoluta certezza, ma il teorema dei numeri primi fornisce alcune informazioni sul comportamento medio.
+Il teorema dei numeri primi afferma che il divario medio tra numeri primi consecutivi vicini a N è approssimativamente ln(N) (ln = logaritmo naturale).
+Ciò significa che man mano che N diventa sempre più grande, la distanza media tra numeri primi consecutivi cresce logaritmicamente (anche se possono esserci ampie fluttuazioni negli spazi effettivi tra i numeri primi).
+Mentre la distanza media tra numeri primi consecutivi cresce logaritmicamente con N, non è noto alcun limite superiore alla distanza tra numeri primi consecutivi.
+Cioè, non sappiamo se esiste una dimensione massima del gap che può essere osservata infinitamente spesso al crescere di N. Questa rimane una questione aperta nella teoria dei numeri.
+
+Vedi anche "Distanza tra coppia di primi" su "Note libere 17".
 
 ============================================================================
 

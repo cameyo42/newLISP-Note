@@ -2167,6 +2167,7 @@ NOTE LIBERE 20
   Radici, minimi e massimi di polinomi con coefficienti interi
   Matrice (Grafo) connessa
   Hitori
+  Distanze tra coppie di numeri primi adiacenti
 
 PROBLEMI SUI DADI
 =================
