@@ -2166,8 +2166,10 @@ NOTE LIBERE 20
   Confrontare due liste di numeri
   Radici, minimi e massimi di polinomi con coefficienti interi
   Matrice (Grafo) connessa
-  Hitori
+  Hitori Puzzle
   Distanze tra coppie di numeri primi adiacenti
+  Elenco di date
+  Forza 4 (Connect4) Interattivo
 
 PROBLEMI SUI DADI
 =================

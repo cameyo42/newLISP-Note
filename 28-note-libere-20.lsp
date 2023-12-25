@@ -4895,9 +4895,9 @@ Con 8 direzioni possibili la matrice è connessa:
 ;-> true
 
 
-------
-Hitori
-------
+-------------
+Hitori Puzzle
+-------------
 
 Hitori si gioca con una griglia di quadrati o celle, dove ciascuna cella inizialmente contiene un numero.
 Il gioco si gioca eliminando i quadrati/numeri e questo viene fatto oscurandoli (casella nera).
@@ -5354,5 +5354,302 @@ Cioè, non sappiamo se esiste una dimensione massima del gap che può essere oss
 
 Vedi anche "Distanza tra coppia di primi" su "Note libere 17".
 
+
+--------------
+Elenco di date
+--------------
+
+Abbiamo due date data1 e data2 nel formato (anno mese giorno).
+Scrivere una funzione che restituisce tutte le date tra d1 e d2 (comprese).
+
+Algoritmo
+Partiamo dal 1 gennaio dell'anno della data1 e generiamo tutti i giorni successivi fino alla data2.
+Le eventuali date minori di data1 vengono scartate.
+Per esempio, se partiamo dalla data (1900 12 30) fino alla data (1901 1 10) generiamo date non comprese nell'intervallo dalla data (1900 1 1) alla data (1900 12 29). Queste date vengono scartate.
+
+Funzione che verifica se un anno è bisestile:
+
+(define (isleap? year)
+  (or (zero? (% year 400))
+      (and (zero? (% year 4)) (not (zero? (% year 100))))))
+
+Funzione che genera tutte le date tra data1 e data2:
+
+(define (daylist data1 data2)
+  (local (y1 m1 d1 y2 m2 d2 out md n1 n2 days data num-data stop)
+    ; unpack date
+    (map set '(y1 m1 d1) data1)
+    (map set '(y2 m2 d2) data2)
+    (setq out '())
+    ; lista (mese giorni)
+    (setq md '((1 31) (2 28) (3 31) (4 30) (5 31) (6 30)
+              (7 31) (8 31) (9 30) (10 31) (11 30) (12 31)))
+    ; valore numerico data1
+    (setq n1 (int (format "%d%02d%02d" y1 m1 d1)))
+    ; valore numerico data1
+    (setq n2 (int (format "%d%02d%02d" y2 m2 d2)))
+    (if (< n2 n1) (setq stop nil))
+    ; ciclo anni
+    (for (yy y1 y2 1 stop)
+      ;ciclo mesi
+      (for (mm 1 12 1 stop)
+        (setq days (lookup mm md))
+        ; mese febbraio e anno palindromo?
+        (if (and (= mm 2) (isleap? yy)) (setq days 29))
+        ; ciclo giorni
+        (for (dd 1 days 1 stop)
+          ; data formattata yy-mm-dd
+          ;(setq data (format "%d-%d-%d" yy mm dd))
+          (setq data (list yy mm dd))
+          ; valore numerico data corrente
+          (setq num-data (int (format "%d%02d%02d" yy mm dd)))
+          ;controllo (data1 <= data corrente <= data2)
+          (cond ((< num-data n1) nil)
+                ((and (>= num-data n1) (<= num-data n2))
+                  (push data out -1))
+                ((> num-data n2 (setq stop true)))
+          )
+        )
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(daylist '(1900 12 30) '(1901 1 10))
+;-> ((1900 12 30) (1900 12 31) (1901 1 1) (1901 1 2) (1901 1 3) (1901 1 4) 
+;->  (1901 1 5) (1901 1 6) (1901 1 7) (1901 1 8) (1901 1 9) (1901 1 10))
+
+(daylist '(1900 12 1) '(1900 12 10))
+;-> ((1900 12 1) (1900 12 2) (1900 12 3) (1900 12 4) (1900 12 5) (1900 12 6) 
+;-> (1900 12 7) (1900 12 8) (1900 12 9) (1900 12 10))
+
+(daylist '(1980 2 20) '(1980 3 1))
+;-> ((1980 2 20) (1980 2 21) (1980 2 22) (1980 2 23) (1980 2 24) (1980 2 25)
+;->  (1980 2 26) (1980 2 27) (1980 2 28) (1980 2 29) (1980 3 1))
+ 
+(daylist '(1980 12 1) '(1901 2 10))
+;-> ()
+
+(length (daylist '(1980 2 22) '(1981 8 10)))
+;-> 536
+
+Per curiosità vediamo quali sono le date palindrome e/o prime in un dato intervallo.
+
+(define (pali-prima data1 data2)
+  (local (pali prima lst str-data num-data)
+    (setq pali '()) 
+    (setq prima '())
+    (setq lst (daylist data1 data2))
+    (dolist (el lst)
+      ; data palindroma?
+      (setq str-data (format "%d%d%d" (el 0) (el 1) (el 2)))
+      (if (= str-data (reverse (copy str-data))) (push el pali -1))
+      ; data prima?
+      (setq num-data (int str-data 0 10))
+      (if (= 1 (length (factor num-data))) (push el prima -1))
+    )
+    (println "Date palindrome: " (length pali))
+    (println "Date prime: " (length prima))
+    (println "Date palindrome e prime: " (length (intersect pali prima)))))
+
+(pali-prima '(1000 1 1) '(2000 1 1))
+;-> Date palindrome: 358
+;-> Date prime: 27127
+;-> Date palindrome e prime: 53
+
+
+------------------------------
+Forza 4 (Connect4) Interattivo
+------------------------------
+
+Forza 4 è un gioco da tavolo di allineamento prodotto dalla Milton Bradley nel 1974.
+
+Viene giocato su una matrice di sei righe e sette colonne e richiama i giochi del Tris e Gomoku.
+In questo caso l'obiettivo è mettere in fila (orizzontale, verticale o diagonale) quattro pedine proprie.
+Ma l'elemento fondamentale del gioco, che lo rende del tutto originale, è la forza di gravità: la scacchiera è posta in verticale fra i giocatori, e le pedine vengono fatte cadere lungo una griglia verticale, in modo tale che una pedina inserita in una certa colonna vada sempre a occupare la posizione libera situata più in basso nella colonna stessa.
+
+Forza 4 è un gioco "risolto", nel senso che il giocatore che comincia la partita ed esegue tutte le mosse "giuste" finirà inevitabilmente per vincere l'incontro.
+
+Funzione per iniziare un nuovo gioco:
+
+(define (newgame)
+  (setq rows 6)
+  (setq cols 7)
+  (setq empty ".")
+  (setq grid (array-list (array rows cols (list empty))))
+  (print-table grid))
+
+Funzione per stampare la griglia di gioco:
+
+(define (print-table grid)
+  (local (row col space)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    (setq space "  ")
+    (println space "  1   2   3   4   5   6   7")
+    (println space "|   |   |   |   |   |   |   |")    
+    (for (i 0 (- row 1))
+      (print space "|")
+      (for (j 0 (- col 1))
+        (print " " (grid i j) " |")
+      )
+      (println)))
+      '---------------------------------)
+
+(newgame)
+;->     1   2   3   4   5   6   7
+;->   |   |   |   |   |   |   |   |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;-> ---------------------------------
+
+Funzione per la mossa del giocatore 0:
+
+(define (p0 colonna)
+  (setq c (- colonna 1))
+  (setq found nil)
+  (cond ((and (>= c 0) (<= c 6))
+          (for (r 5 0 1 found)
+            (if (= (grid r c) empty) 
+              (begin
+                (setf (grid r c) 0)
+                (setq found true)))))
+  )
+  (if (not found) (println "Mossa impossibile"))
+  (endgame? grid)
+  (print-table grid))
+
+Funzione per la mossa del giocatore 1:
+
+(define (p1 colonna)
+  (setq c (- colonna 1))
+  (setq found nil)
+  (cond ((and (>= c 0) (<= c 6))
+          (for (r 5 0 1 found)
+            (if (= (grid r c) empty) 
+              (begin
+                (setf (grid r c) 1)
+                (setq found true)))))
+  )
+  (if (not found) (println "Mossa impossibile"))
+  (endgame? grid)
+  (print-table grid))
+
+Funzioni ausiliarie per verificare se una partita è terminata:
+(vedi "Gomoku" su "Note libere 19")
+
+(define (diag1 matrix)
+  (local (out row cols)
+    (setq out '())
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    ; prima metà
+    (for (i 0 (- cols 1))
+      (setq tmp '())
+      (for (j i 0)
+        (if (< (- i j) rows) (push (matrix (- i j) j) tmp -1))
+      )
+      (push tmp out -1)
+    )
+    ;(println out)
+    ; seconda metà
+    (for (i 1 (- rows 1))
+      (setq tmp '())
+      (setq k i)
+      (for (j (- cols 1) 0)
+        (if (< k rows) (begin (push (matrix k j) tmp -1) (++ k)))
+      )
+      (push tmp out -1)
+    )
+    out))
+
+(define (swap-cols matrix)
+  (local (rows cols)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- (/ cols 2) 1))
+        (swap (matrix r c) (matrix r (- cols c 1)))
+      )
+    )
+  matrix))
+
+(define (diag2 matrix) (diag1 (swap-cols matrix)))
+
+Funzione per verificare (se una partita è trerminata:
+
+(define (endgame? grid)
+  (local (winner str)
+    (setq winner "")
+    ; Ricerca orizzontale
+    (setq str (join (map join (map (fn(x) (map string x)) grid)) empty))
+    (cond ((find "1111" str) (setq winner "1"))
+          ((find "0000" str) (setq winner "0")))
+    ; Ricerca verticale
+    ; per unire le colonne trasponiamo la matrice e poi uniamo le righe
+    (setq str (join (map join (map (fn(x) (map string x)) (transpose grid))) empty))
+    (cond ((find "1111" str) (setq winner "1"))
+          ((find "0000" str) (setq winner "0")))
+    ; Ricerca diagonale'/'
+    (setq str (join (map join (map (fn(x) (map string x)) (diag1 grid))) empty))
+    (cond ((find "1111" str) (setq winner "1"))
+          ((find "0000" str) (setq winner "0")))
+    ; Ricerca diagonale'\'
+    (setq str (join (map join (map (fn(x) (map string x)) (diag2 grid))) empty))
+    (cond ((find "1111" str) (setq winner "1"))
+          ((find "0000" str) (setq winner "0")))
+    (if (!= winner "") (println "Vince il giocatore: " winner))))
+
+Facciamo una partita:
+
+(newgame)
+;->   |   |   |   |   |   |   |   |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;-> ---------------------------------
+(p0 4)
+(p1 3)
+(p0 4)
+(p1 4)
+(p0 5)
+(p1 2)
+(p0 5)
+(p1 5)
+(p0 6)
+(p1 7)
+(p0 3)
+;->     1   2   3   4   5   6   7
+;->   |   |   |   |   |   |   |   |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | 1 | 1 | . | . |
+;->   | . | . | 0 | 0 | 0 | . | . |
+;->   | . | 1 | 1 | 0 | 0 | 0 | 1 |
+;-> ---------------------------------
+(p1 2)
+(p0 6)
+;-> Vince il giocatore: 0
+;->     1   2   3   4   5   6   7
+;->   |   |   |   |   |   |   |   |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | . | . | . | . |
+;->   | . | . | . | 1 | 1 | . | . |
+;->   | . | 1 | 0 | 0 | 0 | 0 | . |
+;->   | . | 1 | 1 | 0 | 0 | 0 | 1 |
+;-> ---------------------------------
+
+Vedi anche "Forza 4 - Connect Four" su "Note libere 12")
+  
 ============================================================================
 

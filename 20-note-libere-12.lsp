@@ -8058,6 +8058,8 @@ Pronto per giocare per dimensioni diverse:
 ;-> -------------------------------
 ;-> Player 1 --> colonna (0..9):
 
+Vedi anche "Forza 4 (Connect4) Interattivo" su "Note libere 20")
+
 
 -----------------------------------------
 Moltiplicazione fra matrici e stress-test

@@ -208,7 +208,7 @@ Funzione per verificare se una posizione è vinta da un giocatore:
   (local (winner hrow vrow d1 d2)
     (setq winner nil)
     ; Ricerca orizzontale
-    (setq hrow (join (map join (map (fn(x) (map string x)) board)) "0"))
+    (setq hrow (join (map join (map (fn(x) (map string x)) grid)) "0"))
     ;(println hrow)
     (cond ((find "11111" hrow) (setq winner "1")
           (println "trovato 11111 in orizzontale"))
@@ -216,14 +216,14 @@ Funzione per verificare se una posizione è vinta da un giocatore:
           (println "trovato 11111 in orizzontale")))
     ; Ricerca verticale
     ; per unire le colonne trasponiamo la matrice e poi uniamo le righe
-    (setq vrow (join (map join (map (fn(x) (map string x)) (transpose board))) "0"))
+    (setq vrow (join (map join (map (fn(x) (map string x)) (transpose grid))) "0"))
     ;(println vrow)
     (cond ((find "11111" vrow) (setq winner "1")
           (println "trovato 11111 in verticale:"))
           ((find "22222" vrow) (setq winner "2")
           (println "trovato 22222 in verticale:")))
     ; Ricerca diagonale'/'
-    (setq d1 (join (map join (map (fn(x) (map string x)) (diag1 board))) "0"))
+    (setq d1 (join (map join (map (fn(x) (map string x)) (diag1 grid))) "0"))
     ;(println d1)
     (cond ((find "11111" d1) (setq winner "1")
           (println "trovato 11111 in diagonale '/'"))
@@ -231,7 +231,7 @@ Funzione per verificare se una posizione è vinta da un giocatore:
           (println "trovato 22222 in diagonale '/'")))
     ; Ricerca diagonale'\'
     ;(println d2)
-    (setq d2 (join (map join (map (fn(x) (map string x)) (diag2 board))) "0"))
+    (setq d2 (join (map join (map (fn(x) (map string x)) (diag2 grid))) "0"))
     (cond ((find "11111" d2) (setq winner "1")
           (println "trovato 11111 in diagonale '\\'"))
           ((find "22222" d2) (setq winner "2")
@@ -251,7 +251,7 @@ Facciamo una prova:
 ;-> 7 ·  1  O  ·  1  O  1  ·  ·
 ;-> 8 O  ·  ·  O  1  1  ·  ·  1
 
-(endgame? grid)
+(endgame? board)
 ;-> trovato 11111 in orizzontale
 ;-> trovato 11111 in diagonale '/'
 ;-> trovato 22222 in diagonale '\'
@@ -265,20 +265,20 @@ Riscriviamo la funzione "endgame?" in modo più compatto:
   (local (winner str)
     (setq winner "")
     ; Ricerca orizzontale
-    (setq str (join (map join (map (fn(x) (map string x)) board)) "0"))
+    (setq str (join (map join (map (fn(x) (map string x)) grid)) "0"))
     (cond ((find "11111" str) (setq winner "nero"))
           ((find "22222" str) (setq winner "bianco")))
     ; Ricerca verticale
     ; per unire le colonne trasponiamo la matrice e poi uniamo le righe
-    (setq str (join (map join (map (fn(x) (map string x)) (transpose board))) "0"))
+    (setq str (join (map join (map (fn(x) (map string x)) (transpose grid))) "0"))
     (cond ((find "11111" str) (setq winner "nero"))
           ((find "22222" str) (setq winner "bianco")))
     ; Ricerca diagonale'/'
-    (setq str (join (map join (map (fn(x) (map string x)) (diag1 board))) "0"))
+    (setq str (join (map join (map (fn(x) (map string x)) (diag1 grid))) "0"))
     (cond ((find "11111" str) (setq winner "nero"))
           ((find "22222" str) (setq winner "bianco")))
     ; Ricerca diagonale'\'
-    (setq str (join (map join (map (fn(x) (map string x)) (diag2 board))) "0"))
+    (setq str (join (map join (map (fn(x) (map string x)) (diag2 grid))) "0"))
     (cond ((find "11111" str) (setq winner "nero"))
           ((find "22222" str) (setq winner "bianco")))
     (if (= winner "") (println "la partita continua...")
