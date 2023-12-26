@@ -355,6 +355,94 @@ L'articolo continua con versioni avanzate della struttura segment tree "Advanced
  - Dynamic segment tree (implicit segment tree or sparse segment tree)
 
 
+----------------------------------------------------------------
+Soluzione del ponte di Wheatstone sbilanciato con il metodo mesh
+----------------------------------------------------------------
+
+                 R2              R5
+         +-----*****-----+-----*****-----+
+         |               |               |
+         |               *               |
+  Va ----+            R3 *               +---- Vb
+         |               *               |
+         |       R1      |       R4      |
+         +-----*****-----+-----*****-----+
+
+ Vab = 24 Volt
+ R1 = 150 Ohm
+ R2 = 50 Ohm
+ R3 = 100 Ohm
+ R4 = 300 Ohm
+ R5 = 250 Ohm
+
+Loop 1:
+  I1 = R1-R3-R2 (antiorario)
+Loop 2:
+  I2 = R4-R3-R5 (orario)
+Loop 3:
+  I3 = R4-R1    (antiorario)
+
+Kirchhoff’s Voltage Law (Loop 1):
+
+  R2I1 + R3(I1+I2) + R1(I1−I3) = 0 Volt
+  50I1 + 100(I1+I2) + 150(I1−I3) = 0 Volt
+
+1) 300I1 + 100I2 − 150I3 = 0 Volt
+
+Kirchhoff’s Voltage Law (Loop 2):
+
+  R5I2 + R3(I2+I1) + R4(I2+I3) = 0 Volt
+  250I2 + 100(I2+I1) + 300(I2+I3) = 0 Volt
+
+2) 100I1 + 650I2 + 300I3 = 0 Volt
+
+Kirchhoff’s Voltage Law (Loop 3):
+
+  24 + R1(I3−I1) + R4(I3+I2) = 0 Volt
+  24 + 150(I3−I1) + 300(I3+I2) = 0 Volt
+
+3) −150I1 + 300I2 + 450I3 = -24 Volt
+
+Solve the 3x3 system:
+
+  300I1 + 100I2 − 150I3  = 0
+  100I1 + 650I2 + 300I3  = 0
+  −150I1 + 300I2 + 450I3 = -24
+
+(setq a '((300 100 -150)
+          (100 650  300)
+          (-150 300 450)))
+(setq b '(0 0 -24))
+
+Function "sislin-g" is "yo.lsp" library:
+(sislin-g a b) 
+;-> (-0.09379310344827588 0.07724137931034483 -0.1360919540229885)
+
+Calculate branch resistor current values:
+
+  IR1 = I3 − I1 = 136.092 − 93.793 = 42.299 mA
+
+  IR2 = I1 = 93.793 mA
+
+  IR3 = I1 − I2 = 93.793 − 77.241 = 16.552 mA
+
+  IR4 = I3 − I2 = 136.092 − 77.241 = 58.851 mA
+
+  IR5 = I2 = 77.241 mA
+
+Calculate voltage drops:
+
+  VR1 = IR1*R1 = (0.042299)*(150) = 6.3448 Volt
+  
+  VR2 = IR2*R5 = (0.093793)*(50) = 4.6897 Volt
+  
+  VR3 = IR3*R5 = (0.016552)*(100) = 1.6552 Volt
+  
+  VR4 = IR4*R5 = (0.058851)*(300) = 17.6553 Volt
+  
+  VR5 = IR5*R5 = (0.077241)*(250) = 19.3103 Volt
+
+
 ----------------------------------------
 Somma quadrata dei quadrati dei divisori
 ----------------------------------------
@@ -5341,7 +5429,7 @@ Facciamo alcune prove:
 ;->  (973 66) (358 68) (524 70) (468 72) (218 74) (194 76) (362 78) (165 80)
 ;->  (100 82) (247 84) (66 86) (71 88) (141 90) (37 92) (39 94) (65 96)
 ;->  (29 98) (36 100) (34 102) (21 104) (12 106) (26 108) (11 110) (11 112)
-;->  (11 114) (7 116) (4 118) (10 120) (3 122) (4 124) (8 126) (2 128) 
+;->  (11 114) (7 116) (4 118) (10 120) (3 122) (4 124) (8 126) (2 128)
 ;->  (1 130) (5 132) (1 134) (2 136) (2 138) (2 140))
 ;-> 23487.007
 
@@ -5353,110 +5441,6 @@ Mentre la distanza media tra numeri primi consecutivi cresce logaritmicamente co
 Cioè, non sappiamo se esiste una dimensione massima del gap che può essere osservata infinitamente spesso al crescere di N. Questa rimane una questione aperta nella teoria dei numeri.
 
 Vedi anche "Distanza tra coppia di primi" su "Note libere 17".
-
-
---------------
-Elenco di date
---------------
-
-Abbiamo due date data1 e data2 nel formato (anno mese giorno).
-Scrivere una funzione che restituisce tutte le date tra d1 e d2 (comprese).
-
-Algoritmo
-Partiamo dal 1 gennaio dell'anno della data1 e generiamo tutti i giorni successivi fino alla data2.
-Le eventuali date minori di data1 vengono scartate.
-Per esempio, se partiamo dalla data (1900 12 30) fino alla data (1901 1 10) generiamo date non comprese nell'intervallo dalla data (1900 1 1) alla data (1900 12 29). Queste date vengono scartate.
-
-Funzione che verifica se un anno è bisestile:
-
-(define (isleap? year)
-  (or (zero? (% year 400))
-      (and (zero? (% year 4)) (not (zero? (% year 100))))))
-
-Funzione che genera tutte le date tra data1 e data2:
-
-(define (daylist data1 data2)
-  (local (y1 m1 d1 y2 m2 d2 out md n1 n2 days data num-data stop)
-    ; unpack date
-    (map set '(y1 m1 d1) data1)
-    (map set '(y2 m2 d2) data2)
-    (setq out '())
-    ; lista (mese giorni)
-    (setq md '((1 31) (2 28) (3 31) (4 30) (5 31) (6 30)
-              (7 31) (8 31) (9 30) (10 31) (11 30) (12 31)))
-    ; valore numerico data1
-    (setq n1 (int (format "%d%02d%02d" y1 m1 d1)))
-    ; valore numerico data1
-    (setq n2 (int (format "%d%02d%02d" y2 m2 d2)))
-    (if (< n2 n1) (setq stop nil))
-    ; ciclo anni
-    (for (yy y1 y2 1 stop)
-      ;ciclo mesi
-      (for (mm 1 12 1 stop)
-        (setq days (lookup mm md))
-        ; mese febbraio e anno palindromo?
-        (if (and (= mm 2) (isleap? yy)) (setq days 29))
-        ; ciclo giorni
-        (for (dd 1 days 1 stop)
-          ; data formattata yy-mm-dd
-          ;(setq data (format "%d-%d-%d" yy mm dd))
-          (setq data (list yy mm dd))
-          ; valore numerico data corrente
-          (setq num-data (int (format "%d%02d%02d" yy mm dd)))
-          ;controllo (data1 <= data corrente <= data2)
-          (cond ((< num-data n1) nil)
-                ((and (>= num-data n1) (<= num-data n2))
-                  (push data out -1))
-                ((> num-data n2 (setq stop true)))
-          )
-        )
-      )
-    )
-    out))
-
-Facciamo alcune prove:
-
-(daylist '(1900 12 30) '(1901 1 10))
-;-> ((1900 12 30) (1900 12 31) (1901 1 1) (1901 1 2) (1901 1 3) (1901 1 4) 
-;->  (1901 1 5) (1901 1 6) (1901 1 7) (1901 1 8) (1901 1 9) (1901 1 10))
-
-(daylist '(1900 12 1) '(1900 12 10))
-;-> ((1900 12 1) (1900 12 2) (1900 12 3) (1900 12 4) (1900 12 5) (1900 12 6) 
-;-> (1900 12 7) (1900 12 8) (1900 12 9) (1900 12 10))
-
-(daylist '(1980 2 20) '(1980 3 1))
-;-> ((1980 2 20) (1980 2 21) (1980 2 22) (1980 2 23) (1980 2 24) (1980 2 25)
-;->  (1980 2 26) (1980 2 27) (1980 2 28) (1980 2 29) (1980 3 1))
- 
-(daylist '(1980 12 1) '(1901 2 10))
-;-> ()
-
-(length (daylist '(1980 2 22) '(1981 8 10)))
-;-> 536
-
-Per curiosità vediamo quali sono le date palindrome e/o prime in un dato intervallo.
-
-(define (pali-prima data1 data2)
-  (local (pali prima lst str-data num-data)
-    (setq pali '()) 
-    (setq prima '())
-    (setq lst (daylist data1 data2))
-    (dolist (el lst)
-      ; data palindroma?
-      (setq str-data (format "%d%d%d" (el 0) (el 1) (el 2)))
-      (if (= str-data (reverse (copy str-data))) (push el pali -1))
-      ; data prima?
-      (setq num-data (int str-data 0 10))
-      (if (= 1 (length (factor num-data))) (push el prima -1))
-    )
-    (println "Date palindrome: " (length pali))
-    (println "Date prime: " (length prima))
-    (println "Date palindrome e prime: " (length (intersect pali prima)))))
-
-(pali-prima '(1000 1 1) '(2000 1 1))
-;-> Date palindrome: 358
-;-> Date prime: 27127
-;-> Date palindrome e prime: 53
 
 
 ------------------------------
@@ -5488,7 +5472,7 @@ Funzione per stampare la griglia di gioco:
     (setq col (length (first grid)))
     (setq space "  ")
     (println space "  1   2   3   4   5   6   7")
-    (println space "|   |   |   |   |   |   |   |")    
+    (println space "|   |   |   |   |   |   |   |")
     (for (i 0 (- row 1))
       (print space "|")
       (for (j 0 (- col 1))
@@ -5515,7 +5499,7 @@ Funzione per la mossa del giocatore 0:
   (setq found nil)
   (cond ((and (>= c 0) (<= c 6))
           (for (r 5 0 1 found)
-            (if (= (grid r c) empty) 
+            (if (= (grid r c) empty)
               (begin
                 (setf (grid r c) 0)
                 (setq found true)))))
@@ -5531,7 +5515,7 @@ Funzione per la mossa del giocatore 1:
   (setq found nil)
   (cond ((and (>= c 0) (<= c 6))
           (for (r 5 0 1 found)
-            (if (= (grid r c) empty) 
+            (if (= (grid r c) empty)
               (begin
                 (setf (grid r c) 1)
                 (setq found true)))))
@@ -5650,6 +5634,382 @@ Facciamo una partita:
 ;-> ---------------------------------
 
 Vedi anche "Forza 4 - Connect Four" su "Note libere 12")
-  
+
+
+------------------
+Intervallo di date
+------------------
+
+Abbiamo due date data1 e data2 nel formato (anno mese giorno).
+Scrivere una funzione che genera tutte le date tra data1 e data2 (comprese).
+
+Algoritmo
+Partiamo dal 1 gennaio dell'anno della data1 e generiamo tutti i giorni successivi fino alla data2.
+Le eventuali date minori di data1 vengono scartate.
+Per esempio, se partiamo dalla data (1900 12 30) fino alla data (1901 1 10) generiamo date non comprese nell'intervallo dalla data (1900 1 1) alla data (1900 12 29). Queste date vengono scartate.
+
+Per confrontare le date le trasformiamo in numeri interi.
+Per esempio, 1901 2 6 --> 1901 02 06 --> 19010206.
+
+Funzione che verifica se un anno è bisestile:
+
+(define (isleap? year)
+  (or (zero? (% year 400))
+      (and (zero? (% year 4)) (not (zero? (% year 100))))))
+
+Funzione che genera tutte le date tra data1 e data2:
+
+(define (daylist data1 data2)
+  (local (y1 m1 d1 y2 m2 d2 out md n1 n2 days data num-data stop)
+    ; unpack date
+    (map set '(y1 m1 d1) data1)
+    (map set '(y2 m2 d2) data2)
+    (setq out '())
+    ; lista (mese giorni)
+    (setq md '((1 31) (2 28) (3 31) (4 30) (5 31) (6 30)
+              (7 31) (8 31) (9 30) (10 31) (11 30) (12 31)))
+    ; valore numerico data1
+    (setq n1 (int (format "%d%02d%02d" y1 m1 d1)))
+    ; valore numerico data1
+    (setq n2 (int (format "%d%02d%02d" y2 m2 d2)))
+    (if (< n2 n1) (setq stop nil))
+    ; ciclo anni
+    (for (yy y1 y2 1 stop)
+      ;ciclo mesi
+      (for (mm 1 12 1 stop)
+        (setq days (lookup mm md))
+        ; mese febbraio e anno palindromo?
+        (if (and (= mm 2) (isleap? yy)) (setq days 29))
+        ; ciclo giorni
+        (for (dd 1 days 1 stop)
+          ; data formattata yy-mm-dd
+          ;(setq data (format "%d-%d-%d" yy mm dd))
+          (setq data (list yy mm dd))
+          ; valore numerico data corrente
+          (setq num-data (int (format "%d%02d%02d" yy mm dd)))
+          ;controllo (data1 <= data corrente <= data2)
+          (cond ((< num-data n1) nil)
+                ((and (>= num-data n1) (<= num-data n2))
+                  (push data out -1))
+                ((> num-data n2 (setq stop true)))
+          )
+        )
+      )
+    )
+    out))
+
+Facciamo alcune prove:
+
+(daylist '(1900 12 30) '(1901 1 10))
+;-> ((1900 12 30) (1900 12 31) (1901 1 1) (1901 1 2) (1901 1 3) (1901 1 4)
+;->  (1901 1 5) (1901 1 6) (1901 1 7) (1901 1 8) (1901 1 9) (1901 1 10))
+
+(daylist '(1900 12 1) '(1900 12 10))
+;-> ((1900 12 1) (1900 12 2) (1900 12 3) (1900 12 4) (1900 12 5) (1900 12 6)
+;-> (1900 12 7) (1900 12 8) (1900 12 9) (1900 12 10))
+
+(daylist '(1980 2 20) '(1980 3 1))
+;-> ((1980 2 20) (1980 2 21) (1980 2 22) (1980 2 23) (1980 2 24) (1980 2 25)
+;->  (1980 2 26) (1980 2 27) (1980 2 28) (1980 2 29) (1980 3 1))
+
+(daylist '(1980 12 1) '(1901 2 10))
+;-> ()
+
+(length (daylist '(1980 2 22) '(1981 8 10)))
+;-> 536
+
+Per curiosità vediamo quali sono le date palindrome e/o prime in un dato intervallo.
+
+(define (pali-prima data1 data2)
+  (local (pali prima lst str-data num-data)
+    (setq pali '())
+    (setq prima '())
+    (setq lst (daylist data1 data2))
+    (dolist (el lst)
+      ; data palindroma?
+      (setq str-data (format "%d%d%d" (el 0) (el 1) (el 2)))
+      (if (= str-data (reverse (copy str-data))) (push el pali -1))
+      ; data prima?
+      (setq num-data (int str-data 0 10))
+      (if (= 1 (length (factor num-data))) (push el prima -1))
+    )
+    (println "Date palindrome: " (length pali))
+    (println "Date prime: " (length prima))
+    (println "Date palindrome e prime: " (length (intersect pali prima)))))
+
+(pali-prima '(1000 1 1) '(2000 1 1))
+;-> Date palindrome: 358
+;-> Date prime: 27127
+;-> Date palindrome e prime: 53
+
+Scriviamo una funzione per contare i giorni tra due date (comprese).
+
+(define (daycount data1 data2)
+  (local (y1 m1 d1 y2 m2 d2 out md n1 n2 days num-data stop)
+    ; unpack date
+    (map set '(y1 m1 d1) data1)
+    (map set '(y2 m2 d2) data2)
+    (setq out 0)
+    ; lista (mese giorni)
+    (setq md '((1 31) (2 28) (3 31) (4 30) (5 31) (6 30)
+              (7 31) (8 31) (9 30) (10 31) (11 30) (12 31)))
+    ; valore numerico data1
+    (setq n1 (int (format "%d%02d%02d" y1 m1 d1)))
+    ; valore numerico data1
+    (setq n2 (int (format "%d%02d%02d" y2 m2 d2)))
+    (if (< n2 n1) (setq stop nil))
+    ; ciclo anni
+    (for (yy y1 y2 1 stop)
+      ;ciclo mesi
+      (for (mm 1 12 1 stop)
+        (setq days (lookup mm md))
+        ; mese febbraio e anno palindromo?
+        (if (and (= mm 2) (isleap? yy)) (setq days 29))
+        ; ciclo giorni
+        (for (dd 1 days 1 stop)
+          ; valore numerico data corrente
+          (setq num-data (int (format "%d%02d%02d" yy mm dd)))
+          ;controllo (data1 <= data corrente <= data2)
+          (cond ((and (>= num-data n1) (<= num-data n2)) (++ out))
+                ((> num-data n2 (setq stop true)))
+          )
+        )
+      )
+    )
+    out))
+
+Proviamo:
+
+(daycount '(1980 2 22) '(1981 8 10))
+;-> 536
+(length (daylist '(1980 2 22) '(1981 8 10)))
+;-> 536
+
+(daycount '(1980 2 22) '(1980 2 23))
+;-> 2
+(length (daylist '(1980 2 22) '(1980 2 23)))
+;-> 2
+
+(daycount '(1980 2 22) '(1980 2 22))
+;-> 1
+(length (daylist '(1980 2 22) '(1980 2 22)))
+;-> 1
+
+(time (println (daycount '(1000 1 1) '(2000 12 31))))
+;-> 365608
+;-> 406.188
+(time (println (length (daylist '(1000 1 1) '(2000 12 31)))))
+;-> 365608
+;-> 499.911
+
+
+-------------------------------------
+Giorno successivo e giorno precedente
+-------------------------------------
+
+Partendo da una data iniziale (anno mese giorno), scrivere due funzioni che generano:
+1) il giorno successivo della data corrente
+2) il giorno precedente della data corrente
+
+Per esempio,
+data iniziale = (2023 12 26)
+giorno successivo = (2023 12 27) ; avanti di 1 giorno
+giorno successivo = (2023 12 28) ; avanti di 1 giorno
+giorno precedente = (2023 12 27) ; indietro di un giorno
+giorno precedente = (2023 12 26) ; indietro di un giorno
+giorno precedente = (2023 12 25) ; indietro di un giorno
+
+Utilizziamo una variabile globale 'DAY' per memorizzare la data corrente come una lista (anno mese giorno).
+
+Poi scriviamo le seguenti 4 funzioni:
+
+ start-day --> imposta la data iniziale
+ day-now   --> mostra la data corrente
+ next-day  --> aumenta di un giorno la data corrente
+ prev-day  --> diminuisce di un giorno la data corrente
+
+Funzione per impostare la data iniziale:
+(start-day year month day) oppure (start-day '(year month day))
+
+(define (start-day)
+  (let (len-args (length (args)))
+  (cond ((= len-args 1) (setq DAY (args 0)))
+        ((= len-args 3) (setq DAY (list (args 0) (args 1) (args 2))))
+        (true nil))))
+
+(start-day '(1901 2 3))
+;-> (1901 2 3)
+(start-day 1901 2 3)
+;-> (1901 2 3)
+
+Funzione che mostra la data corrente:
+
+(define (day-now) DAY)
+(day-now)
+;-> (1901 2 3)
+
+Funzione che genera il giorno successivo alla data corrente:
+
+(define (next-day)
+  (local (day month year days-month)
+    (map set '(year month day) DAY)
+    ; giorni per ogni mese
+    (setq days-month '(0 31 28 31 30 31 30 31 31 30 31 30 31))
+    ; anno bisestile?
+    (if (or (zero? (% year 400))
+            (and (zero? (% year 4)) (not (zero? (% year 100)))))
+        (setf (days-month 2) 29))
+    ; incrementa il giorno
+    (++ day)
+    ; Se il giorno supera il numero di giorni del mese, 
+    ; reimpostare il giorno a 1 e incrementare il mese di 1.
+    (if (> day (days-month month))
+      (begin
+        (setq day 1)
+        (++ month)
+        ; Se il mese supera Dicembre,
+        ; reimpostare il mese a 1 e incrementare l'anno di 1
+        (if (> month 12)
+          (begin
+            (setq month 1)
+            (++ year)
+          )
+        )
+      )
+    )
+    (setf (DAY 0) year)
+    (setf (DAY 1) month)
+    (setf (DAY 2) day)
+    (list year month day)))
+
+(silent (for (i 1 777) (next-day)))
+(day-now)
+;-> (1903 3 22)
+
+Funzione che genera il giorno precedente alla data corrente:
+
+(define (prev-day)
+  (local (day month year days-month)
+    (map set '(year month day) DAY)
+    ; giorni per ogni mese
+    (setq days-month '(0 31 28 31 30 31 30 31 31 30 31 30 31))
+    ; anno bisestile?
+    (if (or (zero? (% year 400))
+            (and (zero? (% year 4)) (not (zero? (% year 100)))))
+        (setf (days-month 2) 29))
+    ; decrementa il giorno
+    (-- day)
+    ; Se il giorno diventa 0, diminuire il mese di 1
+    (if (= day 0)
+      (begin
+        (-- month)
+        ; se il mese diventa 0, 
+        ; impostare il mese a 12 (Dicembre) e diminuire l'anno di 1
+        (if (= month 0)
+          (begin
+            (setq month 12)
+            (-- year)
+          )
+        )
+        ; impostare il giorno
+        (setq day (days-month month))
+      )
+    )
+    (setf (DAY 0) year)
+    (setf (DAY 1) month)
+    (setf (DAY 2) day)
+    (list year month day)))
+
+(silent (for (i 1 777) (prev-day)))
+(day-now)
+;-> (1901 2 3)
+
+
+--------------------------
+Numeri binari in un numero
+--------------------------
+
+Dato un intero positivo n, restituire il valore degli interi positivi le cui rappresentazioni binarie si presentano come sottostringhe nella rappresentazione binaria di n.
+
+Ad esempio, 13 restituisce (13 6 5 3 2 1), perché 13 in binario è 1101 le cui sottostringhe sono 1101, 110, 101, 11, 10, 1 e i relativi valori sono (13 6 5 3 2 1).
+I numeri binari che iniziano con zero non vengono considerati (quindi anche lo zero stesso).
+
+Funzione che genera tutte le sottoliste contigue di una lista:
+
+(define (contigue lst)
+  (local (out len)
+    (setq out '())
+    (setq len (length lst))
+    (for (i 0 (- len 1))
+      (for (j 1 (- len i))
+        ;(println i { } j)
+        (push (slice lst i j) out -1)
+      )
+    )
+    out))
+
+Funzione che restituire il valore degli interi positivi le cui rappresentazioni binarie si presentano come sottostringhe nella rappresentazione binaria di num:
+
+(define (in-binary num)
+  (local (bin str-bin uniq lst out)
+  ; rappresentazione binaria
+  (setq bin (explode (bits num)))
+  ; lista delle sottostringhe binarie (caratteri)
+  (setq str-bin (contigue bin))
+  ; elementi unici delle sottostringhe
+  (setq uniq (unique str-bin))
+  ; rimozione dei termini che iniziano con 0
+  (setq lst (clean (fn(x) (= (first x) "0")) uniq))
+  ; unione dei caratteri e conversione delle sottostringhe in valori interi
+  (setq out (map (fn(x) (int x 0 2)) (map join lst)))
+  out))
+
+Facciamo alcune prove:
+
+(in-binary 13)
+;-> (1 3 6 13 2 5)
+
+(in-binary 1000)
+;-> (1 3 7 15 31 62 125 250 500 1000 30 61 122 244 488 14
+;->  29 58 116 232 6 13 26 52 104 2 5 10 20 40 4 8)
+
+Sequenza OEIS A122953:
+a(n) = number of distinct positive integers represented in binary which are substrings of binary expansion of n
+
+  1, 2, 2, 3, 3, 4, 3, 4, 4, 4, 5, 6, 6, 6, 4, 5, 5, 5, 6, 6, 5, 7, 7, 8,
+  8, 8, 8, 9, 9, 8, 5, 6, 6, 6, 7, 6, 7, 8, 8, 8, 8, 6, 8, 10, 9, 10, 9,
+  10, 10, 10, 10, 11, 10, 10, 11, 12, 12, 12, 12, 12, 12, 10, 6, 7, 7, 7,
+  8, 7, 8, 9, 9, 8, 7, 9, 10, 10, 11, 11, 10, 10, 10, 10, 11, 9, 7, 11,
+  11, 13, 13, 12, ...
+
+(map (fn(x) (length (in-binary x))) (sequence 1 100))
+;-> (1 2 2 3 3 4 3 4 4 4 5 6 6 6 4 5 5 5 6 6 5 7 7 8 8 8 8 9 9 8 5 6 6
+;->  6 7 6 7 8 8 8 8 6 8 10 9 10 9 10 10 10 10 11 10 10 11 12 12 12 12
+;->  12 12 10 6 7 7 7 8 7 8 9 9 8 7 9 10 10 11 11 10 10 10 10 11 9 7 11
+;->  11 13 13 12 11 14 13 13 11 12 12 12 12 12)
+
+Possiamo scrivere la funzione in modo più compatto:
+
+(define (in-bin num)
+  (map (fn(x) (int x 0 2))
+        (map join
+              (clean (fn(x) (= (first x) "0"))
+                    (unique (contigue (explode (bits num))))))))
+
+Proviamo:
+
+(in-bin 13)
+;-> (1 3 6 13 2 5)
+
+(in-bin 1000)
+;-> (1 3 7 15 31 62 125 250 500 1000 30 61 122 244 488 14
+;->  29 58 116 232 6 13 26 52 104 2 5 10 20 40 4 8)
+
+(map (fn(x) (length (in-bin x))) (sequence 1 100))
+;-> (1 2 2 3 3 4 3 4 4 4 5 6 6 6 4 5 5 5 6 6 5 7 7 8 8 8 8 9 9 8 5 6 6
+;->  6 7 6 7 8 8 8 8 6 8 10 9 10 9 10 10 10 10 11 10 10 11 12 12 12 12
+;->  12 12 10 6 7 7 7 8 7 8 9 9 8 7 9 10 10 11 11 10 10 10 10 11 9 7 11
+;->  11 13 13 12 11 14 13 13 11 12 12 12 12 12)
+
 ============================================================================
 

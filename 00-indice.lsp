@@ -2119,6 +2119,7 @@ NOTE LIBERE 20
 ==============
   For fun
   Segment tree
+  Soluzione del ponte di Wheatstone sbilanciato con il metodo mesh
   Somma quadrata dei quadrati dei divisori
   I tre numeri interi sono distinti?
   Un problema del 1953
@@ -2168,8 +2169,10 @@ NOTE LIBERE 20
   Matrice (Grafo) connessa
   Hitori Puzzle
   Distanze tra coppie di numeri primi adiacenti
-  Elenco di date
   Forza 4 (Connect4) Interattivo
+  Intervallo di date
+  Giorno successivo e giorno precedente
+  Numeri binari in un numero
 
 PROBLEMI SUI DADI
 =================
@@ -2247,6 +2250,6 @@ THE SOFTWARE.
 ==========================================================================
 Klaatu barada nikto
 ==========================================================================
-
+(pietra) --> (aperti aprite pareti patrie perita rapite ripeta)
 =============================================================================
 

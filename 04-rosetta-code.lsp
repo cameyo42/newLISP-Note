@@ -84,7 +84,7 @@ Il testo della canzone della birra è il seguente:
   99 bottles of beer
   Take one down, pass it around
   98 bottles of beer on the wall
-  
+
   98 bottles of beer on the wall
   98 bottles of beer
   Take one down, pass it around
@@ -98,12 +98,12 @@ Metodo ricorsivo (con grammatica corretta per 1 bottiglia)
   (if (!= 0 bottles)
       (begin
       (if (= bottles 1)
-          (print "\n" bottles " bottle of beer on the wall" 
-                 "\n" bottles " bottle of beer" 
+          (print "\n" bottles " bottle of beer on the wall"
+                 "\n" bottles " bottle of beer"
                  "\n" "Take one down, pass it around,")
-          (print "\n" bottles " bottles of beer on the wall" 
-                 "\n" bottles " bottles of beer" 
-                 "\n" "Take one down, pass it around,"))             
+          (print "\n" bottles " bottles of beer on the wall"
+                 "\n" bottles " bottles of beer"
+                 "\n" "Take one down, pass it around,"))
       (if (= bottles 2)
           (print "\n" (- bottles 1) " bottle of beer on the wall")
           (print "\n" (- bottles 1) " bottles of beer on the wall"))
@@ -115,13 +115,13 @@ Metodo ricorsivo (con grammatica corretta per 1 bottiglia)
 ;-> 99 bottles of beer
 ;-> Take one down, pass it around,
 ;-> 98 bottles of beer on the wall
-;-> 
+;->
 ;-> ...
 ;-> 2 bottles of beer on the wall
 ;-> 2 bottles of beer
 ;-> Take one down, pass it around,
 ;-> 1 bottle of beer on the wall
-;-> 
+;->
 ;-> 1 bottle of beer on the wall
 ;-> 1 bottle of beer
 ;-> Take one down, pass it around,
@@ -145,13 +145,13 @@ Nota: il sito https://www.99-bottles-of-beer.net/ contiene una raccolta della ca
      (if (= x 0) e d) (case x (0 y) (1 c) (true (- x 1)))  (if (= x 2) g a) b f ))
 ;-> 99 bottles of beer on the wall, 99 bottles of beer.
 ;-> Take one down and pass it around, 98 bottles of beer on the wall.
-;-> 
+;->
 ;-> 98 bottles of beer on the wall, 98 bottles of beer.
 ;-> Take one down and pass it around, 97 bottles of beer on the wall.
 ;-> ...
 ;-> 1 bottle of beer on the wall, 1 bottle of beer.
 ;-> Take one down and pass it around, no more bottles of beer on the wall.
-;-> 
+;->
 ;-> No more bottles of beer on the wall, no more bottles of beer.
 ;-> Go to the store and buy some more, 99 bottles of beer on the wall.
 
@@ -2338,7 +2338,6 @@ Per vedere quale funzione è più veloce commentiamo nelle due funzioni la riga 
 
 ; (print-matrix P)
 
-
 (time (pascal 30) 100)
 ;-> 2914.029
 
@@ -2533,9 +2532,7 @@ Definiamo la funzione inversa che converte da una lista di codici morse ad una l
 (setq msg {Testo "da tradurre})
 (setq msg (upper-case msg))
 (println (join (alfa2morse (morse2alfa msg))))
-;-> "TESTO \"DA TRADURRE"
-(println (join (alfa2morse (morse2alfa msg))))
-;-> TESTO "DA TRADURRE
+;-> "TESTO "DA TRADURRE
 
 
 -------------------
@@ -2545,7 +2542,7 @@ PROBLEMA DI BABBAGE
 Qual è il più piccolo intero positivo il cui quadrato termina con le cifre 269.696?
 Lettera di Charles Babbage a Lord Bowden, 1837.
 
-Notiamo che solo i numeri che terminano con 4 o 6 posoono produrre un quadrato che ha il numero 6 come ultima cifra.
+Notiamo che solo i numeri che terminano con 4 o 6 possono produrre un quadrato che ha il numero 6 come ultima cifra.
 
 Inoltre risulta:
 
@@ -2597,8 +2594,12 @@ Allora, il numero più piccolo da provare vale 574.
 CIFRARIO DI CESARE
 ------------------
 
-Il cifrario di Cesare è uno dei più antichi algoritmi crittografici conosciuti. È un cifrario a sostituzione monoalfabetica in cui ogni lettera del messaggio in chiaro è sostituita nel messaggio cifrato dalla lettera che si trova un certo numero di posizioni dopo (o prima) nell'alfabeto. La sostituzione avviene lettera per lettera, analizzando il testo dall'inizio alla fine.
-Il cifrario prende il nome da Giulio Cesare, che lo utilizzava per proteggere i suoi messaggi segreti. Cesare utilizzava in genere una chiave di 3 per il cifrario. A quel tempo il metodo era sicuro perché la maggior parte della gente spesso non era neanche in grado di leggere.
+Il cifrario di Cesare è uno dei più antichi algoritmi crittografici conosciuti.
+È un cifrario a sostituzione monoalfabetica in cui ogni lettera del messaggio in chiaro è sostituita nel messaggio cifrato dalla lettera che si trova un certo numero di posizioni dopo (o prima) nell'alfabeto.
+La sostituzione avviene lettera per lettera, analizzando il testo dall'inizio alla fine.
+Il cifrario prende il nome da Giulio Cesare, che lo utilizzava per proteggere i suoi messaggi segreti.
+Cesare utilizzava in genere una chiave di 3 per il cifrario.
+A quel tempo il metodo era sicuro perché la maggior parte della gente spesso non era neanche in grado di leggere.
 
 Definiamo il nostro alfabeto:
 (setq alfa (explode "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
@@ -3520,7 +3521,7 @@ Tipi di punteggi:
   5  41  Bernard     4  41  Bernard      3  41  Bernard
   6  41  Barry       4  41  Barry        3  41  Barry
   7  39  Stephen     7  39  Stephen      4  39  Stephen
-  
+
   Modified Ranking   Fractional Ranking
   ----------------   ------------------
   1  44  Solomon     1.0  44  Solomon
@@ -3675,7 +3676,7 @@ Fractional rank
       (for (j 0 (- uguali 1))
         (if (zero? i)
           (println "1.0" { } (lst (+ i j) 0) { } (lst (+ i j) 1))
-          (println (format "%3.1f %s %s" 
+          (println (format "%3.1f %s %s"
                     rank (string (lst (+ i j) 0)) (string (lst (+ i j) 1))))
         )
       )
