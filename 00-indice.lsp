@@ -2173,6 +2173,9 @@ NOTE LIBERE 20
   Intervallo di date
   Giorno successivo e giorno precedente
   Numeri binari in un numero
+  Punti con coordinate intere tra due punti con coordinate intere
+  Rango di una stringa (Rank)
+  Teorema di Rosser
 
 PROBLEMI SUI DADI
 =================

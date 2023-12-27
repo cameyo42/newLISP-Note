@@ -6011,5 +6011,249 @@ Proviamo:
 ;->  12 12 10 6 7 7 7 8 7 8 9 9 8 7 9 10 10 11 11 10 10 10 10 11 9 7 11
 ;->  11 13 13 12 11 14 13 13 11 12 12 12 12 12)
 
+
+---------------------------------------------------------------
+Punti con coordinate intere tra due punti con coordinate intere
+---------------------------------------------------------------
+
+Dati due punti p1(x1,y1) e p2(x2,y2) con coordinate intere calcolare il numero di punti con coordinate intere che giacciono sulla retta che li congiunge.
+Esempi:
+
+1. Se il segmento p1p2 è parallelo all'asse X, allora il numero dei punti vale:
+   abs(y1 - y2) - 1
+
+2. Se il segmento p1p2 è parallelo all'asse Y, allora il numero dei punti vale:
+   abs(x1 - x2) - 1
+
+3. Altrimenti, il numero dei punti vale:
+   GCD(abs(x1 - x2), abs(y1 - y2)) - 1
+
+Per la dimostrazione vedi "Teorema di Pick" su "Problemi vari".
+
+(define (pts x1 y1 x2 y2)
+  (cond ((= x1 x2) ; punti paralleli asse X
+         (- (abs (- y1 y2)) 1))
+        ((= y1 y2) ; punti paralleli asse Y
+         (- (abs (- x1 x2)) 1))
+        (true
+          (- (gcd (abs (- x1 x2)) (abs (- y1 y2))) 1))))
+
+Proviamo:
+
+(pts 1 5 3 7)
+;-> 1
+(pts 1 1 5 4)
+;-> 0
+(pts 1 5 5 1)
+;-> 3
+(pts 1 9 8 16)
+;-> 6
+
+Se invece vogliamo sapere le coordinate dei punti interi possiamo usare la seguente funzione:
+
+(define (pts-int x1 y1 x2 y2)
+  (local (out dx dy step-x step-y x y continue)
+    (setq out '())
+    ; Calcola la variazione di x e y
+    (setq dx (- x2 x1))
+    (setq dy (- y2 y1))
+    ; Determina la direzione dei passi
+    (if (> dx 0) (setq step-x 1) (setq step-x -1))
+    (if (> dy 0) (setq step-y 1) (setq step-y -1))
+    ; Gestione delle linee più verticali o orizzontali
+    (if (> (abs dy) (abs dx)) (setq step-x (div dx (abs dy))))
+    (if (> (abs dx) (abs dy)) (setq step-y (div dy (abs dx))))
+    ; Punto di partenza
+    (setq x x1)
+    (setq y y1)
+    ;(println step-x { } step-y)
+    (setq continue true)
+    (while continue
+      ; Aggiunge il punto corrente se è intero e se è nei limiti del segmento
+      ;(print x { } y) (read-line)
+      (if (and (= x (int x)) (= y (int y))
+               (>= x (min x1 x2)) (<= x (max x1 x2))
+               (>= y (min y1 y2)) (<= y (max y1 y2)))
+          (push (list x y) out -1))
+      ; Muove al prossimo punto
+      (setq x (add x step-x))
+      (setq y (add y step-y))
+      ; Stop se abbiamo raggiunto o passato P2
+      (if (or (and (> step-x 0) (> x x2))
+              (and (< step-x 0) (< x x2))
+              (and (> step-y 0) (> y y2))
+              (and (< step-y 0) (< y y2)))
+          (setq continue nil))
+    )
+    ; Inserimento ultimo punto (se non presente)
+    ; (dovuto ad eventuali errori dei numeri floating-point)
+    (if (!= (out -1) (list x2 y2)) (push (list x2 y2) out -1))
+    out))
+
+Proviamo:
+
+(pts-int 1 5 3 7)
+;-> ((1 5) (2 6) (3 7))
+(pts-int 1 1 5 4)
+;-> ((1 1) (5 4))
+(pts-int 1 1 10 8)
+;-> ((1 1) (10 8))
+(pts-int 1 5 5 1)
+;-> ((1 5) (2 4) (3 3) (4 2) (5 1))
+(pts-int 1 9 8 16)
+;-> ((1 9) (2 10) (3 11) (4 12) (5 13) (6 14) (7 15) (8 16))
+
+
+---------------------------
+Rango di una stringa (Rank)
+---------------------------
+
+Il rango di una stringa (Rank) è definito come la posizione della stringa quando tutte le possibili permutazioni delle sue lettere sono disposte in ordine alfabetico a..z (non importa se le stringhe/parole hanno significato o meno).
+
+Scrivere una funzione che calcola il rango di una stringa costituita solo da lettere alfabetiche minuscole.
+
+Esempio e Algoritmo:
+
+stringa = casa
+(setq str "casa")
+
+Calcolare gli anagrammi di "casa"
+(anagrams "casa")
+;-> ("asac" "asca" "aacs" "aasc" "acsa" "acas" "saca" "saac" "scaa" "scaa"
+;->  "saac" "saca" "acas" "acsa" "aasc" "aacs" "asca" "asac" "casa" "caas"
+;->  "csaa" "csaa" "caas" "casa")
+
+Ordinare gli anagrammi in ordine crescente
+(sort (anagrams "casa"))
+;-> ("aacs" "aacs" "aasc" "aasc" "acas" "acas" "acsa" "acsa" "asac" "asac"
+;->  "asca" "asca" "caas" "caas" "casa" "casa" "csaa" "csaa" "saac" "saac"
+;->  "saca" "saca" "scaa" "scaa")
+
+Eliminare i duplicati dagli anagrammi ordinati (gli anagrammi duplicati sono causati dai caratteri duplicati che si trovano nella stringa)
+(unique (sort (anagrams "casa")))
+;-> ("aacs" "aasc" "acas" "acsa" "asac" "asca" "caas" "casa" "csaa" "saac"
+;->  "saca" "scaa")
+
+Calcolare la posizione (indice) della stringa neglia anagrammi unici ordinati (indexing 1-based):
+(+ (find "casa" (sort (unique (anagrams "casa")) < )) 1)
+;-> 8
+
+Funzione per generare gli anagrammi:
+
+(define (anagrams str)
+"Calculates all the anagrams of a string"
+  (map (fn (perm) (select str perm))
+       (permute-aux (sequence 0 (- (length str) 1)))))
+; auxiliary permutation function
+(define (permute-aux lst)
+  (if (= (length lst) 1)
+   lst
+   (apply append (map (fn (rot)
+                      (map (fn (perm) (cons (first rot) perm))
+                           (permute-aux (rest rot))))
+                      (rotate-aux lst)))))
+; auxiliary rotation function
+(define (rotate-aux lst)
+  (map (fn (x) (rotate lst)) (sequence 1 (length lst))))
+
+Funzione che calcola il rango di una stringa:
+
+(define (rank str)
+  (+ (find str (sort (unique (anagrams str)) < )) 1))
+
+Facciamo alcune prove:
+
+(rank "casa")
+;-> 8
+
+(rank "abcd")
+;-> 1
+
+(rank "bada")
+;-> 8
+
+(rank "pietra")
+;-> 420
+
+(rank "newlisp")
+;-> 2264
+
+Nota: con parole più lunghe di 10 caratteri ci vuole troppo tempo per calcolare gli anagrammi (permutazioni)
+
+Stringa con 9 caratteri:
+(time (println (rank "nagarjuna")))
+;-> 17604
+;-> 2500.013
+
+Stringa con 10 caratteri:
+(time (println (rank "jihgfedcba")))
+;-> 3628800
+;-> 42138.639
+
+
+-----------------
+Teorema di Rosser
+-----------------
+
+Il teorema dei numeri primi mostra che l'n-esimo numero primo p(n) ha il valore asintotico:
+
+  p(n) ≈ n*ln(n) come n->infinito
+
+Il teorema di Rosser (1938) rende questo limite inferiore rigoroso affermando che:
+
+  p(n) > n*ln(n) per n >= 1
+
+Questo risultato è stato successivamente migliorato (Dusart 1999) in:
+
+  p(n) > n*(ln(n) + ln(ln(n)) - 1)
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Funzione che verifica il teorema di Rosser di tutti i primi fino ad un determinato numero:
+
+(define (rosser-to limit show)
+  (local (primi n)
+    (setq primi (primes-to limit))
+    (dolist (p primi)
+      (setq n (+ $idx 1))
+      (if show (println n { } p { } (mul n (log n))))
+      (if (<= p (mul n (log n)))
+          (println "### "n { } p { } (mul n (log n)))))))
+
+Proviamo:
+
+(rosser-to 50 true)
+;-> 1 2 0
+;-> 2 3 1.386294361119891
+;-> 3 5 3.295836866004329
+;-> 4 7 5.545177444479562
+;-> 5 11 8.047189562170502
+;-> 6 13 10.75055681536833
+;-> 7 17 13.62137104338719
+;-> 8 19 16.63553233343869
+;-> 9 23 19.77502119602598
+;-> 10 29 23.02585092994046
+;-> 11 31 26.37684800078208
+;-> 12 37 29.81887979745601
+;-> 13 41 33.34434164699998
+;-> 14 43 36.94680261461362
+;-> 15 47 40.62075301653315
+;-> nil
+
+(rosser-to 1e5)
+;-> nil
+(rosser-to 1e7)
+;-> nil
+
 ============================================================================
 
