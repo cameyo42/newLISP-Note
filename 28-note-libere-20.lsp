@@ -6255,5 +6255,172 @@ Proviamo:
 (rosser-to 1e7)
 ;-> nil
 
+
+---------------------------------
+Somma massima tra elementi uguali
+---------------------------------
+
+Data una lista di numeri interi, determinare la somma massima degli elementi contenuti tra coppie di elementi uguali.
+
+Per esempio, data la lista (1 2 -5 3 5 3 1) ci sono due coppie di elementi uguali 1,1 e 3,3.
+Tra 1,1 ci sono gli elementi 1 2 -5 3 5 3 1, la cui somma vale 10.
+Tra 3,3 ci sono gli elementi 3 5 3, la cui somma vale 11.
+Quindi la somma massima vale 11 data dalla sottolista (3 5 3).
+
+Algoritmo
+Per ogni elemento della lista, cerchiamo il primo elemento uguale e, se lo troviamo, calcoliamo la somma della sottolista ed eventualmente aggiorniamo la somma massima.
+
+(define (max-sum lst)
+  (local (MIN-INT sum-max sum-lst len arr found)
+    (setq MIN-INT -9223372036854775808)    
+    ; lunghezza della lista
+    (setq len (length lst))
+    (cond ((< len 2) '(nil ()))
+          (true
+            ; somma massima
+            (setq sum-max MIN-INT)
+            ; sottolista con somma massima
+            (setq sum-lst '())
+            ; vettore per velocizzare i cicli
+            (setq arr (array len lst))
+            ; ciclo per ogni numero
+            (for (i 0 (- len 2))
+              (setq found nil)
+              ; ciclo per cercare un numero uguale al numero corrente (lst i)
+              (for (j (+ i 1) (- len 1) 1 found)
+                ; se trova numero uguale...
+                (if (= (arr i) (arr j))
+                  (begin
+                    (setq found true)
+                    ; calcola la somma corrente e la sottolista corrente
+                    (setq cur-lst (slice arr i (+ (- j i) 1)))
+                    (setq cur-sum (apply + cur-lst))
+                    ;(println i { } j { - } (lst i) { } (lst j))
+                    ;(println cur-lst { } cur-sum)
+                    ; controlla somma corrente con somma massima
+                    ; e aggiorna i valori di conseguenza
+                    (if (> cur-sum sum-max) 
+                        (set 'sum-max cur-sum 'sum-lst cur-lst)))
+                )
+              )
+            )
+            (if (= sum-max MIN-INT)
+                '(nil ())
+                ;else
+                (list sum-max sum-lst))))))
+
+Facciamo alcune prove:
+
+(setq a '(1 2 -5 3 5 3 1))
+(max-sum a)
+;-> (11 (3 5 3))
+
+(max-sum '())
+;-> (nil ())
+
+(max-sum '(1 2 3))
+;-> (nil ())
+
+(max-sum '(1 2 -5 3 5 3 1 21 1))
+;-> (23 (1 21 1))
+
+(max-sum '(1 2 -2 4 1 4))
+;-> 9
+
+(max-sum '(1 2 1 2))
+;-> 5
+
+(max-sum '(-1 -2 -1 -2))
+;-> -4
+
+(max-sum '(1 1 1 8 -1 8))
+;-> 15
+
+(max-sum '(1 1 1 -1 6 -1))
+;-> 4
+
+(max-sum '(2 8 2 -3 2))
+;-> 12
+
+(max-sum '(1 1 80))
+;-> 2
+
+(max-sum '(2 8 2 3 2))
+;-> 17
+
+(setq b (rand 1000 1000))
+(max-sum b)
+;-> (476948 (57 607 783 802 519 301 875 726 955 925
+;-> ...
+;-> 875 796 305 394 481 52 651 0 768 756 219 154 57))
+
+Questo algoritmo è lento per liste/vettori con molti elementi:
+
+(silent (setq b (rand 10000 10000)))
+(time (max-sum b))
+;-> 2775.132
+
+
+--------------------------------------
+Ricerca di una stringa in una funzione
+--------------------------------------
+
+Data una stringa, scrivere una funzione che restituisce "true" se la stringa è una sottostringa del codice sorgente della funzione, altrimenti restituisce "nil".
+
+Se prendiamo come 'sorgente' della funzione la rappresentazione interna di newLISP la funzione potrebbe essere la seguente:
+
+(define (check str) (if (find str (string check)) true nil))
+
+In questo caso la rappresentazione interna della funzione vale è la seguente:
+
+(string check)
+;-> "(lambda (str) (if (find str (string check)) true nil))"
+
+Proviamo la funzione:
+
+(check "find ")
+;-> true
+(check "lambda")
+;-> true
+
+Comuqnue non troviamo "define" e il nome della funzione "check":
+
+(check "define")
+;-> nil
+(check "check")
+
+Per risolvere questo problema possiamo 'riscrivere' la parte mancante della funzione all'interno della funzione della funzione stessa.
+In altre parole, dopo aver trasformato la funzione in stringa, possiamo sostituire la parte 'lambda' con il nome della funzione e ricostruire la funzione originale.
+
+(define (lookfor str)
+  ; conversione della funzione in stringa
+  (setq func (string lookfor))
+  ; sostituzione parte 'lambda'
+  (replace "(lambda (" func "(define (lookfor ")
+  ; (println func)
+  ; ricerca della stringa sulla funzione ricostruita
+  (if (find str func) true nil))
+
+(string lookfor)
+"(lambda (str) (setq func (string check2)) (replace \"(lambda (\" func \"(define (lookfor \") (if (find str func) true nil))"
+
+Proviamo:
+
+(lookfor "find ")
+;-> true
+
+Questa volta non troviamo "lambda"
+
+(lookfor "lambda")
+;-> nil
+
+Ma troviamo "define" e il nome della funzione "lookfor":
+
+(lookfor "define")
+;-> true
+
+(lookfor "lookfor")
+;-> true
+
 ============================================================================
 

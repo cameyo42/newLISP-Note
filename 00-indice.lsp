@@ -2176,6 +2176,8 @@ NOTE LIBERE 20
   Punti con coordinate intere tra due punti con coordinate intere
   Rango di una stringa (Rank)
   Teorema di Rosser
+  Somma massima tra elementi uguali
+  Ricerca di una stringa in una funzione
 
 PROBLEMI SUI DADI
 =================
