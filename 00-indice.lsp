@@ -2178,6 +2178,9 @@ NOTE LIBERE 20
   Teorema di Rosser
   Somma massima tra elementi uguali
   Ricerca di una stringa in una funzione
+  Contare il numero di cambiamenti dei valori
+  Gemelli unici in due liste
+  Teorema delle scimmie infinite (Infinite monkey theorem)
 
 PROBLEMI SUI DADI
 =================

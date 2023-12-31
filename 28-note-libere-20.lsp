@@ -6409,7 +6409,7 @@ Proviamo:
 (lookfor "find ")
 ;-> true
 
-Questa volta non troviamo "lambda"
+Questa volta non troviamo "lambda":
 
 (lookfor "lambda")
 ;-> nil
@@ -6421,6 +6421,352 @@ Ma troviamo "define" e il nome della funzione "lookfor":
 
 (lookfor "lookfor")
 ;-> true
+
+
+-------------------------------------------
+Contare il numero di cambiamenti dei valori
+-------------------------------------------
+
+Data una lista di numeri interi, contare il numero di volte, leggendo da sinistra a destra, in cui il valore cambia.
+
+Esempio:
+lista = (1 1 1 2 2 5 5 5 5 17 3)
+cambi =        1   2       3  4
+
+Primo metodo: scorrere la lista e contare quanti cambiamenti avvengono
+
+(define (cambi lst)
+  (if (= lst '())
+      0
+      ;else
+      (let ( (conta 0) (base (lst 0)) )
+        (dolist (el lst)
+          (cond ((and (> $idx 0) (!= el base))
+                  (setq base el)
+                  (++ conta))))
+        conta)))
+
+Proviamo:
+
+(setq a '(1 1 1 2 2 5 5 5 5 17 3))
+(cambi a)
+;-> 4
+
+(cambi '())
+;-> 0
+(cambi '(0))
+;-> 0
+(cambi '(0 0))
+;-> 0
+(cambi '(0 1))
+;-> 1
+(cambi '(1 1 1 2 2 3))
+;-> 2
+(cambi '(-3 3 3 -3 3 -3))
+;-> 4
+(cambi (sequence 1 20))
+;-> 19
+
+Secondo metodo: calcolare la differenza di tutte le coppie di numeri adiacenti e poi contare quante di queste differenze sono diverse da zero
+
+Differenza tra coppie di numeri adiacenti:
+
+(map - (rest a) (chop a))
+;-> (0 0 1 0 3 0 0 0 12 -14)
+
+Quando il valore risultante vale 0, allora i due numeri sono uguali, altrimenti sono diversi.
+Ci sono 4 valori diversi da 0, quindi abbiamo 4 cambiamenti di valore.
+
+(define (change lst) (length (clean zero? (map - (rest lst) (chop lst)))))
+
+Proviamo:
+
+(change a)
+;-> 4
+(change '())
+;-> 0
+(change '(0))
+;-> 0
+(change '(0 0))
+;-> 0
+(change '(0 1))
+;-> 1
+(change '(1 1 1 2 2 3))
+;-> 2
+(change '(-3 3 3 -3 3 -3))
+;-> 4
+(change (sequence 1 20))
+;-> 19
+
+
+--------------------------
+Gemelli unici in due liste
+--------------------------
+
+Date due liste di numeri interi trovare l'intero più grande che appare in entrambe le liste ed è anche unico in entrambe le liste.
+
+Esempio:
+lista1 = (2 2 2 6 3 5 8 2))
+lista2 = (8 7 5 8)
+Esistono 2 coppie di gemelli nelle liste i numeri (5 5) e (8 8).
+Il numero 5 compare 1 volta nella lista1 e nella lista2.
+Il numero 8 compare 1 volta nella lista1 e 2 volte nella lista2.
+Quindi la coppia gemella univoca è data dal numero 5, (5 5).
+
+(define (twins lst1 lst2)
+  (local (gemelli comuni)
+    (setq gemelli nil)
+    ; trova gli elementi in comune tra le due liste (e li ordina)
+    (setq comuni (sort (intersect lst1 lst2)))
+    ; ricerca nella lista 'comuni' gli elementi che compaiono
+    ; solo una volta in entrambe le liste
+    (dolist (el comuni)
+      (if (and (= (length (ref-all el lst1)) 1)
+               (= (length (ref-all el lst2)) 1))
+          (setq gemelli el)
+      )
+    )
+    gemelli))
+
+Proviamo:
+
+(setq a '(2 2 2 6 3 5 8 2))
+(setq b '(8 7 5 8))
+(twins a b)
+;-> 5
+
+(twins '(3) '(1 3))
+;-> 3
+
+(twins '(3 4) '(1 2))
+;-> nil
+
+(twins '(1 1 2 2 3 3 4) '(1 2 3 4))
+;-> 4
+
+(twins '(1 1 2 2 3 3 4) '(1 2 3 4 4))
+;-> nil
+
+
+--------------------------------------------------------
+Teorema delle scimmie infinite (Infinite monkey theorem)
+--------------------------------------------------------
+
+Il teorema delle scimmie infinite afferma che una scimmia che prema a caso i tasti di una tastiera per un tempo infinitamente lungo certamente riuscirà a comporre qualsiasi testo prefissato.
+
+Data una tastiera con T tasti e un testo da riprodurre di K caratteri, la probabilità di non effettuarlo in N tentativi (indipendenti) vale:
+
+  (1 - 1/(T^K))^N
+
+e il limite per N -> Infinito porta l'espressione a 0, perciò la probabilità di riprodurre un testo prefissato se si prova all'infinito vale 1.
+
+Per "scimmiottare" una data stringa S, possiamo eseguire i seguenti passaggi:
+
+1) Partire da una stringa vuota T.
+2) Scegliere in modo casuale (uniforme) un carattere ASCII stampabile e aggiungerlo alla stringa T.
+3) Se S è una sottostringa di T, allora T è la stringa "scimmiottata". 
+   Altrimenti, ripetere il passo 2 finché T non diventa una sottostringa di S.
+
+Poichè non possiamo continuare all'infinito dobbiamo stabilire alcune regole:
+a) la stringa A è costituita solo da caratteri minuscoli e spazi.
+b) la lunghezza della stringa T deve essere un parametro della funzione.
+
+(define (monkey str max-len show)
+  (local (chars alfabeto len t)
+    (setq chars 0)
+    (setq alfabeto '(" " "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+                     "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"))
+    (setq len (length alfabeto))
+    (setq t "")
+    (until (or (find str t) (> chars max-len))
+      (extend t (alfabeto (rand len)))
+      ;(print t (read-line))
+      (++ chars)
+    )
+    ; restituisce l'indice della stringa 'str' in 't' (oppure nil)
+    (if show (println t))
+    (find str t)))
+
+Facciamo alcune prove:
+
+(monkey "a" 100 true)
+;-> nhu wjoetpygez rhvgdxda
+;-> 22
+
+(monkey "ab" 1000 true)
+;-> wfbzrifp ccvngrrgcuhkvqyobnvclimxmztpyxkdun blhpkibchue bhebvlwwku
+;-> xilchevzxixdofykalkf dvnqwqawxjdwupfw yguosivousuedasscdulygoksiby
+;-> prljcyqmqb ergkdhfnizhr lgoo qqpiaogvxasyrp dtccyycfgrksdlcarcslad
+;-> dzhsnugnnhnocrfotxqq mfhzuylpcbwrhnotdlfhvwrplxpdikhqggmjgszlbfhfi
+;-> ijffsmzr uwxsqqwvhjvbueivqptmqhshptengdkpdeixoafvamzterdtdjlcgbhtn
+;-> yhonxzcuxbvgtpemcfpwtlvualsucovxmpwovrsiigeyppkjnej ufcmavbvpflgfa
+;-> trdijayab
+;-> 403
+
+(monkey "abc" 1000)
+;-> nil
+
+(monkey "abc" 100000)
+;-> 5017
+
+(monkey "lisp" 100000)
+;-> nil
+
+(monkey "lisp" 100000)
+;-> 74016
+
+Questa funzione è lenta perchè creiamo una stringa sempre più lunga:
+
+(time (println (monkey "abcd" 100000)))
+;-> nil
+;-> 4136.959
+
+Comunque per vedere se 'str' si trova in 't' è sufficiente mantenere la lunghezza di 't' uguale a quella di 'str'.
+Per fare questo, partiamo da una stringa 't' lunga quanto 'str' e poi ad ogni iterazione togliamo il primo carattere di 't' e ne aggiungiamo uno casuale a 't' (in fondo).
+In questo modo la stringa 't' rimane sempre della stessa lunghezza di 'str' e possiamo fare il confronto.
+
+(define (scimmia str max-len)
+  (local (chars len-str alfabeto t trovato k)
+    (setq chars 0)
+    (setq len-str (length str))
+    (setq alfabeto '(" " "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+                     "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"))
+    (setq len (length alfabeto))
+    (setq t "")
+    (for (i 1 len-str) (extend t (alfabeto (rand len))))
+    ;(print t) (read-line)
+    (setq trovato nil)
+    (setq k 0)
+    (for (i 1 max-len 1 trovato)
+      (cond ((find str t) (setq trovato true))
+            (true 
+              (++ k)
+              (pop t)
+              (push (alfabeto (rand len)) t -1)
+              ;(print t (read-line))
+            )
+      )
+    )
+    (if trovato k nil)))
+
+Vediamo se le due funzioni generano gli stessi risultati:
+
+(seed 1)
+(monkey "aa" 10000)
+;-> 414
+(seed 1)
+(scimmia "aa" 10000)
+;-> 414
+
+(seed 1)
+(monkey "abc" 100000)
+;-> 10102
+(seed 1)
+(scimmia "abc" 100000)
+;-> 10102
+
+Facciamo alcune prove:
+
+(scimmia "lisp" 100000)
+;-> nil
+
+(scimmia "lisp" 100000)
+;-> 97482
+
+(time (println (scimmia "abcd" 1e5)))
+;-> nil
+;-> 37.765
+
+(time (println (scimmia "abcd" 1e6)))
+;-> nil
+;-> 372.005
+
+(time (println (scimmia "abcd" 1e7)))
+;-> 143485
+;-> 54.964
+
+(time (println (scimmia "newlisp" 1e7)))
+;-> nil
+;-> 3755.983
+
+(time (println (scimmia "newlisp" 1e8)))
+;-> nil
+;-> 37579.662
+
+Vediamo un altro metodo che consiste nel considerare se il carattere casuale corrente è uguale a quello della stringa (partendo dall'indice 0). Se i caratteri sono uguali aumentiamo l'indice di 1, altrimenti poniamo l'indice a 0.
+Se il valore dell'indice raggiunge la lunghezza della stringa, allora abbiamo trovato la stringa 'str' in 't'.
+
+(define (sci str max-len)
+  (local (t alfabeto)
+    (setq len-str (length str))
+    (setq alfabeto '(" " "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m"
+                     "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z"))
+    (setq len (length alfabeto))
+    (setq conta 0)
+    (setq trovato nil)
+    ; indice
+    (setq idx 0)
+    (for (i 1 max-len 1 trovato)
+      (++ conta)
+      ; se caratteri uguali...
+      (if (= (str idx) (alfabeto (rand len)))
+          ; incrementa indice
+          (++ idx)
+          ; altrimenti azzera l'indice
+          (setq idx 0)
+      )
+      ; indice = lunghezza 'str' ?
+      (if (= idx len-str) (setq trovato true))
+    )
+    (if trovato (- conta len-str) nil)))
+
+Vediamo se la funzione genera gli stessi risultati:
+
+(seed 1)
+(monkey "aa" 10000)
+;-> 414
+(seed 1)
+(sci "aa" 10000)
+;-> 414
+
+(seed 1)
+(monkey "abc" 100000)
+;-> 10102
+(seed 1)
+(sci "abc" 100000)
+;-> 10102
+
+Facciamo alcune prove:
+
+(sci "lisp" 100000)
+;-> nil
+
+(sci "lisp" 100000)
+;-> 97486
+
+(time (println (sci "abcd" 1e5)))
+;-> nil
+;-> 24.754
+
+(time (println (sci "abcd" 1e6)))
+;-> 221538
+;-> 55.85
+
+(time (println (sci "abcd" 1e7)))
+;-> 24003
+;-> 6.981
+
+(time (println (sci "newlisp" 1e7)))
+;-> nil
+;-> 2454.46
+
+(time (println (sci "newlisp" 1e8)))
+;-> nil
+;-> 24523.419
+
+(time (println (sci "newlisp" 1e9)))
+;-> nil
+;-> 245823.935
 
 ============================================================================
 
