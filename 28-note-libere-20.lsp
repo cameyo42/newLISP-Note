@@ -6768,5 +6768,241 @@ Facciamo alcune prove:
 ;-> nil
 ;-> 245823.935
 
+
+----------------------------
+Base di un numero senza zeri
+----------------------------
+
+Dato un intero positivo N, restituire la base B più piccola (>= 2) in cui la rappresentazione di N in base B (senza considerare eventuali zeri iniziali) non contiene zeri.
+
+Sequenza OEIS A106370:
+Smallest b>1 such that n contains no zeros in its base b representation.
+  2, 3, 2, 3, 3, 4, 2, 3, 4, 4, 4, 5, 3, 3, 2, 3, 3, 5, 5, 6, 4, 3, 3, 5, 3, 3,
+  4, 6, 4, 4, 2, 5, 5, 5, 6, 5, 4, 4, 4, 3, 3, 4, 3, 3, 4, 4, 4, 5, 3, 3, 6, 3,
+  3, 4, 4, 5, 4, 4, 4, 7, 4, 4, 2, 5, 6, 5, 3, 3, 5, 3, 3, 5, 5, 5, 7, 3, 3, 7,
+  3, 3, 5, 5, 5, 5, 4, 4, 4, 5, 4, 4, 4, 5, 4, 4, 4, 5, 5, 5, 5, 6, 4, 4, 4, 6,
+  4, ...
+
+(define (nozeri num)
+  (local (val base)
+    ; valore iniziale uguale al numero dato
+    (setq val num)
+    ; base iniziale
+    (setq base 2)
+    ; ciclo affinchè val maggiore di 0
+    (while (> val 0)
+      ; se divisibile val e base...
+      (if (zero? (% val base))
+        (begin
+          ; aumentiamo la base e
+          (++ base)
+          ; il valore ritorna uguale a num
+          (setq val num)
+        )
+        ; else
+        ; altrimenti dividiamo val per la base
+        (setq val (/ val base))
+      )
+    )
+    base))
+
+(map nozeri (sequence 1 50))
+;-> (2 3 2 3 3 4 2 3 4 4 4 5 3 3 2 3 3 5 5 6 4 3 3 5 3 3 
+;->  4 6 4 4 2 5 5 5 6 5 4 4 4 3 3 4 3 3 4 4 4 5 3 3)
+
+
+--------------------------------------------------------------
+Funzioni per la gestione di un mazzo di carte Carte Napoletane
+--------------------------------------------------------------
+
+Le carte da gioco italiane consistono in un mazzo da 40 carte di 4 diversi semi, ma c'è una grande varietà grafica nel disegno delle carte, che dipende soprattutto dall'area geografica.
+Le carte da gioco appaiono in Italia nella seconda metà del XIV secolo.
+I semi sono 4: Bastoni, Coppe, Denari e Spade.
+I valori sono 10: Asso (1), 2, 3, 4, 5, 6, 7, Fante (8), Cavallo (9), e Re (10).
+
+In questo caso useremo la seguente rappresentazione grafica per le carte:
+
+  Spade   Denari   Bastoni   Coppe
+    |       +-+      | |     \   / 
+  --+--     | |      | |      | |  
+    |       +-+      | |      +-+  
+
+Asso di Spade    5 di Denari   Fante di Bastoni  Re di Coppe
+  +-------+       +-------+       +-------+       +-------+
+  |A      |       |5      |       |F      |       |R      |
+  |   |   |       |  +-+  |       |  | |  |       | \   / |
+  | --+-- |       |  | |  |       |  | |  |       |  | |  |
+  |   |   |       |  +-+  |       |  | |  |       |  +-+  |
+  |      A|       |      5|       |      F|       |      R|
+  +-------+       +-------+       +-------+       +-------+
+
+Funzione che genera un valore casuale:
+
+(define (rand-valore)
+  (let (valore (string (+ 1 (rand 10))))
+    (if (= valore "1")  (setq valore "A")  ; Asso
+        (= valore "8")  (setq valore "F")  ; Fante
+        (= valore "9")  (setq valore "C")  ; Cavallo
+        (= valore "10") (setq valore "R")) ; Re
+    valore))
+
+Funzione che genera un seme casuale:
+
+(define (rand-seme)
+  (let (seme (string (rand 4)))
+    (if (= seme "0") (setq seme "B")  ; Bastoni
+        (= seme "1") (setq seme "C")  ; Coppe
+        (= seme "2") (setq seme "D")  ; Denari
+        (= seme "3") (setq seme "S")) ; Spade
+    seme))
+
+Funzione che stampa una carta:
+
+(define (print-carta lst)
+  (let ( (valore (lst 0)) (seme (lst 1)) )
+    (println (string "  " "+-------+"))
+    (println (string "  " "|" valore "      |"))
+    (cond ((= seme "B") ; Bastoni
+            (println (string "  " "|  | |  |"))
+            (println (string "  " "|  | |  |"))
+            (println (string "  " "|  | |  |")))
+          ((= seme "C") ; Coppe
+            (println (string "  " "| \\   / |"))
+            (println (string "  " "|  | |  |"))
+            (println (string "  " "|  +-+  |")))
+          ((= seme "D") ; Denari
+            (println (string "  " "|  +-+  |"))
+            (println (string "  " "|  | |  |"))
+            (println (string "  " "|  +-+  |")))
+          ((= seme "S") ; Spade
+            (println (string "  " "|   |   |"))
+            (println (string "  " "| --+-- |"))
+            (println (string "  " "|   |   |")))
+    )
+    (println (string "  " "|      " valore "|"))
+    (println (string "  " "+-------+")) '>))
+
+(print-carta '("A" "B"))
+;->   +-------+
+;->   |A      |
+;->   |  | |  |
+;->   |  | |  |
+;->   |  | |  |
+;->   |      A|
+;->   +-------+
+
+Funzione che stampa una mano:
+
+(define (print-mano mano)
+  (local (draw valore seme)
+    (setq draw (array 7 '("")))
+    (dolist (m mano)
+      (setq valore (m 0))
+      (setq seme (m 1))
+      ;(println valore { } seme)
+      (setq (draw 0) (extend (draw 0) (string "    " "+-------+")))
+      (setq (draw 1) (extend (draw 1) (string "    " "|" valore "      |")))
+      (cond ((= seme "B") ; Bastoni
+              (setq (draw 2) (extend (draw 2) (string "    " "|  | |  |")))
+              (setq (draw 3) (extend (draw 3) (string "    " "|  | |  |")))
+              (setq (draw 4) (extend (draw 4) (string "    " "|  | |  |"))))
+            ((= seme "C") ; Coppe
+              (setq (draw 2) (extend (draw 2) (string "    " "| \\   / |")))
+              (setq (draw 3) (extend (draw 3) (string "    " "|  | |  |")))
+              (setq (draw 4) (extend (draw 4) (string "    " "|  +-+  |"))))
+            ((= seme "D") ; Denari
+              (setq (draw 2) (extend (draw 2) (string "    " "|  +-+  |")))
+              (setq (draw 3) (extend (draw 3) (string "    " "|  | |  |")))
+              (setq (draw 4) (extend (draw 4) (string "    " "|  +-+  |"))))
+            ((= seme "S") ; Spade
+              (setq (draw 2) (extend (draw 2) (string "    " "|   |   |")))
+              (setq (draw 3) (extend (draw 3) (string "    " "| --+-- |")))
+              (setq (draw 4) (extend (draw 4) (string "    " "|   |   |"))))
+      )
+      (setq (draw 5) (extend (draw 5) (string "    " "|      " valore "|")))
+      (setq (draw 6) (extend (draw 6) (string "    " "+-------+")))
+    )
+    (map println draw) '>))
+
+(print-mano '(("7" "S")))
+;->     +-------+
+;->     |7      |
+;->     |   |   |
+;->     | --+-- |
+;->     |   |   |
+;->     |      7|
+;->     +-------+
+
+> (print-mano '(("2" "C") ("A" "S") ("F" "B") ("R" "D")))
+;->     +-------+    +-------+    +-------+    +-------+
+;->     |2      |    |A      |    |F      |    |R      |
+;->     | \   / |    |   |   |    |  | |  |    |  +-+  |
+;->     |  | |  |    | --+-- |    |  | |  |    |  | |  |
+;->     |  +-+  |    |   |   |    |  | |  |    |  +-+  |
+;->     |      2|    |      A|    |      F|    |      R|
+;->     +-------+    +-------+    +-------+    +-------+
+
+Funzione che mischia un mazzo (40 carte):
+
+(define (shuffle)
+  (local (mazzo valori bastoni coppe denari spade)
+    (setq mazzo '())
+    (setq valori '("A" "2" "3" "4" "5" "6" "7" "F" "C" "R"))
+    (setq bastoni (map (fn(x y) (list x y)) valori (dup "B" 10 true)))
+    (setq coppe (map (fn(x y) (list x y)) valori (dup "C" 10 true)))
+    (setq denari (map (fn(x y) (list x y)) valori (dup "D" 10 true)))
+    (setq spade (map (fn(x y) (list x y)) valori (dup "S" 10 true)))
+    (extend mazzo bastoni coppe denari spade)
+    (randomize mazzo)))
+
+(setq mazzo (shuffle))
+;-> (("3" "B") ("C" "C") ("R" "B") ("C" "D") ("5" "C") ("A" "D") 
+;->  ("4" "C") ("7" "D") ("6" "D") ("4" "B") ("5" "B") ("C" "B")
+;->  ...
+;->  ("3" "S") ("R" "D") ("6" "S") ("F" "D") ("6" "B") ("7" "S"))
+
+Nota: 'mazzo' è una variabile globale che, all'inizio, contiene le 40 carte mischiate.
+
+Funzione che crea una mano prendendo le prime di 'num' carte (prese dal mazzo mischiato):
+
+(define (get-mano num)
+  (cond ((<= num (length mazzo))
+          (setq mano '())
+          (for (i 1 num) (push (pop mazzo) mano -1)))
+        (true (setq mano '()))
+  )
+  mano)
+
+(print-mano (get-mano 3))
+;->     +-------+    +-------+    +-------+
+;->     |C      |    |5      |    |A      |
+;->     |  +-+  |    | \   / |    |  +-+  |
+;->     |  | |  |    |  | |  |    |  | |  |
+;->     |  +-+  |    |  +-+  |    |  +-+  |
+;->     |      C|    |      5|    |      A|
+;->     +-------+    +-------+    +-------+
+(length mazzo)
+;-> 37
+
+Funzione che prende la prima carta dal mazzo mischiato:
+
+(define (get-carta)
+  (if (> (length mazzo) 0) 
+      (pop mazzo)
+      ;else
+      '()))
+
+(print-carta (get-carta))
+;->   +-------+
+;->   |R      |
+;->   |  +-+  |
+;->   |  | |  |
+;->   |  +-+  |
+;->   |      R|
+;->   +-------+
+
+(length mazzo)
+;-> 36
+
 ============================================================================
 

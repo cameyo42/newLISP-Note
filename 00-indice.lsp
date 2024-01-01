@@ -2181,6 +2181,8 @@ NOTE LIBERE 20
   Contare il numero di cambiamenti dei valori
   Gemelli unici in due liste
   Teorema delle scimmie infinite (Infinite monkey theorem)
+  Base di un numero senza zeri
+  Funzioni per la gestione di un mazzo di carte Carte Napoletane
 
 PROBLEMI SUI DADI
 =================
