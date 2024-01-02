@@ -10,7 +10,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 02) Funzioni varie (111)
 03) newLISP 99 problemi (28)
 04) Rosetta code (101)
-05) Project eulero (126)
+05) Project eulero (128)
 06) Problemi vari (81)
 07) Domande programmatori (101)
 08) Librerie (12)

@@ -119,6 +119,8 @@
 |   113    |  51161058134250    |         -  |         8  |         -  |
 |   114    |  16475640049       |         -  |         0  |         -  |
 |   115    |  168               |         -  |         2  |         -  |
+|   116    |  20492570929       |         -  |         1  |         -  |
+|   117    |  100808458960497   |         -  |         1  |         -  |
 |   119    |  248155780267521   |         -  |        26  |         -  |
 |   120    |  333082500         |         -  |         0  |         -  |
 |   121    |  2269              |         -  |         1  |         -  |
@@ -12425,7 +12427,7 @@ Ci sono molte varianti nelle regole, ma nel gioco più popolare i giocatori iniz
 Quando un giocatore è in grado di terminare il punteggio corrente, viene chiamato "checkout" e il checkout più alto è 170: T20 T20 D25 (due tripli 20 e un doppio toro).
 
 Esistono esattamente undici modi distinti per effettuare il checkout con un punteggio di 6:
-     
+
   D3
   D1 D2
   S2 D2
@@ -12460,7 +12462,7 @@ In quanti modi distinti può effettuare il checkout un giocatore con un punteggi
     ; punteggi tripli
     (for (i 1 20) (push (* 3 i) lst -1))
     ;(println lst)
-    ; brute force 
+    ; brute force
     (setq out 0)
     (for (i 0 20)
       (setq score (lst i))
@@ -12908,6 +12910,122 @@ e il numero totale di combinazioni di n unità, indicato con F(m,i) nel problema
 
 (time (e115 50))
 ;-> 2
+----------------------------------------------------------------------------
+
+
+============
+Problema 116
+============
+
+Piastrelle rosse, verdi o blu
+
+Una fila di cinque piastrelle quadrate grigie deve avere un certo numero di piastrelle sostituite con piastrelle colorate scelte dal rosso (lunghezza due), verde (lunghezza tre), o blu (lunghezza quattro).
+
+Se vengono scelte le piastrelle rosse, ci sono esattamente sette modi per farlo.
+
+     |rosso,rosso|grigio|grigio|grigio| |grigio|rosso,rosso|grigio|grigio|
+
+     |grigio|grigio|rosso,rosso|grigio| |grigio|grigio|grigio|rosso,rosso|
+
+     |rosso,rosso|rosso,rosso|grigio| |rosso,rosso|grigio|rosso,rosso|
+
+     |grigio|rosso,rosso|rosso,rosso|
+
+Se vengono scelte le piastrelle verdi, ci sono tre modi.
+
+     |verde,verde,verde|grigio|grigio| |grigio|verde,verde,verde|grigio|
+
+     |grigio|grigio|verde,verde,verde|
+
+E se si scelgono le piastrelle blu ci sono due modi.
+
+     |blu,blu,blu,blu|grigio| |grigio|blu,blu,blu,blu|
+
+Supponendo che i colori non possano essere mescolati, ci sono 7 + 3 + 2 = 12 modi
+di sostituire le piastrelle grigie in una fila lunga cinque unità.
+
+In quanti modi diversi possono essere disposte in fila le piastrelle grigie che misurano cinquanta unità di lunghezza
+essere sostituita se non è possibile mescolare i colori ed è necessario utilizzare almeno una piastrella colorata?
+
+NOTA: questo è correlato al problema 117.
+============================================================================
+
+(define (e116 num)
+  (let (colors (array (+ num 1) 3 '(0)))
+    (for (rows 0 num)
+      (for (len-tile 2 4)
+        (if (>= (- rows len-tile) 0)
+            (for (start 0 (- rows len-tile))
+              (setf (colors rows (- len-tile 2))
+                    (+ (colors rows (- len-tile 2))
+                      (+ (colors (- rows start len-tile) (- len-tile 2)) 1)))
+            )
+        )
+      )
+    )
+    (apply + (colors -1))))
+
+(e116 5)
+;-> 12
+(e116 50)
+;-> 20492570929
+(time (e116 50))
+;-> 1.03
+----------------------------------------------------------------------------
+
+
+============
+Problema 117
+============
+
+Piastrelle rosse, verdi e blu
+
+Utilizzando una combinazione di piastrelle quadrate grigie e piastrelle oblunghe scelte tra:
+piastrelle rosse (che misurano due unità),
+piastrelle verdi (che misurano tre unità),
+piastrelle blu (che misurano quattro unità),
+è possibile riempire una fila di cinque unità di lunghezza esattamente in quindici modi diversi.
+
+     |grigio|grigio|grigio|grigio|grigio| |rosso,rosso|grigio|grigio|grigio|
+
+     |grigio|rosso,rosso|grigio|grigio| |grigio|grigio|rosso,rosso|grigio|
+
+     |grigio|grigio|grigio|rosso,rosso| |rosso,rosso|rosso,rosso|grigio|
+
+     |rosso,rosso|grigio|rosso,rosso| |grigio|rosso,rosso|rosso,rosso|
+
+     |verde,verde,verde|grigio|grigio| |grigio|verde,verde,verde|grigio|
+
+     |grigio|grigio|verde,verde,verde| |rosso,rosso|verde,verde,verde|
+
+     |verde,verde,verde|rosso,rosso| |blu,blu,blu,blu|grigio|
+
+     |grigio|blu,blu,blu,blu|
+
+In quanti modi si può piastrellare una fila lunga cinquanta unità?
+
+NOTA: questo è correlato al problema 116
+============================================================================
+
+(define (e117 num)
+  (let (ways (array (+ num 1) '(1)))
+    (for (rows 0 num)
+      (for (len-tile 2 4)
+        (if (>= (- rows len-tile) 0)
+            (for (start 0 (- rows len-tile))
+              (setf (ways rows) (+ (ways rows) (ways (- rows start len-tile))))
+            )
+        )
+      )
+    )
+    (ways -1)))
+
+(e117 5)
+;-> 15
+(e117 50)
+;-> 100808458960497
+(time (e117 50))
+;-> 0.998
 ----------------------------------------------------------------------------
 
 
@@ -13583,7 +13701,7 @@ Possiamo migliorare ancora un pò la velocità se scrivendo la funzione "reversi
             ; check tutte cifre dispari
             (setq cont true)
             (while (and cont (> inverso 0))
-              (if (zero? (% (% inverso 10) 2)) 
+              (if (zero? (% (% inverso 10) 2))
                   (set 'cont nil 'out nil))
               (setq inverso (/ inverso 10))
             ))
@@ -13621,7 +13739,7 @@ Poiché la terza cifra è dispari, anche la prima cifra è dispari se la seconda
 Qui abbiamo due coppie, interna ed esterna. Se la coppia interna ha il riporto, anche la coppia esterna deve avere il riporto. Poiché altrimenti le due coppie interne avranno parità diversa. Tuttavia, se la coppia interna ha un riporto, la coppia esterna avrà una parità diversa poiché la prima cifra finirà con un riporto che l'ultima cifra non otterrà. Pertanto abbiamo soluzioni solo quando nessuna delle coppie ha il riporto.
 Per la coppia esterna questo ci dà le 20 scelte che abbiamo visto nel caso a due cifre. E ci dà 30 casi per la coppia interna, poiché possono anche contenere uno zero.
 In totale otteniamo 20*30 = 600 soluzioni
- 
+
 5 cifre
 Qui abbiamo la cifra centrale, la coppia interna e la coppia esterna.
 La cifra centrale si aggiunge a se stessa, il che significa che la coppia interna deve avere un riporto. Quando la coppia interna ha un riporto, significa che la coppia esterna avrà una parità diversa. E quindi non ci sono soluzioni.
@@ -14019,17 +14137,19 @@ Scriviamo la funzione finale:
 Problema 469
 ============
 
-Empty chairs
+Sedie vuote
 
-In a room N chairs are placed around a round table.
-Knights enter the room one by one and choose at random an available empty chair.
-To have enough elbow room the knights always leave at least one empty chair between each other.
+In una stanza N sedie sono disposte attorno ad un tavolo rotondo.
+I cavalieri entrano nella stanza uno per uno e scelgono a caso una sedia vuota disponibile.
+Per avere abbastanza spazio per i gomiti, i cavalieri lasciano sempre almeno una sedia libera tra loro.
 
-When there aren't any suitable chairs left, the fraction C of empty chairs is determined.
-We also define E(N) as the expected value of C.
-We can verify that E(4) = 1/2 and E(6) = 5/9.
+Quando non rimangono più sedie adatte, si determina la frazione C di sedie vuote.
+Definiamo E(N) come il valore atteso di C.
+Possiamo verificare che E(4) = 1/2 ed E(6) = 5/9.
 
-Find E(1018). Give your answer rounded to fourteen decimal places in the form 0.abcdefghijklmn.
+Trovare E(1018).
+Dare la risposta arrotondata a quattordici cifre decimali nella forma 0.abcdefghijklmn.
+
 ============================================================================
 
 (define (e469)

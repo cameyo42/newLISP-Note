@@ -332,7 +332,7 @@ ROSETTA CODE
 
 PROJECT EULERO
 ==============
-  Problemi 1..105, 108..110, 112..115, 119..125,
+  Problemi 1..105, 108..110, 112..117, 119..125,
            135, 145, 173, 188, 191, 206, 469
 
 PROBLEMI VARI
@@ -2183,6 +2183,7 @@ NOTE LIBERE 20
   Teorema delle scimmie infinite (Infinite monkey theorem)
   Base di un numero senza zeri
   Funzioni per la gestione di un mazzo di carte Carte Napoletane
+  Interi come somma di palindromi
 
 PROBLEMI SUI DADI
 =================

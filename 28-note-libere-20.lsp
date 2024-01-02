@@ -7004,5 +7004,97 @@ Funzione che prende la prima carta dal mazzo mischiato:
 (length mazzo)
 ;-> 36
 
+
+-------------------------------
+Interi come somma di palindromi
+-------------------------------
+
+L'articolo seguente prova che ogni intero positivo può essere scritto come somma di tre numeri palindromi per ogni base b>=5.
+"Every positive integer is a sum of three palindromes"
+di Javier Cilleruelo, Florian Luca, Lewis Baxter
+https://arxiv.org/pdf/1602.06208v2.pdf
+
+Limitandoci alla base b=10, scrivere una funzione che, dato un numero, calcola tutte le triple di numeri palindromi distinti la cui somma è uguale al numero dato.
+
+Possono esistere più triple di numeri distinti la cui somma è uguale al numero dato.
+Per esempio,
+Numero = 111
+Triple = (1 9 101) (1 11 99) (1 22 88) (1 33 77) (1 44 66) (2 8 101)
+         (3 7 101) (3 9 99) (4 6 101) (4 8 99) (5 7 99))
+
+Inoltre, poichè vogliamo solo le triple (non coppie o numeri singoli) i numeri minori di 6 non hanno alcuna tripla.
+
+Funzione che verifica se un numero è palindromo:
+
+(define (pali? num) (let (s (string num)) (= s (reverse (copy s)))))
+
+(filter pali? (sequence 1 30))
+;-> (1 2 3 4 5 6 7 8 9 11 22)
+
+Funzione che trova tutte le triple di numeri di una lista la cui somma è uguale a un dato numero:
+
+Per 2 numeri che sommano a N vedi:
+"Somma di numeri in una lista (Google)" su "Domande".
+
+Per 3 numeri che sommano a N vedi:
+"Triple con una data somma (Uber)" su "Domande".
+
+Algoritmo: uso di due puntatori dopo aver ordinato la lista.
+
+(define (triple lst somma)
+  (local (l r x n out)
+    (setq out '())
+    (setq n (length lst))
+    (sort lst)
+    (for (i 0 (- n 2))
+      (setq l (+ i 1))
+      (setq r (- n 1))
+      (setq x (lst i))
+      (while (< l r)
+        (cond ((= (+ x (lst l) (lst r)) somma)
+               ;(println x { } (lst l) { } (lst r))
+               (push (list x (lst l) (lst r)) out -1)
+               (++ l)
+               (-- r))
+              ((< (+ x (lst l) (lst r)) somma)
+               (++ l))
+              (true (-- r))
+        )
+      )
+    )
+    out))
+
+Funzione che, dato un numero, calcola tutte le triple di numeri palindromi distinti la cui somma è uguale al numero dato:
+
+(define (pali-sum num)
+  (triple (filter pali? (sequence 1 num)) num))
+
+Facciamo qualche prova:
+
+(pali-sum 6)
+;-> ((1 2 3))
+
+(pali-sum 132)
+;-> ((2 9 121) (3 8 121) (4 7 121) (5 6 121) (9 22 101) (11 22 99) (11 33 88)
+;->  (11 44 77) (11 55 66) (22 33 77) (22 44 66) (33 44 55))
+
+Scriviamo una funzione che verifica se tutti i numeri fino ad un certo limite hanno almeno una tripla di numeri palindromi distinti che sommano al numero:
+
+(define (check limit)
+  (let (pali (sequence 1 5))
+    (for (k 6 limit)
+      (if (pali? k) (push k pali))
+      ;(print k { } pali) (read-line)
+      (if (= '() (tripla pali k)) (println k)))))
+
+(time (println (check 1000)))
+;-> nil
+;-> 711.104
+(time (println (check 2000)))
+;-> nil
+;-> 3554.805
+(time (println (check 3000)))
+;-> 7728.546
+
 ============================================================================
 
