@@ -2184,6 +2184,9 @@ NOTE LIBERE 20
   Base di un numero senza zeri
   Funzioni per la gestione di un mazzo di carte Carte Napoletane
   Interi come somma di palindromi
+  Esponenti massimi e minimi dei primi
+  Sequenza di interi concatenati
+  Somma delle differenze tra sequenze di cifre consecutive
 
 PROBLEMI SUI DADI
 =================

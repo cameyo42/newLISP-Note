@@ -7096,5 +7096,269 @@ Scriviamo una funzione che verifica se tutti i numeri fino ad un certo limite ha
 (time (println (check 3000)))
 ;-> 7728.546
 
+
+------------------------------------
+Esponenti massimi e minimi dei primi
+------------------------------------
+
+Dato un intero N >= 2, scrivere una funzione che restituisce l'esponente più grande e l'esponente più piccolo nella sua scomposizione in fattori primi.
+
+Per esempio, 
+N = 200 = 2*2*2*5*5 = 2^3*5^2 
+Esponente massimo = 3
+Esponente minimo = 2
+
+Sequenza OEIS A051903:
+Maximal exponent in prime factorization of n
+	0, 1, 1, 2, 1, 1, 1, 3, 2, 1, 1, 2, 1, 1, 1, 4, 1, 2, 1, 2, 1, 1, 1, 3,
+  2, 1, 3, 2, 1, 1, 1, 5, 1, 1, 1, 2, 1, 1, 1, 3, 1, 1, 1, 2, 2, 1, 1, 4,
+  2, 2, 1, 2, 1, 3, 1, 3, 1, 1, 1, 2, 1, 1, 2, 6, 1, 1, 1, 2, 1, 1, 1, 3,
+  1, 1, 2, 2, 1, 1, 1, 4, 4, 1, 1, 2, 1, 1, 1, 3, 1, 2, ...
+
+Sequenza OEIS A051904:
+Minimal exponent in prime factorization of n
+  0, 1, 1, 2, 1, 1, 1, 3, 2, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1,
+  2, 1, 3, 1, 1, 1, 1, 5, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 1, 1, 1, 1, 1, 1, 2,
+  1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+
+Algoritmo:
+(setq num 200)
+;-> 200
+(setq fattori (factor num))
+;-> (2 2 2 5 5)
+(setq unici (unique fattori))
+;-> (2 5)
+(setq esponenti (count unici fattori))
+;-> (3 2)
+Esponente massimo:
+(apply max esponenti)
+;-> 3
+Esponente minimo:
+(apply min esponenti)
+;-> 2
+
+(define (max-factor num)
+  (let (fattori (factor num))
+    (apply max (count (unique fattori) fattori))))
+
+(max-factor 200)
+;-> 3
+
+(map max-factor (sequence 2 80))
+;-> (1 1 2 1 1 1 3 2 1 1 2 1 1 1 4 1 2 1 2 1 1 1 3 2 1 3 2 1 1 1 5 1 1
+;->  1 2 1 1 1 3 1 1 1 2 2 1 1 4 2 2 1 2 1 3 1 3 1 1 1 2 1 1 2 6 1 1 1
+;->  2 1 1 1 3 1 1 2 2 1 1 1 4)
+
+(define (min-factor num)
+  (let (fattori (factor num))
+    (apply min (count (unique fattori) fattori))))
+
+(min-factor 200)
+;-> 2
+
+(map min-factor (sequence 2 80))
+;-> (1 1 2 1 1 1 3 2 1 1 1 1 1 1 4 1 1 1 1 1 1 1 1 2 1 3 1 1 1 1 5 1 1
+;->  1 2 1 1 1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 6 1 1 1
+;->  1 1 1 1 2 1 1 1 1 1 1 1 1)
+
+
+------------------------------
+Sequenza di interi concatenati
+------------------------------
+
+Consideriamo la sequenza di interi positivi:
+
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, ...
+
+Concateniamo le cifre della sequenza:
+
+  1234567891011121314151617181920212223242526...
+
+Adesso vogliamo dividere la sequenza in due modi differenti:
+
+1) lista in cui l'elemento n-esimo contiene n cifre
+
+(1)(23)(456)(7891)(01112)(131415)(1617181)(92021222)(324252627) ...
+---------------------------------------------------------------
+ 1  2    3     4     5       6       7        8          9      ...
+
+2) lista in cui l'elemento n-esimo contiene n numeri
+
+(1)(23)(456)(78910)(1112131415)(161718192021)(22232425262728) ...
+-------------------------------------------------------------
+ 1  2    3     4        5            6              7         ...
+ 
+Scrivere una funzione per ognuno dei due tipi di divisione.
+La funzione prende come parametro la lunghezza della sequenza iniziale (ovvero l'ultimo numero della sequenza).
+Per esempio:
+
+lista tipo 1 con N=13
+(divide1 13) -> (1 23 456 7891 01112) 
+Le cifre del 13 non compaiono perchè non sono sufficienti a creare il successivo elemento (131415).
+
+lista tipo 2 con N=11 elementi:
+(divide2 11) -> (1 23 456 78910)
+Il numero 11 non compare perchè non è sufficiente a creare il successivo elemento (1112131415).
+
+1) Funzione (divide1)
+
+(define (list-break lst lst-len)
+"Breaks a list into sub-lists of specified lengths"
+  (let ((i 0) (q 0) (out '()))
+    (dolist (el lst-len)
+      (setq i (+ i q))
+      (setq q el)
+      (push (slice lst i q) out -1)
+    )
+    out))
+
+Algoritmo:
+
+(setq seq (sequence 1 13))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13)
+(setq lst (explode (join (map string seq))))
+;-> ("1" "2" "3" "4" "5" "6" "7" "8" "9" "1" "0" "1" "1" "1" "2" "1" "3")  
+(setq len-lst (length lst))
+;-> 17
+; la somma dei numeri da 1 a k vale: somma = (k*(k-1))/2
+; len-lst è il numero di cifre totali (che è la nostra somma)
+; risolvendo per k otteniamo k = (1 + sqrt(1 + 8*(len-lst)))/2
+; quindi l'ultimo indice della lista divisa vale: (int k) - 1.
+; In questo caso è last-num:
+(setq last-num (- (int (div (add 1 (sqrt (add 1 (mul 8 len-lst)))) 2)) 1))
+;-> 5
+; Spezziamo la lista di cifre con la sequenza 1..last-num 
+; e uniamo le cifre di ogni elemento della lista
+(map join (list-break lst (sequence 1 last-num)))
+;-> ("1" "23" "456" "7891" "01112")
+
+(define (divide1 N)
+  (local (seq lst len-lst last-num)
+    (setq seq (sequence 1 N))
+    (setq lst (explode (join (map string seq))))
+    (setq len-lst (length lst))
+    (setq last-num (- (int (div (add 1 (sqrt (add 1 (mul 8 len-lst)))) 2)) 1))
+    (map join (list-break lst (sequence 1 last-num)))))
+
+Proviamo:
+
+(divide1 13)
+;-> ("1" "23" "456" "7891" "01112")
+
+(divide1 50)
+;-> ("1" "23" "456" "7891" "01112" "131415" "1617181" "92021222" "324252627"
+;->  "2829303132" "33343536373" "839404142434" "4454647484950")
+
+Verifichiamo che l'elemento n-esimo ha n cifre:
+
+(map length (divide1 50))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13)
+
+2) Funzione (divide2)
+
+Algoritmo:
+
+(setq seq (sequence 1 11))
+;-> (1 2 3 4 5 6 7 8 9 10 11)
+(setq lst (map string seq))
+;-> ("1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11")
+; la somma dei numeri da 1 a k vale: somma = (k*(k-1))/2
+; N è il numero di elementi totali (che è la nostra somma)
+; risolvendo per k otteniamo k = (1 + sqrt(1 + 8*N))/2
+; quindi l'ultimo indice della lista divisa vale: (int k) - 1.
+; In questo caso è last-num:
+(setq last-num (- (int (div (add 1 (sqrt (add 1 (mul 8 11)))) 2)) 1))
+;-> 4
+; Spezziamo la lista di cifre con la sequenza 1..last-num 
+; e uniamo i numeri di ogni elemento della lista
+(map join (list-break lst (sequence 1 last-num)))
+;-> ("1" "23" "456" "78910")
+
+(define (divide2 N)
+  (local (seq lst last-num)
+    (setq seq (sequence 1 N))
+    (setq lst (map string seq))
+    (setq last-num (- (int (div (add 1 (sqrt (add 1 (mul 8 N)))) 2)) 1))
+    (map join (list-break lst (sequence 1 last-num)))))
+
+Proviamo:
+
+(divide2 11)
+;-> ("1" "23" "456" "78910")
+
+(divide2 50)
+;-> ("1" "23" "456" "78910" "1112131415" "161718192021" "22232425262728"
+;->  "2930313233343536" "373839404142434445")
+
+
+--------------------------------------------------------
+Somma delle differenze tra sequenze di cifre consecutive
+--------------------------------------------------------
+
+Consideriamo la sequenza di interi positivi:
+
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, ...
+
+Concateniamo le cifre della sequenza:
+
+  1234567891011121314151617181920212223242526...
+
+Scrivere una funzione per calcolare la somma delle differenze di tutte le coppie di cifre consecutive da num1 a num2.
+
+Per esempio, con num1 = 1 e num2 = 12 abbiamo:
+
+  sequenza = (1 2 3 4 5 6 7 8 9 10 11 12)
+  concatenazione = 123456789101112
+  differenze tra coppie consecutive = ((2 - 1) (3 - 2) (4 - 3) (5 - 4) (6 - 5) 
+  (7 - 6) (8 - 7) (9 - 8) (1 - 9) (0 - 1) (1 - 0) (1 - 1) (1 - 1) (2 - 1)) = 
+  = (1 1 1 1 1 1 1 -8 -1 1 0 0 1)
+  Somma = 1 + 1 + 1 + 1 + 1 + 1 + 1 + -8 + -1 + 1 + 0 + 0 + 1 = 1
+
+Algoritmo:
+
+; sequenza
+(setq seq (sequence 1 12))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12)
+; cifre (stringhe)
+(setq cifre (explode (join (map string seq))))
+;-> ("1" "2" "3" "4" "5" "6" "7" "8" "9" "1" "0" "1" "1" "1" "2")
+; cifre (interi)
+(setq digit (map int cifre))
+;-> (1 2 3 4 5 6 7 8 9 1 0 1 1 1 2)
+; differenze
+(setq diff (map - (rest digit) (chop digit)))
+;-> (1 1 1 1 1 1 1 1 -8 -1 1 0 0 1)
+; somma delle differenze
+(setq somma (apply + diff))
+;-> 1
+
+(define (sum-diff1 num1 num2)
+  (let (digit (map int (explode (join (map string (sequence num1 num2))))))
+    (apply + (map - (rest digit) (chop digit)))))
+
+(sum-diff1 1 12)
+;-> 1
+
+(sum-diff1 21 123)
+;-> 1
+
+(sum-diff1 11 1099)
+;-> 8
+
+Nota: matematicamente risulta che la somma di tutte le differenze tra cifre consecutive è la differenza tra l'ultima e la prima cifra.
+
+(define (sum-diff2 num1 num2)
+  (- (int (last (string num2))) (int (first (string num1)))))
+
+(sum-diff2 1 12)
+;-> 1
+
+(sum-diff2 21 123)
+;-> 1
+
+(sum-diff2 11 1099)
+;-> 8
+
 ============================================================================
 
