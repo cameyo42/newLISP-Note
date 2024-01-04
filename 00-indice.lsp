@@ -2187,6 +2187,13 @@ NOTE LIBERE 20
   Esponenti massimi e minimi dei primi
   Sequenza di interi concatenati
   Somma delle differenze tra sequenze di cifre consecutive
+  La rana saltatrice
+  Quadrati binari
+  Numeri N-gonali
+  Distanza tra N punti
+  Potenze prime dei primi
+  Lista continua di interi
+  Radice fattoriale prima di un numero
 
 PROBLEMI SUI DADI
 =================

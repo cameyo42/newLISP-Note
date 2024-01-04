@@ -7100,10 +7100,15 @@ Scrivo questi articoli per tenere allenata la mente (over 60...).
 Non sono un programmatore. Solo un amatore.
 Niente di trascendentale, ma di tutto un pò (e ci saranno anche argomenti ripetuti...dovuti alla mia labile memoria).
 Quando incontro un problema o un argomento che mi interessa (leggendo un libro o sul web o sul lavoro), cerco di risolverlo/capirlo anche con l'aiuto di newLISP.
-Gli articoli non hanno tutti la stessa profondità o spiegazioni complete, ma i sorgenti sono commentati.
+Gli articoli non hanno tutti la stessa profondità o spiegazioni complete, ma i sorgenti sono commentati (quasi sempre).
+Alcuni articoli trattano le tecniche generali di "Risoluzione dei problemi".
 Ogni articolo è autosufficiente, nel senso che in ognuno sono riportate tutte le funzioni necessarie per eseguire i programmi.
+Alcuni problemi sono ottimi esercizi di programmazione per principianti.
 In genere i programmi (funzioni) sono scritti per essere leggibili e possono essere sicuramente migliorati/ottimizzati.
+Mi sono divertito anche a programmare diversi giochi (carte, dadi, griglie, ecc.).
 Ci sono degli errori? Sicuramente si (anche se mi sono impegnato abbastanza).
+
+============================================================================
 
 Non sei roba tua
 Non sei il tuo lavoro

@@ -7360,5 +7360,536 @@ Nota: matematicamente risulta che la somma di tutte le differenze tra cifre cons
 (sum-diff2 11 1099)
 ;-> 8
 
+
+------------------
+La rana saltatrice
+------------------
+
+La "rana saltatrice" è un animale che salta tra i numeri interi, fino ad arrivare al 3 o al 19.
+La rana usa il seguente metodo per saltare tra i numeri:
+
+1) la rana parte da un numero intero positivo casuale n>=2:
+2) se n = 3 o n = 19:
+   la rana smette di saltare (3 o 19).
+3) se n è primo:
+   la rana salta nella posizione (2*n - 1).
+   Poi torna al passo 2.
+4) se f è composito:
+   la rana salta nella posizione (f - d), dove d è il divisore primo maggiore.
+   Poi torna al passo 2.
+
+(define (rana num)
+  (let (f (factor num))
+    (print num { })
+    (cond ((or (= num 3) (= num 19)) nil)
+          ((= (length f) 1) (rana (- (* 2 num) 1)))
+          (true (rana (- num (last f)))))))
+
+(rana 23)
+;-> 23 45 40 35 28 21 14 7 13 25 20 15 10 5 9 6 3 nil
+
+(define (frog-aux num)
+  (let (f (factor num))
+    ;(print num { })
+    (push num out -1)
+    (cond ((or (= num 3) (= num 19)) nil)
+          ((= (length f) 1) (frog-aux (- (* 2 num) 1)))
+          (true (frog-aux (- num (last f)))))))
+
+(define (frog num)
+  (let (out '())
+    (frog-aux num)
+    out))
+
+(frog 23)
+;-> (23 45 40 35 28 21 14 7 13 25 20 15 10 5 9 6 3)
+
+(length (frog 1e6))
+;-> 414
+
+I numeri 3 e 19 creano due cicli:
+
+(define (ciclo-aux num)
+  (let (f (factor num))
+    (cond ((ref num out) nil)
+          ((= (length f) 1) 
+            (push num out -1)
+            (ciclo-aux (- (* 2 num) 1)))
+          (true 
+            (push num out -1)
+            (ciclo-aux (- num (last f)))))))
+
+(define (ciclo num)
+  (let (out '())
+    (ciclo-aux num)
+    (push num out -1)
+    out))
+
+(ciclo 3)
+;-> (3 5 9 6 3)
+(ciclo 19)
+;-> (19 37 73 145 116 87 58 29 57 38 19)
+
+
+---------------
+Quadrati binari
+---------------
+
+Un quadrato binario di un numero N viene costruito nel modo seguente:
+
+1) Prendere la sequenza dei numeri naturali positivi:
+
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, ...
+
+2) Convertire ogni numero in binario:
+
+1, 10, 11, 100, 101, 110, 111, 1000, 1001, 1010, 1011, 1100, 1101, 1110, 1111, 10000, 10001, ...
+
+3) Concatenare tutti i numeri binari:
+
+  11011100101110111100010011010101111001101111011111000010001 ...
+
+Partendo da k=1, generare matrici quadrate di dimensione k prendendo i valori necessari dalla sequenza dei numeri binari concatenati fino a restituire la matrice per k = N
+
+Valori usati per le matrici quadrate:
+
+  1 1011 100101110 1111000100110101 0111100110111101111100001 0001 ...
+
+Matrici quadrate:
+
+  k=1
+  1
+
+  k=2
+  1 0
+  1 1
+
+  k=3
+  1 0 0
+  1 0 1
+  1 1 0
+
+  k=4
+  1 1 1 1
+  0 0 0 1
+  0 0 1 1
+  0 1 0 1
+
+  k=5
+  0 1 1 1 1
+  0 0 1 1 0
+  1 1 1 1 0
+  1 1 1 1 1
+  0 0 0 0 1
+
+  k=6
+  ...
+
+Scrivere una funzione per generare il quadrato binario di un numero N.
+
+(define (print-matrix matrix)
+"Print a matrix m x n"
+  (local (row col lenmax digit fmtstr)
+    (if (array? matrix) (setq matrix  (array-list matrix)))
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (setq lenmax (apply max (map length (map string (flat matrix)))))
+    (setq digit (+ 1 lenmax))
+    (setq fmtstr (append "%" (string digit) "s"))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format fmtstr (string (matrix i j))))
+      )
+      (println)) '>))
+
+Il primo problema è sapere quante cifre binarie occorrono per creare la matrice quadrata del numero N.
+
+La somma dei quadrati dei primi N numeri vale:
+
+  Sum[i=1..N](i^2) = (N*(N+1)*(2N+1))/6
+
+(define (sumsq num) (div (* num (+ num 1) (+ (* 2 num) 1)) 6))
+
+Per esempio con N = 10 ci servono 385 cifre:
+
+(setq N 10)
+(setq cifre (sumsq N))
+;-> 385
+
+Adesso per avere 385 cifre binarie fino a che numero decimale bisogna arrivare?
+Generiamo la stringa di cifre binarie partendo dal numero decimale 1 fino a che non raggiungiamo almeno 385 cifre binarie:
+
+(setq len-bin 1)
+(setq num 1)
+(setq bin "1")
+
+(while (< len-bin cifre)
+  (++ num)
+  (setq len-bin (+ len-bin (length (bits num))))
+  (extend bin (bits num))
+)
+;-> "11011100101110111100010011010101111001101111011111000010001100101001110
+;->  10010101101101011111000110011101011011111001110111110111111000001000011
+;->  00010100011100100100101100110100111101000101001101010101011101100101101
+;->  10111010111111000011000111001011001111010011010111011011011111100011100
+;->  11110101110111111001111011111101111111000000100000110000101000011100010
+;->  010001011000110100011110010001001001"
+
+Adesso estraiamo tutte le matrici (i quadrati binari) fino alla matrice N-esima (10):
+
+(setq idx 0)
+
+(for (k 1 N)
+  (setq m (slice bin idx (* k k)))
+  (setq quad (array k k (explode m)))
+  (setq idx (+ idx (* k k)))
+  (print-matrix quad) (read-line)
+)
+
+(print-matrix quad)
+;->  1 1 1 0 1 0 1 1 1 0
+;->  1 1 1 1 1 1 0 0 1 1
+;->  1 1 0 1 1 1 1 1 1 0
+;->  1 1 1 1 1 1 1 0 0 0
+;->  0 0 0 1 0 0 0 0 0 1
+;->  1 0 0 0 0 1 0 1 0 0
+;->  0 0 1 1 1 0 0 0 1 0
+;->  0 1 0 0 0 1 0 1 1 0
+;->  0 0 1 1 0 1 0 0 0 1
+;->  1 1 1 0 0 1 0 0 0 1
+
+Scriviamo la funzione finale:
+
+(define (quad-bin N)
+  (local (num-cifre num bin len-bin idx m quad)
+    (setq num-cifre (div (* N (+ N 1) (+ (* 2 N) 1)) 6))
+    (setq num 1)
+    (setq bin "1")
+    (setq len-bin 1)
+    (while (< len-bin num-cifre)
+      (++ num)
+      (setq len-bin (+ len-bin (length (bits num))))
+      (extend bin (bits num))
+    )
+    (setq idx 0)
+    (for (k 1 N)
+      (setq m (slice bin idx (* k k)))
+      (setq quad (array k k (explode m)))
+      (setq idx (+ idx (* k k)))
+      ;(print-matrix quad) (read-line)
+    )
+    (print-matrix quad)))
+
+Proviamo:
+
+(quad-bin 4)
+;->  1 1 1 1
+;->  0 0 0 1
+;->  0 0 1 1
+;->  0 1 0 1
+
+(quad-bin 7)
+;->  0 0 0 1 1 0 0
+;->  1 1 1 0 1 0 1
+;->  1 0 1 1 1 1 1
+;->  0 0 1 1 1 0 1
+;->  1 1 1 1 0 1 1
+;->  1 1 1 1 0 0 0
+;->  0 0 1 0 0 0 0
+
+(quad-bin 12)
+;->  1 0 1 0 1 0 1 1 0 1 1 1
+;->  0 1 1 1 0 0 1 0 1 1 1 0
+;->  1 1 0 1 1 1 1 0 1 0 1 1
+;->  1 1 1 1 1 0 0 0 0 0 1 1
+;->  0 0 0 0 1 1 1 0 0 0 1 0
+;->  1 1 0 0 0 1 1 1 1 0 0 1
+;->  0 0 1 1 0 0 1 0 1 1 1 0
+;->  0 1 1 0 1 1 0 0 1 1 1 1
+;->  1 0 1 0 0 0 1 1 0 1 0 0
+;->  1 1 1 0 1 0 1 0 1 1 0 1
+;->  0 1 1 1 1 0 1 1 0 0 1 1
+;->  0 1 1 0 1 1 1 0 1 1 1 0
+
+
+---------------
+Numeri N-gonali
+---------------
+
+L'N-esimo numero N-gonale è definito come l'N-esimo numero della sequenza formata da un poligono di N lati.
+
+Sequenza OEIS A060354:
+The n-th n-gonal number: a(n) = n*(n^2 - 3*n + 4)/2
+  0, 1, 2, 6, 16, 35, 66, 112, 176, 261, 370, 506, 672, 871, 1106, 1380,
+  1696, 2057, 2466, 2926, 3440, 4011, 4642, 5336, 6096, 6925, 7826, 8802,
+  9856, 10991, 12210, 13516, 14912, 16401, 17986, 19670, 21456, 23347,
+  25346, 27456, 29680, 32021, ...
+
+(define (n-gonal num)
+  (/ (* num (+ (* num num) (* -3 num) 4)) 2))
+
+(map n-gonal (sequence 0 40))
+;-> (0 1 2 6 16 35 66 112 176 261 370 506 672 871 1106 1380 1696 2057 2466
+;->  2926 3440 4011 4642 5336 6096 6925 7826 8802 9856 10991 12210 13516 
+;->  14912 16401 17986 19670 21456 23347 25346 27456 29680)
+
+
+--------------------
+Distanza tra N punti
+--------------------
+
+Data una lista con N coordinate che rappresentano la posizione di N punti in una griglia 2D, scrivere una funzione che restituisce per ogni punto le distanze con tutti gli altri punti (e la loro somma).
+Per esempio,
+  N = 3
+  p1 = (2 3)
+  p2 = (-5 5)
+  p3 = (0 -1)
+  distanza(p1 p2) = 7.2801
+  distanza(p1 p3) = 4.4721
+  distanza(p2 p3) = 7.8102
+  somma-distanze(p1) = 7.2801 + 4.4721 = 11.7522
+  somma-distanze(p2) = 7.2801 + 7.8102 = 15.093
+  somma-distanze(p3) = 4.4721 + 7.8102 = 12.2823
+
+Nell'esempio abbiamo usato la distanza euclidea tra due punti, ma la funzione deve poter operare con i seguenti tipi di distanze:
+
+1) Distanza euclidea
+2) Distanza di Manhattan (4 direzioni)
+3) Distanza di Manhattan (8 direzioni)
+4) Distanza terrestre (latitudine-longitudine)
+
+(define (dist2d x1 y1 x2 y2)
+"Calculates 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+             (mul (sub y1 y2) (sub y1 y2)))))
+
+(define (dist-manh4 x1 y1 x2 y2)
+"Calculates Manhattan distance (4 directions - rook) of two points P1=(x1 y1) e P2=(x2 y2)"
+  (add (abs (sub x1 x2)) (abs (sub y1 y2))))
+
+(define (dist-manh8 x1 y1 x2 y2)
+"Calculates Manhattan distance (8 directions - queen) of two points P1=(x1 y1) e P2=(x2 y2)"
+  (max (abs (sub x1 x2)) (abs (sub y1 y2))))
+
+(define (dist-earth lat1 lon1 lat2 lon2)
+  (define (deg-rad deg) (div (mul deg 3.1415926535897931) 180))
+"Calculates the minimal distance of two points on a sphere with haversine formula"
+  (local (r dlat dlon a c d)
+  (setq r 6371) ; raggio medio della terra in km
+  (setq dlat (deg-rad (sub lat2 lat1))) ; delta lat (in radianti)
+  (setq dlon (deg-rad (sub lon2 lon1))) ; delta lon (in radianti)
+  (setq a (add (mul (sin (div dlat 2)) (sin (div dlat 2)))
+               (mul (cos (deg-rad lat1)) (cos (deg-rad lat2))
+                    (sin (div dlon 2)) (sin (div dlon 2)))))
+  (setq c (mul 2 (atan2 (sqrt a) (sqrt (sub 1 a)))))
+  (setq d (mul r c)))) ; distanza in km
+
+Funzione che calcola le distanze tra tutti i punti:
+
+(define (distanze pts func)
+  (setq len (length pts))
+  (setq dist (array len len '(0)))
+  (for (i 0 (- len 2))
+    (for (j (+ i 1) (- len 1))
+      (setq x1 (pts i 0))
+      (setq y1 (pts i 1))
+      (setq x2 (pts j 0))
+      (setq y2 (pts j 1))
+      (setq d (func x1 y1 x2 y2))
+      (setf (dist i j) d)
+      (setf (dist j i) d)
+    )
+  )
+  (for (row 0 (- len 1))
+    (println "p" (+ row 1) " = " (dist row) " (" (apply add (dist row)) ")")
+  ))
+
+Proviamo:
+
+(distanze '((2 3) (-5 5) (0 -1)) dist2d)
+;-> p1 = (0 7.280109889280518 4.47213595499958) (11.7522458442801)
+;-> p2 = (7.280109889280518 0 7.810249675906654) (15.09035956518717)
+;-> p3 = (4.47213595499958 7.810249675906654 0) (12.28238563090623)
+
+(distanze '((2 3) (-5 5) (0 -1)) dist-manh4)
+;-> p1 = (0 9 6) (15)
+;-> p2 = (9 0 11) (20)
+;-> p3 = (6 11 0) (17)
+
+(distanze '((2 3) (-5 5) (0 -1)) dist-manh8)
+;-> p1 = (0 7 4) (11)
+;-> p2 = (7 0 6) (13)
+;-> p3 = (4 6 0) (10)
+
+(distanze '((2 3) (-5 5) (0 -1)) dist-earth)
+;-> p1 = (0 809.4522894613095 497.1980008482959) (1306.650290309606)
+;-> p2 = (809.4522894613095 0 867.808561372754) (1677.260850834064)
+;-> p3 = (497.1980008482959 867.808561372754 0) (1365.00656222105)
+
+
+-----------------------
+Potenze prime dei primi
+-----------------------
+
+Le potenze prime dei numeri primi si riferiscono ai numeri primi elevati a una potenza intera positiva.
+In altre parole, questi sono numeri della forma p^n , dove p è un numero primo e n è un intero positivo maggiore di 1.
+
+Consideriamo ad esempio il numero primo 2:
+
+- 2^2 = 4 (una potenza prima, poiché 4 è 2^2 )
+- 2^3 = 8 (una potenza prima)
+- 2^4 = 16 (non una potenza prima, poiché 16 non è un numero primo)
+
+Allo stesso modo, per il numero primo 3:
+
+- 3^2 = 9 (una potenza prima)
+- 3^3 = 27 (una potenza prima)
+- 3^4 = 81 (non una potenza primaria)
+
+È importante notare che mentre tutte le potenze prime sono numeri della forma p^n, non tutti i numeri di questa forma sono potenze prime.
+Una potenza prima si riferisce specificamente al caso in cui sia p che n sono primi.
+
+Sequenza OEIS A053810 :
+Prime powers of prime numbers
+  4, 8, 9, 25, 27, 32, 49, 121, 125, 128, 169, 243, 289, 343, 361, 529, 
+  841, 961, 1331, 1369, 1681, 1849, 2048, 2187, 2197, 2209, 2809, 3125, 
+  3481, 3721, 4489, 4913, 5041, 5329, 6241, 6859, 6889, 7921, 8192, 9409,
+  10201, 10609, 11449, 11881, 12167, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che verifica se un numero è potenza prima di un numero primo:
+
+(define (ppp? num)
+  (local (f len)
+    (setq f (factor num))
+    (setq len (length f))
+    ; numero composito: (> len 1)
+    ; tutti i fattori uguali: (apply = f)
+    ; lunghezza dei fattori prima: (prime? len))))
+    (and (> len 1) (apply = f) (prime? len))))
+
+(filter ppp? (sequence 1 10000))
+;-> (4 8 9 25 27 32 49 121 125 128 169 243 289 343 361 529 841 961 1331 1369
+;->  1681 1849 2048 2187 2197 2209 2809 3125 3481 3721 4489 4913 5041 5329 
+;->  6241 6859 6889 7921 8192 9409)
+
+
+------------------------
+Lista continua di interi
+------------------------ 
+
+Data una lista contenente numeri interi, scrivere una funzione che inserisce i numeri interi necessari per renderla continua.
+
+Per esempio,
+
+  lista = (4 2 6 1)
+  lista continua = (4 3 2 3 4 5 6 5 4 3 2 1)
+
+  lista = (10 10)
+  lista continua = (10 10)
+  
+  lista = (-1 3 5)
+  lista continua = (-1 0 1 2 3 4 5)
+
+  lista = (1 -3 3 3 4 4 5 5 7 -1)
+  lista continua = (1 0 -1 -2 -3 -2 -1 0 1 2 3 3 4 4 5 5 6 7 6 5 4 3 2 1 0 -1)
+
+Funzione che rende continua una lista di interi:
+
+(define (continua lst)
+  (local (len out)
+  (setq len (length lst))
+  (cond ((zero? len) (setq out '()))
+        ((= len 1) (setq out lst))
+        (true
+          (for (i 0 (- (length lst) 2))
+            (cond ((= (lst i) (lst (+ i 1))) ; primo = secondo
+                    ; aggiunge solo primo numero
+                    (push (lst i) out -1)) 
+                  ((> (lst i) (lst (+ i 1))) ; primo maggiore di secondo
+                    ; aggiunge sequenza decrescente (tranne ultimo numero)
+                    (extend out (sequence (lst i) (+ (lst (+ i 1)) 1))))
+                  ((< (lst i) (lst (+ i 1))) ; primo minore del secondo
+                    ; aggiunge sequenza crescente (tranne ultimo numero)
+                    (extend out (sequence (lst i) (- (lst (+ i 1)) 1))))
+            )
+          )
+          ; aggiunge eventuale ultimi numeri
+          ; caso ultima operazione: sequenza
+          (if (!= (out -1) (lst -1)) (push (lst -1) out -1))
+          ; caso ultima operazione: due numeri uguali
+          (if (= (lst -1) (lst -2)) (push (lst -1) out -1)))
+  )
+  out))
+
+Proviamo:
+
+(continua '())
+;-> ()
+(continua '(1))
+;-> (1)
+
+(continua '(4 2 6 1))
+;-> (4 3 2 3 4 5 6 5 4 3 2 1)
+
+(continua '(10 10))
+;-> (10 10)
+
+(continua '(-1 3 5))
+;-> (-1 0 1 2 3 4 5)
+
+(continua '(1 -3 3 3 4 4 5 5 7 -1))
+;-> (1 0 -1 -2 -3 -2 -1 0 1 2 3 3 4 4 5 5 6 7 6 5 4 3 2 1 0 -1)
+
+(continua '(10 10 10))
+;-> (10 10 10)
+
+
+------------------------------------
+Radice fattoriale prima di un numero
+------------------------------------
+
+La radice fattoriale prima di un numero è il numero che emerge quando si prendono i fattori primi di un numero, li si sommano e si ripete il processo sul numero risultante, continuando finché non si ottiene un numero primo (che ha se stesso come suo unico fattore primo, ed è quindi la propria radice fattoriale prima). 
+
+Per esempio con il numero 24:
+  24 = 2*2*2*3 --> 2 + 2 + 2 + 3 = 9
+  9  = 3*3     --> 3 + 3 = 6
+  6  = 2*3     --> 2 + 3 = 5 (numero primo)
+Quindi la radice fattoriale prima di 24 vale 5.
+
+Sequenza OEIS A029908:
+Starting with n, repeatedly sum prime factors (with multiplicity) until reaching 0 or a fixed point.
+Then a(n) is the fixed point (or 0).
+  0, 2, 3, 4, 5, 5, 7, 5, 5, 7, 11, 7, 13, 5, 5, 5, 17, 5, 19, 5, 7, 13, 23,
+  5, 7, 5, 5, 11, 29, 7, 31, 7, 5, 19, 7, 7, 37, 7, 5, 11, 41, 7, 43, 5, 11,
+  7, 47, 11, 5, 7, 5, 17, 53, 11, 5, 13, 13, 31, 59, 7, 61, 5, 13, 7, 5, 5,
+  67, 7, 5, 5, 71, 7, 73, 5, 13, 23, 5, 5, 79, 13, 7, 43, 83, 5, 13, ...
+
+Nota: la radice fattoriale prima di 4 è 4, poiché 2*2=2+2, e questa è l'unica radice fattoriale prima non prima di un intero maggiore di 1 (che è un altro caso speciale, poiché non ha fattori primi).
+
+(define (radice-fattoriale num)
+  (cond ((= num 1) 0)
+        ((= num 4) 4)
+        (true
+          (let (fattori (factor num))
+            (until (= (length fattori) 1)
+              (setq num (apply + fattori))
+              (setq fattori (factor num))
+            )
+          (fattori 0)))))
+
+Proviamo:
+
+(radice-fattoriale 24)
+;-> 5
+
+(map radice-fattoriale (sequence 1 50))
+;-> (0 2 3 4 5 5 7 5 5 7 11 7 13 5 5 5 17 5 19 5 7 13 23 5 7 5 5 11 
+;->  29 7 31 7 5 19 7 7 37 7 5 11 41 7 43 5 11 7 47 11 5 7)
+
 ============================================================================
 
