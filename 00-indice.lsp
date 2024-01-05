@@ -2194,6 +2194,13 @@ NOTE LIBERE 20
   Potenze prime dei primi
   Lista continua di interi
   Radice fattoriale prima di un numero
+  Numeri con potenze simili
+  Distribuzione di frequenza del lancio di dadi
+  Il Visir nella scacchiera
+
+NOTE LIBERE 21
+==============
+ 
 
 PROBLEMI SUI DADI
 =================

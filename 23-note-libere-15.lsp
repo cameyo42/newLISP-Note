@@ -7253,7 +7253,7 @@ Vedere anche:
   "Simulazione del lancio di dadi" su "Note libere 7"
   "Probabilità della somma dei dadi in un intervallo" su "Note libere 11"
   "Dadi e funzioni generatrici" su "Note libere 13"
-
+  "Distribuzione di frequenza del lancio di dadi" su "Note libere 20"
 
 -----------------------------------------------------
 Ricerca degli elementi di una lista in un'altra lista

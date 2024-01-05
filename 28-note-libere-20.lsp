@@ -7110,7 +7110,7 @@ Esponente minimo = 2
 
 Sequenza OEIS A051903:
 Maximal exponent in prime factorization of n
-	0, 1, 1, 2, 1, 1, 1, 3, 2, 1, 1, 2, 1, 1, 1, 4, 1, 2, 1, 2, 1, 1, 1, 3,
+  0, 1, 1, 2, 1, 1, 1, 3, 2, 1, 1, 2, 1, 1, 1, 4, 1, 2, 1, 2, 1, 1, 1, 3,
   2, 1, 3, 2, 1, 1, 1, 5, 1, 1, 1, 2, 1, 1, 1, 3, 1, 1, 1, 2, 2, 1, 1, 4,
   2, 2, 1, 2, 1, 3, 1, 3, 1, 1, 1, 2, 1, 1, 2, 6, 1, 1, 1, 2, 1, 1, 1, 3,
   1, 1, 2, 2, 1, 1, 1, 4, 4, 1, 1, 2, 1, 1, 1, 3, 1, 2, ...
@@ -7890,6 +7890,180 @@ Proviamo:
 (map radice-fattoriale (sequence 1 50))
 ;-> (0 2 3 4 5 5 7 5 5 7 11 7 13 5 5 5 17 5 19 5 7 13 23 5 7 5 5 11 
 ;->  29 7 31 7 5 19 7 7 37 7 5 11 41 7 43 5 11 7 47 11 5 7)
+
+
+-------------------------
+Numeri con potenze simili
+-------------------------
+
+Dato un intero p > 1, trovare il più piccolo intero q > p tale che l'elenco degli esponenti nella scomposizione in fattori primi di q sia lo stesso di quello di p, indipendentemente dall'ordine o dal valore dei fattori primi.
+
+Esempi
+La scomposizione in fattori primi di p = 20 vale 2^2 * 5^1.
+Il più piccolo intero maggiore di p con esponenti identici nella sua scomposizione in fattori primi è q = 28 = 2^2 x 7^1.
+
+La scomposizione in fattori primi di p = 2500 è 2^2 x 5^4.
+Il più piccolo intero maggiore di p con esponenti identici nella sua scomposizione in fattori primi è q = 2704 = 2^4 x 13^2.
+
+Sequenza OEIS A081761:
+Least number >n having same type of prime factorization, a(1)=1.
+  1, 3, 5, 9, 7, 10, 11, 27, 25, 14, 13, 18, 17, 15, 21, 81, 19, 20, 23,
+  28, 22, 26, 29, 40, 49, 33, 125, 44, 31, 42, 37, 243, 34, 35, 38, 100,
+  41, 39, 46, 54, 43, 66, 47, 45, 50, 51, 53, 80, 121, 52, 55, 63, 59, 56,
+  57, 88, 58, 62, 61, 84, 67, 65, 68, 729, 69, 70, 71, 75, 74, 78, ...
+
+(define (simile num)
+  (if (= num 1) 1
+  ;else
+  (local (fattori unici potenze cur cur-pot)
+    (setq fattori (factor num))
+    (setq unici (unique fattori))
+    (setq potenze (sort (count unici fattori)))
+    (setq cur num)
+    (setq cur-pot '())
+    (while (!= potenze cur-pot)
+      (++ cur)
+      (setq fattori (factor cur))
+      (setq unici (unique fattori))
+      (setq cur-pot (sort (count unici fattori)))
+    )
+    cur)))
+
+Proviamo:
+
+(simile 1)
+;-> 1
+(simile 123)
+;-> 129
+(simile 75600)
+;-> 105840
+
+(map simile (sequence 1 50))
+;-> (1 3 5 9 7 10 11 27 25 14 13 18 17 15 21 81 19 20 23 28 22 26 29 40
+;->  49 33 125 44 31 42 37 243 34 35 38 100 41 39 46 54 43 66 47 45 50
+;->  51 53 80 121 52)
+
+
+---------------------------------------------
+Distribuzione di frequenza del lancio di dadi
+---------------------------------------------
+
+Dati due numeri interi positivi F e D, restituire la distribuzione di frequenza del lancio di D dadi con F facce.
+Una distribuzione di frequenza elenca la frequenza di ogni possibile somma se ogni possibile sequenza di lanci di dadi si verifica una volta. 
+Pertanto, le frequenze sono numeri interi la cui somma è uguale a F^D.
+
+Vedi anche "Frequenze dei numeri con N dadi" su "Note libere 15".
+
+(define (cartesian-product lst-lst)
+"Calculates the cartesian product of a list of lists"
+  (let (out '())
+    (dolist (el (apply cp lst-lst 2))
+      (push (flat el) out -1)
+    )
+    out))
+
+; auxiliary function: cartesian product of two list
+(define (cp lst1 lst2)
+  (let (out '())
+    (if (or (null? lst1) (null? lst2))
+        '()
+        (dolist (el1 lst1)
+          (dolist (el2 lst2)
+            (push (list el1 el2) out -1))))))
+
+(setq a (cartesian-product '((1 2 3 4 5 6) (1 2 3 4 5 6) (1 2 3 4 5 6))))
+;-> ((1 1 1) (1 1 2) (1 1 3) (1 1 4) (1 1 5) (1 1 6) (1 2 1) (1 2 2) (1 2 3) 
+;->  (1 2 4) (1 2 5) (1 2 6) (1 3 1) (1 3 2) (1 3 3) (1 3 4) (1 3 5) (1 3 6)
+;->  (1 4 1) (1 4 2) ...
+;->  ...
+;->  (6 4 1) (6 4 2) (6 4 3) (6 4 4) (6 4 5) (6 4 6) (6 5 1) (6 5 2) (6 5 3)
+;->  (6 5 4) (6 5 5) (6 5 6) (6 6 1) (6 6 2) (6 6 3) (6 6 4) (6 6 5) (6 6 6))
+
+Funzione che calcola le frequenze del lancio di Dadi con Facce:
+
+(define (frequenze dadi facce)
+  (if (= dadi 1) (dup 1 facce)
+  ;else
+  (local (max-val min-val lst all sum freq pre)
+    ; valore massimo di un lancio
+    (setq max-val (* dadi facce))
+    ; valore minimo di un lancio
+    (setq min-val dadi)
+    ; lista dei dadi
+    (setq lst (dup (sequence 1 facce) dadi))
+    ; lista di tutti i lanci
+    (setq all (cartesian-product lst))
+    ; somma di ogni lancio
+    (setq sum (map (fn(x) (apply + x)) all))
+    ; frequenza di ogni numero possibile (del lancio dei dadi)
+    (setq freq (flat (count (sequence min-val max-val) sum)))
+    ; prefix dei valori che hanno frequenza 0
+    (setq pre (dup '0 min-val))
+    (extend pre freq))))
+
+Proviamo:
+
+(frequenze 1 6)
+;-> (1 1 1 1 1 1)
+
+(frequenze 3 6)
+;-> (0 0 0 1 3 6 10 15 21 25 27 27 25 21 15 10 6 3 1)
+
+(pow 6 3)
+;-> 216
+(apply + (frequenze 3 6))
+;-> 216
+
+(time (println (frequenze 6 8)))
+;-> (0 0 0 0 0 0 1 6 21 56 126 252 462 792 1281 1966 2877 4032 5432 7056
+;->  8856 10752 12642 14412 15946 17136 17892 18152 17892 17136 15946
+;->  14412 12642 10752 8856 7056 5432 4032 2877 1966 1281 792 462 252
+;->  126 56 21 6 1)
+;-> 484.253
+
+(time (println (frequenze 8 6)))
+;-> (0 0 0 0 0 0 0 0 1 8 36 120 330 792 1708 3368 6147 10480 16808 25488
+;->  36688 50288 65808 82384 98813 113688 125588 133288 135954 133288
+;->  125588 113688 98813 82384 65808 50288 36688 25488 16808 10480 6147
+;->  3368 1708 792 330 120 36 8 1)
+;-> 4141.002
+
+Con dadi > 10 e facce > 10 il sistema va in crash (causa: la funzione che calcola il prodotto cartesiano genera una lista troppo grande).
+
+
+-------------------------
+Il Visir nella scacchiera
+-------------------------
+
+Il Visir è un pezzo degli scacchi immaginario.
+Un Visir può spostarsi da una posizione (x, y) a:
+
+   (x+1, y)
+   (x, y+1)
+   (x-1, y)
+   (x, y-1)
+
+Cioè si muove come la torre, ma solo un passo alla volta come il re. 
+Quanti Visir possono essere posizionati su una scacchiera NxN in modo che due Visir non si attacchino a vicenda?
+
+Sequenza OEIS A000982:
+  0, 1, 2, 5, 8, 13, 18, 25, 32, 41, 50, 61, 72, 85, 98, 113, 128, 145, 
+  162, 181, 200, 221, 242, 265, 288, 313, 338, 365, 392, 421, 450, 481, 
+  512, 545, 578, 613, 648, 685, 722, 761, 800, 841, 882, 925, 968, 1013,
+  1058, 1105, 1152, 1201, 1250, 1301, 1352, 1405, ...
+
+Su una scacchiera 1x1 può esserci solo 1 Visir
+Su una scacchiera 2x2 possono esserci 2 Visir.
+Su una scacchiera 3x3 possono esserci 5 Visir.
+
+Matematicamente risulta: visir(N) = ceiling(N^2/2)
+
+(define (visir n) (ceil (div (mul n n) 2)))
+
+(map visir (sequence 0 50))
+;-> (0 1 2 5 8 13 18 25 32 41 50 61 72 85 98 113 128 145 162 181 200 221
+;->  242 265 288 313 338 365 392 421 450 481 512 545 578 613 648 685 722
+;->  761 800 841 882 925 968 1013 1058 1105 1152 1201 1250)
 
 ============================================================================
 
