@@ -382,21 +382,21 @@ Loop 2:
 Loop 3:
   I3 = R4-R1    (antiorario)
 
-Kirchhoff’s Voltage Law (Loop 1):
+Kirchhoff's Voltage Law (Loop 1):
 
   R2I1 + R3(I1+I2) + R1(I1−I3) = 0 Volt
   50I1 + 100(I1+I2) + 150(I1−I3) = 0 Volt
 
 1) 300I1 + 100I2 − 150I3 = 0 Volt
 
-Kirchhoff’s Voltage Law (Loop 2):
+Kirchhoff's Voltage Law (Loop 2):
 
   R5I2 + R3(I2+I1) + R4(I2+I3) = 0 Volt
   250I2 + 100(I2+I1) + 300(I2+I3) = 0 Volt
 
 2) 100I1 + 650I2 + 300I3 = 0 Volt
 
-Kirchhoff’s Voltage Law (Loop 3):
+Kirchhoff's Voltage Law (Loop 3):
 
   24 + R1(I3−I1) + R4(I3+I2) = 0 Volt
   24 + 150(I3−I1) + 300(I3+I2) = 0 Volt
@@ -2674,7 +2674,7 @@ G. Polya e "How to Solve It!" (G. Polya and "How to Solve It!")
 ***Versione Italiana***
 
 Un quadro generale per la risoluzione dei problemi è stato descritto da G. Polya in un libro intitolato "How to Solve It!" (2a edizione, Princeton University Press).
-Sebbene l’attenzione di Polya fosse rivolta alla risoluzione di problemi di matematica, le strategie sono molto più generali e ampiamente applicabili.
+Sebbene l'attenzione di Polya fosse rivolta alla risoluzione di problemi di matematica, le strategie sono molto più generali e ampiamente applicabili.
 Il ragionamento induttivo è alla base della maggior parte dei processi creativi nel "mondo reale".
 La Fisica (N.d.T. e anche la Programmazione) fornisce un'attività ideale per sviluppare abilità nel ragionamento induttivo e nella scoperta.
 
@@ -2796,11 +2796,11 @@ L'enfasi qui è sull'essere consapevoli delle nostre strategie di risoluzione de
 ***English Version***
 
 An overall framework for problem solving was described by G. Polya in a book called "How to Solve It!" (2nd Ed., Princeton University Press).
-Although Polya’s focus was on solving math problems, the strategies are much more general and are broadly applicable.
+Although Polya's focus was on solving math problems, the strategies are much more general and are broadly applicable.
 Inductive reasoning is the basis of most of the creative processes in the "real world".
 Physics provides an ideal activity for building skill in inductive reasoning and discovery.
 
-Here is an outline of Polya’s framework:
+Here is an outline of Polya's framework:
 
 1. Understand the Problem [Identify the goal]
 ----------------------------------------------
@@ -8031,39 +8031,41 @@ Proviamo:
 Con dadi > 10 e facce > 10 il sistema va in crash (causa: la funzione che calcola il prodotto cartesiano genera una lista troppo grande).
 
 
--------------------------
-Il Visir nella scacchiera
--------------------------
+--------------------------------------
+Media delle medie di due numeri interi
+--------------------------------------
 
-Il Visir è un pezzo degli scacchi immaginario.
-Un Visir può spostarsi da una posizione (x, y) a:
+Consideriamo le seguenti medie per due numeri interi a e b:
 
-   (x+1, y)
-   (x, y+1)
-   (x-1, y)
-   (x, y-1)
+  La radice quadrata media: sqrt((a^2 + b^2)/2).
 
-Cioè si muove come la torre, ma solo un passo alla volta come il re. 
-Quanti Visir possono essere posizionati su una scacchiera NxN in modo che due Visir non si attacchino a vicenda?
+  La media aritmetica: (a + b)/2.
 
-Sequenza OEIS A000982:
-  0, 1, 2, 5, 8, 13, 18, 25, 32, 41, 50, 61, 72, 85, 98, 113, 128, 145, 
-  162, 181, 200, 221, 242, 265, 288, 313, 338, 365, 392, 421, 450, 481, 
-  512, 545, 578, 613, 648, 685, 722, 761, 800, 841, 882, 925, 968, 1013,
-  1058, 1105, 1152, 1201, 1250, 1301, 1352, 1405, ...
+  La media geometrica: sqrt(a*b)
 
-Su una scacchiera 1x1 può esserci solo 1 Visir
-Su una scacchiera 2x2 possono esserci 2 Visir.
-Su una scacchiera 3x3 possono esserci 5 Visir.
+  La media armonica: 2/(1/a + 1/b) = 2*a*b/(a + b).
 
-Matematicamente risulta: visir(N) = ceiling(N^2/2)
+Scrivere una funzione che calcola la media delle medie sopra riportate.
 
-(define (visir n) (ceil (div (mul n n) 2)))
+(define (media a b)
+  (div (add (sqrt (div (add (mul a a) (mul b b)) 2))
+            (div (add a b) 2)
+            (sqrt (mul a b))
+            (div (mul 2 a b) (add a b)))
+        4))
 
-(map visir (sequence 0 50))
-;-> (0 1 2 5 8 13 18 25 32 41 50 61 72 85 98 113 128 145 162 181 200 221
-;->  242 265 288 313 338 365 392 421 450 481 512 545 578 613 648 685 722
-;->  761 800 841 882 925 968 1013 1058 1105 1152 1201 1250)
+Proviamo:
+
+(media 7 6)
+;-> 6.490370391287243
+(media 10 10)
+;-> 10
+(media 23 1)
+;-> 8.747829696519773
+(media 2 4)
+;-> 2.914342862895309
+(media 200 400)
+;-> 291.4342862895309
 
 ============================================================================
 

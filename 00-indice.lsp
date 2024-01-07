@@ -2196,10 +2196,13 @@ NOTE LIBERE 20
   Radice fattoriale prima di un numero
   Numeri con potenze simili
   Distribuzione di frequenza del lancio di dadi
-  Il Visir nella scacchiera
+  Media delle medie di due numeri interi
 
 NOTE LIBERE 21
 ==============
+  I Visir sulla scacchiera
+  I Cavalli sulla scacchiera
+  Livello di annidamento degli elementi di una lista
  
 
 PROBLEMI SUI DADI

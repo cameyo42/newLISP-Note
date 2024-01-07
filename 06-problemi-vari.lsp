@@ -5398,7 +5398,7 @@ In questo modo si ottiene una possibile soluzione al problema delle N-Regine e l
 
 (define (nQueens board level N)
   (local (out j)
-    (cond ((= level N) (setq out true) (show board N))
+    (cond ((= level N) (setq out true) (show board))
           (true
             (setq j 0)
             (while (and (< j N) (!= out true))
