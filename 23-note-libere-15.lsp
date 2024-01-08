@@ -892,6 +892,38 @@ Verifichiamo i primi 25 valori:
 
 Nota: questa sequenza è esponenziale (non è polinomiale).
 
+Per finire ecco una funzione generica per il calcolo delle differenze successive dei numeri di una lista:
+
+(define (diff-aux lst)
+  (setq lst (map - (rest lst) (chop lst)))
+  (++ num-diff)
+  (cond ((find lst out)
+          (push lst out -1)
+          (println num-diff { - } lst)
+          (println "cycle"))
+        ((= (length lst) 1)
+          (push lst out -1)
+          (println num-diff { - } lst)
+          (println "end list"))
+        ((apply = lst)
+          (push lst out -1)
+          (println num-diff { - } lst)
+          (println "constant"))
+        (true
+          (push lst out -1)
+          (println num-diff { - } lst)
+          (diff-aux lst))))
+
+(define (diff lst)
+  (let ( (out '()) (num-diff 0) )
+    (diff-aux lst)))
+
+(diff '(5 19 49 101 181 295 449))
+;-> 1 - (14 30 52 80 114 154)
+;-> 2 - (16 22 28 34 40)
+;-> 3 - (6 6 6 6)
+;-> constant
+
 
 ----------------------------------------
 Prima e ultima cifra di un numero intero

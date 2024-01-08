@@ -454,5 +454,394 @@ Solo elementi atomici:
 
 Vedi anche "Lista degli indici di una lista" su "Note libere 4".
 
+
+--------------------
+Il tipo intero Int64
+--------------------
+
+newLISP gestisce i numeri interi con il tipo Int64 (cioè interi a 64 bit).
+L'intervallo dei valori di Int64 è il seguente:
+
+      (valore minimo)      (valore massimo)
+da -9223372036854775808 a 9223372036854775807
+
+; Maximum value of int64
+(setq MAX-INT 9223372036854775807)
+
+; Minimum value of int64
+(setq MIN-INT -9223372036854775808)
+
+Oppure in modo più sicuro:
+
+;; (constant (global 'MIN-INT) -9223372036854775808)
+;; (constant (global 'MAX-INT)  9223372036854775807)
+
+Cosa accade quando un operazione genera un numero al di fuori dell'intervallo?
+
+Sottraiamo 1 dal valore minimo:
+(- -9223372036854775808 1)
+;-> 9223372036854775807 ;valore massimo
+
+Aggiungiamo 1 al valore massimo:
+(+ 9223372036854775807 1)
+;-> -9223372036854775808 ; valore minimo
+
+Raddoppiamo il valore minimo:
+(* -9223372036854775808 2)
+;-> 0
+Triplichiamo il valore minimo:
+(* -9223372036854775808 3)
+;-> -9223372036854775808
+Quadruplichiamo il valore minimo:
+(* -9223372036854775808 4)
+;-> 0
+
+Raddoppiamo il valore massimo (+2):
+(+ (* 9223372036854775807 2) 2)
+;-> 0
+Triplichiamo il valore massimo (+2):
+(+ (* 9223372036854775807 3) 2)
+;-> 9223372036854775807
+Triplichiamo il valore massimo (+3):
+(+ (* 9223372036854775807 3) 3)
+;-> -9223372036854775808
+Quaduplichiamo il valore massimo (+4):
+(+ (* 9223372036854775807 4) 4)
+;-> 0
+
+Quindi i valori formano un circolo chiuso:
+
+-9223372036854775808 ... -1 0 1 ... 9223372036854775807 -9223372036854775808 ... -1 0 1 ... 9223372036854775807
+
+
+---------------------------------------------------
+Massima serie di 1 consecutivi in un numero binario
+---------------------------------------------------
+
+Dato un numero intero positivo, dopo averlo trasformarto in binario calcolare:
+1) la posizione iniziale della serie con il massimo numero di 1 consecutivi 
+2) la lunghezza della serie (cioè quanti 1 consecutivi ci sono al massimo).
+Se il numero ha più serie della stessa lunghezza, restituire la posizione della prima serie.
+
+La funzione permette di inserire come parametro o il numero intero o una stringa che rappresenta un numero binario.
+
+Primo metodo (tipo RLE-encode):
+
+(char "0")
+;-> 38
+(char "1")
+;-> 49
+
+(define (max-1a num)
+  (local (binary idx max-len cur-len)
+    ; valore binario
+    (if (string? num) 
+        (setq binary num)
+        ;else
+        (setq binary (bits num))
+    )
+    ;(println binary)
+    (setq idx nil)
+    (setq max-len 0)
+    (setq cur-len 0)
+    (dostring (b binary)
+      (cond ((= b 48) ;"0"
+              (if (> cur-len max-len)
+                (begin
+                  (setq max-len cur-len)
+                  (setq idx (- $idx max-len))
+                )
+              )
+              (setq cur-len 0))
+            ((= b 49) ; "1"
+              (++ cur-len))
+      )
+    )
+    ; controllo se ultima cifra vale "1"
+    ; ed è la serie più lunga
+    (if (and (= (binary -1) "1") (> cur-len max-len))
+      (begin
+        (setq max-len cur-len)
+        (setq idx (- (length binary) max-len))
+      )
+    )
+    (list idx max-len)))
+
+Proviamo:
+
+(max-1a 123)
+;-> 1111011
+;-> (0 4)
+(max-1a 223)
+;-> 11011111
+;-> (3 5)
+(max-1a 443)
+;-> 110111011
+;-> (3 3)
+(max-1a 113615)
+;-> 11011101111001111
+;-> (7 4)
+(max-1a "11011101111001111")
+;-> 11011101111001111
+;-> (7 4)
+(max-1a 227231)
+;-> 110111011110011111
+;-> (13 5)
+(max-1a 0)
+;-> 0
+;-> (nil 0)
+
+Secondo metodo: (funzione "parse")
+
+(setq binary (bits 443))
+;-> "110111011"
+(setq serie (parse binary "0"))
+;-> ("11" "111" "11")
+(setq len-serie (map length serie))
+;-> (2 3 2)
+(setq max-len (apply max len-serie))
+;-> 3
+(setq pattern (dup "1" max-len))
+;-> "111"
+(find pattern binary)
+;-> 3
+
+(define (max-1b num)
+  (local (binary max-len idx)
+    ; valore binario
+    (if (string? num) 
+        (setq binary num)
+        ;else
+        (setq binary (bits num))
+    )  
+    ;(println binary)
+    (setq max-len (apply max (map length (parse binary "0"))))
+    (setq idx (find (dup "1" max-len) binary))
+    (list idx max-len)))
+
+Proviamo:
+
+(max-1b 123)
+;-> 1111011
+;-> (0 4)
+(max-1b 223)
+;-> 11011111
+;-> (3 5)
+(max-1b 443)
+;-> 110111011
+;-> (3 3)
+(max-1b 113615)
+;-> 11011101111001111
+;-> (7 4)
+(max-1b 227231)
+;-> 110111011110011111
+;-> (13 5)
+(max-1b "110111011110011111")
+;-> 110111011110011111
+;-> (13 5)
+(max-1b 0)
+;-> 0
+;-> (nil 0)
+
+Vediamo la velocità della due funzioni:
+
+(setq s1 (join (map string (rand 2 10))))
+(setq s2 (join (map string (rand 2 100))))
+(setq s3 (join (map string (rand 2 1000))))
+(setq s4 (join (map string (rand 2 10000))))
+
+Le funzioni restituiscono gli stessi valori?
+
+(= (max-1a s1) (max-1b s1))
+;-> true
+(= (max-1a s2) (max-1b s2))
+;-> true
+(= (max-1a s3) (max-1b s3))
+;-> true
+(= (max-1a s4) (max-1b s4))
+;-> true
+
+(time (max-1a s1) 1e5)
+;-> 176.266
+(time (max-1b s1) 1e5)
+;-> 144.735
+
+(time (max-1a s2) 1e4)
+;-> 105.248
+(time (max-1b s2) 1e4)
+;-> 90.041
+
+(time (max-1a s3) 1e4)
+;-> 940.053
+(time (max-1b s3) 1e4)
+;-> 740.316
+
+(time (max-1a s4) 1e3)
+;-> 938.116
+(time (max-1b s4) 1e3)
+;-> 625.325
+
+La seconda funzione è più veloce.
+
+
+--------------------
+Delta di una matrice
+--------------------
+
+Il delta di una lista di numeri interi è la lista ottenuto calcolando le differenze degli elementi consecutivi della lista (il secondo meno il primo, il terzo meno il secondo, il quarto meno il terzo, ecc.).
+Per esempio, la lista (1 3 -2 5 -3 6 2) ha la seguente lista delta: (2 -5 7 -8 9 -4).
+
+Analogamente il delta di una matrice di numeri interi è la lista di tutti i delta delle righe e delle colonne della matrice.
+Per esempio, calcoliamo il delta della seguente matrice:
+
+   1  6 -3 -6
+   4 -4  6 -1
+  -7 -1  8  2
+
+Delta righe:
+
+   1  6 -3 -6  -->  (5 -9 -3)
+   4 -4  6 -1  -->  (-8 10 -7)
+  -7 -1  8  2  -->  (6 9 -6)
+
+Delta colonne (righe della matrice trasposta):
+
+   1  4 -7  -->  (3 -11)
+   6 -4 -1  -->  (-10 3)
+  -3  6  8  -->  (9 2)
+  -6 -1  2  -->  (5 3)
+
+Delta matrice = Unione di tutti i delta (righe e colonne):
+
+  (5 -9 -3 -8 10 -7 6 9 -6 3 -11 -10 3 9 2 5 3)
+
+(define (delta-matrix matrix)
+  (let ( (delta '()) (transposed (transpose matrix)) )
+    ; crea il delta delle righe della matrice
+    (dolist (row matrix)
+      ;(println (map - (rest row) (chop row)))
+      (extend delta (map - (rest row) (chop row)))
+    )
+    ; crea il delta delle colonne della matrice
+    ; (righe della matrice trasposta)
+    (dolist (row transposed)
+      ;(println (map - (rest row) (chop row)))
+      (extend delta (map - (rest row) (chop row)))
+    )
+    delta))
+
+Proviamo:
+
+(delta-matrix m)
+;-> (5 -9 -3 -8 10 -7 6 9 -6 3 -11 -10 3 9 2 5 3)
+
+(setq a '(( 1  2  3  4)
+          ( 5  6  7  8)
+          ( 9 10 11 12) 
+          (13 14 15 16)))
+
+(delta-matrix a)
+;-> (1 1 1 1 1 1 1 1 1 1 1 1 4 4 4 4 4 4 4 4 4 4 4 4)
+
+
+------------
+Parole Forti
+------------
+
+Le parole Forti (strong) sono parole in cui ogni consonante (BCDFGHJKLMNPQRSTVWXYZ) è seguita da una vocale (AEIOU).
+Se la parola non contiene alcuna consonante, è una parola forte.
+Praticamente abbiamo un automa a stati finiti con la seguente rappresentazione:
+
+   +--------+
+   |        |
+   +--->+--------+       +------------+
+        | Vocale |------>| Consonante |
+   +--->+--------+       +-----+------+
+   |                           |
+   +---------------------------+
+
+Da una vocale possiamo passare ad un vocale o ad una consonante
+Da una consonante possiamo passare solo ad una vocale.
+
+Poniamo stato = 0 se abbiamo letto una vocale e stato = 1 se abbiamo letto una consonante.
+Se dallo stato = 1 passiamo ad uno stato = 1, allora la parola non è Forte.
+
+(setq conso '("B" "C" "D" "F" "G" "H" "J" "K" "L" "M" "N" "P" "Q" "R" "S" "T" "V" "W" "X" "Y" "Z"))
+(setq vowel '("A" "E" "I" "O" "U"))
+
+(define (conso? ch) (if (find ch conso) true nil))
+(define (vowel? ch) (if (find ch vowel) true nil))
+
+(define (strong? word)
+  (local (stato stop)
+    (setq stop nil)
+    (setq stato 0) ; 0 = vocale, 1 = consonante
+    (dolist (ch (explode word) stop)
+      (cond ((vowel? ch) ; vocale
+              (setq stato 0))
+            ((conso? ch) ; consonante
+              ; se prima avevamo una consonante (stato = 1),
+              ; allora la parola non è 'strong'
+              (if (= stato 1) (setq stop true))
+              (setq stato 1))
+      )
+    )
+    ; se la parola termina con una consonante, allora non è 'strong'.
+    (if (= stato 1) nil (not stop))))
+
+Proviamo:
+
+(strong? "NEWLISP")
+;-> nil
+(strong? "LOVE")
+;-> true
+(strong? "BEST")
+;-> nil
+(strong? "EVA")
+;-> true
+(strong? "YOU")
+;-> true
+(strong? "GIOVANE")
+;-> true
+(strong? "AEIOU")
+;-> true
+(strong? "BABILONIA")
+
+Versione ridotta:
+
+(define (strong? word)
+  (local (stato stop)
+    (setq stop nil)
+    (setq stato 0) ; 0 = vocale, 1 = consonante
+    (dolist (ch (explode word) stop)
+      (cond ((ref ch '("A" "E" "I" "O" "U"))
+              (setq stato 0))
+            (true
+              (if (= stato 1) (setq stop true))
+              (setq stato 1))
+      )
+    )
+    ; se la parola termina con una consonante, allora non è 'strong'.
+    (if (= stato 1) nil (not stop))))
+
+Proviamo:
+
+(strong? "NEWLISP")
+;-> nil
+(strong? "LOVE")
+;-> true
+(strong? "BEST")
+;-> nil
+(strong? "EVA")
+;-> true
+(strong? "YOU")
+;-> true
+(strong? "GIOVANE")
+;-> true
+(strong? "AEIOU")
+;-> true
+(strong? "BABILONIA")
+;-> true
+
 ============================================================================
 

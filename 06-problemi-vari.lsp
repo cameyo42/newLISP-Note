@@ -3407,7 +3407,8 @@ Esempio: lati formato A0
 Moltiplicazione del contadino russo
 -----------------------------------
 
-Si esegue per mezzo di raddoppi e dimezzamenti successivi.
+L'algoritmo della moltiplicazione del contadino russo (o della moltiplicazione Etiope) si esegue per mezzo di raddoppi e dimezzamenti successivi.
+
 Esempio: 83*154. Si dimezza il numero 83 (considerando i valori interi) e si raddoppia il 154. Si sommano le righe della colonna del 154 corrispondenti alle righe dispari nella colonna del numero 83. Totale: 12782.
 
       dispari  -->  83  |   154  <--

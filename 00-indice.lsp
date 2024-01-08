@@ -2203,6 +2203,9 @@ NOTE LIBERE 21
   I Visir sulla scacchiera
   I Cavalli sulla scacchiera
   Livello di annidamento degli elementi di una lista
+  Il tipo intero Int64
+  Massima serie di 1 consecutivi in un numero binario
+  Delta di una matrice
  
 
 PROBLEMI SUI DADI

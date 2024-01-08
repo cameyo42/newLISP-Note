@@ -2226,6 +2226,116 @@ Quindi possiamo concludere che:
 
 Nota: più che una dimostrazione sembra di aver trovato il risultato per esclusione di tutti gli altri casi possibili (tipo Sherlock Holmes: "Quando hai escluso l'impossibile ciò che resta, per quanto improbabile, è la verità").
 
+Per una trattazione con assiomi vedi:
+https://codegolf.stackexchange.com/questions/143822/a-%c3%97-a-a-%c3%97-a
+
+Ecco un riassunto:
+
+Assiomi:
+
+  1) a+(b+c)=(a+b)+c
+  2) a+0=a
+  3) a+(−a)=0
+  4) a+b=b+a
+  5) a*(b*c)=(a*b)*c
+  6) a*1=a
+  7) 1*a=a
+  8) a*(b+c)=(a*b)+(a*c)
+  9) (b+c)*a=(b*a)+(c*a)
+
+Dimostrazione che -(-a)=a:
+
+  -(-a) = (-(-a)) + 0          Assioma 2
+        = 0 + (-(-a))          Assioma 4
+        = (a + (-a)) + (-(-a)) Assioma 3
+        = a + ((-a) + (-(-a))) Assioma 1
+        = a + 0                Assioma 3
+        = a                    Assioma 2
+
+Lemma: a*0=0
+
+Prova:
+  a * 0 = (a * 0) + 0                        Assioma 2
+        = (a * 0) + ((a * b) + (-(a * b)))   Assioma 3
+        = ((a * 0) + (a * b)) + (-(a * b))   Assioma 1
+        = (a * (0 + b)) + (-(a * b))         Assioma 8
+        = (a * (b + 0)) + (-(a * b))         Assioma 4
+        = (a * b) + (-(a * b))               Assioma 2
+        = 0                                  Assioma 3
+
+Teorema:
+  (a * 0) + (b * 0) = 0
+
+Prova:
+  (a * 0) + (b * 0) = 0 + (b * 0)  Lemma
+                    = (b * 0) + 0  Assioma 4
+                    = b * 0        Assioma 2
+                    = 0            Lemma
+
+Alcune dimostrazioni che (-a)*(-a) = a*a.
+
+By Etoplay:
+(-a)*(-a)
+    = ((-a)*(-a))+0                                            Assioma 2
+    = ((-a)*(-a))+(((a*a)+(a*(-a)))+(-((a*a)+(a*(-a)))))       Assioma 3
+    = (((-a)*(-a))+((a*a)+(a*(-a))))+(-((a*a)+(a*(-a))))       Assioma 1
+    = (((a*a)+(a*(-a)))+((-a)*(-a)))+(-((a*a)+(a*(-a))))       Assioma 4
+    = ((a*a)+((a*(-a))+((-a)*(-a))))+(-((a*a)+(a*(-a))))       Assioma 1
+    = ((a*a)+((a+(-a))*(-a)))+(-((a*a)+(a*(-a))))              Assioma 9
+    = ((a*a)+(0*(-a)))+(-((a*a)+(a*(-a))))                     Assioma 3
+    = ((a*(a+0))+(0*(-a)))+(-((a*a)+(a*(-a))))                 Assioma 2
+    = ((a*(a+(a+(-a))))+(0*(-a)))+(-((a*a)+(a*(-a))))          Assioma 3
+    = (((a*a)+(a*(a+(-a))))+(0*(-a)))+(-((a*a)+(a*(-a))))      Assioma 8
+    = ((a*a)+((a*(a+(-a)))+(0*(-a))))+(-((a*a)+(a*(-a))))      Assioma 1
+    = (a*a)+(((a*(a+(-a)))+(0*(-a)))+(-((a*a)+(a*(-a)))))      Assioma 1
+    = (a*a)+((((a*a)+(a*(-a)))+(0*(-a)))+(-((a*a)+(a*(-a)))))  Assioma 8
+    = (a*a)+(((a*a)+((a*(-a))+(0*(-a))))+(-((a*a)+(a*(-a)))))  Assioma 1
+    = (a*a)+(((a*a)+((a+0)*(-a)))+(-((a*a)+(a*(-a)))))         Assioma 9
+    = (a*a)+(((a*a)+(a*(-a)))+(-((a*a)+(a*(-a)))))             Assioma 2
+    = (a*a)+0                                                  Assioma 3
+    = a*a                                                      Assioma 2
+
+By Emil Jeřábek (Jerabek):
+a*a = a*a + 0                                                 Assioma 2
+    = a*a + ((a*(-a) + a*(-a)) + (-(a*(-a) + a*(-a))))        Assioma 3
+    = (a*a + (a*(-a) + a*(-a))) + (-(a*(-a) + a*(-a)))        Assioma 1
+    = (a*a + a*((-a) + (-a))) + (-(a*(-a) + a*(-a)))          Assioma 8
+    = a*(a + ((-a) + (-a))) + (-(a*(-a) + a*(-a)))            Assioma 8
+    = a*((a + (-a)) + (-a)) + (-(a*(-a) + a*(-a)))            Assioma 1
+    = a*(0 + (-a)) + (-(a*(-a) + a*(-a)))                     Assioma 3
+    = a*((-a) + 0) + (-(a*(-a) + a*(-a)))                     Assioma 4
+    = a*(-a) + (-(a*(-a) + a*(-a)))                           Assioma 2
+    = (a + 0)*(-a) + (-(a*(-a) + a*(-a)))                     Assioma 2
+    = (a + (a + (-a)))*(-a) + (-(a*(-a) + a*(-a)))            Assioma 3
+    = ((a + a) + (-a))*(-a) + (-(a*(-a) + a*(-a)))            Assioma 1
+    = ((-a) + (a + a))*(-a) + (-(a*(-a) + a*(-a)))            Assioma 4
+    = ((-a)*(-a) + (a + a)*(-a)) + (-(a*(-a) + a*(-a)))       Assioma 9
+    = ((-a)*(-a) + (a*(-a) + a*(-a))) + (-(a*(-a) + a*(-a)))  Assioma 9
+    = (-a)*(-a) + ((a*(-a) + a*(-a)) + (-(a*(-a) + a*(-a))))  Assioma 1
+    = (-a)*(-a) + 0                                           Assioma 3
+    = (-a)*(-a)                                               Assioma 2
+
+By Anders Kaseorg:
+(-a)*(-a)
+    = (-a)*(-a) + 0                             Assioma 2
+    = (-a)*(-a) + ((-a)*a + -((-a)*a))          Assioma 3
+    = ((-a)*(-a) + (-a)*a) + -((-a)*a)          Assioma 1
+    = ((-a)*(-a) + ((-a) + 0)*a) + -((-a)*a)    Assioma 2
+    = ((-a)*(-a) + ((-a)*a + 0*a)) + -((-a)*a)  Assioma 9
+    = (((-a)*(-a) + (-a)*a) + 0*a) + -((-a)*a)  Assioma 1
+    = ((-a)*((-a) + a) + 0*a) + -((-a)*a)       Assioma 8
+    = ((-a)*(a + (-a)) + 0*a) + -((-a)*a)       Assioma 4
+    = ((-a)*0 + 0*a) + -((-a)*a)                Assioma 3
+    = (0*a + (-a)*0) + -((-a)*a)                Assioma 4
+    = ((a + (-a))*a + (-a)*0) + -((-a)*a)       Assioma 3
+    = ((a*a + (-a)*a) + (-a)*0) + -((-a)*a)     Assioma 9
+    = (a*a + ((-a)*a + (-a)*0)) + -((-a)*a)     Assioma 1
+    = (a*a + (-a)*(a + 0)) + -((-a)*a)          Assioma 8
+    = (a*a + (-a)*a) + -((-a)*a)                Assioma 2
+    = a*a + ((-a)*a + -((-a)*a))                Assioma 1
+    = a*a + 0                                   Assioma 3
+    = a*a                                       Assioma 2
+
 
 ---------------------------------
 Perchè newLISP indicizza da zero?
@@ -2922,8 +3032,8 @@ Per esempio:
   18 --> ()
 
 Esistono diversi algoritmi per trovare un ordinamento topologico (anche in tempo lineare).
-
-L'algoritmo harvtxt, descritto da Kahn (1962),[1] sceglie i vertici rispettando l'ordinamento topologico. Inizialmente, costruisce un insieme di vertici che non hanno archi entranti (grado entrante=0). Dato che il grafo è aciclico esiste almeno uno di questi nodi. Poi:
+L'algoritmo descritto in "Topological sorting of large networks" di Kahn (1962), sceglie i vertici rispettando l'ordinamento topologico.
+Inizialmente, costruisce un insieme di vertici che non hanno archi entranti (grado entrante=0). Dato che il grafo è aciclico esiste almeno uno di questi nodi. Poi:
 
   L ← lista vuota che conterrà gli elementi ordinati topologicamente
   S ← insieme di nodi senza archi entranti
@@ -3964,8 +4074,7 @@ Potete trovare un'ottima spiegazione del codice (che è abbastanza complicato) s
 
 https://www.youtube.com/watch?v=p8u_k2LIZyo (Fast Inverse Square Root — A Quake III Algorithm).
 
-Nota: i compilatori C attuali utilizzano una funzione per il calcolo diretto di 1/sqrt(x) che è ancora più lenta della funzione presentata sopra. Comunque è possibile specificare un parametro durante la compilazione che permette di usare l'istruzione SSE "rsqrtss" che è più veloce della funzione.
-SSE "rsqrtss" with compiler switch optimization
+Nota: i compilatori C attuali utilizzano una funzione per il calcolo diretto di 1/sqrt(x) che è ancora più lenta della funzione presentata sopra. Comunque è possibile specificare un parametro durante la compilazione che permette di usare l'istruzione SSE "rsqrtss" che è più veloce della funzione (SSE "rsqrtss" with compiler switch optimization).
 E se abbiamo molti numeri per cui dobbiamo calcolare la radice quadrata, allora l'istruzione SIMD "rsqrtps"  sarà ancora più veloce.
 
 
