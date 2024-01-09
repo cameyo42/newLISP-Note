@@ -2209,6 +2209,7 @@ NOTE LIBERE 21
   Parole forti
   Numeri primi forti
   Ordinamento di punti 3D in base alla distanza euclidea
+  Primi di Satana
  
 
 PROBLEMI SUI DADI

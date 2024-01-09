@@ -999,5 +999,49 @@ Proviamo:
 ;->  (3.741657386773941 (3 1 0))
 ;->  (4.242640687119285 (5 0 3)))
 
+
+---------------
+Primi di Satana
+---------------
+
+Un primo di Satana è un numero primo che contiene le cifre "666".
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (satan limite)
+  (local (out primi)
+    (setq out '())
+    (setq primi (primes-to limite))
+    (dolist (p primi)
+      (if (find "666" (string p)) (push p out -1))
+    )
+    out))
+
+Proviamo:
+
+(satan 1e4)
+;-> (6661)
+
+(satan 1e5)
+;-> (6661 16661 26669 46663 56663 66601 66617 66629 66643 66653 
+;->  66683 66697 76667 96661 96667)
+
+(length (satan 1e6))
+;-> 214
+
+(time (println (length (satan 1e7))))
+;-> 2432
+;-> 2351.071
+
 ============================================================================
 
