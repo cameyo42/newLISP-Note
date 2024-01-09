@@ -2206,6 +2206,9 @@ NOTE LIBERE 21
   Il tipo intero Int64
   Massima serie di 1 consecutivi in un numero binario
   Delta di una matrice
+  Parole forti
+  Numeri primi forti
+  Ordinamento di punti 3D in base alla distanza euclidea
  
 
 PROBLEMI SUI DADI

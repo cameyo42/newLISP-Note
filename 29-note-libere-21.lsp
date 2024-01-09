@@ -843,5 +843,161 @@ Proviamo:
 (strong? "BABILONIA")
 ;-> true
 
+
+------------------
+Numeri primi forti
+------------------
+
+Un numero primo è definito forte se è maggiore della media aritmetica tra il numero primo immediatamente successivo e il numero primo immediatamente precedente.
+In altri termini, è un numero più prossimo al suo numero primo successivo che al suo precedente.
+In formule:
+
+  p(n) è forte se p(n) > (p(n-1) + p(n+1))/2
+
+Sequenza OEIS A051634:
+Strong primes: prime(k) > (prime(k-1) + prime(k+1))/2
+  11, 17, 29, 37, 41, 59, 67, 71, 79, 97, 101, 107, 127, 137, 149, 163,
+  179, 191, 197, 223, 227, 239, 251, 269, 277, 281, 307, 311, 331, 347,
+  367, 379, 397, 419, 431, 439, 457, 461, 479, 487, 499, 521, 541, 557,
+  569, 587, 599, 613, 617, 631, 641, 659, 673, 701, ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Funzione che calcola i primi forti fino ad un dato limite:
+
+(define (primi-forti limite)
+  (setq out '())
+  (setq primi (primes-to (+ limite 1)))
+  (setq len (length primi))
+  (setq primi (array len primi))
+  (for (i 1 (- len 2))
+    (setq media (/ (+ (primi (- i 1)) (primi (+ i 1))) 2))
+    (if (> (primi i) media) (push (primi i) out -1))
+  )
+  out)
+
+Proviamo:
+
+(primi-forti 100)
+;-> (11 17 29 37 41 59 67 71 79 97)
+
+(primi-forti 1000)
+;-> (11 17 29 37 41 59 67 71 79 97 101 107 127 137 149 163 179 191 197
+;->  223 227 239 251 269 277 281 307 311 331 347 367 379 397 419 431 439
+;->  457 461 479 487 499 521 541 557 569 587 599 613 617 631 641 659 673
+;->  701 719 727 739 751 757 769 787 809 821 827 853 857 877 881 907 929
+;->  937 967 991)
+
+Vediamo la velocità:
+
+(time (primi-forti 1e6))
+;-> 163.405
+(time (primi-forti 1e7))
+;-> 1841.35
+
+Adesso vediamo una funzione che verifica se un numero è un numero primo forte:
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che calcola il primo precedente ad un dato numero:
+
+(define (previous-prime num) (until (prime? (-- num))) num)
+
+Funzione che calcola il primo successivo ad un dato numero:
+
+(define (next-prime num) (until (prime? (++ num))) num)
+
+Funzione che verifica se un numero è un numero primo forte:
+
+(define (forte? num)
+  (and (prime? num)
+       (> num (/ (+ (previous-prime num) (next-prime num)) 2))))
+
+Proviamo:
+
+(forte? 11)
+;-> true
+
+(forte? 19)
+;-> nil
+
+(filter forte? (sequence 3 1000))
+;-> (11 17 29 37 41 59 67 71 79 97 101 107 127 137 149 163 179 191 197
+;->  223 227 239 251 269 277 281 307 311 331 347 367 379 397 419 431 439
+;->  457 461 479 487 499 521 541 557 569 587 599 613 617 631 641 659 673
+;->  701 719 727 739 751 757 769 787 809 821 827 853 857 877 881 907 929
+;->  937 967 991)
+
+Vediamo la velocità:
+
+(time (filter forte? (sequence 3 1e6)))
+;-> 2475.158
+(time (filter forte? (sequence 3 1e7)))
+;-> 51663.436
+
+
+------------------------------------------------------
+Ordinamento di punti 3D in base alla distanza euclidea
+------------------------------------------------------
+
+Dati una lista di punti in 3D e un punto P in 3D, scrivere una funzione che restituisce una lista ordinata delle distanze (crescenti) dei punti della lista dal punto P.
+
+Per esempio,
+lista = (0 0 0) (-2 3 5) (3 2 4)
+P = (1 1 1)
+Output:
+(1.732051 (0 0 0))   ; il punto (0 0 0) dista 1.732051 dal punto (1 1 1)
+(3.741657 (3 2 4))   ; il punto (3 2 4) dista 3.741657 dal punto (1 1 1) 
+(5.385165 (-2 3 5))) ; il punto (-2 3 5) dista 5.385165 dal punto (1 1 1) 
+
+(define (dist3d p1 p2)
+"Calculates 3D Cartesian distance of two points P1=(x1 y1 z1) e P2=(x2 y2 z2)"
+  (let ( (x1 (p1 0)) (y1 (p1 1)) (z1 (p1 2))
+         (x2 (p2 0)) (y2 (p2 1)) (z2 (p2 2)) )
+    (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+               (mul (sub y1 y2) (sub y1 y2))
+               (mul (sub z1 z2) (sub z1 z2))))))
+
+Funzione che ordina i punti di una lista in base alla distanza da un punto P:
+
+(define (dist-points pt points)
+  (sort (map list
+            (map (curry dist3d pt) points)
+            points)))
+
+Proviamo:
+
+(setq lst '((0 0 0) (-2 3 5) (3 2 4)))
+(setq p '(1 1 1))
+(dist-points p lst)
+;-> ((1.732050807568877 (0 0 0))
+;->  (3.741657386773941 (3 2 4))
+;->  (5.385164807134504 (-2 3 5)))
+
+(setq lst '((3 0 4) (5 0 3) (0 2 4) (0 3 5) (4 2 1) (2 2 2) (3 1 2) (3 1 0)))
+(setq p '(2 3 3))
+(dist-points p lst)
+;-> ((1.414213562373095 (2 2 2))
+;->  (2.449489742783178 (0 2 4))
+;->  (2.449489742783178 (3 1 2))
+;->  (2.82842712474619 (0 3 5))
+;->  (3 (4 2 1))
+;->  (3.3166247903554 (3 0 4))
+;->  (3.741657386773941 (3 1 0))
+;->  (4.242640687119285 (5 0 3)))
+
 ============================================================================
 
