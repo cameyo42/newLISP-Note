@@ -1752,7 +1752,7 @@ Facciamo alcune prove:
 (time (radici 761))
 ;-> 27260.93
 
-Per verificare i risultati possiamo sfruttare il fatto che ogni primo p ha ϕ(P−1) radici primitive (dove ϕ è la funzione di Eulero o "toziente", cioè una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n).
+Per verificare i risultati possiamo sfruttare il fatto che ogni primo p ha Toz(P−1) radici primitive (dove Toz è la funzione di Eulero o "toziente", cioè una funzione definita, per ogni intero positivo n, come il numero degli interi compresi tra 1 e n che sono coprimi con n).
 
 (define (totient num)
 "Calculate the eulero totient of a given number"

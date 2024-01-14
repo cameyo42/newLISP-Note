@@ -2210,6 +2210,10 @@ NOTE LIBERE 21
   Numeri primi forti
   Ordinamento di punti 3D in base alla distanza euclidea
   Primi di Satana
+  Liste divisibili
+  Phi-fattoriale di un numero
+  Radici primitive di un numero
+  Quozienti di Wilson generalizzati
  
 
 PROBLEMI SUI DADI

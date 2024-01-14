@@ -4,6 +4,8 @@
 
 ================
 
+"21 è soltanto mezza verità"
+
 ------------------------
 I Visir sulla scacchiera
 ------------------------
@@ -1042,6 +1044,279 @@ Proviamo:
 (time (println (length (satan 1e7))))
 ;-> 2432
 ;-> 2351.071
+
+
+----------------
+Liste divisibili
+----------------
+
+Date due liste A e B della stessa lunghezza, possiamo dire che la lista A è divisibile dalla lista B se A(i) è divisibile esattamente per B(i) per ogni indice i.
+Inoltre la lista A è potenzialmente divisibile se esiste una permutazione degli elementi di B, tale che A(i) è divisibile esattamente per B(i) per ogni indice i.
+Per esempio:
+  A = (45 12 15)
+  B = (5 4 9)
+La lista A non è divisibile per B (45/5=9, 12/4=3, 15/9=).
+La lista A è potenzialmente divisibile per B con la permutazione (9 4 5), infatti (45/9=5, 12/4=3, 15/5=3).
+
+Nota: se la lista B contiene 0, allora A non può essere divisibile per nessuna permutazione di B.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che verifica se una lista lst1 è divisibile per un'altra lista lst2:
+
+(define (divisible lst1 lst2)
+  (cond ((!= (length lst1) (length lst2)) nil)
+        ((find 0 lst2) nil)
+        (true
+          (let (divide true)
+            ; ciclo per ogni elemento
+            (dolist (a lst1 (not divide))
+              ; se gli elementi correnti delle due liste non sono divisibili,
+              ; allora 'divide' vale nil e il ciclo si ferma.
+              (if (!= (% a (lst2 $idx)) 0) (setq divide nil))
+            )
+            divide))))
+
+Proviamo:
+
+(divisible '(12 34 21) '(2 17 3))
+;-> true
+
+(divisible '(1 2 3) '(1 2 3 4))
+;-> nil
+
+(divisible '(2 8 12) '(2 0 12))
+;-> nil
+
+(divisible '(3 32 21 4) '(4 3 2 7))
+;-> nil
+
+Funzione che verifica se una lista lst1 è potenzialmente divisibile per un'altra lista lst2:
+
+(define (divisible-perm lst1 lst2)
+  (cond ((!= (length lst1) (length lst2)) nil)
+        ((find 0 lst2) nil)
+        (true
+          (let ( (permute (perm lst2)) (divide true) (trovato nil) (sol '()) )
+            ; ciclo per ogni permutazione
+            (dolist (p permute trovato)
+              ; verifica se la prima lista è divisibile
+              ; per la permutazione corrente
+              (setq divide true)
+              (dolist (a lst1 (not divide))
+                (if (!= (% a (p $idx)) 0) (setq divide nil))
+              )
+              ; se è divisibile, allora abbiamo trovato la soluzione
+              (if divide (set 'trovato true 'sol p))
+            )
+            (list trovato sol)))))
+
+Proviamo:
+
+(divisible-perm '(12 34 21) '(3 2 17))
+;-> (true (2 17 3))
+
+(divisible-perm '(3 32 21 4) '(4 3 7 2))
+;-> true (3 4 7 2)
+
+(divisible-perm '(1 2 3 4 5 6) '(6 5 4 3 2 1))
+;-> (true '(1 2 3 4 5 6))
+
+
+---------------------------
+Phi-fattoriale di un numero
+---------------------------
+
+Il "phi-fattoriale" (phi-torial o phi-factorial) di un numero n, indicato come phi(n)! consiste nel prendere il prodotto di tutti i tozienti (valori della funzione totiente di Eulero) da 1 a n.
+La funzione toziente, chiamata phi(n), calcola il numero degli interi positivi inferiori a quelli coprimi con n.
+La formula per il phi-torial è la seguente:
+
+  phi(1) = 1
+  phi(n)! = phi(1) * phi(2) * ... * phi(n), per n > 1
+
+Sequenza OEIS A001783:
+phi-torial of n: Product k, 1 <= k <= n, k relatively prime to n
+  1, 1, 2, 3, 24, 5, 720, 105, 2240, 189, 3628800, 385, 479001600, 19305, 
+  896896, 2027025, 20922789888000, 85085, 6402373705728000, 8729721, 
+  47297536000, 1249937325, 1124000727777607680000, 37182145, 
+  41363226782215962624, 608142583125, 1524503639859200000, ...
+
+Funzione che calcola il phi-fattoriale di un numero:
+
+(define (phi-torial num)
+  (cond ((= num 1) 1)
+        (true
+          (let (coprimi (filter (fn(x) (= (gcd x num) 1)) (sequence 1 num)))
+            (apply * coprimi)))))
+
+Proviamo:
+
+(phi-torial 1)
+;-> 1
+(phi-torial 10)
+;-> 189
+
+(map phi-torial (sequence 1 20))
+;-> (1 1 2 3 24 5 720 105 2240 189 3628800 385 479001600 19305 896896
+;->  2027025 20922789888000 85085 6402373705728000 8729721)
+
+Comunque con num=25 il risultato supera il tipo Int64 e bisogna utilizzare i big-integer:
+
+(phi-torial 25)
+;-> 4469738634796859392 ; risultato errato
+Risultato corretto: 41363226782215962624
+
+Funzione che calcola il phi-fattoriale (big-integer) di un numero:
+
+(define (phi-torial num)
+  (cond ((= num 1) 1)
+        (true
+          (let (coprimi (filter (fn(x) (= (gcd x num) 1)) (sequence 1 num)))
+            (apply * (map bigint coprimi))))))
+
+Proviamo:
+
+(phi-torial 25)
+;-> 41363226782215962624L
+
+(map phi-torial (sequence 1 30))
+;-> (1 1L 2L 3L 24L 5L 720L 105L 2240L 189L 3628800L 385L 479001600L 19305L 
+;->  896896L 2027025L 20922789888000L 85085L 6402373705728000L 8729721L 
+;->  47297536000L 1249937325L 1124000727777607680000L 37182145L 
+;->  41363226782215962624L 608142583125L 1524503639859200000L 1452095555625L
+;->  304888344611713860501504000000L 215656441L)
+
+
+-----------------------------
+Radici primitive di un numero
+-----------------------------
+
+Una radice primitiva di un numero n è un intero g tale che le potenze di g modulo n generano tutti i numeri da 1 a n−1.
+Un numero n ha una radice primitiva se non esiste un intero x dove 1 < x < n-1 e (x^2 mod n) = 1.
+
+Sequenza OEIS A033948:
+Numbers that have a primitive root (the multiplicative group modulo n is cyclic)
+  1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 13, 14, 17, 18, 19, 22, 23, 25, 26, 27, 
+  29, 31, 34, 37, 38, 41, 43, 46, 47, 49, 50, 53, 54, 58, 59, 61, 62, 67, 
+  71, 73, 74, 79, 81, 82, 83, 86, 89, 94, 97, 98, 101, 103, 106, 107, 109,
+  113, 118, 121, 122, 125, 127, 131, 134, 137, 139, ...
+
+Funzione che verifica se un numero dato ha una radice primitiva:
+
+(define (primit num)
+  (cond ((< num 4) true)
+        (true
+          (let (radice true)
+            (for (x 2 (- num 2) 1 (not radice))
+              (if (= (% (* x x) num) 1) (setq radice nil))
+            )
+            radice))))
+
+(filter primit (sequence 1 40))
+;-> (1 2 3 4 5 6 7 9 10 11 13 14 17 18 19 22 23 25 26 27 29 31 34 37 38)
+
+Vediamo una funzione più compatta che usa la funzione "for-all":
+
+Funzione che verifica se un numero dato ha una radice primitiva:
+
+(define (primitive num)
+  (if(< num 4) 
+    true
+    ;else
+    (for-all (fn(x) (!= (% (* x x) num) 1)) (sequence 2 (- num 2)))))
+
+(filter primitive (sequence 1 40))
+;-> (1 2 3 4 5 6 7 9 10 11 13 14 17 18 19 22 23 25 26 27 29 31 34 37 38)
+
+Il calcolo delle radici primitive implica trovare un generatore del gruppo moltiplicativo di interi modulo n.
+
+Per calcolare le radici primitive di un numero primo vedi "Radici primitive di un numero primo" su "Note libere 6".""
+
+Trovare le radici primitive per i numeri non primi è più complesso.
+In generale, potrebbe non esserci una radice primitiva per ogni modulo non primo e l'esistenza di radici primitive dipende dalla fattorizzazione del modulo.
+Per un modulo composito n, possiamo trovare radici primitive se e solo se n è della forma 4 o 2*p^k o p^k dove p è un numero primo dispari.
+
+DA FARE: funzione che tenta di trovare una radice primitiva per un dato modulo composito
+
+
+---------------------------------
+Quozienti di Wilson generalizzati
+---------------------------------
+
+Dato un intero positivo n, calcolare il quoziente di Wilson generalizzato W(n):
+
+         Prod[i=1..n]i (se mcd(i,n)=1) + e
+  W(n)= -----------------------------------
+                         n
+
+dove e(n) = +1 se n = 1, 2, 4, p^k o 2p^k, dove p è un numero primo dispari e k > 0, altrimenti e = -1.
+
+Sequenza OEIS A157249:
+Generalized Wilson quotients (or Wilson quotients for composite moduli)
+  2, 1, 1, 1, 5, 1, 103, 13, 249, 19, 329891, 32, 36846277, 1379, 59793,
+  126689, 1230752346353, 4727, 336967037143579, 436486, 2252263619,
+  56815333, 48869596859895986087, 1549256, 1654529071288638505, ...
+
+Algoritmo
+1) Filtrare tutti i coprimi (gcd(i,n)=1) nell'intervallo [1..n],
+2) calcolare il loro prodotto
+3) aumentare questo prodotto di 1
+4) dividere questa somma per n
+
+Perchè 'e' non viene calcolato?
+Poichè bisogna dividere per n, quando risulta e=-1, il risultato della divisione è lo stesso anche con e=1.
+
+Vediamo se questo è vero:
+
+Funzione di Wilson con e=-1:
+
+(define (w-1 num)
+  (setq coprimi (filter (fn(x) (= (gcd x num) 1)) (sequence 1 num)))
+  (setq prodotto (apply * coprimi))
+  (setq a (+ prodotto -1))
+  (/ a num))
+
+(map w-1 (sequence 1 15))
+;-> (0 0 0 0 4 0 102 13 248 18 329890 32 36846276 1378 59793)
+
+Funzione di Wilson con e=+1:
+
+(define (w+1 num)
+  (setq coprimi (filter (fn(x) (= (gcd x num) 1)) (sequence 1 num)))
+  (setq prodotto (apply * coprimi))
+  (setq a (+ prodotto 1))
+  (/ a num))
+
+(map w+1 (sequence 1 15))
+;-> (2 1 1 1 5 1 103 13 249 19 329891 32 36846277 1379 59793)
+
+Vedi anche "Radici primitive di un numero primo" su "Note libere 6".
+Vedi anche "Radici primitive di un numero" su "Note libere 21".
 
 ============================================================================
 
