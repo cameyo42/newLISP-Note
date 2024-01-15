@@ -2214,6 +2214,8 @@ NOTE LIBERE 21
   Phi-fattoriale di un numero
   Radici primitive di un numero
   Quozienti di Wilson generalizzati
+  Perimetro e area di un n-agono regolare
+  Torna a casa
  
 
 PROBLEMI SUI DADI

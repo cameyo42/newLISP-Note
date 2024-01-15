@@ -1255,13 +1255,43 @@ Funzione che verifica se un numero dato ha una radice primitiva:
 
 Il calcolo delle radici primitive implica trovare un generatore del gruppo moltiplicativo di interi modulo n.
 
-Per calcolare le radici primitive di un numero primo vedi "Radici primitive di un numero primo" su "Note libere 6".""
-
 Trovare le radici primitive per i numeri non primi è più complesso.
 In generale, potrebbe non esserci una radice primitiva per ogni modulo non primo e l'esistenza di radici primitive dipende dalla fattorizzazione del modulo.
-Per un modulo composito n, possiamo trovare radici primitive se e solo se n è della forma 4 o 2*p^k o p^k dove p è un numero primo dispari.
+Per un modulo composito n, possiamo trovare radici primitive se e solo se n è della forma 2 o 4 o p^k o 2*p^k dove p è un numero primo dispari.
+Ignoriamo i casi espliciti 2 e 4.
+Quindi possiamo dire che:
+Se g è una radice primitiva modulo p, allora g è una radice primitiva modulo tutte le potenze p^k, a meno che g^(p-1) ≡ 1 (mod p^2).
+Nel caso g^(p-1) ≡ 1 (mod p^2) abbiamo che g+p è radice primitiva.
+Il problema si riduce quindi a quello dei numeri primi.
 
-DA FARE: funzione che tenta di trovare una radice primitiva per un dato modulo composito
+Per calcolare le radici primitive di un numero primo vedi "Radici primitive di un numero primo" su "Note libere 6".
+
+Funzione di base per calcolare le radici primitive di un numero (non primo):
+Nota: trovare radici primitive per moduli non primi è più complesso e potrebbe non essere sempre possibile.
+Il codice seguente fattorizza il modulo e quindi tenta di trovare una radice primitiva basata su tali fattori.
+Non vengono verificate le proprietà specifiche del modulo prima di applicare tale algoritmo (cioè non viene controllato se il numero vale p^k o 2*p^k (con p primo dispari))
+
+(define (primitive-root? g num fattori)
+  (for-all (fn(x) (!= (% (pow g (/ num x)) num) 1)) fattori))
+
+(define (primitive-root num)
+  (cond ((= num 2) 1)
+        ((= num 4) 3)
+        (true
+          (let ( (fattori (factor num)) (sol nil) )
+            (for (g 2 (- num 1) 1 sol)
+              (if (primitive-root? g num fattori) (setq sol g))
+            )
+            sol))))
+
+Proviamo:
+
+(primitive-root (pow 3 3))
+;-> 2
+(primitive-root (pow 7 4))
+;-> 2
+
+Comunque non sono molto sicuro sulla correttezza di questa funzione.
 
 
 ---------------------------------
@@ -1317,6 +1347,188 @@ Funzione di Wilson con e=+1:
 
 Vedi anche "Radici primitive di un numero primo" su "Note libere 6".
 Vedi anche "Radici primitive di un numero" su "Note libere 21".
+
+
+---------------------------------------
+Perimetro e area di un n-agono regolare
+---------------------------------------
+
+Formule per il calcolo del perimetro e dell'area di un n-agono regolare.
+
+  Perimetro = 2*n*r*sin(pi/n)
+  Area = (1/2)*n*r^2*sin(2*pi/n)
+
+  dove r è il raggio del cerchio che circoscrive l'n-agono.
+
+  Perimetro = n*s
+  Area = (n*s*a)/2 = (Perimetro*a)/2
+  dove s è la lunghezza del lato dell'n-agono,
+       a è la lunghezza dell'apotema 
+
+L'apotema 'a' è il raggio del cerchio inscritto all'n-agono:
+
+  a = s/(2*tan(pi/n))
+
+(setq pi 3.1415926535897931)
+(define (apotema n s) (div s (mul 2 (tan (div pi n)))))
+
+Proviamo con s=1 (otteniamo i 'numeri fissi' dei vari n-agoni):
+
+(apo 3 1)
+;-> 0.288675134594813
+(apo 4 1)
+;-> 0.5000000000000001
+(apo 5 1)
+;-> 0.6881909602355869
+(apo 6 1)
+;-> 0.8660254037844387
+(apo 7 1)
+;-> 1.038260698286168
+(apo 8 1)
+;-> 1.207106781186548
+(apo 9 1)
+;-> 1.373738709727311
+(apo 10 1)
+;-> 1.538841768587627
+
+
+------------
+Torna a casa
+------------
+
+Per giocare a "Torna a casa" occorre una scacchiera e un unico pezzo.
+L'unico pezzo viene mosso da entrambi i giocatori a turno.
+Ad ogni turno un giocatore deve effettuare una delle seguenti mosse:
+
+  n caselle in alto oppure
+  n caselle a sinistra oppure
+  n caselle in alto e a sinistra (diagonale da dx a sx)
+
+Vince la partita il giocatore che posiziona il pezzo nell'angolo in alto a sinistra della scacchiera.
+Nella seguente figura la posizione (0,0) della X è la casella da raggiungere.
+
+      0   1   2   3   4   5   6   7
+    +---+---+---+---+---+---+---+---+
+  0 | X |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+  1 |   |   | P |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+  2 |   | P |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+  3 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+  4 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+  5 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+  6 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+  7 |   |   |   |   |   |   |   |   |
+    +---+---+---+---+---+---+---+---+
+
+Le caselle che contengono P sono "caselle perdenti".
+Una casella perdente è una casella da cui il giocatore che ha il turno sarà costretto a fare una mossa consentendo all'avversario di forzare la vittoria.
+Per esempio,
+
+      0   1   2
+    +---+---+---+
+  0 | X | 0 | 0 |
+    +---+---+---+
+  1 | 0 | 0 | P |
+    +---+---+---+
+  2 | 0 | P | 0 |
+    +---+---+---+
+
+Dalla casella P (1,2) o (2,1) un giocatore può spostare il pezzo solo nelle caselle 0.
+In questo modo permette all'avversario di raggiungere la casella X (0,0) con la prossima mossa.
+Da una casella perdente non è possibile arrivare ad un'altra casella perdente.
+
+Nota: la casella è 'perdente' per il giocatore che deve muovere da quella casella, quindi chi arriva con la propria mossa su una casella perdente ha la vittoria assicurata (se continua a giocare in modo ottimo).
+
+Matematicamente si può dimostrare che tutte le caselle perdenti giacciono su due linee rette radianti e sono un'approssimazione razionale di Phi = (sqrt(5)+1)/2.
+Questo comporta che una casella è perdente se risulta:
+
+  floor(abs(r - c)*phi) = min(r,c)
+
+dove r = righe della matrice
+     c = colonne della matrice
+     phi = (1 + sqrt(5))/2 (Golden Ratio)
+
+(setq phi (div (add 1 (sqrt 5)) 2))
+;-> 1.618033988749895
+
+(define (perdente x y) (= (min x y) (floor (mul (abs (- x y)) phi))))
+
+(perdente 2 1)
+;-> true
+(perdente 1 2)
+;-> true
+(perdente 0 0)
+;-> true
+(perdente 2 2)
+;-> nil
+
+Funzione che stampa le caselle perdenti di una scacchiera con dimensione data:
+
+(define (torna size)
+  (setq board (array size size '(".")))
+  (for (r 0 (- size 1))
+    (for (c 0 (- size 1))
+      (if (perdente r c) (setf (board r c) "P"))))
+  (for (r 0 (- size 1))
+    (for (c 0 (- size 1))
+      (print (board r c) { }))
+    (println)))
+
+Proviamo:
+
+(torna 8)
+;-> P . . . . . . .
+;-> . . P . . . . .
+;-> . P . . . . . .
+;-> . . . . . P . .
+;-> . . . . . . . P
+;-> . . . P . . . .
+;-> . . . . . . . .
+;-> . . . . P . . .
+
+(torna 36)
+;-> P . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . P . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . P . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . P . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . P . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . P . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . P . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . P . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . P . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . P . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . P . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . P . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . P . . . . . . . . . . . . . . .
+;-> . . . . . . . . P . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . P . . . . . . . . . . . .
+;-> . . . . . . . . . P . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . P . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . P . . . . . . .
+;-> . . . . . . . . . . . P . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . P . . . .
+;-> . . . . . . . . . . . . P . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . P .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . P . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . P . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . P . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . P . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . P . . . . . . . . . . . . . .
+;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 ============================================================================
 
