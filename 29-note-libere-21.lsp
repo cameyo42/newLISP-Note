@@ -1530,5 +1530,150 @@ Proviamo:
 ;-> . . . . . . . . . . . . . . . . . . . . . P . . . . . . . . . . . . . .
 ;-> . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+
+------------------------------
+Percorso minimo in una matrice
+------------------------------
+
+Data una matrice MxN composta da numeri interi, restituire il percorso con la somma minima partendo dall'elemento in alto a sinistra (0,0) e arrivando a quello in basso a destra (M-1,N-1).
+È possibile muoversi verticalmente, orizzontalmente e diagonalmente, cioè è possibile spostarsi su/giù, destra/sinistra e in diagonale.
+
+Algoritmo:
+Usiamo la programmazione dinamica per riempire una matrice 'dp' e calcolare la somma minima del percorso considerando i valori degli elementi vicini.
+Manteniamo una matrice separata per il percorso in cui ogni cella contiene il percorso che porta a quella particolare cella con la somma minima.
+Il percorso minimo finale si trova nella cella in basso a destra della matrice del percorso.
+
+(define (min-path matrix)
+  (setq rows (length matrix))
+  (setq cols (length (matrix 0)))
+  ; Crea una matrice dp per memorizzare le somme minime dei percorsi
+  (setq dp (array rows cols '(0)))
+  ; Crea una matrice path per memorizzare il percorso
+  (setq path (array rows cols '(0)))
+  (setf (dp 0 0) (matrix 0 0))
+  (setf (path 0 0) "00")
+  ; Inizializza la prima riga
+  (for (i 1 (- cols 1))
+    (setf (dp 0 i) (+ (dp 0 (- i 1)) (matrix 0 i)))
+    (setf (path 0 i) (string "00" i))
+  )
+  ; Inizializza la prima colonna
+  (for (i 1 (- rows 1))
+    (setf (dp i 0) (+ (dp (- i 1) 0) (matrix i 0)))
+    (setf (path i 0) (string i "00"))
+  )
+  ; Riempie il resto delle matrici dp e path
+  (for (i 1 (- rows 1))
+    (for (j 1 (- cols 1))
+      (setq left (dp i (- j 1)))
+      (setq up (dp (- i 1) j))
+      (setq diagonal (dp (- i 1) (- j 1)))
+      (setq min-vicino (min left up diagonal))
+      (setf (dp i j) (+ (matrix i j) min-vicino))
+      (cond ((= min-vicino left)
+              (setf (path i j) (string (path i (- j 1)) i j)))
+            ((= min-vicino up)
+              (setf (path i j) (string (path (- i 1) j) i j)))
+            ((= min-vicino diagonal)
+              (setf (path i j) (string (path (- i 1) (- j 1)) i j)))
+      )
+    )
+  )
+  ; L'elemento in basso a destra della matrice dp contiene la somma minima del percorso
+  ; L'elemento in basso a destra della matrice del percorso contiene il percorso
+  (list (dp (- rows 1) (- cols 1)) 
+        (explode (path (- rows 1) (- cols 1)) 2)))
+
+Facciamo qualche prova:
+
+(setq m '((1 3 1 -1)
+          (2 2 1 -2)
+          (5 0 2 -2)))
+(min-path m)
+;-> (0 ("00" "11" "12" "13" "23"))
+
+(setq m '(( 1    9    7    3   10    2    2)
+          (10    4    1    1    1    7    8)
+          ( 3    6    3    8    9    5    7)
+          ( 8   10    2    5    2    1    4)
+          ( 5    1    1    3    6    7    9))) 
+(min-path m)
+;-> (23 ("00" "11" "12" "13" "14" "25" "35" "46"))
+
+(setq m '(( 5    8    7    2    4)
+          (12   10   -2    2    2)
+          ( 9    4   -2    9    5)
+          ( 7    4   -2    1   12)
+          ( 1    2    3    4    4)))
+(min-path m)
+;-> (12 ("00" "11" "22" "23" "23" "34" "4"))
+
+
+----------------------
+Lista delle differenze
+----------------------
+
+Data la lista delle differenze di una lista, ricostruire la lista originale.
+
+Per esempio,
+  lista originale = (2 4 -2 5 3)
+  lista di differenze = (2 -6 7 -2)
+
+Per ricostruire la lista delle differenze occorre sapere il valore del primo valore della lista originale, altrimenti possiamo solo creare una lista generica che produce la lista delle differenze data.
+Se non conosciamo il primo valore della lista originale possiamo impostarlo ad un valore a piacere (ad esempio 1) e poi costruire la lista nel modo seguente:
+
+  lst(0) = 1 (valore a piacere)
+  lst(i) = lst(i-1) + diff(i)
+
+Nell'esempio:
+  primo valore = 1
+  secondo valore = 1 + 2 = 3
+  terzo valore = 3 + (-6) = -3
+  quarto valore = -3 + 7 = 4
+  quinto valore = 4 + (-2) = 2
+
+lista (non) originale = (1 3 -3 4 2)
+
+(define (original diff val)
+  (local (cur out))
+    (setq cur (or val 1))
+    (setq out (list cur))
+    (dolist (d diff)
+      (setq cur (+ cur d))
+      (push cur out -1)
+    )
+    out)
+
+Proviamo:
+
+(setq originale '(2 4 -2 5 3))
+(setq diff '(2 -6 7 -2))
+
+Senza il primo valore della lista originale:
+(original diff)
+;-> (1 3 -3 4 2)
+
+Con il primo valore della lista originale:
+(original diff 2)
+;-> (2 4 -2 5 3)
+
+Se vogliamo calcolare la lista delle differenze di una lista possiamo usare la seguente espressione:
+
+(setq lst originale)
+(map - (rest lst) (chop lst))
+;-> (2 -6 7 -2)
+
+Versione compatta della funzione "originale":
+
+(define (original diff val)
+    (let (cur (or val 1))
+      (push (or val 1) (map (fn(x) (++ cur x)) diff))))
+
+(original diff)
+;-> (1 3 -3 4 2)
+
+(original diff 2)
+;-> (2 4 -2 5 3)
+
 ============================================================================
 

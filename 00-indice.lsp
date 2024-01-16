@@ -2216,6 +2216,8 @@ NOTE LIBERE 21
   Quozienti di Wilson generalizzati
   Perimetro e area di un n-agono regolare
   Torna a casa
+  Percorso minimo in una matrice
+  Lista delle differenze
  
 
 PROBLEMI SUI DADI
