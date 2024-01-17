@@ -1675,5 +1675,226 @@ Versione compatta della funzione "originale":
 (original diff 2)
 ;-> (2 4 -2 5 3)
 
+
+------------------------------
+Coppie di interi di Ruth-Aaron
+------------------------------
+
+Una coppia Ruth-Aaron è una coppia di interi positivi consecutivi n e n+1 tali che la somma dei fattori primi (contando i fattori primi ripetuti) di ciascun intero sia uguale.
+Ad esempio, 714 e 715 formano una coppia Ruth-Aaron, poiché:
+  714 = 2*3*7*17, 715 = 5*11*13 e 2+3+7+17 = 5+11+13 = 29
+
+Sequenza OEIS A039752:
+ Ruth-Aaron numbers (2): sum of prime divisors of n = sum of prime divisors of n+1 (both taken with multiplicity)
+  5, 8, 15, 77, 125, 714, 948, 1330, 1520, 1862, 2491, 3248, 4185, 4191,
+  5405, 5560, 5959, 6867, 8280, 8463, 10647, 12351, 14587, 16932, 17080,
+  18490, 20450, 24895, 26642, 26649, 28448, 28809, 33019, 37828, 37881,
+  41261, 42624, 43215, 44831, 44891, 47544, 49240, ...
+
+(factor 714)
+;-> (2 3 7 17)
+(factor 715)
+;-> (5 11 13)
+(apply + (factor 714))
+;-> 29
+(apply + (factor 715))
+;-> 29
+
+Funzione che calcola le coppie di Ruth-Aaron fino ad un dato limite:
+
+(define (ruth-aaron limit)
+  (let (out '())
+    (for (i 1 (- limit 1))
+      (if (= (apply + (factor i)) (apply + (factor (+ i 1))))
+          (push (list i (+ i 1)) out -1)))
+    out))
+
+(ruth-aaron 10000)
+;-> ((5 6) (8 9) (15 16) (77 78) (125 126) (714 715) (948 949) (1330 1331)
+;->  (1520 1521) (1862 1863) (2491 2492) (3248 3249) (4185 4186) (4191 4192)
+;->  (5405 5406) (5560 5561) (5959 5960) (6867 6868) (8280 8281) (8463 8464))
+
+(map first (ruth-aaron 10000))
+;-> (5 8 15 77 125 714 948 1330 1520 1862 2491 3248 4185 4191
+;->  5405 5560 5959 6867 8280 8463)
+
+Funzione che verifica se un dato numero appartiene ad una coppia di Ruth-Aaron:
+
+(define (ruth-aaron? n) (= (apply + (factor n)) (apply + (factor (+ n 1)))))
+
+(filter ruth-aaron? (sequence 1 10000))
+;-> (5 8 15 77 125 714 948 1330 1520 1862 2491 3248 4185 4191
+;->  5405 5560 5959 6867 8280 8463)
+
+
+-----------------------
+Sequenza prepend-append
+-----------------------
+
+La sequenza prepend-append è definita in modo ricorsivo in questo modo:
+
+  a(1) = 1
+  a(n) = a(n-1) U n , se n è pari
+  a(n) = n U a(n-1) , se n è dispari
+
+dove l'operatore U concatena due numeri interi (es. 12 U 65 = 1265)
+
+Sequenza OEIS A053064:
+Alternately append n to end or beginning of previous term
+  1, 12, 312, 3124, 53124, 531246, 7531246, 75312468, 975312468, 97531246810,
+  1197531246810, 119753124681012, 13119753124681012, 1311975312468101214,
+  151311975312468101214, 15131197531246810121416, 1715131197531246810121416,
+  171513119753124681012141618, ...
+
+(define (sequenza limit)
+  (let ( (out '("1")) (prev "1") )
+    (for (i 2 limit)
+      (if (even? i) 
+          (push (setq prev (string prev i)) out -1)
+          ;else (i is odd)
+          (push (setq prev (string i prev)) out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(sequenza 20)
+;-> ("1" "12" "312" "3124" "53124" "531246" "7531246" "75312468" "975312468"
+;->  "97531246810" "1197531246810" "119753124681012" "13119753124681012"
+;->  "1311975312468101214" "151311975312468101214" "15131197531246810121416"
+;->  "1715131197531246810121416" "171513119753124681012141618" 
+;->  "19171513119753124681012141618" "1917151311975312468101214161820")
+
+
+----------------------------------------------------------
+Rimozione di elementi da una lista con una lista di indici
+----------------------------------------------------------
+
+Data una lista E di elementi e una lista I di indici, rimuovere gli elementi dalla lista E i cui indici sono contenuti nella lista I.
+Attenzione, esistono due metodi per effettuare questa operazione.
+
+Primo metodo
+------------
+Gli indici della lista I fanno sempre riferimento agli elementi della lista E iniziale.
+Esempio:
+  lista = (4 8 5 9)
+  indici = (1 2 0)
+
+  indice = 1 -> lista(1) = 8 (elemento da rimuovere)
+  indice = 2 -> lista(2) = 5 (elemento da rimuovere)
+  indice = 0 -> lista(0) = 4 (elemento da rimuovere)
+  output = (9)
+
+In questo caso gli indici devono essere tutti diversi.
+Il numero massimo di indici vale lunghezza(lista).
+Il valore massimo degli indici vale lunghezza(lista) - 1.
+
+Secondo metodo
+--------------
+Gli indici della lista I fanno riferimento agli elementi della lista E modificata dopo ogni rimozione.
+Esempio:
+  lista = (4 8 5 9)
+  indici = (1 2 0)
+
+  indice = 1 -> lista(1) = 8 (elemento da rimuovere)
+  lista = (4 5 9)
+  indice = 2 -> lista(2) = 9 (elemento da rimuovere)
+  lista = (4 5)
+  indice = 0 -> lista(0) = 4 (elemento da rimuovere)
+  output = (5)
+
+In questo caso gli indici possono anche essere uguali.
+Il numero massimo di indici vale lunghezza(lista).
+Il valore massimo degl indici vale lunghezza(lista) - 1.
+Attenzione, bisogna anche considerare il caso che un indice sia al di fuori dell'intervallo della lista.
+
+Per esempio:
+  lista = (1 2 3)
+  indici = (0 2)
+
+  indice = 1 -> lista(0) = 1 (elemento da rimuovere)
+  lista = (2 3)
+  indice = 2 -> lista(2) = error (elemento non esiste)
+
+Se (posizione-indice + valore-indice) >= lunghezza-lista,
+Allora indice-fuori-intervallo.
+
+Primo metodo
+------------
+Calcoliamo gli indici degli elementi da tenere con:
+  indici-da-tenere = tutti-gli-indici - indici-da-togliere
+dove: tutti-gli-indici = (sequence 0 (- (length lst) 1))
+      indici-da-togliere = lista degli indici
+E poi usiamo "select" per selezionare gli elementi dalla lista data.
+
+(define (remove1 lst indici)
+  (select lst (difference (sequence 0 (- (length lst) 1)) indici)))
+
+Proviamo:
+
+(setq ls '(4 8 5 9))
+(setq ix '(1 2 0))
+(remove1 ls ix)
+;-> (9)
+
+(remove1 '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3))
+;-> (3 3 4 4 5 5 5)
+
+(remove1 '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3 4 5 6))
+;-> (4 5 5 5)
+
+Secondo metodo
+--------------
+Attraversiamo la lista degli indici ed eliminiamo uno ad uno gli elementi corrispondenti della lista data.
+Vediamo due implementazioni simili (che non controllano la correttezza degli indici):
+
+(define (remove2a lst indici)
+  (dolist (idx indici) (pop lst idx))
+  lst)
+
+(remove2a ls ix)
+;-> (5)
+
+(remove2a '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3))
+;-> (1 2 3 4 5 5 5)
+
+(remove2a '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3 4 5 6))
+;-> ERR: invalid list index in function pop
+;-> called from function (remove2a '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3 4 5 6))
+
+(define (remove2b lst indici) (map (fn(x) (pop lst x)) indici) lst)
+
+(remove2b ls ix)
+;-> (5)
+
+(remove2b '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3))
+;-> (1 2 3 4 5 5 5)
+
+(remove2b '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3 4 5 6))
+;-> ERR: invalid list index in function pop
+;-> called from function (remove2a '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3 4 5 6))
+
+Vediamo una funzione che rimuove solo gli elementi con indici corretti (e quindi non genera un errore "invalid list index"):
+
+(define (remove2c lst indici)
+  (let (len (length lst))
+    (dolist (idx indici) 
+      (if (< (+ $idx idx) len)
+          (pop lst idx))
+    )
+    lst))
+
+Proviamo:
+
+(remove2c ls ix)
+;-> (5)
+
+(remove2c '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3))
+;-> (1 2 3 4 5 5 5)
+
+(remove2c '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3 4 5 6))
+;-> (1 2 3 4 5)
+
 ============================================================================
 
