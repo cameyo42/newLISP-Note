@@ -2221,6 +2221,8 @@ NOTE LIBERE 21
   Coppie di interi di Ruth-Aaron
   Sequenza prepend-append
   Rimozione di elementi da una lista con una lista di indici
+  Primi di un numero cambiando una cifra
+  Tabella cross-reference di un torneo
  
 
 PROBLEMI SUI DADI

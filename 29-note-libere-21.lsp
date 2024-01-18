@@ -18,12 +18,12 @@ Un Visir può spostarsi da una posizione (x, y) a:
    (x-1, y)
    (x, y-1)
 
-Cioè si muove come la torre, ma solo un passo alla volta come il re. 
+Cioè si muove come la torre, ma solo un passo alla volta come il re.
 Quanti Visir possono essere posizionati su una scacchiera NxN in modo che due Visir non si attacchino a vicenda?
 
 Sequenza OEIS A000982:
-  0, 1, 2, 5, 8, 13, 18, 25, 32, 41, 50, 61, 72, 85, 98, 113, 128, 145, 
-  162, 181, 200, 221, 242, 265, 288, 313, 338, 365, 392, 421, 450, 481, 
+  0, 1, 2, 5, 8, 13, 18, 25, 32, 41, 50, 61, 72, 85, 98, 113, 128, 145,
+  162, 181, 200, 221, 242, 265, 288, 313, 338, 365, 392, 421, 450, 481,
   512, 545, 578, 613, 648, 685, 722, 761, 800, 841, 882, 925, 968, 1013,
   1058, 1105, 1152, 1201, 1250, 1301, 1352, 1405, ...
 
@@ -105,7 +105,7 @@ Non possiamo fare di meglio: riempiamo la scacchiera con tessere 2x1, eventualme
    | V     | V     | V     | V |
    +-------+-------+-------+---+
 
-Abbiamo bisogno ceil(n^2/2) tessere per coprire la scacchiera. 
+Abbiamo bisogno ceil(n^2/2) tessere per coprire la scacchiera.
 Chiaramente, non è possibile mettere due Visir sulla stessa tessera.
 Quindi ogni tessera può contenere al massimo un Visir, il che significa che non possiamo posizionare più di ceil(n^2/2) Visir sulla scacchiera.
 
@@ -240,7 +240,7 @@ N=2, M=2
   +---+---+
   | N | B |
   +---+---+
-  
+
 In questo caso possiamo mettere 4 cavalli nel modo seguente:
   +---+---+
   | C | C |
@@ -254,7 +254,7 @@ N=2, M=6
   +---+---+---+---+---+---+
   | N | B | N | B | M | B |
   +---+---+---+---+---+---+
-  
+
 In questo caso possiamo mettere 8 cavalli nel modo seguente:
   +---+---+---+---+---+---+
   | C | C | B | N | C | C |
@@ -307,12 +307,12 @@ Adesso possiamo scrivere la funzione finale.
         ((or (= N 2) (= M 2)) ; N o M = 2
             (cond ((= (% (max N M) 4) 0)
                     (* (/ (max M N) 4) 4))
-                  ((= (% (max N M) 4) 1) 
+                  ((= (% (max N M) 4) 1)
                     (+ (* (/ (max M N) 4) 4) 2))
-                  ((> (% (max N M) 4) 1) 
+                  ((> (% (max N M) 4) 1)
                   (+ (* (/ (max M N) 4) 4) 4))))
         (true ; N e M > 2
-          (if (odd? (* N M)) 
+          (if (odd? (* N M))
               (/ (+ (* N M) 1) 2)
               ;else
               (/ (* N M) 2)))))
@@ -344,7 +344,7 @@ Vediamo un esempio:
 
   lista = (1 (3 5) (2 (7 8) 9) 6))
 
-  Elemento       Indice        
+  Elemento       Indice
   1              (0)
   (3 5)          (1)
   3              (1 0)
@@ -406,7 +406,7 @@ Stampa di Elemento - Indice - Annidamento:
 
 Se ci interessano solo gli elementi atomici (in questo caso i numeri interi della lista), allora possiamo scrivere:
 
-(dolist (ind idx) 
+(dolist (ind idx)
   (if (atom? (lst ind))
       (println (lst ind) { } ind { } (ind (- (length ind) 1)))))
 ;-> 1 (0) 0
@@ -445,13 +445,13 @@ Solo elementi atomici:
 ;-> ((1 0) (3 0) (5 1) (2 0) (7 0) (8 1) (9 2) (6 3))
 
 (annidamento '(1 (2 (3 4) 5 (6 7) 1) ((((5 2) 4 (5 2))) 6) 3))
-;-> ((1 0) ((2 (3 4) 5 (6 7) 1) 1) (2 0) ((3 4) 1) (3 0) (4 1) (5 2) 
+;-> ((1 0) ((2 (3 4) 5 (6 7) 1) 1) (2 0) ((3 4) 1) (3 0) (4 1) (5 2)
 ;->  ((6 7) 3) (6 0) (7 1) (1 4) (((((5 2) 4 (5 2))) 6) 2)
 ;->  ((((5 2) 4 (5 2))) 0) (((5 2) 4 (5 2)) 0) ((5 2) 0) (5 0) (2 1)
 ;->  (4 1) ((5 2) 2) (5 0) (2 1) (6 1) (3 3))
 
 (annidamento '(1 (2 (3 4) 5 (6 7) 1) ((((5 2) 4 (5 2))) 6) 3) true)
-;-> ((1 0) (2 0) (3 0) (4 1) (5 2) (6 0) (7 1) (1 4) (5 0) 
+;-> ((1 0) (2 0) (3 0) (4 1) (5 2) (6 0) (7 1) (1 4) (5 0)
 ;->  (2 1) (4 1) (5 0) (2 1) (6 1) (3 3))
 
 Vedi anche "Lista degli indici di una lista" su "Note libere 4".
@@ -521,7 +521,7 @@ Massima serie di 1 consecutivi in un numero binario
 ---------------------------------------------------
 
 Dato un numero intero positivo, dopo averlo trasformarto in binario calcolare:
-1) la posizione iniziale della serie con il massimo numero di 1 consecutivi 
+1) la posizione iniziale della serie con il massimo numero di 1 consecutivi
 2) la lunghezza della serie (cioè quanti 1 consecutivi ci sono al massimo).
 Se il numero ha più serie della stessa lunghezza, restituire la posizione della prima serie.
 
@@ -537,7 +537,7 @@ Primo metodo (tipo RLE-encode):
 (define (max-1a num)
   (local (binary idx max-len cur-len)
     ; valore binario
-    (if (string? num) 
+    (if (string? num)
         (setq binary num)
         ;else
         (setq binary (bits num))
@@ -611,11 +611,11 @@ Secondo metodo: (funzione "parse")
 (define (max-1b num)
   (local (binary max-len idx)
     ; valore binario
-    (if (string? num) 
+    (if (string? num)
         (setq binary num)
         ;else
         (setq binary (bits num))
-    )  
+    )
     ;(println binary)
     (setq max-len (apply max (map length (parse binary "0"))))
     (setq idx (find (dup "1" max-len) binary))
@@ -739,7 +739,7 @@ Proviamo:
 
 (setq a '(( 1  2  3  4)
           ( 5  6  7  8)
-          ( 9 10 11 12) 
+          ( 9 10 11 12)
           (13 14 15 16)))
 
 (delta-matrix a)
@@ -962,8 +962,8 @@ lista = (0 0 0) (-2 3 5) (3 2 4)
 P = (1 1 1)
 Output:
 (1.732051 (0 0 0))   ; il punto (0 0 0) dista 1.732051 dal punto (1 1 1)
-(3.741657 (3 2 4))   ; il punto (3 2 4) dista 3.741657 dal punto (1 1 1) 
-(5.385165 (-2 3 5))) ; il punto (-2 3 5) dista 5.385165 dal punto (1 1 1) 
+(3.741657 (3 2 4))   ; il punto (3 2 4) dista 3.741657 dal punto (1 1 1)
+(5.385165 (-2 3 5))) ; il punto (-2 3 5) dista 5.385165 dal punto (1 1 1)
 
 (define (dist3d p1 p2)
 "Calculates 3D Cartesian distance of two points P1=(x1 y1 z1) e P2=(x2 y2 z2)"
@@ -1035,7 +1035,7 @@ Proviamo:
 ;-> (6661)
 
 (satan 1e5)
-;-> (6661 16661 26669 46663 56663 66601 66617 66629 66643 66653 
+;-> (6661 16661 26669 46663 56663 66601 66617 66629 66643 66653
 ;->  66683 66697 76667 96661 96667)
 
 (length (satan 1e6))
@@ -1161,9 +1161,9 @@ La formula per il phi-torial è la seguente:
 
 Sequenza OEIS A001783:
 phi-torial of n: Product k, 1 <= k <= n, k relatively prime to n
-  1, 1, 2, 3, 24, 5, 720, 105, 2240, 189, 3628800, 385, 479001600, 19305, 
-  896896, 2027025, 20922789888000, 85085, 6402373705728000, 8729721, 
-  47297536000, 1249937325, 1124000727777607680000, 37182145, 
+  1, 1, 2, 3, 24, 5, 720, 105, 2240, 189, 3628800, 385, 479001600, 19305,
+  896896, 2027025, 20922789888000, 85085, 6402373705728000, 8729721,
+  47297536000, 1249937325, 1124000727777607680000, 37182145,
   41363226782215962624, 608142583125, 1524503639859200000, ...
 
 Funzione che calcola il phi-fattoriale di un numero:
@@ -1205,9 +1205,9 @@ Proviamo:
 ;-> 41363226782215962624L
 
 (map phi-torial (sequence 1 30))
-;-> (1 1L 2L 3L 24L 5L 720L 105L 2240L 189L 3628800L 385L 479001600L 19305L 
-;->  896896L 2027025L 20922789888000L 85085L 6402373705728000L 8729721L 
-;->  47297536000L 1249937325L 1124000727777607680000L 37182145L 
+;-> (1 1L 2L 3L 24L 5L 720L 105L 2240L 189L 3628800L 385L 479001600L 19305L
+;->  896896L 2027025L 20922789888000L 85085L 6402373705728000L 8729721L
+;->  47297536000L 1249937325L 1124000727777607680000L 37182145L
 ;->  41363226782215962624L 608142583125L 1524503639859200000L 1452095555625L
 ;->  304888344611713860501504000000L 215656441L)
 
@@ -1221,8 +1221,8 @@ Un numero n ha una radice primitiva se non esiste un intero x dove 1 < x < n-1 e
 
 Sequenza OEIS A033948:
 Numbers that have a primitive root (the multiplicative group modulo n is cyclic)
-  1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 13, 14, 17, 18, 19, 22, 23, 25, 26, 27, 
-  29, 31, 34, 37, 38, 41, 43, 46, 47, 49, 50, 53, 54, 58, 59, 61, 62, 67, 
+  1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 13, 14, 17, 18, 19, 22, 23, 25, 26, 27,
+  29, 31, 34, 37, 38, 41, 43, 46, 47, 49, 50, 53, 54, 58, 59, 61, 62, 67,
   71, 73, 74, 79, 81, 82, 83, 86, 89, 94, 97, 98, 101, 103, 106, 107, 109,
   113, 118, 121, 122, 125, 127, 131, 134, 137, 139, ...
 
@@ -1245,7 +1245,7 @@ Vediamo una funzione più compatta che usa la funzione "for-all":
 Funzione che verifica se un numero dato ha una radice primitiva:
 
 (define (primitive num)
-  (if(< num 4) 
+  (if(< num 4)
     true
     ;else
     (for-all (fn(x) (!= (% (* x x) num) 1)) (sequence 2 (- num 2)))))
@@ -1363,7 +1363,7 @@ Formule per il calcolo del perimetro e dell'area di un n-agono regolare.
   Perimetro = n*s
   Area = (n*s*a)/2 = (Perimetro*a)/2
   dove s è la lunghezza del lato dell'n-agono,
-       a è la lunghezza dell'apotema 
+       a è la lunghezza dell'apotema
 
 L'apotema 'a' è il raggio del cerchio inscritto all'n-agono:
 
@@ -1581,7 +1581,7 @@ Il percorso minimo finale si trova nella cella in basso a destra della matrice d
   )
   ; L'elemento in basso a destra della matrice dp contiene la somma minima del percorso
   ; L'elemento in basso a destra della matrice del percorso contiene il percorso
-  (list (dp (- rows 1) (- cols 1)) 
+  (list (dp (- rows 1) (- cols 1))
         (explode (path (- rows 1) (- cols 1)) 2)))
 
 Facciamo qualche prova:
@@ -1596,7 +1596,7 @@ Facciamo qualche prova:
           (10    4    1    1    1    7    8)
           ( 3    6    3    8    9    5    7)
           ( 8   10    2    5    2    1    4)
-          ( 5    1    1    3    6    7    9))) 
+          ( 5    1    1    3    6    7    9)))
 (min-path m)
 ;-> (23 ("00" "11" "12" "13" "14" "25" "35" "46"))
 
@@ -1749,7 +1749,7 @@ Alternately append n to end or beginning of previous term
 (define (sequenza limit)
   (let ( (out '("1")) (prev "1") )
     (for (i 2 limit)
-      (if (even? i) 
+      (if (even? i)
           (push (setq prev (string prev i)) out -1)
           ;else (i is odd)
           (push (setq prev (string i prev)) out -1)
@@ -1763,7 +1763,7 @@ Proviamo:
 ;-> ("1" "12" "312" "3124" "53124" "531246" "7531246" "75312468" "975312468"
 ;->  "97531246810" "1197531246810" "119753124681012" "13119753124681012"
 ;->  "1311975312468101214" "151311975312468101214" "15131197531246810121416"
-;->  "1715131197531246810121416" "171513119753124681012141618" 
+;->  "1715131197531246810121416" "171513119753124681012141618"
 ;->  "19171513119753124681012141618" "1917151311975312468101214161820")
 
 
@@ -1879,7 +1879,7 @@ Vediamo una funzione che rimuove solo gli elementi con indici corretti (e quindi
 
 (define (remove2c lst indici)
   (let (len (length lst))
-    (dolist (idx indici) 
+    (dolist (idx indici)
       (if (< (+ $idx idx) len)
           (pop lst idx))
     )
@@ -1895,6 +1895,322 @@ Proviamo:
 
 (remove2c '(1 1 2 2 3 3 4 4 5 5 5) '(0 1 2 3 4 5 6))
 ;-> (1 2 3 4 5)
+
+
+--------------------------------------
+Primi di un numero cambiando una cifra
+--------------------------------------
+
+Dato un intero n > 0, restituire la lista dei numeri primi (con n stesso se è primo) che possono essere prodotti modificando una cifra del numero n (senza modificare il numero di cifre).
+(Occorre modificare tutte le cifre di n, una per volta).
+
+Esempi:
+n = 3
+Modificando una cifra otteniamo i seguenti numeri:
+  0 1 2 3 4 5 6 7 8 9
+In questi numeri i primi sono: 2 3 5 7
+
+n = 13
+Modificando una cifra (prima la 1 e poi la 3) otteniamo i seguenti numeri:
+  03 13 23 33 43 53 63 73 83 93 10 11 12 13 14 15 16 17 18 19
+In questi numeri i primi sono: 3 11 13 17 19 23 43 53 73 83
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (quanti num)
+  (local (out lst tmp val)
+    (setq out '())
+    ; converte il numero in una lista
+    (setq lst (int-list num))
+    (setq len (length lst))
+    ; ciclo per ogni cifra del numero (lista)
+    (dolist (d lst)
+      ; copia la lista
+      (setq tmp lst)
+      ; ciclo per la cifra all'indice $idx
+      (for (i 0 9)
+        ; modifica il numero (lista)
+        (setf (tmp $idx) i)
+        ; converte la lista in intero
+        (setq val (list-int tmp))
+        (print val) (read-line)
+        ; numero primo con la stessa lunghezza del numero dato?
+        ;(if (and (prime? val) (= len (length val)))
+        ; numero primo?
+        (if (prime? val) (push val out -1))
+      )
+    )
+    (unique (sort out))))
+
+Proviamo:
+
+(quanti 1)
+;-> (2 3 5 7)
+(quanti 3)
+;-> (2 3 5 7)
+(quanti 13)
+;-> (3 11 13 17 19 23 43 53 73 83)
+(quanti 42)
+;-> (2 41 43 47)
+(quanti 100)
+;-> (101 103 107 109)
+(quanti 1000)
+;-> (1009)
+
+(map length (map quanti (sequence 1 50)))
+;-> (4 4 4 4 4 4 4 4 4 4 8 5 10 4 5 4 9 4 8 2 7 3 8 2 3
+;->  2 8 2 6 2 6 3 9 2 3 2 7 2 7 3 7 4 9 3 4 3 8 3 8 2)
+
+
+------------------------------------
+Tabella cross-reference di un torneo
+------------------------------------
+
+In un torneo di scacchi ci sono N giocatori. 
+Ogni giocatore gioca al massimo una partita con ognuno degli altri giocatori.
+Il risultato di una partita può essere: 
+"1-0"  -> vince il primo giocatore
+"0-1"  -> vince il secondo giocatore
+"1/2"  -> partita patta
+Data una lista di partite con elementi del tipo ("giocatoreX" "giocatoreY" "risultato") costruire la tabella di cross-reference.
+
+Per esempio:
+lista partite = (("a" "b" "1-0") ("a" "c" "1-0") ("a" "d" "0-1")
+                 ("b" "c" "1-0") ("b" "d" "1/2") ("c" "d" "1-0"))
+tabella cross-reference = 
+  +---+-----+-----+-----+-----+-----+
+  | b | *   | 0.5 | 0.5 | 1   | 2   |
+  +---+-----+-----+-----+-----+-----+
+  | d | 0.5 | *   | 1   | 0.5 | 2   |
+  +---+-----+-----+-----+-----+-----+
+  | a | 0.5 | 0   | *   | 1   | 1.5 |
+  +---+-----+-----+-----+-----+-----+
+  | c | 0   | 0.5 | 0   | *   | 0.5 |
+  +---+-----+-----+-----+-----+-----+
+
+(define (print-table lst)
+"Print a matrix m x n as a table"
+  (local (tab plus minus ver rows cols col-len-max len-max
+          line-len line ind)
+    ; conversione di tutti i valori della lista in stringa
+    (setq tab (map-all string lst))
+    ; caratteri grafici
+    (setq plus "+")
+    (setq minus "-")
+    (setq ver "|")
+    ; calcolo righe e colonne della lista
+    (setq rows (length tab))
+    (setq cols (length (tab 0)))
+    ; vettore per le lunghezze massime dei valori di ogni colonna
+    (setq col-len-max (array cols '(0)))
+    ; calcola la lunghezza massima dei valori di ogni colonna
+    (for (c 0 (- cols 1))
+      (setq len-max 0)
+      (for (r 0 (- rows 1))
+        (setf len-max (max len-max (length (tab r c))))
+      )
+      (setf (col-len-max c) len-max)
+    )
+    ;(println col-len-max)
+    ; lunghezza della linea =
+    ; (somma delle lunghezze massime) +
+    ; (2 spazi x ogni colonna) +
+    ; (colonne + 1 per "|")
+    (setq line-len (+ (apply + col-len-max) (* cols 2) (+ cols 1)))
+    (setq line (dup minus line-len))
+    (setf (line 0) plus)
+    (setf (line -1) plus)
+    ; calcola i limiti di stampa dei valori
+    ; (inserisce "+" nella linea "line")
+    (setq ind 1)
+    (dolist (c col-len-max)
+      (setq ind (+ ind 2 c))
+      (setf (line ind) plus)
+      (++ ind)
+    )
+    ; stampa della lista come tabella
+    (dolist (r tab)
+      (println line)
+      (dolist (c r)
+        (print ver { } c (dup " " (- (col-len-max $idx) (length c))) { })
+      )
+      (println ver)
+    )
+    (println line)
+  'end))
+(define (map-all func lst)
+"Apply a function to all the elements of annidate list"
+  (let (result '())
+    (dolist (el lst)
+      (if (list? el)
+        (push (map-all func el) result -1)
+        (push (func el) result -1)))
+    result))
+
+Funzione che stampa la tabella cross-reference di una lista di partite:
+
+(define (cross lst)
+  (local (players num-players classifica table row col val1 val2
+          cross-ref max-len fmt nomi punteggi)
+    ; crea la lista dei giocatori
+    (setq players '())
+    (setq players (unique (sort (flat
+                  (map (fn(x) (extend players (list (x 0) (x 1)))) lst)))))
+    ; numero totale dei giocatori
+    (setq num-players (length players))
+    ; crea la lista della classifica (nome punteggio-totale)
+    (setq classifica (map (fn(x) (list x 0)) players))
+    ; ciclo per creare la classifica
+    (dolist (game lst)
+      (cond ((= (game 2) "1-0")
+              (setf (lookup (game 0) classifica) (add $it 1)))
+            ((= (game 2) "0-1")
+              (setf (lookup (game 1) classifica) (add $it 1)))
+            ((= (game 2) "1/2")
+              (setf (lookup (game 0) classifica) (add $it 0.5))
+              (setf (lookup (game 1) classifica) (add $it 0.5)))
+            (true (println "Error: " (game 0) "," (game 1) " : " (game 2)))
+      )
+    )
+    ; ordina la classifica
+    (define (comp x y) (>= (last x) (last y)))
+    (sort classifica comp)
+    ; ordina i giocatori in base alla classifica
+    (setq players (map first classifica))
+    ; matrice della tabella di cross-reference
+    (setq table (array num-players num-players '("*")))
+    ; crea la tabella d cross-reference
+    (dolist (game lst)
+      (setq row (first (ref (game 0) players)))
+      (setq col (first (ref (game 1) players)))
+      (cond ((= (game 2) "1-0")
+              (setq val1 1) (setq val2 0))
+            ((= (game 2) "0-1")
+              (setq val1 0) (setq val2 1))
+            ((= (game 2) "1/2")
+              (setq val1 0.5) (setq val2 0.5))
+            (true (println "Error: " (game 0) "," (game 1) " : " (game 2))
+                  (setq val1 0) (setq val2 0))
+      )
+      ; aggiorna la tabella
+      (setf (table row col) val1)
+      (setf (table col row) val2)
+    )
+    ; crea la tabella finale aggiungendo:
+    ; 1) la colonna dei nomi giocatori (a sinistra della tabella)
+    ; 2) la colonna dei punteggi (a destra della tabella)
+    (setq cross-ref (array-list table))
+    ; lungheza del nome più lungo
+    (setq max-len (apply max (map length players)))
+    ; stringa di formattazione
+    (setq fmt (string "%-" max-len "s"))
+    ; crea la colonna dei nomi formattati
+    (setq nomi (map (fn(x) (format fmt x)) players))
+    ; aggiunge la colonna dei nomi
+    (setq cross-ref (transpose (push nomi (transpose cross-ref))))
+    ; crea la lista dei punteggi
+    (setq punteggi (map last classifica))
+    ; aggiunge la colonna dei nomi
+    (setq cross-ref (transpose (push punteggi (transpose cross-ref) -1)))
+    ; stampa la tabella di cross-reference
+    (print-table cross-ref)))
+
+Proviamo con la lista delle partite del Torneo di Linares del 1992:
+
+(setq linares92 '(
+      ("Timman" "Kasparov" "0-1") ("Ljubojevic" "Karpov" "0-1") 
+      ("Jussupow" "Anand" "1-0") ("Ivanchuk" "Salov" "0-1") 
+      ("Bareev" "Short" "1/2") ("Gelfand" "Illescas" "1-0")
+      ("Beliavsky" "Speelman" "1/2") ("Speelman" "Jussupow" "0-1")
+      ("Timman" "Ivanchuk" "1/2") ("Short" "Beliavsky" "0-1")
+      ("Kasparov" "Karpov" "1-0") ("Salov" "Gelfand" "0-1")
+      ("Illescas" "Bareev" "1-0") ("Anand" "Ljubojevic" "1/2")
+      ("Ljubojevic" "Speelman" "1-0") ("Jussupow" "Short" "1-0")
+      ("Ivanchuk" "Kasparov" "1/2") ("Beliavsky" "Illescas" "1/2")
+      ("Bareev" "Salov" "1-0") ("Karpov" "Anand" "1/2")
+      ("Gelfand" "Timman" "1/2") ("Timman" "Bareev" "1-0")
+      ("Speelman" "Karpov" "1/2") ("Short" "Ljubojevic" "1-0")
+      ("Salov" "Beliavsky" "1/2") ("Ivanchuk" "Gelfand" "1-0")
+      ("Kasparov" "Anand" "1/2") ("Illescas" "Jussupow" "1-0")
+      ("Ljubojevic" "Illescas" "0-1") ("Karpov" "Short" "1-0")
+      ("Jussupow" "Salov" "1/2") ("Gelfand" "Kasparov" "0-1")
+      ("Beliavsky" "Timman" "1-0") ("Bareev" "Ivanchuk" "1/2")
+      ("Anand" "Speelman" "1/2") ("Timman" "Jussupow" "1-0")
+      ("Salov" "Ljubojevic" "1-0") ("Short" "Anand" "1-0")
+      ("Kasparov" "Speelman" "1/2") ("Ivanchuk" "Beliavsky" "1/2")
+      ("Illescas" "Karpov" "0-1") ("Gelfand" "Bareev" "1-0")
+      ("Speelman" "Short" "1/2") ("Ljubojevic" "Timman" "0-1")
+      ("Karpov" "Salov" "1-0") ("Jussupow" "Ivanchuk" "0-1")
+      ("Beliavsky" "Gelfand" "1-0") ("Bareev" "Kasparov" "1/2")
+      ("Anand" "Illescas" "1-0") ("Timman" "Karpov" "1-0")
+      ("Salov" "Anand" "1/2") ("Ivanchuk" "Ljubojevic" "1/2")
+      ("Illescas" "Speelman" "1-0") ("Gelfand" "Jussupow" "1/2")
+      ("Bareev" "Beliavsky" "1/2") ("Kasparov" "Short" "1-0")
+      ("Short" "Illescas" "1/2") ("Karpov" "Ivanchuk" "1/2")
+      ("Ljubojevic" "Gelfand" "1/2") ("Jussupow" "Bareev" "0-1")
+      ("Beliavsky" "Kasparov" "1/2") ("Anand" "Timman" "1-0")
+      ("Speelman" "Salov" "1/2") ("Timman" "Speelman" "1-0")
+      ("Salov" "Short" "1-0") ("Kasparov" "Illescas" "1-0")
+      ("Gelfand" "Karpov" "1/2") ("Ivanchuk" "Anand" "1/2")
+      ("Beliavsky" "Jussupow" "0-1") ("Bareev" "Ljubojevic" "1/2")
+      ("Speelman" "Ivanchuk" "0-1") ("Ljubojevic" "Beliavsky" "1-0")
+      ("Karpov" "Bareev" "0-1") ("Illescas" "Salov" "1/2")
+      ("Short" "Timman" "0-1") ("Jussupow" "Kasparov" "0-1")
+      ("Anand" "Gelfand" "1/2") ("Timman" "Illescas" "1-0")
+      ("Kasparov" "Salov" "1/2") ("Jussupow" "Ljubojevic" "1/2")
+      ("Ivanchuk" "Short" "1/2") ("Gelfand" "Speelman" "1/2")
+      ("Beliavsky" "Karpov" "0-1") ("Bareev" "Anand" "1/2")
+      ("Speelman" "Bareev" "1/2") ("Short" "Gelfand" "0-1")
+      ("Salov" "Timman" "1-0") ("Ljubojevic" "Kasparov" "0-1")
+      ("Karpov" "Jussupow" "1/2") ("Illescas" "Ivanchuk" "0-1")
+      ("Anand" "Beliavsky" "1-0")))
+
+(cross linares92)
+
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Kasparov   | *   | 0.5 | 1   | 1   | 0.5 | 1   | 0.5 | 0.5 | 0.5 | 1   | 1   | 1   | 1   | 0.5 | 10  |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Ivanchuk   | 0.5 | *   | 0.5 | 0.5 | 0.5 | 1   | 0   | 0.5 | 0.5 | 1   | 1   | 0.5 | 0.5 | 1   | 8   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Timman     | 0   | 0.5 | *   | 1   | 0   | 0.5 | 0   | 1   | 0   | 1   | 1   | 1   | 1   | 1   | 8   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Karpov     | 0   | 0.5 | 0   | *   | 0.5 | 0.5 | 1   | 0   | 1   | 0.5 | 1   | 1   | 1   | 0.5 | 7.5 |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Anand      | 0.5 | 0.5 | 1   | 0.5 | *   | 0.5 | 0.5 | 0.5 | 1   | 0   | 1   | 0.5 | 0   | 0.5 | 7   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Gelfand    | 0   | 0   | 0.5 | 0.5 | 0.5 | *   | 1   | 1   | 0   | 0.5 | 1   | 0.5 | 1   | 0.5 | 7   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Salov      | 0.5 | 1   | 1   | 0   | 0.5 | 0   | *   | 0   | 0.5 | 0.5 | 0.5 | 1   | 1   | 0.5 | 7   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Bareev     | 0.5 | 0.5 | 0   | 1   | 0.5 | 0   | 1   | *   | 0.5 | 1   | 0   | 0.5 | 0.5 | 0.5 | 6.5 |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Beliavsky  | 0.5 | 0.5 | 1   | 0   | 0   | 1   | 0.5 | 0.5 | *   | 0   | 0.5 | 0   | 1   | 0.5 | 6   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Jussupow   | 0   | 0   | 0   | 0.5 | 1   | 0.5 | 0.5 | 0   | 1   | *   | 0   | 0.5 | 1   | 1   | 6   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Illescas   | 0   | 0   | 0   | 0   | 0   | 0   | 0.5 | 1   | 0.5 | 1   | *   | 1   | 0.5 | 1   | 5.5 |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Ljubojevic | 0   | 0.5 | 0   | 0   | 0.5 | 0.5 | 0   | 0.5 | 1   | 0.5 | 0   | *   | 0   | 1   | 4.5 |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Short      | 0   | 0.5 | 0   | 0   | 1   | 0   | 0   | 0.5 | 0   | 0   | 0.5 | 1   | *   | 0.5 | 4   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+;-> | Speelman   | 0.5 | 0   | 0   | 0.5 | 0.5 | 0.5 | 0.5 | 0.5 | 0.5 | 0   | 0   | 0   | 0.5 | *   | 4   |
+;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
 
 ============================================================================
 
