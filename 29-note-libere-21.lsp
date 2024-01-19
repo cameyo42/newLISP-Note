@@ -2212,5 +2212,255 @@ Proviamo con la lista delle partite del Torneo di Linares del 1992:
 ;-> | Speelman   | 0.5 | 0   | 0   | 0.5 | 0.5 | 0.5 | 0.5 | 0.5 | 0.5 | 0   | 0   | 0   | 0.5 | *   | 4   |
 ;-> +------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
 
+
+-----------------------------
+Operazioni con interi e float
+-----------------------------
+
+Nel forum di newLISP vashushpanov ha scritto le seguenti espressioni:
+
+(sub 9999999999999999.0 9999999999999998.0)
+;-> 0
+(- 9999999999999999 9999999999999998)
+;-> 1
+
+Perchè la prima espressione produce un risultato  errato?
+
+Dal manuale di newLISP:
+"newLISP has two types of basic arithmetic operators: integer (+ - * /) and floating point (add sub mul div).
+The arithmetic functions convert their arguments into types compatible with the function's own type: integer function arguments into integers, floating point function arguments into floating points."
+
+Quindi la funzione "sub" prima converte gli argomenti in numeri float e poi li sottrae:
+
+(float 9999999999999999.0)
+;-> 9999999999999998 ; questo è il problema
+(float 9999999999999998.0)
+;-> 9999999999999998
+(- (float 9999999999999999.0) (float 9999999999999998.0))
+;-> 0
+
+Un risultato diverso (ma sempre errato) si ottiene con gli stessi numeri senza virgola (numeri interi):
+(sub 9999999999999999 9999999999999998)
+;-> 2
+(float 9999999999999999)
+;-> 1e+016 ; questo è il problema
+(float 9999999999999998)
+;-> 9999999999999998
+(- (float 9999999999999999) (float 9999999999999998))
+;-> 2
+
+In C++:
+
+#include <iostream>
+using namespace std;
+int main()
+{
+  cout<<(1e16 - 1) << endl;
+  cout<<(10000000000000000 - 1);
+  return 0;
+}
+--> 1e+16
+--> 9999999999999999
+
+Un metodo per evitare (in parte) il problema è il seguente.
+
+Addizione estesa:
+
+(define (add-ex x y)
+  (if (and (integer? x) (integer? y)) (+ x y) (add x y)))
+
+Sottrazione estesa:
+
+(define (sub-ex x y)
+  (if (and (integer? x) (integer? y)) (- x y) (sub x y)))
+
+(sub-ex )
+
+Moltiplicazione estesa:
+
+(define (mul-ex x y)
+  (if (and (integer? x) (integer? y)) (* x y) (mul x y)))
+
+(mul-ex 2 3)
+;-> 6
+(mul-ex 2.5 3)
+;-> 7.5
+(float? (mul-ex 2.0 3.0))
+;-> true
+
+;(define (div-ex x y)
+;  (if (and (integer? x) (integer? y)) (/ x y) (div x y)))
+Divisione estesa:
+(define (div-ex x y real)
+  (if (and (integer? x) (integer? y) (not real)) (/ x y) (div x y)))
+
+(div-ex 10 4)
+;-> 2
+(div-ex 10 4 true)
+;-> 2.5
+
+
+------------------------
+Primo elemento duplicato
+------------------------
+
+Data una lista di elementi, trovare il primo elemento duplicato.
+
+Soluzione con hash-map (dizionario):
+
+(define (duplicato1 lst)
+  ; crea la hash-map
+  (new Tree 'myHash)
+  (let (elemento nil)
+    (dolist (el lst elemento)
+      ; se l'elemento non esiste nella hash-map...
+      (if (nil? (myHash el))
+          ; allora inserisce l'elemento nella hash-map
+          (myHash el el)
+          ; altrimenti imposta il risultato (che ferma il ciclo)
+          (setq elemento el)
+      )
+    )
+    ; elimina la hash-map
+    (delete 'myHash)
+    elemento))
+
+Proviamo:
+
+(duplicato1 '(1 3 7 -2 9 3 5 7))
+;-> 3
+
+(duplicato1 '())
+;-> nil
+
+(duplicato1 '(1 2 3))
+;-> nil
+
+Soluzione con lista associativa:
+
+(define (duplicato2 lst)
+  (let ( (lista '()) (elemento nil) )
+    (dolist (el lst elemento)
+      ; se l'elemento non esiste nella lista associativa...
+      (if (nil? (assoc el lista))
+          ; allora inserisce l'elemento nella lista associativa
+          (push (list el el) lista)
+          ; altrimenti imposta il risultato (che ferma il ciclo)
+          (setq elemento el)
+      )
+    )
+    elemento))
+
+Proviamo:
+
+(duplicato2 '(1 3 7 -2 9 3 5 7))
+;-> 3
+
+(duplicato2 '())
+;-> nil
+
+(duplicato2 '(1 2 3))
+;-> nil
+
+Vediamo la velocità delle due funzioni.
+
+Una sola chiamata con una lista grande:
+
+(time (duplicato1 (sequence 1 1e3)))
+;-> 15.585
+(time (duplicato2 (sequence 1 1e3)))
+;-> 15.586
+
+(time (duplicato1 (sequence 1 1e4)))
+;-> 15.586
+(time (duplicato2 (sequence 1 1e4)))
+;-> 171.797
+
+(time (duplicato1 (sequence 1 1e5)))
+;-> 109.341
+(time (duplicato2 (sequence 1 1e5)))
+;-> 20751.976
+
+Tante chiamate con una lista piccola/media:
+
+(time (duplicato1 (sequence 1 100)) 100)
+;-> 249.937
+(time (duplicato2 (sequence 1 100)) 100)
+;-> 0
+
+(time (duplicato1 (sequence 1 100)) 1000)
+;-> 2422.11
+(time (duplicato2 (sequence 1 100)) 1000)
+;-> 31.239
+
+(time (duplicato1 (sequence 1 1000)) 100)
+;-> 328.214
+(time (duplicato2 (sequence 1 1000)) 100)
+;-> 171.824
+
+(time (duplicato1 (sequence 1 1000)) 1000)
+;-> 3094.087
+(time (duplicato2 (sequence 1 1000)) 1000)
+;-> 1609.421
+
+La parte più lenta della funzione "duplicato1" è la cancellazione della hash-map, quindi è migliore per poche chiamate e liste grandi.
+Invece la funzione "duplicato2" è lenta con liste grandi, ma è conveniente se facciamo molte chiamate.
+
+
+-----------------------------------
+Convertire un numero float in lista
+-----------------------------------
+
+Dato un numero floating-point convertirlo in lista.
+
+Un modo semplice:
+
+(define (float-list x) (explode (string x)))
+
+Proviamo:
+
+(float-list -2347.42)
+;-> ("-" "2" "3" "4" "7" "." "4" "2")
+
+(float-list -32.753456e4)
+;-> ("-" "3" "2" "7" "5" "3" "4" "." "5" "6")
+
+(float-list -32.753456e88)
+;-> ("-" "3" "." "2" "7" "5" "3" "4" "5" "6" "e" "+" "0" "8" "9")
+
+Nota: newLISP converte il numero dato in una rappresentazione float che può essere diversa dal numero dato.
+
+Funzione che converte un numero float in una lista di caratteri oppure in una lista di simboli:
+
+(define (float-list x simboli)
+  (if (not simboli) 
+      (explode (string x))
+      ;else
+      (let (out '())
+        (dolist (ch (explode (string x)))
+          (cond ((= ch "-") (push '- out -1))
+                ((= ch "+") (push '+ out -1))
+                ((= ch ".") (push '. out -1))
+                ((= ch "e") (push 'e out -1))
+                (true (push (int ch) out -1))
+          )
+        )
+        out)))
+
+Proviamo:
+
+(float-list -32.753456e88)
+;-> ("-" "3" "." "2" "7" "5" "3" "4" "5" "6" "e" "+" "0" "8" "9")
+(float-list -32.753456e88 true)
+;-> (- 3 . 2 7 5 3 4 5 6 e + 0 8 9)
+
+Dalla lista di caratteri basta usare "join" e "float" per ricostruire il numero float:
+
+(float (join (float-list -32.753456e88)))
+;-> -3.2753456e+089
+
+(float (join (float-list -32.753456e4)))
+;-> -327534.56
+
 ============================================================================
 

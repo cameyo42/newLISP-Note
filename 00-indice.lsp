@@ -2223,6 +2223,9 @@ NOTE LIBERE 21
   Rimozione di elementi da una lista con una lista di indici
   Primi di un numero cambiando una cifra
   Tabella cross-reference di un torneo
+  Operazioni con interi e float
+  Primo elemento duplicato
+  Convertire un numero float in lista
  
 
 PROBLEMI SUI DADI
