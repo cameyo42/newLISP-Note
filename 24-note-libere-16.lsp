@@ -4,6 +4,8 @@
 
 ================
 
+"I like the purity of the impurity of newLISP"
+
 ----------------------------------------------
 Lancio di una moneta e probabilità (Fibonacci)
 ----------------------------------------------

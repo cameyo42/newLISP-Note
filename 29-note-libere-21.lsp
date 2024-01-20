@@ -2462,5 +2462,99 @@ Dalla lista di caratteri basta usare "join" e "float" per ricostruire il numero 
 (float (join (float-list -32.753456e4)))
 ;-> -327534.56
 
+
+------------------------------
+Applicare un'onda ad una lista
+------------------------------
+
+Data una lista di numeri interi applicare la lista "onda" alla lista.
+Per esempio,
+  lista      = 1 2  3 4 5 6  7 
+  lista onda = 1 0 -1 0 1 0 -1
+Per applicare la lista "onda" sommare gli elementi con lo stesso indice...
+  output     = 2 2  2 4 6 6  6
+
+La lista "onda" è una lista con gli elementi (1 0 -1 0) ripetuti.
+
+Algoritmo
+Raggruppare la lista data in gruppi di 4.
+Sommare la lista (1 0 -1 0) ad ogni gruppo.
+
+(setq data '(1 2 3 4 5 6 7))
+(setq gruppi (explode data 4))
+;-> ((1 2 3 4) (5 6 7))
+(setq out (map (fn(x) (map + x '(1 0 -1 0))) gruppi))
+;-> ((2 2 2 4) (6 6 6))
+(setq out (flat out))
+;-> (2 2 2 4 6 6 6)
+
+(define (ondeggia lst)
+  (flat (map (fn(x) (map + x '(1 0 -1 0))) (explode lst 4))))
+
+(ondeggia data)
+;-> (2 2 2 4 6 6 6)
+
+Per un onda data:
+
+(define (ondeggia lst onda)
+  (flat (map (fn(x) (map + x onda)) (explode lst (length onda)))))
+
+(ondeggia data '(1 0 -1 0))
+;-> (2 2 2 4 6 6 6)
+
+(ondeggia data '(2 1 0 -1 -2 -1 0 1))
+;-> (3 3 3 3 3 5 7)
+
+
+--------------------------------
+Simboli newLISP e simboli utente
+--------------------------------
+
+Per memorizzare in una lista i simboli di newLISP possiamo usare la seguente espressione:
+
+(constant (global 'SIMBOLI) (map string (symbols)))
+
+Possiamo mettere l'espressione su "init.lsp" oppure eseguirla su una nuova REPL.
+
+(length SIMBOLI)
+;-> 398
+(find "SIMBOLI" SIMBOLI)
+;-> 46
+
+Adesso definiamo una funzione che restituisce i simboli della REPL corrente:
+
+(define (new-symbols) (difference (map string (symbols)) SIMBOLI))
+
+Proviamo:
+
+(new-symbols)
+;-> ("new-symbols")
+
+Notare che "new-symbols" è un nuovo simbolo rispetto alla situazione iniziale memorizzata in SIMBOLI.
+
+Scriviamo una funzione prende come argomento una funzione e restituisce tutti i simboli della funzione che non si trovano in SIMBOLI.
+
+(define (sym-func func)
+  (difference (unique (parse (string func))) SIMBOLI))
+
+Proviamo:
+
+(sym-func new-symbols)
+;-> ("(" "lambda" ")")
+
+(sym-func sym-func)
+;-> ("(" "lambda" "func" ")")
+
+Notare che i simboli "(", ")" e "lambda" non appartengono a SIMBOLI.
+
+Vediamo quali simboli sono stati creati dall'utente:
+
+(new-symbols)
+;-> ("func" "new-symbols" "sym-func")
+
+Vedere anche "Simboli creati dall'utente" su "Funzioni varie".
+Vedere anche "Variabili libere" su "Note libere 3".
+Vedere anche la funzione "free-vars" su "yo.lsp".
+
 ============================================================================
 

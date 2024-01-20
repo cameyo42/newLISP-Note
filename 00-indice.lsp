@@ -1,7 +1,7 @@
 
 ============================================================================
  Note su newLISP
- © copyright 2019-2023 Massimo Corinaldesi aka cameyo
+ © copyright 2019-2024 Massimo Corinaldesi aka cameyo
  MIT-0 License
 ============================================================================
 
@@ -2226,6 +2226,8 @@ NOTE LIBERE 21
   Operazioni con interi e float
   Primo elemento duplicato
   Convertire un numero float in lista
+  Applicare un'onda ad una lista
+  Simboli newLISP e simboli utente
  
 
 PROBLEMI SUI DADI
@@ -2269,7 +2271,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (255 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (256 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
@@ -2284,7 +2286,7 @@ LICENSE
 
 "MIT No Attribution" (MIT-0)
 
-Copyright (c) 2019-2023 Massimo Corinaldesi aka cameyo
+Copyright (c) 2019-2024 Massimo Corinaldesi aka cameyo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -2301,9 +2303,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-==========================================================================
-Klaatu barada nikto
-==========================================================================
-(pietra) --> (aperti aprite pareti patrie perita rapite ripeta)
-=============================================================================
+============================================================================
+
+============================================================================
 

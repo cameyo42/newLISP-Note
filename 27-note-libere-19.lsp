@@ -4,6 +4,8 @@
 
 ================
 
+"Klaatu barada nikto"
+
 ------
 Gomoku
 ------

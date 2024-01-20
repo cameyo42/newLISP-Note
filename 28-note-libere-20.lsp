@@ -4,6 +4,20 @@
 
 ================
 
+       444         222222   
+      4444       222222222  
+     44444      222     222 
+    444444      222     222 
+   444 444      222     222 
+  444  444            2222  
+ 444   444          2222    
+444    444        2222      
+4444444444444    222        
+4444444444444   222         
+       444      222      222
+       444      222222222222
+       444      222222222222
+
 -------
 For Fun
 -------
@@ -2920,7 +2934,7 @@ The emphasis here is on being conscious of our problem-solving strategies and on
 Lunghezza di una funzione
 -------------------------
 
-Alle volte abbiamo la necessità/curiosità di conoscere quanto ♪ lunga una funzione (in termini di caratteri).
+Alle volte abbiamo la necessità/curiosità di conoscere quanto è lunga una funzione (in termini di caratteri).
 La seguente funzione risolve il problema convertendo la funzione (che è una lista speciale) in stringa e poi calcolando la sua lunghezza.
 
 (define (length-f func) (length (string func)))
