@@ -2556,5 +2556,244 @@ Vedere anche "Simboli creati dall'utente" su "Funzioni varie".
 Vedere anche "Variabili libere" su "Note libere 3".
 Vedere anche la funzione "free-vars" su "yo.lsp".
 
+
+-----------------------------------
+Parole e testi maschili o femminili
+-----------------------------------
+
+In lingua italiana il 47.65% delle lettere usate sono vocali (a,e,i,o,u)
+In lingua inglese il 38.1% delle lettere usate sono vocali (a,e,i,o,u) (in questo caso y non è una vocale).
+In inglese:
+definiamo "femminile" una parola che contiene almeno il 40% di vocali.
+definiamo "maschile" una parola che contiene meno del 40% di vocali.
+In italiano:
+definiamo "femminile" una parola che contiene almeno il 50% di vocali.
+definiamo "maschile" una parola che contiene meno del 50% di vocali.
+
+Definiamo la "mascolinità" o la "femminilità" di una parola.
+Sia C il numero di consonanti nella parola e V il numero di vocali:
+Se una parola è femminile, la sua "femminilità" vale 1.5*V/(C+1).
+Se una parola è maschile, la sua "mascolinità" vale C/(1.5*V+1).
+
+Nota: i caratteri che non sono vocali o consonanti non vanno considerati.
+
+Ad esempio, la parola "newlisp" è maschile, con mascolinità 5/(1.5*2+1) = 1.25.
+La parola "mimosa" è femminile con femminilità 1.5*3/(3+1) = 1.125.
+
+Funzione che data una stringa restituisce se "maschile" o "femminile" e il relativo indice di mascolinità/femminilità:
+
+(define (gender word threshold)
+  (let ( (conta-m 0) (conta-f 0) (conta-ch 0) (mm nil) (ff nil) )
+    (setq threshold (or threshold 0.4))
+    ; ciclo per calcolare numero di vocali e numero di consonanti
+    (dolist (ch (explode word))
+      (cond ((find ch "aeiou")
+              (++ conta-f) (++ conta-ch))
+            ((find ch "bcdfghjklmnpqrstvwxyz")
+              (++ conta-m) (++ conta-ch))
+      )
+    )
+    ;(println conta-f { } conta-m { } conta-ch)
+    ; calcolo mascolinità o femminilità o nil
+    (cond ((zero? conta-ch) (list nil nil)) ; nil
+          ; femminilità
+          ((>= (div conta-f conta-ch) threshold)
+            (setq ff (div (mul 1.5 conta-f) (add conta-m 1)))
+            (list "F" ff))
+          ; mascolinità
+          ((< (div conta-f conta-ch) threshold)
+            (setq mm (div conta-m (add (mul 1.5 conta-f) 1)))
+            (list "M" mm)))))
+
+Proviamo:
+
+(gender "newlisp" 0.4)
+;-> ("M" 1.25)
+(gender "newlisp!!!" 0.4)
+;-> ("M" 1.25)
+
+(gender "mimosa" 0.4)
+;-> ("F" 1.125)
+(gender "@mimosa$" 0.4)
+;-> ("F" 1.125)
+
+(gender "@#$%" 0.4)
+;-> (nil nil)
+
+Per quanto riguarda un testo possiamo usare una semplice tecnica NLP (Natural Language Processing):
+
+Definiamo la "mascolinità" di un testo come la somma di tutte le mascolinità delle parole maschili: sum(M).
+Definiamo la "femminilità" di un testo come la somma di tutte le mascolinità delle parole femminili: sum(F).
+Se (sum(M) > sum(F)), allora il testo è "femminile", altrimenti è "maschile".
+
+Infine definiamo il "livello di confidenza":
+
+Se il testo è "femminile" il livello di confidenza vale:
+
+  2*sum(F)/(sum(F) + sum(M)) - 1
+
+Se il testo è "maschile" il livello di confidenza vale:
+
+  2*sum(M)/(sum(F) + sum(M)) - 1
+
+Funzione che analizza un testo e restituisce se "maschile" o "femminile" e l'indice di confidenza:
+
+(define (genere testo threshold)
+  (local (words f-word m-word sum-ff sum-mm)
+    (setq threshold (or threshold 0.4))
+    ; suddivisione del testo (spazi " ")
+    (setq words (parse (lower-case testo " ")))
+    (setq sum-ff 0)
+    (setq sum-mm 0)
+    ; ciclo per ogni parola per calcolare la somma della
+    ; mascolinità/femminilità delle parole
+    (dolist (w words)
+      (setq res (gender w threshold))
+      (cond ((= (res 0) "F") (setq sum-ff (add sum-ff (res 1))))
+            ((= (res 0) "M") (setq sum-mm (add sum-mm (res 1))))
+      )
+      ;(print w { } res { } sum-ff { } sum-mm) (read-line)
+    )
+    ; calcolo indici di mascolinità/femminilità
+    (cond ((and (zero? sum-ff) (zero? sum-mm))
+            (list nil 0))
+          ((> sum-mm sum-ff)  ; maschile
+            (list "M" (sub (div (mul 2 sum-mm) (add sum-ff sum-mm)) 1)))
+          ((<= sum-mm sum-ff) ; femminile
+            (list "F" (sub (div (mul 2 sum-ff) (add sum-ff sum-mm)) 1)))
+    )))
+
+Proviamo:
+
+Da "The Sign of the Four" di Sir Arthur Conan Doyle (1890)
+(setq doyle 
+   "Three times a day for many months I had witnessed this performance, but
+   custom had not reconciled my mind to it.  On the contrary, from day to
+   day I had become more irritable at the sight, and my conscience swelled
+   nightly within me at the thought that I had lacked the courage to
+   protest.  Again and again I had registered a vow that I should deliver
+   my soul upon the subject, but there was that in the cool, nonchalant
+   air of my companion which made him the last man with whom one would
+   care to take anything approaching to a liberty.  His great powers, his
+   masterly manner, and the experience which I had had of his many
+   extraordinary qualities, all made me diffident and backward in crossing
+   him.")
+
+(genere doyle)
+;-> ("M" 0.2262586611446231)
+
+Nota: in italiano le lettere hanno la seguente frequenza (wikipedia),
+
+Lettera	Frequenza
+ a	     11.74%
+ b	     0.92%
+ c	     4.50%
+ d	     3.73%
+ e	     11.79%
+ f	     0.95%
+ g	     1.64%
+ h	     1.54%
+ i	     11.28%
+ l	     6.51%
+ m	     2.51%
+ n	     6.88%
+ o	     9.83%
+ p	     3.05%
+ q	     0.51%
+ r	     6.37%
+ s	     4.98%
+ t	     5.62%
+ u	     3.01%
+ v	     2.10%
+ z	     0.49%
+
+Frequenza vocali (a e i o u):
+(add 11.74 11.79 11.28 9.83 3.01)
+;-> 47.65
+
+
+-------------------------------------------------------
+Somma ripetuta del prodotto di cifre consecutive uguali
+-------------------------------------------------------
+
+Dato un intero positivo n (per esempio, n=122334665555999)
+
+Separare il numero in sequenze di cifre consecutive:
+  (1 22 33 4 66 5555 999)
+
+Prendere il prodotto di ogni sequenza di cifre:
+  (1 2*2 3*3 4 6*6 5*5*5*5 9*9*9) = (1 4 9 4 36 625 729)
+
+Sommare tutti i valori:
+  1 + 4 + 9 + 4 + 36 + 625 + 729 = 1408
+
+Ripetere finché questo non converge in un singolo numero:
+  
+  (1 4 0 8) = (1 4 0 8) --> 1 + 4 + 0 + 8 = 13
+  
+  (1 3) = (1 3) --> 1 + 3 = 4
+
+Risultato: 4
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (rle-encode lst)
+"Encode list with Run Length Encoding"
+  (local (palo conta out)
+    (cond ((= lst '()) '())
+          (true
+           (setq out '())
+           (setq palo (first lst))
+           (setq conta 0)
+           (dolist (el lst)
+              ; se l'elemento è uguale al precedente aumentiamo il suo conteggio
+              (if (= el palo) (++ conta)
+                  ; altrimenti costruiamo la coppia (conta el) e la aggiungiamo al risultato
+                  (begin (extend out (list(list conta palo)))
+                         (setq conta 1)
+                         (setq palo el)
+                  )
+              )
+           )
+           ; aggiungiamo l'ultima coppia di valori
+           (extend out (list(list conta palo)))
+          )
+    )
+    out))
+
+Funzione che calcola la somma ripetuta del prodotto di cifre consecutive uguali:
+
+(define (rep-sum num)
+  (local (rle nums)
+    (while (> (length num) 1)
+        (setq rle (rle-encode (int-list num)))
+        (setq nums (map (fn(x) (pow (x 1) (x 0))) rle))
+        (setq num (apply + nums))
+        ;(println nums { } num)
+    )
+    num))
+
+(rep-sum 122334665555999)
+;-> 1
+
+(rep-sum 22222222222)
+;-> 5
+
+(rep-sum 111222333444555666777888999)
+;-> 9
+
+(rep-sum 123456)
+;-> 3
+
+Vediamo la frequenza dei risultati per i primi 100000 numeri:
+
+(count '(0 1 2 3 4 5 6 7 8 9) (map rep-sum (sequence 1 100000)))
+;-> (0 17320 4873 10862 11358 10853 9688 11464 10878 12704)
+
 ============================================================================
 

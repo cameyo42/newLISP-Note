@@ -2228,6 +2228,8 @@ NOTE LIBERE 21
   Convertire un numero float in lista
   Applicare un'onda ad una lista
   Simboli newLISP e simboli utente
+  Parole e testi maschili o femminili
+  Somma ripetuta del prodotto di cifre consecutive uguali
  
 
 PROBLEMI SUI DADI
