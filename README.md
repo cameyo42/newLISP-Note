@@ -1,5 +1,5 @@
 Note su newLISP  
-© copyright 2019-2023 Massimo Corinaldesi aka cameyo  
+© copyright 2019-2024 Massimo Corinaldesi aka cameyo  
 MIT-0 License  
 
 Appunti sul linguaggio newLISP e sulla risoluzione dei problemi  
@@ -34,7 +34,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 26) Note libere 18 (80)
 27) Note libere 19 (80)
 28) Note libere 20 (80)
-29) Note libere 21 (30)
+29) Note libere 21 (34)
 96) Problemi sui dadi (76)
 97) Appendici (29)
 98) Bibliografia

@@ -2684,28 +2684,28 @@ Da "The Sign of the Four" di Sir Arthur Conan Doyle (1890)
 
 Nota: in italiano le lettere hanno la seguente frequenza (wikipedia),
 
-Lettera	Frequenza
- a	     11.74%
- b	     0.92%
- c	     4.50%
- d	     3.73%
- e	     11.79%
- f	     0.95%
- g	     1.64%
- h	     1.54%
- i	     11.28%
- l	     6.51%
- m	     2.51%
- n	     6.88%
- o	     9.83%
- p	     3.05%
- q	     0.51%
- r	     6.37%
- s	     4.98%
- t	     5.62%
- u	     3.01%
- v	     2.10%
- z	     0.49%
+Lettera Frequenza
+ a       11.74%
+ b       0.92%
+ c       4.50%
+ d       3.73%
+ e       11.79%
+ f       0.95%
+ g       1.64%
+ h       1.54%
+ i       11.28%
+ l       6.51%
+ m       2.51%
+ n       6.88%
+ o       9.83%
+ p       3.05%
+ q       0.51%
+ r       6.37%
+ s       4.98%
+ t       5.62%
+ u       3.01%
+ v       2.10%
+ z       0.49%
 
 Frequenza vocali (a e i o u):
 (add 11.74 11.79 11.28 9.83 3.01)
@@ -2794,6 +2794,355 @@ Vediamo la frequenza dei risultati per i primi 100000 numeri:
 
 (count '(0 1 2 3 4 5 6 7 8 9) (map rep-sum (sequence 1 100000)))
 ;-> (0 17320 4873 10862 11358 10853 9688 11464 10878 12704)
+
+
+-------------
+Primi di Chen
+-------------
+
+Un numero è un primo di Chen se soddisfa due condizioni:
+
+1) è un numero primo
+2) se stesso più due è primo o semiprimo.
+Un numero primo è un numero in cui ha esattamente due divisori e tali divisori sono costituiti da se stesso e da uno.
+Un semiprimo è un numero che è il prodotto di due numeri primi (tranne 1 e se stesso).
+
+Sequenza OEIS A109611:
+Chen primes: primes p such that p + 2 is either a prime or a semiprime.
+  2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 47, 53, 59, 67, 71, 83,
+  89, 101, 107, 109, 113, 127, 131, 137, 139, 149, 157, 167, 179, 181, 191,
+  197, 199, 211, 227, 233, 239, 251, 257, 263, 269, 281, 293, 307, 311, 317,
+  337, 347, 353, 359, 379, 389, 401, 409, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (chen? num)
+  (and (prime? num) 
+       (or (prime? (+ num 2)) (= (length (factor (+ num 2))) 2))))
+
+(filter chen? (sequence 1 100))
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 47 53 59 67 71 83 89)
+
+
+-----------------------------------------
+Numeri coprimi con le loro cifre decimali
+-----------------------------------------
+
+Calcolare la sequenza degli interi positivi maggiori di 1 che sono coprimi con tutte le loro cifre.
+Due numeri sono coprimi se il loro massimo comun divisore vale 1.
+
+Sequenza OEIS A061116:
+Numbers coprime to each of their decimal digits.
+  11, 13, 17, 19, 21, 23, 27, 29, 31, 37, 41, 43, 47, 49, 51, 53, 57, 59,
+  61, 67, 71, 73, 79, 81, 83, 87, 89, 91, 97, 111, 113, 117, 119, 121, 127,
+  131, 133, 137, 139, 141, 143, 149, 151, 157, 161, 163, 167, 169, 171, 173,
+  177, 179, 181, 187, 191, 193, 197, 199, 211, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (coprime-digit? num)
+  (for-all (fn(x) (= (gcd num x) 1)) (int-list num)))
+
+Proviamo:
+
+(coprime-digit? 2)
+;-> nil
+(coprime-digit? 11)
+;-> true
+
+(filter coprime-digit? (sequence 1 100))
+;-> (1 11 13 17 19 21 23 27 29 31 37 41 43 47 49 51
+;->  53 57 59 61 67 71 73 79 81 83 87 89 91 97)
+
+
+---------
+Numeri MU
+---------
+
+La sequenza dei numeri MU viene creata con le seguenti regole:
+
+1) I primi due numeri MU sono 2 e 3.
+2) Ogni altro numero MU è il più piccolo numero non ancora apparso che può essere espresso come il prodotto di due numeri MU distinti precedenti esattamente in un modo.
+
+Sequenza OEIS A007335:
+MU-numbers: next term is uniquely the product of 2 earlier terms.
+  2, 3, 6, 12, 18, 24, 48, 54, 96, 162, 192, 216, 384, 486, 768, 864, 1458,
+  1536, 1944, 3072, 3456, 4374, 6144, 7776, 12288, 13122, 13824, 17496, 
+  24576, 31104, 39366, 49152, 55296, 69984, 98304, 118098, 124416, 157464,
+  196608, 221184, 279936, ...
+
+Funzione che moltiplica tra loro tutti gli elementi di una lista:
+
+(define (mult-list lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+          (push (* (lst i) (lst j)) out -1)))))
+
+Proviamo:
+
+(mult-list '(1 2 3))
+;-> (2 3 6)
+
+Vediamo il funzionamento dell'algoritmo:
+
+Impostazione iniziale:
+(setq mu '(2 3))
+
+primo numero mu:
+(sort (mult-list mu))
+;-> (6)
+(push 6 mu -1) ; scegliamo il numero più piccolo singolo (non in mu)
+;-> (2 3 6)
+
+secondo numero mu:
+(sort (mult-list mu))
+;-> (6 12 18)
+(push 12 mu -1) ; scegliamo il numero più piccolo singolo (non in mu)
+;-> (2 3 6 12)
+
+terzo numero mu:
+(sort (mult-list mu))
+;-> (6 12 18 24 36 72)
+(push 18 mu -1) ; scegliamo il numero più piccolo singolo (non in mu)
+;-> (2 3 6 12 18)
+
+quarto numero mu:
+(sort (mult-list mu))
+;-> (6 12 18 24 36 36 54 72 108 216)
+(push 24 mu -1) ; scegliamo il numero più piccolo singolo (non in mu)
+;-> (2 3 6 12 18 24)
+
+quinto numero:
+(sort (mult-list mu))
+;-> (6 12 18 24 36 36 48 54 72 72 108 144 216 288 432)
+(push 48 mu -1) ; scegliamo il numero più piccolo singolo (non in mu)
+;-> (2 3 6 12 18 24 48)
+In questo caso il numero 36 era più piccolo di 48, ma compariva 2 volte.
+
+Adesso scriviamo la funzione che seleziona il numero più piccolo singolo (non in mu) che si trova in una lista data (cioè la lista degli elementi moltiplicati tra loro):
+
+(define (find-unique-min lst)
+  (let (numero nil)
+    (dolist (el lst numero)
+      (if (and (not (find el mu)) (= (first (count (list el) lst)) 1))
+          (setq numero el)))))
+
+Proviamo:
+
+(setq mu '(2 3))
+(setq a '(6))
+(find-unique-min a)
+;-> 6
+
+(setq mu '(2 3 6 12 18 24))
+(setq a '(6 12 18 24 36 36 48 54 72 72 108 144 216 288 432))
+(find-unique-min a)
+;-> 48
+
+Funzione che calcola un dato numero di numeri mu:
+
+(define (mu-list num)
+  (local (mu k mult new-val)
+    (setq k 2)
+    (setq mu '(2 3))
+    (until (= k num)
+      (setq mult (sort (mult-list mu)))
+      (setq new-val (find-unique-min mult))
+      (push new-val mu -1)
+      (++ k)
+    )
+    mu))
+
+Proviamo:
+
+(mu-list 5)
+;-> (2 3 6 12 18)
+
+(mu-list 50)
+;-> (2 3 6 12 18 24 48 54 96 162 192 216 384 486 768 864 1458 1536 1944 3072
+;->  3456 4374 6144 7776 12288 13122 13824 17496 24576 31104 39366 49152 55296
+;->  69984 98304 118098 124416 157464 196608 221184 279936 354294 393216 497664
+;->  629856 786432 884736 1062882 1119744 1417176)
+
+Questa funzione non è ottimizzata ed è abbastanza lenta.
+
+(time (mu-list 50))
+;-> 249.965
+(time (mu-list 60))
+;-> 643.851
+(time (mu-list 70))
+;-> 1450.581
+(time (mu-list 80))
+;-> 3079.946
+(time (mu-list 100))
+;-> 10411.845
+
+
+------------------------------
+Compressione di matrici sparse
+------------------------------
+
+Una matrice "sparsa" è una matrice in cui la maggior parte degli elementi sono zero.
+Al contrario, quando la maggior parte degli elementi della matrice sono diversi da zero, allora la matrice viene considerata "densa".
+Una matrice viene considerata "sparsa" quando il numero di elementi diversi da zero sia uguale o maggiore al numero di righe o colonne.
+Il numero di elementi con valore zero diviso per il numero totale di elementi (cioè m*n per una matrice con m righe e n colonne) viene definita "sparsità" della matrice.
+
+Le matrici sparse compaiono nella modellazione di sistemi con poche interazioni a coppie oppure quando si risolvono equazioni alle derivate parziali. Inoltre esiste hardware specializzato per gestire tali matrici nela campo del machine-learning.
+
+Per gestire le matrici "sparse" si utiizzano algoritmi specializzati e strutture dati che sfruttano la struttura sparsa della matrice.
+
+Una matrice viene generalmente memorizzata come array bidimensionale.
+Ciascuna posizione dell'array rappresenta un elemento a(i,j) della matrice ed è accessibile tramite i due indici i e j.
+Convenzionalmente, i è l'indice della riga, numerato dall'alto verso il basso, e j è l'indice della colonna, numerato da sinistra a destra.
+Per una matrice m*n, la quantità di memoria richiesta è proporzionale a m*n.
+
+Nel caso di una matrice sparsa, è possibile diminuire i requisiti di memoria memorizzando solo le voci diverse da zero, cioè comprimendo la matrice.
+Esistono diversi algoritmi per comprimere una matrice sparsa che si dividono in due gruppi:
+
+1) Metodi che rendono efficienti le modifiche alla matrice, DOK (Dictionary of keys), LIL (List of lists), o COO (Coordinate list).
+
+Dizionario delle chiavi (DOK)
+DOK è costituito da un dizionario che mappa le coppie (riga, colonna) al valore degli elementi. Gli elementi mancanti nel dizionario vengono considerati pari a zero.
+
+Lista di liste (LIL)
+LIL memorizza una lista per riga, con posizione voce contenente l'indice della colonna e il valore.
+In genere, queste voci vengono ordinate in base all'indice della colonna per una ricerca più rapida.
+
+Lista delle coordinate (COO)
+COO memorizza una lista di tuple (riga, colonna, valore).
+In genere, le posizioni vengono ordinate prima per indice di riga e poi per indice di colonna, per migliorare i tempi di accesso.
+
+2) Metodi che rendono efficienti l'accesso e le operazioni sulle matrici, come CSR (Compressed Sparse Row) o CSC (Compressed Sparse Column).
+
+Riga sparsa compressa (formato CSR, CRS o Yale)
+(sono tutte la stessa forma di compressione)
+
+Vediamo un esempio con la seguente matrice:
+
+(setq M '((0 0 0 0)
+          (5 8 0 0)
+          (0 0 3 0)
+          (0 6 0 0)))
+
+L'output dovrebbe essere tre liste, A, IA e JA:
+
+   A = (5, 8, 3, 6)
+  IA = (0, 0, 2, 3, 4)
+  JA = (0, 1, 2, 1,)
+
+Il procedimento è il seguente (da Wikipedia):
+
+La lista A ha lunghezza NNZ e contiene tutte le voci diverse da zero di M in ordine da sinistra a destra dall'alto verso il basso ("riga principale").
+
+La lista IA ha lunghezza m + 1. È definito da questa definizione ricorsiva:
+
+  IA[0] = 0
+  IA[i] = IA[i − 1] + (numero di elementi diversi da zero sulla (i − 1)-esima riga nella matrice originale)
+
+Pertanto, i primi m elementi di IA memorizzano l'indice in A del primo elemento diverso da zero in ciascuna riga di M, e l'ultimo elemento IA[m] memorizza NNZ, il numero di elementi in A, che può anche essere pensato come indice in A del primo elemento di una riga fantasma posizionata dopo la fine della matrice M.
+I valori della i-esima riga della matrice originale si trovano negli elementi da A[IA[i]] a A[IA[i + 1] − 1] (inclusi), cioè dall'inizio di una riga all'ultimo indice subito prima dell'inizio del successivo.
+
+La terza lista, JA, contiene l'indice di colonna in M di ciascun elemento di A e quindi è anch'esso di lunghezza NNZ.
+
+Funzione che comprime una matrice con metodo CSR (Compressed Sparse Row):
+
+(define (compress matrix)
+  (local (rows cols val roes0 A JA IA))
+  (setq rows (length matrix))
+  (setq cols (length (matrix 0)))
+  ; creazione lista A e JA
+  (setq A '())
+  (setq JA '())
+  (for (i 0 (- rows 1))
+    (for (j 0 (- cols 1))
+      ; elemento corrente
+      (setq val (matrix i j))
+      (if (not (zero? val)) (begin
+          ; inserisce l'elemento corrente nella lista A
+          (push val A -1)
+          ; inserisce l'indice di colonna dell'elemento corrente nella lista JA
+          (push j JA -1))
+      )
+    )
+  )
+  ; creazione lista IA
+  (setq IA (list 0))
+  ; lista con il numero di elementi non-zero di ogni riga
+  (setq rows0 (map (fn(x) (length (clean zero? x))) matrix))
+  (for (i 1 rows)
+    (push (+ (IA (- i 1)) (rows0 (- i 1))) IA -1)
+  )
+  (list A IA JA))
+
+Proviamo:
+
+(compress M)
+;-> ((5 8 3 6) (0 0 2 3 4) (0 1 2 1))
+
+(setq mm '((10 20  0  0  0  0)
+           ( 0 30  0 40  0  0)
+           ( 0  0 50 60 70  0)
+           ( 0  0  0  0  0 80)))
+
+(compress mm)
+;-> ((10 20 30 40 50 60 70 80) (0 2 4 7 8) (0 1 1 3 2 3 4 5))
+
+(setq mm '((0 0 0)
+           (0 0 0)
+           (0 0 0)))
+
+(compress mm)
+;-> (() (0 0 0 0) ())
+
+(setq mm '((1 1 1)
+           (1 1 1)
+           (1 1 1)))
+(compress mm)
+;-> ((1 1 1 1 1 1 1 1 1) (0 3 6 9) (0 1 2 0 1 2 0 1 2))
+
+(setq mm '((0 0 0 0)
+           (5 -9 0 0)
+           (0 0 0.2 0)
+           (0 -399 0 0)))
+
+(compress mm)
+;-> ((5 -9 0.2 -399) (0 0 2 3 4) (0 1 2 1))
+
+Funzione che restituisce se una matrice è sparsa o densa e il relativo indice di sparsità:
+
+(define (tipo-mat matrix)
+  (local (rows cols zeri non-zeri indice)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (setq zeri (length (filter zero? (flat matrix))))
+    (setq non-zeri (length (clean zero? (flat matrix))))
+    (setq indice (div zeri (mul rows cols)))
+    (if (or (>= zeri rows) (>= zeri cols))
+        (list "S" indice)
+        (list "D" indice))))
+
+Proviamo:
+
+(tipo-mat M)
+;-> ("S" 0.75)
+
+(setq mm '((0 0 0) (0 0 0) (0 0 0)))
+(tipo-mat mm)
+;-> ("S" 1)
+
+(setq mm '((1 1 1) (1 1 1) (1 1 1)))
+(tipo-mat mm)
+;-> ("D" 0)
+
 
 ============================================================================
 

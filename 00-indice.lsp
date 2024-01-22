@@ -5,7 +5,7 @@
  MIT-0 License
 ============================================================================
 
-"Ogni cosa può accadere solo una volta" Philip Morrison
+"Ogni cosa può accadere solo una volta"
 
 ========
 
@@ -2230,6 +2230,10 @@ NOTE LIBERE 21
   Simboli newLISP e simboli utente
   Parole e testi maschili o femminili
   Somma ripetuta del prodotto di cifre consecutive uguali
+  Primi di Chen
+  Numeri coprimi con le loro cifre decimali
+  Numeri MU
+  Compressione di matrici sparse
  
 
 PROBLEMI SUI DADI

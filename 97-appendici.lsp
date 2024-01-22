@@ -7090,26 +7090,26 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 |  ≡  |  alt + 240  |    |  °  |  alt + 248  |
 
 
-
 ============================================================================
  Considerazioni lungo il tragitto
 ============================================================================
 
-Dal 2019 al 2023 sono 4 anni...
-Scrivo questi articoli per tenere allenata la mente (over 60...).
+Dal 2019 al 2024 sono 5 anni.
+Scrivo questi articoli per tenere allenata la mente (over 60).
 Non sono un programmatore. Solo un amatore.
 Niente di trascendentale, ma di tutto un pò (e ci saranno anche argomenti ripetuti...dovuti alla mia labile memoria).
 Quando incontro un problema o un argomento che mi interessa (leggendo un libro o sul web o sul lavoro), cerco di risolverlo/capirlo anche con l'aiuto di newLISP.
 Gli articoli non hanno tutti la stessa profondità o spiegazioni complete, ma i sorgenti sono commentati (quasi sempre).
 Alcuni articoli trattano le tecniche generali di "Risoluzione dei problemi".
-Ogni articolo è autosufficiente, nel senso che in ognuno sono riportate tutte le funzioni necessarie per eseguire i programmi.
+Ogni articolo è autosufficiente, nel senso che in ognuno sono riportate tutte le funzioni necessarie per eseguire le istruzioni riportate.
 Alcuni problemi sono ottimi esercizi di programmazione per principianti.
-In genere i programmi (funzioni) sono scritti per essere leggibili e possono essere sicuramente migliorati/ottimizzati.
+Ci sono tantissime sequenze OEIS (On-line Encyclopedia of Integer Sequences).
+In genere i programmi/algoritmi/funzioni sono scritti per essere leggibili/comprensibili e possono essere sicuramente migliorati/ottimizzati.
 Mi sono divertito anche a programmare diversi giochi (carte, dadi, griglie, ecc.).
 Ci sono degli errori? Sicuramente si (anche se mi sono impegnato abbastanza).
+Fatemi sapere cosa ne pensate.
 
 ============================================================================
-
 Non sei roba tua
 Non sei il tuo lavoro
 Non sei il tuo patrimonio
@@ -7123,7 +7123,10 @@ Non sei i tuoi ricordi
 Non sei i tuoi pensieri
 Non sei le tue emozioni
 Non sei la tua personalità
+Non sei la tua coscienza
+Non sei il tuo cervello
+Non sei il tuo cuore
 Non sei quello che pensi di essere...
-
+Allora, chi sei?
 ============================================================================
 
