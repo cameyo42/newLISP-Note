@@ -3144,5 +3144,245 @@ Proviamo:
 ;-> ("D" 0)
 
 
+------------------------------------------------------------------
+Numeri che sono divisibili dal doppio della somma delle loro cifre
+------------------------------------------------------------------
+
+Generare la sequenza dei numeri che sono divisibili dal doppio della somma delle loro cifre.
+
+Sequenza OEIS A134516:
+Numbers that are divisible by 2*(sum of their digits)
+  10, 12, 18, 20, 24, 30, 36, 40, 48, 50, 54, 60, 70, 72, 80, 90, 100, 102,
+  108, 112, 120, 126, 132, 140, 144, 162, 180, 192, 200, 204, 210, 216, 224,
+  230, 234, 240, 252, 264, 270, 280, 288, 300, 306, 308, 312, 320, 322, 324,
+  336, 342, 360, 364, 392, 396, 400, ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (div-2digit? num) (zero? (% num (* 2 (digit-sum num)))))
+
+(filter div-2digit? (sequence 1 400))
+;-> (10 12 18 20 24 30 36 40 48 50 54 60 70 72 80 90 100 102
+;->  108 112 120 126 132 140 144 162 180 192 200 204 210 216 224
+;->  230 234 240 252 264 270 280 288 300 306 308 312 320 322 324
+;->  336 342 360 364 392 396 400)
+
+Nota: i numeri che sono divisibili dalla somma delle loro cifre si chiamano numeri Harshad (o di Niven).
+Vedere "Numeri Harshad" su "Rosetta Code".
+
+
+-------------------------------------------------
+Conversione da decimale a percentuale e viceversa
+-------------------------------------------------
+
+Funzione che converte un numero decimale in percentuale (stringa):
+
+(define (num-perc num) (string (mul num 100) "%"))
+
+(setq n -2.453)
+(num-perc n)
+;-> "-245.3%"
+
+Funzione che converte una percentuale (stringa) in numero decimale:
+
+(define (perc-num perc) (div (float perc) 100))
+
+(setq p "-245.3%")
+(perc-num p)
+;-> -2.453
+
+
+------------------------------------------
+Numeri che generano tutti gli interi mod p
+------------------------------------------
+
+Consideriamo gli interi modulo p dove p è primo, un generatore è un qualsiasi intero 1 < x < p tale che x^1 mod p, x^2 mod p, ..., x^(p-1) mod p generi, insieme a x, tutti gli interi compresi tra 1 e p-1.
+Consideriamo ad esempio gli interi modulo 7 (M_7):
+Con il numero 3 otteniamo:
+3^1 = 3 mod 7 = 3
+3^2 = 9 mod 7 = 2,
+3 ^ 3 = 27 mod 7 = 6,
+3 ^ 4 = 81 mod 7 = 4,
+3 ^ 5 = 243 mod 7 = 5,
+3^6 = 729 mod 7 = 1
+Quindi abbiamo generato i valori 3, 2, 6, 4, 5, 1 che coprono tutti i numeri interi 1..6 come richiesto.
+
+Scrivere una funzione che dato un numero primo p, restituisce il numero generatore M_p.
+Nell'esempio il numero generatore vale 3.
+
+Nota: è possibile dimostrare che per ogni numero primo esiste almeno un numero generatore.
+
+Metodo forza-bruta:
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che trova tutti i generatori di un dato numero primo:
+
+(define (trova-generatori prime)
+  (local (out base lst)
+    (setq out '())
+    (setq base (sequence 1 (- prime 1)))
+    (for (num 2 (- prime 1))
+      (setq lst (list num))
+      (for (pot 2 (- prime 1))
+      ;(print num { } pot { } (** num pot)) (read-line)
+        (push (% (** num pot) prime) lst)
+      )
+      (sort lst)
+      (if (= lst base) (begin
+        ;(println "sol = " num)
+        (push num out -1))
+      )
+    )
+    out))
+
+Proviamo:
+
+(trova-generatori 7)
+;-> (3 5)
+
+(trova-generatori 41)
+;-> (6 7 11 12 13 15 17 19 22 24 26 28 29 30 34 35)
+
+Funzione che verifica il risultato della funzione "trova-generatore":
+
+(define (check prime num)
+  (let (out '())
+    (for (pot 1 (- prime 1))
+      (setq val (** num pot))
+      (setq seq (% val prime))
+      (println num "^" pot " = " val " mod " prime " = " seq)
+      (push (list pot val seq) out)
+    )
+    out))
+
+Proviamo:
+
+(check 7 3)
+;-> 3^1 = 3L mod 7 = 3L
+;-> 3^2 = 9L mod 7 = 2L
+;-> 3^3 = 27L mod 7 = 6L
+;-> 3^4 = 81L mod 7 = 4L
+;-> 3^5 = 243L mod 7 = 5L
+;-> 3^6 = 729L mod 7 = 1L
+;-> ((6 729L 1L) (5 243L 5L) (4 81L 4L) (3 27L 6L) (2 9L 2L) (1 3L 3L))
+
+(check 7 5)
+;-> 5^1 = 5L mod 7 = 5L
+;-> 5^2 = 25L mod 7 = 4L
+;-> 5^3 = 125L mod 7 = 6L
+;-> 5^4 = 625L mod 7 = 2L
+;-> 5^5 = 3125L mod 7 = 3L
+;-> 5^6 = 15625L mod 7 = 1L
+;-> ((6 15625L 1L) (5 3125L 3L) (4 625L 2L) (3 125L 6L) (2 25L 4L) (1 5L 5L))
+
+(check 41 6)
+;-> 6^1 = 6L mod 41 = 6L
+;-> 6^2 = 36L mod 41 = 36L
+;-> 6^3 = 216L mod 41 = 11L
+;-> 6^4 = 1296L mod 41 = 25L
+;-> 6^5 = 7776L mod 41 = 27L
+;-> ...
+;-> 6^36 = 10314424798490535546171949056L mod 41 = 23L
+;-> 6^37 = 61886548790943213277031694336L mod 41 = 15L
+;-> 6^38 = 371319292745659279662190166016L mod 41 = 8L
+;-> 6^39 = 2227915756473955677973140996096L mod 41 = 7L
+;-> 6^40 = 13367494538843734067838845976576L mod 41 = 1L
+;-> ((40 13367494538843734067838845976576L 1L) 
+;->  (39 2227915756473955677973140996096L 7L)
+;->  (38 371319292745659279662190166016L 8L)
+;->  (37 61886548790943213277031694336L 15L)
+;->  (36 10314424798490535546171949056L 23L)
+;->  ...
+;->  (6 46656L 39L)
+;->  (5 7776L 27L)
+;->  (4 1296L 25L)
+;->  (3 216L 11L)
+;->  (2 36L 36L)
+;->  (1 6L 6L)) 
+
+Metodo matematico:
+
+Se p è il numero primo e n è il numero, sappiamo che (n^(p-1) mod p = 1), quindi dobbiamo solo verificare che (n^k mod p != 1) per qualsiasi k più piccolo. 
+Ma k deve essere un fattore di p-1 perché ciò sia possibile, e qualsiasi multiplo di k con quella proprietà avrà anche quella proprietà, quindi dobbiamo solo verificare che (n^((p-1)/q) mod p != 1) per tutti i fattori primi q di p-1.
+Quindi basta controllare tutti gli interi n da 2 a (p - 1) in ordine crescente finché non ne troviamo uno che soddisfa la proprietà.
+
+(define (powmod base expt modulo)
+"Calculates (base^exponent % modulo)"
+  (let (out 1L)
+    (while (> expt 0)
+      (if (odd? expt)
+          (setq out (% (* out base) modulo)))
+      (setq base (% (* base base) modulo))
+      (setq expt (/ expt 2)))
+    out))
+
+Funzione che trova tutti i generatori di un dato numero primo:
+
+(define (find-gen prime)
+  (let ( (out '()) (p1 (- prime 1)) )
+    (for (num 2 (- prime 1))
+      (if (for-all (fn(x) (!= (powmod num (/ p1 x) prime) 1)) (factor p1))
+          (push num out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(find-gen 7)
+;-> (3 5)
+
+(find-gen 41)
+;-> (6 7 11 12 13 15 17 19 22 24 26 28 29 30 34 35)
+
+Vediamo la velocità della funzione:
+
+(time (find-gen 99991))
+;-> 1376.739
+(time (find-gen 998989))
+;-> 49097.197
+
+Se invece vogliamo trovare solo il primo numero generatore di un numero primo possiamo usare la seguente funzione:
+
+(define (find-first-gen prime)
+  (let ( (out nil) (p1 (- prime 1)) (found nil) )
+    (for (num 2 (- prime 1) 1 found)
+      (if (for-all (fn(x) (!= (powmod num (/ p1 x) prime) 1)) (factor p1))
+          (set 'found true 'out num)
+      )
+    )
+    out))
+
+Proviamo:
+
+(find-first-gen 7)
+;-> 3
+
+(find-first-gen 41)
+;-> 6
+
+(find-first-gen 99991)
+;-> 6
+(time (find-first-gen 99991))
+;-> 0
+
+(find-first-gen 998989)
+;-> 2
+(time (find-first-gen 998989))
+;-> 0
+
 ============================================================================
 

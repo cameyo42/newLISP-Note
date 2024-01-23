@@ -299,7 +299,7 @@ ROSETTA CODE
   Distanza tra due punti della terra
   Algoritmo Soundex
   Trasformata Discreta di Fourier (DFT)
-  Numeri di Harshad
+  Numeri Harshad
   Numeri Humble
   Persistenza di un numero
   Numeri Taxicab
@@ -2234,6 +2234,9 @@ NOTE LIBERE 21
   Numeri coprimi con le loro cifre decimali
   Numeri MU
   Compressione di matrici sparse
+  Numeri che sono divisibili dal doppio della somma delle loro cifre
+  Conversione da decimale a percentuale e viceversa
+  Numeri che generano tutti gli interi mod p
  
 
 PROBLEMI SUI DADI

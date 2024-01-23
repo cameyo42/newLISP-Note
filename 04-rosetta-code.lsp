@@ -9993,11 +9993,11 @@ L'esempio di wikipedia produce risultati differenti:
 ;-> 4.0000  2.0000i
 
 
------------------
-NUMERI DI HARSHAD
------------------
+--------------
+NUMERI HARSHAD
+--------------
 
-Un numero di Harshad in una data base è un numero intero positivo divisibile per la somma delle proprie cifre.
+Un numero Harshad in una data base è un numero intero positivo divisibile per la somma delle proprie cifre.
 La definizione è stata data dal matematico indiano Dattatreya Ramachandra Kaprekar. Il termine Harshad deriva dal sanscrito "harṣa" che significa "grande gioia". A volte ci si riferisce a questi numeri anche come numeri di Niven, in onore del matematico Ivan Morton Niven.
 
 (define (digit-sum num)
