@@ -2237,6 +2237,10 @@ NOTE LIBERE 21
   Numeri che sono divisibili dal doppio della somma delle loro cifre
   Conversione da decimale a percentuale e viceversa
   Numeri che generano tutti gli interi mod p
+  Numeri staircase
+  Conversione RGB-CMYK e viceversa
+  Elementi che compaiono solo una volta in una lista
+  Coppie di una lista
  
 
 PROBLEMI SUI DADI

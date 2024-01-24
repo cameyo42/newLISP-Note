@@ -3384,5 +3384,247 @@ Proviamo:
 (time (find-first-gen 998989))
 ;-> 0
 
+
+----------------
+Numeri staircase
+----------------
+
+Un numero staircase (scala) è un intero positivo k tale che la sua n-esima cifra (quella indicizzata a partire dalla cifra meno significativa) è uguale a k % (n + 2).
+Vediamo un esempio con il numero 40210:
+
+  40210 % 2 = 0
+  40210 % 3 = 1
+  40210 % 4 = 2
+  40210 % 5 = 0
+  40210 % 6 = 4
+
+Le cifre ottenute 4,0,2,1,0 sono uguali (e nelle stesse posizioni) del numero dato, quindi è un numero staircase.
+
+Sequenza OEIS A319599:
+Numbers k such that k mod (2, 3, 4, ... , i+1) = (d_i, d_i-1, ..., d_1),
+where d_1, d_2, ..., d_i are the digits of k, 
+with MSD(k) = d_1 and LSD(k) = d_i
+  0, 1, 10, 20, 1101, 1121, 11311, 31101, 40210, 340210, 4620020, 5431101,
+  7211311, 12040210, 24120020, 151651121, 165631101, 1135531101, 8084220020,
+  9117311311, 894105331101, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (staircase? num)
+  (let ( (lst (reverse (int-list num))) (stair true) )
+    (dolist (el lst (not stair))
+      (if (!= el (% num (+ $idx 2))) (setq stair nil))
+    )
+    stair))
+
+Proviamo:
+
+(staircase? 40210)
+;-> true
+
+(staircase? 1)
+;-> true
+(staircase? 1)
+;-> true
+(staircase? 2)
+;-> nil
+
+(filter staircase? (sequence 1 1e5))
+;-> (1 10 20 1101 1121 11311 31101 40210)
+
+(filter staircase? (sequence 1 1e6))
+;-> (1 10 20 1101 1121 11311 31101 40210 340210)
+
+(time (println (filter staircase? (sequence 1 1e7))))
+;-> (1 10 20 1101 1121 11311 31101 40210 340210 4620020 5431101 7211311)
+;-> 15832.717
+
+
+--------------------------------
+Conversione RGB-CMYK e viceversa
+--------------------------------
+
+Vediamo due funzioni per convertire un colore da RGB a CMYK e viceversa.
+
+  RGB -> Red Green Blue (0..255)
+  CMYK -> Cyan Magenta Yellow Black (0..1)
+
+Formule utilizzate:
+
+  Black   = 1 - max(Red Green Blue)/255
+  Cyan    = (1 - Red/255 - Black)/(1 - Black)
+  Magenta = (1 - Green/255 - Black)/(1 - Black)
+  Yellow  = (1 - Blue/255 - Black)/(1 - Black)
+
+  Red   = 255 * (1 - Cyan/100)    * (1 - Black/100)   
+  Green = 255 * (1 - Magenta/100) * (1 - Black/100)   
+  Blue  = 255 * (1 - Yellow/100)  * (1 - Black/100) 
+
+Funzione da RGB a CMYK:
+
+(define (rgb-cmyk red green blue)
+  (local (black cyan magenta yellow col)
+    (setq black (sub 1 (div (max red green blue) 255)))
+    (setq col (sub 1 black))
+    (setq cyan    (div (sub 1 (div red 255) black) col))
+    (setq magenta (div (sub 1 (div green 255) black) col))
+    (setq yellow  (div (sub 1 (div blue 255) black) col))
+    (list cyan magenta yellow black)))
+
+Proviamo:
+
+(rgb-cmyk 10 130 45)
+;-> (0.9230769230769231 0 0.6538461538461537 0.4901960784313726)
+
+(rgb-cmyk 0 255 255)
+;-> (1 0 0 0)
+
+(apply rgb-cmyk '(210 30 45))
+;-> (0 0.8571428571428571 0.7857142857142857 0.1764705882352942)
+
+Funzione da CMYK a RGB:
+
+(define (cmyk-rgb black cyan magenta yellow)
+  (local (red green blue col)
+    (setq col (sub 1 (div black 100)))
+    (setq red    (mul 255 (sub 1 (div cyan 100)) col))
+    (setq green  (mul 255 (sub 1 (div magenta 100)) col))
+    (setq blue   (mul 255 (sub 1 (div yellow 100)) col))
+    (list red green blue)))
+
+Proviamo:
+
+(cmyk-rgb 0.9230769230769231 0 0.6538461538461537 0.4901960784313726)
+;-> (45 225 210 45)
+
+Nota:
+Le funzioni riportate sono imprecise e potrebbero produrre colori al di fuori della gamma cromatica CMYK.
+Non esiste un algoritmo per convertire tra RGB e CMYK, qualunque conversione da RGB a CMYK o viceversa fatta utilizzando una formula è sbagliata.
+Infatti le formule presuppongono che tutti i colori siano nella stessa gamma e semplicemente rappresentati con modalità diverse (CMYK, RGB), ma non questo è il caso.
+Per una conversione precisa da RGB a CMYK e viceversa, è necessario utilizzare un profilo di colore ICC.
+I numeri non significano nulla a meno che non siano associati ad un profilo di colore.
+Le scale (valori in RGB o CMYK) devono appartenere a uno "spazio colore (profilo)".
+I valori quindi indicano un colore "reale" (per esempio LAB)
+Convertire da RGB a CMYK significa innanzitutto capire quale colore (in LAB) è rappresentato in RGB e trovare valori (esatti o vicini) ai colori rappresentati in CMYK nello spazio colore di destinazione.
+Sebbene sia importante convertire da RGB a CMYK, occorre eseguirlo solo una volta perché alcuni colori vengono eliminati, compressi e modificati ogni volta. 
+Il passaggio da RGB a CMYK e di nuovo a RGB e poi a CMYK può degradare notevolmente un'immagine.
+
+
+--------------------------------------------------
+Elementi che compaiono solo una volta in una lista
+--------------------------------------------------
+
+Data una lista restituire gli elementi che compaiono solo una volta.
+Per esempio:
+lista  = (1 2 3 4 5 5 6 2 8 9 8)
+output = (1 3 4 6 9)
+
+Questo è diverso dalla funzione primitiva "unique":
+
+(setq lst '(1 2 3 4 5 5 6 2 8 9 8))
+(unique lst)
+;-> (1 2 3 4 5 6 8 9)
+
+Primo metodo:
+Contare le occorrenze di ogni elemento e poi selezionare solo gli elementi che hanno una occorrenza.
+
+(define (univoci lst)
+  (local (out unici all)
+    (setq out '())
+    (setq unici (unique lst))
+    ; conta le occorrenze di ogni elemento
+    (setq all (map list unici (count unici lst)))
+    ; filtra gli elementi che compaiono solo una volta (occorrenza = 1)
+    (dolist (el all)
+      (if (= (el 1) 1) (push (el 0) out -1))
+    )
+    out))
+
+Proviamo:
+
+(univoci lst)
+;-> (1 3 4 6 9)
+
+(setq a '(2 2 3 3 4 4 4 5 6 7 8 9 8))
+(univoci a)
+;-> (5 6 7 9)
+
+Secondo metodo:
+Aggiungere l'elemento corrente se non esiste nella lista di output e nella lista dei rimossi.
+Quando si incontra un elemento che si trova in output, allora eliminarlo dalla lista di output e aggiungerlo alla lista dei rimossi.
+
+(define (univoci2 lst)
+  (local (out removed)
+    ; lista di output
+    (setq out '())
+    ; lista degli elementi rimossi
+    (setq removed '())
+    (dolist (el lst)
+            ; elemento corrente non in output o nei rimossi
+      (cond ((and (not (find el out)) (not (find el removed)))
+              ; aggiunto all'output
+              (push el out -1))
+            ; elemento corrente nell'output
+            ((find el out)
+              ; rimosso dall'output e aggiunto ai rimossi
+              (pop out (find el out) out)
+              (push el removed))
+      )
+    )
+    ; (println removed)
+    out))
+
+(univoci2 lst)
+;-> (1 3 4 6 9)
+
+(setq a '(2 2 3 3 4 4 4 5 6 7 8 9 8))
+(univoci2 a)
+;-> (5 6 7 9)
+
+Vediamo le velocità delle funzioni:
+
+(setq t (rand 1000 1e3))
+
+(time (univoci t) 100)
+;-> 58.947
+
+(time (univoci2 t) 100)
+;-> 334.989
+
+
+-------------------
+Coppie di una lista
+-------------------
+
+Data una lista restituire tutte possibili coppie degli elementi.
+Ogni coppia è costituita da elementi con indici diversi (cioè un elemento non può fare coppia con se stesso).
+
+Funzione che restituisce una lista con tutte le possibili coppie tra gli elementi di una lista data:
+
+(define (pair-list lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+          (push (list (lst i) (lst j)) out -1)))))
+
+Proviamo:
+
+(pair-list '(1 2 3))
+;-> ((1 2) (1 3 (2 3))
+
+(pair-list '("a" "b" "c" "d"))
+;-> (("a" "b") ("a" "c") ("a" "d") ("b" "c") ("b" "d") ("c" "d"))
+
+(pair-list (sequence 1 10))
+;-> ((1 2) (1 3) (1 4) (1 5) (1 6) (1 7) (1 8) (1 9) (1 10) (2 3) (2 4) (2 5)
+;->  (2 6) (2 7) (2 8) (2 9) (2 10) (3 4) (3 5) (3 6) (3 7) (3 8) (3 9) (3 10)
+;->  (4 5) (4 6) (4 7) (4 8) (4 9) (4 10) (5 6) (5 7) (5 8) (5 9) (5 10) (6 7)
+;->  (6 8) (6 9) (6 10) (7 8) (7 9) (7 10) (8 9) (8 10) (9 10))
+
 ============================================================================
 
