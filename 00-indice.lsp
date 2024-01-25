@@ -2241,8 +2241,9 @@ NOTE LIBERE 21
   Conversione RGB-CMYK e viceversa
   Elementi che compaiono solo una volta in una lista
   Coppie di una lista
+  Costo di una stringa
+  Stampare un numero con un display a 7 segmenti
  
-
 PROBLEMI SUI DADI
 =================
   Problemi 1..76
@@ -2278,6 +2279,7 @@ APPENDICI
   Codici nazionali (ISO 3166)
   Codici ASCII
   Considerazioni lungo il tragitto
+  
 
 BIBLIOGRAFIA/WEB
 ==================

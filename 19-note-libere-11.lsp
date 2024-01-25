@@ -627,7 +627,7 @@ Le cifre da 0 a 9 vengono rappresentate nel modo seguente:
   ---     ---     ■■■     ■■■     ■■■     ■■■     ■■■     ---     ■■■     ■■■
  █   █   |   █   █   |   |   █   |   █   |   █   █   █   |   █   █   █   |   █
   ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■
-  (6)     (2)     (5)     (5)     (4)     (5)     (6)     (3)     (7)     (6)
+  (6)     (2)     (5)     (5)     (4)     (5)     (6)     (7)     (8)     (9)
 
 Data una lista di numeri interi positivi, trovare il numero che utilizza il numero minimo di segmenti per essere visualizzato.
 Se più numeri hanno lo stesso numero minimo di segmenti, allora restituire il numero più grande.

@@ -3626,5 +3626,149 @@ Proviamo:
 ;->  (4 5) (4 6) (4 7) (4 8) (4 9) (4 10) (5 6) (5 7) (5 8) (5 9) (5 10) (6 7)
 ;->  (6 8) (6 9) (6 10) (7 8) (7 9) (7 10) (8 9) (8 10) (9 10))
 
+
+--------------------
+Costo di una stringa
+--------------------
+
+Il "costo" di una stringa viene calcolato sommando i costi di ogni carattere.
+Il costo di ciascun carattere è pari al numero di volte in cui il carattere è comparso fino a questo punto nella stringa.
+
+Per esempio:
+stringa = a b b a z i a
+          1     2     3 (occorrenze di a)
+            1 2         (occorrenze di b)
+                  1     (occorrenze di z)
+                    1   (occorrenze di i)
+Costo della stringa = Somma dei costi dei caratteri =
+                    = (1 + 2 + 3) + (1 + 2) + (1) + (1) = 11
+
+
+(setq str (explode "abbazia"))
+;-> ("a" "b" "b" "a" "z" "i" "a")
+
+Conta le occorrenze dei caratteri:
+(setq conta (count (unique str) str))
+;-> (3 2 1 1)
+
+Funzione che calcola la somma da 1 a num:
+
+(define (sum num) (/ (* num (+ num 1)) 2))
+(sum 3)
+;-> 6
+
+Calcola la somma dei costi di ogni carattere:
+(setq somma (apply + (map sum conta)))
+;-> 11
+
+oppure
+
+(setq somma (apply + (flat (map (curry sequence 1) conta))))
+;-> 11
+
+Funzione finale:
+
+(define (costo str)
+  (let (lst (explode str))
+    (apply + (map (fn(x) (/ (* x (+ x 1)) 2)) (count (unique lst) lst)))))
+
+Proviamo:
+
+(costo "abbazia")
+;-> 11
+(costo "aAaA")
+;-> 6
+(costo "zuzzurellone")
+;-> 18
+(costo "----------")
+;-> 55
+
+
+----------------------------------------------
+Stampare un numero con un display a 7 segmenti
+----------------------------------------------
+
+Data un numero intero, stampare il numero con i seguenti caratteri (display 7-segments):
+  _       _   _         _    _   _    _    _
+ | |  |   _|  _|  |_|  |_   |_    |  |_|  |_|
+ |_|  |  |_   _|    |   _|  |_|   |  |_|   _|
+ (0) (1) (2) (3)  (4)  (5)  (6)  (7) (8)  (9)
+
+Per esempio dato il numero 467 l'output dovrebbe essere il seguente:
+     _  _
+ |_||_   |
+   ||_|  |
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (segments)
+  (local (d0 d1 d2 d3 d4 d5 d6 d7 d8 d9)
+    ; dx rappresenta le righe (stringhe) che compongono la cifra x
+    (setq d0 '(" _ " "| |" "|_|"))
+    (setq d1 '("   " " | " " | "))
+    (setq d2 '(" _ " " _|" "|_ "))
+    (setq d3 '(" _ " " _|" " _|"))
+    (setq d4 '("   " "|_|" "  |"))
+    (setq d5 '(" _ " "|_ " " _|"))
+    (setq d6 '(" _ " "|_ " "|_|"))
+    (setq d7 '(" _ " "  |" "  |"))
+    (setq d8 '(" _ " "|_|" "|_|"))
+    (setq d9 '(" _ " "|_|" " _|"))
+    (list d0 d1 d2 d3 d4 d5 d6 d7 d8 d9)))
+
+Funzione che stampa un numero ato con un display a 7 segmenti:
+
+(define (display num)
+  (local (line segmenti altezza lst str)
+   (setq line '())
+   (setq segmenti (segments))
+   ; numero caratteri dei segmenti in altezza
+   (setq altezza (length (segmenti 0)))
+   (setq lst (int-list num))
+   ; ciclo per creare le linee di caratteri
+   ; (numero-linee = altezza
+   (for (i 0 (- altezza 1))
+     (setq str '())
+     ; ciclo per ogni cifra del numero
+     (dolist (cifra lst)
+       ; inserisce su 'str' la stringa ad altezza 'i' della cifra corrente
+       (push (d cifra i) str -1)
+     )
+     ; inserisce la stringa 'str' sulle linee da stampare
+     (push (join str) line -1)
+   )
+   ; stampa le linee
+   (map println line)
+   '------------))
+
+Proviamo:
+
+(display 467)
+;->     _  _
+;-> |_||_   |
+;->   ||_|  |
+;-> ------------
+
+(display 1234567890)
+;->     _  _     _  _  _  _  _  _
+;->  |  _| _||_||_ |_   ||_||_|| |
+;->  | |_  _|  | _||_|  ||_| _||_|
+;-> ------------
+
+Un altro modo di rappresentare le cifre del display a 7-segmenti è il seguente:
+
+   0       1       2       3       4       5       6       7       8       9
+  ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■     ■■■     ■■■     ■■■
+ █   █   |   █   |   █   |   █   █   █   █   |   █   |   |   █   █   █   █   █
+  ---     ---     ■■■     ■■■     ■■■     ■■■     ■■■     ---     ■■■     ■■■
+ █   █   |   █   █   |   |   █   |   █   |   █   █   █   |   █   █   █   |   █
+  ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■
+  (6)     (2)     (5)     (5)     (4)     (5)     (6)     (7)     (8)     (9)
+
 ============================================================================
 
