@@ -3770,5 +3770,445 @@ Un altro modo di rappresentare le cifre del display a 7-segmenti è il seguente:
   ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■     ---     ■■■     ■■■
   (6)     (2)     (5)     (5)     (4)     (5)     (6)     (7)     (8)     (9)
 
+
+-----------------------
+Il gioco del monocolore
+-----------------------
+
+Il gioco si svolge nel modo seguente:
+1) generare una matrice quadrata NxN di colori (numeri da 1 a 9)
+2) convertire l'intera matrice ad un solo colore (numero) con una serie di mosse
+3) Una mossa consiste nell'assegnare un nuovo colore (numero) alla cella in alto a sinistra.
+   Tutte le celle adiacenti alla cella in alto a sinistra che hanno lo stesso colore (vecchio) prendono anch'esse il nuovo colore. Questo processo viene eseguito ricorsivamente per ogni cella adiacente a quelle che prendono il nuovo colore (flood-fill).
+
+Vediamo un esempio:
+
+Matrice iniziale
+  1 2 3
+  1 1 3
+  2 2 2
+
+Coloriamo la cella in altro a sinistra con il numero 3:
+
+Nuova matrice
+  3 2 3
+  3 3 3
+  2 2 2
+
+Coloriamo la cella in altro a sinistra con il numero 2:
+
+Nuova matrice
+  2 2 2
+  2 2 2
+  2 2 2
+
+Abbiamo raggiunto una matrice monocolore (mononumero).
+
+Funzione che stampa la griglia di gioco (matrice):
+
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print " " (grid i j))
+      )
+      (println)))
+      '-----------)
+
+(setq m '((2 2 3 0)
+          (3 2 2 1)
+          (0 3 2 0)
+          (3 3 2 0)))
+
+(print-grid m)
+;->  2 2 3 0
+;->  3 2 2 1
+;->  0 3 2 0
+;->  3 3 2 0
+;-> -----------
+
+Funzione che genera una matrice casuale NxN con N colori (numeri):
+
+(define (new-game N)
+  ; numero di mosse effettuate
+  (setq mosse 0)
+  ; matrice di gioco NxN
+  (setq grid (array-list (array N N (rand N (* N N)))))
+  (print-grid grid))
+
+(new-game 3)
+;->  1 2 1
+;->  1 0 2
+;->  1 2 0
+;-> -----------
+
+Funzione che applica l'algoritmo flood-fill ad una matrice partendo da una cella predefinita con un colore predefinito:
+
+(define (flood-fill img x y new-color)
+  (local (old-color dir max-x max-y)
+    (setq max-x (length img))
+    (setq max-y (length (img 0)))
+    (setq dir '((0 1) (0 -1) (1 0) (-1 0)))
+    ;------------------
+    ; recursive fill
+    (define (fill x y)
+    (catch
+      (local (new-x new-y)
+        (setq old-color (img x y))
+        (if (= old-color new-color) (throw img))
+        (setf (img x y) new-color)
+        (for (i 0 (- (length dir) 1))
+          (setq new-x (+ x (dir i 0)))
+          (setq new-y (+ y (dir i 1)))
+          (cond ((or (< new-x 0) (>= new-x max-x) (< new-y 0) (>= new-y max-y)) nil)
+                ((!= (img new-x new-y) old-color) nil)
+                (true (fill new-x new-y))
+          )
+        )
+        img)))
+     ;------------------
+     (fill x y)))
+
+Flood-fill con colore 3 dalla cella (0,0):
+
+(print-grid (flood-fill m 0 0 1))
+;->  1 1 3 0
+;->  3 1 1 1
+;->  0 3 1 0
+;->  3 3 1 0
+;-> -----------
+
+Funzione che effettua una mossa:
+
+(define (colore col)
+  (setq grid (flood-fill grid 0 0 col))
+  (print-grid grid)
+  (if (end-game? grid) (println "Matrice monocolore"))
+  (println "Mosse: " (++ mosse)))
+
+Funzione che verifica se una matrice è costituita da un solo colore (numero):
+
+(define (end-game? grid) (apply = (flat grid)))
+
+Adesso abbiamo le seguenti funzioni per giocare una partita:
+1) "(new-game N)", per iniziare un nuovo gioco con una matrice NxN
+2) "(colore col)", per colorare ricorsivamente la matrice partendo dalla cella in alto a sinistra
+
+Facciamo una prova:
+
+(new-game 4)
+;->  2 1 3 0
+;->  0 3 2 2
+;->  3 0 3 2
+;->  1 0 2 0
+;-> -----------
+(colore 0)
+;->  0 1 3 0
+;->  0 3 2 2
+;->  3 0 3 2
+;->  1 0 2 0
+;-> Mosse: 1
+(colore 1)
+;->  1 1 3 0
+;->  1 3 2 2
+;->  3 0 3 2
+;->  1 0 2 0
+;-> Mosse: 2
+(colore 3)
+;->  3 3 3 0
+;->  3 3 2 2
+;->  3 0 3 2
+;->  1 0 2 0
+;-> Mosse: 3
+(colore 2)
+;->  2 2 2 0
+;->  2 2 2 2
+;->  2 0 3 2
+;->  1 0 2 0
+;-> Mosse: 4
+(colore 0)
+;->  0 0 0 0
+;->  0 0 0 0
+;->  0 0 3 0
+;->  1 0 2 0
+;-> Mosse: 5
+(colore 1)
+;->  1 1 1 1
+;->  1 1 1 1
+;->  1 1 3 1
+;->  1 1 2 1
+;-> Mosse: 6
+(colore 3)
+;->  3 3 3 3
+;->  3 3 3 3
+;->  3 3 3 3
+;->  3 3 2 3
+;-> Mosse: 7
+(colore 2)
+;->  2 2 2 2
+;->  2 2 2 2
+;->  2 2 2 2
+;->  2 2 2 2
+;-> Matrice monocolore
+;-> Mosse: 8
+
+
+------------------------------------------------
+Ordinamento di numeri in base all'Hamming weight
+------------------------------------------------
+
+Data una lista di numeri da 1 a N, ordinare i numeri (crescente) in base al loro Hamming weight e al valore del numero (cioè i numeri con la stessa distanza di Hamming devono essere ordinati in modo crescente).
+L'Hamming weight (peso di Hamming) di un intero è il numero di uno nella sua rappresentazione binaria.
+
+Funzione cha calcola l'Hamming weight di un numero intero:
+
+(define (hamming num)
+  (let (counter 0)
+    (while (> num 0)
+      ; In questo modo arriviamo al prossimo bit impostato (successivo '1')
+      ; invece di eseguire il ciclo per ogni bit e controllare se vale '1'.
+      ; Quindi il ciclo non verrà eseguito per tutti i bit,
+      ; ma verrà eseguito solo tante volte quanti sono gli '1'.
+      (setq num (& num (- num 1)))
+      (++ counter)
+    )
+    counter))
+
+Algoritmo:
+Costruisce tutte le coppie (distanza-hamming numero) da 1 a 10:
+(setq coppie (map (fn(x) (list (hamming x) x)) (sequence 1 10)))
+;-> ((1 1) (1 2) (2 3) (1 4) (2 5) (2 6) (3 7) (1 8) (2 9) (2 10))
+
+Ordina le coppie in base alla distanza di Hamming e al numero:
+(sort coppie)
+;-> ((1 1) (1 2) (1 4) (1 8) (2 3) (2 5) (2 6) (2 9) (2 10) (3 7))
+
+Estrae i numeri da ogni coppia:
+(map last coppie)
+;-> (1 2 4 8 3 5 6 9 10 7)
+
+(define (hamming-sort num)
+  (let (coppie (map (fn(x) (list (hamming x) x)) (sequence 1 num)))
+    (map last (sort coppie))))
+
+Proviamo:
+
+(hamming-sort 10)
+;-> (1 2 4 8 3 5 6 9 10 7)
+
+In genere l'ordinamento cambia usando un altro numero:
+
+(hamming-sort 20)
+;-> (1 2 4 8 16 3 5 6 9 10 12 17 18 20 7 11 13 14 19 15)
+Infatti adesso il 16 viene prima del 3, oppure tra il 10 e il 7 adesso abbiamo 12,17,18,20.
+
+
+---------------------------------------------------
+Numeri in base fattoriale (Factorial number system)
+---------------------------------------------------
+
+Vediamo due funzioni per convertire un numero N da base decimale a base fattoriale e viceversa.
+Il numero fattoriale viene rappresentato con una lista (es. (3 5 0 1))
+
+Base 10
+-------
+numero = 56372
+
+  10^4 10^3 10^2 10^1 10^0
+    5    6    3    7    2
+
+  (10000*5) + (1000*6) + (100*3) + (10*7) + (1*2) =
+  = 50000 + 6000 + 300 + 70 + 2 = 56372
+
+Base fattoriale
+---------------
+numero = (1 3 1 1 3 3 1 0 0)
+
+  8! 7! 6! 5! 4! 3! 2! 1! 0!
+  1  3  1  1  3  3  1  0  0
+
+  (8!*1) + (7!*3) + (6!*1) + (5!*1) + (4!*3) +
+  + (3!*3) + (2!*1) + (1!*0) + (0!*0) =
+  = 40320 + 15120 + 720 + 120 + 72 + 18 + 2 = 56372
+
+numero = (3 4 1 0 1 0)
+
+  5! 4! 3! 2! 1! 0!
+  3  4  1  0  1  0
+
+  (5!*3) + (4!*4) + (3!*1) + (2!*0) + (1!*1) + (0!*0) =
+  = 360 + 96 + 6 + 0 + 1 + 0 = 463
+
+Algoritmo per convertire un numero da base decimale a base fattoriale
+---------------------------------------------------------------------
+È possibile convertire un numero da base decimale a base fattoriale (producendo le cifre da destra a sinistra), dividendo ripetutamente il numero per la radice (1, 2, 3, ...), prendendo il resto come cifra e continuando con il quoziente intero, finché questo quoziente diventa 0.
+
+Ad esempio, 463 viene trasformato in base fattoriale nel modo seguente:
+
+463 / 1 = 463, resto 0
+463 / 2 = 231, resto 1
+231 / 3 =  77, resto 0
+ 77 / 4 =  19, resto 1
+ 19 / 5 =   3, resto 4
+  3 / 6 =   0, resto 3
+
+Il processo termina quando il quoziente raggiunge lo zero.
+Prendendo i resti all'indietro si ottiene il numero (3 4 1 0 1 0).
+
+(define (fact num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+Funzione che converte dalla rappresentazione decimale a quella fattoriale:
+
+(define (dec-fact num)
+  (let ( (out '()) (radice 1) )
+    (while (> num 0)
+      (push (% num radice) out)
+      (setq num (/ num radice))
+      (++ radice)
+    )
+    out))
+
+Proviamo:
+
+(dec-fact 56372)
+;-> (1 3 1 1 3 3 1 0 0)
+
+(dec-fact 463)
+;-> (3 4 1 0 1 0)
+
+Funzione che converte dalla rappresentazione fattoriale a quella decimale:
+
+(define (fact-dec fac)
+  (let (num 0)
+    (dolist (digit (reverse fac))
+      (++ num (* (fact $idx) digit))
+    )
+    num))
+
+Proviamo:
+
+(fact-dec '(1 3 1 1 3 3 1 0 0))
+;-> 56372
+
+(fact-dec '(3 4 1 0 1 0))
+;-> 463
+
+(fact-dec (dec-fact 56372))
+;-> 56372
+
+Possiamo anche scrivere la funzione senza usare il fattoriale.
+Infatti algebricamente risulta (per esempio):
+
+  (5!*3) + (4!*4) + (3!*1) + (2!*0) + (1!*1) + (0!*0) =
+  = ((((3*5 + 4)*4 + 1)*3 + 0)*2 + 1)*1 + 0
+
+Quindi usando la seconda espressione non dobbiamo calcolare alcun fattoriale.
+
+(define (fact-dec1 fac)
+  (let (num 0)
+    (setq len (length fac))
+    (setq num (* (- len 1) (fac 0)))
+    (for (i 1 (- len 2))
+      (setq num (* (+ num (fac i)) (- len i 1)))
+    )
+    (++ num (fac -1))
+    num))
+
+(fact-dec1 '(1 3 1 1 3 3 1 0 0))
+;-> 56372
+
+(fact-dec1 '(3 4 1 0 1 0))
+;-> 463
+
+Vediamo la velocità di "fact-dec" e "fact-dec1":
+
+(setq f '(1 2 3 4 5 6 7 8 9 0))
+(fact-dec f)
+;-> 462331
+(fact-dec1 f)
+;-> 462331
+
+(time (fact-dec f) 1e5)
+;-> 1158.624
+(time (fact-dec1 f) 1e5)
+;-> 129.96
+
+Primi 100 numeri in base fattoriale (stringhe):
+
+(map (fn(x) (format "%06s" x))
+     (map join 
+          (map (fn(x) (map string x)) (map dec-fact (sequence 1 100)))))
+;-> ("000010" "000100" "000110" "000200" "000210" "001000" "001010" "001100"
+;->  "001110" "001200" "001210" "002000" "002010" "002100" "002110" "002200"
+;->  "002210" "003000" "003010" "003100" "003110" "003200" "003210" "010000"
+;->  "010010" "010100" "010110" "010200" "010210" "011000" "011010" "011100"
+;->  "011110" "011200" "011210" "012000" "012010" "012100" "012110" "012200"
+;->  "012210" "013000" "013010" "013100" "013110" "013200" "013210" "020000"
+;->  "020010" "020100" "020110" "020200" "020210" "021000" "021010" "021100"
+;->  "021110" "021200" "021210" "022000" "022010" "022100" "022110" "022200"
+;->  "022210" "023000" "023010" "023100" "023110" "023200" "023210" "030000"
+;->  "030010" "030100" "030110" "030200" "030210" "031000" "031010" "031100"
+;->  "031110" "031200" "031210" "032000" "032010" "032100" "032110" "032200"
+;->  "032210" "033000" "033010" "033100" "033110" "033200" "033210" "040000"
+;->  "040010" "040100" "040110" "040200")
+
+
+------------------------------------------------
+Ordinamento di numeri in base all'Hamming weight
+------------------------------------------------
+
+Data una lista di numeri da 1 a N, ordinare i numeri (crescente) in base al loro Hamming weight e al valore del numero (cioè i numeri con la stessa distanza di Hamming devono essere ordinati in modo crescente).
+L'Hamming weight (peso di Hamming) di un intero è il numero di uno nella sua rappresentazione binaria.
+
+Funzione che calcola l'Hamming weight di un numero intero:
+
+(define (hamming num)
+  (let (counter 0)
+    (while (> num 0)
+      ; In questo modo arriviamo al prossimo bit impostato (successivo '1')
+      ; invece di eseguire il ciclo per ogni bit e controllare se vale '1'.
+      ; Quindi il ciclo non verrà eseguito per tutti i bit,
+      ; ma verrà eseguito solo tante volte quanti sono gli '1'.
+      (setq num (& num (- num 1)))
+      (++ counter)
+    )
+    counter))
+
+Algoritmo:
+Costruire tutte le coppie (distanza-hamming numero) da 1 a 10:
+(setq coppie (map (fn(x) (list (hamming x) x)) (sequence 1 10)))
+;-> ((1 1) (1 2) (2 3) (1 4) (2 5) (2 6) (3 7) (1 8) (2 9) (2 10))
+
+Ordinare le coppie in base alla distanza di Hamming e al numero:
+(sort coppie)
+;-> ((1 1) (1 2) (1 4) (1 8) (2 3) (2 5) (2 6) (2 9) (2 10) (3 7))
+
+Estrerre i numeri da ogni coppia:
+(map last coppie)
+;-> (1 2 4 8 3 5 6 9 10 7)
+
+(define (hamming-sort num)
+  (let (coppie (map (fn(x) (list (hamming x) x)) (sequence 1 num)))
+    (map last (sort coppie))))
+
+Proviamo:
+
+(hamming-sort 10)
+;-> (1 2 4 8 3 5 6 9 10 7)
+
+In genere l'ordinamento cambia usando un altro numero:
+
+(hamming-sort 20)
+;-> (1 2 4 8 16 3 5 6 9 10 12 17 18 20 7 11 13 14 19 15)
+Infatti adesso il 16 viene prima del 3, oppure tra il 10 e il 7 adesso abbiamo 12,17,18,20.
+
 ============================================================================
 

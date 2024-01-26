@@ -2243,6 +2243,10 @@ NOTE LIBERE 21
   Coppie di una lista
   Costo di una stringa
   Stampare un numero con un display a 7 segmenti
+  Il gioco del monocolore
+  Ordinamento di numeri in base all'Hamming weight
+  Numeri in base fattoriale (Factorial number system)
+  Ordinamento di numeri in base all'Hamming weight
  
 PROBLEMI SUI DADI
 =================

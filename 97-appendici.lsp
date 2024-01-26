@@ -594,8 +594,8 @@ e questo:
 
 allora hai imparato abbastanza per iniziare a programmare in newLISP. Ci sono alcuni altri concetti come le funzioni anonime, l'applicazione di funzioni, spazi dei nomi (contesti) e l'indicizzazione implicita. Imparerai queste tecniche mentre usi newLISP.
 I libri su LISP o Scheme, che sono due standard di LISP diversi e più vecchi, insegnano concetti che non hai la necessità di imparare per programmare in newLISP. Molte volte newLISP esprime le cose in modo diverso dai LISP tradizionali e in modi più applicabili ai compiti di programmazione odierni e ad un livello superiore più vicino al problema in questione.
-Impara a risolvere i problemi con il modo newLISP! Per una comprensione più approfondita di newLISP, leggi la sezione del "manuale utente" di newLISP, con meno teoria e più esempi. Dai uno sguardo al "manuale di riferimento" per avere un'idea della profondità e dell'ampiezza delle funzioni API integrate.
-Per lavorare seriamente con newLISP occorre leggere il manuale "Code Patterns" con altri suggerimenti e pezzi di codice. Una buona introduzione per principianto è il libro "Introduction to newLISP" oppure i video tutorial che sono disponibili nella pagina ufficiale della documentazione.
+Impara a risolvere i problemi con il modo newLISP! Per una comprensione più approfondita di newLISP, leggi la sezione del "Manuale utente" di newLISP, con meno teoria e più esempi. Dai uno sguardo al "Manuale di riferimento" per avere un'idea della profondità e dell'ampiezza delle funzioni API integrate.
+Per lavorare seriamente con newLISP occorre leggere il manuale "Code Patterns" con altri suggerimenti e pezzi di codice. Un'ottima introduzione per principianti è il libro "Introduction to newLISP" oppure i video tutorial che sono disponibili nella pagina ufficiale della documentazione.
 Molte funzioni in newLISP hanno una funzionalità facile da capire, ma sono molto più potenti quando si conoscono e si usano le opzioni speciali di quella funzione. La profondità della API di newLISP non è basata sulla quantità delle funzioni, ma piuttosto sulle opzioni e sulle sintassi multipla di ogni specifica funzione
 Inizia a scrivere il tuo primo programma ora. Guarda le porzioni di codice (snippet) riportate in tutto il manuale e su questo sito web. Se hai domande, iscriviti al forum di discussione di newLISP e chiedi.
 
@@ -2506,7 +2506,7 @@ Notare che l'esempio potrebbe utilizzare dei caratteri UTF-8 per i nomi dei simb
 Un'alternativa al costrutto "if" è la funzione "cond":
 
 (cond (expression condition)
-       (expression condition)
+      (expression condition)
        ...)
 
 A causa delle parentesi aggiuntive, "expression" può essere una sequenza di diverse espressioni, senza ulteriori contenitori.
@@ -2701,7 +2701,7 @@ Un'altra semplice, ma utile funzione, "join", combina una lista di stringhe in u
 
 Il primo parametro "join" è un elenco di stringhe, il secondo (opzionale) è un delimitatore di stringa. La funzione utilizzata converte qualsiasi tipo di dati in una rappresentazione di testo.
 
-E, naturalmente, "la più meravigliosa" è la funzione "mappa" discussa nel capitolo precedente. Inoltre, essa può gestire più liste.
+E, naturalmente, "la più meravigliosa" è la funzione "map" discussa nel capitolo precedente. Inoltre, essa può gestire più liste.
 
 (map (fn (x y) (+ x y)) '(1 2 3 4)' (5 6 7 8)) -> (6 8 10 12)
 
@@ -6424,7 +6424,7 @@ John Von Neumann
 "Se è così semplice creare organismi viventi, perchè non ne create uno voi?"
 Nils Aaal Barricelli
 
-"L'assenza di segnalew non dovrebbe mai essere usata come segnale"
+"L'assenza di segnale non dovrebbe mai essere usata come segnale"
 Julian Bigelow
 
 "La parte che è stabile la prevederemo. E la parte che è instabile la controlleremo."

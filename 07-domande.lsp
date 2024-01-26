@@ -212,6 +212,8 @@ Un altro metodo usando le primitive di newLISP:
 (time (bit2 123456789) 100000)
 ;-> 288.228
 
+Vedi anche "Hamming weight" su "Note libere 15".
+
 
 ---------------------------------------------
 Scambiare il valore di due variabili (McAfee)

@@ -1745,6 +1745,8 @@ Vediamo la velocità delle funzioni:
 (time (h-weight4 str) 1e5)
 ;-> 887.011
 
+Vedi anche "Contare i bit di un numero (McAfee)" su "Domande programmatori".
+
 
 ---------------------------------------------
 Primo carattere meno frequente in una stringa
