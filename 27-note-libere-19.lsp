@@ -6667,9 +6667,9 @@ Proviamo:
 ;-> "miiiissssssssiiiissssssssiiiippppiiii"
 
 
-----------------------------
-Interlacciamento di stringhe
-----------------------------
+------------------------------------
+Interlacciamento di stringhe e liste
+------------------------------------
 
 Date due stringhe, generare tutte le sequenze interlacciate di caratteri di queste due stringhe preservando il loro ordine originale.
 Ciò significa che ogni carattere nella sequenza di output deve provenire dalla prima o dalla seconda stringa e il loro ordine deve essere mantenuto così come appare nelle stringhe di input.
@@ -6715,6 +6715,73 @@ Proviamo:
 ;->  "xyabcdz" "abcxyzd" "abxcyzd" "axbcyzd" "xabcyzd" "abxyczd" "axbyczd"
 ;->  "xabyczd" "axybczd" "xaybczd" "xyabczd" "abxyzcd" "axbyzcd" "xabyzcd"
 ;->  "axybzcd" "xaybzcd" "xyabzcd" "axyzbcd" "xayzbcd" "xyazbcd" "xyzabcd")
+
+Per le liste possiamo usare le stesse funzioni con una sola modifica:
+l'espressione: (setq cur-str (dup " " idx))
+diventa: (setq cur-lst (dup 0 idx))
+
+(define (interleave lst1 lst2)
+  (local (out len1 len2 idx cur-lst)
+    (setq out '())
+    (setq len1 (length lst1))
+    (setq len2 (length lst2))
+    (setq idx (+ len1 len2))
+    (setq cur-lst (dup 0 idx))
+    (interleave-aux lst1 lst2 cur-lst (- len1 1) (- len2 1) (- idx 1))
+    out))
+
+(define (interleave-aux a b cur-lst n m idx)
+  (cond ((and (= n -1) (= m -1)) (push cur-lst out))
+        (true
+          (if (>= n 0) (begin
+              (setf (cur-lst idx) (a n))
+              (interleave-aux a b cur-lst (- n 1) m (- idx 1))))
+          (if (>= m 0) (begin 
+              (setf (cur-lst idx) (b m))
+              (interleave-aux a b cur-lst n (- m 1) (- idx 1)))))))
+
+Proviamo:
+
+(interleave '(1 2 3) '(4 5 6))
+;-> ((1 2 3 4 5 6) (1 2 4 3 5 6) (1 4 2 3 5 6) (4 1 2 3 5 6) (1 2 4 5 3 6) 
+;->  (1 4 2 5 3 6) (4 1 2 5 3 6) (1 4 5 2 3 6) (4 1 5 2 3 6) (4 5 1 2 3 6)
+;->  (1 2 4 5 6 3) (1 4 2 5 6 3) (4 1 2 5 6 3) (1 4 5 2 6 3) (4 1 5 2 6 3)
+;->  (4 5 1 2 6 3) (1 4 5 6 2 3) (4 1 5 6 2 3) (4 5 1 6 2 3) (4 5 6 1 2 3))
+
+Funzione unica per stringhe e liste:
+
+(define (interleave obj1 obj2)
+  (local (out len1 len2 idx cur-obj)
+    (setq out '())
+    (setq len1 (length obj1))
+    (setq len2 (length obj2))
+    (setq idx (+ len1 len2))
+    (if (list? obj1)
+        (setq cur-obj (dup 0 idx))
+        (setq cur-obj (dup " " idx))
+    )
+    (interleave-aux obj1 obj2 cur-obj (- len1 1) (- len2 1) (- idx 1))
+    out))
+
+(define (interleave-aux a b cur-obj n m idx)
+  (cond ((and (= n -1) (= m -1)) (push cur-obj out))
+        (true
+          (if (>= n 0) (begin
+              (setf (cur-obj idx) (a n))
+              (interleave-aux a b cur-obj (- n 1) m (- idx 1))))
+          (if (>= m 0) (begin 
+              (setf (cur-obj idx) (b m))
+              (interleave-aux a b cur-obj n (- m 1) (- idx 1)))))))
+
+Proviamo:
+
+(interleave "abc" "xy")
+;-> ("abcxy" "abxcy" "axbcy" "xabcy" "abxyc" 
+;->  "axbyc" "xabyc" "axybc" "xaybc" "xyabc")
+
+(interleave '(1 2) '(3 4 5))
+;-> ((1 2 3 4 5) (1 3 2 4 5) (3 1 2 4 5) (1 3 4 2 5) (3 1 4 2 5) 
+;->  (3 4 1 2 5) (1 3 4 5 2) (3 1 4 5 2) (3 4 1 5 2) (3 4 5 1 2))
 
 
 ------------------

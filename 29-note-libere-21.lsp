@@ -3954,57 +3954,6 @@ Facciamo una prova:
 ;-> Matrice monocolore
 ;-> Mosse: 8
 
-
-------------------------------------------------
-Ordinamento di numeri in base all'Hamming weight
-------------------------------------------------
-
-Data una lista di numeri da 1 a N, ordinare i numeri (crescente) in base al loro Hamming weight e al valore del numero (cioè i numeri con la stessa distanza di Hamming devono essere ordinati in modo crescente).
-L'Hamming weight (peso di Hamming) di un intero è il numero di uno nella sua rappresentazione binaria.
-
-Funzione cha calcola l'Hamming weight di un numero intero:
-
-(define (hamming num)
-  (let (counter 0)
-    (while (> num 0)
-      ; In questo modo arriviamo al prossimo bit impostato (successivo '1')
-      ; invece di eseguire il ciclo per ogni bit e controllare se vale '1'.
-      ; Quindi il ciclo non verrà eseguito per tutti i bit,
-      ; ma verrà eseguito solo tante volte quanti sono gli '1'.
-      (setq num (& num (- num 1)))
-      (++ counter)
-    )
-    counter))
-
-Algoritmo:
-Costruisce tutte le coppie (distanza-hamming numero) da 1 a 10:
-(setq coppie (map (fn(x) (list (hamming x) x)) (sequence 1 10)))
-;-> ((1 1) (1 2) (2 3) (1 4) (2 5) (2 6) (3 7) (1 8) (2 9) (2 10))
-
-Ordina le coppie in base alla distanza di Hamming e al numero:
-(sort coppie)
-;-> ((1 1) (1 2) (1 4) (1 8) (2 3) (2 5) (2 6) (2 9) (2 10) (3 7))
-
-Estrae i numeri da ogni coppia:
-(map last coppie)
-;-> (1 2 4 8 3 5 6 9 10 7)
-
-(define (hamming-sort num)
-  (let (coppie (map (fn(x) (list (hamming x) x)) (sequence 1 num)))
-    (map last (sort coppie))))
-
-Proviamo:
-
-(hamming-sort 10)
-;-> (1 2 4 8 3 5 6 9 10 7)
-
-In genere l'ordinamento cambia usando un altro numero:
-
-(hamming-sort 20)
-;-> (1 2 4 8 16 3 5 6 9 10 12 17 18 20 7 11 13 14 19 15)
-Infatti adesso il 16 viene prima del 3, oppure tra il 10 e il 7 adesso abbiamo 12,17,18,20.
-
-
 ---------------------------------------------------
 Numeri in base fattoriale (Factorial number system)
 ---------------------------------------------------
@@ -4183,6 +4132,7 @@ Funzione che calcola l'Hamming weight di un numero intero:
     counter))
 
 Algoritmo:
+
 Costruire tutte le coppie (distanza-hamming numero) da 1 a 10:
 (setq coppie (map (fn(x) (list (hamming x) x)) (sequence 1 10)))
 ;-> ((1 1) (1 2) (2 3) (1 4) (2 5) (2 6) (3 7) (1 8) (2 9) (2 10))
@@ -4191,7 +4141,7 @@ Ordinare le coppie in base alla distanza di Hamming e al numero:
 (sort coppie)
 ;-> ((1 1) (1 2) (1 4) (1 8) (2 3) (2 5) (2 6) (2 9) (2 10) (3 7))
 
-Estrerre i numeri da ogni coppia:
+Estrarre i numeri da ogni coppia:
 (map last coppie)
 ;-> (1 2 4 8 3 5 6 9 10 7)
 
@@ -4209,6 +4159,235 @@ In genere l'ordinamento cambia usando un altro numero:
 (hamming-sort 20)
 ;-> (1 2 4 8 16 3 5 6 9 10 12 17 18 20 7 11 13 14 19 15)
 Infatti adesso il 16 viene prima del 3, oppure tra il 10 e il 7 adesso abbiamo 12,17,18,20.
+
+
+-----------------
+Pistola difettosa
+-----------------
+
+Abbiamo una pistola difettosa: quando spariamo non sempre funziona.
+Sia N il numero iniziale di proiettili e I il numero di proiettili rimasti.
+Al primo colpo la pistola funziona sempre.
+Per i colpi successivi la probabilità che la pistola funzioni vale I/N (cioè, meno proiettili restano e più tentativi saranno necessari per sparare un proiettile).
+
+Esempio:
+N = 3
+Primo tentativo sempre positivo
+N = 2
+Adesso abbiamo 2/3 di probabilità di sparare e 1/3 di non-sparare.
+Quindi la probabilità di sparare tutti i colpi senza nessun malfunzionamento vale:
+3/3 * 2/3 * 1/3 = 0.222222(2)
+
+Trovare il trovare il numero medio di tentativi di tiro per utilizzare tutti i proiettili.
+
+Scriviamo una funzione che simula la pistola.
+
+(define (pistola N iter)
+  (local (rimasti colpi colpi-tot)
+    (setq colpi-tot 0)
+    (for (i 1 iter)
+      (setq rimasti N)
+      (setq colpi 1)
+      (-- rimasti)
+      (while (> rimasti 0)
+        (++ colpi)
+        (setq sparo (random))
+        (if (> sparo (div rimasti N)) (-- rimasti))
+      )
+      (++ colpi-tot colpi)
+    )
+    (div colpi-tot iter)))
+
+Proviamo:
+
+(pistola 3 1e6)
+;-> 5.499439
+
+(pistola 5 1e6)
+;-> 11.420694
+
+(pistola 10 1e6)
+;-> 29.271898
+
+Possiamo verificare i risultati con la soluzione matematica, infatti si può dimostrare che il numero medio di tentativi vale:
+
+  media(N) = Sum[i=1..n](n/i)
+
+(define (gun-math n)
+  (apply add (map (curry div n) (sequence 1 n))))
+
+Proviamo:
+
+(map (fn(x) (list x (gun-math x))) (sequence 1 10))
+;-> ((1 1) (2 3) (3 5.5) (4 8.333333) (5 11.41666666) (6 14.7) (7 18.15)
+;->  (8 21.742857) (9 25.460714) (10 29.289683))
+
+
+--------------------
+Sequenze intrecciate
+--------------------
+
+Dato un numero N costruire una stringa intrecciando i numeri delle sequenze 1..N e N..1.
+Intrecciare = primo elemento prima lista, primo elemento seconda lista,
+              secondo elemento prima lista, secondo elemento seconda lista, 
+              ...
+              ultimo elemento prima lista, ultimo elemento seconda lista.
+
+Per esempio con N = 3:
+  sequenza 1..3 = (1 2 3)
+  sequenza 3..1 = (3 2 1)
+  Output: 132231
+
+Algoritmo:
+
+(setq N 3)
+(setq a (map list (sequence 1 N) (sequence N 1)))
+;-> ((1 3) (2 2) (3 1))
+(setq b (flat a))
+;-> (1 3 2 2 3 1)
+(setq c (map string b))
+;-> ("1" "3" "2" "2" "3" "1")
+(setq d (join c))
+;-> "132231"
+
+Funzione finale:
+
+(define (intreccia N)
+  (join (map string (flat (map list (sequence 1 N) (sequence N 1))))))
+
+Proviamo:
+
+(intreccia 3)
+;-> "132231"
+
+(intreccia 10)
+;-> "1102938475665748392101"
+
+
+---------------------
+Sequenza di Divinacci
+---------------------
+
+La sequenza di Divinacci è definita nel modo seguente:
+
+  d(1) = 1
+  d(2) = 1
+  d(n) = = sum(divisors(d(n-1))) + sum(divisors(d(n-2)))
+
+Sequenza OEIS A000458:
+a(0) = a(1) = 1, a(n) = sigma(a(n-1)) + sigma(a(n-2))
+  1, 1, 2, 4, 10, 25, 49, 88, 237, 500, 1412, 3570, 12846, 36072, 126504,
+  493920, 2358720, 12292224, 49984224, 171237888, 642804078, 1980490350, 
+  6380883000, 27032104440, 117961599600, 555861355920, ...
+
+sigma(n) = somma dei divisori di n (1 e n compresi)
+
+La sequenza è simile alla sequenza di Fibonacci:
+
+  f(1) = 1
+  f(2) = 1
+  f(n) = f(n-1) + f(n-2)
+
+Quindi partiamo dalla funzione che calcola la sequenza di Fibonacci e la modifichiamo per scrivere la sequenza di Divinacci.
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+      
+(define (divisors-sum num)
+"Sum all the divisors of integer number"
+(if (zero? num) 0
+  ;else
+  (local (sum out)
+    (if (= num 1)
+        1
+        (begin
+          (setq out 1)
+          (setq lst (factor-group num))
+          (dolist (el lst)
+            (setq sum 0)
+            (for (i 0 (last el))
+              (setq sum (+ sum (pow (first el) i)))
+            )
+            (setq out (* out sum))))))))
+
+(define (fibo-i num)
+"Calculates the Fibonacci number of an integer number"
+  (local (a b c)
+    (setq a 0L b 1L c 0L)
+    (for (i 0 (- num 1))
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a))
+
+Funzione che calcola il numero Divinacci di un numero intero:
+
+(define (divinacci num)
+  (local (a b c)
+    (setq a 0 b 1 c 0)
+    (for (i 0 (- num 1))
+      (setq c (+ (divisors-sum a) (divisors-sum b)))
+      (setq a b)
+      (setq b c)
+    )
+    a))
+
+Proviamo:
+
+(map divinacci (sequence 1 20))
+;-> (1 1 2 4 10 25 49 88 237 500 1412 3570 12846 36072 
+;->  126504 493920 2358720 12292224 49984224 171237888)
+
+
+----------
+List merge
+----------
+
+Date N liste L1, L2, ..., LN con lo stesso numero di elementi M generare una lista con il seguente formato:
+
+  ((L1(0) L2(0) ... LN(0)) 
+   (L1(1) L2(1) ... LN(1)) 
+   ... 
+   (L1(M-1) L2(M-1) ... LN(M-1)))
+
+In altre parole, la lista da generare è fatta nel modo seguente:
+
+((primo elemento prima lista, primo elemento seconda lista, ... primo elemento N-esima lista)
+ (secondo elemento prima lista, secondo elemento seconda lista, ... secondo elemento N-esima lista)
+ ...
+ (ultimo elemento prima lista, ultimo elemento seconda lista, ... ultimo elemento N-esima lista))
+
+Esempio:
+
+L1 = (1 2 3)
+L2 = (a b c)
+L3 = (+ - *)
+
+Output = ((1 a +) (2 b -) (3 c *))
+
+Funzione che effettua il merge di N liste:
+
+(define (merge-list) (transpose (args)))
+
+Proviamo:
+
+(merge-list '(1 2 3) '(a b c) '(+ - *))
+;-> ((1 a +) (2 b -) (3 c *))
+
+(setq nomi '("sara" "marco" "luca"))
+(setq eta '(32 40 28))
+(setq peso '(50 72 78))
+(setq altezza '(170 180 185))
+
+(merge-list nomi eta peso altezza)
+;-> (("sara" 32 50 170) ("marco" 40 72 180) ("luca" 28 78 185))
+
+Vedere anche "List mix" su "Note libere 20".
 
 ============================================================================
 

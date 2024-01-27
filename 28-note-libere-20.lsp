@@ -1251,6 +1251,8 @@ Oppure se le liste da mixare sono elementi di una lista:
 (apply mix '((1 2 3) (a b c) (+ - *)))
 ;-> (1 a + 2 b - 3 c *)
 
+Vedere anche "List merge" su "Note libere 21".
+
 
 ------------------------
 I punteggi del gioco 421

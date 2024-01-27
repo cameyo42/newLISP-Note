@@ -4,6 +4,15 @@
 
 ================
 
+    Hacker Logo
+  +----+----+----+
+  |    | ██ |    |
+  +----+----+----+
+  |    |    | ██ |
+  +----+----+----+
+  | ██ | ██ | ██ |
+  +----+----+----+
+
 ---------------------------------------------------
 Moltiplicazione tra matrici - Algoritmo di Strassen
 ---------------------------------------------------
@@ -7580,8 +7589,8 @@ L'operatore per eseguire l'operazione del modulo è '%'.
 Ad esempio: a % b = c che significa che quando a è diviso per b dà il resto c:
 per esempio: 15 % 4 = 3, 22 % 3 = 1.
 
-QUindi l'operazione modulo è la stessa di "il resto della divisione". 
-Se dico a modulo b è c, significa che quando a è diviso per b il resto è c. 
+QUindi l'operazione modulo è la stessa di "il resto della divisione".
+Se dico a modulo b è c, significa che quando a è diviso per b il resto è c.
 L'operazione modulo è rappresentata dall'operatore '%' nella maggior parte dei linguaggi di programmazione.
 
 Nota: il risultato di (a % b) è sempre minore di b.
@@ -8550,7 +8559,7 @@ Sembra anche che questa sia l'unica soluzione in assoluto, perchè la somma di t
 Vediamo la dimostrazione che 1+2+3=1*2*3=6 è l'unica soluzione.
 
 1) La terna di numeri distinti (1, 2, 3) è una soluzione.
-2) Incrementando o decrementando di un'unità un numero qualsiasi di una terna x, y, z, la relativa somma cambia allo stesso modo, invece il suo prodotto cambia almeno di xy, xz oppure yz. Queste quantità sono sempre >= 2, altrimenti la somma non sarebbe uguale al prodotto, contraddicendo l'assunto (se fosse 1, allora -> (1*1)*n = 1+1+n, il che è impossibile). Quindi, questa operazione rende sempre falsa l'equazione. 
+2) Incrementando o decrementando di un'unità un numero qualsiasi di una terna x, y, z, la relativa somma cambia allo stesso modo, invece il suo prodotto cambia almeno di xy, xz oppure yz. Queste quantità sono sempre >= 2, altrimenti la somma non sarebbe uguale al prodotto, contraddicendo l'assunto (se fosse 1, allora -> (1*1)*n = 1+1+n, il che è impossibile). Quindi, questa operazione rende sempre falsa l'equazione.
 Siccome aumentando/diminuendo di 1 il generico elemento della terna il prodotto aumenta/diminuisce del prodotto degli altri due (detti y,z), l'unico modo per soddisfare l'uguaglianza 1 = yz ==> y=1 et z=1 (per ipotesi di numeri interi). Quindi tutte e sole le terne per le quali l'uguaglianza è verificata anche aumentando/diminuendo un termine di un'unità sarebbero del tipo (x,1,1). Ma per esse si ha che x+2 = x, il che contrasta l'ipotesi iniziale. Sbaglio?
 3) Dalla terna (1, 2, 3) possiamo generare tutte le altre con la medesima operazione, che sappiamo già generare false equivalenze
 Questo ragionamento è direttamente estendibile ad equazioni ad N variabili.
@@ -8563,7 +8572,7 @@ chatGPT e newLISP
 Colloquio tra il sottoscritto e l'intelligenza artificiale chatGPT (2023-01-23).
 
 -------------------------------
-max: 
+max:
 are you able to write newlisp code?
 
 chatGPT:
@@ -8581,17 +8590,17 @@ Sure, here is a program in newLISP that will solve a quadratic equation of the f
     (x1 0)
     (x2 0)
   )
-    (cond 
-      ((= discriminant 0) 
+    (cond
+      ((= discriminant 0)
         (set 'x1 (/ (- b) (* 2 a)))
         (println "The equation has one real solution: " x1)
       )
-      ((> discriminant 0) 
+      ((> discriminant 0)
         (set 'x1 (/ (+ (- b) (sqrt discriminant)) (* 2 a)))
         (set 'x2 (/ (- (- b) (sqrt discriminant)) (* 2 a)))
         (println "The equation has two real solutions: " x1 " and " x2)
       )
-      (else 
+      (else
         (println "The equation has no real solutions.")
       )
     )
@@ -8606,8 +8615,8 @@ For example, to solve the equation x^2 + 2x + 1 = 0, you would call the function
 This will output "The equation has no real solutions."
 Alternatively you can use the function like this
 
-(define a 1) 
-(define b 2) 
+(define a 1)
+(define b 2)
 (define c 1)
 
 (solve-quadratic a b c)
@@ -8625,17 +8634,17 @@ Sure, here is a newLISP program that will solve a quadratic equation of the form
     (x1 0)
     (x2 0)
   )
-    (cond 
-      ((= discriminant 0) 
+    (cond
+      ((= discriminant 0)
         (set 'x1 (/ (- b) (* 2 a)))
         (println "The equation has one real solution: " x1)
       )
-      ((> discriminant 0) 
+      ((> discriminant 0)
         (set 'x1 (/ (+ (- b) (sqrt discriminant)) (* 2 a)))
         (set 'x2 (/ (- (- b) (sqrt discriminant)) (* 2 a)))
         (println "The equation has two real solutions: " x1 " and " x2)
       )
-      (else 
+      (else
         (set 'x1 (/ (- b) (* 2 a)))
         (set 'x2 (sqrt (/ (- discriminant) (* 4 a))))
         (println "The equation has no real solutions. Instead it has two complex solutions: " x1 "+" x2 "i and " x1 "-" x2 "i")
@@ -8663,17 +8672,17 @@ You are correct, my apologies for the mistake. The correct code for the discrimi
     (x1 0)
     (x2 0)
   )
-    (cond 
-      ((= discriminant 0) 
+    (cond
+      ((= discriminant 0)
         (set 'x1 (/ (- b) (* 2 a)))
         (println "The equation has one real solution: " x1)
       )
-      ((> discriminant 0) 
+      ((> discriminant 0)
         (set 'x1 (/ (+ (- b) (sqrt discriminant)) (* 2 a)))
         (set 'x2 (/ (- (- b) (sqrt discriminant)) (* 2 a)))
         (println "The equation has two real solutions: " x1 " and " x2)
       )
-      (else 
+      (else
         (set 'x1 (/ (- b) (* 2 a)))
         (set 'x2 (sqrt (/ (- discriminant) (* 4 a))))
         (println "The equation has no real solutions. Instead it has two complex solutions: " x1 "+" x2 "i and " x1 "-" x2 "i")
@@ -8698,17 +8707,17 @@ Here is the corrected version of the program:
     (x1 0)
     (x2 0)
   )
-    (cond 
-      ((= discriminant 0) 
+    (cond
+      ((= discriminant 0)
         (set 'x1 (div (- b) (mul 2 a)))
         (println "The equation has one real solution: " x1)
       )
-      ((> discriminant 0) 
+      ((> discriminant 0)
         (set 'x1 (div (+ (- b) (sqrt discriminant)) (mul 2 a)))
         (set 'x2 (div (- (- b) (sqrt discriminant)) (mul 2 a)))
         (println "The equation has two real solutions: " x1 " and " x2)
       )
-      (else 
+      (else
         (set 'x1 (div (- b) (mul 2 a)))
         (set 'x2 (sqrt (div (- discriminant) (mul 4 a))))
         (println "The equation has no real solutions. Instead it has two complex solutions: " x1 "+" x2 "i and " x1 "-" x2 "i")
@@ -8732,17 +8741,17 @@ Here is the corrected version of the program:
     (x1 0)
     (x2 0)
   )
-    (cond 
-      ((= discriminant 0) 
+    (cond
+      ((= discriminant 0)
         (set 'x1 (div (sub 0 b) (mul 2 a)))
         (println "The equation has one real solution: " x1)
       )
-      ((> discriminant 0) 
+      ((> discriminant 0)
         (set 'x1 (div (add (sub 0 b) (sqrt discriminant)) (mul 2 a)))
         (set 'x2 (div (sub (sub 0 b) (sqrt discriminant)) (mul 2 a)))
         (println "The equation has two real solutions: " x1 " and " x2)
       )
-      (true 
+      (true
         (set 'x1 (div (sub 0 b) (mul 2 a)))
         (set 'x2 (div (sqrt (sub 0 discriminant)) (mul 4 a)))
         (println "The equation has no real solutions. Instead it has two complex solutions: " x1 " " x2 "i and " x1 " " x2 "i")
@@ -8781,7 +8790,7 @@ against
 (context 'BLA-BLA-BLA
   ....................
 )
- 
+
 Lutz:
 -----
 When newLISP loads it has a compile and evaluation phase. Each toplevel expression in a file gets at first compiled to an internal representation, then evaluated by an internal VM. Writing contexts in a functional manner, would break the separation of compile versus evaluation phase.
@@ -8812,9 +8821,9 @@ NEW: the runtime context is the context the function is written/compiled in (v.8
 (CTX:foo) => MAIN
 (CTX:bar) => 123
 ; NEW
-(CTX:foo) 
+(CTX:foo)
 ;-> CTX
-(CTX:bar) 
+(CTX:bar)
 ;-> 456
 
 OLD: In (load myfile) the code in myfile will be in the runtime context of caller, except when a (context ...) statement in 'myfile' switches it. The context after (load ...) returns may be changed.

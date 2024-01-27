@@ -2110,7 +2110,7 @@ NOTE LIBERE 19
   Funzione che stampa la propria lunghezza
   Colori True color
   Stringhe gonfiate (inflated)
-  Interlacciamento di stringhe
+  Interlacciamento di stringhe e liste
   Residui quadratici
   Zip Bomb
   Sottosequenza ripetuta più lunga di una singola cifra/carattere
@@ -2244,9 +2244,12 @@ NOTE LIBERE 21
   Costo di una stringa
   Stampare un numero con un display a 7 segmenti
   Il gioco del monocolore
-  Ordinamento di numeri in base all'Hamming weight
   Numeri in base fattoriale (Factorial number system)
   Ordinamento di numeri in base all'Hamming weight
+  Pistola difettosa
+  Sequenze intrecciate
+  Sequenza di Divinacci
+  List merge
  
 PROBLEMI SUI DADI
 =================
