@@ -3615,7 +3615,7 @@ Funzione che restituisce una lista con tutte le possibili coppie tra gli element
 Proviamo:
 
 (pair-list '(1 2 3))
-;-> ((1 2) (1 3 (2 3))
+;-> ((1 2) (1 3) (2 3))
 
 (pair-list '("a" "b" "c" "d"))
 ;-> (("a" "b") ("a" "c") ("a" "d") ("b" "c") ("b" "d") ("c" "d"))
@@ -4388,6 +4388,204 @@ Proviamo:
 ;-> (("sara" 32 50 170) ("marco" 40 72 180) ("luca" 28 78 185))
 
 Vedere anche "List mix" su "Note libere 20".
+
+
+---------------------
+GCD e LCM di frazioni
+---------------------
+
+Il massimo comun divisore di due numeri interi 'a' e 'b' MCD(a,b) è il numero naturale più grande per il quale possono essere divisi entrambi.
+Se i numeri 'a' e 'b' sono entrambi uguali a 0, allora MCD(a,b)=0.
+
+Il minimo comune multiplo di due numeri interi 'a' e 'b', indicato con MCM(a,b), è il più piccolo numero intero positivo multiplo sia di 'a' sia di 'b'.
+Nel caso in cui uno tra 'a' o 'b' è uguale a zero, allora si definisce MCM(a,b)=0.
+
+Queste definizioni possono essere applicate anche alle frazioni.
+
+Date due frazioni (numeri razionali) ridotte ai minimi termini a/b e c/d (dove b e d non valgono zero), mcd = MCD(a/b, c/d) e mcm = MCM(a/b, c/d) sono definiti in modo tale che ciascuna frazione divisa per mcd sia un numero intero e lcm divisa per ciascuna frazione sia un numero intero.
+
+Le seguenti formule soddisfano questa definizione:
+
+  MCD(a/b,c/d) = MCD(a,c) / MCM(b,d)
+  MCM(a/b,c/d) = MCM(a,c) / MCD(b,d)
+
+Nota che queste generalizzano le formule per gli interi poiché:
+
+  MCD(a,c) = MCD(a/1,c/1) = MCD(a,c) / MCM(1, 1) = MCD(a,c)
+  MCM(a,c) = MCM(a/1,c/1) = MCM(a,c) / MCD(1, 1) = MCM(a,c)
+
+Una frazione n/d è ridotta ai minimi termini se gcd(n,d) = 1.
+
+Per gli interi la formula del prodotto è la seguente:
+
+  a*c = MCM(a,c) * MCD(a,c) per gli interi.
+
+Quella equivalente per i numeri razionali è:
+
+  (a/b) * (c/d) = (a*c) / (b*d) =
+  = (MCM(a,c) * MCD(a,c)) / (MCM(b,d) * MCD(b,d)) =
+  = (MCD(a,c) / MCM(b,d)) * (MCM(a,c) / MCD(b,d)) =
+  = MCD(a/b, c/d) * LCM(a/b, c/d)
+
+Nota: GCD (Greatest Common Divisor) = MCD (Massimo Comun Divisore), 
+      LCM (Least Common Divisor) = MCM (Minimo Comune Multiplo)
+
+Formula generica per il calcolo del GCD di due frazioni:
+
+                  GCD(a*d,b*c)
+  GCD(a/b,c/d) = --------------
+                      b*d
+
+Se le frazioni sono ridotte ai minimi termini allora risulta:
+
+                  GCD(a,c)
+  GCD(a/b,c/d) = ----------, se GCD(a,b) = GCD(c,d) = 1    (1)
+                  LCM(b,d)
+
+                  LCM(a,c)
+  LCM(a/b,c/d) = ----------, se GCD(a,b) = GCD(c,d) = 1    (2)
+                  GCD(b,d)
+
+
+Formula per il calcolo del GCD (Greatest Common Divisor) di N frazioni ridotte ai minimi termini:
+
+          GCD of all the numerator of fractions
+  GCD = -----------------------------------------          (3)
+         LCM of all the denominator of fractions
+
+Formula per il calcolo del LCM (Least Common Multiple) di N frazioni ridotte ai minimi termini:
+
+          LCM of all the numerator of fractions
+  LCM = -----------------------------------------          (4)
+         GCD of all the denominator of fractions
+
+Funzioni per il calcolo del lcm di numeri interi:
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (map eval (args)) 2))
+
+Funzioni per il calcolo delle quattro operazioni
+aritmetiche con le frazioni: "+", "-" "*" "/"
+(big-integer enabled)
+Note: 0 is '(0 1)
+La funzione 'rat' riduce una frazione n/d ai minimi termini.
+
+(define (rat n d)
+  (let (g (gcd n d))
+    (map (curry * 1L)
+         (list (/ n g) (/ d g)))))
+(define (+rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (+ (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1L) (r2 1L))))
+(define (-rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (- (* (r1 0L) (r2 1L))
+          (* (r2 0L) (r1 1L)))
+       (* (r1 1) (r2 1))))
+(define (*rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 0L))
+       (* (r1 1L) (r2 1L))))
+(define (/rat r1 r2)
+  (setq r1 (list (bigint (r1 0)) (bigint(r1 1))))
+  (setq r2 (list (bigint (r2 0)) (bigint(r2 1))))
+  (rat (* (r1 0L) (r2 1L))
+       (* (r1 1L) (r2 0L))))
+
+Funzione che calcola gcd di due frazioni (formula (1)):
+
+(define (gcd-r r1 r2)
+    (setq r1 (rat (first r1) (last r1)))
+    (setq r2 (rat (first r2) (last r2)))
+    (rat (gcd (first r1) (first r2)) (lcm (last r1) (last r2))))
+
+(gcd-r '(10 20) '(40 30))
+;-> (1L 6L)
+(gcd-r '(1 2) '(40 30))
+;-> (1L 6L)
+
+Funzione che calcola lcm di due frazioni (formula (2)):
+
+(define (lcm-r r1 r2)
+    (setq r1 (rat (first r1) (last r1)))
+    (setq r2 (rat (first r2) (last r2)))
+    (rat (lcm (first r1) (first r2)) (gcd (last r1) (last r2))))
+
+(lcm-r '(10 20) '(40 30))
+;-> (4L 1L)
+(lcm-r '(1 2) '(40 30))
+;-> (4L 1L)
+
+Funzione che calcola gcd di due o più frazioni (formula (1)):
+
+(define-macro (gcd-f)
+"Calculates the gcd of two or more fractions"
+  (apply gcd-r (map eval (args)) 2))
+
+(gcd-f '(10 20) '(40 30))
+;-> (1L 6L)
+(gcd-f '(1 2) '(40 30))
+;-> (1L 6L)
+
+(gcd-f '(77 120) '(4 11) '(14 45))
+;-> (1L 3960L)
+
+Funzione che calcola lcm di due o più frazioni (formula (2)):
+
+(define-macro (lcm-f)
+"Calculates the lcm of two or more fractions"
+  (apply lcm-r (map eval (args)) 2))
+
+(lcm-f '(10 20) '(40 30))
+;-> (4L 1L)
+(lcm-f '(1 2) '(40 30))
+;-> (4L 1L)
+
+(lcm-f '(77 120) '(4 11) '(14 45))
+;-> (308L 1L)
+
+Funzione che calcola gcd di due o più frazioni (formula (3)):
+
+(define (gcd-frac)
+  (setq lst '())
+  ; riduce le frazioni ai minimi termini
+  (doargs (f) (push (apply rat f) lst))
+  ; calcola gcd delle frazioni
+  (rat (apply gcd (map first lst))
+       (apply lcm (map last lst))))
+
+(gcd-frac '(10 20) '(40 30))
+;-> (1L 6L)
+(gcd-frac '(1 2) '(40 30))
+;-> (1L 6L)
+
+(gcd-frac '(77 120) '(4 11) '(14 45))
+;-> (1L 3960L)
+
+Funzione che calcola lcm di due o più frazioni (formula (4)):
+
+(define (lcm-frac)
+  (setq lst '())
+  ; riduce le frazioni ai minimi termini
+  (doargs (f) (push (apply rat f) lst))
+  ; calcola lcm delle frazioni
+  (rat (apply lcm (map first lst))
+       (apply gcd (map last lst))))
+
+(lcm-frac '(10 20) '(40 30))
+;-> (4L 1L)
+(lcm-frac '(1 2) '(40 30))
+;-> (4L 1L)
+
+(lcm-frac '(77 120) '(4 11) '(14 45))
+;-> (308L 1L)
 
 ============================================================================
 

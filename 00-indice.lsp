@@ -2250,6 +2250,7 @@ NOTE LIBERE 21
   Sequenze intrecciate
   Sequenza di Divinacci
   List merge
+  GCD e LCM di frazioni
  
 PROBLEMI SUI DADI
 =================
