@@ -1697,7 +1697,7 @@ NOTE LIBERE 14
   Somma massima di elementi non contigui
   Somma delle cifre dei numeri da 1 a N
   Funzione di aiuto per il debug
-  REPL e colori
+  REPL e colori ANSI
   Conversione colori RGB <--> HEX
 
 NOTE LIBERE 15
@@ -2251,6 +2251,9 @@ NOTE LIBERE 21
   Sequenza di Divinacci
   List merge
   GCD e LCM di frazioni
+  Alternare maiuscolo e minuscolo in una stringa
+  Rettangoli all'interno di un rettangolo
+  Numeri di rettangoli in una griglia
  
 PROBLEMI SUI DADI
 =================
@@ -2294,7 +2297,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (256 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (260 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

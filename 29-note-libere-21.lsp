@@ -3954,6 +3954,113 @@ Facciamo una prova:
 ;-> Matrice monocolore
 ;-> Mosse: 8
 
+
+Versione a colori
+-----------------
+
+; nuova funzione
+(define (make-colors num)
+  ; definizione dei colori con codici ANSI Escape
+  ; black is not visible on black background
+  ;(setq black "\027[0;30m")
+  (setq red "\027[0;31m")
+  (setq green "\027[0;32m")
+  (setq yellow "\027[0;33m")
+  (setq blue "\027[0;34m")
+  (setq magenta "\027[0;35m")
+  (setq cyan "\027[0;36m")
+  (setq white "\027[0;37m")
+  ; bright color
+  (setq black-b "\027[0;90m")
+  (setq red-b "\027[0;91m")
+  (setq green-b "\027[0;92m")
+  (setq yellow-b "\027[0;93m")
+  (setq blue-b "\027[0;94m")
+  (setq magenta-b "\027[0;95m")
+  (setq cyan-b "\027[0;96m")
+  (setq white-b "\027[0;97m")
+  ; restore color to default
+  (setq reset-all "\027[39;49m")
+  ;(println reset-all)
+  ; restore all to default
+  (setq default-all "\027[0;0m")
+  ;(println default-all)
+  ; Tabella con i 16 colori
+  (setq col15 '(red green yellow blue magenta cyan white
+                black-b red-b green-b yellow-b blue-b magenta-b cyan-b white-b))
+  ; colori da usare nel gioco
+  (setq colori (slice col15 0 num))
+)
+
+; funzione modificata
+(define (new-game N)
+  ; crea i colori
+  (make-colors N)
+  ; numero di mosse effettuate
+  (setq mosse 0)
+  ; matrice di gioco NxN
+  (setq grid (array-list (array N N (rand N (* N N)))))
+  (print-grid grid))
+
+; funzione modificata
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (eval (colori (grid i j))) "██")
+      )
+      (println)))
+    (println default-all)
+    ; stampa di tutti i colori:
+    (map (fn(x) (print (format "%2d " x))) (sequence 0 (- (length colori) 1)))
+    (println)
+    (dolist (c colori)
+      (print (eval c) "██ ")
+    )
+    (println default-all)
+    '-----------)
+
+; stessa funzione
+(define (flood-fill img x y new-color)
+  (local (old-color dir max-x max-y)
+    (setq max-x (length img))
+    (setq max-y (length (img 0)))
+    (setq dir '((0 1) (0 -1) (1 0) (-1 0)))
+    ;------------------
+    ; recursive fill
+    (define (fill x y)
+    (catch
+      (local (new-x new-y)
+        (setq old-color (img x y))
+        (if (= old-color new-color) (throw img))
+        (setf (img x y) new-color)
+        (for (i 0 (- (length dir) 1))
+          (setq new-x (+ x (dir i 0)))
+          (setq new-y (+ y (dir i 1)))
+          (cond ((or (< new-x 0) (>= new-x max-x) (< new-y 0) (>= new-y max-y)) nil)
+                ((!= (img new-x new-y) old-color) nil)
+                (true (fill new-x new-y))
+          )
+        )
+        img)))
+     ;------------------
+     (fill x y)))
+
+; stessa funzione
+(define (colore col)
+  (setq grid (flood-fill grid 0 0 col))
+  (print-grid grid)
+  (if (end-game? grid) (println "Matrice monocolore"))
+  (println "Mosse: " (++ mosse)))
+
+; stessa funzione
+(define (end-game? grid) (apply = (flat grid)))
+
+Una partita si trova nel file "monocolore.png" nella cartella "data".
+
+
 ---------------------------------------------------
 Numeri in base fattoriale (Factorial number system)
 ---------------------------------------------------
@@ -4586,6 +4693,190 @@ Funzione che calcola lcm di due o più frazioni (formula (4)):
 
 (lcm-frac '(77 120) '(4 11) '(14 45))
 ;-> (308L 1L)
+
+
+----------------------------------------------
+Alternare maiuscolo e minuscolo in una stringa
+----------------------------------------------
+
+Data una stringa convertire i caratteri alternando maiuscolo e minuscolo.
+I caratteri non alfanumerici non devono essere convertiti.
+Si inizia con il maiuscolo e si alterna per tutti i caratteri.
+Per esempio:
+stringa = "newLISP is great"
+output  = "NeWlIsP iS gReAt"
+
+(char "a")
+;-> 97
+(char "z")
+;-> 122
+
+(char "A")
+;-> 65
+(char "Z")
+;-> 90
+
+(define (alternate str)
+  (setq out "")
+  (setq upper true)
+  (dostring (ch str)
+    (cond ((or (and (>= ch 97) (<= ch 122))
+                    (and (>= ch 65) (<= ch 90)))
+            (if upper (push (upper-case (char ch)) out -1)
+                      (push (lower-case (char ch)) out -1)
+            )
+            (setq upper (not upper)))
+          (true (push (char ch) out -1))
+    )
+  )
+  out)
+
+Proviamo:
+
+(alternate "newLISP is great")
+;-> "NeWlIsP iS gReAt"
+
+(alternate "newLISP is great")
+
+Con tre pangrammi:
+
+(alternate "Quel vituperabile xenofobo zelante assaggia il whisky ed esclama: alleluja!")
+"QuEl ViTuPeRaBiLe XeNoFoBo ZeLaNtE aSsAgGiA iL wHiSkY eD eScLaMa: AlLeLuJa!"
+
+(alternate "Fabrizio ha visto Max acquistandogli juta per New York")
+;-> "FaBrIzIo Ha ViStO mAx AcQuIsTaNdOgLi JuTa PeR nEw YoRk"
+
+(alternate "The quick brown fox jumps over the lazy dog")
+;-> "ThE qUiCk BrOwN fOx JuMpS oVeR tHe LaZy DoG"
+
+
+---------------------------------------
+Rettangoli all'interno di un rettangolo
+---------------------------------------
+
+Dato un rettangolo MxN, determinare quanti rettangoli AxB possiamo posizionare al massimo all'interno del rettangolo dato.
+
+Per disegnare un rettangolo più piccolo hai bisogno di un lato orizzontale e di un lato verticale.
+Un lato orizzontale può essere scelto al massimo in M/A modi.
+Un lato verticale può essere scelto al massimo in N/B modi.
+Quindi per il Principio Fondamentale del Conteggio il rettangolo può essere formato al massimo dal seguente numero di rettangoli:
+
+ (M/A)/(N/B) = (M*N)/(A*B)
+
+(define (num-rect m n a b)
+  (list (/ (* m n) (* a b))
+        (div (* m n) (* a b))))
+
+Proviamo:
+
+(num-rect 4 5 1 1)
+;-> (20 20)
+
+(num-rect 10 20 1 2)
+;-> (100 100)
+
+(num-rect 11 21 1 2)
+;-> (115 115.5)
+
+Quando il risultato non è una coppia di interi, allora i rettangoli AxB non ricoprono completamente il rettangolo MxN (ma non sempre è .
+
+Teorema di de Bruijn e Klarner
+-------------------------------
+Un rettangolo MxN può essere coperta (tiled) con rettangoli AxB se e solo se:
+1) MN è divisibile per AB
+2) Sia M che N possono essere scritti come Ax + By dove x e y sono numeri interi non negativi
+   (cioè M è divisibile per gcd(A,B) e N è divisibile per gcd(A,B))
+3) M o N sono divisibili per A
+4) M o N sono divisibili per B
+
+Per il punto 2):
+Se hai M, N, A e B e vuoi trovare x e y tali che M = Ax + By, ecco i passaggi:
+a) Utilizzare l'algoritmo euclideo esteso per trovare gli interi x e y tali che Ax + By = gcd(A, B).
+b) Se gcd(A, B) è un divisore di M, moltiplicare l'intera equazione per M/mcd(A, B) per ottenere i valori di x e y.
+
+(define (tileable? m n a b)
+  (if (and (zero? (% (* m n) (* a b)))
+           (zero? (% m (gcd a b)))
+           (zero? (% n (gcd a b)))
+           (or (zero? (% m a)) (zero? (% m b)))
+           (or (zero? (% n a)) (zero? (% n b))))
+      (list (/ (* m n) (* a b)) (div (* m n) (* a b)))
+      nil))
+
+Proviamo:
+
+(tileable? 4 5 1 1)
+;-> (20 20)
+
+(tileable? 10 20 1 2)
+;-> (100 100)
+
+(tileable? 11 21 1 2)
+;-> nil
+
+
+-----------------------------------
+Numeri di rettangoli in una griglia
+-----------------------------------
+
+Data una griglia MxN, quanti rettangoli contiene?
+
+Per esempio, M = 2 e N = 2:
+
+  +---+---+
+  |   |   |
+  +---+---+
+  |   |   |
+  +---+---+
+
+Output = 9
+Ci sono 4 rettangoli di dimensione 1 x 1.
+Ci sono 2 rettangoli di dimensione 1 x 2
+Ci sono 2 rettangoli di dimensione 2 x 1
+C'è un rettangolo di dimensioni 2 x 2.
+
+Algoritmo Brute-Force:
+Ciclo su tutte le possibili coppie di linee orizzontali.
+Ciclo su tutte le possibili coppie di linee verticali.
+Contare il numero di rettangoli che si formano utilizzando queste linee.
+
+(define (conta-rettangoli m n)
+  (let (conta 0)
+    (for (i 1 m)
+      (for (j 1 n)
+        (setq conta (+ conta (* (+ m 1 (- i)) (+ n 1 (- j)))))
+      )
+    )
+    conta))
+
+Proviamo:
+
+(conta-rettangoli 2 2)
+;-> 9
+(conta-rettangoli 4 5)
+;-> 150
+(conta-rettangoli 10 10)
+;-> 3025
+
+Algoritmo matematico:
+La griglia M*N può essere rappresentata come (M+1) linee verticali e (N+1) linee orizzontali.
+In un rettangolo, abbiamo bisogno di due distinte linee orizzontali e due distinte linee verticali.
+Quindi, dal punto di vista della matematica combinatoria, possiamo scegliere 2 linee verticali e 2 linee orizzontali per formare un rettangolo.
+E il numero totale di queste combinazioni è il numero di rettangoli possibili nella griglia.
+
+Numero totale di rettangoli in una griglia M*N = Comb(M+1,2) * Comb(N+1,2) =
+= (M*(M+1)/2!)*(N*(N+1)/2!) = M*(M+1)*N*(N+1)/4
+
+(define (conta-mat m n) (/ (* m (+ m 1) n (+ n 1)) 4))
+
+(conta-mat 2 2)
+;-> 9
+
+(conta-mat 4 5)
+;-> 150
+
+(conta-mat 10 10)
+;-> 3025
 
 ============================================================================
 
