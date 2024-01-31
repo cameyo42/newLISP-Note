@@ -4867,16 +4867,145 @@ E il numero totale di queste combinazioni è il numero di rettangoli possibili n
 Numero totale di rettangoli in una griglia M*N = Comb(M+1,2) * Comb(N+1,2) =
 = (M*(M+1)/2!)*(N*(N+1)/2!) = M*(M+1)*N*(N+1)/4
 
-(define (conta-mat m n) (/ (* m (+ m 1) n (+ n 1)) 4))
+(define (conta-rettangoli-mat m n) (/ (* m (+ m 1) n (+ n 1)) 4))
 
-(conta-mat 2 2)
+(conta-rettangoli-mat 2 2)
 ;-> 9
 
-(conta-mat 4 5)
+(conta-rettangoli-mat 4 5)
 ;-> 150
 
-(conta-mat 10 10)
+(conta-rettangoli-mat 10 10)
 ;-> 3025
+
+
+---------------------------------
+Numeri di quadrati in una griglia
+---------------------------------
+
+Data una griglia MxN, quanti rettangoli contiene?
+
+Per esempio:, M = 2 e N = 2:
+
+  +---+---+
+  |   |   |
+  +---+---+
+  |   |   |
+  +---+---+
+
+Output = 5
+Ci sono 4 quadrati di dimensione 1x1 +
+        1 quadrato di dimensione 2x2.
+
+M = 3 N = 4
+
+  +---+---+---+---+
+  |   |   |   |   |
+  +---+---+---+---+
+  |   |   |   |   |
+  +---+---+---+---+
+  |   |   |   |   |
+  +---+---+---+---+
+
+Output = 20
+Ci sono 12 quadrati di dimensione 1x1 +
+         6 quadrati di dimensione 2x2 +
+         2 quadrati di dimensione 3x3.
+
+Il numero di quadrati in una griglia MxN è dato dalla seguente formula:
+
+  M(M+1)(2M+1)/6 + (N-M)*M(M+1)/2 con N >= M
+
+Dimostrazione
+Vediamo prima il caso M = N:
+Per M = N = 1, output: 1
+Per M = N = 2, output: 4 + 1 (4 di dimensione 1×1 + 1 di dimensione 2×2)
+Per M = N = 3, output: 9 + 4 + 1 (9 di dimensione 1×1 + 4 di dimensione 2×2 + 1 di dimensione 3×3)
+Per M = N = 4, output 16 + 9 + 4 + 1 (16 di dimensione 1×1 + 9 di dimensione 2×2 + 4 di dimensione 3×3 + 1 di dimensione 4×4)
+In generale risulta che il numero totale di quadrati è la somma dei quadrati dei primi n numeri interi: n^2 + (n-1)^2 + ... 1 = n(n+1)(2n+1)/6
+
+Vediamo il caso N >= M:
+Sappiamo che il numero di quadrati in una matrice MxM è M(M+1)(2M+1)/6
+Cosa succede quando aggiungiamo una colonna, ovvero qual è il numero di quadrati nella griglia Mx(M+1)?
+Quando aggiungiamo una colonna, il numero di quadrati aumenta di M + (M-1) + ... + 3 + 2 + 1
+(M quadrati di dimensione 1×1 + (M-1) quadrati di dimensione 2×2 + ... + 1 quadrato di dimensione MxM), che è uguale a M(M+1)/2.
+Quindi, quando aggiungiamo (N-M) colonne, il numero totale di quadrati aumenta di (N-M)*M(M+1)/2.
+Numero totale di quadrati = M(M+1)(2M+1)/6 + (N-M)*M(M+1)/2 (se N >= M)
+
+Per ultimo vediamo il caso N <= M:
+Usando la stessa logica troviamo una formula analoga scambiando N con M:
+Numero totale di quadrati = N(N+1)(2N+1)/6 + (M-N)*N(N+1)/2
+
+(define (conta-quadrati m n)
+  (if (>= m n) (swap m n))
+  (+ (/ (* m (+ m 1) (+ (* 2 m) 1)) 6)
+     (/ (* (- n m) n (- n 1)) 2)))
+
+Proviamo:
+
+(conta-quadrati 2 2)
+;-> 5
+
+(conta-quadrati 3 4)
+;-> 20
+
+(conta-quadrati 10 10)
+;-> 385
+
+
+-------------
+Anni speciali
+-------------
+
+Un anno "speciale" è un anno che inizia di lunedì e termina di lunedì.
+
+Calcoliamo il giorno della settimana di una data gregoriana con l'algoritmo di Zeller: (0 = domenica ... 6 = sabato):
+
+(define (day-of-week year month day)
+  (local (adjust mm yy d)
+    (setq adjust (/ (- 14 month) 12))
+    (setq mm (+ month (* 12 adjust) (- 2)))
+    (setq yy (- year adjust))
+    (setq d (% (+ day (/ (- (* 13 mm) 1) 5) yy (/ yy 4) (- (/ yy 100)) (/ yy 400)) 7))))
+
+Da notare che tutti gli anni bisestili cominciano e finiscono in due giorni diversi.
+Infatti un anno bisestile è formato da 366 giorni:
+
+  366 giorni = = 52 settimane (52*7 = 364) + 2 giorni
+
+Invece gli anni comuni (non bisestili) cominciano e finiscono sempre con lo stesso giorno.
+
+  365 giorni = 52 settimane (52*7 = 364) + 1 giorno
+
+Verifichiamo:
+
+(day-of-week 2001 1 1)
+;-> 1
+(day-of-week 2001 12 31)
+;-> 1
+
+(day-of-week 2023 1 1)
+;-> 0
+(day-of-week 2023 12 31)
+;-> 0
+
+(day-of-week 2024 1 1)
+;-> 1
+(day-of-week 2024 12 31)
+;-> 2
+
+Adesso scriviamo la funzione che verifica se un anno è speciale:
+
+(define (special? year)
+  (and (= (day-of-week year 1 1) 1) (= (day-of-week year 12 31) 1)))
+
+Calcoliamo gli anni speciali tra il 1900 e il 2100:
+
+(filter special? (sequence 1900 2100))
+;-> (1900 1906 1917 1923 1934 1945 1951 1962 1973 1979 1990 
+;->  2001 2007 2018 2029 2035 2046 2057 2063 2074 2085 2091)
+
+Vedi anche "Giorno della settimana" su "Rosetta Code".
 
 ============================================================================
 

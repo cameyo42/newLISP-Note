@@ -2254,6 +2254,8 @@ NOTE LIBERE 21
   Alternare maiuscolo e minuscolo in una stringa
   Rettangoli all'interno di un rettangolo
   Numeri di rettangoli in una griglia
+  Numeri di quadrati in una griglia
+  Anni speciali
  
 PROBLEMI SUI DADI
 =================
