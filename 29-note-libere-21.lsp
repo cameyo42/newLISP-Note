@@ -5007,5 +5007,253 @@ Calcoliamo gli anni speciali tra il 1900 e il 2100:
 
 Vedi anche "Giorno della settimana" su "Rosetta Code".
 
+
+-------------------
+Matrici di Toeplitz
+-------------------
+
+Una matrice è una matrice di Toeplitz se ogni diagonale discendente, da sinistra a destra, ha un solo elemento distinto. Cioè, dovrebbe essere nella forma:
+
+      | a(0)   a(−1)  a(−2)  ...  a(1−n) |
+      | a(1)   a(0)   a(−1)  ...  a(2−n) |
+  A = | a(2)   a(1)   a(0)   ...  a(3−n) |
+      | ...    ...    ...    ...   ...   |
+      | ...    ...    ...    ...   ...   |
+      | a(n−1) a(n−2) a(n−3) ...   a(0)  |
+
+Per esempio:
+
+      | 6 7 8 9 2 |
+  M = | 4 6 7 8 9 |
+      | 1 4 6 7 8 |
+      | 2 1 4 6 7 |
+Questa è una matrice di Toeplitz.
+
+      | 1 1 1 1 1 |
+  M = | 1 1 1 1 1 |
+      | 1 1 1 1 1 |
+      | 1 1 1 1 1 |
+Questa è una matrice di Toeplitz.
+
+      | 1 1 2 1 1 |
+  M = | 2 1 1 3 1 |
+      | 1 3 1 1 2 |
+      | 1 1 2 1 1 |
+Questa non è una matrice di Toeplitz.
+
+(define (toeplitz? matrice)
+  (local (out rows cols)
+    (setq out nil)
+    (setq rows (length matrice))
+    (setq cols (length (matrice 0)))
+    (for (i 1 (- rows 1) 1 out)
+      (for (j 1 (- cols 1) 1 out)
+        (if (!= (matrice i j) (matrice (- i 1) (- j 1)))
+            (setq out true)
+        )
+      )
+    )
+    (not out)))
+
+Proviamo:
+
+(setq m '((6 7 8 9 2)
+          (4 6 7 8 9)
+          (1 4 6 7 8)
+          (2 1 4 6 7)))
+(toeplitz? m)
+;-> true
+
+(setq m '((1 1 1 1 1)
+          (1 1 1 1 1)
+          (1 1 1 1 1)
+          (1 1 1 1 1)))
+(toeplitz? m)
+;-> true
+
+(setq m '((1 1 2 1 1)
+          (2 1 1 3 1)
+          (1 3 1 1 2)
+          (1 1 2 1 1)))
+(toeplitz? m)
+;-> nil
+
+
+-----------------------------------
+Numero di sequenze di 1 consecutivi
+-----------------------------------
+
+Calcolare la sequenza definita nel modo seguente:
+ a(n) è il numero di sequenze di 1 consecutivi in tutte le sequenze binarie di lunghezza (n+1).
+
+Sequenza OEIS A001792:
+  1, 3, 8, 20, 48, 112, 256, 576, 1280, 2816, 6144, 13312, 28672, 61440,
+  131072, 278528, 589824, 1245184, 2621440, 5505024, 11534336, 24117248,
+  50331648, 104857600, 218103808, 452984832, 939524096, 1946157056,
+  4026531840, 8321499136, 17179869184, 35433480192, ...
+
+Per esempio con n = 3:
+Sequenze di lunghezza 4     Numero di sequenze che hanno 1 consecutivi
+  0000                        0
+  0001                        0
+  0010                        0
+  0011                        1
+  0100                        0
+  0101                        0
+  0110                        1
+  0111                        1
+  1000                        0
+  1001                        0
+  1010                        0
+  1011                        1
+  1100                        1
+  1101                        1
+  1110                        1
+  1111                        1
+                     Totale = 8 sequenze          
+
+Per esempio la sequenza binaria "10110011011101" ha 3 sequenze di 1 consecutivi: 11, 11 e 111.
+
+Funzione che genera tutte le sequenze di lunghezza n:
+
+(define (genera simboli num)
+  (local (out len posizioni break numero pos)
+    (setq out '())
+    (setq len (length simboli))
+    ; Creazione di un array con num zeri
+    (setq posizioni (array num '(0)))
+    (setq break nil)
+    (until break
+      ; Creazione del numero corrente
+      (setq numero "")
+      ; Con questo ciclo abbiamo a disposizione i simboli/caratteri
+      ; per costruire il valore corrente
+      (dolist (i posizioni) (extend numero (simboli i)))
+      ;(println numero)
+      (push numero out -1)
+      ; Incrementa le posizioni dall'ultima
+      (setq pos (- num 1))
+      (while (and (>= pos 0) (= (posizioni pos) (- len 1)))
+        (setf (posizioni pos) 0)
+        (-- pos)
+      )
+      ; Se tutte le posizioni sono arrivate alla fine, esce
+      (if (< pos 0)
+          (setq break true)
+          ;else
+          ; Altrimenti, incrementa la posizione corrente
+          (++ (posizioni pos))
+      )
+    )
+    out))
+
+Funzione che applica ripetutamente una regex ad una stringa:
+
+(define (regex-all regexp str all)
+  (local (out idx res)
+    (setq out '())
+    (setq idx 0)
+    (setq res (regex regexp str 64 idx))
+    (while res
+      (push res out -1)
+      (if all
+          (setq idx (+ (res 1) 1)) ; contiguos pattern
+          ;else
+          (setq idx (+ (res 1) (res 2))) ; no contiguos pattern
+      )
+      (setq res (regex regexp str 64 idx))
+    )
+    out))
+
+(regex-all "1+" "1011011111")
+;-> (("1" 0 1) ("11" 2 2) ("11111" 5 5))
+
+(regex-all "11+" "1011011111")
+;-> (("11" 2 2) ("11111" 5 5))
+
+Funzione che genera la sequenza:
+
+(define (seq num)
+  (local (values conta)
+    (setq values (genera "01" (+ num 1)))
+    (setq conta 0)
+    (dolist (v values)
+      ;(println v { } (length (regex-all "11+" v)))
+      (++ conta (length (regex-all "11+" v)))
+    )
+    conta))
+
+Proviamo:
+
+(map seq (sequence 1 10))
+;-> (1 3 8 20 48 112 256 576 1280 2816)
+
+(time (map seq (sequence 1 15)))
+;-> 705.14
+
+(time (map seq (sequence 1 20)))
+;-> 27594.19
+
+Per rendere più veloce la funzione generiamo le sequenze binarie dai numeri interi:
+
+(define (genera1 num) (map bits (sequence 1 (int (dup "1" num) 0 2))))
+
+;-> (genera1 3)
+;-> ("1" "10" "11" "100" "101" "110" "111")
+
+Nuova funzione che genera la sequenza:
+
+(define (seq1 num)
+  (local (values conta)
+    (setq values (genera1 (+ num 1)))
+    (setq conta 0)
+    (dolist (v values)
+      ;(println v { } (length (regex-all "11+" v)))
+      (++ conta (length (regex-all "11+" v)))
+    )
+    conta))
+
+Proviamo:
+
+(map seq1 (sequence 1 10))
+;-> (1 3 8 20 48 112 256 576 1280 2816)
+
+(= (map seq (sequence 1 15)) (map seq1 (sequence 1 15)))
+;-> true
+
+(time (map seq1 (sequence 1 15)))
+;-> 245.348
+
+(time (map seq1 (sequence 1 20)))
+;-> 9287.176
+
+Matematicamente la sequenza viene generata dalla seguente formula:
+
+  a(n) = (n+2)*2^(n-1)
+
+(define (seq-mat num)
+  (-- num)
+  (if (zero? num) 1
+      (* (+ num 2) (pow 2 (- num 1)))))
+
+Proviamo:
+
+(map seq-mat (sequence 1 10))
+;-> (1 3 8 20 48 112 256 576 1280 2816)
+
+(= (map seq (sequence 1 15)) 
+   (map seq1 (sequence 1 15)) 
+   (map seq-mat (sequence 1 15)))
+;-> true
+
+(time (map seq-mat (sequence 1 15)))
+;-> 0
+
+(time (map seq-mat (sequence 1 20)))
+;-> 0
+
+(time (map seq-mat (sequence 1 1000)))
+;-> 0.964
+
 ============================================================================
 

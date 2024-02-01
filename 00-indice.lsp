@@ -2256,6 +2256,8 @@ NOTE LIBERE 21
   Numeri di rettangoli in una griglia
   Numeri di quadrati in una griglia
   Anni speciali
+  Matrici di Toeplitz
+  Numero di sequenze di 1 consecutivi
  
 PROBLEMI SUI DADI
 =================
