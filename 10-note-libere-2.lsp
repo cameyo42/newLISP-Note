@@ -4,6 +4,8 @@
 
 ===============
 
+"Bisogna scrivere un programma nel modo migliore per fare il debug."
+
 -----------------------------
 Creare una lista di frequenza
 -----------------------------

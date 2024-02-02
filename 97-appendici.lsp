@@ -6254,12 +6254,6 @@ Lista delle funzioni:
 "User: this is not what we want. Programmer: maybe, but this is what you asked."
 - anonymous
 
-"LISP (newLISP) is like zen buddhism: if it doesn't solve your problems, you are not using enough of it."
-- cameyo
-
-"I love the purity of the impurity of newLISP"
-- cameyo
-
 "Perchè i governi non hanno mai tempo per fare le cose per bene, ma hanno sempre tempo per rifarle da capo?"
 - anonymous
 
@@ -6411,9 +6405,6 @@ Kelsey Hightower
 1. Clear abstraction: smart, well-drawn layers of "knowledge focus" that allow hiding of details.
 2. Clean expression: meaningful, concise but not cryptic, representation and communication of concepts."
 - Carl Sassenrath
-
-"In genere, scrivo un programma nel modo migliore per fare il suo debug."
-- cameyo (ma non è una frase famosa)
 
 "There are only two hard things in Computer Science: cache invalidation and naming things."
 - Phil Karlton

@@ -4,6 +4,8 @@
 
 ================
 
+"LISP (newLISP) is like zen buddhism: if it doesn't solve your problems, you are not using enough of it."
+
 ---------------------------------
 Sviluppo di programmi commerciali
 ---------------------------------

@@ -2258,6 +2258,9 @@ NOTE LIBERE 21
   Anni speciali
   Matrici di Toeplitz
   Numero di sequenze di 1 consecutivi
+  Un altro bug della versione 10.7.6
+  Numero di settimana dell'anno
+  ProgressBar dell'anno
  
 PROBLEMI SUI DADI
 =================

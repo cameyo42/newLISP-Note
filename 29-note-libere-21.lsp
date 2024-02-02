@@ -5255,5 +5255,179 @@ Proviamo:
 (time (map seq-mat (sequence 1 1000)))
 ;-> 0.964
 
+
+----------------------------------
+Un altro bug della versione 10.7.6
+----------------------------------
+
+Un bug di "rotate" quando le rotazioni sono negative e il numero di rotazioni assolute sono multiple della lunghezza della lista. 
+Per esempio:
+
+(rotate '("1" "A" "B" "2") 8)
+;-> ("1" "A" "B" "2")
+(rotate '("1" "A" "B" "2") -8)
+;-> ("1") ;ERROR
+(rotate '("1" "A" "B" "2") 12)
+;-> ("1" "A" "B" "2")
+(rotate '("1" "A" "B" "2") -12)
+;-> ("1") ;ERROR
+
+Workaround:
+
+(rotate lst (- (% r (length lst))))
+(rotate '("1" "A" "B" "2") (- (% 12 4)))
+;-> ("1" "A" "B" "2")
+(rotate '("1" "A" "B" "2") (- (% 8 4)))
+;-> ("1" "A" "B" "2")
+
+Workaround (by vashushpanov):
+
+In file nl-liststr.c replace string:
+  if (length <= 1 || count == 0 || length == labs(count))
+to
+  if (length <= 1 || count == 0 || length == labs(count) || count % length == 0)
+
+and recompile NewLisp.
+
+
+-----------------------------
+Numero di settimana dell'anno
+-----------------------------
+
+Dati anno, mese e giorno (data), determinare in quale settimana dell'anno ricade.
+
+Numero semplice della settimana:
+Il numero semplice della settimana è definito nel modo seguente:
+1) la settimana 1 inizia il 1 gennaio dell'anno,
+2) la settimana n+1 inizia 7 giorni dopo la settimana n
+
+Quindi per una data (year month day) il numero della settimana vale:
+
+  Week-Number = 1 + (Day-Passed(year, month) + day - 1 )/7
+
+La funzione Day-Passed conta i giorni dei mesi precedenti al parametro 'month'.
+
+(setq days-month '(0 31 28 31 30 31 30 31 31 30 31 30 31))
+
+Funzione che verifica se un anno è bisestile:
+
+(define (isleap? year)
+  (or (zero? (% year 400))
+      (and (zero? (% year 4)) (not (zero? (% year 100))))))
+
+Funzione che conta i Day-Passed:
+
+(define (day-passed year month)
+  (if (isleap? year)
+    (apply + (slice '(0 31 29 31 30 31 30 31 31 30 31 30 31) 0 month))
+    (apply + (slice '(0 31 28 31 30 31 30 31 31 30 31 30 31) 0 month))))
+
+Per un anno comune:
+
+(map (curry day-passed 2001) (sequence 1 13))
+;-> (0 31 59 90 120 151 181 212 243 273 304 334 365)
+
+Mese       Day-Passed
+Gennaio      0
+Febbraio    31
+Marzo       59
+Aprile      90
+Maggio     120
+Giugno     151
+Luglio     181
+Agosto     212
+Settembre  243
+Ottobre    273
+Novembre   304
+Dicembre   334
+
+Per un anno bisestile:
+
+(map (curry day-passed 2000) (sequence 1 13))
+;-> (0 31 60 91 121 152 182 213 244 274 305 335 366)
+
+Mese       Day-Passed
+Gennaio      0
+Febbraio    31
+Marzo       60
+Aprile      91
+Maggio     121
+Giugno     152
+Luglio     182
+Agosto     213
+Settembre  244
+Ottobre    274
+Novembre   305
+Dicembre   335
+
+Adesso scriviamo la funzione Week-Number che, dati anno, mese e giorno, determina il relativo numero della settimana:
+
+(define (week-number year month day)
+  (+ 1 (/ (+ (days-passed year month) day (- 1)) 7)))
+
+Proviamo:
+
+(week-number 2024 2 6)
+;-> 6
+(week-number 2024 3 15)
+;-> 11
+(week-number 2024 1 1)
+;-> 1
+(week-number 2024 12 31)
+;-> 53
+(week-number 2023 1 1)
+;-> 1
+(week-number 2023 12 31)
+;-> 53
+
+Nota: esistono altre definizioni del "Numero della settimana", la più importante è qualla contenuta nello standard ISO-8601 dove le settimane cominciano di Lunedì.
+La prima settimana dell'anno è la settimana che contiene il primo giovedì dell'anno (o contiene il 4 gennaio) (= 'Prima settimana di 4 giorni').
+
+
+---------------------
+ProgressBar dell'anno
+---------------------
+
+Dati anno, mese e giorno, scrivere una funzione che produce una ProgrssBar dei giorni trascorsi.
+
+(define (isleap? year)
+  (or (zero? (% year 400))
+      (and (zero? (% year 4)) (not (zero? (% year 100))))))
+
+Funzione che conta i giorni trascorsi:
+
+(define (day-passed year month)
+  (if (isleap? year)
+    (apply + (slice '(0 31 29 31 30 31 30 31 31 30 31 30 31) 0 month))
+    (apply + (slice '(0 31 28 31 30 31 30 31 31 30 31 30 31) 0 month))))
+
+(define (bar year month day)
+  (local (bar-length all passed perc filled empty)
+    (setq bar-length 50)
+    (setq all 365)
+    (if (isleap? year) (++ all))
+    (setq passed (+ (day-passed year month) day -1))
+    (setq perc (div passed all))
+    (setq filled (round (mul bar-length perc) 0))
+    (setq empty (sub bar-length filled))
+    (if (!= filled 0) (for (i 1 filled) (print "*")))
+    (if (!= empty 0) (for (i 1 empty) (print "-")))
+    (println " " (round (mul 100 perc) 0) "%")
+    '>))
+
+Proviamo:
+
+(bar 2024 1 1)
+;-> -------------------------------------------------- 0%
+
+(bar 2024 10 15)
+;-> ***************************************----------- 79%
+
+(bar 2024 3 15)
+;-> **********---------------------------------------- 20%
+
+(bar 2024 2 2)
+;-> ****---------------------------------------------- 9%
+
 ============================================================================
 
