@@ -5429,5 +5429,291 @@ Proviamo:
 (bar 2024 2 2)
 ;-> ****---------------------------------------------- 9%
 
+
+--------------
+Comic Sequence
+--------------
+
+Original: https://www.smbc-comics.com/comic/puzzle-time
+--------------------------------------------
+   What is the pattern of this sequence:
+   
+     0 1 4 -13 -133 52 53 -155
+   
+   Answer:
+   Every number was read by a dickhead
+--------------------------------------------
+
+Scrivere la funzione più corta per generare la seguente sequenza:
+
+Prima funzione (lunghezza 49):
+
+(define (f1) (println "110 101 119 108 105 115 112"))
+
+(f1)
+;-> 110 101 119 108 105 115 112
+
+(length (string f1))
+;-> 51
+
+Seconda funzione (lunghezza 42):
+(define (f2) '(110 101 119 108 105 115 112))
+
+(f2)
+;-> (0 1 4 -13 -133 52 53 -155)
+
+(length (string f2))
+;-> 42
+
+Terza funzione (42):
+(define (f3) (map char (explode "newlisp")))
+
+(f3)
+;-> (110 101 119 108 105 115 112)
+
+(length (string f3))
+;-> 43
+
+
+-----------------------
+Congettura di Gilbreath
+-----------------------
+
+Supponiamo di avere la lista infinita dei numeri primi:
+
+(2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 ...
+
+Quindi prendiamo ripetutamente le differenze assolute tra ciascuna coppia di numeri consecutivi:
+
+(1 2 2 4 2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 ...
+(1 0 2 2 2 2 2 2 4 4 2 2 2 2 0 4 4 2 ...
+(1 2 0 0 0 0 0 2 0 2 0 0 0 2 4 0 2 ...
+(1 2 0 0 0 0 2 2 2 2 0 0 2 2 4 2 ...
+
+Si noti che il numero iniziale vale sempre 1.
+La Congettura di Gilbreath prevede che sarà così per sempre.
+
+L'unico modo in cui il numero iniziale non sarebbe un 1 è se il numero successivo non fosse né uno 0 né un 2. L'unico modo in cui il secondo numero non sarebbe uno 0 o un 2 è se il numero successivo non fosse né un 0 né 2. E così via.
+
+Vediamo un esempio:
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Nei primi 100 numeri interi ci sono 25 primi:
+
+(setq primi (primes-to 100))
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+(setq seq primi)
+(setq len (length primi))
+;-> 25
+(for (i 1 (- len 1))
+  (setq tmp (map (fn(x y) (abs (- x y))) (rest seq) (chop seq)))
+  (setq seq tmp)
+  (print i { } seq) (read-line)
+  (if (!= (seq 0) 1) (println i { } tmp))
+)
+;-> 1 (1 2 2 4 2 4 2 4 6 2 6 4 2 4 6 6 2 6 4 2 6 4 6 8)
+;-> 2 (1 0 2 2 2 2 2 2 4 4 2 2 2 2 0 4 4 2 2 4 2 2 2)
+;-> 3 (1 2 0 0 0 0 0 2 0 2 0 0 0 2 4 0 2 0 2 2 0 0)
+;-> 4 (1 2 0 0 0 0 2 2 2 2 0 0 2 2 4 2 2 2 0 2 0)
+;-> 5 (1 2 0 0 0 2 0 0 0 2 0 2 0 2 2 0 0 2 2 2)
+;-> 6 (1 2 0 0 2 2 0 0 2 2 2 2 2 0 2 0 2 0 0)
+;-> 7 (1 2 0 2 0 2 0 2 0 0 0 0 2 2 2 2 2 0)
+;-> 8 (1 2 2 2 2 2 2 2 0 0 0 2 0 0 0 0 2)
+;-> 9 (1 0 0 0 0 0 0 2 0 0 2 2 0 0 0 2)
+;-> 10 (1 0 0 0 0 0 2 2 0 2 0 2 0 0 2)
+;-> 11 (1 0 0 0 0 2 0 2 2 2 2 2 0 2)
+;-> 12 (1 0 0 0 2 2 2 0 0 0 0 2 2)
+;-> 13 (1 0 0 2 0 0 2 0 0 0 2 0)
+;-> 14 (1 0 2 2 0 2 2 0 0 2 2)
+;-> 15 (1 2 0 2 2 0 2 0 2 0)
+;-> 16 (1 2 2 0 2 2 2 2 2)
+;-> 17 (1 0 2 2 0 0 0 0)
+;-> 18 (1 2 0 2 0 0 0)
+;-> 19 (1 2 2 2 0 0)
+;-> 20 (1 0 0 2 0)
+;-> 21 (1 0 2 2)
+;-> 22 (1 2 0)
+;-> 23 (1 2)
+;-> 24 (1)
+
+Per verificare la congettura in modo esaustivo occorre la lista infinita dei primi.
+Comunque possiamo verificare la congettura fino ad un certo numero di primi.
+
+(define (gilbreath num)
+  (local (primi len seq tmp)
+    (setq primi (primes-to num))
+    (setq len (length primi))
+    (println "Numero primi = " len)
+    (setq seq primi)
+    (for (i 1 (- len 1))
+      (setq tmp (map (fn(x y) (abs (- x y))) (rest seq) (chop seq)))
+      (setq seq tmp)
+      (if (!= (seq 0) 1) (println i { } len))
+    ))'>)
+
+Proviamo:
+
+(gilbreath 1e5)
+;-> Numero primi = 9592
+
+(gilbreath 1e6)
+;-> Numero primi = 78498
+
+(time (gilbreath 1e6))
+;-> Numero primi = 78498
+;-> 344277.337
+
+
+--------------------------------
+Funzioni che cancellano funzioni
+--------------------------------
+
+newLISP permette alle funzioni di eliminare altre funzioni:
+
+(define (f1) 
+  (println "f1")
+  (delete 'f2)
+)
+
+(define (f2) 
+  (println "f2")
+  (delete 'f1)
+)
+
+Eseguiamo la funzione f1 che cancella f2:
+
+(f1)
+;-> f1
+;-> true
+
+Adesso la funzione f2 non esiste più:
+
+(f2)
+;-> ERR: invalid function : (f2)
+
+Una funzione non può cancellare se stessa:
+
+(define (test) 
+  (println "...")
+  (delete 'test true)
+)
+
+(test)
+;-> ...
+
+La funzione non è stata cancellata (a causa del true di "delete"):
+
+(find 'test (symbols))
+;-> 361
+
+Se togliamo il true dalla funzione "delete" otteniamo un crash e la chiusura della REPL:
+
+(define (test) 
+  (println "...")
+  (delete 'test true)
+)
+
+(test)
+;-> ...
+crash - REPL closed
+
+
+--------------
+Calcolo di 1/n
+--------------
+
+Dato un numero intero positivo n, calcolare k cifre decimali di 1/n.
+
+Ovviamente non possiamo usare i numeri float perchè saremmo limitati calcolo delle cifre decimali.
+
+Algoritmo (esempio)
+
+  n = 13 k = 5
+  resto = 1 (valore iniziale del resto)
+  prima cifra = (10 * resto) / num = 10/13 = 0
+  resto = 10%13 = 10
+  seconda cifra = (10 * resto) / num = 100/13 = 7
+  resto = 100%13 = 9
+  terza cifra = (10 * resto) / num = 90/13 = 6
+  resto = 90%13 = 12
+  quarta cifra = (10 * resto) / num = 120/13 = 9
+  resto = 120%13 = 3
+  quinta cifra = (10 * resto) / num = 30/13 = 2
+  resto = 30%13 = 4
+  Risultato 0.07692
+  
+(div 1 13)
+;-> 0.07692307692307693
+
+Funzione che calcola l'inverso di un numero n con k cifre decimali (verbose):
+
+(define (inverse-print num k)
+  (let ( (out '("0.")) (resto 1) )
+    (println "resto = " resto)
+    (dotimes (x k)
+      (println "cifra = (10 * resto) / num = "(* 10 resto) "/" num " = " (/ (* 10 resto) num))
+      (push (string (/ (* 10 resto) num)) out -1)
+      (println "resto = " (* 10 resto) "%" num " = " (% (* 10 resto) num))
+      (setq resto (% (* 10 resto) num))
+    )
+    (join out)))
+
+Proviamo:
+
+(inverse-print 13 5)
+;-> resto = 1
+;-> cifra = (10 * resto) / num = 10/13 = 0
+;-> resto = 10%13 = 10
+;-> cifra = (10 * resto) / num = 100/13 = 7
+;-> resto = 100%13 = 9
+;-> cifra = (10 * resto) / num = 90/13 = 6
+;-> resto = 90%13 = 12
+;-> cifra = (10 * resto) / num = 120/13 = 9
+;-> resto = 120%13 = 3
+;-> cifra = (10 * resto) / num = 30/13 = 2
+;-> resto = 30%13 = 4
+;-> "0.07692"
+
+(inverse-print 2 4)
+;-> resto = 1
+;-> cifra = (10 * resto) / num = 10/2 = 5
+;-> resto = 10%2 = 0
+;-> cifra = (10 * resto) / num = 0/2 = 0
+;-> resto = 0%2 = 0
+;-> cifra = (10 * resto) / num = 0/2 = 0
+;-> resto = 0%2 = 0
+;-> cifra = (10 * resto) / num = 0/2 = 0
+;-> resto = 0%2 = 0
+;-> "0.5000"
+
+Funzione che calcola l'inverso di un numero n con k cifre decimali:
+
+(define (inverse num k)
+  (let ( (out '("0.")) (resto 1) )
+    (dotimes (x k)
+      (push (string (/ (* 10 resto) num)) out -1)
+      (setq resto (% (* 10 resto) num))
+    )
+    (join out)))
+
+Proviamo:
+
+(inverse 13 10)
+;-> "0.0769230769"
+
+(inverse 13 50)
+;-> "0.07692307692307692307692307692307692307692307692307"
+
 ============================================================================
 

@@ -2261,6 +2261,10 @@ NOTE LIBERE 21
   Un altro bug della versione 10.7.6
   Numero di settimana dell'anno
   ProgressBar dell'anno
+  Comic Sequence
+  Congettura di Gilbreath
+  Funzioni che cancellano funzioni
+  Calcolo di 1/n
  
 PROBLEMI SUI DADI
 =================
