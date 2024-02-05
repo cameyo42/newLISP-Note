@@ -2265,6 +2265,8 @@ NOTE LIBERE 21
   Congettura di Gilbreath
   Funzioni che cancellano funzioni
   Calcolo di 1/n
+  Vivere di rendita
+  Numero casuale con N cifre diverse
  
 PROBLEMI SUI DADI
 =================

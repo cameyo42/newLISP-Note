@@ -5715,5 +5715,162 @@ Proviamo:
 (inverse 13 50)
 ;-> "0.07692307692307692307692307692307692307692307692307"
 
+
+-----------------
+Vivere di rendita
+-----------------
+
+Supponiamo di avere un capitale iniziale da investire, un tasso di interesse annuale sul capitale investito e una spesa annuale per vivere.
+Per esempio:
+Capitale iniziale: 500.000 euro
+Interesse annuale: 3%
+Spesa annuale = 25.000 euro
+
+Se l'interesse applicato al capitale è uguale o maggiore alla spesa annuale, allora il capitale non viene intaccato e possiamo vivere di rendita per sempre.
+Nell'esempio, i soldi che derivano dall'interesse valgono:
+
+  500000*0.3 = 15.000
+
+Poichè spendiamo 25.000 euro all'anno (che è maggiore di 15.000 euro), allora ogni anno intacchiamo il capitale.
+
+(define (survive capitale interesse spese-annuali)
+  (let ( (anno 0) (limite (mul capitale interesse)) )
+    (if (>= limite spese-annuali)
+        (println "Rendita per sempre: " limite)
+        ;else
+        (while (> capitale 0)
+          (++ anno)
+          ; L'ordine delle seguenti due espressioni calcola l'interesse prima
+          ; della spesa annuale (casa favorevole).
+          ; Scambiando l'ordine delle seguenti due espressioni otteniamo
+          ; la situazione in cui l'interesse viene calcolato dopo
+          ; la spesa annuale (caso sfavorevole)
+          (setq capitale (add capitale (mul capitale interesse)))
+          (setq capitale (sub capitale spese-annuali))
+          (println "Anno " anno ": capitale = " capitale)))))
+
+Proviamo:
+
+(survive 250000 0.05 20000)
+;-> limite: 12500
+;-> Anno 1: capitale = 242500
+;-> Anno 2: capitale = 234625
+;-> Anno 3: capitale = 226356.25
+;-> Anno 4: capitale = 217674.0625
+;-> Anno 5: capitale = 208557.765625
+;-> Anno 6: capitale = 198985.65390625
+;-> Anno 7: capitale = 188934.9366015625
+;-> Anno 8: capitale = 178381.6834316406
+;-> Anno 9: capitale = 167300.7676032227
+;-> Anno 10: capitale = 155665.8059833838
+;-> Anno 11: capitale = 143449.096282553
+;-> Anno 12: capitale = 130621.5510966806
+;-> Anno 13: capitale = 117152.6286515147
+;-> Anno 14: capitale = 103010.2600840904
+;-> Anno 15: capitale = 88160.7730882949
+;-> Anno 16: capitale = 72568.81174270964
+;-> Anno 17: capitale = 56197.25232984513
+;-> Anno 18: capitale = 39007.11494633738
+;-> Anno 19: capitale = 20957.47069365425
+;-> Anno 20: capitale = 2005.344228336962
+;-> Anno 21: capitale = -17894.38856024619
+
+(survive 1e6 0.04 25000)
+;-> Rendita per sempre: 40000
+
+(survive 1e6 0.04 100000)
+;-> limite: 40000
+;-> Anno 1: capitale = 940000
+;-> Anno 2: capitale = 877600
+;-> Anno 3: capitale = 812704
+;-> Anno 4: capitale = 745212.16
+;-> Anno 5: capitale = 675020.6464000001
+;-> Anno 6: capitale = 602021.472256
+;-> Anno 7: capitale = 526102.33114624
+;-> Anno 8: capitale = 447146.4243920896
+;-> Anno 9: capitale = 365032.2813677732
+;-> Anno 10: capitale = 279633.5726224841
+;-> Anno 11: capitale = 190818.9155273835
+;-> Anno 12: capitale = 98451.67214847886
+;-> Anno 13: capitale = 2389.739034418017
+;-> Anno 14: capitale = -97514.67140420526
+
+(survive 2e6 0.04 100000)
+;-> Anno 1: capitale = 1980000
+;-> Anno 2: capitale = 1959200
+;-> Anno 3: capitale = 1937568
+;-> Anno 4: capitale = 1915070.72
+;-> Anno 5: capitale = 1891673.5488
+;-> Anno 6: capitale = 1867340.490752
+;-> Anno 7: capitale = 1842034.11038208
+;-> Anno 8: capitale = 1815715.474797363
+;-> Anno 9: capitale = 1788344.093789257
+;-> Anno 10: capitale = 1759877.857540828
+;-> Anno 11: capitale = 1730272.971842461
+;-> Anno 12: capitale = 1699483.890716159
+;-> Anno 13: capitale = 1667463.246344806
+;-> Anno 14: capitale = 1634161.776198598
+;-> Anno 15: capitale = 1599528.247246542
+;-> Anno 16: capitale = 1563509.377136404
+;-> Anno 17: capitale = 1526049.75222186
+;-> Anno 18: capitale = 1487091.742310734
+;-> Anno 19: capitale = 1446575.412003163
+;-> Anno 20: capitale = 1404438.42848329
+;-> Anno 21: capitale = 1360615.965622621
+;-> Anno 22: capitale = 1315040.604247526
+;-> Anno 23: capitale = 1267642.228417427
+;-> Anno 24: capitale = 1218347.917554124
+;-> Anno 25: capitale = 1167081.834256289
+;-> Anno 26: capitale = 1113765.107626541
+;-> Anno 27: capitale = 1058315.711931603
+;-> Anno 28: capitale = 1000648.340408867
+;-> Anno 29: capitale = 940674.2740252215
+;-> Anno 30: capitale = 878301.2449862303
+;-> Anno 31: capitale = 813433.2947856794
+;-> Anno 32: capitale = 745970.6265771067
+;-> Anno 33: capitale = 675809.4516401909
+;-> Anno 34: capitale = 602841.8297057985
+;-> Anno 35: capitale = 526955.5028940304
+;-> Anno 36: capitale = 448033.7230097917
+;-> Anno 37: capitale = 365955.0719301833
+;-> Anno 38: capitale = 280593.2748073906
+;-> Anno 39: capitale = 191817.0057996863
+;-> Anno 40: capitale = 99489.68603167369
+;-> Anno 41: capitale = 3469.273472940637
+;-> Anno 42: capitale = -96391.95558814173
+
+
+----------------------------------
+Numero casuale con N cifre diverse
+----------------------------------
+
+Dato un numero intero N tra 1 e 10 (inclusi), generare un numero casuale tra 0 e 1 con N cifre decimali diverse.
+
+La soluzione è quella di utilizzare una lista con tutte le cifre diverse (0..9), poi mischiare casualmente le cifre e prendere le prime N.
+
+(define (rand01 n)
+  (setq digits (randomize (sequence 0 9)))
+  (float (string "0." (slice (join (map string digits)) 0 n))))
+
+Proviamo:
+
+(rand01 4)
+;-> 0.7865
+
+(rand01 10)
+;-> 0.1539082674
+
+(rand01 10)
+;-> 0.6415937028000001
+
+(rand01 6)
+;-> 0.019457
+
+(rand01 1)
+;-> 0.4
+
+(rand01 1)
+;-> 0.3
+
 ============================================================================
 
