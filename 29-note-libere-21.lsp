@@ -5872,5 +5872,179 @@ Proviamo:
 (rand01 1)
 ;-> 0.3
 
+
+--------------------------
+Numero casuale con N cifre
+--------------------------
+
+Dato un numero intero N tra 1 e 16 (inclusi), generare un numero casuale tra 0 e 1 con N cifre decimali.
+
+La soluzione è quella di utilizzare la funzione "rand" N volte e concatenare i risultati.
+
+(define (rand01 n)
+  (setq digits (rand 10 n))
+  (float (string "0." (slice (join (map string digits)) 0 n))))
+
+Proviamo:
+
+(rand01 4)
+;-> 0.1194
+
+(rand01 10)
+;-> 0.1003556616
+
+(rand01 50)
+;-> 0.4306785387995143
+
+
+-------------
+Social puzzle
+-------------
+
+Alcuni anni fa sui social network circolava il seguente puzzle:
+
+  8 op 2 = 16106
+  5 op 4 = 2091
+  4 op 5 = 2091
+  9 op 6 = ?
+
+Come funziona l'operatore 'op'?
+
+Per avere un aiuto è possibile usare la seguente funzione che crea la funzione "op" che simula l'operatore 'op'.
+In questo modo possiamo provare l'operatore con altri numeri in modo da facilitare la ricerca della soluzione.
+
+(define (oops)
+  (let (lst '(40 100 101 102 105 110 101 32 40 111 112 32 97 32 98 41 32 40
+              112 114 105 110 116 108 110 32 40 42 32 97 32 98 41 32 40 43 32
+              97 32 98 41 32 40 97 98 115 32 40 45 32 97 32 98 41 41 41 41))
+  (eval-string (join (map char lst))))
+  'fatto)
+
+Eseguiamo la funzione "oops":
+
+(oops)
+;-> fatto
+
+Proviamo:
+
+(op 8 2)
+;-> 16106
+
+(op 1 1)
+;-> 120
+
+(op 2 2)
+;-> 440
+
+(op 3 3)
+;-> 960
+
+Se non trovate la soluzione potete sempre vedere cosa fa la funzione "op":
+
+op
+;-> (lambda (a b) (println (* a b) (+ a b) (abs (- a b))))
+
+
+---------------------
+Differenze periodiche
+---------------------
+
+Data una lista di numeri interi positivi applichiamo le seguenti operazioni.
+1) aggiungiamo l'ultimo numero della lista all'inizio della lista
+2) calcoliamo le differenze assolute tra le coppie di numeri adiacenti
+3) se otteniamo una lista ottenuta in precedenza allora ci fermiano,
+   altrimenti andare al passo 1)
+Quando ci fermiamo raggiungiamo un punto fisso o l'inizio di una sequenza ciclica.
+
+Vediamo un esempio:
+
+lst = (2 3 6 1)
+  aggiunge l'ultimo numero all'inizio: (1 2 3 6 1)
+  calcolo delle differenze assolute: (1 1 3 5)
+
+  aggiunge l'ultimo numero all'inizio: (5 1 1 3 5)
+  calcolo delle differenze assolute: (4 0 2 2)
+
+  aggiunge l'ultimo numero all'inizio: (2 4 0 2 2)
+  calcolo delle differenze assolute: (2 4 2 0)
+
+  aggiunge l'ultimo numero all'inizio: (0 2 4 2 0)
+  calcolo delle differenze assolute: (2 2 2 2)
+
+  aggiunge l'ultimo numero all'inizio: (2 2 2 2 2)
+  calcolo delle differenze assolute: (0 0 0 0)
+
+  aggiunge l'ultimo numero all'inizio: (0 0 0 0 0)
+  calcolo delle differenze assolute: (0 0 0 0)
+  Stop.
+
+In questo caso abbiamo raggiunto un punto fisso: (0 0 0 0).
+
+Vediamo un altro esempio :
+
+lst = (0 1 0)
+  aggiunge l'ultimo numero all'inizio: (0 0 1 0)
+  liste precedenti: ((0 1 0))
+  calcolo delle differenze assolute: (0 1 1)
+
+  aggiunge l'ultimo numero all'inizio: (1 0 1 1)
+  liste precedenti: ((0 1 1) (0 1 0))
+  calcolo delle differenze assolute: (1 1 0)
+
+  aggiunge l'ultimo numero all'inizio: (0 1 1 0)
+  liste precedenti: ((1 1 0) (0 1 1) (0 1 0))
+  calcolo delle differenze assolute: (1 0 1)
+
+  aggiunge l'ultimo numero all'inizio: (1 1 0 1)
+  liste precedenti: ((1 0 1) (1 1 0) (0 1 1) (0 1 0))
+  calcolo delle differenze assolute: (0 1 1)
+  Stop.
+
+In questo caso abbiamo raggiunto una sequenza ciclica:
+
+  ((0 1 0) (1 0 1) (1 1 0) (0 1 1) (0 1 0))
+
+Scriviamo la funzione:
+
+(define (diffy lst)
+  (let (prev '())
+    (until (find lst prev)
+      (push lst prev)
+      (push (lst -1) lst)
+      ;(println lst)
+      (setq lst (map (fn(x y) (abs (- y x))) (chop lst) (rest lst)))
+      ;(println prev)
+      ;(print lst) (read-line)
+    )
+    (push lst prev)
+  (reverse prev)))
+
+Proviamo:
+
+(setq a '(2 3 6 1))
+(setq b '(0 1 0))
+
+(diffy a)
+;-> ((2 3 6 1) (1 1 3 5) (4 0 2 2) (2 4 2 0) (2 2 2 2) (0 0 0 0) (0 0 0 0))
+
+(diffy b)
+;-> ((0 1 0) (0 1 1) (1 1 0) (1 0 1) (0 1 1))
+
+(diffy '(1 2 3 3 2 1))
+;-> ((1 2 3 3 2 1) (0 1 1 0 1 1) (1 1 0 1 1 0) (1 0 1 1 0 1) (0 1 1 0 1 1))
+
+(diffy '(2 4 6 6 4 2))
+;-> ((2 4 6 6 4 2) (0 2 2 0 2 2) (2 2 0 2 2 0) (2 0 2 2 0 2) (0 2 2 0 2 2))
+
+(diffy '(2 4 1 1 4 2))
+;-> ((2 4 1 1 4 2) (0 2 3 0 3 2) (2 2 1 3 3 1) (1 0 1 2 0 2) (1 1 1 1 2 2)
+;->  (1 0 0 0 1 0) (1 1 0 0 1 1) (0 0 1 0 1 0) (0 0 1 1 1 1) (1 0 1 0 0 0)
+;->  (1 1 1 1 0 0) (1 0 0 0 1 0))
+
+(diffy '(2 4 1 7 4 5))
+;-> ((2 4 1 7 4 5) (3 2 3 6 3 1) (2 1 1 3 3 2) (0 1 0 2 0 1) (1 1 1 2 2 1) 
+;->  (0 0 0 1 0 1) (1 0 0 1 1 1) (0 1 0 1 0 0) (0 1 1 1 1 0) (0 1 0 0 0 1)
+;->  (1 1 1 0 0 1) (0 0 0 1 0 1))
+
 ============================================================================
 

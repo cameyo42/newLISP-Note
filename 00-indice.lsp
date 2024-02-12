@@ -2267,6 +2267,9 @@ NOTE LIBERE 21
   Calcolo di 1/n
   Vivere di rendita
   Numero casuale con N cifre diverse
+  Numero casuale con N cifre
+  Social puzzle
+  Differenze periodiche
  
 PROBLEMI SUI DADI
 =================
