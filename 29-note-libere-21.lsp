@@ -6046,5 +6046,113 @@ Proviamo:
 ;->  (0 0 0 1 0 1) (1 0 0 1 1 1) (0 1 0 1 0 0) (0 1 1 1 1 0) (0 1 0 0 0 1)
 ;->  (1 1 1 0 0 1) (0 0 0 1 0 1))
 
+
+--------------------
+Alternare True e Nil
+--------------------
+
+Scrivere una funzione che restituisce alternativamente 'true' e 'nil' ogni volta che viene chiamata.
+La funzione non ha parametri.
+
+Soluzione che dipende da una variabile globale:
+
+(define (go) (++ k) (odd? k))
+(define(go)(++ k)(odd? k))
+
+Proviamo:
+
+(go)
+;-> true
+(go)
+;-> nil
+(go)
+;-> true
+(go)
+;-> nil
+
+(define (go1)
+  (if (nil? (sym "go2" 'MAIN nil))
+      (println "go2 non esiste")
+      (println "go2 esiste")))
+
+(go1)
+
+Soluzione che utilizza un contesto:
+Vedi "Funzioni con memoria" su "newLISP in generale".
+
+(define (tn:tn) (odd? (inc tn:val)))
+
+Proviamo:
+
+(tn)
+;-> true
+(tn)
+;-> nil
+(tn)
+;-> true
+(tn)
+;-> nil
+(tn)
+;-> true
+(tn)
+;-> nil
+tn:val
+;-> 6
+
+
+-------------------------------------
+Codifica e decodifica di una funzione
+-------------------------------------
+
+Scriviamo due funzioni che codificano una funzione come lista di codici di caratteri ASCII e decodificano la lista creando una nuova funzione.
+
+Funzione da codificare:
+
+(define (test a b) (+ a b))
+
+Funzione di codifica:
+
+(define (encode func f-name)
+  (local (body f)
+    ; get the function as string (newLISP internal representation)
+    (setq body (string func))
+    ; change head from "lambda" to "define"
+    (setq f (replace "lambda (" body (string "define (" f-name " ")))
+    ; encode function as list of ASCII char code
+    (map char (explode (string f)))))
+
+Funzione di decodifica:
+
+(define (decode lst)
+  ; convert the list of ASCII char code in to a string
+  ; and evaluate it (creating the function f-name)
+  (eval-string (join (map char lst))))
+
+Convertiamo una funzione in una lista di codici ASCII:
+
+(setq a (encode test "tt"))
+;-> (40 100 101 102 105 110 101 32 40 116 116 32 97 32 98 
+;->  41 32 40 43 32 97 32 98 41 41)
+
+La funzione "tt" non esiste:
+
+tt
+;-> nil
+
+Decodifichiamo la lista:
+
+(decode a)
+;-> (lambda (a b) (+ a b))
+
+Adesso la funzione "tt" esiste:
+
+tt
+;-> (lambda (a b) (+ a b))
+
+E "tt" funziona come la funzione originale "test":
+
+(tt 2 3)
+;-> 5
+
 ============================================================================
 

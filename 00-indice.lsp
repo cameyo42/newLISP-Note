@@ -2270,6 +2270,8 @@ NOTE LIBERE 21
   Numero casuale con N cifre
   Social puzzle
   Differenze periodiche
+  Alternare True e Nil
+  Codifica e decodifica di una funzione
  
 PROBLEMI SUI DADI
 =================
