@@ -1981,9 +1981,9 @@ Proviamo:
 Tabella cross-reference di un torneo
 ------------------------------------
 
-In un torneo di scacchi ci sono N giocatori. 
+In un torneo di scacchi ci sono N giocatori.
 Ogni giocatore gioca al massimo una partita con ognuno degli altri giocatori.
-Il risultato di una partita può essere: 
+Il risultato di una partita può essere:
 "1-0"  -> vince il primo giocatore
 "0-1"  -> vince il secondo giocatore
 "1/2"  -> partita patta
@@ -1992,7 +1992,7 @@ Data una lista di partite con elementi del tipo ("giocatoreX" "giocatoreY" "risu
 Per esempio:
 lista partite = (("a" "b" "1-0") ("a" "c" "1-0") ("a" "d" "0-1")
                  ("b" "c" "1-0") ("b" "d" "1/2") ("c" "d" "1-0"))
-tabella cross-reference = 
+tabella cross-reference =
   +---+-----+-----+-----+-----+-----+
   | b | *   | 0.5 | 0.5 | 1   | 2   |
   +---+-----+-----+-----+-----+-----+
@@ -2133,8 +2133,8 @@ Funzione che stampa la tabella cross-reference di una lista di partite:
 Proviamo con la lista delle partite del Torneo di Linares del 1992:
 
 (setq linares92 '(
-      ("Timman" "Kasparov" "0-1") ("Ljubojevic" "Karpov" "0-1") 
-      ("Jussupow" "Anand" "1-0") ("Ivanchuk" "Salov" "0-1") 
+      ("Timman" "Kasparov" "0-1") ("Ljubojevic" "Karpov" "0-1")
+      ("Jussupow" "Anand" "1-0") ("Ivanchuk" "Salov" "0-1")
       ("Bareev" "Short" "1/2") ("Gelfand" "Illescas" "1-0")
       ("Beliavsky" "Speelman" "1/2") ("Speelman" "Jussupow" "0-1")
       ("Timman" "Ivanchuk" "1/2") ("Short" "Beliavsky" "0-1")
@@ -2433,7 +2433,7 @@ Nota: newLISP converte il numero dato in una rappresentazione float che può ess
 Funzione che converte un numero float in una lista di caratteri oppure in una lista di simboli:
 
 (define (float-list x simboli)
-  (if (not simboli) 
+  (if (not simboli)
       (explode (string x))
       ;else
       (let (out '())
@@ -2469,7 +2469,7 @@ Applicare un'onda ad una lista
 
 Data una lista di numeri interi applicare la lista "onda" alla lista.
 Per esempio,
-  lista      = 1 2  3 4 5 6  7 
+  lista      = 1 2  3 4 5 6  7
   lista onda = 1 0 -1 0 1 0 -1
 Per applicare la lista "onda" sommare gli elementi con lo stesso indice...
   output     = 2 2  2 4 6 6  6
@@ -2666,7 +2666,7 @@ Funzione che analizza un testo e restituisce se "maschile" o "femminile" e l'ind
 Proviamo:
 
 Da "The Sign of the Four" di Sir Arthur Conan Doyle (1890)
-(setq doyle 
+(setq doyle
    "Three times a day for many months I had witnessed this performance, but
    custom had not reconciled my mind to it.  On the contrary, from day to
    day I had become more irritable at the sight, and my conscience swelled
@@ -2728,9 +2728,9 @@ Sommare tutti i valori:
   1 + 4 + 9 + 4 + 36 + 625 + 729 = 1408
 
 Ripetere finché questo non converge in un singolo numero:
-  
+
   (1 4 0 8) = (1 4 0 8) --> 1 + 4 + 0 + 8 = 13
-  
+
   (1 3) = (1 3) --> 1 + 3 = 4
 
 Risultato: 4
@@ -2820,7 +2820,7 @@ Chen primes: primes p such that p + 2 is either a prime or a semiprime.
        (= 1 (length (factor num)))))
 
 (define (chen? num)
-  (and (prime? num) 
+  (and (prime? num)
        (or (prime? (+ num 2)) (= (length (factor (+ num 2))) 2))))
 
 (filter chen? (sequence 1 100))
@@ -2875,7 +2875,7 @@ La sequenza dei numeri MU viene creata con le seguenti regole:
 Sequenza OEIS A007335:
 MU-numbers: next term is uniquely the product of 2 earlier terms.
   2, 3, 6, 12, 18, 24, 48, 54, 96, 162, 192, 216, 384, 486, 768, 864, 1458,
-  1536, 1944, 3072, 3456, 4374, 6144, 7776, 12288, 13122, 13824, 17496, 
+  1536, 1944, 3072, 3456, 4374, 6144, 7776, 12288, 13122, 13824, 17496,
   24576, 31104, 39366, 49152, 55296, 69984, 98304, 118098, 124416, 157464,
   196608, 221184, 279936, ...
 
@@ -3300,7 +3300,7 @@ Proviamo:
 ;-> 6^38 = 371319292745659279662190166016L mod 41 = 8L
 ;-> 6^39 = 2227915756473955677973140996096L mod 41 = 7L
 ;-> 6^40 = 13367494538843734067838845976576L mod 41 = 1L
-;-> ((40 13367494538843734067838845976576L 1L) 
+;-> ((40 13367494538843734067838845976576L 1L)
 ;->  (39 2227915756473955677973140996096L 7L)
 ;->  (38 371319292745659279662190166016L 8L)
 ;->  (37 61886548790943213277031694336L 15L)
@@ -3311,11 +3311,11 @@ Proviamo:
 ;->  (4 1296L 25L)
 ;->  (3 216L 11L)
 ;->  (2 36L 36L)
-;->  (1 6L 6L)) 
+;->  (1 6L 6L))
 
 Metodo matematico:
 
-Se p è il numero primo e n è il numero, sappiamo che (n^(p-1) mod p = 1), quindi dobbiamo solo verificare che (n^k mod p != 1) per qualsiasi k più piccolo. 
+Se p è il numero primo e n è il numero, sappiamo che (n^(p-1) mod p = 1), quindi dobbiamo solo verificare che (n^k mod p != 1) per qualsiasi k più piccolo.
 Ma k deve essere un fattore di p-1 perché ciò sia possibile, e qualsiasi multiplo di k con quella proprietà avrà anche quella proprietà, quindi dobbiamo solo verificare che (n^((p-1)/q) mod p != 1) per tutti i fattori primi q di p-1.
 Quindi basta controllare tutti gli interi n da 2 a (p - 1) in ordine crescente finché non ne troviamo uno che soddisfa la proprietà.
 
@@ -3402,7 +3402,7 @@ Le cifre ottenute 4,0,2,1,0 sono uguali (e nelle stesse posizioni) del numero da
 
 Sequenza OEIS A319599:
 Numbers k such that k mod (2, 3, 4, ... , i+1) = (d_i, d_i-1, ..., d_1),
-where d_1, d_2, ..., d_i are the digits of k, 
+where d_1, d_2, ..., d_i are the digits of k,
 with MSD(k) = d_1 and LSD(k) = d_i
   0, 1, 10, 20, 1101, 1121, 11311, 31101, 40210, 340210, 4620020, 5431101,
   7211311, 12040210, 24120020, 151651121, 165631101, 1135531101, 8084220020,
@@ -3461,9 +3461,9 @@ Formule utilizzate:
   Magenta = (1 - Green/255 - Black)/(1 - Black)
   Yellow  = (1 - Blue/255 - Black)/(1 - Black)
 
-  Red   = 255 * (1 - Cyan/100)    * (1 - Black/100)   
-  Green = 255 * (1 - Magenta/100) * (1 - Black/100)   
-  Blue  = 255 * (1 - Yellow/100)  * (1 - Black/100) 
+  Red   = 255 * (1 - Cyan/100)    * (1 - Black/100)
+  Green = 255 * (1 - Magenta/100) * (1 - Black/100)
+  Blue  = 255 * (1 - Yellow/100)  * (1 - Black/100)
 
 Funzione da RGB a CMYK:
 
@@ -3511,7 +3511,7 @@ I numeri non significano nulla a meno che non siano associati ad un profilo di c
 Le scale (valori in RGB o CMYK) devono appartenere a uno "spazio colore (profilo)".
 I valori quindi indicano un colore "reale" (per esempio LAB)
 Convertire da RGB a CMYK significa innanzitutto capire quale colore (in LAB) è rappresentato in RGB e trovare valori (esatti o vicini) ai colori rappresentati in CMYK nello spazio colore di destinazione.
-Sebbene sia importante convertire da RGB a CMYK, occorre eseguirlo solo una volta perché alcuni colori vengono eliminati, compressi e modificati ogni volta. 
+Sebbene sia importante convertire da RGB a CMYK, occorre eseguirlo solo una volta perché alcuni colori vengono eliminati, compressi e modificati ogni volta.
 Il passaggio da RGB a CMYK e di nuovo a RGB e poi a CMYK può degradare notevolmente un'immagine.
 
 
@@ -4200,7 +4200,7 @@ Vediamo la velocità di "fact-dec" e "fact-dec1":
 Primi 100 numeri in base fattoriale (stringhe):
 
 (map (fn(x) (format "%06s" x))
-     (map join 
+     (map join
           (map (fn(x) (map string x)) (map dec-fact (sequence 1 100)))))
 ;-> ("000010" "000100" "000110" "000200" "000210" "001000" "001010" "001100"
 ;->  "001110" "001200" "001210" "002000" "002010" "002100" "002110" "002200"
@@ -4336,7 +4336,7 @@ Sequenze intrecciate
 
 Dato un numero N costruire una stringa intrecciando i numeri delle sequenze 1..N e N..1.
 Intrecciare = primo elemento prima lista, primo elemento seconda lista,
-              secondo elemento prima lista, secondo elemento seconda lista, 
+              secondo elemento prima lista, secondo elemento seconda lista,
               ...
               ultimo elemento prima lista, ultimo elemento seconda lista.
 
@@ -4384,7 +4384,7 @@ La sequenza di Divinacci è definita nel modo seguente:
 Sequenza OEIS A000458:
 a(0) = a(1) = 1, a(n) = sigma(a(n-1)) + sigma(a(n-2))
   1, 1, 2, 4, 10, 25, 49, 88, 237, 500, 1412, 3570, 12846, 36072, 126504,
-  493920, 2358720, 12292224, 49984224, 171237888, 642804078, 1980490350, 
+  493920, 2358720, 12292224, 49984224, 171237888, 642804078, 1980490350,
   6380883000, 27032104440, 117961599600, 555861355920, ...
 
 sigma(n) = somma dei divisori di n (1 e n compresi)
@@ -4403,7 +4403,7 @@ Quindi partiamo dalla funzione che calcola la sequenza di Fibonacci e la modific
     (letn ( (fattori (factor num))
             (unici (unique fattori)) )
       (transpose (list unici (count unici fattori))))))
-      
+
 (define (divisors-sum num)
 "Sum all the divisors of integer number"
 (if (zero? num) 0
@@ -4447,7 +4447,7 @@ Funzione che calcola il numero Divinacci di un numero intero:
 Proviamo:
 
 (map divinacci (sequence 1 20))
-;-> (1 1 2 4 10 25 49 88 237 500 1412 3570 12846 36072 
+;-> (1 1 2 4 10 25 49 88 237 500 1412 3570 12846 36072
 ;->  126504 493920 2358720 12292224 49984224 171237888)
 
 
@@ -4457,9 +4457,9 @@ List merge
 
 Date N liste L1, L2, ..., LN con lo stesso numero di elementi M generare una lista con il seguente formato:
 
-  ((L1(0) L2(0) ... LN(0)) 
-   (L1(1) L2(1) ... LN(1)) 
-   ... 
+  ((L1(0) L2(0) ... LN(0))
+   (L1(1) L2(1) ... LN(1))
+   ...
    (L1(M-1) L2(M-1) ... LN(M-1)))
 
 In altre parole, la lista da generare è fatta nel modo seguente:
@@ -4534,7 +4534,7 @@ Quella equivalente per i numeri razionali è:
   = (MCD(a,c) / MCM(b,d)) * (MCM(a,c) / MCD(b,d)) =
   = MCD(a/b, c/d) * LCM(a/b, c/d)
 
-Nota: GCD (Greatest Common Divisor) = MCD (Massimo Comun Divisore), 
+Nota: GCD (Greatest Common Divisor) = MCD (Massimo Comun Divisore),
       LCM (Least Common Divisor) = MCM (Minimo Comune Multiplo)
 
 Formula generica per il calcolo del GCD di due frazioni:
@@ -5002,7 +5002,7 @@ Adesso scriviamo la funzione che verifica se un anno è speciale:
 Calcoliamo gli anni speciali tra il 1900 e il 2100:
 
 (filter special? (sequence 1900 2100))
-;-> (1900 1906 1917 1923 1934 1945 1951 1962 1973 1979 1990 
+;-> (1900 1906 1917 1923 1934 1945 1951 1962 1973 1979 1990
 ;->  2001 2007 2018 2029 2035 2046 2057 2063 2074 2085 2091)
 
 Vedi anche "Giorno della settimana" su "Rosetta Code".
@@ -5110,7 +5110,7 @@ Sequenze di lunghezza 4     Numero di sequenze che hanno 1 consecutivi
   1101                        1
   1110                        1
   1111                        1
-                     Totale = 8 sequenze          
+                     Totale = 8 sequenze
 
 Per esempio la sequenza binaria "10110011011101" ha 3 sequenze di 1 consecutivi: 11, 11 e 111.
 
@@ -5241,8 +5241,8 @@ Proviamo:
 (map seq-mat (sequence 1 10))
 ;-> (1 3 8 20 48 112 256 576 1280 2816)
 
-(= (map seq (sequence 1 15)) 
-   (map seq1 (sequence 1 15)) 
+(= (map seq (sequence 1 15))
+   (map seq1 (sequence 1 15))
    (map seq-mat (sequence 1 15)))
 ;-> true
 
@@ -5260,7 +5260,7 @@ Proviamo:
 Un altro bug della versione 10.7.6
 ----------------------------------
 
-Un bug di "rotate" quando le rotazioni sono negative e il numero di rotazioni assolute sono multiple della lunghezza della lista. 
+Un bug di "rotate" quando le rotazioni sono negative e il numero di rotazioni assolute sono multiple della lunghezza della lista.
 Per esempio:
 
 (rotate '("1" "A" "B" "2") 8)
@@ -5437,9 +5437,9 @@ Comic Sequence
 Original: https://www.smbc-comics.com/comic/puzzle-time
 --------------------------------------------
    What is the pattern of this sequence:
-   
+
      0 1 4 -13 -133 52 53 -155
-   
+
    Answer:
    Every number was read by a dickhead
 --------------------------------------------
@@ -5581,12 +5581,12 @@ Funzioni che cancellano funzioni
 
 newLISP permette alle funzioni di eliminare altre funzioni:
 
-(define (f1) 
+(define (f1)
   (println "f1")
   (delete 'f2)
 )
 
-(define (f2) 
+(define (f2)
   (println "f2")
   (delete 'f1)
 )
@@ -5604,7 +5604,7 @@ Adesso la funzione f2 non esiste più:
 
 Una funzione non può cancellare se stessa:
 
-(define (test) 
+(define (test)
   (println "...")
   (delete 'test true)
 )
@@ -5619,7 +5619,7 @@ La funzione non è stata cancellata (a causa del true di "delete"):
 
 Se togliamo il true dalla funzione "delete" otteniamo un crash e la chiusura della REPL:
 
-(define (test) 
+(define (test)
   (println "...")
   (delete 'test true)
 )
@@ -5652,7 +5652,7 @@ Algoritmo (esempio)
   quinta cifra = (10 * resto) / num = 30/13 = 2
   resto = 30%13 = 4
   Risultato 0.07692
-  
+
 (div 1 13)
 ;-> 0.07692307692307693
 
@@ -6042,7 +6042,7 @@ Proviamo:
 ;->  (1 1 1 1 0 0) (1 0 0 0 1 0))
 
 (diffy '(2 4 1 7 4 5))
-;-> ((2 4 1 7 4 5) (3 2 3 6 3 1) (2 1 1 3 3 2) (0 1 0 2 0 1) (1 1 1 2 2 1) 
+;-> ((2 4 1 7 4 5) (3 2 3 6 3 1) (2 1 1 3 3 2) (0 1 0 2 0 1) (1 1 1 2 2 1)
 ;->  (0 0 0 1 0 1) (1 0 0 1 1 1) (0 1 0 1 0 0) (0 1 1 1 1 0) (0 1 0 0 0 1)
 ;->  (1 1 1 0 0 1) (0 0 0 1 0 1))
 
@@ -6131,7 +6131,7 @@ Funzione di decodifica:
 Convertiamo una funzione in una lista di codici ASCII:
 
 (setq a (encode test "tt"))
-;-> (40 100 101 102 105 110 101 32 40 116 116 32 97 32 98 
+;-> (40 100 101 102 105 110 101 32 40 116 116 32 97 32 98
 ;->  41 32 40 43 32 97 32 98 41 41)
 
 La funzione "tt" non esiste:
@@ -6153,6 +6153,187 @@ E "tt" funziona come la funzione originale "test":
 
 (tt 2 3)
 ;-> 5
+
+
+-----------------
+Maxima e wxMaxima
+-----------------
+
+Maxima (Computer Algebra System)
+--------------------------------
+https://maxima.sourceforge.io/
+
+Maxima è un sistema per l'elaborazione di espressioni simboliche e numeriche, come derivate, integrali, serie di Taylor, trasformazioni di Laplace, equazioni differenziali ordinarie, sistemi di equazioni lineari, polinomiali, insiemi, listi, vettori, matrici e tensori.
+Maxima produce risultati numerici di alta precisione grazie all'utilizzo di frazioni esatte, interi di precisione arbitraria e numeri in virgola mobile a precisione variabile.
+Maxima può disegnare funzioni e dati in due e tre dimensioni.
+
+Il codice sorgente di Maxima è compilabile su molti sistemi diversi, inclusi Windows, GNU/Linux, e MacOS X.
+Il codice sorgente per tutti i sistemi e i binari precompilati per Windows e Linux sono disponibili su SourceForge.
+
+Storia
+Maxima deriva da Macsyma, il leggendario sistema algebrico computazionale sviluppato alla fine degli anni '60 al MIT.
+È l'unico sistema basato su quello sforzo ancora pubblicamente disponibile e con una comunità di utenti attiva, grazie alla sua natura open source.
+Macsyma era rivoluzionario ai suoi tempi, e molti sistemi successivi, come Maple e Mathematica, si sono ispirati ad esso.
+
+Maxima come diramazione di Macsyma è stato mantenuto da William Schelter dal 1982 fino alla sua morte avvenuta nel 2001.
+Nel 1998 egli ottenne il permesso di rilasciare il codice sorgente sotto i termini della licenza GNU General Public License (GPL).
+Sono stati i suoi sforzi e la sua competenza che hanno reso possibile la sopravvivenza di Maxima, e tutti noi siamo debitori per il suo impegno volontario dedicato di tempo e di conoscenza grazie al quale è stato conservato e mantenuto vivo il codice originale di DOE Macsyma sino ad oggi.
+Dalla sua morte, si è creato un gruppo di utenti e sviluppatori formatosi con lo scopo di portare Maxima ad un'utenza più vasta.
+
+Maxima viene aggiornato molto frequentemente, per correggere errori e per migliorarne il codice e la documentazione.
+A tale scopo sono benvenuti i suggerimenti e i contributi che provengono dalla comunità degli utenti di Maxima.
+Molte discussioni a riguardo hanno luogo sulla mailing list di Maxima.
+
+wxMaxima
+--------
+https://wxmaxima-developers.github.io/wxmaxima/
+
+wxMaxima è un'interfaccia basata su documenti per il CAS Maxima.
+wxMaxima fornisce menu e finestre di dialogo per molti comandi comuni di Maxima, completamento automatico, grafici inline e semplici animazioni.
+wxMaxima è distribuito sotto licenza GPL.
+
+Elenco dei maggiori CAS
+-----------------------
+Commerciali:
+Mathematica, Magma, Maple, MatLab
+
+OpenSource/Freeware:
+Maxima, Octave, SymPy, SageMath, PARI/GP, GeoGebra, Axiom(friCAS), Reduce
+
+
+------------------------
+Alfabetico fonetico NATO
+------------------------
+
+L'alfabeto ortografico (internazionale) per la radiotelefonia, comunemente noto come alfabeto fonetico NATO (NATO phonetic alphabet), è l'insieme di parole più utilizzato per comunicare le lettere dell'alfabeto romano.
+Altri nomi sono "alfabeto ortografico NATO", "alfabeto fonetico ICAO" e "alfabeto ortografico ICAO".
+
+L'insieme di parole è il seguente:
+
+  Lettera     Parola
+     A        Alfa
+     B        Bravo
+     C        Charlie
+     D        Delta
+     E        Echo
+     F        Foxtrot
+     G        Golf
+     H        Hotel
+     I        India
+     J        Juliett
+     K        Kilo
+     L        Lima
+     M        Mike
+     N        November
+     O        Oscar
+     P        Papa
+     Q        Quebec
+     R        Romeo
+     S        Sierra
+     T        Tango
+     U        Uniform
+     V        Victor
+     W        Whiskey
+     X        X-ray
+     Y        Yankee
+     Z        Zulu
+
+I numeri si pronunciano normalmente, tranne che spesso il 9 viene pronunciato "Niner" quindi non viene confuso con 5:
+
+  Numero   Parola
+    0      zero
+    1      one
+    2      two
+    3      three
+    4      four
+    5      five
+    6      six
+    7      seven
+    8      eight
+    9      niner
+
+(setq nato '(("A" "Alfa") ("B" "Bravo") ("C" "Charlie") ("D" "Delta")
+             ("E" "Echo") ("F" "Foxtrot") ("G" "Golf") ("H" "Hotel")
+             ("I" "India") ("J" "Juliett") ("K" "Kilo") ("L" "Lima")
+             ("M" "Mike") ("N" "November") ("O" "Oscar") ("P" "Papa")
+             ("Q" "Quebec") ("R" "Romeo") ("S" "Sierra") ("T" "Tango")
+             ("U" "Uniform") ("V" "Victor") ("W" "Whiskey") ("X" "X-ray")
+             ("Y" "Yankee") ("Z" "Zulu")
+             ("0" "zero") ("1" "one") ("2" "two") ("3" "three")
+             ("4" "four") ("5" "five") ("6" "six")("7" "seven")
+             ("8" "eight") ("9" "niner")))
+
+(define (spelling str)
+  (setq lst (explode (upper-case str)))
+  (setq out "")
+  (dolist (ch lst)
+    (extend out (string (lookup ch nato) ", "))
+  )
+  (slice out 0 -2))
+
+(spelling "newLISP")
+;-> "November, Echo, Whiskey, Lima, India, Sierra, Papa"
+
+Per far 'parlare' la stringa usiamo il programma Balabolka (Text2Speech).
+https://www.cross-plus-a.com/balabolka.htm
+
+Vedi "Da testo a parlato (Text to speech)" su "Note libere 18".
+
+Poichè il testo da leggere deve essere racchiuso da doppi apici "", possiamo scrivere:
+
+(println (string "c:\\util\\balcon -t " "\"" (spelling "newLISP") "\""))
+;-> "c:\\util\\balcon -t \"November, Echo, Whiskey, Lima, India, Sierra, Papa\""
+
+Sostituiamo "exec" a "println" ed ascoltiamo i i caratteri fonetici:
+
+(exec (string "c:\\util\\balcon -t " "\"" (spelling "newLISP") "\""))
+;-> ()
+
+(exec (string "c:\\util\\balcon -t " "\"" (spelling "0123456789") "\""))
+
+
+--------------------------------------------
+Suddividere una lista in blocchi sequenziali
+--------------------------------------------
+
+Data una lista suddividerla in blocchi di lunghezza predefinita.
+Per esempio:
+
+lista = (1 3 5 8 2)
+Lunghezza blocchi = 3
+Output = (1 3 5) (3 5 8) (5 8 2)
+
+lista = (1 3 5 8 2)
+Lunghezza blocchi = 2
+Output = (1 3) (3 5) (5 8) (8 2)
+
+(define (group-block lst num)
+"Creates a list with blocks of elements: (0..num) (1..num+1) (n..num+n)"
+  (local (out items len)
+    (setq out '())
+    (setq len (length lst))
+    (if (>= len num) (begin
+        ; numero di elementi nella lista di output (numero blocchi)
+        (setq items (- len num (- 1)))
+        (for (k 0 (- items 1))
+          (push (slice lst k num) out -1)
+        )
+    ))
+  out))
+
+Proviamo:
+
+(group-block '(1 3 5 8 2) 3)
+;-> ((1 3 5) (3 5 8) (5 8 2))
+
+(group-block '(1 3 5 8 2) 2)
+;-> ((1 3) (3 5) (5 8) (8 2))
+
+(group-block '(1 3 5 8 2) 5)
+;-> ((1 3 5 8 2))
+
+(group-block '(1 3 5 8 2) 6)
+;-> ()
 
 ============================================================================
 

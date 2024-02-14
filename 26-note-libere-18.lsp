@@ -4066,7 +4066,9 @@ Da testo a parlato (Text to speech)
 -----------------------------------
 
 Per trasformare il testo in parlato (cioè una voce che legge il testo) il s.o. macOSX ha la funzione "say" che legge un testo.
-Con il s.o. MSwindows possiamo utilizzare il servizio integrato Speech (Microsoft Speech Engine) oppure il programma "Balabolka" (balcon.exe).
+Con il s.o. MSwindows possiamo utilizzare il servizio integrato Speech (Microsoft Speech Engine) oppure il programma "Balabolka" (balcon.exe):
+
+https://www.cross-plus-a.com/balabolka.htm
 
 Balabolka Command Line Utility
 ------------------------------

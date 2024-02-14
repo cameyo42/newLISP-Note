@@ -2272,6 +2272,9 @@ NOTE LIBERE 21
   Differenze periodiche
   Alternare True e Nil
   Codifica e decodifica di una funzione
+  Maxima e wxMaxima
+  Alfabetico fonetico NATO
+  Suddividere una lista in blocchi sequenziali
  
 PROBLEMI SUI DADI
 =================
