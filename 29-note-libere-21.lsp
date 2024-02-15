@@ -6335,5 +6335,175 @@ Proviamo:
 (group-block '(1 3 5 8 2) 6)
 ;-> ()
 
+
+------------------------------------
+Filtraggio di caratteri alfanumerici
+------------------------------------
+
+Data una stringa che contiene caratteri ASCII, scrivere tre funzioni che filtrano i caratteri minuscoli (a..z), i caratteri maiuscoli (A..Z) e le cifre (0..9).
+
+Funzione che filtra i caratteri minuscoli (a..z):
+
+(define (filter-lower str space)
+  (let (out "")
+    (if space
+        (dostring (ch str)
+          ;             " "             "a"        "z"
+          (if (or (= ch 32) (and (>= ch 97) (<= ch 122)))
+              (extend out (char ch))))
+    ;else
+        (dostring (ch str)
+          (if (and (>= ch 97) (<= ch 122))
+              (extend out (char ch))))
+    )
+  out))
+
+Funzione che filtra i caratteri maiuscoli (A..Z):
+
+(define (filter-upper str space)
+  (let (out "")
+    (if space
+        (dostring (ch str)
+          ;             " "             "A"        "Z"
+          (if (or (= ch 32) (and (>= ch 65) (<= ch 90)))
+              (extend out (char ch))))
+    ;else
+        (dostring (ch str)
+          (if (and (>= ch 65) (<= ch 90))
+              (extend out (char ch))))
+    )
+  out))
+
+Funzione che filtra le cifre (0..9):
+
+(define (filter-digit str space)
+  (let (out "")
+    (if space
+        (dostring (ch str)
+          ;             " "             "0"        "9"
+          (if (or (= ch 32) (and (>= ch 48) (<= ch 57)))
+              (extend out (char ch))))
+    ;else
+        (dostring (ch str)
+          (if (and (>= ch 48) (<= ch 57))
+              (extend out (char ch))))
+    )
+  out))
+
+Proviamo:
+
+(setq a "Oh! hi there guy. What's up? 1 2 3.")
+(setq b (lower-case "Oh! hi there guy. What's up? 1 2 3."))
+(setq c (upper-case "Oh! hi there guy. What's up? 1 2 3."))
+
+;-> "hhithereguyhatsup"
+(filter-lower a true)
+;-> "h hi there guy hats up   "
+(filter-lower b)
+;-> "ohhithereguywhatsup"
+(filter-lower b true)
+;-> "oh hi there guy whats up   "
+(filter-lower c)
+;-> ""
+(filter-lower c true)
+;-> "        "
+
+(filter-upper a true)
+;-> "O    W    "
+(filter-upper b)
+;-> ""
+(filter-upper b true)
+;-> "        "
+(filter-upper c)
+;-> "OHHITHEREGUYWHATSUP"
+(filter-upper c true)
+;-> "OH HI THERE GUY WHATS UP   "
+
+(filter-digit a)
+;-> "123"
+(filter-digit a true)
+;-> "      1 2 3"
+
+
+------------
+Golomb ruler
+------------
+
+Un insieme di interi A = (a1,a2,...,am) con a1<a2<...<am è un "Golomb ruler" se e solo se:
+
+  Per tutti i,j,k,l in (1..m) tale che (i != j) e (k != l),
+  a(i)- a(j) = a(k) - a(l) se e solo se (i = k) e (j = l)
+
+In altre parole, un "Golomb ruler" è un insieme di numeri interi non negativi tali che non esistono due coppie di numeri interi nell'insieme che abbiano la stessa distanza (differenza assoluta).
+
+Vediamo un esempio:
+
+  A = (0 1 4 6)
+  0, 1 -> distanza 1
+  0, 4 -> distanza 4
+  0, 6 -> distanza 6
+  1, 4 -> distanza 3
+  1, 6 -> distanza 5
+  4, 6 -> distanza 2
+
+Quindi A è un "Golomb ruler" perché tutte le distanze tra due numeri dell'insieme sono uniche.
+
+La seguente formula (Paul Erdos e Pal Turan), produce un "Golomb ruler" per ogni numero primo dispari p:
+
+  2*p*k + (k^2 mod p),  per k = 0..p-1
+
+(define (golomb p)
+  (let (out '())
+    (for (k 0 (- p 1)) (push (+ (* 2 p k) (% (* k k) p)) out -1))
+  out))
+
+Proviamo:
+
+(golomb 5)
+;-> (0 11 24 34 41)
+
+(golomb 13)
+;-> (0 27 56 87 107 142 166 192 220 237 269 290 313)
+
+Scriviamo una funzione per verificare i risultati della funzione "golomb".
+
+Funzione che restituisce una lista con le distanze tra tutte le possibili coppie degli elementi di una lista data:
+
+(define (diff-list lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+          (push (abs (- (lst i) (lst j))) out -1)))))
+
+Proviamo:
+
+(setq test (diff-list (golomb 13)))
+;-> (27 56 87 107 142 166 192 220 237 269 290 313 29 60 80 115 139 165
+;->  193 210 242 263 286 31 51 86 110 136 164 181 213 234 257 20 55 79
+;->  105 133 150 182 203 226 35 59 85 113 130 162 183 206 24 50 78 95
+;->  127 148 171 26 54 71 103 124 147 28 45 77 98 121 17 49 70 93 32 53
+;->  76 21 44 23)
+(= test (unique test))
+;-> true
+
+(setq test (diff-list (golomb 23)))
+;-> (47 96 147 200 232 289 325 386 426 468 512 558 606 656 708 739 795
+;->  830 890 929 970 1013 49 100 153 185 242 278 339 379 421 465 511 559
+;->  609 661 692 748 783 843 882 923 966 51 104 136 193 229 290 330 372
+;->  416 462 510 560 612 643 699 734 794 833 874 917 53 85 142 178 239
+;->  279 321 365 411 459 509 561 592 648 683 743 782 823 866 32 89 125
+;->  186 226 268 312 358 406 456 508 539 595 630 690 729 770 813 57 93
+;->  154 194 236 280 326 374 424 476 507 563 598 658 697 738 781 36 97
+;->  137 179 223 269 317 367 419 450 506 541 601 640 681 724 61 101 143
+;->  187 233 281 331 383 414 470 505 565 604 645 688 40 82 126 172 220
+;->  270 322 353 409 444 504 543 584 627 42 86 132 180 230 282 313 369
+;->  404 464 503 544 587 44 90 138 188 240 271 327 362 422 461 502 545
+;->  46 94 144 196 227 283 318 378 417 458 501 48 98 150 181 237 272 332
+;->  371 412 455 50 102 133 189 224 284 323 364 407 52 83 139 174 234
+;->  273 314 357 31 87 122 182 221 262 305 56 91 151 190 231 274 35 95
+;->  134 175 218 60 99 140 183 39 80 123 41 84 43)
+(= test (unique test))
+;-> true
+
 ============================================================================
 

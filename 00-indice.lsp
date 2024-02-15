@@ -2275,6 +2275,8 @@ NOTE LIBERE 21
   Maxima e wxMaxima
   Alfabetico fonetico NATO
   Suddividere una lista in blocchi sequenziali
+  Filtraggio di caratteri alfanumerici
+  Golomb ruler
  
 PROBLEMI SUI DADI
 =================
