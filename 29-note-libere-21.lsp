@@ -6429,10 +6429,12 @@ Proviamo:
 Golomb ruler
 ------------
 
-Un insieme di interi A = (a1,a2,...,am) con a1<a2<...<am è un "Golomb ruler" se e solo se:
+Un insieme di interi A = (a(1),a(2),...,a(m)) con a(1)<a(2)<...<a(m) è un "Golomb ruler" se e solo se:
 
   Per tutti i,j,k,l in (1..m) tale che (i != j) e (k != l),
   a(i)- a(j) = a(k) - a(l) se e solo se (i = k) e (j = l)
+
+L'ordine di un tale "Golomb ruler" vale m e la sua lunghezza vale a(m) - a(1).
 
 In altre parole, un "Golomb ruler" è un insieme di numeri interi non negativi tali che non esistono due coppie di numeri interi nell'insieme che abbiano la stessa distanza (differenza assoluta).
 
@@ -6447,6 +6449,8 @@ Vediamo un esempio:
   4, 6 -> distanza 2
 
 Quindi A è un "Golomb ruler" perché tutte le distanze tra due numeri dell'insieme sono uniche.
+
+The order of such a Golomb ruler is m and its length is am - a1.
 
 La seguente formula (Paul Erdos e Pal Turan), produce un "Golomb ruler" per ogni numero primo dispari p:
 
@@ -6504,6 +6508,243 @@ Proviamo:
 ;->  134 175 218 60 99 140 183 39 80 123 41 84 43)
 (= test (unique test))
 ;-> true
+
+
+----------------
+Costante di Brun
+----------------
+
+La costante di Brun è il valore al quale converge la somma di tutti i reciproci delle coppie di primi gemelli (1/p e 1/(p+2) dove p e p+2 sono entrambi primi).
+Il suo valore è 1.902160583104....
+Il valore della costante cresce lentamente aumentando L.
+
+Per esempio:
+L = 10
+coppie = (3 5) (5 7)
+costante di brun = (1/3) + (1/5) + (1/5) + (1/7) = 0.8761904761904762
+
+Scrivere una funzione che dato un valore limite L, calcola la costante di Brun sommando i reciproci delle coppie di primi gemelli dove entrambi i primi nella coppia sono minori di L.
+
+Funzione che restituisce una lista con tutte le coppie di primi gemelli dal numero a al numero b:
+(Vedi "Coppie di primi gemelli" su "Rosetta Code")
+
+(define (prime-pairs a b)
+  (let ((out (list)) (x nil) (FX (* 2 3 5 7 11 13)) (M 0))
+    (for (y (if (odd? a) a (inc a)) b 2)
+      (if (if (< y FX) (1 (factor y))
+             (or (= (setf M (% y FX))) (if (factor M) (<= ($it 0) 13)) (1 (factor y))))
+        (setf y nil)
+        x (push (list x y) out -1))
+      (setf x y))
+    out))
+
+(prime-pairs 3 100)
+;-> ((3 5) (5 7) (11 13) (17 19) (29 31) (41 43) (59 61) (71 73))
+
+Funzione che calcola la somma dei reciproci di una coppia di primi gemelli:
+
+(define (calc-brun p) (add (div p) (div (+ p 2))))
+;(define (calc-brun2 p) (div (* 2 (+ p 1)) (* p (+ p 2))))
+
+(calc-brun 3)
+;-> 0.5333333333333333
+
+Funzione che calcola la costante di Brun fino ad un dato limite:
+
+(define (brun limit)
+  (apply add (map (fn(x) (calc-brun (x 0))) (prime-pairs 3 limit))))
+
+Proviamo:
+
+(brun 1e5)
+;-> 1.67279958482774
+
+(time (println (brun 1e7)))
+;-> 1.738357043917252
+;-> 7859.952
+
+(time (println (brun 1e8)))
+;-> 1.758815621067936
+;-> 175268.9 ;(2m 55s 268ms)
+
+Vediamo una versione ottimizzata:
+
+(define (brun-fast a b)
+  (let ((out (list)) (x nil) (FX (* 2 3 5 7 11 13)) (M 0))
+    (for (y (if (odd? a) a (inc a)) b 2)
+      (if (if (< y FX) (1 (factor y))
+             (or (= (setf M (% y FX))) (if (factor M) (<= ($it 0) 13)) (1 (factor y))))
+        (setf y nil)
+        x (extend out (list (div x) (div y))))
+      (setf x y))
+    (apply add out)))
+
+(time (println (brun-fast 3 1e9)))
+;-> 1.774735957638545
+;-> 4508014.919 ;(1h 15m 8s 14ms)
+
+
+-----------------------------------------
+Numeri primi con numero di 1 e di 0 primi
+-----------------------------------------
+
+Trovare tutti gli interi non negativi fino a un dato intero positivo n incluso, che sono primi e anche il conteggio di 1 e 0 nella loro rappresentazione binaria (senza zeri iniziali) è primo.
+
+Sequenza OEIS A144214:
+Primes with both a prime number of 0's and a prime number of 1's in binary.
+  17, 19, 37, 41, 79, 103, 107, 109, 131, 137, 151, 157, 167, 173, 179, 181,
+  193, 199, 211, 227, 229, 233, 241, 257, 367, 379, 431, 439, 443, 463, 487,
+  491, 499, 521, 541, 557, 563, 569, 577, 587, 601, 607, 613, 617, 631, 641,
+  647, 653, 659, 661, 677, 701, 709, ...
+  
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (pop-count num)
+  (let (counter 0)
+    (while (> num 0)
+      ; In questo modo arriviamo al prossimo bit impostato (successivo '1')
+      ; invece di eseguire il ciclo per ogni bit e controllare se vale '1'.
+      ; Quindi il ciclo non verrà eseguito per tutti i bit,
+      ; ma verrà eseguito solo tante volte quanti sono gli '1'.
+      (setq num (& num (- num 1)))
+      (++ counter)
+    )
+    counter))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (primi01 limit)
+  (setq out '())
+  (setq primi (primes-to limit))
+  (dolist (p primi)
+    ; numero di 1 in p
+    (setq uno (pop-count p))
+    ; numero di 0 in p
+    (setq zero (- (length (bits p)) uno))
+    (if (and (prime? uno) (prime? zero)) (push p out -1))
+  )
+  out)
+
+Proviamo:
+
+(primi01 1000)
+;-> (17 19 37 41 79 103 107 109 131 137 151 157 167 173 179 181 193 199
+;->  211 227 229 233 241 257 367 379 431 439 443 463 487 491 499 521 541
+;->  557 563 569 577 587 601 607 613 617 631 641 647 653 659 661 677 701
+;->  709 719 727 733 743 757 761 769 787 809 823 827 829 859 877 883 911
+;->  919 929 941 947 953 967 971 997)
+
+
+-------------------------------
+Che ora è (in linguaggio umano)
+-------------------------------
+
+Quando si chiede l'ora ad un essere umano in genere la risposta viene arrotondata a 5 minuti.
+Inoltre i casi sono i seguenti (x = ora):
+
+  x
+  x e 5 (minuti)
+  x e 10
+  x e un quarto (1/4)
+  x e 20
+  x e 25
+  x e mezza (1/2)
+  x e 35
+  x e 40 oppure (x + 1) meno 20
+  x e tre quarti (3/4) oppure (x + 1) meno un quarto
+  x e 50 oppure (x + 1) meno 10
+  x e 55 oppure (x + 1) meno 5
+
+Scrivere una funzione che data un ora in ore (hh = 0..23) e minuti (mm = 0..59) restituisce la risposta umana:
+
+(setq ore '((0 "Mezzanotte") (1 "L'una") (2 "Le due") (3 "Le tre")
+            (4 "Le quattro") (5 "Le cinque") (6  "Le sei") (7 "Le sette")
+            (8 "Le otto") (9 "Le nove") (10 "Le dieci")
+            (11 "Le undici") (12 "Mezzogiorno") (13 "L'una")
+            (14 "Le due") (15 "Le tre") (16 "Le quattro") (17 "Le cinque")
+            (18 "Le sei") (19 "Le sette")
+            (20 "Le otto") (21 "Le nove") (22 "Le dieci")
+            (23 "Le undici") (24 "Mezzanotte")))
+(setq min1 '((0 "") (5 " e cinque") (10 " e dieci") (20 " e venti")
+             (25 " e venticinque") (30 " e mezza") (35 " e trentacinque")
+             (40 " e quaranta") (45 " e tre quarti") (50 " e cinquanta")
+             (55 " e cinquantacinque")))
+(setq min2 '((40 " meno venti") (45 " meno un quarto")
+             (50 " meno dieci") (55 " meno cinque")))
+
+Funzione che arrotonda un intero al 5 più vicino:
+
+(define (round5 num) (* (round (div num 5)) 5))
+
+Funzione che esprime una data ora in termini umani:
+
+(define (cheora hh mm)
+  (setq mm (round5 mm))
+  (if (and (find mm '(40 45 50 55)) (zero? (rand 2)))
+      (println (lookup (+ hh 1) ore) (lookup mm min2))
+      (println (lookup hh ore) (lookup mm min1))
+  )
+)
+
+Proviamo:
+
+(cheora 0 42)
+;-> Mezzanotte e quaranta
+(cheora 0 42)
+;-> L'una meno venti
+
+(cheora 11 42)
+;-> Mezzogiorno meno venti
+(cheora 11 42)
+;-> Le undici e quaranta
+
+(cheora 23 42)
+;-> Le undici e quaranta
+(cheora 23 42)
+;-> Mezzanotte meno venti
+
+(cheora 21 45)
+;-> Le dieci meno un quarto
+(cheora 21 45)
+;-> Le nove e tre quarti
+
+(cheora 11 0)
+;-> Le undici
+
+(cheora 0 22)
+;-> Mezzanotte e venti
+
+(cheora 0 0)
+;-> Mezzanotte
+
+(cheora 12 0)
+;-> Mezzogiorno
+
+(cheora 12 21)
+;-> Mezzogiorno e venti
+
+(cheora 12 42)
+;-> L'una meno venti
+(cheora 12 42)
+;-> Mezzogiorno e quaranta
+
+(cheora 13 42)
+;-> Le due meno venti
+(cheora 13 42)
+;-> L'una e quaranta
 
 ============================================================================
 

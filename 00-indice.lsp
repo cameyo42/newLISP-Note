@@ -2277,6 +2277,9 @@ NOTE LIBERE 21
   Suddividere una lista in blocchi sequenziali
   Filtraggio di caratteri alfanumerici
   Golomb ruler
+  Costante di Brun
+  Numeri primi con numero di 1 e di 0 primi
+  Che ora è (in linguaggio umano)
  
 PROBLEMI SUI DADI
 =================
