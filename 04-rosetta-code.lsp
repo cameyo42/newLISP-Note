@@ -12491,6 +12491,8 @@ Scrivere una funzione che genera i numeri malvagi e i numeri odiosi fino ad un d
 ;-> ((0 3 5 6 9 10 12 15 17 18 20 23 24 27 29 30)
 ;->  (1 2 4 7 8 11 13 14 16 19 21 22 25 26 28))
 
+Vedi "Conteggio popolazione (1 e 0)" su "Note libere 22".
+
 
 ------------------------------
 SELEZIONE CASUALE DA UNA LISTA

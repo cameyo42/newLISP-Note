@@ -2280,7 +2280,12 @@ NOTE LIBERE 21
   Costante di Brun
   Numeri primi con numero di 1 e di 0 primi
   Che ora è (in linguaggio umano)
- 
+
+NOTE LIBERE 22
+==============
+  Inverso di un numero binario
+  Numero con i bit 1 spostati a sinistra/destra
+
 PROBLEMI SUI DADI
 =================
   Problemi 1..76
@@ -2315,8 +2320,9 @@ APPENDICI
   Colori HTML
   Codici nazionali (ISO 3166)
   Codici ASCII
+  Punctuation marks
   Considerazioni lungo il tragitto
-  
+
 
 BIBLIOGRAFIA/WEB
 ==================
@@ -2334,7 +2340,7 @@ DOCUMENTAZIONE EXTRA
 
 ==========================================================================
 
-LICENSE 
+LICENSE
 
 "MIT No Attribution" (MIT-0)
 

@@ -6192,8 +6192,24 @@ wxMaxima è un'interfaccia basata su documenti per il CAS Maxima.
 wxMaxima fornisce menu e finestre di dialogo per molti comandi comuni di Maxima, completamento automatico, grafici inline e semplici animazioni.
 wxMaxima è distribuito sotto licenza GPL.
 
-Elenco dei maggiori CAS
------------------------
+Maxima e LISP
+-------------
+Oltre a descrivere problemi matematici, Maxima fornisce il proprio linguaggio di programmazione per scrivere programmi.
+Inoltre, poiché è scritto in Lisp, fornisce anche un facile accesso a quel linguaggio di programmazione.
+In una sessione Maxima l'utente può inserire singoli comandi Lisp utilizzando il prefisso ":lisp", come nel seguente esempio:
+
+(%i1) :lisp (+ 2/7 (* 3 4 1/5))
+94/35
+
+L'utente può anche avviare una sessione Lisp da Maxima con il comando to_lisp().
+E quella sessione Lisp può essere terminata, tornando a Maxima, con il comando Lisp (to-maxima).
+
+Breve introduzione a Maxima
+---------------------------
+
+
+Elenco di altri CAS
+-------------------
 Commerciali:
 Mathematica, Magma, Maple, MatLab
 

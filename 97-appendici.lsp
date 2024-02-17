@@ -7081,6 +7081,45 @@ Mathematical symbols     Commercial symbols       Quotes and parenthesis
 |  ≡  |  alt + 240  |    |  °  |  alt + 248  |
 
 
+===================
+ Punctuation marks
+===================
+
+;;  "`" - backtick
+;;  "!" - Exclamation mark
+;;  """ - Quotation mark
+;;  "#" - Number sign (also known as hash or pound sign)
+;;  "$" - Dollar sign
+;;  "%" - Percent sign
+;;  "&" - Ampersand
+;;  "'" - Apostrophe
+;;  "(" - Left parenthesis
+;;  ")" - Right parenthesis
+;;  "*" - Asterisk
+;;  "+" - Plus sign
+;;  "," - Comma
+;;  "-" - Hyphen or Minus sign
+;;  "." - Period or Dot
+;;  "/" - Slash
+;;  ":" - Colon
+;;  ";" - Semicolon
+;;  "<" - Less than sign
+;;  "=" - Equal sign
+;;  ">" - Greater than sign
+;;  "?" - Question mark
+;;  "@" - At sign
+;;  "[" - Left square bracket
+;;  "\" - Backslash
+;;  "]" - Right square bracket
+;;  "^" - Caret
+;;  "_" - Underscore
+;;  "{" - Left curly bracket
+;;  "|" - Vertical bar or Pipe
+;;  "}" - Right curly bracket
+;;  "~" - Tilde
+;;  " " - Space
+
+  
 ============================================================================
  Considerazioni lungo il tragitto
 ============================================================================
