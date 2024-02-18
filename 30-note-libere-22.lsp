@@ -199,5 +199,726 @@ Vediamo la velocità delle ultime due funzioni:
 (time (map right2 (sequence 0 1e5)))
 ;-> 125.354
 
+
+-----------------------------
+Conteggio popolazione (1 e 0)
+-----------------------------
+
+Funzione che calcola il numero di 1 nel valore binario di un numero decimale:
+
+Versione 1:
+
+(define (pop-1a num)
+  (let (counter 0)
+    (while (> num 0)
+      ; In questo modo arriviamo al prossimo bit impostato (successivo '1')
+      ; invece di eseguire il ciclo per ogni bit e controllare se vale '1'.
+      ; Quindi il ciclo non verrà eseguito per tutti i bit,
+      ; ma verrà eseguito solo tante volte quanti sono gli '1'.
+      (setq num (& num (- num 1)))
+      (++ counter)
+    )
+    counter))
+
+Versione 2:
+
+(define (pop-1b num)
+  (first (count '("1") (explode (bits num)))))
+
+Versione 3:
+
+(define (pop-1c num)
+  (- (length (bits num)) (pop-0c num)))
+
+Funzione che calcola il numero di 0 nel valore binario di un numero decimale:
+
+Versione 1:
+
+(define (pop-0a num)
+  (let (counter 0)
+    (while (> num 0)
+      ; Se l'ultimo bit è 0, incrementa il conteggio
+      ;(if (zero? (% num 2)) (++ counter))
+      (if (even? num) (++ counter))
+      ; Sposta il numero a destra (right shift) di 1 posizione
+      ; (equivalente a dividere per 2)
+      (setq num (>> num))
+    )
+    counter))
+
+Versione 2:
+
+(define (pop-0b num)
+  (first (count '("0") (explode (bits num)))))
+
+Versione 3:
+
+(define (pop-0c num)
+  (- (length (bits num)) (pop-1a num)))
+
+Vediamo se le funzioni restituiscono gli stessi risultati:
+
+(= (map pop-0a (sequence 1 1000))
+   (map pop-0b (sequence 1 1000))
+   (map pop-0c (sequence 1 1000)))
+;-> true
+
+(= (map pop-1a (sequence 1 1000))
+   (map pop-1b (sequence 1 1000))
+   (map pop-1c (sequence 1 1000)))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+(time (map pop-0a (sequence 1 1e5)))
+;-> 179.583
+(time (map pop-0b (sequence 1 1e5)))
+;-> 537.472
+(time (map pop-0c (sequence 1 1e5)))
+;-> 131.555
+
+(time (map pop-1a (sequence 1 1e5)))
+;-> 115.868
+(time (map pop-1b (sequence 1 1e5)))
+;-> 542.82
+(time (map pop-1c (sequence 1 1e5)))
+;-> 131.562
+
+Quindi le due versioni più veloci sono "pop-0c" e "pop-1a".
+
+Versioni finali:
+
+(define (pop-count1 num)
+  (let (counter 0)
+    (while (> num 0)
+      (setq num (& num (- num 1)))
+      (++ counter)
+    )
+    counter))
+
+(define (pop-count0 num)
+  (- (length (bits num)) (pop-count1 num)))
+
+
+-----------------------------------
+Numero minimo con divisori da 1 a N
+-----------------------------------
+
+Dato un intero positivo N restituire il più piccolo numero positivo che abbia tutti i numeri interi da 1 a N come divisori.
+
+Si tratta semplicemente di calcolare il minimo comune multiplo (lcm - least common multiple) della sequenza 1..N.
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (map eval (args)) 2))
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(define (smallest num) (apply lcm (sequence 1 num)))
+
+Proviamo:
+
+(smallest 12)
+;-> 27720
+(factor 27720)
+;-> (2 2 2 3 3 5 7 11)
+(divisors 27720)
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 14 15 18 20 21 22 24 28 30 33 35 36 40
+;->  42 44 45 55 56 60 63 66 70 72 77 84 88 90 99 105 110 120 126 132
+;->  140 154 165 168 180 198 210 220 231 252 264 280 308 315 330 360 385
+;->  396 420 440 462 495 504 616 630 660 693 770 792 840 924 990 1155
+;->  1260 1320 1386 1540 1848 1980 2310 2520 2772 3080 3465 3960 4620
+;->  5544 6930 9240 13860 27720)
+
+(smallest 21)
+;-> 232792560
+(factor 232792560)
+;-> (2 2 2 2 3 3 5 7 11 13 17 19)
+(divisors 232792560)
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 24 26 28
+;->  30 33 34 35 36 38 39 40 42 44 45 48 51 52 55 56 57 60 63 65 66 68
+;-> ...
+;->  17907120 19399380 21162960 23279256 25865840 29099070 33256080 38798760
+;->  46558512 58198140 77597520 116396280 232792560)
+
+
+-------------------------------------
+Moltiplicazione simbolica tra matrici
+-------------------------------------
+
+Date due matrici di simboli, calcolare la loro moltiplicazione simbolica.
+Per esempio,
+
+    |a11 a12|
+A = |a21 a22|       B =|b11 b12 b13|
+    |a31 a32|          |b21 b22 b23|
+
+       |(a11*b11)+(a12*b21) (a11*b12)+(a12*b22) (a11*b13)+(a12*b23)|
+AxB =  |(a21*b11)+(a22*b21) (a21*b12)+(a22*b22) (a21*b13)+(a22*b23)|
+       |(a31*b11)+(a32*b21) (a31*b12)+(a32*b22) (a31*b13)+(a32*b23)|
+
+BxA =  |(b11*a11)+(b12*a21)+(b13*a31) (b11*a12)+(b12*a22)+(b13*a32)|
+       |(b21*a11)+(b22*a21)+(b23*a31) (b21*a12)+(b22*a22)+(b23*a32)|
+
+(define (print-matrix lst)
+"Print a matrix (list) m x n as a table"
+  (local (tab plus minus ver rows cols col-len-max len-max
+          line-len line ind)
+    ; conversione di tutti i valori della lista in stringa
+    ;(setq tab (map-all string lst))
+    ; suppone che gli elementi siano tutte stringhe
+    (setq tab lst)
+    ; caratteri grafici
+    (setq plus "+")
+    (setq minus "-")
+    (setq ver "|")
+    ; calcolo righe e colonne della lista
+    (setq rows (length tab))
+    (setq cols (length (tab 0)))
+    ; vettore per le lunghezze massime dei valori di ogni colonna
+    (setq col-len-max (array cols '(0)))
+    ; calcola la lunghezza massima dei valori di ogni colonna
+    (for (c 0 (- cols 1))
+      (setq len-max 0)
+      (for (r 0 (- rows 1))
+        (setf len-max (max len-max (length (tab r c))))
+      )
+      (setf (col-len-max c) len-max)
+    )
+    ;(println col-len-max)
+    ; lunghezza della linea =
+    ; (somma delle lunghezze massime) +
+    ; (2 spazi x ogni colonna) +
+    ; (colonne + 1 per "|")
+    (setq line-len (+ (apply + col-len-max) (* cols 2) (+ cols 1)))
+    (setq line (dup minus line-len))
+    (setf (line 0) plus)
+    (setf (line -1) plus)
+    ; calcola i limiti di stampa dei valori
+    ; (inserisce "+" nella linea "line")
+    (setq ind 1)
+    (dolist (c col-len-max)
+      (setq ind (+ ind 2 c))
+      (setf (line ind) plus)
+      (++ ind)
+    )
+    ; stampa della lista come tabella
+    (dolist (r tab)
+      (println line)
+      (dolist (c r)
+        (print ver { } c (dup " " (- (col-len-max $idx) (length c))) { })
+      )
+      (println ver)
+    )
+    (println line)
+  'end))
+
+Funzione che unisce due stringhe/simboli con "+":
+
+(define (adds a b) (string a "+" b))
+;(define (adds a b) (string "(" a "+" b ")"))
+
+Proviamo:
+
+(adds 2 3)
+;-> "2+3"
+(adds "a" "b")
+;-> "a+b"
+
+Funzione che unisce due stringhe/simboli con "(", "*" e ")":
+
+(define (muls a b) (string "(" a "*" b ")"))
+
+Proviamo:
+
+(muls "a" "b")
+;-> (a*b)
+(muls (adds "abc" "def") (adds 3 4))
+;-> "(abc+def*3+4)"
+(adds (muls "abc" "def") (muls 3 4))
+;-> "(abc*def)+(3*4)"
+(muls "abc+def" "3+4")
+;-> "(abc+def*3+4)"
+(muls "(abc+def)" "(3+4)")
+;-> "((abc+def)*(3+4))"
+
+Funzione che moltiplica due matrici in forma simbolica:
+
+(define (mul-mat m1 m2)
+  (local (r1 c1 r2 c2 out)
+    (setq r1 (length m1))
+    (setq c1 (length (m1 0)))
+    (setq r2 (length m2))
+    (setq c2 (length (m2 0)))
+    (setq out (array r1 c2 '("")))
+    (for (i 0 (- r1 1))
+      (for (j 0 (- c2 1))
+        (setq (out i j) "")
+        (for (k 0 (- r2 1))
+          ;(setq (res i j) (+ (res i j) (* (m1 i k) (m2 k j))));
+          (setq (out i j) (adds (out i j) (muls (m1 i k) (m2 k j))))
+        )
+      )
+    )
+    out))
+
+Moltiplichiamo alcune matrici:
+
+(setq m1 '(("a11" "a12") ("a21" "a22") ("a31" "a32")))
+(setq m2 '(("b11" "b12" "b13") ("b21" "b22" "b23")))
+(print-matrix (mul-mat m1 m2))
+;-> +----------------------+----------------------+----------------------+
+;-> | +(a11*b11)+(a12*b21) | +(a11*b12)+(a12*b22) | +(a11*b13)+(a12*b23) |
+;-> +----------------------+----------------------+----------------------+
+;-> | +(a21*b11)+(a22*b21) | +(a21*b12)+(a22*b22) | +(a21*b13)+(a22*b23) |
+;-> +----------------------+----------------------+----------------------+
+;-> | +(a31*b11)+(a32*b21) | +(a31*b12)+(a32*b22) | +(a31*b13)+(a32*b23) |
+;-> +----------------------+----------------------+----------------------+
+(print-matrix (mul-mat m2 m1))
+;-> +--------------------------------+--------------------------------+
+;-> | +(b11*a11)+(b12*a21)+(b13*a31) | +(b11*a12)+(b12*a22)+(b13*a32) |
+;-> +--------------------------------+--------------------------------+
+;-> | +(b21*a11)+(b22*a21)+(b23*a31) | +(b21*a12)+(b22*a22)+(b23*a32) |
+;-> +--------------------------------+--------------------------------+
+
+(setq m1 '((a11 a12) (a21 a22) (a31 a32)))
+(setq m2 '((b11 b12 b13) (b21 b22 b23)))
+(print-matrix (mul-mat m2 m1))
+;-> +--------------------------------+--------------------------------+
+;-> | +(b11*a11)+(b12*a21)+(b13*a31) | +(b11*a12)+(b12*a22)+(b13*a32) |
+;-> +--------------------------------+--------------------------------+
+;-> | +(b21*a11)+(b22*a21)+(b23*a31) | +(b21*a12)+(b22*a22)+(b23*a32) |
+;-> +--------------------------------+--------------------------------+
+
+(setq m1 '((1 2 3) (4 5 6) (7 8 9)))
+(setq m2 '((11 22 33) (44 55 66) (77 88 99)))
+(print-matrix (mul-mat m2 m1))
+;-> +-----------------------+-----------------------+-----------------------+
+;-> | +(11*1)+(22*4)+(33*7) | +(11*2)+(22*5)+(33*8) | +(11*3)+(22*6)+(33*9) |
+;-> +-----------------------+-----------------------+-----------------------+
+;-> | +(44*1)+(55*4)+(66*7) | +(44*2)+(55*5)+(66*8) | +(44*3)+(55*6)+(66*9) |
+;-> +-----------------------+-----------------------+-----------------------+
+;-> | +(77*1)+(88*4)+(99*7) | +(77*2)+(88*5)+(99*8) | +(77*3)+(88*6)+(99*9) |
+;-> +-----------------------+-----------------------+-----------------------+
+
+
+-----------------------------------
+Numero più piccolo che non divide N
+-----------------------------------
+
+Dato un intero positivo N restituire il più piccolo intero positivo che non sia un divisore di N.
+Per esempio,
+  N = 10
+  Divisori di 10 = 1 2 5 10
+  Numero minimo non divisore = 3
+
+  N = 24
+  Divisori di 10 = 1 2 5 10
+  Numero minimo non divisore = 3
+
+Sequenza OEIS A007978:
+Least non-divisor of n
+  2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 5,
+  2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 5,
+  2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 7, 2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 5,
+  2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 5, 2, 3, 2, 3, 2, 4, 2, 3, 2, 3, 2, 5,
+  2, 3, 2, 3, ...
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(define (minore1 num)
+  (let (diff (difference (sequence 1 num) (divisors num)))
+    (if (= diff '())
+        (+ num 1)
+        (first diff))))
+
+Proviamo:
+
+(minore1 10)
+;-> 3
+
+(map minore1 (sequence 1 100))
+;-> (2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2
+;->  3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 7 2 3 2 3 2 4
+;->  2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2
+;->  3)
+
+La funzione è lenta perchè il calcolo dei divisori è oneroso.
+Inoltre i valori di output sono piccoli.
+
+(time (println (apply max (map minore1 (sequence 1 10000)))))
+;-> 11
+;-> 10310.828
+
+Usiamo un altro metodo, dividiamo il numero N per k = 1,2,3,4,... fino a che non troviamo il primo numero non divisore di N.
+Se raggiungiamo N, allora il numero minimo non divisore vale (N + 1).
+
+(define (minore2 num)
+  (let (k 1)
+    (while (and (zero? (% num k)) (< k num)) (++ k))
+    (if (= k num) (+ num 1) k)))
+
+Proviamo:
+
+(minore2 10)
+;-> 3
+
+(map minore2 (sequence 1 100))
+;-> (2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2
+;->  3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 7 2 3 2 3 2 4
+;->  2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2 3 2 4 2 3 2 3 2 5 2 3 2
+;->  3)
+
+(time (println (apply max (map minore2 (sequence 1 10000)))))
+;-> 11
+;-> 5.546
+
+(time (println (apply max (map minore2 (sequence 1 1e7)))))
+;-> 17
+;-> 4075.675
+
+
+---------------------------
+Somma degli orari in 24 ore
+---------------------------
+
+Dato un numero intero compreso tra 0 e 141 (incluso), elencare tutti gli orari di 24 ore in cui la somma delle ore, dei minuti e dei secondi è uguale al numero dato.
+
+Formato 24-ore (input e output):
+  (H)H-MM-SS, con (H)H=(0..23), MM=(0..59), SS=(0..59)
+
+Esempi:
+
+  00:00:00 --> 0 + 0 + 0 = 0
+  23:59:59 --> 23 + 59 + 59 = 141
+  21:08:42 --> 21 + 8 + 42 = 71 
+  09:08:01 --> 9 + 8 + 1 = 18 
+   9:08:01 --> 9 + 8 + 1 = 18 
+
+(define (ore num)
+  (let (out '())
+    (for (h 0 23)
+      (for (m 0 59)
+        (for (s 0 59)
+          (if (= num (+ h m s)) (push (format "%02d:%02d:%02d" h m s) out -1))
+        )
+      )
+    )
+    out))
+
+Proviamo:
+
+(ore 0)
+;-> ("0:00:00")
+(ore 141)
+;-> ("23:59:59")
+(ore 4)
+;-> ("00:00:04" "00:01:03" "00:02:02" "00:03:01" "00:04:00" "01:00:03"
+;->  "01:01:02" "01:02:01" "01:03:00" "02:00:02" "02:01:01" "02:02:00"
+;->  "03:00:01" "03:01:00" "04:00:00")
+
+Calcoliamo una lista i cui elementi hanno la seguente struttura:
+  (numero, numero degli orari con somma uguale al numero)
+
+(define (all)
+  (let (out '())
+    (for (i 1 141) (push (list i (length (ore i))) out -1))))
+
+(all)
+;-> ((1 3) (2 6) (3 10) (4 15) (5 21) (6 28) (7 36) (8 45) (9 55) (10 66)
+;->  (11 78) (12 91) (13 105) (14 120) (15 136) (16 153) (17 171) (18 190)
+;->  (19 210) (20 231) (21 253) (22 276) (23 300) (24 324) (25 348) (26 372)
+;->  (27 396) (28 420) (29 444) (30 468) (31 492) (32 516) (33 540) (34 564)
+;->  (35 588) (36 612) (37 636) (38 660) (39 684) (40 708) (41 732) (42 756)
+;->  (43 780) (44 804) (45 828) (46 852) (47 876) (48 900) (49 924) (50 948)
+;->  (51 972) (52 996) (53 1020) (54 1044) (55 1068) (56 1092) (57 1116)
+;->  (58 1140) (59 1164) (60 1186) (61 1206) (62 1224) (63 1240) (64 1254)
+;->  (65 1266) (66 1276) (67 1284) (68 1290) (69 1294) (70 1296) (71 1296)
+;->  (72 1294) (73 1290) (74 1284) (75 1276) (76 1266) (77 1254) (78 1240)
+;->  (79 1224) (80 1206) (81 1186) (82 1164) (83 1140) (84 1116) (85 1092)
+;->  (86 1068) (87 1044) (88 1020) (89 996) (90 972) (91 948) (92 924)
+;->  (93 900) (94 876) (95 852) (96 828) (97 804) (98 780) (99 756)
+;->  (100 732) (101 708) (102 684) (103 660) (104 636) (105 612) (106 588)
+;->  (107 564) (108 540) (109 516) (110 492) (111 468) (112 444) (113 420)
+;->  (114 396) (115 372) (116 348) (117 324) (118 300) (119 276) (120 253)
+;->  (121 231) (122 210) (123 190) (124 171) (125 153) (126 136) (127 120)
+;->  (128 105) (129 91) (130 78) (131 66) (132 55) (133 45) (134 36)
+;->  (135 28) (136 21) (137 15) (138 10) (139 6) (140 3) (141 1))
+
+Tracciamo un istogramma di questi valori.
+
+(define (histogram lst hmax calc)
+"Print the histogram of a list of integer numbers"
+  (local (unici linee hm scala f-lst)
+    (if calc
+      ; calcolo la lista delle frequenze partendo da lst
+      (begin
+        ; trovo quanti numeri diversi ci sono nella lista
+        (setq unici (length (unique lst)))
+        ; creo la lista delle frequenze
+        (setq f-lst (array unici '(0)))
+        ; calcolo dei valori delle frequenze
+        (dolist (el lst)
+          (++ (f-lst (- el 1)))
+        )
+      )
+      ; else
+      ; lst è la lista delle frequenze
+      (begin (setq f-lst lst))
+    )
+    (setq hm (apply max f-lst))
+    (setq scala (div hm hmax))
+    (setq linee (map (fn (x) (round (div x scala))) f-lst))
+    (dolist (el linee)
+      ; (println (format "%3d %s %0.2f" (add $idx 1) (dup "*" el) (f-lst $idx)))
+      (println (format "%3d %s %4d" $idx (dup "*" el) (f-lst $idx)))
+    )))
+
+La funzione "histogram" prende una lista di valori e li indicizza da 0, quindi inseriamo uno 0 all'inizio della lista di valori:
+
+(histogram (push 0 (map last (all))) 70)
+  0     0
+  1     3
+  2     6
+  3 *   10
+  4 *   15
+  5 *   21
+  6 **   28
+  7 **   36
+  8 **   45
+  9 ***   55
+ 10 ****   66
+ 11 ****   78
+ 12 *****   91
+ 13 ******  105
+ 14 ******  120
+ 15 *******  136
+ 16 ********  153
+ 17 *********  171
+ 18 **********  190
+ 19 ***********  210
+ 20 ************  231
+ 21 **************  253
+ 22 ***************  276
+ 23 ****************  300
+ 24 ******************  324
+ 25 *******************  348
+ 26 ********************  372
+ 27 *********************  396
+ 28 ***********************  420
+ 29 ************************  444
+ 30 *************************  468
+ 31 ***************************  492
+ 32 ****************************  516
+ 33 *****************************  540
+ 34 ******************************  564
+ 35 ********************************  588
+ 36 *********************************  612
+ 37 **********************************  636
+ 38 ************************************  660
+ 39 *************************************  684
+ 40 **************************************  708
+ 41 ****************************************  732
+ 42 *****************************************  756
+ 43 ******************************************  780
+ 44 *******************************************  804
+ 45 *********************************************  828
+ 46 **********************************************  852
+ 47 ***********************************************  876
+ 48 *************************************************  900
+ 49 **************************************************  924
+ 50 ***************************************************  948
+ 51 ****************************************************  972
+ 52 ******************************************************  996
+ 53 ******************************************************* 1020
+ 54 ******************************************************** 1044
+ 55 ********************************************************** 1068
+ 56 *********************************************************** 1092
+ 57 ************************************************************ 1116
+ 58 ************************************************************** 1140
+ 59 *************************************************************** 1164
+ 60 **************************************************************** 1186
+ 61 ***************************************************************** 1206
+ 62 ****************************************************************** 1224
+ 63 ******************************************************************* 1240
+ 64 ******************************************************************** 1254
+ 65 ******************************************************************** 1266
+ 66 ********************************************************************* 1276
+ 67 ********************************************************************* 1284
+ 68 ********************************************************************** 1290
+ 69 ********************************************************************** 1294
+ 70 ********************************************************************** 1296
+ 71 ********************************************************************** 1296
+ 72 ********************************************************************** 1294
+ 73 ********************************************************************** 1290
+ 74 ********************************************************************* 1284
+ 75 ********************************************************************* 1276
+ 76 ******************************************************************** 1266
+ 77 ******************************************************************** 1254
+ 78 ******************************************************************* 1240
+ 79 ****************************************************************** 1224
+ 80 ***************************************************************** 1206
+ 81 **************************************************************** 1186
+ 82 *************************************************************** 1164
+ 83 ************************************************************** 1140
+ 84 ************************************************************ 1116
+ 85 *********************************************************** 1092
+ 86 ********************************************************** 1068
+ 87 ******************************************************** 1044
+ 88 ******************************************************* 1020
+ 89 ******************************************************  996
+ 90 ****************************************************  972
+ 91 ***************************************************  948
+ 92 **************************************************  924
+ 93 *************************************************  900
+ 94 ***********************************************  876
+ 95 **********************************************  852
+ 96 *********************************************  828
+ 97 *******************************************  804
+ 98 ******************************************  780
+ 99 *****************************************  756
+100 ****************************************  732
+101 **************************************  708
+102 *************************************  684
+103 ************************************  660
+104 **********************************  636
+105 *********************************  612
+106 ********************************  588
+107 ******************************  564
+108 *****************************  540
+109 ****************************  516
+110 ***************************  492
+111 *************************  468
+112 ************************  444
+113 ***********************  420
+114 *********************  396
+115 ********************  372
+116 *******************  348
+117 ******************  324
+118 ****************  300
+119 ***************  276
+120 **************  253
+121 ************  231
+122 ***********  210
+123 **********  190
+124 *********  171
+125 ********  153
+126 *******  136
+127 ******  120
+128 ******  105
+129 *****   91
+130 ****   78
+131 ****   66
+132 ***   55
+133 **   45
+134 **   36
+135 **   28
+136 *   21
+137 *   15
+138 *   10
+139     6
+140     3
+141     1
+
+Sembra una distribuzione gaussiana.
+
+
+-----------------------
+Funzioni autoreplicanti
+-----------------------
+
+Scrivere una funzione che si autoreplica.
+La funzione prende come parametro il nome della nuova funzione replicata.
+
+(define (replica name)
+  (let (s (source 'replica)) ; stringa che contiene il codice della funzione
+    ; sostituisce "replica" con il nome della nuova funzione
+    (replace "replica" s name)
+    ; crea la nuova funzione valutando la stringa s
+    (setq name (eval-string s))))
+
+Proviamo:
+
+(replica "go")
+;-> (lambda (name)
+;->  (let (s (source 'go))
+;->   (replace "go" s name)
+;->   (setq name (eval-string s))))
+
+Vediamo come è fatta la funzione "go":
+
+(source 'go)
+;-> "(define (go name)\r\n
+;->   (let (s (source 'go)) \r\n
+;->   (replace \"go\" s name) \r\n
+;->   (setq name (eval-string s))))\r\n\r\n"
+
+Usiamo "go" per creare un'altra funzione:
+
+(go "altra")
+;-> (lambda (name)
+;->  (let (s (source 'altra))
+;->   (replace "altra" s name)
+;->   (setq name (eval-string s))))
+
+Vediamo come è fatta la funzione "altra":
+
+(source 'altra))
+;-> "(define (altra name)\r\n
+;->   (let (s (source 'altra)) \r\n
+;->   (replace \"altra\" s name) \r\n
+;->   (setq name (eval-string s))))\r\n\r\n"
+
 ============================================================================
 

@@ -2285,6 +2285,12 @@ NOTE LIBERE 22
 ==============
   Inverso di un numero binario
   Numero con i bit 1 spostati a sinistra/destra
+  Conteggio popolazione (1 e 0)
+  Numero minimo con divisori da 1 a N
+  Moltiplicazione simbolica tra matrici
+  Numero più piccolo che non divide N
+  Somma degli orari in 24 ore
+  Funzioni autoreplicanti
 
 PROBLEMI SUI DADI
 =================
@@ -2329,7 +2335,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (260 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (264 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
