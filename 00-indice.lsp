@@ -2291,6 +2291,10 @@ NOTE LIBERE 22
   Numero più piccolo che non divide N
   Somma degli orari in 24 ore
   Funzioni autoreplicanti
+  Sequenza 1, 81, ?
+  Primi di Mills e costante di Mills
+  Sequenza di Baum-Sweet
+  Siamo connessi a Internet?
 
 PROBLEMI SUI DADI
 =================

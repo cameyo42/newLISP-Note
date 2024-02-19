@@ -920,5 +920,254 @@ Vediamo come è fatta la funzione "altra":
 ;->   (replace \"altra\" s name) \r\n
 ;->   (setq name (eval-string s))))\r\n\r\n"
 
+
+-----------------
+Sequenza 1, 81, ?
+-----------------
+
+Dato un numero intero positivo N calcolare la seguente potenza:
+
+  pot = (numero di 1 in binario di N)^(numero di 0 in binario di N)
+
+Per esempio:
+
+  N = 124
+  binario = 1111100 (5 '1' e 2 '0')
+  pot = 5^2 = 25
+
+  N = 81
+  binario = 1010001 (3 '1' e 4 '0')
+  pot = 3^4 = 81
+
+Qual'è la sequenza dei numeri interi che hanno lo stesso valore della potenza?
+
+(define (pop-count1 num)
+"Calculate the number of 1 in binary value of an integer number"
+  (let (counter 0)
+    (while (> num 0)
+      (setq num (& num (- num 1)))
+      (++ counter)
+    )
+    counter))
+
+(define (pop-count0 num)
+"Calculate the number of 0 in binary value of an integer number"
+  (- (length (bits num)) (pop-count1 num)))
+
+(define (seq limit)
+  (let (out '())
+    (for (num 1 limit)
+      (setq p (pop-count1 num))
+      ;(print (bits num) { } p { } (- (length (bits num)) p))
+      ;(read-line)
+      (if (= num (pow p (- (length (bits num)) p)))
+          (push num out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(seq 10000)
+;-> (1 81)
+
+(seq 1e6)
+;-> (1 81)
+
+Fino a 1e8 (100 milioni) esistono solo i numeri 1 e 81.
+
+(time (println (seq 1e8)))
+;-> (1 81)
+;-> 182244.822
+
+(time (println (seq 1e9)))
+(1 81)
+;-> 2040003.693
+
+Credo che non esistano altri numeri oltre a 1 e 81, ma bisognerebbe dimostrarlo matematicamente.
+
+
+----------------------------------
+Primi di Mills e costante di Mills
+----------------------------------
+
+La costante di Mills è il numero reale positivo A tale che la funzione:
+
+  f(n) = floor(A^(3^n))
+
+generi numeri primi per ogni n intero positivo,
+
+Assumendo come vera l'ipotesi di Riemann la costante vale:
+
+  A = 1.30637788386308069046861449260260571291678458515671364436805375996643...
+
+I numeri primi generati da A vengono chiamati primi di Mills.
+
+Sequenza OEIS A051254: Mills primes
+  2, 11, 1361, 2521008887, 16022236204009818131831320183,
+  4113101149215104800030529537915953170486139
+  623539759933135949994882770404074832568499, ...
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (genera n)
+  ; 1.306377883863081
+  (setq A 1.306377883863080690468)
+  (floor (add .5 (pow A (** 3 n)))))
+
+Proviamo:
+
+(genera 1)
+;-> 2
+(genera 2)
+;-> 11
+(genera 3)
+;-> 1361
+(genera 4)
+;-> 2521008887
+
+Il quinto primo è errato perchè A^(3^5) è maggiore del massimo intero Int64.
+(genera 5)
+;-> 1.602223620400958e+028
+
+Non si conosce una formula chiusa per la costante di Mills, quindi è impossibile fare un'approssimazione a priori. 
+Comunque è possibile determinare la successione dei primi di Mills tramite una stima del valore della costante, e da questi ricavarne un valore più preciso (ricorsione).
+
+
+----------------------
+Sequenza di Baum-Sweet
+----------------------
+
+Un numero intero positivo appartiene alla sequenza di Baum-Sweet se la sua rappresentazione binaria non contiene un numero dispari di zeri consecutivi in qualsiasi punto del numero.
+Per esempio,
+  N = 252
+  binario = 11111100
+  Baum-Sweet = true (nessuna sequenza di zeri dispari)
+
+  N = 37
+  binario = 100101
+  Baum-Sweet = nil (contiene una sequenza dispari: 0)
+
+  N = 69
+  binario = 1000101
+  Baum-Sweet = nil (contiene due sequenze dispari: 000 e 0)
+
+Sequenza OEIS A086747:
+Baum-Sweet sequence: a(n) = 1 if binary representation of n contains no block of consecutive zeros of odd length, otherwise a(n) = 0.
+  0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0,
+  0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0,
+  0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 0, 0, 1, 0, 0, 1, 0, ...
+
+(define (baum? num)
+  (setq binary (explode (bits num)))
+  (setq dispari nil)
+  (setq zeri 0)
+  ;(print binary { })
+  (dolist (b binary dispari)
+    (cond ((= b "0") (++ zeri))
+          ((= b "1")
+            (if (odd? zeri) (setq dispari true))
+            (setq zeri 0))
+    )
+  )
+  (if (or (odd? zeri) (= dispari true)) 0 1))
+
+Proviamo:
+
+(baum? 252)
+;-> 1
+(baum? 37)
+;-> 0
+(baum? 69)
+;-> 0
+
+(map baum? (sequence 0 95))
+;-> (0 1 0 1 1 0 0 1 0 1 0 0 1 0 0 1 1 0 0 1 0 0 0 0
+;->  0 1 0 0 1 0 0 1 0 1 0 0 1 0 0 1 0 0 0 0 0 0 0 0
+;->  1 0 0 1 0 0 0 0 0 1 0 0 1 0 0 1 1 0 0 1 0 0 0 0
+;->  0 1 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
+
+--------------------------
+Siamo connessi a Internet?
+--------------------------
+
+Per vedere se siamo connessi a Internet possiamo usare la primitiva "net-connect".
+
+************************
+>>>funzione NET-CONNECT
+************************
+sintassi: (net-connect str-remote-host int-port [int-timeout-ms])
+sintassi: (net-connect str-remote-host int-port [str-mode [int-ttl]])
+sintassi: (net-connect str-file-path)
+
+Nella prima sintassi, si connette a un computer host remoto specificato in str-remote-host e a una porta specificata in int-port.
+Restituisce un handle di socket dopo essersi connesso con successo, in caso contrario, restituisce nil.
+
+(set 'socket (net-connect "example.com" 80))
+(net-send socket "GET /\r\n\r\n")
+(net-receive socket buffer 10000)
+(println buffer)
+(exit)
+
+In caso di successo, la funzione net-connect restituisce un numero di socket che può essere utilizzato per inviare e ricevere informazioni dall'host.
+Nell'esempio viene inviata una richiesta HTTP GET e successivamente viene ricevuta una pagina web.
+Si noti che newLISP ha già una funzione incorporata get-url che offre la stessa funzionalità.
+
+Facoltativamente è possibile specificare un valore di timeout int-timeout in millisecondi.
+Senza un valore di timeout la funzione attenderà fino a 10 secondi per una porta aperta.
+Con un valore di timeout è possibile far sì che la funzione ritorni su una porta non disponibile molto prima o dopo.
+L'esempio seguente mostra uno scanner di porte che cerca porte aperte:
+
+(set 'host (main-args 2))
+(println "Scanning: " host)
+(for (port 1 1024)
+    (if (set 'socket (net-connect host port 500))
+        (println "open port: " port " " (or (net-service port "tcp") ""))
+        (print port "\r"))
+)
+
+Il programma prende la stringa host dalla riga di comando della shell come nome di dominio o numero IP in notazione punto, quindi tenta di aprire ciascuna porta da 1 a 1024.
+Per ogni porta aperta viene stampato il numero della porta e la stringa di descrizione del servizio.
+Se non è disponibile alcuna descrizione, viene emessa una stringa vuota "".
+Per le porte chiuse la funzione restituisce i numeri nella finestra della shell rimanendo sulla stessa riga.
+
+Su Unix net-connect può restituire un valore pari a nil prima della scadenza del timeout, quando la porta non è disponibile.
+Su MS Windows la connessione di rete attenderà sempre la scadenza del timeout prima di fallire con nil.
+------------
+
+Per vedere se siamo connessi possiamo provare a raggiungere alcuni siti (Google, Amazon, Youtube, ecc.).
+
+(define (web? time-out)
+  (setq time-out (or time-out 5000)) ;5000 msec
+  (if (net-connect "www.google.com" 80 time-out)
+      (println "Google: ON")
+      (println "Google: OFF")
+  )
+  (if (net-connect "www.amazon.com" 80 time-out)
+      (println "Amazon: ON")
+      (println "Amazon: OFF")
+  )
+  '-----------)
+
+(web?)
+;-> Google: ON
+;-> Amazon: ON
+;-> -----------
+
+Stacchiamo la wi-fi...
+
+(web?)
+;-> Google: OFF
+;-> Amazon: OFF
+;-> -----------
+
 ============================================================================
 

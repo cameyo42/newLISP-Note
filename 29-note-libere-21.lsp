@@ -6206,7 +6206,7 @@ E quella sessione Lisp può essere terminata, tornando a Maxima, con il comando 
 
 Breve introduzione a Maxima
 ---------------------------
-
+Vedi i file "maxima-test.html" e "maxima-test.wxmx" nella cartella "Data".
 
 Elenco di altri CAS
 -------------------
