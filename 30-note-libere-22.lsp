@@ -1169,5 +1169,202 @@ Stacchiamo la wi-fi...
 ;-> Amazon: OFF
 ;-> -----------
 
+
+--------------------
+Coprimi di una lista
+--------------------
+
+Data una lista di numeri interi, estrarre la lista dei numeri coprimi più piccoli.
+
+Per esempio,
+  lista = (3 5 4 8 11)
+  coprimi = (3 4 5 11)
+
+Algoritmo
+1) Ordinare la lista
+2) Inserire il primo elemento della lista nella lista dei coprimi
+3) ciclo sulla lista data
+   se elemento corrente coprimi con tutti gli elementi della lista coprimi,
+   allora inserire l'elemento corrente nella lista dei coprimi
+   altrimenti inserire l'elemento corrente nella lista dei non-coprimi
+
+Due numeri interi a e b sono coprimi se e solo se gcd(a,b) = 1.
+
+(define (filter-coprimi lst)
+  (local (coprimi non-coprimi)
+    (sort lst)
+    (setq coprimi (list (pop lst)))
+    (setq non-coprimi '())
+    (dolist (el lst)
+      (if (for-all (fn(x) (= (gcd x el) 1)) coprimi)
+          (push el coprimi -1)
+          (push el non-coprimi -1)
+      )
+    )
+    (list coprimi non-coprimi)))
+
+Proviamo:
+
+(filter-coprimi '(3 5 4 8 11))
+;-> ((3 4 5 11) (8))
+
+(filter-coprimi '(-3 -7 3 -5 5 4 8 11 22 21))
+;-> ((-7 -5 -3 4 11) (3 5 8 21 22))
+
+Nota: in una lista (a1..an) di numeri coprimi risulta lcm(a1..an)=Prod(a1..an).
+
+Vedi "Lista di numeri coprimi" su "Note libere 17".
+
+
+--------------------------
+Lista di numeri divisibili
+--------------------------
+
+Data una sequenza di numeri interi positivi da 1 a N e una lista di numeri interi positivi (divisori), trovare tutti i numeri della sequenza che:
+1) sono divisibili almeno per un elemento della lista divisori
+2) sono divisibili per tutti gli elementi della lista divisori
+3) sono divisibili soltanto per un elemento della lista divisori
+4) non sono divisibili per alcun elemento della lista divisori
+
+La lista dei divisori contiene numeri tutti diversi.
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (map eval (args)) 2))
+
+1) Numeri divisibili almeno per un divisore
+-------------------------------------------
+
+Per ogni divisore 'd' creiamo la sequenza da d fino a N con passo d.
+Uniamo tutte le sequenze in una lista, eliminiamo tutti gli elementi multipli e ordiniamo la lista.
+
+(define (at-least-one-divisor N lst)
+  (let (out '())
+    (dolist (d lst)
+      (extend out (sequence d N d))
+    )
+    (unique (sort out))))
+
+Proviamo:
+
+(at-least-one-divisor 10 '(2 3))
+;-> (2 3 4 6 8 9 10)
+
+(at-least-one-divisor 20 '(2 3 4))
+;-> (2 3 4 6 8 9 10 12 14 15 16 18 20)
+
+2) Numeri divisibili per tutti i divisori
+-----------------------------------------
+Per ogni elemento della sequenza verifichiamo se è divisibile per tutti i divisori.
+
+(define (all-divisors N lst)
+  (let (out '())
+    (dolist (el (sequence 1 N))
+      (if (for-all (fn(d) (zero? (% el d))) lst) (push el out -1))
+    )
+    out))
+
+Proviamo:
+
+(all-divisors 10 '(2 3))
+;-> (6)
+
+(all-divisors 20 '(2 3))
+;-> (6 12 18)
+
+(all-divisors 20 '(2 3 4))
+;-> (12)
+
+(all-divisors 50 '(2 3 4))
+;-> (12 24 36 48)
+
+Possiamo notare che un numero è divisibile per tutti i numeri divisori della lista (d1..dn) se e solo se il numero è divisibile per lcm(d1..dn).
+
+(define (all-divisors N lst)
+  (let (val (apply lcm lst))
+    (sequence val N val)))
+
+Proviamo:
+
+(all-divisors 10 '(2 3))
+;-> (6)
+
+(all-divisors 20 '(2 3))
+;-> (6 12 18)
+
+(all-divisors 20 '(2 3 4))
+;-> (12)
+
+(all-divisors 50 '(2 3 4))
+;-> (12 24 36 48)
+
+3) numeri divisibili soltanto per un divisore
+---------------------------------------------
+Per ogni elemento della sequenza verifichiamo se è divisibile solo per un divisore.
+
+(define (only-one-divisor N lst)
+  (let ( (out '()) (divide 0) )
+    (dolist (el (sequence 1 N))
+      (setq divide 0)
+      (dolist (d lst)
+        (if (zero? (% el d)) (++ divide))
+      )
+      (if (= divide 1) (push el out))
+    )
+    (sort out)))
+
+Proviamo:
+
+(only-one-divisor 20 '(2 3 4))
+;-> (2 3 9 10 14 15)
+
+(only-one-divisor 20 '(2 3 4 5))
+;-> (2 3 5 9 14)
+
+(only-one-divisor 50 '(2 3 4))
+;-> (2 3 9 10 14 15 21 22 26 27 33 34 38 39 45 46 50)
+
+(only-one-divisor 20 '(2 6))
+;-> (2 4 8 10 14 16 20)
+
+3) Numeri con nessun divisore
+-----------------------------
+Per ogni elemento della sequenza verifichiamo se non è divisibile da alcun divisore.
+
+(define (no-divisors N lst)
+  (let ( (out '()) (divide 0) )
+    (dolist (el (sequence 1 N))
+      (setq divide 0)
+      (dolist (d lst)
+        (if (zero? (% el d)) (++ divide))
+      )
+      (if (zero? divide) (push el out))
+    )
+    (sort out)))
+
+Proviamo:
+
+(no-divisors 20 '(2 3 4))
+;-> (1 5 7 11 13 17 19)
+
+(no-divisors 20 '(2 3 4 5))
+;-> (1 7 11 13 17 19)
+
+(no-divisors 50 '(2 3 4))
+;-> (1 5 7 11 13 17 19 23 25 29 31 35 37 41 43 47 49)
+
+(no-divisors 50 '(2 3 4 6))
+;-> (1 5 7 11 13 17 19 23 25 29 31 35 37 41 43 47 49)
+
+Nota:
+(setq lst '(2 3 4))
+(sort (union (no-divisors 20 lst) (at-least-one-divisor 20 lst)))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+(setq lst '(4 6))
+(sort (union (no-divisors 20 lst) (at-least-one-divisor 20 lst)))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
 ============================================================================
 

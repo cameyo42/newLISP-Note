@@ -2295,6 +2295,8 @@ NOTE LIBERE 22
   Primi di Mills e costante di Mills
   Sequenza di Baum-Sweet
   Siamo connessi a Internet?
+  Coprimi di una lista
+  Lista di numeri divisibili
 
 PROBLEMI SUI DADI
 =================

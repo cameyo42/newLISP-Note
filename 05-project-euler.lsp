@@ -334,9 +334,9 @@ Quindi:
 
 E per un generico valore k (invece di 3):
 
-D(n k) = k*Sum[1 (floor n/k)] (i) = k*(1/2)*(floor n/k)*((floor n/k) + 1)
+D(n k) = k*Sum[1 (floor n/k)](i) = k*(1/2)*(floor n/k)*((floor n/k) + 1)
 
-Adesso sommiamo i divisori di 3 e i divisori di 5 e sottraiamo i divisori 15 (perchè (lcm 5 3 = 15)):
+Adesso sommiamo i divisori di 3 e i divisori di 5 e sottraiamo i divisori 15 (perchè lcm(5 3) = 15):
 
 sol = D(999 3) + D(999 5) - D(999 15)
 

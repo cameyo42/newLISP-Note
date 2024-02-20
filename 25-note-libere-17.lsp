@@ -3057,6 +3057,8 @@ Quindi i numeri di una lista (x1,x2,...,xn) sono tutti coprimi tra loro se e sol
 (all-coprimi? '(1 2 3 4 5))
 ;-> nil
 
+Vedi "Coprimi di una lista" su "Note libere 22".
+
 
 -------------------
 FORTRAN typing rule
