@@ -2297,6 +2297,10 @@ NOTE LIBERE 22
   Siamo connessi a Internet?
   Coprimi di una lista
   Lista di numeri divisibili
+  Sever sort
+  Sequenza di numeri con cifre diverse
+  Decimalizzare una frazione
+  Memory game
 
 PROBLEMI SUI DADI
 =================

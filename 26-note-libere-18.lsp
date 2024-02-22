@@ -1207,6 +1207,7 @@ Facciamo alcune prove:
 (riduce 0.0748947977 225)
 ;-> (2.848753957220007e-005 14 187)
 
+Vedi anche "Decimalizzare una frazione" su "Note libere 22".
 
 
 ------------------

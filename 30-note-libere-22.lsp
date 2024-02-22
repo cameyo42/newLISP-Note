@@ -1366,5 +1366,391 @@ Nota:
 (sort (union (no-divisors 20 lst) (at-least-one-divisor 20 lst)))
 ;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
 
+
+----------
+Sever sort
+----------
+
+Data una lista di interi:
+
+(2 4 3 8 4 3 2 9))
+
+1) Dividerla in sotto-liste in cui nessun elemento è più grande del precedente:
+
+((2) (4 3) (8 4 3 2) (9))
+
+2) Invertire ogni sotto-lista:
+
+((2) (3 4) (2 3 4 8) (9))
+
+3) Infine, concatenare tutte le sotto-liste:
+
+(2 3 4 2 3 4 8 9)
+
+Ripetendo questa procedura abbastanza volte la lista sarà completamente ordinata (crescente):
+
+1) ((2) (3) (4 2) (3) (4) (8) (9))
+2) ((2) (3) (2 4) (3) (4) (8) (9))
+3) (2 3 2 4 3 4 8 9)
+
+1) ((2) (3 2) (4 3) (4) (8) (9))
+2) ((2) (2 3) (3 4) (4) (8) (9))
+3) (2 2 3 3 4 4 8 9)
+
+(define (sever-aux lst)
+  (local (out len tmp)
+    (setq out '())
+    (setq len (length lst))
+    (setq tmp (list (lst 0)))
+    (for (i 1 (- len 1))
+      (cond ((<= (lst i) (tmp -1))
+              (extend tmp (list (lst i))))
+            ((> (lst i) (tmp -1))
+              (push tmp out -1)
+              (setq tmp (list (lst i))))
+      )
+    )
+    (push tmp out -1)
+    (flat (map reverse out))))
+
+(define (sever lst)
+  (local (cur tmp)
+    (setq cur (sever-aux lst))
+    (until (= cur (setq tmp (sever-aux cur)))
+      (setq cur tmp))))
+
+Proviamo:
+
+(setq a '(2 4 3 8 4 3 2 9))
+(sever a)
+;-> (2 2 3 3 4 4 8 9)
+
+(setq a '(14 94 14 90 69 30 42 7 96 68 15 87 82 58 19 17 81 47 15 
+           50 73 40 27 56 68 75 72 47 12 36 83 3 51 66 42 10 94 92 
+           54 34 47 37 84 31 45 27 98 29 73 56))
+
+(sever a)
+;-> (3 7 10 12 14 14 15 15 17 19 27 27 29 30 31 34 36 37 40 
+;->  42 42 45 47 47 47 50 51 54 56 56 58 66 68 68 69 72 73 
+;->  73 75 81 82 83 84 87 90 92 94 94 96 98)
+
+Nota: è un miglioramento dell'algoritmo bubble-sort, perchè scambia due o più numeri ad ogni passaggio (comunque dobbiamo implementare il 'reverse' durante il ciclo di attraversamento della lista).
+
+
+------------------------------------
+Sequenza di numeri con cifre diverse
+------------------------------------
+
+Scrivere una funzione che restituisce tutti i numeri interi positivi con cifre decimali distinte nell'intervallo [a..b].
+
+Sequenza OEIS A010784: Numbers with distinct decimal digits.
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+  23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37, 38, 39, 40, 41,
+  42, 43, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 56, 57, 58, 59, 60, 61,
+  62, 63, 64, 65, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 78, 79, 80, 81,
+  82, 83, 84, 85, 86, 87, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 102, 103,
+  104, 105, 106, 107, 108, 109, 120, 000
+
+(define (genera from to)
+  (let (out'())
+    (for (i from to)
+      (setq digits (explode (string i)))
+      (if (= digits (unique digits)) (push i out -1))
+    )
+    out))
+
+Proviamo:
+
+(genera 0 50)
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 13 14 15 16 17 18 19 20 21 23 24 25 26
+;->  27 28 29 30 31 32 34 35 36 37 38 39 40 41 42 43 45 46 47 48 49 50)
+
+(genera 123456 123500)
+;-> (123456 123457 123458 123459 123460 123465 123467 123468 123469 123470
+;->  123475 123476 123478 123479 123480 123485 123486 123487 123489 123490
+;->  123495 123496 123497 123498)
+
+Nota: la sequenza dei numeri con cifre decimali distinte è una sequenza finita.
+
+
+--------------------------
+Decimalizzare una frazione
+--------------------------
+
+Data una frazione, numeratore e denominatore, restituire il relativo numero decimale esatto (se possibile). Altrimenti restituire la frazione semplificata (ridotta ai minimi termini).
+
+Data una qualunque frazione a/b, possiamo sempre calcolare il numero decimale relativo facendo la divisione di a e b. Il numero ottenuto dalla divisione può essere un numero decimale esatto o può essere un numero decimale periodico.
+
+Teorema
+La divisione di due numeri interi a e b produce un numero decimale esatto se e solo se il denominatore della frazione semplificata contiene solo i fattori 2 e 5.
+
+(define (decimalizza a b)
+  (setq mcd (gcd a b))
+  (setq a (/ a mcd))
+  (setq b (/ b mcd))
+  ;(println a { } b { } (factor b))
+  (setq uniq (unique (factor b)))
+  (if (or (= uniq '(2)) (= uniq '(5)) (= uniq '(2 5)))
+      (div a b)
+      (list a b (div a b))
+  ))
+
+Proviamo:
+
+(decimalizza 16322 4)
+;-> 4080.5
+
+(decimalizza 121 400)
+;-> 0.3025
+
+(decimalizza 32001 20000)
+;-> 1.60005
+
+(decimalizza 22763 16384)
+;-> 1.38934326171875
+
+(decimalizza 1 2)
+;-> 0.5
+
+(decimalizza 1 3)
+;-> (1 3 0.3333333333333333)
+
+(decimalizza  3598  2261)
+;-> (514 323 1.591331269349845)
+
+(decimalizza 12211  2113)
+;-> (12211 2113 5.7789872219593)
+
+Vedi anche "Approssimazione dei numeri decimali con frazioni" su "Note libere 18".
+
+
+-----------
+Memory game
+-----------
+
+Memory è un gioco di carte che richiede concentrazione e memoria in cui occorre accoppiare le carte uguali.
+Può essere giocato come solitario o in competizione tra due giocatori.
+Si parte con tutte le carte coperte.
+A turno ogni giocatore scopre due carte:
+se le due carte sono uguali, allora il giocatore guadagna un punto e le due carte rimangono scoperte.
+se le due carte sono diverse, allora le carte vengono coperte.
+Il gioco termina quando tutte le carte sono state scoperte.
+Il vincitore è il giocatore con il maggior numero di punti.
+Come solitario bisogna scoprire le carte nel minor numero di mosse possibili.
+
+In questo caso implementiamo il gioco come solitario e usiamo le lettere dell'alfabeto al posto delle carte.
+Il gioco si presenta visivamente nel modo seguente (es. 12 lettere):
+
+Inizio:
+  0  1  2  3  4  5  6  7  8  9 10 11  ; indice delle lettere
+  *  *  *  *  *  *  *  *  *  *  *  *  ; lettere tutte coperte
+
+Scelta delle lettere da scoprire:
+(view 0 2)
+
+Visualizzazione temporanea
+  0  1  2  3  4  5  6  7  8  9 10 11
+  a  *  a  *  *  *  *  *  *  *  *  *  ; lettere minuscole (temporanee)
+
+Poichè le lettere sono uguali, allora restano scoperte:
+
+  0  1  2  3  4  5  6  7  8  9 10 11
+  A  *  A  *  *  *  *  *  *  *  *  *
+
+Scelta delle lettere da scoprire:
+(view 4 5)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  A  *  A  *  e  b  *  *  *  *  *  *
+
+Poichè le lettere non sono uguali, allora vengono coperte:
+
+  0  1  2  3  4  5  6  7  8  9 10 11
+  A  *  A  *  *  *  *  *  *  *  *  *
+
+(view 5 6)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  A  *  A  *  *  b  e  *  *  *  *  *
+
+Poichè le lettere sono uguali, allora vengono coperte:
+
+  0  1  2  3  4  5  6  7  8  9 10 11
+  A  *  A  *  *  *  *  *  *  *  *  *
+
+(view 4 6)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  A  *  A  *  e  *  e  *  *  *  *  *
+
+Poichè le lettere sono uguali, allora restano scoperte:
+
+  0  1  2  3  4  5  6  7  8  9 10 11
+  A  *  A  *  E  *  E  *  *  *  *  *
+
+eccetera
+
+Nota: la visualizzazione delle lettere minuscole rimane solo per poco tempo e poi viene cancellata.
+
+La posizione corrente del gioco viene rappresentata dalla lista seguente:
+
+Position = ("letter0" <0|1|2>) ("letter1" <0|1|2>) ... ("letterN-1" < 0|1|2 >)
+  0 = lettera coperta
+  1 = lettera scoperta
+  2 = lettera temporaneamente visibile
+
+Funzione per pulire lo schermo:
+
+(define (clear-screen) (print "\027[H\027[2J"))
+
+Funzione che stmpa la posizione corrente del gioco:
+
+(define (print-position)
+  (for (i 0 (- len 1)) (print (format "%3d" i)))
+  (println)
+  (dolist (c pos)
+    (if (= 0 (c 1)) (print "  *") ; coperta
+        (= 1 (c 1)) (print "  " (c 0)) ; scoperta
+        (= 2 (c 1)) (print "  " (lower-case (c 0))) ; scoperta temporanea
+    )
+  )
+  (println)
+  '>)
+
+Funzione che inizia un nuovo gioco:
+num-lettere = numero di lettere da utilizzare
+time-out = tempo di visualizzazione temporanea (millisecondi)
+
+(define (new-game num-lettere time-out)
+  (clear-screen)
+  (setq wait time-out)
+  (setq mosse 0)
+  ; creazione della posizione iniziale delle lettere
+  (setq lettere (explode (slice "ABCDEFGHIJKLMNOPQRSTUVWXYZ" 0 num-lettere)))
+  (setq pos (map (fn(x) (list x 0)) (randomize (extend lettere lettere))))
+  (setq len (length pos))
+  (print-position)
+)
+
+Funzione che verifica se il gioco è terminato:
+
+(define (end-game?) (for-all (fn(x) (= (x 1) 1)) pos))
+
+Funzione che permette di scegliere le lettere da scoprire (indice):
+
+(define (view x y)
+  (cond ((and (>= x 0) (< x len) (>= y 0) (< y len))
+          (++ mosse)
+          (setq c1 (first (pos x)))
+          (setq c2 (first (pos y)))
+          ;(println c1 { } c2)
+          ; imposta gli elementi come visibili temporaneamente (2)
+          (setf (pos x) (list c1 2))
+          (setf (pos y) (list c2 2))
+          ;(print pos) (read-line)
+          ;(print c1 { } c2) (read-line)
+          (print-position)
+          ;(sleep wait)
+          ;(clear-screen)
+          ;(println c1 { } c2)
+          (cond ((= c1 c2)
+                  ; imposta gli elementi come visibili (1)
+                  (setf (pos x) (list c1 1))
+                  (setf (pos y) (list c2 1)))
+                ((!= c1 c2)
+                  ; imposta gli elementi come invisibili "*" (0)
+                  (setf (pos x) (list c1 0))
+                  (setf (pos y) (list c2 0)))
+          )
+        )
+        (true nil)
+  )
+  (println "  mosse: " mosse)
+  (if (end-game?) (println "  ****** GAME-OVER ******"))
+  (print-position))
+
+Facciamo una prova:
+
+(new-game 6 2000)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  *  *  *  *  *  *  *  *  *  *  *
+>
+> (view 0 1)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  f  d  *  *  *  *  *  *  *  *  *  *
+  mosse: 1
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  *  *  *  *  *  *  *  *  *  *  *
+>
+> (view 4 6)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  *  *  *  b  *  b  *  *  *  *  *
+  mosse: 2
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  *  *  *  B  *  B  *  *  *  *  *
+>
+> (view 10 11)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  *  *  *  B  *  B  *  *  *  f  a
+  mosse: 3
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  *  *  *  B  *  B  *  *  *  *  *
+>
+> (view 0 2)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  f  *  d  *  B  *  B  *  *  *  *  *
+  mosse: 4
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  *  *  *  B  *  B  *  *  *  *  *
+>
+> (view 1 2)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  d  d  *  B  *  B  *  *  *  *  *
+  mosse: 5
+  0  1  2  3  4  5  6  7  8  9 10 11
+  *  D  D  *  B  *  B  *  *  *  *  *
+>
+> (view 0 10)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  f  D  D  *  B  *  B  *  *  *  f  *
+  mosse: 6
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  *  B  *  B  *  *  *  F  *
+>
+> (view 3 5)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  c  B  e  B  *  *  *  F  *
+  mosse: 7
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  *  B  *  B  *  *  *  F  *
+>
+> (view 7 9)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  *  B  *  B  a  *  c  F  *
+  mosse: 8
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  *  B  *  B  *  *  *  F  *
+>
+> (view 11 7)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  *  B  *  B  a  *  *  F  a
+  mosse: 9
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  *  B  *  B  A  *  *  F  A
+>
+> (view 3 9)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  c  B  *  B  A  *  c  F  A
+  mosse: 10
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  C  B  *  B  A  *  C  F  A
+>
+> (view 5 8)
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  C  B  e  B  A  e  C  F  A
+  mosse: 11
+  ****** GAME-OVER ******
+  0  1  2  3  4  5  6  7  8  9 10 11
+  F  D  D  C  B  E  B  A  E  C  F  A
+
+Nota: se si sceglie una lettera già scoperta, allora quella lettera verrà coperta.
+
 ============================================================================
 
