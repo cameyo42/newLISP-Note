@@ -35,7 +35,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 27) Note libere 19 (80)
 28) Note libere 20 (80)
 29) Note libere 21 (80)
-30) Note libere 22 (18)
+30) Note libere 22 (21)
 96) Problemi sui dadi (76)
 97) Appendici (30)
 98) Bibliografia

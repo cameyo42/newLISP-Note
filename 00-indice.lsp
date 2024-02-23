@@ -2301,6 +2301,9 @@ NOTE LIBERE 22
   Sequenza di numeri con cifre diverse
   Decimalizzare una frazione
   Memory game
+  Sigarette e mozziconi
+  La funzione matematica TAK
+  Numeri come somma di un numero e del suo contrario
 
 PROBLEMI SUI DADI
 =================
@@ -2338,7 +2341,6 @@ APPENDICI
   Codici ASCII
   Punctuation marks
   Considerazioni lungo il tragitto
-
 
 BIBLIOGRAFIA/WEB
 ==================

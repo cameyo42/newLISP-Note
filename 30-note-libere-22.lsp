@@ -1752,5 +1752,373 @@ Facciamo una prova:
 
 Nota: se si sceglie una lettera già scoperta, allora quella lettera verrà coperta.
 
+
+---------------------
+Sigarette e mozziconi
+---------------------
+
+Una sigaretta può essere fatta con quattro mozziconi di sigaretta (che genera un mozzicone dopo essere stata fumata).
+
+1) Dato un numero di mozziconi N quante sigarette possiamo fumare?
+2) Dato un numero di sigarette N quante sigarette possiamo fumare?
+
+
+1) N mozziconi
+--------------
+Il problema può essere risolto in maniera ricorsiva oppure si può notare che:
+con N mozziconi, puoi trasformarne 4 in una sigaretta, fumarla e guadagnare un mozzicone per raggiungere (N-3).
+Quindi dobbiamo contare il numero di volte che possiamo sottrarre 3 N prima di raggiungere N < 4.
+Se N <= 3, allora il risultato vale 0 (nessuna sigaretta).
+
+(define (mozziconi num)
+  (if (<= num 3) 0
+      (+ (div (- num 4) 3) 1)))
+
+Proviamo:
+
+(mozziconi 3)
+;-> 0
+(mozziconi 8)
+;-> 2
+(mozziconi 10)
+;-> 3
+(mozziconi 42)
+;-> 13
+
+2) N sigarette
+--------------
+Possiamo risolvere il problema 'fumando' le sigarette per ottenere il numero di mozziconi e poi utilizzare la funzione precedente "mozziconi".
+
+(define (sigarette num)
+  (+ num (mozziconi num)))
+
+Proviamo:
+
+(sigarette 3)
+;-> 3
+
+(sigarette 4)
+;-> 5
+
+(sigarette 10)
+;-> 13
+
+(sigarette 20)
+;-> 26
+
+(sigarette 42)
+;-> 55
+
+
+--------------------------
+La funzione matematica TAK
+--------------------------
+
+La funzione TAK (Takeuchi 1978) è definita come segue per gli interi x,y,z:
+
+ t(x,y,z) = | y, se x <= y
+            | t(t(x-1,y,z), t(y-1,z,x), t(z-1,x,y)), altrimenti
+
+Oppure, in modo più semplice:
+
+            | y, se x <= y
+ t(x,y,z) = | z, se (x > y) e (y <= z)
+            | x, altrimenti
+
+Metodo semplificato 1:
+----------------------
+
+(define (ts1 x y z)
+  (cond ((<= x y) y)
+        ((and (> x y) (<= y z)) z)
+        (true x)))
+
+Proviamo:
+
+(ts1 3 5 15)
+;-> 5
+(ts1 5 5 15)
+;-> 5
+(ts1 5 3 15)
+;-> 15
+(ts1 5 3 3)
+;-> 3
+(ts1 5 3 0)
+;-> 5
+
+Metodo semplificato 2:
+----------------------
+
+(define (ts2 x y z)
+  (if (> x y)
+      (if (> y z) x z)
+      y))
+
+(ts2 3 5 15)
+;-> 5
+(ts2 5 5 15)
+;-> 5
+(ts2 5 3 15)
+;-> 15
+(ts2 5 3 3)
+;-> 3
+(ts2 5 3 0)
+;-> 5
+
+Metodo ricorsivo 1:
+-------------------
+
+(define (tr1 x y z)
+  (cond ((<= x y) y)
+        (true (tr1 (tr1 (- x 1) y z) (tr1 (- y 1) z x) (tr1 (- z 1) x y)))))
+
+Proviamo: 
+
+(tr1 3 5 15)
+;-> 5
+(tr1 5 5 15)
+;-> 5
+(tr1 5 3 15)
+;-> 15
+(tr1 5 3 3)
+;-> 3
+(tr1 5 3 0)
+;-> 5
+
+Attenzione: il caso z > x > y genera molte chiamate.
+
+(time (tr1 5 3 13))
+;-> 31.234
+(time (tr1 5 3 14))
+;-> 124.928
+(time (tr1 5 3 15))
+;-> 624.816
+(time (tr1 5 3 16))
+;-> 4000.816
+(time (tr1 5 3 17))
+;-> 27236.815
+
+Metodo ricorsivo 2 (smart):
+---------------------------
+
+(define (tr2 x y z) (if (> x y) (tr2 y z x) y))
+
+Proviamo:
+
+(tr2 3 5 15)
+;-> 5
+(tr2 5 5 15)
+;-> 5
+(tr2 5 3 15)
+;-> 15
+(tr2 5 3 3)
+;-> 3
+(tr2 5 3 0)
+;-> 5
+
+Vediamo se le funzioni ts1, ts2, tr1 e tr2 producono gli stessi risultati:
+
+(define (test n)
+  (setq out1 '())
+  (setq out2 '())
+  (setq out3 '())
+  (setq out4 '())
+  (for (x 0 n)
+    (for (y 0 n)
+      (for (z 0 n)
+        (push (ts1 x y z) out1 -1)
+        (push (ts2 x y z) out2 -1)
+        (push (tr1 x y z) out3 -1)
+        (push (tr2 x y z) out4 -1))))
+  (= out1 out2 out3 out4))
+
+(test 10)
+;-> true
+
+(time (println (test 11)))
+;-> true
+;-> 9875.835
+
+(time (println (test 12)))
+;-> true
+;-> 67237.798
+
+Vediamo quante volte viene chiamata la funzione tr1 per x, y e z.
+
+(define (caller x y z)
+  (let (calls 0)
+    (define (tr1 x y z)
+      (++ calls)
+      (cond ((<= x y) y)
+            (true (tr1 (tr1 (- x 1) y z) (tr1 (- y 1) z x) (tr1 (- z 1) x y)))))
+    (println (tr1 x y z) { } calls)))
+
+Proviamo:
+
+(caller 5 3 13)
+;-> 13 173241
+(caller 5 3 14)
+;-> 14 976669
+(caller 5 3 15)
+;-> 5899313
+(caller 5 3 16)
+;-> 37913361
+
+37 milioni 913 mila e 361 chiamate, ecco perchè tr2 è lentissima.
+
+
+--------------------------------------------------
+Numeri come somma di un numero e del suo contrario
+--------------------------------------------------
+
+In quanti modi possiamo esprimere un intero positivo N come somma di due interi positivi k e il contrario di k.
+Per esempio:
+
+  N = 132
+  93 + 39 = 132
+  84 + 48 + 132
+  75 + 57 + 132
+  66 + 66 + 132
+
+  N = 101
+  100 + 001 = 100 + 1 = 101
+
+(define (mirror num)
+  (let (out '())
+    (for (k 0 num)
+      ; calcola il contrario (inverso) del numero
+      (setq kappa (int (reverse (string k)) 0 10))
+      (if (= (+ k kappa) num)
+          (if (> k kappa)
+            (push (list k kappa) out -1)
+            (push (list kappa k) out -1)
+          )
+      )
+    )
+    (unique out)))
+
+Proviamo:
+
+(mirror 132)
+;-> ((93 39) (84 48) (75 57) (66 66))
+
+(mirror 101)
+;-> ((100 1))
+
+(mirror 0)
+;-> ((0 0))
+
+(mirror 1)
+;-> ()
+
+(mirror 2)
+;-> ((1 1))
+
+(mirror 64)
+;-> ()
+
+(mirror 128)
+;-> ()
+
+Vediamo come varia il numero di somme uguali al crescere di N:
+
+(length (mirror 132))
+;-> 4
+(length (mirror 955548))
+;-> 113
+(length (mirror 49886))
+;-> 0
+(length (mirror 1100000))
+;-> 450
+
+Vediamo per i primi 101 numeri:
+
+(map length (map mirror (sequence 0 100)))
+;-> (1 0 1 0 1 0 1 0 1 0 1 1 1 0 1 0 1 0 1 0 0 0 2 0 0 0 0 0 0 0 0 0 0
+;->  2 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0
+;->  4 0 0 0 0 0 0 0 0 0 0 4 0 0 0 0 0 0 0 0 0 0 5 0 0 0 0 0 0 0 0 0 0
+;->  5 0)
+
+(mirror 99)
+;-> ((81 18) (72 27) (63 36) (54 45) (90 9))
+
+Vediamo quali numeri fanno scattare il numero successivo di somme uguali:
+
+(define (mirror-length limit)
+  (setq somma 1)
+  (for (num 0 limit)
+    (setq lst (mirror num))
+    (setq len (length lst))
+    (if (= somma len)
+      (begin
+        (println num { : } len)
+        (println lst "\n")
+        (++ somma)))))
+
+Proviamo:
+
+(mirror-length 10000)
+;-> 0 : 1
+;-> ((0 0))
+;-> 
+;-> 22 : 2
+;-> ((11 11) (20 2))
+;-> 
+;-> 44 : 3
+;-> ((31 13) (22 22) (40 4))
+;-> 
+;-> 66 : 4
+;-> ((51 15) (42 24) (33 33) (60 6))
+;-> 
+;-> 88 : 5
+;-> ((71 17) (62 26) (53 35) (44 44) (80 8))
+;-> 
+;-> 1111 : 6
+;-> ((902 209) (803 308) (704 407) (605 506) (1010 101) (1100 11))
+;-> 
+;-> 1661 : 7
+;-> ((1060 601) (1150 511) (1240 421) (1330 331) (1420 241) (1510 151) 
+;->  (1600 61))
+;-> 
+;-> 1771 : 8
+;-> ((1070 701) (1160 611) (1250 521) (1340 431) (1430 341) (1520 251)
+;->  (1610 161) (1700 71))
+;-> 
+;-> 1881 : 9
+;-> ((1080 801) (1170 711) (1260 621) (1350 531) (1440 441) (1530 351)
+;->  (1620 261) (1710 171) (1800 81))
+;-> 
+;-> 1991 : 10
+;-> ((1090 901) (1180 811) (1270 721) (1360 631) (1450 541) (1540 451)
+;->  (1630 361) (1720 271) (1810 181) (1900 91))
+;-> 
+;-> 2662 : 11
+;-> ((1601 1061) (1511 1151) (1421 1241) (1331 1331) (2060 602) (2150 512)
+;->  (2240 422) (2330 332) (2420 242) (2510 152) (2600 62))
+;-> 
+;-> 2772 : 12
+;-> ((1701 1071) (1611 1161) (1521 1251) (1431 1341) (2070 702) (2160  612)
+;->  (2250 522) (2340 432) (2430 342) (2520 252) (2610 162) (2700 72))
+;-> 
+;-> 4444 : 13
+;-> ((3401 1043) (3311 1133) (3221 1223) (3131 1313) (3041 1403) (2402 2042)
+;->  (2312 2132) (2222 2222) (4040 404) (4130 314) (4220 224) (4310 134)
+;->  (4400 44))
+;-> 
+;-> 6336 : 14
+;-> ((5301 1035) (5211 1125) (5121 1215) (5031 1305) (4302 2034) (4212 2124)
+;->  (4122 2214) (4032 2304) (3303 3033) (3213 3123) (6030 306) (6120 216)
+;->  (6210 126) (6300 36))
+;-> 
+;-> 6545 : 15
+;-> ((4951 1594) (4861 1684) (4771 1774) (4681 1864) (4591 1954) (3952 2593)
+;->  (3862 2683) (3772 2773) (3682 2863) (3592 2953) (5590 955) (5680 865)
+;->  (5770 775) (5860 685) (5950 595))
+;-> 
+;-> 7337 : 16
+;-> ((6301 1036) (6211 1126) (6121 1216) (6031 1306) (5302 2035) (5212 2125)
+;->  (5122 2215) (5032 2305) (4303 3034) (4213 3124) (4123 3214) (4033 3304)
+;->  (7030 307) (7120 217) (7210 127) (7300 37))
+
 ============================================================================
 
