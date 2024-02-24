@@ -2304,6 +2304,10 @@ NOTE LIBERE 22
   Sigarette e mozziconi
   La funzione matematica TAK
   Numeri come somma di un numero e del suo contrario
+  Sequenza Mephisto Waltz
+  Trova le differenze (game)
+  Sequenza da completare con le sue distanze
+  Sequenza di numeri compositi consecutivi
 
 PROBLEMI SUI DADI
 =================

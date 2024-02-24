@@ -1766,7 +1766,7 @@ Una sigaretta può essere fatta con quattro mozziconi di sigaretta (che genera u
 1) N mozziconi
 --------------
 Il problema può essere risolto in maniera ricorsiva oppure si può notare che:
-con N mozziconi, puoi trasformarne 4 in una sigaretta, fumarla e guadagnare un mozzicone per raggiungere (N-3).
+con N mozziconi, psossiamo trasformarne 4 in una sigaretta, fumarla e guadagnare un mozzicone per raggiungere (N-3).
 Quindi dobbiamo contare il numero di volte che possiamo sottrarre 3 N prima di raggiungere N < 4.
 Se N <= 3, allora il risultato vale 0 (nessuna sigaretta).
 
@@ -2119,6 +2119,355 @@ Proviamo:
 ;-> ((6301 1036) (6211 1126) (6121 1216) (6031 1306) (5302 2035) (5212 2125)
 ;->  (5122 2215) (5032 2305) (4303 3034) (4213 3124) (4123 3214) (4033 3304)
 ;->  (7030 307) (7120 217) (7210 127) (7300 37))
+
+
+-----------------------
+Sequenza Mephisto Waltz
+-----------------------
+
+La sequenza Mephisto Waltz è definita iniziando con 0 e poi sostituendo 0 con 001 e 1 con 110.
+Questi numeri non contengono le quarte potenze (Allouche e Shallit 2003).
+
+Sequenza OEIS A064990:
+  If A_k denotes the first 3^k terms, 
+  then A_0 = 0, A_{k+1} = A_k A_k B_k, 
+  where B_k is obtained from A_k by interchanging 0's and 1's.
+  0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0,
+  0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0,
+  1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1,
+  0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1,
+  1, 1, 0, ...
+
+(define (mw num)
+  (setq out '("0"))
+  (for (i 1 num)
+    (setq s (out -1))
+    (setq val "")
+    (for (i 0 (- (length s) 1))
+      (cond ((= (s i) "0") (extend val "001"))
+            ((= (s i) "1") (extend val "110"))
+      )
+    )
+    (push val out -1)
+  )
+  out)
+
+Proviamo:
+
+(mw 5)
+;-> ("0" "001" "001001110" "001001110001001110110110001" 
+;->  "001001110001001110110110001001001110001001110110110
+;->   001110110001110110001001001110"
+;->  "001001110001001110110110001001001110001001110110110
+;->   001110110001110110001001001110001001110001001110110
+;->   110001001001110001001110110110001110110001110110001
+;->   001001110110110001110110001001001110110110001110110
+;->   001001001110001001110001001110110110001")
+
+
+--------------------------
+Trova le differenze (game)
+--------------------------
+
+Il classico gioco della settimana enigmistica in cui ci sono due vignette quasi identiche che differiscono solo per alcuni perticolari che bisogna individuare.
+In questo caso usiamo due matrici al posto delle vignette.
+
+Funzione che stampa le due matrici:
+
+(define (print-grids grid1 grid2)
+  (local (row col)
+    (setq row (length grid1))
+    (setq col (length (first grid1)))
+    (print "  " (join (map string (sequence 0 (- row 1))) " "))
+    (println "     " (join (map string (sequence 0 (- row 1))) " "))
+    (for (i 0 (- row 1))
+      (print i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid1 i j) 0) (print ". "))
+              ((= (grid1 i j) 1) (print "* "))
+              (true (println "ERROR" ))
+        )
+      )
+      (print {  } i { })
+      (for (j 0 (- col 1))
+        (cond ((= (grid2 i j) 0) (print ". "))
+              ((= (grid2 i j) 1) (print "* "))
+              (true (println "ERROR"))
+        )
+      )
+      (println))))
+
+Funzione che cambia 0 in 1 e 1 in 0:
+
+(define (flip x) (- 1 x))
+
+Funzione che inizia un nuovo gioco:
+
+(define (new-game dim num-diff)
+  ; m1, m2 e start-time sono globali
+  (local (selected diff r c)
+    ; genera la prima matrice
+    (setq m1 (array dim dim (rand 2 (* dim dim))))
+    ; seconda matrice uguale alla prima
+    (setq m2 m1)
+    ; crea le differenze cambiando num-diff elementi di m2
+    (setq selected '())
+    (setq diff 0)
+    (while (< diff num-diff)
+      (setq r (rand dim))
+      (setq c (rand dim))
+      (cond ((not (ref (list r c) selected))
+             (setq (m2 r c) (flip (m2 r c)))
+             (push (list r c) selected)
+             (++ diff))
+            (true nil)
+      )
+    )
+    ; partenza del timer
+    (setq start-time (time-of-day))
+    (print-grids m1 m2)
+    '>))
+
+Funzione che formatta i millisecondi in giorni:ore:minuti:secondi:millisec:
+
+(define (periodo msec show)
+  (local (conv unit expr val)
+    (setq conv '(("d" 86400000) ("h" 3600000) ("m" 60000) ("s" 1000) ("ms" 1)))
+    (setq msec (int msec))
+    (dolist (el conv)
+      (setq unit (el 0))
+      (setq expr (el 1))
+      (setq val (/ msec expr))
+      ; numero di millisecondi rimasti
+      ; (resto della divisione)
+      (setq msec (% msec expr))
+      (if (> val 0) (print val unit " "))
+    )
+    (println)
+    '>))
+
+Funzione che modifica la seconda matrice:
+
+(define (change row col)
+  (local (rows cols)
+    (setq rows (length m2))
+    (setq cols (length (m2 0)))
+    (if (and (>= row 0) (< row rows) (>= col 0) (< col cols))
+        (setq (m2 row col) (flip (m2 row col)))
+    )
+    (print-grids m1 m2)
+    (if (= m1 m2)
+        (println "\n****** GAME OVER ******\n"
+                 "Tempo: " (periodo (- (time-of-day) start-time)) "\n")
+    )'>))
+
+Proviamo:
+
+(new-game 4 3)
+;->   0 1 2 3     0 1 2 3
+;-> 0 . * * *   0 . . * *
+;-> 1 . * . *   1 . . . *
+;-> 2 . . * .   2 . * * .
+;-> 3 . * . .   3 . * . .
+
+(change 0 1)
+;->   0 1 2 3     0 1 2 3
+;-> 0 . * * *   0 . * * *
+;-> 1 . * . *   1 . . . *
+;-> 2 . . * .   2 . * * .
+;-> 3 . * . .   3 . * . .
+
+(change 1 1)
+;->   0 1 2 3     0 1 2 3
+;-> 0 . * * *   0 . * * *
+;-> 1 . * . *   1 . * . *
+;-> 2 . . * .   2 . * * .
+;-> 3 . * . .   3 . * . .
+
+(change 2 1)
+;->   0 1 2 3     0 1 2 3
+;-> 0 . * * *   0 . * * *
+;-> 1 . * . *   1 . * . *
+;-> 2 . . * .   2 . . * .
+;-> 3 . * . .   3 . * . .
+;-> 
+;-> ****** GAME OVER ******
+;-> Tempo: 23s 399ms
+
+
+------------------------------------------
+Sequenza da completare con le sue distanze
+------------------------------------------
+
+Data una sequenza di interi A = a(1), a(2), ..., a(n) con n>=2, applicare il seguente algoritmo:
+
+A partire da i=2, per tutti gli a(i) in A (fino all'ultimo elemento):
+  Se d = |a(i) - a (i-1)| non è già in A, aggiungere d ad A
+  Aumentare i
+Restituire la sequenza completa.
+
+Per esempio,
+
+  lista = (2 3 5 7 11)
+
+   ---
+  (2 3 5 7 11), 3 - 2 = 1,
+  1 non esiste e lo aggiungiamo (2 3 5 7 11 1)
+
+     ---
+  (2 3 5 7 11 1), 5 - 3 = 2,
+  2 esiste e non lo aggiungiamo: (2 3 5 7 11 1)
+
+       ---
+  (2 3 5 7 11 1), 7 - 5 = 2,
+  2 esiste e non lo aggiungiamo: (2 3 5 7 11 1)
+
+         ----
+  (2 3 5 7 11 1 4), 11 - 7 = 4,
+  4 non esiste e lo aggiungiamo (2 3 5 7 11 1 4)
+
+           ----
+  (2 3 5 7 11 1 4), 11 - 1 = 10,
+  10 non esiste e lo aggiungiamo (2 3 5 7 11 1 4 10)
+
+              ---
+  (2 3 5 7 11 1 4 10), 4 - 1 = 3,
+  3 esiste e non lo aggiungiamo: (2 3 5 7 11 1 4 10)
+
+                ----
+  (2 3 5 7 11 1 4 10), 10 - 4 = 6,
+  6 non esiste e lo aggiungiamo (2 3 5 7 11 1 4 10 6)
+
+                  ----
+  (2 3 5 7 11 1 4 10 6), 10 - 6 = 4,
+  4 esiste e non lo aggiungiamo: (2 3 5 7 11 1 4 10 6)
+
+  La lista è terminata, risultato: (2 3 5 7 11 1 4 10 6).
+
+Prima di scrivere la funzione vediamo le differenze tra i cicli "dolist" e "while" nell'attraversamento e la modifica di una lista.
+
+Uso della funzione "dolist":
+
+(define (test lst)
+  (dolist (el lst)
+    (push el lst -1)
+    (print lst) (read-line)
+  ))
+
+(test '(1 2 3))
+;-> (1 2 3 1)
+;-> (1 2 3 1 2)
+;-> (1 2 3 1 2 3)
+
+Il ciclo non continua all'infinito perchè la lista nel ciclo "(dolist (el lst)" è una copia di lst.
+
+Uso della funzione "while":
+
+(define (test2 lst)
+  (setq k 0)
+  (while (< k (length lst))
+    (push (lst k) lst -1)
+    (print lst) (read-line)
+    (++ k)))
+
+(test2 '(1 2 3))
+;-> (1 2 3 1)
+;-> (1 2 3 1 2)
+;-> (1 2 3 1 2 3)
+;-> (1 2 3 1 2 3 1)
+;-> (1 2 3 1 2 3 1 2)
+;-> (1 2 3 1 2 3 1 2 3)
+;-> (1 2 3 1 2 3 1 2 3 1)
+;-> (1 2 3 1 2 3 1 2 3 1 2)
+;-> (1 2 3 1 2 3 1 2 3 1 2 3)
+;-> (1 2 3 1 2 3 1 2 3 1 2 3 1)
+;-> ...
+
+In questo caso il ciclo continua all'infinito perchè la lista nel ciclo "(while (< k (length lst))" è quella originale (cioè quella stiamo modificando).
+Da notare che se scriviamo:
+
+  (setq (len (length lst)))
+  (while (< k len))
+
+Allora il ciclo termina come nel caso del ciclo "dolist".
+
+(define (distanze lst)
+  (let (k 1)
+    (while (< k (length lst))
+      (setq dist (abs (- (lst k) (lst (- k 1)))))
+      (if (nil? (ref dist lst)) (push dist lst -1))
+      (print lst) (read-line)
+      (++ k)
+    )
+    lst))
+
+Proviamo:
+
+(distanze '(2 3 5 7 11))
+;-> (2 3 5 7 11 1 4 10 6)
+
+(distanze '(1 2))
+;-> (1 2)
+
+(distanze '(2 3 7 11 17 24))
+;-> (2 3 7 11 17 24 1 4 6 23)
+
+(distanze '(24 3 -16 11 -17 21))
+;-> (24 3 -16 11 -17 21 19 27 28 38 2 8 1 10 36 6 7 9 26 30 17 4 13)
+
+(length (distanze '(2 -3 7 -11 17 -24)))
+;-> (2 -3 7 -11 17 -24 5 10 18 28 41 29 8 13 12 21 1 9 20 11)
+
+Domande:
+
+1) L'algoritmo termina sempre?
+Se i numeri della lista iniziale sono tutti positivi, allora ogni volta aggiungiamo sempre un termine minore del valore massimo presente nella lista. Quindi possiamo ottenere solo una lista di output finita.
+Se abbiamo anche numeri negativi, allora possiamo inserire anche valori maggiori del valore massimo presente nella lista. Comunque aggiungiamo sempre un numero positivo, quindi anche in questo caso, dopo aver calcolato tutte le differenze con i numeri negativi, l'algoritmo deve terminare.
+
+2) Con una lista di input lunga N quanto può essere lunga al massimo la lista di output?
+Con N elementi facciamo (N-1) sottrazioni e possiamo generare (N-1) elementi.
+Però il primo elemento generato deve essere sottratto all'ultimo elemento della lista precedente, quindi facciamo sempre (N-1) sottrazioni (al massimo) e possiamo generare (N-1) elementi.
+Comunque non ho la minima idea se esiste e quale potrebbe essere la soluzione a questa domanda.
+
+
+----------------------------------------
+Sequenza di numeri compositi consecutivi
+----------------------------------------
+
+Per generare numeri compositi consecutivi ci sono diversi metodi.
+Le formule più comuni sono le seguenti:
+
+Per generare N numeri compositi consecutivi:
+
+  (N+1)! + 2, (N+1)! + 3, ..., (N+1)! + (N+1)
+  
+Per generare (N-1) numeri compositi consecutivi:
+
+    N! + 2, N! + 3, ..., N! + N
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (genera1 num)
+  (let (f (fact-i (+ num 1)))
+    (map (fn(x) (+ f x)) (sequence 2 (+ num 1)))))
+
+(map (fn(x) (list $idx (genera1 x))) (sequence 1 5))
+;-> ((0 (4L)) (1 (8L 9L)) (2 (26L 27L 28L)) (3 (122L 123L 124L 125L)) 
+;->  (4 (722L 723L 724L 725L 726L)))
+
+(define (genera2 num)
+  (let (f (fact-i num))
+    (map (fn(x) (+ f x)) (sequence 2 num))))
+
+(map (fn(x) (list $idx (genera2 x))) (sequence 1 5))
+;-> ((0 (3L 2L)) (1 (4L)) (2 (8L 9L)) (3 (26L 27L 28L)) 
+;->  (4 (122L 123L 124L 125L)))
 
 ============================================================================
 
