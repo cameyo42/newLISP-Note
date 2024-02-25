@@ -2308,6 +2308,8 @@ NOTE LIBERE 22
   Trova le differenze (game)
   Sequenza da completare con le sue distanze
   Sequenza di numeri compositi consecutivi
+  Tavola delle moltiplicazioni (pitagorica) in esadecimale
+  Sequenze binarie bilanciate
 
 PROBLEMI SUI DADI
 =================

@@ -2469,5 +2469,159 @@ Per generare (N-1) numeri compositi consecutivi:
 ;-> ((0 (3L 2L)) (1 (4L)) (2 (8L 9L)) (3 (26L 27L 28L)) 
 ;->  (4 (122L 123L 124L 125L)))
 
+
+--------------------------------------------------------
+Tavola delle moltiplicazioni (pitagorica) in esadecimale
+--------------------------------------------------------
+
+Scrivere una funzione che stampa la tavola delle moltiplicazioni (tavola pitagorica) con numeri in esadecimale.
+
+Per esempio la seguente è una tavola delle moltiplicazioni con i numeri che vanno da 0 (00) a 15 (0f):
+
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+  00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
+  00 02 04 06 08 0a 0c 0e 10 12 14 16 18 1a 1c 1e 
+  00 03 06 09 0c 0f 12 15 18 1b 1e 21 24 27 2a 2d 
+  00 04 08 0c 10 14 18 1c 20 24 28 2c 30 34 38 3c 
+  00 05 0a 0f 14 19 1e 23 28 2d 32 37 3c 41 46 4b 
+  00 06 0c 12 18 1e 24 2a 30 36 3c 42 48 4e 54 5a 
+  00 07 0e 15 1c 23 2a 31 38 3f 46 4d 54 5b 62 69 
+  00 08 10 18 20 28 30 38 40 48 50 58 60 68 70 78 
+  00 09 12 1b 24 2d 36 3f 48 51 5a 63 6c 75 7e 87 
+  00 0a 14 1e 28 32 3c 46 50 5a 64 6e 78 82 8c 96 
+  00 0b 16 21 2c 37 42 4d 58 63 6e 79 84 8f 9a a5 
+  00 0c 18 24 30 3c 48 54 60 6c 78 84 90 9c a8 b4 
+  00 0d 1a 27 34 41 4e 5b 68 75 82 8f 9c a9 b6 c3 
+  00 0e 1c 2a 38 46 54 62 70 7e 8c 9a a8 b6 c4 d2 
+  00 0f 1e 2d 3c 4b 5a 69 78 87 96 a5 b4 c3 d2 e1 
+
+(define (print-ff a b)
+  (local (max-len fmt)
+    (setq max-len (length (format "%X" (* b b))))
+    (setq fmt (string "%0" max-len "X "))
+    (for (row a b)
+      (for (col a b) (print (format fmt (* row col))))
+      (println)
+    )
+    '>))
+
+Proviamo:
+
+(print-ff 0 15)
+;-> 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+;-> 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+;-> 00 02 04 06 08 0A 0C 0E 10 12 14 16 18 1A 1C 1E
+;-> 00 03 06 09 0C 0F 12 15 18 1B 1E 21 24 27 2A 2D
+;-> 00 04 08 0C 10 14 18 1C 20 24 28 2C 30 34 38 3C
+;-> 00 05 0A 0F 14 19 1E 23 28 2D 32 37 3C 41 46 4B
+;-> 00 06 0C 12 18 1E 24 2A 30 36 3C 42 48 4E 54 5A
+;-> 00 07 0E 15 1C 23 2A 31 38 3F 46 4D 54 5B 62 69
+;-> 00 08 10 18 20 28 30 38 40 48 50 58 60 68 70 78
+;-> 00 09 12 1B 24 2D 36 3F 48 51 5A 63 6C 75 7E 87
+;-> 00 0A 14 1E 28 32 3C 46 50 5A 64 6E 78 82 8C 96
+;-> 00 0B 16 21 2C 37 42 4D 58 63 6E 79 84 8F 9A A5
+;-> 00 0C 18 24 30 3C 48 54 60 6C 78 84 90 9C A8 B4
+;-> 00 0D 1A 27 34 41 4E 5B 68 75 82 8F 9C A9 B6 C3
+;-> 00 0E 1C 2A 38 46 54 62 70 7E 8C 9A A8 B6 C4 D2
+;-> 00 0F 1E 2D 3C 4B 5A 69 78 87 96 A5 B4 C3 D2 E1
+
+(print-ff 1 18)
+;-> 001 002 003 004 005 006 007 008 009 00A 00B 00C 00D 00E 00F 010 011 012
+;-> 002 004 006 008 00A 00C 00E 010 012 014 016 018 01A 01C 01E 020 022 024
+;-> 003 006 009 00C 00F 012 015 018 01B 01E 021 024 027 02A 02D 030 033 036
+;-> 004 008 00C 010 014 018 01C 020 024 028 02C 030 034 038 03C 040 044 048
+;-> 005 00A 00F 014 019 01E 023 028 02D 032 037 03C 041 046 04B 050 055 05A
+;-> 006 00C 012 018 01E 024 02A 030 036 03C 042 048 04E 054 05A 060 066 06C
+;-> 007 00E 015 01C 023 02A 031 038 03F 046 04D 054 05B 062 069 070 077 07E
+;-> 008 010 018 020 028 030 038 040 048 050 058 060 068 070 078 080 088 090
+;-> 009 012 01B 024 02D 036 03F 048 051 05A 063 06C 075 07E 087 090 099 0A2
+;-> 00A 014 01E 028 032 03C 046 050 05A 064 06E 078 082 08C 096 0A0 0AA 0B4
+;-> 00B 016 021 02C 037 042 04D 058 063 06E 079 084 08F 09A 0A5 0B0 0BB 0C6
+;-> 00C 018 024 030 03C 048 054 060 06C 078 084 090 09C 0A8 0B4 0C0 0CC 0D8
+;-> 00D 01A 027 034 041 04E 05B 068 075 082 08F 09C 0A9 0B6 0C3 0D0 0DD 0EA
+;-> 00E 01C 02A 038 046 054 062 070 07E 08C 09A 0A8 0B6 0C4 0D2 0E0 0EE 0FC
+;-> 00F 01E 02D 03C 04B 05A 069 078 087 096 0A5 0B4 0C3 0D2 0E1 0F0 0FF 10E
+;-> 010 020 030 040 050 060 070 080 090 0A0 0B0 0C0 0D0 0E0 0F0 100 110 120
+;-> 011 022 033 044 055 066 077 088 099 0AA 0BB 0CC 0DD 0EE 0FF 110 121 132
+;-> 012 024 036 048 05A 06C 07E 090 0A2 0B4 0C6 0D8 0EA 0FC 10E 120 132 144
+
+
+---------------------------
+Sequenze binarie bilanciate
+---------------------------
+
+Scrivere due funzioni:
+
+a) una per generare la lista di sequenze bilanciate di 2n cifre binarie scritte in base 10.
+Una sequenza bilanciata di 2n cifre binarie contiene lo stesso numero di 0 e 1.
+Per esempio,
+101010 è bilanciata, 1011 non è bilanciata
+
+Sequenza OEIS A031443:
+Digitally balanced numbers: positive numbers that in base 2 have the same number of 0's as 1's.
+  2, 9, 10, 12, 35, 37, 38, 41, 42, 44, 49, 50, 52, 56, 135, 139, 141, 142,
+  147, 149, 150, 153, 154, 156, 163, 165, 166, 169, 170, 172, 177, 178, 180,
+  184, 195, 197, 198, 201, 202, 204, 209, 210, 212, 216, 225, 226, 228, 232,
+  240, 527, 535, 539, 541, 542, 551, ...
+
+b) una per generare la lista di sequenze totalmente bilanciate di 2n cifre binarie scritte in base 10.
+Una sequenza totalmente bilanaciata di 2n cifre binarie contiene lo stesso numero di 0 e 1 e leggendo da sinistra a destra (dal bit più significativo a quello meno significativo), il numero di 0 non supera mai il numero di 1.
+Per esempio,
+101010 è bilanciata, 100011 non è bilanciata
+
+Sequenza OEIS A014486:
+List of totally balanced sequences of 2n binary digits written in base 10.
+Binary expansion of each term contains n 0's and n 1's and reading from left to right (the most significant to the least significant bit), the number of 0's never exceeds the number of 1's.
+  0, 2, 10, 12, 42, 44, 50, 52, 56, 170, 172, 178, 180, 184, 202, 204, 210,
+  212, 216, 226, 228, 232, 240, 682, 684, 690, 692, 696, 714, 716, 722, 724,
+  728, 738, 740, 744, 752, 810, 812, 818, 820, 824, 842, 844, 850, 852, 856,
+  866, 868, 872, 880, 906, 908, 914, ...
+
+a) Sequenze binarie bilanciate
+
+(define (balanced? num)
+  (local (binary len conta)
+    (setq binary (explode (bits num)))
+    (setq len (length binary))
+    (setq conta (count '("1" "0") binary))
+    (cond ((odd? len) nil)
+          ((!= (conta 0) (conta 1)) nil)
+          (true true))))
+
+Proviamo:
+
+(filter balanced? (sequence 0 600))
+;-> (2 9 10 12 35 37 38 41 42 44 49 50 52 56 135 139 141 142 147 149 150
+;->  153 154 156 163 165 166 169 170 172 177 178 180 184 195 197 198 201
+;->  202 204 209 210 212 216 225 226 228 232 240 527 535 539 541 542 551
+;->  555 557 558 563 565 566 569 570 572 583 587 589 590 595 597 598)
+
+b) Sequenze binarie totalmente bilanciate
+
+(define (totally-balanced? num)
+  (local (binary len conta)
+    (setq binary (explode (bits num)))
+    (setq len (length binary))
+    (setq conta (count '("1" "0") binary))
+    (cond ((odd? len) nil)
+          ((!= (conta 0) (conta 1)) nil)
+          (true 
+            (let ( (exceed nil) (n1 0) (n0 0) )
+              (dolist (b binary exceed)
+                (cond ((= b "1") (++ n1))
+                      ((= b "0") (++ n0))
+                )
+                (if (> n0 n1) (setq exceed true))
+              )
+              (not exceed))))))
+
+Proviamo:
+
+(filter totally-balanced? (sequence 0 1000))
+;-> (2 10 12 42 44 50 52 56 170 172 178 180 184 202 204 210 212 216 226
+;->  228 232 240 682 684 690 692 696 714 716 722 724 728 738 740 744 752
+;->  810 812 818 820 824 842 844 850 852 856 866 868 872 880 906 908 914
+;->  916 920 930 932 936 944 962 964 968 976 992)
+
 ============================================================================
 
