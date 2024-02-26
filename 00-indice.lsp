@@ -2310,6 +2310,9 @@ NOTE LIBERE 22
   Sequenza di numeri compositi consecutivi
   Tavola delle moltiplicazioni (pitagorica) in esadecimale
   Sequenze binarie bilanciate
+  Perimetro e area di figure geometriche 2D di base
+  Lunghezza di una stringa + lunghezza
+  Numeri ordinabili
 
 PROBLEMI SUI DADI
 =================

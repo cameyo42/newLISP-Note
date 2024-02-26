@@ -2623,5 +2623,341 @@ Proviamo:
 ;->  810 812 818 820 824 842 844 850 852 856 866 868 872 880 906 908 914
 ;->  916 920 930 932 936 944 962 964 968 976 992)
 
+
+-------------------------------------------------
+Perimetro e area di figure geometriche 2D di base
+-------------------------------------------------
+
+(constant (global 'PI) 3.1415926535897931)
+Figure 2D
+---------
+(define (triangolo-perimetro a b c) (add a b c))
+(define (triangolo-area a b c)
+  (let (s (div (add a b c) 2))
+    (sqrt (mul s (sub s a) (sub s b) (sub s c)))))
+(define (quadrato-perimetro a) (mul 4 a))
+(define (quadrato-area a) (mul a a))
+(define (rettangolo-perimetro a b) (mul 2 (add a b)))
+(define (rettangolo-area a b) (mul a b))
+(define (rombo-area d1 d2) (/ (mul d1 d2) 2))
+(define (rombo-perimetro a) (mul 4 a))
+(define (parallelogramma-perimetro a b) (mul 2 a b))
+(define (parallelogramma-area b h) (mul b h))
+(define (trapezio-perimetro a b b1 b2) (add a b b1 b2))
+(define (trapezio-area b1 b2 h) (/ (mul (add b1 b2) h) 2))
+(define (cerchio-perimetro r) (mul 2 PI r))
+(define (cerchio-area r) (mul PI r r))
+; Formula esatta
+; 2p = 4a*Integral[0,2PI](sqrt(1 - e^2*sin^2(t))dt)
+; e^2 = sqrt(a^2 + a^2) / a
+; Formula approssimata per eccesso
+(define (ellisse-perimetro a b c d) (mul 2 PI (sqrt (/ (add (mul a a) (mul b b)) 2))))
+(define (ellisse-area a b) (mul PI  a b))
+
+Vedi immagine "figure2D.png" nella cartella "Data".
+
+
+------------------------------------
+Lunghezza di una stringa + lunghezza
+------------------------------------
+
+Data una stringa di caratteri ASCII, determinare la lunghezza della stringa quando aggiungiamo la lunghezza della stringa alla stringa stessa.
+
+Per esempio,
+  str = "abc"
+  output = "abc4" = 4
+  Partendo da str = "abc"
+  Aggiungiamo la lunghezza della stringa alla stringa = "abc3"
+  Lunghezza della nuova stringa = 4
+  Aggiungiamo la lunghezza della stringa alla stringa = "abc4"
+  Lunghezza della nuova stringa = 4
+
+Algoritmo
+1) Partendo dalla stringa data aggiungiamo la lunghezza della stringa (k).
+2) Se lunghezza della nuova stringa è uguale a k:
+   allora abbiamo trovato il risultato,
+   altrimenti aumentare k a tornare al passo 1).
+
+(define (auto-len str)
+  (local (len k ok tmp)
+    (setq len (length str))
+    (setq k (- len 1))
+    (setq ok nil)
+    (until ok
+      (++ k)
+      ; lunghezza della stringa con (ipotesi di) lunghezza
+      (setq tmp (length (string str k)))
+      (if (= k tmp)
+        (begin
+          (setq ok true)
+          (println (string str k)))))))
+
+Proviamo:
+
+(auto-len "newLISP")
+;-> newLISP8
+
+(auto-len "programmazione")
+;-> programmazione16
+
+(auto-len "123456789")
+;-> 12345678911
+
+
+-----------------
+Numeri ordinabili
+-----------------
+
+I numeri ordinabili sono quei numeri interi in cui due cifre decimali consecutive differiscono di 1 dopo aver ordinato le cifre in ordine decrescente.
+Per esempio:
+
+  N = 2013
+  N ordinato = 3210
+  (3-2) = 1
+  (2-1) = 1
+  (1-0) = 1
+  Quindi 2013 è un numero ordinabile.
+
+  N = 3254
+  N ordinato = 5432
+  (5-4) = 1
+  (4-3) = 1
+  (3-2) = 1
+  Quindi 3254 è un numero ordinabile.
+
+  N = 769
+  N ordinato = 967
+  (9-7) = 2
+  (7-6) = 1
+  Quindi 769 non è un numero ordinabile.
+
+Sequenza OEIS A215014:
+Numbers where any two consecutive decimal digits differ by 1 after arranging the digits in decreasing order.
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 21, 23, 32, 34, 43, 45, 54, 56, 65,
+  67, 76, 78, 87, 89, 98, 102, 120, 123, 132, 201, 210, 213, 231, 234, 243,
+  312, 321, 324, 342, 345, 354, 423, 432, 435, 453, 456, 465, 534, 543, 546,
+  564, 567, 576, 645, 654, 657, 675, 678, 687, 756, 765, 768, 786, 789, 798,
+  867, ..., a(4091131) = 9876543210 è l'ultimo termine.
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (ordinabile? num)
+  (local (lst len)
+    (setq lst (sort (int-list num) >))
+    (setq len (length lst))
+    (or (= len 1)
+        (for-all (fn(x) (= 1 x)) (map - (chop lst) (rest lst))))))
+
+Poichè risulta: (for-all (fn(x) (= 1 x)) '())  --> true, allora possiamo scrivere:
+
+(define (ordinabile? num)
+  (let (lst (sort (int-list num) >))
+    (for-all (fn(x) (= 1 x)) (map - (chop lst) (rest lst)))))
+
+Proviamo:
+
+(ordinabile? 3254)
+;-> true
+
+(filter ordinabile? (sequence 0 1000))
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87
+;->  89 98 102 120 123 132 201 210 213 231 234 243 312 321 324 342 345
+;->  354 423 432 435 453 456 465 534 543 546 564 567 576 645 654 657 675
+;->  678 687 756 765 768 786 789 798 867 876 879 897 978 987)
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 21 23 32 34 43 45 54 56 65 67 76 78 87
+;->  89 98 102 120 123 132 201 210 213 231 234 243 312 321 324 342 345
+;->  354 423 432 435 453 456 465 534 543 546 564 567 576 645 654 657 675
+;->  678 687 756 765 768 786 789 798 867 876 879 897 978 987)
+
+Vediamo la velocità della funzione:
+
+(time (filter ordinabile? (sequence 0 1e5)))
+;-> 218.725
+(time (filter ordinabile? (sequence 0 1e6)))
+;-> 2635.978
+(time (filter ordinabile? (sequence 0 1e7)))
+;-> 30409.818 ; 30 sec
+(time (filter ordinabile? (sequence 0 1e8)))
+;-> 343904.709 ; 343 sec (5min 43 sec)
+
+Non possiamo arrivare a 9876543210 (che vale quasi 1e10) in tempi brevi.
+
+Se si esclude lo zero, il numero di termini con k cifre vale:
+
+  termini(k) = (11-k)*k! - (k-1)! con 1 <= k <= 10
+  (Franklin T. Adams-Watters, Aug 01 2012)
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (termini k) (- (* (fact-i k) (- 11 k)) (fact-i (- k 1))))
+
+(termini 1)
+;-> 9L
+(termini 2)
+;-> 17L
+
+Vediamo quanti sono tutti i termini della sequenza (+ 1 che è lo 0 iniziale):
+
+(+ (apply + (map terms (sequence 1 10))) 1)
+;-> 4091131L
+
+Quindi l'intera sequenza è composta da 4091131 termini/numeri.
+L'ultimo termine/numero della sequenza è 9876543210.
+
+Proviamo un altro metodo per calcolare tutti i numeri ordinabili.
+I numeri ordinabili sono composti da n cifre ordinate che differiscono di 1 (con 1 <= N <=10).
+Date le cifre 0 1 2 3 4 5 6 7 8 9 possiamo prendere tutti i gruppi composti da 1,2,3,4,5,6,7,8,9,10 cifre, calcolare le permutazioni di ogni elemento di ogni gruppo e aggiungere ogni permutazione al risultato finale.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(define (group-block lst num)
+"Creates a list with blocks of elements: (0..num) (1..num+1) (n..num+n)"
+  (local (out items len)
+    (setq out '())
+    (setq len (length lst))
+    (if (>= len num) (begin
+        ; numero di elementi nella lista di output (numero blocchi)
+        (setq items (- len num (- 1)))
+        (for (k 0 (- items 1))
+          (push (slice lst k num) out -1)
+        )
+    ))
+  out))
+
+Calcoliamo i gruppi da 1 a 10 cifre:
+
+(group-block '(9 8 7 6 5 4 3 2 1 0) 1)
+;-> ((9) (8) (7) (6) (5) (4) (3) (2) (1) (0))
+(group-block '(9 8 7 6 5 4 3 2 1 0) 2)
+;-> ((9 8) (8 7) (7 6) (6 5) (5 4) (4 3) (3 2) (2 1) (1 0))
+(group-block '(9 8 7 6 5 4 3 2 1 0) 3)
+;-> ((9 8 7) (8 7 6) (7 6 5) (6 5 4) (5 4 3) (4 3 2) (3 2 1) (2 1 0))
+...
+(group-block '(9 8 7 6 5 4 3 2 1 0) 9)
+;-> ((9 8 7 6 5 4 3 2 1) (8 7 6 5 4 3 2 1 0))
+(group-block '(9 8 7 6 5 4 3 2 1 0) 10)
+;-> ((9 8 7 6 5 4 3 2 1 0))
+
+Per esempio prendiamo il gruppo con N=3:
+
+(group-block '(9 8 7 6 5 4 3 2 1 0) 3)
+;-> ((9 8 7) (8 7 6) (7 6 5) (6 5 4) (5 4 3) (4 3 2) (3 2 1) (2 1 0))
+
+Le permutazioni del termine (9 8 7) sono:
+  
+  (7 8 9) (8 7 9) (9 7 8) (7 9 8) (8 9 7) (9 8 7)
+
+Ognuna di queste permutazioni rappresenta un numero ordinabile.
+Quindi possiamo aggiungerle tutte alla lista dei numeri ordinabili.
+Bisogna stare attenti al caso in cui un termine contiene lo 0, per esempio prendiamo l'ultimo termine (2 1 0), le permutazioni sono:
+
+  (2 1 0) (1 2 0) (0 2 1) (2 0 1) (1 0 2) (0 1 2)
+
+In questo caso le permutazioni (0 2 1) e (0 1 2) non devono essere aggiunte perchè i valori 21 e 12 vengono aggiunti dal gruppo con N=2.
+
+Vediamo due funzioni, una per calcolare il numero totale di numeri ordinabili e una per alcolare i valori di tutti i numeri ordinabili.
+
+Funzione che calcola il numero totale dei numeri ordinabili:
+
+(define (totale-numeri-ordinabili)
+  (local (totale blocchi permutazioni)
+    (setq totale 0)
+    ; ciclo per i blocchi lunghi da 1 a 10
+    (for (i 1 10)
+      (setq blocchi (group-block '(0 1 2 3 4 5 6 7 8 9) i))
+      ; ciclo per ogni blocco
+      (dolist (bl blocchi)
+          ; calcola la permutazioni del blocco corrente
+          (setq permutazioni (perm bl))
+          ; ciclo per ogni permutazione del blocco corrente
+          (dolist (p permutazioni)
+            ; se il numero iniziale della permutazione corrente
+            ; è diverso da 0, allora aumenta il totale dei numeri ordinabili
+            (if (!= (p 0) 0) (++ totale))
+          )
+      )
+    )
+    ; aggiunge il numero 0 come termine
+    (+ totale 1)))
+
+Proviamo:
+
+(time (println (totale-numeri-ordinabili)))
+;-> 4091131L
+;-> 4765.965
+
+Funzione che calcola la lista di tutti i numeri ordinabili:
+
+(define (lista-numeri-ordinabili)
+  (local (totale blocchi permutazioni)
+    (setq totale '())
+    ; ciclo per i blocchi lunghi da 1 a 10
+    (for (i 1 10)
+      (setq blocchi (group-block '(0 1 2 3 4 5 6 7 8 9) i))
+      ; ciclo per ogni blocco
+      (dolist (bl blocchi)
+          ; calcola la permutazioni del blocco corrente
+          (setq permutazioni (perm bl))
+          ; elimina le permutazioni che iniziano con 0
+          (setq permutazioni (filter (fn(x) (!= (x 0) 0)) permutazioni))
+          ; aggiunge le permutazioni correnti alla soluzione
+          (extend totale permutazioni)
+      )
+    )
+    ; ordina in base al numero che rappresentano le liste
+    (sort totale)    
+    ; aggiunge il numero 0 come termine
+    (push '(0) totale)))
+
+Proviamo:
+
+(time (println (length (setq ord (lista-numeri-ordinabili)))))
+;-> 4091131
+;-> 19705.801
+
+(ord -1)
+;-> (9 8 7 6 5 4 3 2 1 0)
+(ord 4091130)
+;-> (9 8 7 6 5 4 3 2 1 0)
+
+(ord 0)
+;-> (0)
+
 ============================================================================
 
