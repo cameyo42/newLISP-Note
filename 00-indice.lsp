@@ -2313,6 +2313,10 @@ NOTE LIBERE 22
   Perimetro e area di figure geometriche 2D di base
   Lunghezza di una stringa + lunghezza
   Numeri ordinabili
+  Moltiplicazione zip
+  Shuffle di una lista annidata
+  Il metodo middle-square per generare numeri casuali
+  Programma autoriavviante dopo N secondi
 
 PROBLEMI SUI DADI
 =================

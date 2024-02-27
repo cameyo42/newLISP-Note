@@ -7099,6 +7099,9 @@ Vediamo ora un altro programma che permette di giocare contro il computer. Non �
 ;-> ║ O ║ X ║ X ║
 ;-> ╚═══╩═══╩═══╝
 
+Vedi anche "Numero di partite nel Tic-Tac-Toe" su "Note libere 5".
+Vedi anche "Posizioni finali del tic-tac-toe" su "Note libere 22".
+
 
 ----------------
 Labirinti (Maze)

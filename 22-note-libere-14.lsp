@@ -7907,7 +7907,7 @@ Un altro metodo è quello proposto da Fanda:
 REPL e colori ANSI
 ------------------
 
-Se il terminale in cui viene eseguita la REPL di newLISP supporta i codici ANSI Escape, allora possiamo modificare il colore dello sfondo (background) e il colre del testo (foreground).
+Se il terminale in cui viene eseguita la REPL di newLISP supporta i codici ANSI Escape, allora possiamo modificare il colore dello sfondo (background) e il colore del testo (foreground).
 
 Funzione che modifica il colore di foreground (testo):
 

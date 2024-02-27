@@ -3303,6 +3303,9 @@ Questo significa che ci sono:
 168 posizioni finali univoche di vittoria in 8 mosse
  62 posizioni finali univoche di vittoria in 9 mosse
 
+Vedi anche "Tic-Tac-Toe" su "Note libere 3".
+Vedi anche "Posizioni finali del tic-tac-toe" su "Note libere 22".
+
 
 ---------------------------
 Estrazione dati da file PDF

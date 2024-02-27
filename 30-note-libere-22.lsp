@@ -2959,5 +2959,241 @@ Proviamo:
 (ord 0)
 ;-> (0)
 
+
+-------------------
+Moltiplicazione zip
+-------------------
+
+Definiamo una nuova operazione aritmetica: la moltiplicazione zip.
+
+Algoritmo
+1) aggiungere eventuali zeri all'inizio del numero minore per far corrispondere le lunghezze dei numeri,
+2) moltiplicare le cifre corrispondenti dei numeri,
+3) aggiungere uno zero iniziale ad ogni moltiplicazione per ottenere numeri a 2 cifre,
+4) concatenare i numeri a 2 cifre
+5) eliminare gli eventuali 0 iniziali.
+
+Vediamo un esempio con N = 3277 e M = 54871:
+
+1) aggiungere gli zeri iniziali
+
+  N = 03277
+  M = 54871
+
+2) moltiplicazione cifra x cifra
+
+  N = 0  3  2  7  7
+  M = 5  4  8  7  1
+  * = 0 12 16 49  7
+
+3) formattare le moltiplicazioni a 2 cifre con eventuale 0 iniziale
+
+  00 12 16 49 07
+
+4) concatenare le moltiplicazioni formattate
+
+   0012164907
+
+5) eliminare gli zeri iniziali
+
+   12164907
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+
+(define (sign x)
+"Return the sign of a float number"
+  (cond ((> x 0) 1)
+        ((< x 0) -1)
+        (true 0)))
+
+(define (mulzip num1 num2)
+  ; memorizza i segno dei numeri
+  (setq segno1 (sign num1))
+  (setq segno2 (sign num2))
+  ; valore assoluto dei numeri
+  (setq num1 (abs num1))
+  (setq num2 (abs num2))
+  ; lunghezza dei numeri
+  (setq len1 (length num1))
+  (setq len2 (length num2))
+  ; conversione dei numeri in liste
+  (setq lst1 (int-list num1))
+  (setq lst2 (int-list num2))
+  ; aggiunge gli eventuali zeri iniziali
+  (cond ((> len1 len2)
+          (setq lst2 (append (dup 0 (- len1 len2)) lst2)))
+        ((< len1 len2)
+          (setq lst1 (append (dup 0 (- len2 len1)) lst1)))
+  )
+  ; moltiplica le cifre
+  (setq res (map * lst1 lst2))
+  ; formatta le moltiplicazioni a 2 cifre
+  (setq res (map (fn(x) (format "%02d" x)) res))
+  ; concatena le moltiplicazioni a 2 cifre
+  ; ed elimina gli zeri iniziali (convertendo a numero intero)
+  (setq res (int (join res) 0 10))
+  ; ripristina il valore corretto del segno del risultato
+  (if (= segno1 segno2) res (- res))
+)
+
+Proviamo:
+
+(mulzip 3277 54871)
+;-> 12164907
+
+(mulzip 1 -1)
+;-> -1
+
+(mulzip -10 10)
+;-> -100
+
+(mulzip -77 -77)
+;-> 4949
+
+(mulzip 22 222)
+;-> 404
+
+
+-----------------------------
+Shuffle di una lista annidata
+-----------------------------
+
+Questo è un problema relativo alla redistribuzione casuale di caratteristiche in un gioco di ruolo.
+Abbiamo una lista composta da liste di interi (es. ((2 5 3) (8 2) (1) (9 4 7))).
+Bisogna mischiare gli interi e ridistribuirli nella lista mantenendo la stessa struttura della lista iniziale.
+Nell'esempio una soluzione valida è: ((8 2 9) (1 4) (2) (7 3 5))).
+
+(define (list-break lst lst-len)
+"Breaks a list into sub-lists of specified lengths"
+  (let ((i 0) (q 0) (out '()))
+    (dolist (el lst-len)
+      (setq i (+ i q))
+      (setq q el)
+      (push (slice lst i q) out -1)
+    )
+    out))
+
+(define (shuffle lst)
+  (let (nums (randomize (flat lst)))
+    (list-break nums (map length lst))))
+
+Proviamo:
+
+(shuffle '((2 5 3) (8 2) (1) (9 4 7)))
+;-> ((2 1 8) (4 9) (2) (3 7 5))
+
+(shuffle '((1) () (2 3)))
+;-> ((3) () (1 2))
+
+(shuffle '((1 2 3) (4 5 6) (7 8) (9)))
+;-> ((2 8 7) (3 6 5) (4 1) (9))
+
+
+---------------------------------------------------
+Il metodo middle-square per generare numeri casuali
+---------------------------------------------------
+
+Il metodo del quadrato centrale è un metodo per generare numeri pseudocasuali.
+In pratica è un metodo altamente imperfetto per molti scopi pratici, poiché il suo periodo è solitamente molto breve e presenta alcuni gravi punti deboli: ripetuto abbastanza volte, il metodo del quadrato centrale inizierà ripetutamente a generare lo stesso numero o passerà a un numero precedente nella sequenza e si ripeterà indefinitamente.
+
+Il metodo fu presentato da John von Neumann nel 1949 che disse scherzando:
+"Anyone who considers arithmetical methods of producing random digits is, of course, in a state of sin"
+"Chiunque consideri metodi aritmetici per produrre cifre casuali è, ovviamente, in uno stato di peccato"
+John von Neumann, "Various techniques used in connection with random digits".
+
+Per generare una sequenza di numeri pseudocasuali di N cifre, un valore iniziale di N cifre viene creato ed elevato al quadrato, producendo un numero di 2N cifre.
+Se il risultato ha meno di 2N cifre, vengono aggiunti degli zeri iniziali per compensare.
+Le N cifre centrali del risultato sarebbero il numero successivo nella sequenza e restituite come risultato.
+Questo processo viene quindi ripetuto per generare più numeri.
+I numeri generati non possono essere più di 8^N (periodo).
+
+Il valore di N deve essere pari affinché il metodo funzioni: se il valore di N è dispari, non ci sarà necessariamente "N cifre centrali" da selezionare definite in modo univoco.
+
+Vediamo un esempio di applicazione del metodo con N=6:
+
+    seed = 456749
+  seed^2 = 208619649001
+  number = ...619649...
+    seed = 619649
+  seed^2 = 383964883201
+  number = ...964883...
+    seed = 964883
+  eccetera
+
+(define (pseudo seme out)
+  (setq totale 0)
+  (setq len (length seme))
+  (setq stop nil)
+  (setq generati (list seme))
+  (until stop
+    (setq seme2 (* seme seme))
+    ;(println seme2)
+    (setq fmt (string "%0" (* 2 len) "s"))
+    ;(println fmt)
+    (setq s (format fmt (string seme2)))
+    ;(println s)
+    (setq numero (int (slice s (/ len 2) len) 0 10))
+    ;(print numero) (read-line)
+    (setq seme numero)
+    (if (find numero generati) (setq stop true))
+    (push numero generati -1)
+    (++ totale)
+  )
+  (println totale)
+  (println (ref-all (generati -1) generati))
+  (if out generati))
+
+Proviamo:
+
+(pseudo 456749)
+;-> 394
+;-> ((184) (394))
+
+(pseudo 192837)
+;-> 284
+;-> ((283) (284))
+
+(pseudo 675248)
+;-> 211
+;-> ((210) (211))
+
+(pseudo 42 true)
+;-> 15
+;-> ((14) (15))
+;-> (42 76 77 92 46 11 12 14 19 36 29 84 5 2 0 0)
+
+
+---------------------------------------
+Programma autoriavviante dopo N secondi
+---------------------------------------
+
+Scrivere una funzione/programma che si riavvia dopo N secondi.
+
+(define (ora-esatta pausa)
+  ; creazione della funzione ausiliaria 'run' 
+  ; che chiama la funzione 'ora-esatta' 
+  ; dopo un dato numero di millisecondi
+  ;(eval-string "(define (run delay) (sleep delay) (ora-esatta delay))")
+  (define (run delay) (sleep delay) (ora-esatta delay))
+  (println (date))
+  ; esecuzione della funzione ausiliria 'run'
+  (run pausa))
+
+Proviamo:
+
+(ora-esatta 3000)
+;-> Tue Feb 27 13:57:23 2024
+;-> Tue Feb 27 13:57:26 2024
+;-> Tue Feb 27 13:57:29 2024
+;-> Tue Feb 27 13:57:32 2024
+;-> ...
+
+
 ============================================================================
 
