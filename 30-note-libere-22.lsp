@@ -3195,5 +3195,246 @@ Proviamo:
 ;-> ...
 
 
+--------------------------------
+Posizioni valide del tic-tac-toe
+--------------------------------
+
+Data una posizione del tic-tac-toe, determinare se è valida o meno.
+Il giocatore X muove per primo.
+Per esempio:
+
+Posizione valida:
+  X O X
+  O X O
+  X O X
+
+Posizione non valida (X e O non possono fare tris entrambi):
+  X X X
+  X X O
+  O O O
+
+Posizione non valida (deve risultare X = O oppure X = O + 1):
+  X X O
+  X . X
+  . . O
+
+La posizione viene data con una matrice/lista di valori:
+
+  |a00 a01 a02|
+  |a10 a11 a12|
+  |a20 a21 a22|
+
+I valori possono essere "X" o "O" o "." (casella vuota).
+
+(define (print-tris board)
+  (for (r 0 2) (for (c 0 2) (print " " (board r c))) (println)) '>)
+
+(print-tris '(("X" "O" "X") ("X" "O" ".") ("." "O" ".")))
+;-> X O X
+;-> X O .
+;-> . O .
+
+(define (ttt? pos)
+  (setq valida true)
+  ; test per numero di X e O
+  (setq num-x (first (count '("X") (flat pos))))
+  (setq num-o (first (count '("O") (flat pos))))
+  ;(println num-x { } num-o)
+  (if (and (!= num-x num-o) (!= num-x (+ num-o 1)))
+      (setq valida nil))
+  ; test per vittorie multiple
+  ; creazione stringa per la posizione
+  (setq p "")
+  (extend p (join (pos 0)) "-" (join (pos 1)) "-" (join (pos 2)))
+  ; creazione stringa per la posizione trasposta
+  (setq tpos (transpose pos))
+  (setq t "")
+  (extend t (join (tpos 0)) "-" (join (tpos 1)) "-" (join (tpos 2)))
+  ;(println p)
+  ;(print-tris pos)
+  ;(println t)
+  ;(print-tris tpos)
+  ; ricerca delle configurazioni vincenti
+  (if (and (or (find "XXX" p) (find "XXX" t))
+           (or (find "OOO" p) (find "OOO" t)))
+      (setq valida nil))
+  (print-tris pos)
+  valida)
+
+Proviamo:
+
+(ttt? '(("X" "O" "X") ("X" "O" ".") ("." "O" ".")))
+;->  X O X
+;->  X O .
+;->  . O .
+;-> true
+(ttt? '(("X" "X" "X") ("X" "X" "X") ("X" "X" "X")))
+;->  X X X
+;->  X X X
+;->  X X X
+;-> nil
+(ttt? '(("X" "O" "X") ("X" "O" "X") ("X" "O" "O")))
+;->  X O X
+;->  X O X
+;->  X O O
+;-> nil
+(ttt? '(("O" "X" "O") ("X" "O" "O") ("O" "X" "X")))
+;->  O X O
+;->  X O O
+;->  O X X
+;-> nil
+(ttt? '(("O" "X" ".") ("X" "O" "X") ("." "X" "O")))
+;->  O X .
+;->  X O X
+;->  . X O
+;-> true
+(ttt? '(("O" "X" ".") ("X" "O" "X") ("." "." ".")))
+;->  O X .
+;->  X O X
+;->  . . .
+;-> true
+
+Vedi anche "Tic-Tac-Toe" su "Note libere 3".
+Vedi anche "Numero di partite nel Tic-Tac-Toe" su "Note libere 5".
+
+
+-------------------------------------
+Funzione da interi e interi gaussiani
+-------------------------------------
+
+Definiamo una funzione suriettiva che va dal dominio dagli interi positivi al codominio agli interi gaussiani.
+Gli interi gaussiani sono numeri complessi in cui la parte reale e quella immaginaria sono numeri interi.
+Una funzione f: X->Y è suriettiva se per ogni y in Y, esiste x in X tale che f(x) = y.
+In altre parole, una funzione è suriettiva se ogni elemento del codominio Y è mappato da almeno un elemento del dominio X.
+La funzione suriettiva prende un numero intero positivo e procede come segue:
+   Numero = 2490
+1) Esprimere il numero in binario
+   100110111010
+2) Eliminare gli eventuali 0 iniziali e finali
+   10011011101
+3) Sostituire qualsiasi sequenza di uno o più '0' con un singolo '+'
+   1+11+111+1
+4) Sostituire tutti gli 1 con i:
+   i+ii+iii+i
+5) Valutare l'espressione complessa risultante (che è un intero gaussiano)
+   i+ii+iii+i = i+i*i+i*i*i+i = 2i+i^2+i^3 = 2i+(-1)+(-i) = -1+i
+
+Algoritmo:
+1) Calcolare il Run-length-encode del numero binario
+2) Ciclo per ogni elemento di rle:
+   2a) calcolare il valore:
+       se valore reale metterlo nella lista dei reali
+       se immaginario metterlo nella lista degli immaginari
+3) Sommare la lista dei reali e sommare la lista degli immaginari
+
+Come viene calcolato il valore di un elemento di rle?
+Un elemento di rle ha la seguente struttura:
+  (ripetizioni valore)
+  dove ripetizioni è un numero intero,
+       valore vale "0" o "1".
+
+Vediamo un esempio:
+  rle-encode "100110111010" =
+  (1 "1") (2 "0") (2 "1") (1 "0") (3 "1") (1 "0") (1 "1") (1 "0")
+
+Calcolo del valore di ogni elemento:
+  (1 "1") --> +i
+  (2 "0") --> 0
+  (2 "1") --> i*i = -1
+  (1 "0") --> 0
+  (3 "1") --> i*i*i = -i
+  (1 "0") --> 0
+  (1 "1") --> +i
+  (1 "0") --> 0
+
+  lista dei reali = -1
+  lista degli immaginari = +i -i + i = +i
+
+Nota:
+  i^k = +1, se k è pari e (k % 4) = 0
+  i^k = -1, se k è pari e (k % 4) != 0
+  i^k = -i, se k è dispari e ((k+1) % 4) = 0
+  i^k = +i, se k è dispari e ((k+1) % 4) != 0
+
+(define (rle-encode lst)
+"Encode list with Run Length Encoding"
+  (local (palo conta out)
+    (cond ((= lst '()) '())
+          (true
+           (setq out '())
+           (setq palo (first lst))
+           (setq conta 0)
+           (dolist (el lst)
+              ; se l'elemento è uguale al precedente aumentiamo il suo conteggio
+              (if (= el palo) (++ conta)
+                  ; altrimenti costruiamo la coppia (conta el) e la aggiungiamo al risultato
+                  (begin (extend out (list(list conta palo)))
+                         (setq conta 1)
+                         (setq palo el)
+                  )
+              )
+           )
+           ; aggiungiamo l'ultima coppia di valori
+           (extend out (list(list conta palo)))
+          )
+    )
+    out))
+
+(rle-encode (explode "10110111010"))
+;-> ((1 "1") (1 "0") (2 "1") (1 "0") (3 "1") (1 "0") (1 "1") (1 "0"))
+
+Funzione suriettiva da interi a interi gaussiani:
+
+(define (surie num)
+  (local (real im binary rle)
+    (setq real '())
+    (setq im '())
+    (setq binary (trim (bits num) "0"))
+    (setq rle (rle-encode (explode binary)))
+    ;(println rle)
+    (dolist (el rle)
+      (if (= (el 1) "1")
+          (cond ((= (el 0) 1) (push 1 im))
+                ((even? (el 0))
+                  (if (zero? (% (el 0) 4))
+                      ; i^k = +1, se k è pari e (k % 4) = 0
+                      (push +1 real)
+                      ; i^k = -1, se k è pari e (k % 4) != 0
+                      (push -1 real)))
+                ((odd? (el 0))
+                  (if (zero? (% (+ (el 0) 1) 4))
+                      ; i^k = -i, se k è dispari e ((k+1) % 4) = 0
+                      (push -1 im)
+                      ; i^k = +i, se k è dispari e ((k+1) % 4) != 0
+                      (push 1 im)))
+          )
+      )
+    )
+    ;(println real { } im)
+    (list (apply + real) (apply + im))))
+
+Proviamo:
+
+(surie 2490)
+;-> (-1 1)
+
+(surie 123456)
+;-> (1 2)
+
+(surie 654321)
+;-> (-2 2)
+
+(surie 1)
+;-> (0 1)
+
+(surie 375775)
+;-> (0 1)
+
+(surie 10101010)
+;-> (-1 6)
+
+(surie 170)
+;-> (0 4)
+
 ============================================================================
 

@@ -2317,6 +2317,8 @@ NOTE LIBERE 22
   Shuffle di una lista annidata
   Il metodo middle-square per generare numeri casuali
   Programma autoriavviante dopo N secondi
+  Posizioni valide del tic-tac-toe
+  Funzione da interi e interi gaussiani
 
 PROBLEMI SUI DADI
 =================
