@@ -2319,6 +2319,9 @@ NOTE LIBERE 22
   Programma autoriavviante dopo N secondi
   Posizioni valide del tic-tac-toe
   Funzione da interi e interi gaussiani
+  Numeri Xenodromi
+  Sequenza di Rudin-Shapiro
+  Calendario a due cubi
 
 PROBLEMI SUI DADI
 =================

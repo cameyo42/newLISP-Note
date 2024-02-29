@@ -3436,5 +3436,393 @@ Proviamo:
 (surie 170)
 ;-> (0 4)
 
+
+----------------
+Numeri Xenodromi
+----------------
+
+Uno xenodromo in base n è un numero intero in cui tutte le sue cifre in base n sono diverse.
+Data una base di 2 <= n <= 10, generare gli xenodromi per quella base in base n e in base 10 fino ad un dato limite.
+
+(define (b1-b2 num base1 base2)
+"Convert an integer from base1 to base2 (2 <= base <= 10)"
+  (if (zero? num) num
+      (+ (% num base2) (* base1 (b1-b2 (/ num base2) base1 base2)))))
+
+(b1-b2 123 10 4)
+
+(define (xeno? num base)
+  (local (num-base lst uniq)
+    (setq num-base (b1-b2 num 10 base))
+    (setq lst (explode (string num-base)))
+    (setq uniq (unique lst))
+    ;(println num-base { } lst { } uniq)
+    (= lst uniq)))
+
+Proviamo:
+
+(xeno? 123 10)
+;-> true
+
+(xeno? 123 2)
+;-> nil
+
+(xeno? 123 4)
+;-> nil
+
+Funzione che calcola tutti i numeri xenodromi in una data base fino ad un dato limite:
+
+(define (xenodrome base limite)
+  (local (bn b10 num-base)
+    (setq bn '())
+    (setq b10 '())
+    (for (num 1 limite)
+      (setq num-base (b1-b2 num 10 base))
+      (if (xeno? num base) (begin
+          (push num-base bn -1)
+          (push num b10 -1))
+      )
+    )
+    (list b10 bn)))
+
+Proviamo:
+
+(xenodrome 2 100)
+;-> ((1 2) (1 10))
+Ultimo numero base 2: 10
+Ultimo numero base 10: (b1-b2 10 2 10) --> 2
+
+(xenodrome 3 100)
+;-> ((1 2 3 5 6 7 11 15 19 21) (1 2 10 12 20 21 102 120 201 210))
+Ultimo numero base 3: 210
+Ultimo numero base 10: (b1-b2 210 3 10) --> 21
+
+(xenodrome 4 100)
+;-> ((1 2 3 4 6 7 8 9 11 12 13 14 18 19 24 27 28 30 33 35 36 39 44 45
+;->   49 50 52 54 56 57 75 78 99)
+;->  (1 2 3 10 12 13 20 21 23 30 31 32 102 103 120 123 130 132 201 203
+;->   210 213 230 231 301 302 310 312 320 321 1023 1032 1203))
+Ultimo numero base 4: 3210
+Ultimo numero base 10: (b1-b2 3210 4 10) --> 228
+
+(xenodrome 5 100)
+;-> ((1 2 3 4 5 7 8 9 10 11 13 14 15 16 17 19 20 21 22 23 27 28 29 35
+;->   38 39 40 42 44 45 47 48 51 53 54 55 58 59 65 66 69 70 71 73 76 77
+;->   79 80 82 84 85 86 89 95 96 97)
+;->  (1 2 3 4 10 12 13 14 20 21 23 24 30 31 32 34 40 41 42 43 102 103
+;->   104 120 123 124 130 132 134 140 142 143 201 203 204 210 213 214
+;->   230 231 234 240 241 243 301 302 304 310 312 314 320 321 324 340
+;->   341 342))
+Ultimo numero base 5: 43210
+Ultimo numero base 10: (b1-b2 43210 5 10) --> 2930
+
+(xenodrome 6 100)
+;-> ((1 2 3 4 5 6 8 9 10 11 12 13 15 16 17 18 19 20 22 23 24 25 26 27
+;->   29 30 31 32 33 34 38 39 40 41 48 51 52 53 54 56 58 59 60 62 63 65
+;->   66 68 69 70 73 75 76 77 78 81 82 83 90 91 94 95 96 97 99)
+;->  (1 2 3 4 5 10 12 13 14 15 20 21 23 24 25 30 31 32 34 35 40 41 42
+;->   43 45 50 51 52 53 54 102 103 104 105 120 123 124 125 130 132 134
+;->   135 140 142 143 145 150 152 153 154 201 203 204 205 210 213 214
+;->   215 230 231 234 235 240 241 243))
+Ultimo numero base 6: 543210
+Ultimo numero base 10: (b1-b2 543210 6 10) --> 44790
+
+(xenodrome 7 100)
+;-> ((1 2 3 4 5 6 7 9 10 11 12 13 14 15 17 18 19 20 21 22 23 25 26 27
+;->   28 29 30 31 33 34 35 36 37 38 39 41 42 43 44 45 46 47 51 52 53 54
+;->   55 63 66 67 68 69 70 72 74 75 76 77 79 80 82 83 84 86 87 88 90 91
+;->   93 94 95 96 99)
+;->  (1 2 3 4 5 6 10 12 13 14 15 16 20 21 23 24 25 26 30 31 32 34 35 36
+;->   40 41 42 43 45 46 50 51 52 53 54 56 60 61 62 63 64 65 102 103 104
+;->   105 106 120 123 124 125 126 130 132 134 135 136 140 142 143 145
+;->   146 150 152 153 154 156 160 162 163 164 165 201))
+Ultimo numero base 7: 6543210
+Ultimo numero base 10: (b1-b2 6543210 7 10) --> 800667
+
+(xenodrome 8 100)
+;-> ((1 2 3 4 5 6 7 8 10 11 12 13 14 15 16 17 19 20 21 22 23 24 25 26
+;->   28 29 30 31 32 33 34 35 37 38 39 40 41 42 43 44 46 47 48 49 50 51
+;->   52 53 55 56 57 58 59 60 61 62 66 67 68 69 70 71 80 83 84 85 86 87
+;->   88 90 92 93 94 95 96 98 99)
+;->  (1 2 3 4 5 6 7 10 12 13 14 15 16 17 20 21 23 24 25 26 27 30 31 32
+;->   34 35 36 37 40 41 42 43 45 46 47 50 51 52 53 54 56 57 60 61 62 63
+;->   64 65 67 70 71 72 73 74 75 76 102 103 104 105 106 107 120 123 124
+;->   125 126 127 130 132 134 135 136 137 140 142 143))
+Ultimo numero base 8: 76543210
+Ultimo numero base 10: (b1-b2 76543210 9 10) --> 36993276
+
+(xenodrome 9 100)
+;-> ((1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 17 18 19 21 22 23 24 25 26 27
+;->   28 29 31 32 33 34 35 36 37 38 39 41 42 43 44 45 46 47 48 49 51 52
+;->   53 54 55 56 57 58 59 61 62 63 64 65 66 67 68 69 71 72 73 74 75 76
+;->   77 78 79 83 84 85 86 87 88 89 99)
+;->  (1 2 3 4 5 6 7 8 10 12 13 14 15 16 17 18 20 21 23 24 25 26 27 28
+;->   30 31 32 34 35 36 37 38 40 41 42 43 45 46 47 48 50 51 52 53 54 56
+;->   57 58 60 61 62 63 64 65 67 68 70 71 72 73 74 75 76 78 80 81 82 83
+;->   84 85 86 87 102 103 104 105 106 107 108 120))
+Ultimo numero base 9: 876543210
+Ultimo numero base 10: (b1-b2 876543210 9 10) --> 381367044
+
+(xenodrome 10 100)
+;-> ((1 2 3 4 5 6 7 8 9 10 12 13 14 15 16 17 18 19 20 21 23 24 25 26 27
+;->   28 29 30 31 32 34 35 36 37 38 39 40 41 42 43 45 46 47 48 49 50 51
+;->   52 53 54 56 57 58 59 60 61 62 63 64 65 67 68 69 70 71 72 73 74 75
+;->   76 78 79 80 81 82 83 84 85 86 87 89 90 91 92 93 94 95 96 97 98)
+;->  (1 2 3 4 5 6 7 8 9 10 12 13 14 15 16 17 18 19 20 21 23 24 25 26 27
+;->   28 29 30 31 32 34 35 36 37 38 39 40 41 42 43 45 46 47 48 49 50 51
+;->   52 53 54 56 57 58 59 60 61 62 63 64 65 67 68 69 70 71 72 73 74 75
+;->   76 78 79 80 81 82 83 84 85 86 87 89 90 91 92 93 94 95 96 97 98))
+Ultimo numero base 10: 9876543210
+
+
+-------------------------
+Sequenza di Rudin-Shapiro
+-------------------------
+
+La sequenza di Rudin-Shapiro è una sequenza di 1 e −1 definita come segue:
+
+  rs(n)=(−1)^g(n)
+
+dove g(n) è il numero di occorrenze di (eventualmente sovrapposte) 11 nella rappresentazione binaria di n.
+
+Sequenza OEIS A020985
+The Rudin-Shapiro or Golay-Rudin-Shapiro sequence
+  1, 1, 1, -1, 1, 1, -1, 1, 1, 1, 1, -1, -1, -1, 1, -1, 1, 1, 1, -1, 1, 1,
+  -1, 1, -1, -1, -1, 1, 1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, 1, 1, 1, 1, -1,
+  -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, 1, -1, -1, -1, 1, -1,
+  1, 1, 1, -1, 1, 1, -1, 1, 1, 1, 1, -1, -1, -1, 1, -1, 1, ...
+
+Formula di Brillhart and Carlitz:
+
+  a(0) = a(1) = 1,
+  a(2n) = a(n),
+  a(2n+1) = a(n) * (-1)^n.
+
+Per esprimere a(n) in funzione di un indice precedente, possiamo utilizzare la proprietà della ricorrenza:
+
+  a(2n+1) = a(n)
+
+Possiamo notare che questa ricorrenza dimezza l'indice in termini di n, quindi potremmo riscrivere la ricorrenza come:
+
+ a(n) = a(n/2)
+
+Se l'indice n è pari, allora abbiamo n = 2m, quindi:
+
+  a(m) = a(2m/2) = a(m) --> a(n/2)
+
+Quindi, se n è pari, a(n) = a(n/2).
+
+Se invece n è dispari, n = 2m+1, quindi:
+
+  a(m) = a((2m+1)/2) = a(m) --> a((n-1)/2)
+
+Quindi, se n è dispari, a(n) = a((n-1)/2)
+
+Quindi possiamo riscrivere la formula ricorsiva come segue:
+
+  a(0) = 1
+  a(1) = 1
+  a(n) = a(n/2), per n pari
+  a(n) = a((n-1)/2) * (-1)^((n-1)/2), per n dispari
+
+Questa formula permette di esprimere a(n) in funzione di a con un indice precedente a n (a seconda che n sia pari o dispari).
+
+Metodo 1 (definizione)
+----------------------
+
+(define (regex-all regexp str all)
+  (local (out idx res)
+    (setq out '())
+    (setq idx 0)
+    (setq res (regex regexp str 64 idx))
+    (while res
+      (push res out -1)
+      (if all
+          (setq idx (+ (res 1) 1)) ; contiguos pattern
+          ;else
+          (setq idx (+ (res 1) (res 2))) ; no contiguos pattern
+      )
+      (setq res (regex regexp str 64 idx))
+    )
+    out))
+
+(regex-all "[1]{2}" "11011101" true)
+;-> (("11" 0 2) ("11" 3 2) ("11" 4 2))
+
+Vedi "regex-all (trova tutte le occorrenze)" su "Note libere 19".
+
+(define (rs1 num)
+  (if (even? (length (regex-all "[1]{2}" (bits num) true))) 1 -1))
+
+Proviamo:
+
+(rs1 123)
+;-> 1
+
+(map rs1 (sequence 0 50))
+;-> (1 1 1 -1 1 1 -1 1 1 1 1 -1 -1 -1 1 -1 1 1 1 -1 1 1
+;->  -1 1 -1 -1 -1 1 1 1 -1 1 1 1 1 -1 1 1 -1 1 1 1 1 -1
+;->  -1 -1 1 -1 -1 -1 -1)
+
+Metodo 2 (formula)
+------------------
+
+(define (rs2 num)
+  (cond ((= num 0) 1)
+        ((= num 1) 1)
+        ((even? num) (rs2 (/ num 2)))
+        ((odd? num) (* (pow -1 (/ (- num 1) 2)) (rs2 (/ (- num 1) 2))))))
+
+Proviamo:
+
+(rs2 123)
+;-> 1
+
+(map rs2 (sequence 0 50))
+;-> (1 1 1 -1 1 1 -1 1 1 1 1 -1 -1 -1 1 -1 1 1 1 -1 1 1
+;->  -1 1 -1 -1 -1 1 1 1 -1 1 1 1 1 -1 1 1 -1 1 1 1 1 -1
+;->  -1 -1 1 -1 -1 -1 -1)
+
+Metodo 3 
+--------
+
+(define (rs3 num)
+  (pow -1 (first (count '("1") (explode (bits (& num (* num 2))))))))
+
+Proviamo:
+
+(rs3 123)
+;-> 1
+
+(map rs3 (sequence 0 50))
+;-> (1 1 1 -1 1 1 -1 1 1 1 1 -1 -1 -1 1 -1 1 1 1 -1 1 1
+;->  -1 1 -1 -1 -1 1 1 1 -1 1 1 1 1 -1 1 1 -1 1 1 1 1 -1
+;->  -1 -1 1 -1 -1 -1 -1)
+
+Vediamo se le tre funzioni producono risultati uguali:
+
+(= (map rs1 (sequence 0 1000)) 
+   (map rs2 (sequence 0 1000))
+   (map rs3 (sequence 0 1000)))
+;-> true
+
+
+---------------------
+Calendario a due cubi
+---------------------
+
+Un calendario a due cubi utilizza due cubi con cifre sulle facce per visualizzare la data.
+Per le date comprese nell'intervallo 1-9, viene utilizzato uno zero iniziale ("01", "02", ..., "09").
+
+A prima vista sembra che questi calendari siano impossibili da realizzare.
+I cubi hanno in totale 12 facce, poichè in entrambi i cubi devono apparire i numeri "0", "1" e "2" (es. per i numeri "01" "10", "02", "20", "11", "22")), questo significa che per gli altri sette numeri (3, 4, 5, 6, 7, 8, 9) rimangono solo sei facce.
+Per risolvere il problema si utilizza un trucco in cui la faccia con un "6" può essere ruotata sottosopra per rappresentare un "9".
+Ad esempio, un cubo può avere le facce "012345" e l'altro "012678" dove il "6" può anche essere un "9".
+In questo modo abbiamo la seguente situazione:
+
+  cubo1 = 0, 1, 2, x1, y1, z1 
+  cubo2 = 0, 1, 2, x2, y2, z2
+
+e dobbiamo inserire i numeri 3, 4, 5, 6/9, 7, 8 nella sei facce restanti (x1,y1,z1 e x2,y2,z2).
+Qualunque combinazione dei sei numeri nelle sei facce soddisfa il requisito di poter mostrare tutti i numeri del mese da "01" a "31".
+
+Verifichiamolo con un programma.
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(define (list-break lst lst-len)
+"Breaks a list into sub-lists of specified lengths"
+  (let ((i 0) (q 0) (out '()))
+    (dolist (el lst-len)
+      (setq i (+ i q))
+      (setq q el)
+      (push (slice lst i q) out -1)
+    )
+    out))
+
+(define (groups parts lst)
+"Groups the elements of a list into disjoint sublists"
+  (local (tmp out)
+    ;------------------------
+    (define (loop parts xss lst)
+      (cond ((null? parts) xss)
+            ((null? xss) '())
+            (true
+            (letn ((xs (first xss)) (leftover (filter (lambda (e) (not (member e xs))) lst)))
+              ;(append (map (lambda (ys) (list xs ys)))
+              (append (map (lambda (ys) (flat (list xs ys)))
+                            (loop (rest parts) (comb (first parts) leftover) leftover))
+                      (loop parts (rest xss) lst))))))
+    ;------------------------
+    (setq tmp (loop (rest parts) (comb (first parts) lst) lst))
+    (setq out '())
+    (dolist (g tmp)
+      (push (list-break g parts) out -1)
+    )
+    out))
+
+(groups '(3 3) '(3 4 5 6 7 8))
+;-> (((3 4 5) (6 7 8)) ((3 4 6) (5 7 8)) ((3 4 7) (5 6 8)) ((3 4 8) (5 6 7))
+;->  ((3 5 6) (4 7 8)) ((3 5 7) (4 6 8)) ((3 5 8) (4 6 7)) ((3 6 7) (4 5 8))
+;->  ((3 6 8) (4 5 7)) ((3 7 8) (4 5 6)) ((4 5 6) (3 7 8)) ((4 5 7) (3 6 8))
+;->  ((4 5 8) (3 6 7)) ((4 6 7) (3 5 8)) ((4 6 8) (3 5 7)) ((4 7 8) (3 5 6))
+;->  ((5 6 7) (3 4 8)) ((5 6 8) (3 4 7)) ((5 7 8) (3 4 6)) ((6 7 8) (3 4 5)))
+
+(define (cubi)
+  (local (lst cubo1 cubo2 day cifra1 cifra2)
+    ; crea tutti i raggruppamenti possibili della divisione in due gruppi
+    ; della lista di cifre (3 4 5 6 7 8)
+    (setq lst (groups '(3 3) '(3 4 5 6 7 8)))
+    ; elimina i raggruppamenti simmetrici
+    ; (es. ((3 4 5) (6 7 8)) = ((6 7 8) (3 4 5)))
+    (setq lst  (unique (map sort lst)))
+    ; ciclo per ogni raggruppamento
+    (dolist (el lst)
+      ; facce del cubo 1
+      (setq cubo1 (append '(0 1 2) (el 0)))
+      ; facce del cubo 1
+      (setq cubo2 (append '(0 1 2) (el 1)))
+      (setq ok true)
+      (for (i 1 31)
+        ; giorno del calendario
+        (setq day (format "%02d" i))
+        ; cifra1 del giorno
+        (setq cifra1 (int (day 0) 0 10))
+        ; cambia 9 in 6 per cifra 1
+        (if (= cifra1 9) (setq cifra1 6))
+        ; cifra1 del giorno
+        (setq cifra2 (int (day 1) 0 10))
+        ; cambia 9 in 6 per cifra 1
+        (if (= cifra2 9) (setq cifra2 6))
+        ; controllo possibilità dei cubi di formare il giorno corrente
+        (if (not (or (and (find cifra1 cubo1) (find cifra2 cubo2))
+                     (and (find cifra1 cubo2) (find cifra2 cubo1))))
+            (setq ok nil)
+        )
+      )
+      (if ok (println cubo1 { } cubo2))
+    )))
+
+Proviamo:
+
+(cubi)
+;-> (0 1 2 3 4 5) (0 1 2 6 7 8)
+;-> (0 1 2 3 4 6) (0 1 2 5 7 8)
+;-> (0 1 2 3 4 7) (0 1 2 5 6 8)
+;-> (0 1 2 3 4 8) (0 1 2 5 6 7)
+;-> (0 1 2 3 5 6) (0 1 2 4 7 8)
+;-> (0 1 2 3 5 7) (0 1 2 4 6 8)
+;-> (0 1 2 3 5 8) (0 1 2 4 6 7)
+;-> (0 1 2 3 6 7) (0 1 2 4 5 8)
+;-> (0 1 2 3 6 8) (0 1 2 4 5 7)
+;-> (0 1 2 3 7 8) (0 1 2 4 5 6)
+
 ============================================================================
 
