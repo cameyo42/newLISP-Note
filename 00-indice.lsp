@@ -2322,6 +2322,10 @@ NOTE LIBERE 22
   Numeri Xenodromi
   Sequenza di Rudin-Shapiro
   Calendario a due cubi
+  Stringhe opposte (mirror)
+  Numeri indicibili di Cantor
+  Password cracking progress
+  La funzione RADD
 
 PROBLEMI SUI DADI
 =================

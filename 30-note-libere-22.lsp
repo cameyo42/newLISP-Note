@@ -3824,5 +3824,350 @@ Proviamo:
 ;-> (0 1 2 3 6 8) (0 1 2 4 5 7)
 ;-> (0 1 2 3 7 8) (0 1 2 4 5 6)
 
+
+-------------------------
+Stringhe opposte (mirror)
+-------------------------
+
+Abbiamo una stringa di caratteri ASCII stampabili.
+Restituire la stringa opposta (mirror) con le seguenti regole
+
+Carattere  Opposto     Carattere  Opposto     Carattere  Opposto
+    A        Z             a        z             0        9
+    B        Y             b        y             1        8
+    C        X             c        x             2        7
+    D        W             d        w             3        6
+    E        V             e        v             4        5
+    F        U             f        u             5        4
+    G        T             g        t             6        3
+    H        S             h        s             7        2
+    I        R             i        r             8        1
+    J        Q             j        q             9        0
+    K        P             k        p
+    L        O             l        o
+    M        N             m        n
+    N        M             n        m
+    O        L             o        l
+    P        K             p        k
+    Q        J             q        j
+    R        I             r        i
+    S        H             s        h
+    T        G             t        g
+    U        F             u        f
+    V        E             v        e
+    W        D             w        d
+    X        C             x        c
+    Y        B             y        b
+    Z        A             z        a
+
+Tutti gli altri caratteri rimangono gli stessi.
+
+(setq upper "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+(setq lower "abcdefghijklmnopqrstuvwxyz")
+(setq digit "0123456789")
+(for (i 0 25) (println (upper i) { } (upper (- (+ i 1)))))
+(for (i 0 25) (println (lower i) { } (lower (- (+ i 1)))))
+(for (i 0 9) (println (digit i) { } (digit (- (+ i 1)))))
+  
+(map char '("a" "z" "A" "Z" "0" "9"))
+;-> (97 122 65 90 48 57)
+
+Per accoppiare i caratteri possiamo usare le seguenti formule:
+
+Per le minuscole:
+  new-char = char(219 - char(old-char))
+
+Per le maiuscole:
+  new-char = char(155 - char(old-char))
+
+Per le cifre:
+  new-digit = char(57 - (char(old-digit) - 48))
+
+Funzione che restituisce la stringa opposta (mirror) di una stringa:
+
+(define (mirror str)
+  (let (out "")
+    (dostring (ch str)
+      (cond ((and (>= ch 97) (<= ch 122)) ; minuscole
+              (extend out (char (- 219 ch))))
+            ((and (>= ch 65) (<= ch 90))  ; maiuscole
+              (extend out (char (- 155 ch))))
+            ((and (>= ch 48) (<= ch 57))  ; cifre
+              (extend out (char (- 57 (- ch 48)))))
+            (true   ; tutti gli altri caratteri
+              (extend out (char ch)))
+      )
+    )
+    out))
+
+Proviamo:
+
+(mirror upper)
+;-> "ZYXWVUTSRQPONMLKJIHGFEDCBA"
+
+(mirror lower)
+;-> "zyxwvutsrqponmlkjihgfedcba"
+
+(mirror digit)
+;-> "9876543210"
+
+(mirror "Hello world from newLISP!!!")
+;-> "Svool dliow uiln mvdORHK!!!"
+
+
+---------------------------
+Numeri indicibili di Cantor
+---------------------------
+
+Un numero indicibile è un numero divisibile per sette o che ha sette come cifra:
+
+  1 2 3 4 5 6 ( ) 8 9 10 11 12 13 ( ) 15 16 ( ) 18 ...
+
+La versione di Cantor è la sequenza definita riempiendo la sequenza "1 2 3 4 5 6 ( ) 8..." negli spazi vuoti ( ) con la sequenza progressiva 1, 2, 3, 4, 5, 6, ( ), 8, 9, 10, 11, 12, 13, ( ), 15,... in modo ricorsivo:
+
+  1 2 3 4 5 6 (1) 8 9 10 11 12 13 (2) 15 16 (3) 18 19 20 (4) 22 23 24 25 26 (5) (6) 29 30 31 32 33 34 ( ) 36 (8) 38 ...
+  
+  1 2 3 4 5 6 (1) 8 9 10 11 12 13 (2) 15 16 (3) 18 19 20 (4) 22 23 24 25 26 (5) (6) 29 30 31 32 33 34 (1) 36 (8) 38 ...
+  ...
+
+Sequenza OEIS A328018:
+If n is the k-th number divisible by 7 or containing a digit 7 (in base 10) then a(n) = a(k) otherwise a(n) = n
+  1, 2, 3, 4, 5, 6, 1, 8, 9, 10, 11, 12, 13, 2, 15, 16, 3, 18, 19, 20, 4,
+  22, 23, 24, 25, 26, 5, 6, 29, 30, 31, 32, 33, 34, 1, 36, 8, 38, 39, 40,
+  41, 9, 43, 44, 45, 46, 10, 48, 11, 50, 51, 52, 53, 54, 55, 12, 13, 58, 
+  59, 60, 61, 62, 2, 64, 65, 66, 15, 68, 69, 16, 3, ...
+
+(setq oeis '(1 2 3 4 5 6 1 8 9 10 11 12 13 2 15 16 3 18 19 20 4
+             22 23 24 25 26 5 6 29 30 31 32 33 34 1 36 8 38 39 40
+             41 9 43 44 45 46 10 48 11 50 51 52 53 54 55 12 13 58 
+             59 60 61 62 2 64 65 66 15 68 69 16 3))
+(length oeis)
+;-> 71
+
+Funzione che verifica se un numero è divisibile per 7 o contiene 7 come cifra:
+
+(define (seven? num) (or (zero? (% num 7)) (find "7" (string num))))
+
+(map seven? '(7 14 23456 7))
+;-> (true true nil true)
+
+Funzione che genera gli indicibili di Cantor fino ad un certo limite:
+
+(define (cantor limite)
+  (local (base vuoti val)
+    ; primo passaggio per creare la lista di base
+    (setq base (map (fn(x) (if (seven? x) '() x)) (sequence 1 limite)))
+    ; ciclo finchè troviamo dei valori che sono liste vuote '()
+    ; nella di base
+    (while (setq vuoti (ref-all '() base))
+      ; primo valore da inserire
+      (setq val 1)
+      ; ciclo per ogni () che si trova nella lista base
+      (dolist (v vuoti)
+        ; modifica la corrente () della lista base 
+        ; con il valore corrente o con ()
+        (if (seven? val)
+            (setf (base v) '())
+            (setf (base v) val)
+        )
+        (++ val)
+      )
+      ;(print base) (read-line)
+    )
+    base))
+
+Proviamo:
+
+(cantor 50)
+;-> (1 2 3 4 5 6 1 8 9 10 11 12 13 2 15 16 3 18 19 20 4 22 23 24 25 26
+;->  5 6 29 30 31 32 33 34 1 36 8 38 39 40 41 9 43 44 45 46 10 48 11 50)
+
+(= (cantor 71) oeis)
+;-> true
+
+
+--------------------------
+Password cracking progress
+--------------------------
+
+Una semplice animazione durante la ricerca di una password alfanumerica.
+
+(define (crack pwd wait)
+  (local (code idx cur-char)
+    (setq wait (or wait 0))
+    (setq code "")
+    (setq idx 0)
+    ; ciclo fino a che la parola casuale non è uguale alla password
+    (until (= code pwd)
+      ; genera carattere casuale
+      (setq cur-char (char (+ 32 (rand 95))))
+      (cond ((= cur-char (pwd idx)) 
+            ; carattere casuale = carettere password
+              (push cur-char code -1)
+              (print code)
+              (++ idx))
+            (true
+            ; carattere casuale != carettere password
+             (print (string code cur-char)))
+      )
+      ; tempo tra due tentativi
+      (sleep wait)
+      ; ritorna a capo il cursore
+      (print "\r")
+    )
+    ; password trovata
+    (println code)
+    'end))
+
+Proviamo (nella REPL si vede l'animazione dei caratteri trovati e della progressione dei tentativi durante la ricerca):
+
+(crack "abc" 50)
+;-> abc
+;-> end
+
+(time (crack "abcdef" 20))
+;-> abcdef
+;-> 7908.661
+
+(time (crack "abcdef"))
+;-> abcdef
+;-> 21.884
+
+(time (crack "password 123456789" 10))
+;-> 32205.83
+
+(time (crack "password 123456789"))
+;-> 41.882
+
+
+----------------
+La funzione RADD
+----------------
+
+La funzione RADD prende un intero N e lo somma a N invertito.
+Per esempio:
+
+  RADD(12) = 12 + 21 = 33
+  RADD(301) = 301 + 103 = 404
+  RADD(100) = 100 + 1 = 101
+
+Dato un numero scrivere una funzione che calcola l'inverso di RADD, per esempio il numero 110 dovrebbe produrre il numero 100.
+
+Sequenza OEIS A056964: a(n) = n + reversal of digits of n
+  0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 11, 22, 33, 44, 55, 66, 77, 88, 99,
+  110, 22, 33, 44, 55, 66, 77, 88, 99, 110, 121, 33, 44, 55, 66, 77, 88,
+  99, 110, 121, 132, 44, 55, 66, 77, 88, 99, 110, 121, 132, 143, 55, 66,
+  77, 88, 99, 110, 121, 132, 143, 154, 66, 77, 88, 99, 110, ...
+
+(define (radd num) (+ num (int (reverse (string num)) 0 10)))
+
+(radd 12)
+;-> 33
+(radd 301)
+;-> 404
+(radd 100)
+;-> 101
+
+(map radd (sequence 1 50))
+;-> (2 4 6 8 10 12 14 16 18 11 22 33 44 55 66 77 88 99 110 22 33 44 55 66
+;->  77 88 99 110 121 33 44 55 66 77 88 99 110 121 132 44 55 66 77 88 99
+;->  110 121 132 143 55)
+
+Non tutti i numeri possono essere generati dalla funzione RADD.
+
+(define (genera-radd limite)
+  (unique (sort (map radd (sequence 1 limite)))))
+
+(genera-radd 1000)
+;-> (2 4 6 8 10 11 12 14 16 18 22 33 44 55 66 77 88 99 101 110 121 132
+;->  141 143 154 161 165 176 181 187 198 201 202 221 222 241 242 261 262
+;->  281 282 302 303 322 323 342 343 362 363 382 383 403 404 423 424 443
+;->  444 463 464 483 484 504 505 524 525 544 545 564 565 584 585 605 606
+;->  625 626 645 646 665 666 685 686 706 707 726 727 746 747 766 767 786
+;->  787 807 808 827 828 847 848 867 868 887 888 908 909 928 929 948 949
+;->  968 969 988 989 1001 1009 1010 1029 1030 1049 1050 1069 1070 1089
+;->  1090 1110 1111 1130 1131 1150 1151 1170 1171 1190 1191 1211 1212
+;->  1231 1232 1251 1252 1271 1272 1291 1292 1312 1313 1332 1333 1352
+;->  1353 1372 1373 1392 1393 1413 1414 1433 1434 1453 1454 1473 1474
+;->  1493 1494 1514 1515 1534 1535 1554 1555 1574 1575 1594 1595 1615
+;->  1616 1635 1636 1655 1656 1675 1676 1695 1696 1716 1717 1736 1737
+;->  1756 1757 1776 1777 1796 1797 1817 1818 1837 1838 1857 1858 1877
+;->  1878 1897 1898 1918 1938 1958 1978 1998)
+
+(length (genera-radd 1000))
+;-> 207
+(length (genera-radd 10000))
+;-> 548
+
+Adesso consideriamo l'operazione inversa di RADD che chiamiamo DDAR.
+In questo caso abbiamo un numero x che è il risultato della funzione RADD(y) e vogliamo trovare il valore di y.
+Proviamo con un metodo brute-force che esamina tutte le possibilità.
+
+(define (ddar num)
+  (local (out)
+    (setq out '())
+    (for (k 1 num)
+      (if (= (radd k) num)
+          (push (list k (int (reverse (string k)) 0 10) num) out -1))
+    )
+    out))
+
+Proviamo:
+
+(ddar 33)
+;-> ((12 21 33) (21 12 33) (30 3 33))
+
+(ddar 404)
+;-> ((103 301 404) (202 202 404) (301 103 404) (400 4 404))
+
+(ddar 101)
+;-> ((100 1 101))
+
+Non tutti i numeri possono essere generati dalla funzione DDAR.
+
+(define (genera-ddar limite)
+  (setq lst (map ddar (sequence 1 limite)))
+  (setq lst (clean null? lst))
+  (setq lst (flat lst 1))
+  (setq lst (unique (sort (map first lst)))))
+
+(genera-ddar 1000)
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+;->  26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47
+;->  48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69
+;->  70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91
+;->  92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 110 111
+;->  112 113 114 115 116 117 118 120 121 122 123 124 125 126 127 128 130
+;->  131 132 133 134 135 136 137 138 140 141 142 143 144 145 146 147 148
+;->  150 151 152 153 154 155 156 157 160 161 162 163 164 165 166 167 170
+;->  171 172 173 174 175 176 177 180 181 182 183 184 185 186 187 190 191
+;->  192 193 194 195 196 197 200 201 202 203 204 205 206 207 210 211 212
+;->  213 214 215 216 217 220 221 222 223 224 225 226 227 230 231 232 233
+;->  234 235 236 237 240 241 242 243 244 245 246 247 250 251 252 253 254
+;->  255 256 260 261 262 263 264 265 266 270 271 272 273 274 275 276 280
+;->  281 282 283 284 285 286 290 291 292 293 294 295 296 300 301 302 303
+;->  304 305 306 310 311 312 313 314 315 316 320 321 322 323 324 325 326
+;->  330 331 332 333 334 335 336 340 341 342 343 344 345 346 350 351 352
+;->  353 354 355 360 361 362 363 364 365 370 371 372 373 374 375 380 381
+;->  382 383 384 385 390 391 392 393 394 395 400 401 402 403 404 405 410
+;->  411 412 413 414 415 420 421 422 423 424 425 430 431 432 433 434 435
+;->  440 441 442 443 444 445 450 451 452 453 454 460 461 462 463 464 470
+;->  471 472 473 474 480 481 482 483 484 490 491 492 493 494 500 501 502
+;->  503 504 510 511 512 513 514 520 521 522 523 524 530 531 532 533 534
+;->  540 541 542 543 544 550 551 552 553 560 561 562 563 570 571 572 573
+;->  580 581 582 583 590 591 592 593 600 601 602 603 610 611 612 613 620
+;->  621 622 623 630 631 632 633 640 641 642 643 650 651 652 660 661 662
+;->  670 671 672 680 681 682 690 691 692 700 701 702 710 711 712 720 721
+;->  722 730 731 732 740 741 742 750 751 760 761 770 771 780 781 790 791
+;->  800 801 810 811 820 821 830 831 840 841 850 860 870 880 890 900 910
+;->  920 930 940)
+
+(length (genera-ddar 1000))
+;-> 504
+
+(time (println (length (genera-ddar 10000))))
+;-> 5094
+;-> 29808.011
+
 ============================================================================
 
