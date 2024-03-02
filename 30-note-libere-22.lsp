@@ -4169,5 +4169,222 @@ Non tutti i numeri possono essere generati dalla funzione DDAR.
 ;-> 5094
 ;-> 29808.011
 
+
+--------------------------------
+Lunghezza ricorsiva di una lista
+--------------------------------
+
+La dimensione ricorsiva di una lista è definita come segue:
+- se la lista non contiene sottoliste, allora la lunghezza è data dal numero dei suoi elementi
+- se la lista conitne sottoliste, allora la lunghezza è data dalla somma delle lunghezze ricorsive delle sue sottoliste
+
+Per esempio:
+  
+  lista = (a b c), lunghezza ricorsiva = 3
+  a --> 1
+  b --> 2
+  c --> 3
+
+  lista = (a b (c (d e))), lunghezza ricorsiva = 7
+  a --> 1
+  b --> 2
+  (c (d e)) --> 3
+  c --> 4
+  (d e) --> 5
+  d --> 6
+  e --> 7
+
+Metodo 1 (ricorsivo)
+--------------------
+
+(define (rlength lst)
+  (cond
+    ; caso base: elemento = lista vuota
+    ((= lst '()) 0)
+    ; caso 1: elemento = atomo
+    ((atom? (lst 0)) (+ 1 (list-length (rest lst))))
+    ; caso 2:
+    ; elemento = lista
+    ((list? (lst 0)) (+ 1 (list-length (lst 0)) (list-length (rest lst))))))
+
+Proviamo:
+
+(rlength '())
+;-> 0
+
+(rlength '(()))
+;-> 1
+
+(rlength '(a b c))
+;-> 3
+
+(rlength '(a b (c (d e))))
+;-> 7
+
+(rlength '(() (-1) (1 3) (5 (6)) (7 (8 9 (10 11 (12 13 14))))))
+;-> 22
+
+Metodo 2 (conta il numero di indici degli elementi)
+---------------------------------------------------
+
+(define (index-list lst)
+"Create a list of indexes for all the elements of a list"
+  (ref-all nil lst (fn(x) true)))
+
+(index-list '(a b (c (d e))))
+;-> ((0) (1) (2) (2 0) (2 1) (2 1 0) (2 1 1))
+
+(define (rlength1 lst)
+  (length (ref-all nil lst (fn (x) true))))
+
+Proviamo:
+
+(rlength1 '())
+;-> 0
+
+(rlength1 '(()))
+;-> 1
+
+(rlength1 '(a b c))
+;-> 3
+
+(rlength1 '(a b (c (d e))))
+;-> 7
+
+(rlength1 '(() (-1) (1 3) (5 (6)) (7 (8 9 (10 11 (12 13 14))))))
+;-> 22
+
+
+------------------
+Cifratura di Bacon
+------------------
+
+La cifratura di Bacon è un metodo di codifica steganografica dei messaggi ideato da Francis Bacon nel 1605.
+Questo cifrario è classificato sia come cifrario a sostituzione (in codice semplice) sia come cifrario a occultamento (utilizzando i due caratteri tipografici diversi).
+Per codificare un messaggio, ogni lettera del testo in chiaro viene sostituita da un gruppo di cinque lettere "A" o "B".
+Questa sostituzione è una codifica binaria a 5 bit e viene eseguita in base alla seguente tabella:
+
+Lettera  Codifica       Lettera  Codifica
+A        AAAAA          N        ABBAB
+B        AAAAB          O        ABBBA
+C        AAABA          P        ABBBB
+D        AAABB          Q        BAAAA
+E        AABAA          R        BAAAB
+F        AABAB          S        BAABA
+G        AABBA          T        BAABB
+H        AABBB          U        BABAA
+I        ABAAA          V        BABAB
+J        ABAAB          W        BABBA
+K        ABABA          X        BABBB
+L        ABABB          Y        BBAAA
+M        ABBAA          Z        BBAAB
+
+Dopo aver codificato tutte le lettere del messaggio nelle lettere A e B sopra, bisogna selezionare due caratteri tipografici diversi da utilizzare nella stringa da trasmettere (es. lettere 'maiuscole' per le 'A' e lettere 'minuscole' per le 'B').
+
+Vediamo un esempio:
+
+messaggio = Ciao mamma
+
+codifica del messaggio in A e B: AAABAABAAAAAAAAABBBAABBAAAAAAAABBAAABBAAAAAAA
+
+stringa da trasmettere: oggi andiamo tutti a fare il bagno nella piscina riscaldata
+
+Adesso dobbiamo applicare la codifica del messaggio nella stringa da trasmettere tramite le maiuscole e le minuscole.
+Quando nella codifica incontriamo una 'A', allora la relativa lettera della stringa da trasmettere deve essere maiuscola.
+Quando nella codifica incontriamo una 'B', allora la relativa lettera della stringa da trasmettere deve essere minuscola.
+
+Codifica:
+  "AAAB AABAAAA AAAAA B BBAA BB AAAAA AAABB AAABBAA AAAAA"
+
+Stringa da trasmettere:
+  "oggi andiamo tutti a fare il bagno nella piscina riscaldata"
+
+Applicazione della codifica sulla stringa da trasmettere:
+  "OGGi ANdIAMO TUTTI a faRE il BAGNO NELla PISciNA RISCAldata"
+
+  "AAAB AABAAAA AAAAA B BBAA BB AAAAA AAABB AAABBAA AAAAA"
+  "oggi andiamo tutti a fare il bagno nella piscina riscaldata"
+  "OGGi ANdIAMO TUTTI a faRE il BAGNO NELla PISciNA RISCAldata"
+
+Nota: la stringa da trasmettere deve essere lunga almeno quanto la codifica del messaggio.
+Cioè deve avere tante lettere minuscole o maiuscole quanto è lunga la codifica.
+
+(define (encode msg str)
+  (local (out alst code lencode idx)
+    (setq out "")
+    (setq alst '(("A" "AAAAA") ("B" "AAAAB") ("C" "AAABA") ("D" "AAABB")
+                ("E" "AABAA") ("F" "AABAB") ("G" "AABBA") ("H" "AABBB")
+                ("I" "ABAAA") ("J" "ABAAB") ("K" "ABABA") ("L" "ABABB")
+                ("M" "ABBAA") ("N" "ABBAB") ("O" "ABBBA") ("P" "ABBBB")
+                ("Q" "BAAAA") ("R" "BAAAB") ("S" "BAABA") ("T" "BAABB")
+                ("U" "BABAA") ("V" "BABAB") ("W" "BABBA") ("X" "BABBB")
+                ("Y" "BBAAA") ("Z" "BBAAB")))
+    (setq code "")
+    (setq msg (upper-case msg))
+    ; crea la codifica 
+    (dolist (ch (explode msg))
+      (cond ((and (>= (char ch) 65) (<= (char ch) 90)) ; A..Z
+            (extend code (lookup ch alst)))
+      )
+    )
+    (setq lencode (length code))
+    (setq str (upper-case str))
+    (setq idx 0)
+    ; costruisce la stringa da trasmettere
+    (dolist (ch (explode str))
+      (cond ((and (>= (char ch) 65) (<= (char ch) 90)) ; A..Z
+            (if (and (< idx lencode) (= (code idx) "A"))
+                (extend out ch)
+                (extend out (lower-case ch)))
+              (++ idx))
+            (true (extend out ch))
+      )
+    )
+    out))
+
+Proviamo:
+
+(encode "Ciao mamma" "oggi andiamo tutti a fare il bagno nella piscina riscaldata")
+;-> "OGGi ANdIAMO TUTTI a faRE il BAGNO NELla PISciNA RISCAldata"
+
+La decodifica funzione in maniera inversa.
+
+(define (decode str)
+  (local (out alst code gruppi)
+    (setq out "")
+    (setq alst '(("AAAAA" "A") ("AAAAB" "B") ("AAABA" "C") ("AAABB" "D")
+                ("AABAA" "E") ("AABAB" "F") ("AABBA" "G") ("AABBB" "H")
+                ("ABAAA" "I") ("ABAAB" "J") ("ABABA" "K") ("ABABB" "L")
+                ("ABBAA" "M") ("ABBAB" "N") ("ABBBA" "O") ("ABBBB" "P")
+                ("BAAAA" "Q") ("BAAAB" "R") ("BAABA" "S") ("BAABB" "T")
+                ("BABAA" "U") ("BABAB" "V") ("BABBA" "W") ("BABBB" "X")
+                ("BBAAA" "Y") ("BBAAB" "Z")))
+    (setq code "")
+    ; crea la codifica
+    (dolist (ch (explode str))
+      (cond ((and (>= (char ch) 65) (<= (char ch) 90)) ; A..Z
+            (extend code "A"))
+            ((and (>= (char ch) 97) (<= (char ch) 122)) ; a..z
+            (extend code "B"))
+      )
+    )
+    ; converte la codifica nel messaggio
+    (setq gruppi (explode code 5))
+    (dolist (g gruppi)
+      (if (lookup g alst)
+          (extend out (lookup g alst))
+      )
+    )
+    out))
+
+Proviamo:
+
+(decode "OGGi ANdIAMO TUTTI a faRE il BAGNO NELla PISciNA RISCAldata")
+;-> "CIAOMAMMA"
+Nota: non otteniamo "CIAO MAMMA", perchè lo spazio " " non è codificato.
+
+(decode (encode "cattivik" "Personaggio immortale dei fumetti creato da Bonvi"))
+;-> "CATTIVIK"
+
 ============================================================================
 

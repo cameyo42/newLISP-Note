@@ -2326,6 +2326,8 @@ NOTE LIBERE 22
   Numeri indicibili di Cantor
   Password cracking progress
   La funzione RADD
+  Lunghezza ricorsiva di una lista
+  Cifratura di Bacon
 
 PROBLEMI SUI DADI
 =================
