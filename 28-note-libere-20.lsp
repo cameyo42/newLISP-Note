@@ -5673,20 +5673,21 @@ Funzione che verifica se un anno è bisestile:
   (or (zero? (% year 400))
       (and (zero? (% year 4)) (not (zero? (% year 100))))))
 
-Funzione che genera tutte le date tra data1 e data2:
+Funzione che genera tutte le date tra date1 e date2:
 
-(define (daylist data1 data2)
-  (local (y1 m1 d1 y2 m2 d2 out md n1 n2 days data num-data stop)
+(define (daylist date1 date2)
+"Generates a list of dates (YYYY MM DD) from date1 date2"
+  (local (y1 m1 d1 y2 m2 d2 out md n1 n2 days fdate num-date stop)
     ; unpack date
-    (map set '(y1 m1 d1) data1)
-    (map set '(y2 m2 d2) data2)
+    (map set '(y1 m1 d1) date1)
+    (map set '(y2 m2 d2) date2)
     (setq out '())
     ; lista (mese giorni)
     (setq md '((1 31) (2 28) (3 31) (4 30) (5 31) (6 30)
               (7 31) (8 31) (9 30) (10 31) (11 30) (12 31)))
-    ; valore numerico data1
+    ; valore numerico date1
     (setq n1 (int (format "%d%02d%02d" y1 m1 d1)))
-    ; valore numerico data1
+    ; valore numerico date2
     (setq n2 (int (format "%d%02d%02d" y2 m2 d2)))
     (if (< n2 n1) (setq stop nil))
     ; ciclo anni
@@ -5699,15 +5700,15 @@ Funzione che genera tutte le date tra data1 e data2:
         ; ciclo giorni
         (for (dd 1 days 1 stop)
           ; data formattata yy-mm-dd
-          ;(setq data (format "%d-%d-%d" yy mm dd))
-          (setq data (list yy mm dd))
-          ; valore numerico data corrente
-          (setq num-data (int (format "%d%02d%02d" yy mm dd)))
-          ;controllo (data1 <= data corrente <= data2)
-          (cond ((< num-data n1) nil)
-                ((and (>= num-data n1) (<= num-data n2))
-                  (push data out -1))
-                ((> num-data n2 (setq stop true)))
+          ;(setq date (format "%d-%d-%d" yy mm dd))
+          (setq fdate (list yy mm dd))
+          ; valore numerico date corrente
+          (setq num-date (int (format "%d%02d%02d" yy mm dd)))
+          ;controllo (date1 <= date corrente <= date2)
+          (cond ((< num-date n1) nil)
+                ((and (>= num-date n1) (<= num-date n2))
+                  (push fdate out -1))
+                ((> num-date n2 (setq stop true)))
           )
         )
       )
@@ -5730,6 +5731,11 @@ Facciamo alcune prove:
 
 (daylist '(1980 12 1) '(1901 2 10))
 ;-> ()
+
+(length (daylist '(1981 1 1) '(1981 12 31)))
+;-> 365
+(length (daylist '(1980 1 1) '(1980 12 31)))
+;-> 366
 
 (length (daylist '(1980 2 22) '(1981 8 10)))
 ;-> 536

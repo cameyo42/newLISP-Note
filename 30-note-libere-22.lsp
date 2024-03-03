@@ -4695,7 +4695,7 @@ Proviamo:
 Coppie di primi che sommano ad un intero N
 ------------------------------------------
 
-Dato un numero intero positivo N, trovare tutte le coppie univoche di numeri primi la cui somma N.
+Dato un numero intero positivo N, trovare tutte le coppie univoche di numeri primi la cui somma vale N.
 
 Algoritmo:
 Ciclo per un numero intero k da 2 a N - 2 
@@ -4829,6 +4829,54 @@ Vediamo la velocità della funzione:
 (time (pair-sum-to2 1e5))
 ;-> 494744.123 ;8m 14s 744ms
 
+
+---------------------------
+Creazione di liste di orari
+---------------------------
+
+Scriviamo una funzione che genera una lista con tutti gli orari dall'ora x all'ora y.
+Gli orari in formato 24-ore sono rappresentati da una lista (ore minuti secondi) :
+  
+  HH-MM-SS, con HH=(0..23), MM=(0..59), SS=(0..59)
+
+Per esempio:
+(12 3 20), Mezzogiorno, 3 minuti e 20 secondi
+(15 2 0),  Le 15 (o 3 di pomeriggio) e 2 minuti
+(1 30 0),  L'una e mezza
+
+(define (time-list t1 t2)
+"Generates a list of times (HH MM SS) from t1 to t2"
+  (local (out a b)
+    (setq out '())
+    (for (h (t1 0) (t2 0))
+      (for (m 0 59)
+        (for (s 0 59)
+          (push (list h m s) out -1)
+        )
+      )
+    )
+    (setq a (find t1 out))
+    (setq b (find t2 out))
+    (slice out a (+ (- b a) 1))))
+
+Proviamo:
+
+(time-list '(1 0 0) '(1 1 1))
+;-> ((1 0 0) (1 0 1) (1 0 2) (1 0 3) (1 0 4) (1 0 5) (1 0 6) (1 0 7) (1 0 8)
+;->  (1 0 9) (1 0 10) (1 0 11) (1 0 12) (1 0 13) (1 0 14) (1 0 15) (1 0 16)
+;->  (1 0 17) (1 0 18) (1 0 19) (1 0 20) (1 0 21) (1 0 22) (1 0 23) (1 0 24)
+;->  (1 0 25) (1 0 26) (1 0 27) (1 0 28) (1 0 29) (1 0 30) (1 0 31) (1 0 32)
+;->  (1 0 33) (1 0 34) (1 0 35) (1 0 36) (1 0 37) (1 0 38) (1 0 39) (1 0 40)
+;->  (1 0 41) (1 0 42) (1 0 43) (1 0 44) (1 0 45) (1 0 46) (1 0 47) (1 0 48)
+;->  (1 0 49) (1 0 50) (1 0 51) (1 0 52) (1 0 53) (1 0 54) (1 0 55) (1 0 56)
+;->  (1 0 57) (1 0 58) (1 0 59) (1 1 0) (1 1 1))
+
+Tutti i secondi che formano una giornata:
+
+(length (time-list '(0 0 0) '(23 59 59)))
+;-> 86400
+(* 24 60 60)
+;-> 86400
 
 ============================================================================
 

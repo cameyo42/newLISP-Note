@@ -2332,6 +2332,7 @@ NOTE LIBERE 22
   Da stringa a numero
   Semplici animazioni
   Coppie di primi che sommano ad un intero N
+  Creazione di liste di orari
 
 PROBLEMI SUI DADI
 =================
@@ -2367,7 +2368,8 @@ APPENDICI
   Colori HTML
   Codici nazionali (ISO 3166)
   Codici ASCII
-  Punctuation marks
+  ASCII Punctuation marks
+  Solarized Color Scheme
   Considerazioni lungo il tragitto
 
 BIBLIOGRAFIA/WEB
@@ -2375,7 +2377,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (264 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (268 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
