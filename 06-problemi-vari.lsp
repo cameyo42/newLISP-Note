@@ -985,6 +985,7 @@ Per la stampa utilizziamo la seguente funzione:
 Dobbiamo scrivere una funzione per ogni tipo di quadrato magico. Cominciamo con quelli di ordine dispari.
 
 1) Quadrati Magici Dispari
+--------------------------
 
 (define (qmDispari n)
   (define (f n x y) (% (add x (mul y 2) 1) n))
@@ -1055,6 +1056,7 @@ Scriviamo una funzione che controlla la correttezza del quadrato generato
 ;-> true
 
 2) Quadrati Magici Doppiamente Pari
+-----------------------------------
 
 (define (qm4 n)
   (local (r c i bit size mult bitPos nm out v)
@@ -1115,6 +1117,7 @@ Scriviamo una funzione che controlla la correttezza del quadrato generato
 ;-> true
 
 3) Quadrati Magici Singolarmente Pari
+-------------------------------------
 
 ; Funzione interna che crea un quadrato magico dispari
 (define (oddMS n)
@@ -1215,6 +1218,20 @@ Scriviamo una funzione che controlla la correttezza del quadrato generato
 ;->   4 36 29 13 18 11
 (check m 6 111)
 ;-> true
+
+4) Quadrato magico di Durer
+---------------------------
+
+Il quadrato magico di Dürer è un quadrato magico con costante magica 34 utilizzato in un'incisione intitolata Melencolia I.
+
+  16  3  3 13
+   5 10 11  8
+   9  6  7 12
+   4 15 14  1   
+
+Il quadrato magico di Dürer ha la proprietà aggiuntiva che le somme in ciascuno dei quattro quadranti, così come la somma dei quattro numeri centrali, sono tutte 34 (si tratta quindi di un quadrato magico gnomonico).
+Inoltre, qualsiasi coppia di numeri posizionata simmetricamente attorno al centro del quadrato somma a 17, una proprietà che rende il quadrato ancora più magico.
+Infine, al centro della riga inferiore compaiono i numeri 15 e 14, che indicano la data dell'incisione, 1514.
 
 
 -------------------

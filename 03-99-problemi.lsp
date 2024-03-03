@@ -12,9 +12,12 @@ https://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/funcional/L-99_Ninety-N
 https://www.informatimago.com/develop/lisp/l99/index.html
 http://beta-reduction.blogspot.com/search/label/L-99%3A%20Ninety-Nine%20Lisp%20Problems
 
-In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento e sono contrassegnati con il simbolo (+).
-In molti problemi vengono presentate due soluzioni, una in stile LISP e una in stile newLISP.
+In questo capitolo vengono risolti solo i primi 28 problemi relativi alla elaborazione di liste. 
+Molti problemi successivi al numero 28 sono risolti in altri capitoli di questo documento e sono contrassegnati con il simbolo (+).
+In alcuni problemi vengono presentate due soluzioni, una in stile LISP e una in stile newLISP.
+-----------------------------------------------------------------------------
 
+---------------
 Elenco problemi
 ---------------
 
@@ -126,6 +129,8 @@ N-99-96  Syntax checker (alternative solution with difference lists)
 N-99-97  Sudoku (+)
 N-99-98  Nonograms
 N-99-99  Crossword puzzle
+-----------------------------------------------------------------------------
+
 
 =======================================================
 N-99-01 Estrarre l'ultimo elemento di una lista
@@ -1064,7 +1069,6 @@ Se invece consideriamo che il primo elemento ha indice 0 (zero), basta modificar
 (estrai-0 '(a b c d e f g h i k) 0 1)
 ;-> (a b)
 
-
 Funzione newLISP predefinita: (slice lst int-index [int-length])
 
 (define (get-val lst ind1 ind2)
@@ -1581,6 +1585,7 @@ Nota: Se la lista delle parti "gs" contiene solo 1, allora la funzione "groups" 
 ;-> 720
 (length (perm '(1 2 3 4 5 6)))
 ;-> 720
+
 
 =======================================================
 N-99-28 Ordinare una lista in base alla lunghezza delle sottoliste

@@ -4,7 +4,7 @@
 
 ================
 
-"Un minuto o un bacio sono eterni"
+  "Un minuto o un bacio sono eterni"
 
 ----------------------------
 Inverso di un numero binario
@@ -4385,6 +4385,450 @@ Nota: non otteniamo "CIAO MAMMA", perchè lo spazio " " non è codificato.
 
 (decode (encode "cattivik" "Personaggio immortale dei fumetti creato da Bonvi"))
 ;-> "CATTIVIK"
+
+
+-------------------------------------------------------
+N-esimo primo tale che (primo - 1) sia divisibile per N
+-------------------------------------------------------
+
+Dato un numero N, trovare l'N-esimo primo tale che (primo − 1) sia divisibile per N.
+
+Vediamo un esempio per capire cosa stiamo cercando:
+
+N = 4
+Esaminare tutti (abbastanza) i numeri primi:
+
+  2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 ...
+
+Selezionare i numeri primi in cui risulta (primo − 1) divisibile per N (4 in questo caso):
+
+  5 13 17 29 37 41 53 61 73 89 97 ...
+ 
+Selezionare l'N-esimo termine in questa sequenza (il quarto in questo caso):
+
+Output = 29
+
+Sequenza OEIS A077317: a(n) is the n-th prime == 1 (mod n)
+  2, 5, 19, 29, 71, 43, 211, 193, 271, 191, 661, 277, 937, 463, 691, 769,
+  1531, 613, 2357, 1021, 1723, 1409, 3313, 1609, 3701, 2029, 3187, 2437, 
+  6961, 1741, 7193, 3617, 4951, 3877, 7001, 3169, 10657, 6271, 7879, 5521,
+  13613, 3823, 15137, 7349, 9091, 7499, ...
+
+a(n) is the n-th prime in the arithmetic progression with first term 1 and common difference n.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(time (setq primi (primes-to 1e6)))
+;-> 144.922
+
+(define (seq num)
+  (setq lst (filter (fn(x) (zero? (% (- x 1) num))) primi))
+  (if (>= (length lst) num)
+      (lst (- num 1))
+      nil))
+
+Proviamo:
+
+(seq 4)
+;-> 29
+
+(seq 10)
+;-> 191
+
+(time (println (sequenza 100 1e6)))
+;-> (2 5 19 29 71 43 211 193 271 191 661 277 937 463 691 769 1531 613 2357 
+;->  1021 1723 1409 3313 1609 3701 2029 3187 2437 6961 1741 7193 3617 4951 
+;->  3877 7001 3169 10657 6271 7879 5521 13613 3823 15137 7349 9091 7499 
+;->  18049 6529 18229 7151 13159 10141 26501 7669 19801 11593 18127 13109
+;->  32569 8221 34649 17981 21799 16001 28081 10429 39799 19381 29947 14771
+;->  47713 16417 51539 25013 29101 26449 50051 16927 54037 23761 41149 31489
+;->  68891 19237 51341 33713 45589 34057 84551 19531 64793 42689 54499 41737
+;->  76001 27457 97583 40867 66529 39301)
+;-> 1678.762
+
+La lista dei numeri primi fino a 1e6 ci permette di calcolare 280 numeri della sequenza:
+
+(sequenza 281 1e6)
+;-> (2 5 19 29 71 43 211 193 271 191 661 277 937 463 691 769 1531 613
+;->  2357 1021 1723 1409 3313 1609 3701 2029 3187 2437 6961 1741 7193
+;->  ...
+;->  828977 247369 691121 335161 581527 397981 944191 221941 918149 423233
+;->  476659 438401 649001 288697 935707 468709 587017 320041 nil)
+
+Infatti il 281-esimo numero vale nil, questo perchè la lista dei (primi - 1) divisibili per 281 è più corta di 281.
+
+Vediamo il limite calcolando i primi fino a 1e7 (10 milioni):
+
+(time (setq s (sequenza 500 1e7)))
+;-> 65641.478
+
+Cerchiamo (se esiste) il primo valore nil:
+
+(ref nil s)
+;-> nil
+
+La lista dei numeri primi fino a 1e7 ci permette di calcolare almeno 500 numeri della sequenza.
+
+Vediamo la soluzione proposta da Dennis (python 2):
+
+  n=N=input();m=k=1
+  while N:m*=k*k;k+=1;N-=m%k>~-k%n
+  print k
+
+Si tratta di un'implementazione compatta di un algoritmo per trovare il più piccolo intero positivo 'k' tale che k! fattoriale (indicato come `k!`) è divisibile per 'n'.
+
+Una versione semplificata, ma equivalente:
+
+  def calc(n):
+      N = n
+      m = 1
+      k = 1
+      while N:
+          m *= k * k
+          k += 1
+          remainder = m % k
+          if remainder > (k - 1) % n:
+              N -= 1
+      return k
+  n = int(input("Enter a value for n: "))
+  output = calc(n)
+  print("Il numero k più piccolo tale che k! è divisibile da ", n, "vale", output)
+
+Traduciamo la funzione in newLISP:
+
+(define (python-mod a b) (% (+ (% a b) b) b))
+
+(define (calc num)
+  (local (N m k)
+    (setq N num)
+    (setq m 1L)
+    (setq k 1L)
+    (while (> N 0)
+      (setq m (* m k k))
+      (++ k)
+      (if (> (python-mod m k) (python-mod (- k 1) num))
+          (-- N)
+      )
+    )
+    k))
+
+Proviamo:
+
+(calc 4)
+;-> 29L
+
+(calc 10)
+;-> 191L
+
+(map calc (sequence 1 10))
+;-> (2L 5L 19L 29L 71L 43L 211L 193L 271L 191L)
+
+Comunque questa funzione è più lenta:
+
+(time (println (map calc (sequence 1 50))))
+;-> (2L 5L 19L 29L 71L 43L 211L 193L 271L 191L 661L 277L 937L 463L 691L
+;->  769L 1531L 613L 2357L 1021L 1723L 1409L 3313L 1609L 3701L 2029L 3187L
+;->  2437L 6961L 1741L 7193L 3617L 4951L 3877L 7001L 3169L 10657L 6271L
+;->  7879L 5521L 13613L 3823L 15137L 7349L 9091L 7499L 18049L 6529L 18229L
+;->  7151L)
+;-> 23461.581
+
+
+-------------------
+Da stringa a numero
+-------------------
+
+Data una stringa di caratteri minuscoli convertire i caratteri in numeri con il seguente algoritmo:
+1) Convertire ogni lettera della stringa in un numero in base alla sua posizione nell'alfabeto (a = 1, b = 2, ecc.)
+2) Formattare tutti i numeri con due cifre (con 0).
+3) Unire tutti i numeri.
+
+Esempio
+stringa = newlisp
+n = 14 --> "14"
+e =  5 --> "05"
+w = 23 --> "23"
+l = 12 --> "12"
+i =  9 --> "09"
+s = 19 --> "19"
+p = 16 --> "16"
+Output = "14052312091916"
+
+Scrivere la funzione più breve possibile che applica questo algoritmo ad una stringa.
+
+(char "a")
+;-> 97
+
+(define (char-index ch) (- (char ch) 96))
+(char-index "a")
+;-> 1
+(char-index "z")
+;-> 26
+
+(define (str-num str)
+  (join (map (fn(x) (format "%02d" (- (char x) 96))) (explode str))))
+
+Proviamo: 
+
+(str-num "newlisp")
+;-> "14052312091916"
+
+(str-num "abcdefghijklmnopqrstuvwxyz")
+;-> "0102030405060708091011121314151617181920212223242526"
+
+Ridotta ai minimi termini (70 caratteri):
+
+(define (f s)(join(map(fn(x)(format"%02d"(-(char x)96)))(explode s))))
+
+(f "newlisp")
+;-> "14052312091916"
+
+(f "abcdefghijklmnopqrstuvwxyz")
+;-> "0102030405060708091011121314151617181920212223242526"
+
+
+-------------------
+Semplici animazioni
+-------------------
+
+Alcune semplici animazioni nella REPL.
+
+Funzione che pulisce lo schermo:
+
+(define (cls) (print "\027[H\027[2J"))
+
+Animazione 1:
+-------------
+
+(define (anim1 iter wait)
+  (setq line1 '("+-----+" "|     |" "|     |" "|     |" "|     |" "|     |" "+-----+"))
+  (setq line2 '("+-----+" "|  .  |" "|  .  |" "|  .  |" "|  .  |" "|  .  |" "+-----+"))
+  (for (i 1 iter)
+    (for (pos 1 5)
+      (swap (line1 pos) (line2 pos))
+      (cls)
+      (map println line1)
+      (swap (line2 pos) (line1 pos))
+      (sleep wait)
+    )
+  )'>)
+
+Proviamo:
+
+(anim1 3 1000)
+
+Animazione 2:
+-------------
+
+(define (anim2 iter wait)
+  (setq s1 { #    #  ######  #    #  #       #   ####   #####  })
+  (setq s2 { ##   #  #       #    #  #       #  #       #    # })
+  (setq s3 { # #  #  #####   #    #  #       #   ####   #    # })
+  (setq s4 { #  # #  #       # ## #  #       #       #  #####  })
+  (setq s5 { #   ##  #       ##  ##  #       #  #    #  #      })
+  (setq s6 { #    #  ######  #    #  ######  #   ####   #      })
+  (setq s (list s1 s2 s3 s4 s5 s6))
+  (for (i 1 iter)
+    (for (space 1 10)
+      (cls)
+      (for (l 0 5) (println (dup " " space) (s l)))
+      (sleep wait)
+    )
+    (for (space 9 2)
+      (cls)
+      (for (l 0 5) (println (dup " " space) (s l)))
+      (sleep wait)
+    )
+  )'>)
+
+Proviamo:
+
+(anim2 3 200)
+
+Animazione 3:
+-------------
+
+(define (anim3 iter wait)
+  (setq s1 {                                       `7MMF'      `7MMF'  .M"""bgd `7MM"""Mq.  })
+  (setq s2 {                                         MM          MM   ,MI    "Y   MM   `MM. })
+  (setq s3 { `7MMpMMMb.   .gP"Ya `7M'    ,A    `MF'  MM          MM   `MMb.       MM   ,M9  })
+  (setq s4 {   MM    MM  ,M'   Yb  VA   ,VAA   ,V    MM          MM     `YMMNq.   MMmmdM9   })
+  (setq s5 {   MM    MM  8M""""""   VA ,V  VA ,V     MM      ,   MM   .     `MM   MM        })
+  (setq s6 {   MM    MM  YM.    ,    VVV    VVV      MM     ,M   MM   Mb     dM   MM        })
+  (setq s7 { .JMML  JMML. `Mbmmd'     W      W     .JMMmmmmMMM .JMML. P"Ybmmd"  .JMML.      })
+  (setq s (list s1 s2 s3 s4 s5 s6 s7))
+  (for (i 1 iter)
+    (for (visible 1 (length s1))
+      (cls)
+      (for (l 0 6) (println (slice (s l) 0 visible)))
+      (sleep wait)
+    )
+    (for (visible 1 (length s1))
+      (cls)
+      (for (l 0 6) (println (slice (s l) (- visible))))
+      (sleep wait)
+    )
+  )
+  '>)
+
+Proviamo:
+
+(anim3 3 50)
+
+
+------------------------------------------
+Coppie di primi che sommano ad un intero N
+------------------------------------------
+
+Dato un numero intero positivo N, trovare tutte le coppie univoche di numeri primi la cui somma N.
+
+Algoritmo:
+Ciclo per un numero intero k da 2 a N - 2 
+(poiché il numero primo minimo è 2 e la differenza massima possibile tra due numeri primi inferiori o uguali a N è N - 2)
+  se sia K che (N - K) sono primi, aggiungerli alla lista delle coppie.
+
+Per evitare coppie duplicate possiamo modificare l'algoritmo iterando solo fino a (N/2).
+Ciò garantisce che ciascuna coppia (k, N - K) è unica (es. senza duplicati come (7 3) e (3 7) per N=10).
+
+Sequenza OEIS A061358:
+Number of ways of writing n = p+q with p, q primes and p >= q
+  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 2, 1, 2, 0, 2, 1, 2, 1, 3, 0,
+  3, 1, 3, 0, 2, 0, 3, 1, 2, 1, 4, 0, 4, 0, 2, 1, 3, 0, 4, 1, 3, 1, 4, 0,
+  5, 1, 4, 0, 3, 0, 5, 1, 3, 0, 4, 0, 6, 1, 3, 1, 5, 0, 6, 0, 2, 1, 5, 0,
+  6, 1, 5, 1, 5, 0, 7, 0, 4, 1, 5, 0, 8, 1, 5, 0, 4, 0, 9, 1, 4, 0, 5, 0,
+  7, 0, 3, 1, 6, 0, 8, 1, 5, 1, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (pair-sum num)
+  (let (out '())
+    (for (k 2 (- num 2))
+      (if (and (<= k (- num k)) (prime? k) (prime? (- num k)))
+          (push (list k (- num k)) out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(pair-sum 5)
+;-> ((3 2))
+(pair-sum 10)
+;-> ((3 7) (5 5))
+
+Vediamo le coppie per i primi 10 numeri:
+
+(map (fn(x) (list x (length (pair-sum x)))) (sequence 1 10))
+;-> ((1 0) (2 0) (3 0) (4 1) (5 1) (6 1) (7 1) (8 1) (9 1) (10 2))
+
+Generiamo la sequenza:
+
+(map (fn(x) (length (pair-sum x))) (sequence 0 100))
+;-> (0 0 0 0 1 1 1 1 1 1 2 0 1 1 2 1 2 0 2 1 2 1 3 0 3 1 3 0 2 0 3 1 2
+;->  1 4 0 4 0 2 1 3 0 4 1 3 1 4 0 5 1 4 0 3 0 5 1 3 0 4 0 6 1 3 1 5 0
+;->  6 0 2 1 5 0 6 1 5 1 5 0 7 0 4 1 5 0 8 1 5 0 4 0 9 1 4 0 5 0 7 0 3
+;->  1 6)
+
+Vediamo la funzione che itera fino a (N/2):
+
+(define (pair-sum1 num)
+  (let (out '())
+    (for (k 2 (/ num 2))
+      (if (and (prime? k) (prime? (- num k)))
+          (push (list k (- num k)) out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(pair-sum1 5)
+;-> ((3 2))
+(pair-sum1 10)
+;-> ((3 7) (5 5))
+
+Vediamo se le due funzioni producono risultati uguali:
+
+(= (map pair-sum (sequence 0 1e4))
+   (map pair-sum1 (sequence 0 1e4)))
+;-> true
+
+(= (map (fn(x) (length (pair-sum x))) (sequence 0 1e4))
+   (map (fn(x) (length (pair-sum1 x))) (sequence 0 1e4)))
+;-> true
+
+Vediamo il tempo di esecuzione delle due funzioni:
+
+(time (map pair-sum (sequence 0 1e4)))
+;-> 10337.865
+(time (map pair-sum1 (sequence 0 1e4)))
+;-> 7456.754
+
+(time (map (fn(x) (length (pair-sum x))) (sequence 0 1e4)))
+;-> 10355.053
+(time (map (fn(x) (length (pair-sum1 x))) (sequence 0 1e4)))
+;-> 7454.767
+
+Scriviamo una funzione che genera la sequenza sfruttando il fatto che:
+per un numero dispari N, a(N) = 0 se N-2 non è primo, altrimenti a(N) = 1.
+
+(define (pair-sum-to2 limite)
+  (let (out '())
+    (for (num 0 limite)
+      (setq conta 0)
+      (cond ((odd? num) 
+              (if (prime? (- num 2)) 
+                  (push 1 out -1)
+                  (push 0 out -1)))
+            (true
+              (for (k 2 (/ num 2))
+                (if (and (prime? k) (prime? (- num k))) (++ conta))
+              )
+              (push conta out -1))
+      )
+    )
+    out))
+
+Proviamo:
+
+(pair-sum-to2 100)
+;-> (0 0 0 0 1 1 1 1 1 1 2 0 1 1 2 1 2 0 2 1 2 1 3 0 3 1 3 0 2 0 3 1 2
+;->  1 4 0 4 0 2 1 3 0 4 1 3 1 4 0 5 1 4 0 3 0 5 1 3 0 4 0 6 1 3 1 5 0
+;->  6 0 2 1 5 0 6 1 5 1 5 0 7 0 4 1 5 0 8 1 5 0 4 0 9 1 4 0 5 0 7 0 3
+;->  1 6)
+
+Vediamo se la funzione produce risultati uguali ai precedenti:
+
+(= (pair-sum-to2 1e4)
+   (map (fn(x) (length (pair-sum1 x))) (sequence 0 1e4)))
+;-> true
+
+Vediamo la velocità della funzione:
+
+(time (pair-sum-to2 1e4))
+;-> 3713.86
+
+(time (pair-sum-to2 1e5))
+;-> 494744.123 ;8m 14s 744ms
+
 
 ============================================================================
 

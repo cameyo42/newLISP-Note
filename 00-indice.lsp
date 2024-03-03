@@ -2328,6 +2328,10 @@ NOTE LIBERE 22
   La funzione RADD
   Lunghezza ricorsiva di una lista
   Cifratura di Bacon
+  N-esimo primo tale che (primo - 1) sia divisibile per N
+  Da stringa a numero
+  Semplici animazioni
+  Coppie di primi che sommano ad un intero N
 
 PROBLEMI SUI DADI
 =================

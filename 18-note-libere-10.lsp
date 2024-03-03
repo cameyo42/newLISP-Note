@@ -4,7 +4,7 @@
 
 ================
 
-"I love the impurity of the purity of newLISP"
+  "I love the impurity of the purity of newLISP"
 
 ---------
 Turochamp

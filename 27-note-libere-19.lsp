@@ -4,7 +4,7 @@
 
 ================
 
-"Klaatu barada nikto"
+  "Klaatu barada nikto"
 
 ------
 Gomoku

@@ -4,7 +4,7 @@
 
 ================
 
-(pietra) --> (aperti aprite pareti patrie perita rapite ripeta)
+  (pietra) --> (aperti aprite pareti patrie perita rapite ripeta)
 
 ------------------------------------------
 Tavola Periodica degli Elementi (ricerche)

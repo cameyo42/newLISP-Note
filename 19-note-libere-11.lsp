@@ -4,7 +4,7 @@
 
 ================
 
-"I know nothing except this statement."
+  "I know nothing except this statement."
 
 ---------------------------
 Il problema della celebrità

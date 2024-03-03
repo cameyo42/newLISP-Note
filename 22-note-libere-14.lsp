@@ -4,7 +4,8 @@
 
 ================
 
-  Esagono magico:
+   Esagono magico
+   
      18 17  3
     11  1  7 19
    9  6  5  2 16

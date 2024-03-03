@@ -583,7 +583,7 @@ Trova il più grande numero palindromo ottenuto dal prodotto di due numeri da tr
 
 Dal punto di vista matematico:
 
-La prima osservazione è che il numero deve essere compreso tra 100^2 e 999^2 o nell'intervallo (10000, 998001). 1]. Poiché la maggior parte dei numeri ha 6 cifre e stiamo cercando il più grande, ignoriamo i numeri a 5 cifre. Sulla base di questo, possiamo costruire un numero palindromo come:
+La prima osservazione è che il numero deve essere compreso tra 100^2 e 999^2 o nell'intervallo (10000, 998001). Poiché la maggior parte dei numeri ha 6 cifre e stiamo cercando il più grande, ignoriamo i numeri a 5 cifre. Sulla base di questo, possiamo costruire un numero palindromo come:
 
 'abccba' = 100000a + 10000b + 1000c + 100c + 10b + a
          = 100001a + 10010b + 1100c
@@ -940,7 +940,7 @@ Soluzione alternativa:
 
 (define (e006)
     (let (lst (sequence 1 100))
-        (- (pow (apply + lst)) (apply + (map * lst lst))) )
+        (- (pow (apply + lst)) (apply + (map * lst lst))))
 )
 
 (e006)

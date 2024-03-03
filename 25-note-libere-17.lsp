@@ -4,7 +4,7 @@
 
 ================
 
-r = sqrt(sin 2θ) = ∞
+  r = sqrt(sin 2θ) = ∞
 
 ----------
 Home Prime

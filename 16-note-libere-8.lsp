@@ -8,6 +8,13 @@ Un buon programmatore LISP cerca di utilizzare uno stile funzionale puro il più
 
 McCarthy (l'inventore originale di LISP) ha dimostrato che qualsiasi algoritmo/funzione può essere formulato completamente senza effetti collaterali solo con funzioni.
 
+Comunque newLISP ha uno stile di programmazione proprio.
+
+"Cavemen in bearskins invaded the ivory towers of Artificial Intelligence.
+ Nine months later, they left with a baby named newLISP.
+ The women of the ivory towers wept and wailed. 'Abomination!' they cried."
+- TedWalther
+
 -----------------------------------------
 Creazione di un contesto da una variabile
 -----------------------------------------

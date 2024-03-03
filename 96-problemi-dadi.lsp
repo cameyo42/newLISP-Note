@@ -1,39 +1,3 @@
-
-;; Module: dice.lsp
-;; Dice Functions
-(define (die s) (+ (rand s) 1))
-;
-(define (die6) (+ (rand 6) 1))
-;
-(define (dice n s) (+ n (apply + (rand s n))))
-;
-(define (dice6 n) (+ n (apply + (rand 6 n))))
-;
-(define (dice-lst n s) (map (curry + 1) (rand s n)))
-;
-(define (dice6-lst n) (map (curry + 1) (rand 6 n)))
-;
-(define (dice-lst-freq n s) (count (sequence 1 s) (dice-lst n s)))
-;
-(define (dice6-lst-freq n) (count '(1 2 3 4 5 6) (dice6-lst n)))
-;
-(define (one-in prob) (int (add 0.5 (div prob))))
-;
-(define (rand-pick lst)
-  (local (rnd stop out)
-    (while (= (setq rnd (random)) 1))
-    (setq stop nil)
-    (dolist (p lst stop)
-      (setq rnd (sub rnd p))
-      (if (< rnd 0) (set 'out $idx 'stop true))
-    )
-    out))
-;
-(define (rand-lst lst) (lst (rand (length lst))))
-;
-(define (prime? num) (if (< num 2) nil (= 1 (length (factor num)))))
-; eof
-
                    ===================
                     PROBLEMI SUI DADI
                    ===================
@@ -227,6 +191,29 @@ Probability for d2:
 ;-> 7 0
 ;-> 8 0.166807
 
+;; Module: dice.lsp
+;; Dice Functions
+(define (die s) (+ (rand s) 1))
+(define (die6) (+ (rand 6) 1))
+(define (dice n s) (+ n (apply + (rand s n))))
+(define (dice6 n) (+ n (apply + (rand 6 n))))
+(define (dice-lst n s) (map (curry + 1) (rand s n)))
+(define (dice6-lst n) (map (curry + 1) (rand 6 n)))
+(define (dice-lst-freq n s) (count (sequence 1 s) (dice-lst n s)))
+(define (dice6-lst-freq n) (count '(1 2 3 4 5 6) (dice6-lst n)))
+(define (one-in prob) (int (add 0.5 (div prob))))
+(define (rand-pick lst)
+  (local (rnd stop out)
+    (while (= (setq rnd (random)) 1))
+    (setq stop nil)
+    (dolist (p lst stop)
+      (setq rnd (sub rnd p))
+      (if (< rnd 0) (set 'out $idx 'stop true))
+    )
+    out))
+(define (rand-lst lst) (lst (rand (length lst))))
+(define (prime? num) (if (< num 2) nil (= 1 (length (factor num)))))
+;; eof
 
 ==========================
  1. Standard Dice (1..26)

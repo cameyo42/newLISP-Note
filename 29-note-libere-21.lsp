@@ -4,7 +4,7 @@
 
 ================
 
-"21 è soltanto mezza verità"
+  "21 è soltanto mezza verità"
 
 ------------------------
 I Visir sulla scacchiera

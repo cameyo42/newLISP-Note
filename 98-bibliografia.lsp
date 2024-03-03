@@ -90,6 +90,8 @@
   "Duelling Idiots and Other Probability Puzzlers", Paul Nahin, 2000
   "Digital Dice Computational Solutions to Practical Probability Problems", Paul Nahin, 2008
   
+  "The Math Book", Clifford A. Pickover, 2009
+  
   "La Cattedrale di Turing: le origini dell'universo digitale", George Dyson, 2012
 
   Siti web:
@@ -139,8 +141,9 @@
   MathBlog.dk è un blog che tratta la risoluzione di problemi di programmazione utilizzando la matematica
   https://www.mathblog.dk/
 
-  Fermat's Library: una piattaforma per documenti accademici "illuminati". Pubblica un documento annotato ogni settimana.
-  https://twitter.com/fermatslibrary?lang=en
+  Fermat's Library: una piattaforma per documenti accademici "illuminati".
+  Pubblica un documento annotato ogni settimana.
+  https://fermatslibrary.com/
 
   Search the history of over 663 billion web pages on the Internet (2022-02-27).
   Internet Archive is a non-profit library of millions of free books, movies, software, music, websites, and more.
