@@ -2599,7 +2599,8 @@ Quando le funzioni si modificano, è necessario prestare attenzione a non sostit
 I cicli (loops)
 ---------------
 
-In newLISP sono supportati la maggior parte dei metodi di loop tradizionali. Ogni volta che esiste una variabile di loop, è locale nell'ambito del loop, comportandosi secondo le regole di scoping dinamico all'interno dello spazio dei nomi o del contesto corrente:
+In newLISP sono supportati la maggior parte dei metodi di loop tradizionali.
+Ogni volta che esiste una variabile di loop, è locale nell'ambito del loop, comportandosi secondo le regole di scoping dinamico all'interno dello spazio dei nomi o del contesto corrente:
 
 *** DOTIMES ***
 ; ripete per un numero di volte
@@ -2632,6 +2633,12 @@ La funzione "dolist" ha anche una variabile $idx che tiene traccia dell'indice n
 ;-> (1 b)
 ;-> (2 c)
 ;-> (3 d)
+
+Lutz:
+-----
+The length of a list is not known to 'dolist' (or any other function) when it starts iterating through the list.
+Same is true most of the time for the last element.
+It is stored sometimes in the envelope cell of the list, but cannot be found there reliably, but only after a previous access to the last cell.
 
 *** DOSTRING ***
 ; ciclo attraverso una stringa

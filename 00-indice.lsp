@@ -2333,6 +2333,9 @@ NOTE LIBERE 22
   Semplici animazioni
   Coppie di primi che sommano ad un intero N
   Creazione di liste di orari
+  Speed up the code
+  Ottimizzare l'unione di stringhe
+  Crivello di Eratostene visuale
 
 PROBLEMI SUI DADI
 =================

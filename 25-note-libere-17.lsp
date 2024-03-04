@@ -3820,7 +3820,6 @@ Velocità con lista da 10000 elementi:
 (time (d2 b) 1e3)
 ;-> 709.113
 
-
 3) Funzione primitiva (due liste):
 
 (define (m3 lst1 lst2) (map * lst1 lst2))

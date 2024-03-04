@@ -4878,5 +4878,460 @@ Tutti i secondi che formano una giornata:
 (* 24 60 60)
 ;-> 86400
 
+
+-----------------
+Speed up the code
+-----------------
+
+Alcune raccomandazioni da parte di Lutz per velocizzare i programmi newLISP.
+ 
+Several recommendations to speed up the code and other comments:
+
+instead of:
+
+(if (not (nil? suffix-match)) ...
+
+say:
+
+if( (not suffix-match) ...)
+; or even faster
+(unless suffix-match ...)
+
+instead of:
+
+(last (assoc 'suffix data))
+
+say:
+
+(lookup 'suffix data)
+
+'lookup' will always pick the last in the association (if not given an index)
+
+instead of:
+
+ (if (nil? good-match) ...)
+
+try also 'not', which will trigger on 'nil' and (), while 'nil?' means strictly 'nil'.
+Not sure about the logic here and the impact is probably minimal, but its better English :-)
+
+(if (not good-match) ...)
+
+I also have a difficult time in newlisp deciding when to use nil params in the function def or let statements.
+
+All parameters in p1,p2,p3 (define (foo p1 p2 p3) ...) are set to 'nil' if not filled in by the caller.
+
+In a 'let' statement if you want to have the params imitialized to 'nil' then better use 'local' (much less overhead/faster):
+
+instead of:
+
+(let (param nil) ....)
+
+do:
+
+(local (param) ...)
+
+It is reassigning the same global symbol over and over. 
+That couldn't be causing the slowdown, could it?
+
+If that global variable always gets the same value, I would set it only once.
+
+Do not compose the name records bye doing 'replace-assoc' in the 'data' list:
+
+ (set 'data '((first-name nil) (middle-name nil) (last-name nil)))
+
+Would it not be better to compose the whole name records using list' statements instead of replace-assoc statements?
+
+To speedup the name parser code:
+
+(time (format "%s %s %s" "hi" "ho" "hum") 1000000)
+;-> 4818
+(time (append  "hi" " "  "ho" " " "hum") 1000000)
+;-> 1723
+
+when using 'format' for simple string appending with filling in text in between, 'append' can be a lot faster.
+
+This is for the '(format "%s %s %s" $3 $1 $2)' pieces in the normalize function.
+
+
+--------------------------------
+Ottimizzare l'unione di stringhe
+--------------------------------
+
+Per unire due stringhe possiamo usare i seguenti metodi:
+
+1) Uso di "append":
+
+(define (test1)
+  (setq a "filename")
+  (setq a (append a ".txt"))
+  a)
+
+2) Uso di "extend":
+
+(define (test2)
+  (setq a "filename")
+  (extend a ".txt")
+  a)
+
+3) Uso di "write":
+
+(define (test3)
+  (setq a "filename")
+  (write a ".txt")
+  a)
+
+4) Uso di "string":
+
+(define (test4)
+  (setq a "filename")
+  (setq a (string a ".txt"))
+  a)
+
+Proviamo:
+
+(test1)
+;-> "filename.txt"
+(test2)
+;-> "filename.txt"
+(test3)
+;-> "filename.txt"
+(test4)
+;-> "filename.txt"
+
+Vediamo la velocità delle funzioni:
+
+(time (test1) 1e6)
+;-> 310.228
+
+(time (test2) 1e6)
+;-> 238.502
+
+(time (test3) 1e6)
+;-> 244.503
+
+(time (test4) 1e6)
+;-> 271.913
+
+Per unire due o più stringhe è meglio usare la funzione "extend".
+
+
+------------------------------
+Crivello di Eratostene visuale
+------------------------------
+
+Il Crivello di Eratostene è un algoritmo antico e efficiente per trovare tutti i numeri primi fino a un certo limite dato.
+Fu sviluppato dal matematico greco Eratostene circa 2300 anni fa.
+
+Ecco come funziona l'algoritmo:
+
+Inizializzazione:
+1) Si inizia con una lista di numeri interi da 2 fino al limite superiore desiderato.
+Inizialmente, tutti questi numeri sono considerati come potenziali numeri primi.
+Il numero 1 non è un numero primo.
+
+2) Individuazione dei multipli:
+Si inizia con il primo numero della lista (2) e si cancellano tutti i suoi multipli dalla lista, tranne se stesso.
+Successivamente, si passa al prossimo numero non cancellato e si ripete questo processo.
+Questo viene fatto fino a quando non si supera la radice quadrata del limite.
+
+3) Numeri rimanenti: Dopo aver completato il passaggio precedente, i numeri rimanenti nella lista sono tutti primi, poiché i loro multipli sono stati cancellati.
+
+Output: I numeri rimanenti nella lista sono i numeri primi fino al limite desiderato.
+
+L'algoritmo di Eratostene sfrutta il fatto che se un numero è divisibile per un altro numero primo, allora non può essere un numero primo stesso.
+Pertanto, eliminando i multipli dei numeri primi dalla lista, rimangono solo i numeri primi.
+Questo metodo è molto efficiente, poiché non richiede di controllare la primalità di ogni numero separatamente, ma opera soltanto sul filtraggio dei multipli.
+
+Funzione di Eratostene (base):
+
+(define (eratostene n)
+  (local (primi p out)
+    ; Crea una lista di booleani inizializzata a True, tranne l'indice 0 e 1
+    (setq primi (array (+ n 1) '(true)))
+    (setf (primi 0) nil)
+    (setf (primi 1) nil)
+    ; Inizia con il primo numero primo (2)
+    (setq p 2)
+    ; Ciclo fino a che (n >= p^2)
+    (while (<= (* p p) n)
+      ; Se primi(p) vale true, allora è un numero primo
+      (if (primi p)
+          ; Aggiorna tutti i multipli di p come non primi (nil)
+          (for (i (* p p) n p) (setf (primi i) nil))
+      )
+      ; prossimo numero
+      (++ p)
+    )
+    ; Ritorna la lista dei numeri primi
+    (setq out '())
+    (for (i 2 n)
+      (if (primi i) (push i out -1))
+    )
+    out))
+
+Proviamo:
+
+(eratostene 50)
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47)
+
+Funzione di Eratostene (visuale lineare)
+----------------------------------------
+
+(define (print-multipli arr val)
+  (dolist (el arr)
+    (cond ((and el (zero? (% $idx val)))
+            ; multipli in rosso
+            (print "\027[0;31m" $idx "\027[39;49m" " "))
+          (el (print $idx " "))
+    )
+  )
+  (println))
+
+(define (print-nums arr)
+  (for (i 1 (- (length arr) 1))
+    (if (arr i) (print i " "))
+  )
+  (println))
+
+(define (print-multipli-line arr val)
+  (dolist (el arr)
+    (cond ((and el (zero? (% $idx val)))
+            (print (dup "*" (length $idx)) " "))
+          (el (print (dup " " (length $idx)) " "))
+    )
+  )
+  (println))
+
+(define (eratostene-v n)
+  (local (primi p out)
+    ; Crea una lista di booleani inizializzata a True, tranne l'indice 0 e 1
+    (setq primi (array (+ n 1) '(true)))
+    (setf (primi 0) nil)
+    (setf (primi 1) nil)
+    (println "Tutti i numeri (senza 1):")
+    (print-nums primi)
+    (println)
+    ; Inizia con il primo numero primo (2)
+    (setq p 2)
+    ; Ciclo fino a che (n >= p^2)
+    (while (<= (* p p) n)
+      ; Se primi(p) è true, allora è un numero primo
+      (if (primi p)
+        (begin
+          (println "Togliamo i numeri multipli di " p " (tranne il " p "):")
+          (print-multipli-line primi p)
+          (print-multipli primi p)
+          ; Aggiorna tutti i multipli di p come non primi
+          (for (i (* p p) n p) (setf (primi i) nil))
+          (println "Rimangono i numeri:")
+          (print-nums primi) (read-line))
+      )
+      ; prossimo numero
+      (++ p)
+    )
+    (println "(" p "*" p "=" (* p p) ") >= " n " --> Stop")
+    ; Ritorna la lista dei numeri primi
+    (setq out '())
+    (for (i 2 n)
+      (if (primi i) (push i out -1))
+    )
+    (println "Numeri primi: ")
+    out))
+
+Proviamo:
+
+(eratostene-v 28)
+;-> Tutti i numeri (senza 1):
+;-> 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
+;->
+;-> Togliamo i numeri multipli di 2 (tranne il 2):
+;-> *   *   *   *   **    **    **    **    **    **    **    **    **    **
+;-> 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28
+;-> Rimangono i numeri:
+;-> 2 3 5 7 9 11 13 15 17 19 21 23 25 27
+;->
+;-> Togliamo i numeri multipli di 3 (tranne il 3):
+;->   *     *       **       **       **
+;-> 2 3 5 7 9 11 13 15 17 19 21 23 25 27
+;-> Rimangono i numeri:
+;-> 2 3 5 7 11 13 17 19 23 25
+;->
+;-> Togliamo i numeri multipli di 5 (tranne il 5):
+;->     *                  **
+;-> 2 3 5 7 11 13 17 19 23 25
+;-> Rimangono i numeri:
+;-> 2 3 5 7 11 13 17 19 23
+;->
+;-> (6*6=36) >= 28 --> Stop
+;-> Numeri primi:
+;-> (2 3 5 7 11 13 17 19 23)
+
+Funzione di Eratostene (visuale quadrata)
+-----------------------------------------
+In questo caso il parametro n è il lato del quadrato.
+
+(define (print-quad arr)
+  (for (i 1 (- (length arr) 1))
+    ;(cond ((arr i) (print (format "%3d" i)))
+    (cond ((arr i) (print (format (string "%" len-max "d") i)))
+          ;(true (print (format "%3s" " "))))
+          (true (print (format (string "%" len-max "s") " "))))
+    (if (zero? (% i side)) (println))))
+
+(define (eratostene-q n)
+  (local (side len-max primi p out)
+    (setq side n)
+    (setq n (* n n))
+    (setq len-max (+ (length n) 1))
+    ; Crea una lista di booleani inizializzata a True, tranne l'indice 0 e 1
+    (setq primi (array (+ n 1) '(true)))
+    (setf (primi 0) nil)
+    (setf (primi 1) nil)
+    (println "Tutti i numeri (senza 1):")
+    (print-quad primi)
+    (read-line)
+    ; Inizia con il primo numero primo (2)
+    (setq p 2)
+    ; Ciclo fino a che (n >= p^2)
+    (while (<= (* p p) n)
+      ; Se primi(p) vale true, allora è un numero primo
+      (if (primi p)
+        (begin
+          (println "Togliamo i numeri multipli di " p " (tranne il " p "):")
+          ; Aggiorna tutti i multipli di p come non primi (nil)
+          (for (i (* p p) n p) (setf (primi i) nil))
+          (print-quad primi) (read-line))
+      )
+      ; prossimo numero
+      (++ p)
+    )
+    ; Ritorna la lista dei numeri primi
+    (setq out '())
+    (for (i 2 n)
+      (if (primi i) (push i out -1))
+    )
+    (println "Numeri primi: ")
+    out))
+
+Proviamo:
+
+(eratostene-q 9)
+;-> Tutti i numeri (senza 1):
+;->      2  3  4  5  6  7  8  9
+;->  10 11 12 13 14 15 16 17 18
+;->  19 20 21 22 23 24 25 26 27
+;->  28 29 30 31 32 33 34 35 36
+;->  37 38 39 40 41 42 43 44 45
+;->  46 47 48 49 50 51 52 53 54
+;->  55 56 57 58 59 60 61 62 63
+;->  64 65 66 67 68 69 70 71 72
+;->  73 74 75 76 77 78 79 80 81
+;-> 
+;-> Togliamo i numeri multipli di 2 (tranne il 2):
+;->      2  3     5     7     9
+;->     11    13    15    17
+;->  19    21    23    25    27
+;->     29    31    33    35
+;->  37    39    41    43    45
+;->     47    49    51    53
+;->  55    57    59    61    63
+;->     65    67    69    71
+;->  73    75    77    79    81
+;-> 
+;-> Togliamo i numeri multipli di 3 (tranne il 3):
+;->      2  3     5     7
+;->     11    13          17
+;->  19          23    25
+;->     29    31          35
+;->  37          41    43
+;->     47    49          53
+;->  55          59    61
+;->     65    67          71
+;->  73          77    79
+;-> 
+;-> Togliamo i numeri multipli di 5 (tranne il 5):
+;->      2  3     5     7
+;->     11    13          17
+;->  19          23
+;->     29    31
+;->  37          41    43
+;->     47    49          53
+;->              59    61
+;->           67          71
+;->  73          77    79
+;-> 
+;-> Togliamo i numeri multipli di 7 (tranne il 7):
+;->      2  3     5     7
+;->     11    13          17
+;->  19          23
+;->     29    31
+;->  37          41    43
+;->     47                53
+;->              59    61
+;->           67          71
+;->  73                79
+;-> 
+;-> Numeri primi:
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79)
+
+(eratostene-q 15)
+;-> Tutti i numeri (senza 1):
+;->        2   3   4   5   6   7   8   9  10  11  12  13  14  15
+;->   16  17  18  19  20  21  22  23  24  25  26  27  28  29  30
+;->   31  32  33  34  35  36  37  38  39  40  41  42  43  44  45
+;->   46  47  48  49  50  51  52  53  54  55  56  57  58  59  60
+;->   61  62  63  64  65  66  67  68  69  70  71  72  73  74  75
+;->   76  77  78  79  80  81  82  83  84  85  86  87  88  89  90
+;->   91  92  93  94  95  96  97  98  99 100 101 102 103 104 105
+;->  106 107 108 109 110 111 112 113 114 115 116 117 118 119 120
+;->  121 122 123 124 125 126 127 128 129 130 131 132 133 134 135
+;->  136 137 138 139 140 141 142 143 144 145 146 147 148 149 150
+;->  151 152 153 154 155 156 157 158 159 160 161 162 163 164 165
+;->  166 167 168 169 170 171 172 173 174 175 176 177 178 179 180
+;->  181 182 183 184 185 186 187 188 189 190 191 192 193 194 195
+;->  196 197 198 199 200 201 202 203 204 205 206 207 208 209 210
+;->  211 212 213 214 215 216 217 218 219 220 221 222 223 224 225
+;-> 
+;-> Togliamo i numeri multipli di 2 (tranne il 2):
+;->        2   3       5       7       9      11      13      15
+;->       17      19      21      23      25      27      29
+;->   31      33      35      37      39      41      43      45
+;->       47      49      51      53      55      57      59
+;->   61      63      65      67      69      71      73      75
+;->       77      79      81      83      85      87      89
+;->   91      93      95      97      99     101     103     105
+;->      107     109     111     113     115     117     119
+;->  121     123     125     127     129     131     133     135
+;->      137     139     141     143     145     147     149
+;->  151     153     155     157     159     161     163     165
+;->      167     169     171     173     175     177     179
+;->  181     183     185     187     189     191     193     195
+;->      197     199     201     203     205     207     209
+;->  211     213     215     217     219     221     223     225
+;-> ...
+;-> ...
+;-> ...
+;-> Togliamo i numeri multipli di 13 (tranne il 13):
+;->        2   3       5       7              11      13
+;->       17      19              23                      29
+;->   31                      37              41      43
+;->       47                      53                      59
+;->   61                      67              71      73
+;->               79              83                      89
+;->                           97             101     103
+;->      107     109             113
+;->                          127             131
+;->      137     139                                     149
+;->  151                     157                     163
+;->      167                     173                     179
+;->  181                                     191     193
+;->      197     199
+;->  211                                             223
+
+Numeri primi:
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
+;->  101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191
+;->  193 197 199 211 223)
+
 ============================================================================
 

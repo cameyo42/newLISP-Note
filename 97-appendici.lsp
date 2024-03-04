@@ -3916,6 +3916,16 @@ Purtroppo newLISP non supporta Tail Call Optimization (TCO), ma è possibile sup
 Questa tecnica viene spiegata nell'articolo "Advanced Recursion in newLISP":
 https://weblambdazero.blogspot.com/2010/07/advanced-recursion-in-newLISP.html di Krzysztof Kliś che trovate tradotto più avanti.
 
+Lutz:
+-----
+Regarding "tail call optimization":
+
+Tail call optimization is good if you prefer expressing algorithms via recursion versus iteration. But speed performance wise iteration can be implement more efficiently compared to tail recursion optimization, which usually is implemented using continuations.
+
+The paradox about tail recursion optimization is, that you can only optimize the tail part of the recursion, which at the same time is the part easy to express or transform into iteration (because it is the last call in the function).
+
+In the end tail-recursion-optimization versus iteration comes down to a programmer preference of rather using one versus the other method when expressing algorithms.
+
 
 ============================================================================
  F-expression - FEXPR
