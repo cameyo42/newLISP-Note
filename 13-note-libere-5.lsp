@@ -4,6 +4,8 @@
 
 ===============
 
+  Il alcuni giochi l'unica mossa vincente è quella di non giocare.
+
 -------------------
 Spostamento di zeri
 -------------------

@@ -5043,7 +5043,7 @@ Pertanto, eliminando i multipli dei numeri primi dalla lista, rimangono solo i n
 Questo metodo è molto efficiente, poiché non richiede di controllare la primalità di ogni numero separatamente, ma opera soltanto sul filtraggio dei multipli.
 
 Funzione di Eratostene (base):
-
+------------------------------
 (define (eratostene n)
   (local (primi p out)
     ; Crea una lista di booleani inizializzata a True, tranne l'indice 0 e 1
@@ -5076,7 +5076,6 @@ Proviamo:
 
 Funzione di Eratostene (visuale lineare)
 ----------------------------------------
-
 (define (print-multipli arr val)
   (dolist (el arr)
     (cond ((and el (zero? (% $idx val)))
@@ -5332,6 +5331,414 @@ Numeri primi:
 ;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97
 ;->  101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191
 ;->  193 197 199 211 223)
+
+
+---------------------
+Indent newLISP source
+---------------------
+
+Il seguente script permette di indentare un file contenente codice in newLISP.
+
+Uso:
+newlisp indent.lsp your-script.lsp 4 > output.lsp
+oppure
+newlisp indent.lsp your-script.lsp > output.lsp
+In questo ultimo caso l'indentazione vale 2 spazi.
+
+#!/usr/bin/env newlisp
+;; indent.lsp
+;; Author: ssqq
+;; modified to newLISP 10.7.5: cameyo
+;; http://www.newlisp.cn
+;; usage:
+;; -> newlisp indent.lsp your-script.lsp 4 > output.lsp
+
+(define (indent-code input-file indent)
+    (local (v-level new-level file-txt file-lines indent-line indent-lines)
+        (setq indent (or indent 2))
+        (setq v-level 0)
+        (setq file-text (read-file input-file))
+        (setq file-lines (map trim (parse file-text "\n")))
+        (dolist (v-line file-lines)
+            (setq new-level (get-new-level v-line v-level))
+            (if (starts-with v-line ")")
+                (setq indent-line (get-indent-line new-level v-line indent))
+                (setq indent-line (get-indent-line v-level v-line indent))
+            )
+            (push indent-line indent-lines -1)
+            (setq v-level new-level)
+        )
+        (println (join indent-lines "\n"))
+    )
+)
+
+(define (get-new-level v-line v-level)
+    (local (close-amount open-amount freeze-line)
+        (setq freeze-str (replace {".*?[^\\]"}   v-line "" 0))
+        (setq freeze-str (replace {{.*?[^\\]}}   v-line "" 0))
+        (setq freeze-str (replace {\[.*?[^\\]\]} v-line "" 0))
+        (setq freeze-str (replace {(?:^|\s)(?:\;|\#).*?$} v-line "" 0))
+        (find-all {\(} freeze-str)
+        (setq open-amount $count)
+        (setq v-level (+ open-amount v-level))
+        (find-all {\)} freeze-str)
+        (setq close-amount $count)
+        (setq v-level (- v-level close-amount))
+    )
+)
+
+(define (get-indent-line v-level v-line indent)
+    (let (indent-space {})
+        (setq indent-space (dup " " (mul v-level (int indent))))
+        (append indent-space v-line)
+    )
+)
+
+(setq input-file (main-args 2))
+(setq indent (main-args 3))
+(indent-code input-file indent)
+
+(exit)
+
+
+------------------------------------------------
+Annidare i caratteri di una stringa in una lista
+------------------------------------------------
+
+Data una stringa annidare i caratteri in una lista nel modo seguente:
+il primo carattere ha annidamento 1.
+il secondo carattere ha annidamento 2.
+...
+il carattere n-esimo ha annidamento n.
+
+Per esempio:
+stringa = "newLISP"
+output = ("n" ("e" ("w" ("L" ("I" ("S" ("P")))))))
+
+Annidamento del primo carattere "n":
+(ref "n" '("n" ("e" ("w" ("L" ("I" ("S" ("P"))))))))
+;-> (0)
+(length (ref "n" '("n" ("e" ("w" ("L" ("I" ("S" ("P")))))))))
+;-> 1
+
+Annidamento dell'ultimo carattere "P":
+(ref "P" '("n" ("e" ("w" ("L" ("I" ("S" ("P"))))))))
+;-> (1 1 1 1 1 1 0)
+(length (ref "P" '("n" ("e" ("w" ("L" ("I" ("S" ("P")))))))))
+;-> 7
+
+Funzione che annida i caratteri di una stringa in una lista:
+
+(define (nest-string str)
+  ; inserisce l'ultimo carattere nella lista
+  (let (out (list (str -1))) 
+    (for (i (- (length str) 2) 0)
+      ; annida il carattere corrente nella lista
+      (setq out (list (str i) out))
+    )
+    out)
+
+Proviamo:
+
+(nest-string "newLISP")
+;-> ("n" ("e" ("w" ("L" ("I" ("S" ("P")))))))
+
+(nest-string "una stringa")
+;-> ("u" ("n" ("a" (" " ("s" ("t" ("r" ("i" ("n" ("g" ("a")))))))))))
+
+
+----------------------------------
+Write the output of REPL in a file
+----------------------------------
+
+Possiamo impostare stdout anche su file con la funzione "device".
+In questo modo tutto l'output di print/ln viene scritto anche in un file.
+
+(device (open "log-file" "w"))
+;-> 3
+(println "hello world")
+;-> "hello world"
+(close (device))
+;-> true
+!type log-file
+;-> hello world
+
+Nota: il file deve essere chiuso prima di chiudere la REPL.
+
+
+----------------
+Il codice Baudot
+----------------
+
+Nel 1870 Émile Baudot inventò il codice Baudot, una codifica di caratteri a lunghezza fissa per la telegrafia.
+Il codice veniva inserito tramite una tastiera manuale con soli cinque tasti.
+Ognuno dei 32 simboli ha una codifica binaria di 5 bit.
+
+Come è possibile rappresentare tutte le lettere, i numeri e i segni di punteggiatura con 32 simboli?
+
+Il trucco di Baudot consiste nell'utilizzare due set di carateri distinti: Lettere e Cifre.
+Per passare da un set all'altro si usano due codici speciali:
+1) Letter Shift (LS), che passa alla modalità Lettere (tasto 5 (00001))
+2) Figure Shift (FS), cha passa alla modalità Cifre (tasto 4 (00010)).
+
+In questo caso usiamo solo i caratteri nella tabella seguente, che sono tutti caratteri ASCII stampabili tranne gli ultimi tre caratteri di controllo spiegati sotto.
+
+La colonna "Lettere" mostra i caratteri in modalità Lettera e "Figure" mostra i caratteri in modalità Figura:
+
+Lettera  Figura  Codice       Lettera  Figura  Codice
+-------  ------  ------       -------  ------  ------
+   A       1     10000           P       +     11111
+   B       8     00110           Q       /     10111
+   C       9     10110           R       -     00111
+   D       0     11110           S             00101
+   E       2     01000           T             10101
+   F             01110           U       4     10100
+   G       7     01010           V       '     11101
+   H             11010           W       ?     01101
+   I             01100           X             01001
+   J       6     10010           Y       3     00100
+   K       (     10011           Z       :     11001
+   L       =     11011           -       .     10001
+   M       )     01011           ER      ER    00011
+   N             01111           FS      SP    00010
+   O       5     11100           SP      LS    00001
+   /             11000
+
+SP è il carattere Spazio " ".
+
+Caratteri di controllo
+----------------------
+ER (ERase):
+Cancella il carattere precedente.
+Funziona allo stesso modo sia in modalità Lettera che Figura.
+
+FS (Figure Shift):
+Cambia il set di caratteri da Lettere a Figure.
+Se il decoder è già in modalità Figura, FS viene trattato come uno Spazio (cioè SP nella colonna "Lettere").
+In modalità Figura rimane in modalità Figura finché non viene ricevuto un carattere LS.
+
+LS (Letter Shift):
+Cambia il set di caratteri da Figure a Lettere.
+Se il decoder è già in modalità Lettera, LS viene trattato come Spazio.
+In modalità Lettera rimane in modalità Lettera finché non viene ricevuto un carattere FS.
+
+Ipotesi
+-------
+1) All'inizio il decoder si trova in modalità Lettera.
+2) La stringa di codice è corretta sia sintatticamente che semanticamente (per esempio, ER non può trovarsi all'inizio della stringa).
+
+(setq lettere
+      '("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "/"
+        "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" "-" "ER" "FS" "SP"))
+(length lettere)
+;-> 31
+
+(setq figure
+      '("1" "8" "9" "0" "2" "7" "6" "(" "=" ")" "5"
+        "+" "/" "-" "4" "'" "?" "3" ":" "." "ER" "SP" "LS"))
+(length figure)
+;-> 23
+
+(setq codice-lettere
+      '("10000" "00110" "10110" "11110" "01000" "01110" "01010" "11010"
+        "01100" "10010" "10011" "11011" "01011" "01111" "11100" "11000"
+        "11111" "10111" "00111" "00101" "10101" "10100" "11101" "01101"
+        "01001" "00100" "11001" "10001" "00011" "00010" "00001"))
+(length codice-lettere)
+;-> 31
+
+(setq codice-figure
+      '("10000" "00110" "10110" "11110" "01000" "01010" "10010" "10011"
+        "11011" "01011" "11100" "11111" "10111" "00111" "10100" "11101" "01101"
+        "00100" "11001" "10001" "00011" "00010" "00001"))
+(length codice-figure)
+;-> 23
+
+(setq cod-let (map list codice-lettere lettere))
+;-> (("10000" "A") ("00110" "B") ("10110" "C") ("11110" "D")
+;->  ("01000" "E") ("01110" "F") ("01010" "G") ("11010" "H")
+;->  ("01100" "I") ("10010" "J") ("10011" "K") ("11011" "L")
+;->  ("01011" "M") ("01111" "N") ("11100" "O") ("11000" "/")
+;->  ("11111" "P") ("10111" "Q") ("00111" "R") ("00101" "S")
+;->  ("10101" "T") ("10100" "U") ("11101" "V") ("01101" "W")
+;->  ("01001" "X") ("00100" "Y") ("11001" "Z") ("10001" "-")
+;->  ("00011" "ER") ("00010" "FS") ("00001" "SP"))
+(length cod-let)
+;-> 31
+
+(setq cod-fig (map list codice-figure figure))
+;-> (("10000" "1") ("00110" "8") ("10110" "9") ("11110" "0")
+;->  ("01000" "2") ("01010" "7") ("10010" "6") ("10011" "(")
+;->  ("11011" "=") ("01011" ")") ("11100" "5") ("11111" "+")
+;->  ("10111" "/") ("00111" "-") ("10100" "4") ("11101" "'")
+;->  ("01101" "?") ("00100" "3") ("11001" ":") ("10001" ".")
+;->  ("00011" "ER") ("00010" "SP") ("00001" "LS"))
+(length cod-fig)
+;-> 23
+
+(setq let-cod (map list lettere codice-lettere))
+;-> (("A" "10000") ("B" "00110") ("C" "10110") ("D" "11110")
+;->  ("E" "01000") ("F" "01110") ("G" "01010") ("H" "11010")
+;->  ("I" "01100") ("J" "10010") ("K" "10011") ("L" "11011")
+;->  ("M" "01011") ("N" "01111") ("O" "11100") ("/" "11000")
+;->  ("P" "11111") ("Q" "10111") ("R" "00111") ("S" "00101")
+;->  ("T" "10101") ("U" "10100") ("V" "11101") ("W" "01101")
+;->  ("X" "01001") ("Y" "00100") ("Z" "11001") ("-" "10001")
+;->  ("ER" "00011") ("FS" "00010") ("SP" "00001"))
+(length let-cod)
+;-> 31
+
+(setq fig-cod (map list figure codice-figure))
+;-> (("1" "10000") ("8" "00110") ("9" "10110") ("0" "11110")
+;->  ("2" "01000") ("7" "01010") ("6" "10010") ("(" "10011")
+;->  ("=" "11011") (")" "01011") ("5" "11100") ("+" "11111")
+;->  ("/" "10111") ("-" "00111") ("4" "10100") ("'" "11101")
+;->  ("?" "01101") ("3" "00100") (":" "11001") ("." "10001")
+;->  ("ER" "00011") ("SP" "00010") ("LS" "00001"))
+
+(length fig-cod)
+;-> 23
+
+Funzione di decodifica:
+
+(define (decode binary)
+  (local (out bit stato ch)
+    (setq out "")
+    (setq bit (explode binary 5))
+    ; stato iniziale: Figure
+    ;00010 SP in cod-fig
+    ;00001 SP in cod-let
+    (setq stato "L")
+    (dolist (b bit)
+            ; stato: Lettera
+      (cond ((= stato "L")
+              ; carattere corrente
+              (setq ch (lookup b cod-let))
+              (cond
+                ; ERasure: cancella ultimo carattere
+                ((= ch "ER") (pop out -1))
+                ; Letter Shift: Inserisce Spazio
+                ((= ch "LS") (extend out " "))
+                ; Figure Shift: Cambia stato
+                ((= ch "FS") (setq stato "F"))
+                ; SPace: Inserisce Spazio
+                ((= ch "SP") (extend out " "))
+                ; Inserisce carattere corrente
+                (true (extend out ch))
+              )
+            );cond (L)
+            ; stato: Figura
+            ((= stato "F")
+              ; carattere corrente
+              (setq ch (lookup b cod-fig))
+              (cond
+                ; ERasure: cancella ultimo carattere
+                ((= ch "ER") (pop out -1))
+                ; Figure Shift: Inserisce Spazio
+                ((= ch "FS") (extend out " "))
+                ; Letter Shift: Cambia stato
+                ((= ch "LS") (setq stato "L"))
+                ; SPace: Inserisce Spazio
+                ((= ch "SP") (extend out " "))
+                ; Inserisce carattere corrente
+                (true (extend out ch))
+              )
+            );cond (F)
+      );cond (L/F)
+    )
+  out))
+
+Proviamo:
+
+(decode "001101000010100111101110010101")
+;-> "BAUDOT"
+
+(decode "01111010000110111011011000010111111"))
+;-> NEWLISP
+
+(decode
+  "1011001100100001110000010100000001000001101100110010000111000001001000")
+;-> "CIAO1 CIAO2"
+
+(decode
+  "0000100010100000001000001100000000100010100110000100110000010001001011")
+;-> ( 1 A ( B ))
+
+Funzione di codifica:
+
+(define (encode str)
+  (local (out lst len stato codice ch)
+    (setq out "")
+    (setq lst (explode str))
+    (setq len (length lst))
+    ; Controllo primo carattere
+    (cond ((= (lst 0) " ") ; Spazio
+           (setq stato "L")
+           ; inserisce il codice Spazio
+           (extend out "00001"))
+          ; in quale set di codici si trova il carattere?
+          ; Lettere
+          ((lookup (lst 0) let-cod)
+            (setq stato "L")
+            (setq codice (lookup (lst 0) let-cod))
+            (extend out codice))
+          ; Figure
+          ((lookup (lst 0) fig-cod)
+            (setq stato "F")
+            ; inserisce carattere che imposta il set Figure
+            (extend out "00010") ; FS
+            (setq codice (lookup (lst 0) fig-cod))
+            (extend out codice))
+    )
+    ; ciclo sulla stringa di input
+    (for (i 1 (- len 1))
+      (setq ch (str i))
+      (cond ((= ch " ") ; Spazio
+             (if (= stato "L") (extend out "00001")
+                 (= stato "F") (extend out "00010")))
+            ; in quale set di codici si trova il carattere?
+            ; Lettere
+            ((lookup ch let-cod)
+              (setq codice (lookup ch let-cod))
+              ; controllo cambio stato
+              ; e aggiornamento stringa di output
+              (cond ((= stato "F")
+                      (setq stato "L")
+                      (extend out "00001")
+                      (extend out codice))
+                    ((= stato "L")
+                       (extend out codice))))
+            ; Figure
+            ((lookup ch fig-cod)
+              (setq codice (lookup ch fig-cod))
+              ; controllo cambio stato
+              ; e aggiornamento stringa di output
+              (cond ((= stato "L")
+                      (setq stato "F")
+                      (extend out "00010")
+                      (extend out codice))
+                    ((= stato "F")
+                       (extend out codice))))
+      )
+    )
+    out))
+
+Proviamo:
+
+(encode "NEWLISP")
+;-> "01111010000110111011011000010111111"
+(decode (encode "NEWLISP"))
+;-> NEWLISP
+
+(encode "CIAO1 CIAO2")
+;-> "1011001100100001110000010100000001000001101100110010000111000001001000"
+(decode (encode "CIAO1 CIAO2"))
+;-> "CIAO1 CIAO2"
+
+(encode " 1 A (B )")
+;-> "0000100010100000001000001100000000100010100110000100110000010001001011"
+(decode (encode " 1 A (B )"))
+;-> ( 1 A ( B ))
 
 ============================================================================
 

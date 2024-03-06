@@ -2336,6 +2336,10 @@ NOTE LIBERE 22
   Speed up the code
   Ottimizzare l'unione di stringhe
   Crivello di Eratostene visuale
+  Indent newLISP source
+  Annidare i caratteri di una stringa in una lista
+  Write the output of REPL in a file
+  Il codice Baudot
 
 PROBLEMI SUI DADI
 =================
