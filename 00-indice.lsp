@@ -2340,6 +2340,9 @@ NOTE LIBERE 22
   Annidare i caratteri di una stringa in una lista
   Write the output of REPL in a file
   Il codice Baudot
+  Codici ANSI ESCape (ESCAPE ANSI CODE)
+  Funzione matta
+  Numeri interi come somma o differenza di due quadrati
 
 PROBLEMI SUI DADI
 =================

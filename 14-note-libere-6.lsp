@@ -4,6 +4,12 @@
 
 ===============
 
+  Le regole delle funzioni:
+  1) Le funzioni devono essere piccole
+  2) Le funzioni devono essere ancora più piccole
+  3) Una funzione deve fare solo una cosa
+  4) Ogni funzione deve avere un nome autoesplicativo
+
 -------------------
 Problema di Brocard
 -------------------

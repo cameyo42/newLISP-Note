@@ -138,19 +138,19 @@ Vediamo un esempio con una matrice 3x3:
 
 Ricerca orizzontale:
 1) stringa = "10201200120"
-2) ricerca "111" --> non trovato ricerca "222" --> non trovato
+2) ricerca "111" --> non trovato, ricerca "222" --> non trovato
 
 Ricerca verticale:
 1) stringa = "11100220200"
-2) ricerca "111" --> trovato ricerca "222" --> non trovato
+2) ricerca "111" --> trovato, ricerca "222" --> non trovato
 
 Ricerca diagonale '/':
 1) stringa = "1001022100210"
-2) ricerca "111" --> non trovato ricerca "222" --> non trovato
+2) ricerca "111" --> non trovato, ricerca "222" --> non trovato
 
 Ricerca diagonale '\':
 1) stringa = "2000012001201"
-2) ricerca "111" --> non trovato ricerca "222" --> non trovato
+2) ricerca "111" --> non trovato, ricerca "222" --> non trovato
 
 Per ottenere le stringhe delle diagonali utilizziamo le funzioni "diag1" e "diag2" (leggermente modificate per creare una stringa) definite in "Attraversamento di matrici lungo le diagonali" in "Note libere 18".
 

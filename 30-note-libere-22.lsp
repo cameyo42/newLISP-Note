@@ -5740,5 +5740,261 @@ Proviamo:
 (decode (encode " 1 A (B )"))
 ;-> ( 1 A ( B ))
 
+
+-------------------------------------
+Codici ANSI ESCape (ESCAPE ANSI CODE)
+-------------------------------------
+
+;
+; ESCape ANSI codes for text attribute
+;
+; (for REPL in Command Prompt (DOS) of Windows)
+;
+; *** COLORS ***
+; Basic colors
+(define _black "\027[0;30m")
+(define _red "\027[0;31m")
+(define _green "\027[0;32m")
+(define _yellow "\027[0;33m")
+(define _blue "\027[0;34m")
+(define _magenta "\027[0;35m")
+(define _cyan "\027[0;36m")
+(define _white "\027[0;37m")
+;
+; Bright colors
+(define _black-b "\027[0;90m")
+(define _red-b "\027[0;91m")
+(define _green-b "\027[0;92m")
+(define _yellow-b "\027[0;93m")
+(define _blue-b "\027[0;94m")
+(define _magenta-b "\027[0;95m")
+(define _cyan-b "\027[0;96m")
+(define _white-b "\027[0;97m")
+;
+; Restore color to default
+; 39 = foreground, 49 = background
+(define _reset-cols "\027[39;49m")
+;(println _reset-all)
+;
+; Restore all attribute to default
+; 0 = normal attribute (ex. color),; 0 = extended attribute (ex. underline)
+(define _reset-all "\027[0;0m")
+;(println _reset-all)
+;
+; Table with 16 colors:
+;(define _col16 '(_black _red _green _yellow _blue _magenta _cyan _white
+;        black-b _red-b _green-b _yellow-b _blue-b _magenta-b _cyan-b _white-b))
+; Print colors
+;(dolist (c _col16) (println (eval c) { } c) )
+;
+; *** EFFECTS ***
+; Underline
+; ---------
+(define _underline "\027[4m")
+;
+; Clear-screen: clear screen of REPL (and put cursor 0,0)
+; -------------------------------------------------------
+(define (cls) (print "\027[H\027[2J"))
+
+;
+; Change the color (0..255) of terminal foreground (text)
+; -------------------------------------------------------
+(define (_fore color) (print (string "\027[38;5;" color "m")))
+;
+; Change the color (0..255) of terminal background
+; ------------------------------------------------
+(define (_back color) (print (string "\027[48;5;" color "m")))
+;
+; Examples:
+;(for (i 0 255) (print (_fore i) i { }))
+;(for (i 0 255) (print (_fore i) "█"))
+;(for (i 0 255) (print (_fore i) "█" "(" i ") "))
+;(for (i 0 255) (print (_fore i) "██" "(" i ") "))
+;(println _green-b "Verde brillante" _reset-all)
+;(println _red-b _underline "Rosso brillante sottolineato" _reset-all)
+;(println (_back 220) (_fore 45) "Celeste su sfondo giallo" _reset-all)
+;
+; See "ANSI-colors.png" in "data" folder:
+;(for (i 0 255) 
+;  (print (_fore i) "██" "(" (format "%03d" i) ") ")
+;  (if (zero? (% i 15)) (println)))
+
+Vedi anche "Codici ansi escape" su "newLISP in generale".
+
+
+--------------
+Funzione matta
+--------------
+
+Scrivere una funzione che restituisce tutti i suoi caratteri in modo casuale.
+
+(define (auto-random)
+  (let (src (source 'auto-random))
+    ;(replace "\r\n" src "")
+    (setq src (explode src))
+    (println (join src))
+    (join (randomize src))))
+
+(auto-random)
+;-> (define (auto-random )
+;->   (let (src (source 'auto-random))
+;->    (setq src (explode src))
+;->    (println (join src))
+;->    (join (randomize src))))
+;-> 
+;-> "(()zca\rucjr)(\rdnuieo  cs(er) r s)oir(oioq\r a)n(\rno ednn)rtu
+;-> (e\r(\nid)\n \n\n  olxrnc e(plc'sr -d\norn  n e\r)tt  sm eo-s f
+;->   ed(am  l )ci\n)arrtt(j o)pamss  "
+
+
+-----------------------------------------------------
+Numeri interi come somma o differenza di due quadrati
+-----------------------------------------------------
+
+Dato un intero positivo N, trovare tutte le coppie di interi positivi (a,b) tali che:
+
+  (a^2 + b^2 = N) oppure (a^2 - b^2 = N)
+
+Funzione che verifica se un numero intero è un quadrato perfetto:
+
+(define (square? n)
+  (let (v (+ (sqrt n 0.5)))
+    (= n (* v v))))
+
+(square? 16)
+;-> true
+(square? 12)
+;-> nil
+
+(define (coppie N)
+  (local (out1 out2 b1 b2)
+    (setq out1 '())
+    (setq out2 '())
+    (for (a 0 (+ (int (sqrt N)) 1))
+      ; caso della somma: a^2 + b^2
+      (setq b1 (- N (* a a)))
+      (if (and (>= b1 0) (square? b1))
+          (push (list a (sqrt b1)) out1 -1)
+      )
+      ; caso della differenza: a^2 - b^2
+      (setq b2 (- (* a a) N))
+      (if (and (>= b2 0) (square? b2))
+          (push (list a (sqrt b2)) out2 -1)
+      )
+    )
+    ; test solutions
+    (define (t1 a b) (+ (* a a) (* b b)))
+    (define (t2 a b) (- (* a a) (* b b)))
+    (dolist (el out1)
+      (if (!= N (t1 (el 0) (el 1)))
+          (println "Errore(+): " a { } b))
+    )
+    (dolist (el out2)
+      (if (!= N (t2 (el 0) (el 1)))
+          (println "Errore(-): " a { } b))
+    )
+    (list out1 out2)))
+
+Proviamo:
+
+(coppie 9)
+;-> (((0 3) (3 0)) ((3 0)))
+
+(coppie 16)
+;-> (((0 4) (4 0)) ((4 0) (5 3)))
+
+Dividiamo in due funzioni distinte:
+
+1) caso della somma (a^2 + b^2)
+
+(define (coppie-somma N)
+  (local (out1 b1)
+    (setq out1 '())
+    (for (a 0 (+ (int (sqrt N)) 1))
+      ; caso della somma: a^2 + b^2
+      (setq b1 (- N (* a a)))
+      (if (and (>= b1 0) (square? b1))
+          (push (list a (sqrt b1)) out1 -1)
+      )
+    )
+    ; test solutions
+    (define (t1 a b) (+ (* a a) (* b b)))
+    (dolist (el out1)
+      (if (!= N (t1 (el 0) (el 1)))
+          (println "Errore(+): " a { } b))
+    )
+    list out1))
+
+(coppie-somma 9)
+;-> ((0 3) (3 0))
+(coppie-somma 16)
+;-> ((0 4) (4 0))
+
+Vediamo quanti modi di rappresentazione (a^2 + b^2) hanno i numeri da 0 a N:
+
+Sequenza OEIS A000925:
+Number of ordered ways of writing n as a sum of 2 squares of nonnegative integers.
+  1, 2, 1, 0, 2, 2, 0, 0, 1, 2, 2, 0, 0, 2, 0, 0, 2, 2, 1, 0, 2, 0, 0, 0,
+  0, 4, 2, 0, 0, 2, 0, 0, 1, 0, 2, 0, 2, 2, 0, 0, 2, 2, 0, 0, 0, 2, 0, 0,
+  0, 2, 3, 0, 2, 2, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 2, 4, 0, 0, 2, 0, 0, 0,
+  1, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 4, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0,
+  0, 2, 1, 0, 4, ...
+
+(define (coppie-plus N)
+  (local (coppie b1)
+    (setq coppie 0)
+    (for (a 0 (+ (int (sqrt N)) 1))
+      ; caso della somma: a^2 + b^2
+      (setq b1 (- N (* a a)))
+      (if (and (>= b1 0) (square? b1)) (++ coppie))
+    )
+    coppie))
+
+Proviamo:
+
+(map coppie-plus (sequence 0 20))
+;-> (1 2 1 0 2 2 0 0 1 2 2 0 0 2 0 0 2 2 1 0 2)
+
+2) caso della differenza (a^2 - b^2)
+
+(define (coppie-diff N)
+  (local (out2 b2)
+    (setq out2 '())
+    (for (a 0 (+ (int (sqrt N)) 1))
+      ; caso della differenza: a^2 - b^2
+      (setq b2 (- (* a a) N))
+      (if (and (>= b2 0) (square? b2))
+          (push (list a (sqrt b2)) out2 -1)
+      )
+    )
+    ; test solutions
+    (define (t2 a b) (- (* a a) (* b b)))
+    (dolist (el out2)
+      (if (!= N (t2 (el 0) (el 1)))
+          (println "Errore(-): " a { } b))
+    )
+    out2))
+
+(coppie-diff 9)
+;-> ((3 0))
+(coppie-diff 16)
+;-> ((4 0) (5 3))
+
+Vediamo quanti modi di rappresentazione (a^2 - b^2) hanno i numeri da 0 a N:
+
+(define (coppie-minus N)
+  (local (coppie b2)
+    (setq coppie 0)
+    (for (a 0 (+ (int (sqrt N)) 1))
+      (setq b2 (- (* a a) N))
+      (if (and (>= b2 0) (square? b2)) (++ coppie))
+    )
+    coppie))
+
+Proviamo:
+
+(map coppie-minus (sequence 0 20))
+;-> (2 1 0 1 1 1 0 0 1 1 0 0 1 0 0 1 2 0 0 0 0)
+
 ============================================================================
 

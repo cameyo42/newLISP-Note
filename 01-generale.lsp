@@ -22,8 +22,8 @@
 And I know of no more recalcitrant a student than the computer.
 So I decided to program something i want to learn."
 
-"Se vuoi veramente capire qualcosa, insegnala. 
-E non conosco studente più recalcitrante del computer. 
+"Se vuoi veramente capire qualcosa, insegnala.
+E non conosco studente più recalcitrante del computer.
 Così ho deciso di programmare qualcosa che voglio imparare."
 
 ==============
@@ -1640,8 +1640,8 @@ Come abbiamo visto, nil, la lista vuota '() e cons funzionano diversamente in ne
 ;;
 ;;  this file proves the consistent working of 'cons' with 'first'
 ;;  and 'rest' in newLISP defining some basic list manipulating
-;;  functions. 'cons' has a different working in newLISP in the 
-;;  following cases: 
+;;  functions. 'cons' has a different working in newLISP in the
+;;  following cases:
 ;;
 ;;       (cons 1 nil) => (1 nil)  ;; would be '(1) in other LISP dialects
 ;;  and
@@ -1668,7 +1668,7 @@ Come abbiamo visto, nil, la lista vuota '() e cons funzionano diversamente in ne
 ;;
 ;; apply an operator/function to a list of args
 ;;
-(define (_apply op lst)                    
+(define (_apply op lst)
         (eval (cons op lst)))
 ;;
 ;; (_reverse lst)
@@ -1683,14 +1683,14 @@ Come abbiamo visto, nil, la lista vuota '() e cons funzionano diversamente in ne
 ;;
 ;; return last element in a list or string
 ;;
-(define (_last lst) 
+(define (_last lst)
         (if (empty? (rest lst)) (first lst) (_last (rest lst))))
 ;;
 ;; (_length lst)
 ;;
 ;; length of a list or string
 ;;
-(define (_length lst) 
+(define (_length lst)
         (if (not (first lst)) 0 (+ 1 (_length (rest lst)))))
 ;;
 ;; (_nth n lst)
@@ -1698,9 +1698,9 @@ Come abbiamo visto, nil, la lista vuota '() e cons funzionano diversamente in ne
 ;; return element of list or string at position n
 ;;
 (define (_nth n lst)
-  (cond 
+  (cond
    ((= n 0) (first lst))
-   ((empty? (rest lst)) (first lst))  
+   ((empty? (rest lst)) (first lst))
    (true (_nth (- n 1) (rest lst)))))
 
 
@@ -2218,7 +2218,7 @@ Se si stampa senza formattare newLISP sceglierà il formato "%g" e fornisce 9 ci
 Nota: quando newLISP visualizza i numeri float utilizza il formato "%g":
 
 (setq x 0.000)
-;-> 0 
+;-> 0
 
 x è un numero float (non integer).
 
@@ -3392,7 +3392,7 @@ Questo metodo supera i test per molti casi speciali importanti, come puoi vedere
 
 Ci sono alcuni casi in cui il metodo sopra produce ancora risultati imprevisti (in particolare, è molto più severo quando un valore è quasi zero rispetto a quando è esattamente zero), e alcuni dei test che sono stati sviluppati per il controllo evidenziano un comportamento che non è adatto per alcune applicazioni. Prima di usarlo, assicuratevi che sia appropriato per la vostra applicazione!
 
-Un altro metodo per confrontare A e B per l'uguaglianza approssimativa è il seguente: 
+Un altro metodo per confrontare A e B per l'uguaglianza approssimativa è il seguente:
 due numeri A e B sono "uguali" se |a-b|/max(1,|a|,|b|) <= tolleranza.
 
 (define (num-delta a b)
@@ -4075,7 +4075,7 @@ La funzione "array?" la funzione può essere utilizzata per verificare se un'esp
 
 (array? myarray)
 ;-> true
-                               
+
 (array? (array-list myarray))
 ;-> nil
 
@@ -4676,14 +4676,14 @@ result => "foo"
 
 Only on error conditions will 'catch' return 'nil'. You could use 'throw-error' for generating user-defined errors.
 
-To make the story complete see also the functions 'error-number' and 'error-text'. 
-So when 'catch' returns 'nil' you could use 'error-number' and do 'case' on the result and then use 'throw-error' if you don't want to handle the error in the program. 
+To make the story complete see also the functions 'error-number' and 'error-text'.
+So when 'catch' returns 'nil' you could use 'error-number' and do 'case' on the result and then use 'throw-error' if you don't want to handle the error in the program.
 'throw-error' does not need a 'catch' but can have one.
 
 rickyboy:
 ---------
-But I still don't think it is possible for the program (not the programmer) to detect if catch was thrown to or not. 
-Neither the return value of catch nor the value in result indicate this. 
+But I still don't think it is possible for the program (not the programmer) to detect if catch was thrown to or not.
+Neither the return value of catch nor the value in result indicate this.
 For instance, both of these values are the same in the following, yet one catch is thrown to and the other is not.
 
 (catch (throw 42) 'result) => true
@@ -5897,7 +5897,7 @@ Se il modulo non esiste otteniamo un messaggio di errore:
 (module "my.lsp")
 ;-> ERR: value expected : "my.lsp"
 
-Possiamo usare la seguente funzione per caricare un modulo: 
+Possiamo usare la seguente funzione per caricare un modulo:
 
 (define (load-module x)
     (set 'module (string (env "NEWLISPDIR") "/modules/" x))
@@ -5910,7 +5910,7 @@ che restituisce true o nil. Il messaggio di errore viene memorizzato in 'error.
 (load-module "pl.lsp")
 ;-> nil
 error
-;-> "ERR: problem accessing file in function load : 
+;-> "ERR: problem accessing file in function load :
 ;-> \"C:\\\\newlisp/modules/pl.lsp\"\r\n
 ;-> called from user function (load-module \"pl.lsp\")"
 
@@ -11203,7 +11203,8 @@ Imposta il colore dello sfondo del testo (background -> sfondo):
   ║  ESC[48;5;{ID}m  ║  Imposta il colore di sfondo
   ╚══════════════════╝
 
-Dove {ID} deve essere sostituito con l'indice dei colori da 0 a 255 della tabella raffigurata nel file "ANSI-color.png" che si trova nella cartella "data". Comunque possiamo stampare questi colori con newLISP.
+Dove {ID} deve essere sostituito con l'indice dei colori da 0 a 255 della tabella raffigurata nel file "ANSI-color.png" che si trova nella cartella "data".
+Comunque possiamo stampare questi colori con newLISP.
 
 Funzione che modifica il colore di foreground:
 
@@ -11233,6 +11234,16 @@ Espressione che stampa i 256 colori disponibili:
 ;-> 208 209 210 211 212 213 214 215 216 217 218 219 220 221 222 223 224 225
 ;-> 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 241 242 243
 ;-> 244 245 246 247 248 249 250 251 252 253 254 255
+
+(for (i 0 255) (print (foreground i) "█"))
+
+(for (i 0 255) (print (foreground i) "█" "(" i ") "))
+
+(for (i 0 255)
+  (print (_fore i) "██" "(" (format "%03d" i) ") ")
+  (if (zero? (% i 15)) (println)))
+
+Vedi "ANSI-colors.png" nella cartella "data".
 
 Naturalmente sul terminale l'output è a colori...
 
@@ -11337,6 +11348,8 @@ Come ultimo esempio vediamo l'utilizzo combinato di due sequenze: la prima posiz
   (print "\027[H\027[2J"))
 
 (cls)
+
+Vedi anche "Codici ANSI ESCape (ESCAPE ANSI CODE)" su "Note libere 22".
 
 
 =================================================================
