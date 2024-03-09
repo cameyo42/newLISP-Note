@@ -4,6 +4,17 @@
 
 ===============
 
+There is surely nothing other than the single purpose of the present moment.
+A man's whole life is a succession of moment after moment.
+If one fully understands the present moment, there will be nothing else to do,
+and nothing else to pursue.
+"Hagakure Kikigaki" by Yamamoto Tsunetomo
+
+Di certo non esiste altro che il particolare scopo del momento presente.
+Tutta la vita di un uomo è fatta di momenti che si susseguono.
+Chi sa comprendere pienamente il momento presente, non dovrà fare altro né dovrà porsi altri scopi.
+"Hagakure: Il Libro Segreto dei Samurai" di Yamamoto Tsunetomo
+
 ------------------------------
 Hash-Map Quick Reference Guide
 ------------------------------

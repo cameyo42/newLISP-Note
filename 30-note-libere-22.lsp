@@ -5996,5 +5996,232 @@ Proviamo:
 (map coppie-minus (sequence 0 20))
 ;-> (2 1 0 1 1 1 0 0 1 1 0 0 1 0 0 1 2 0 0 0 0)
 
+
+---------------------
+Multipli di un numero
+---------------------
+
+Dato un numero intero positivo N, scrivere la funzione più corta possibile per restituire i primi K multipli di N (N compreso).
+
+; 39 caratteri
+;(define (m n k) (sequence n (* n k) n))
+
+; 35 caratteri
+(define(m n k)(sequence n(* n k)n))
+
+Proviamo:
+
+(m 2 10)
+;-> (2 4 6 8 10 12 14 16 18 20)
+
+(m 5 12)
+;-> (5 10 15 20 25 30 35 40 45 50 55 60)
+
+(m 12 8)
+;-> (12 24 36 48 60 72 84 96)
+
+
+---------------
+0, 1 e decimali
+---------------
+
+Dati due numeri interi Z e U (0 < (Z + U) <= 16), che rappresentano rispettivamente il numero di zeri (0) e di uno (1), generare tutti i possibili equivalenti decimali dei numeri binari creati utilizzando solo gli zeri e gli uno dati.
+
+Per esempio:
+
+  Z = 1, U = 1
+  bin    dec
+  01 --> 1
+  10 --> 2
+  Output = (1 2)
+
+  Z = 3, U = 2
+  bin       dec
+  00011 -->  3  
+  00101 -->  5  
+  00110 -->  6  
+  01001 -->  9  
+  01010 --> 10 
+  01100 --> 12 
+  10001 --> 17 
+  10010 --> 18 
+  10100 --> 20 
+  11000 --> 24 
+  Output = (3 5 6 9 10 12 17 18 20 24)
+
+Tutti i numeri positivi binari con Z zeri e U uno sono chiaramente minori di 2^(Z+U), poiché la rappresentazione binaria di quest'ultimo ha (Z + U + 1) cifre.
+Quindi iteriamo gli interi nell'intervallo [0, 2^(Z+U)-1] e manteniamo tutti gli interi n che hanno U unità.
+Poiché n < 2^(Z+U), questo può essere rappresentato con Z (o meno) zeri.
+
+(define (find-decimal a b)
+  (let (out '())
+    (for (i 1 (- (pow 2 (+ a b)) 1))
+      (if (= (length (find-all "1" (bits i))) b)
+        (begin
+          ;(println i { } (bits i))
+          (push i out -1)
+        )
+      )
+    )
+  out))
+
+Proviamo:
+
+(find-decimal 1 1)
+;-> (1 2)
+(find-decimal 3 2)
+;-> (3 5 6 9 10 12 17 18 20 24)
+(find-decimal 5 5)
+;-> (31 47 55 59 61 62 79 87 91 93 94 103 107 109 110 115 117 118 121
+;->  122 124 143 151 155 157 158 167 171 173 174 179 181 182 185 186 188
+;->  199 203 205 206 211 213 214 217 218 220 227 229 230 233 234 236 241
+;->  242 244 248 271 279 283 285 286 295 299 301 302 307 309 310 313 314
+;->  316 327 331 333 334 339 341 342 345 346 348 355 357 358 361 362 364
+;->  369 370 372 376 391 395 397 398 403 405 406 409 410 412 419 421 422
+;->  425 426 428 433 434 436 440 451 453 454 457 458 460 465 466 468 472
+;->  481 482 484 488 496 527 535 539 541 542 551 555 557 558 563 565 566
+;->  569 570 572 583 587 589 590 595 597 598 601 602 604 611 613 614 617
+;->  618 620 625 626 628 632 647 651 653 654 659 661 662 665 666 668 675
+;->  677 678 681 682 684 689 690 692 696 707 709 710 713 714 716 721 722
+;->  724 728 737 738 740 744 752 775 779 781 782 787 789 790 793 794 796
+;->  803 805 806 809 810 812 817 818 820 824 835 837 838 841 842 844 849
+;->  850 852 856 865 866 868 872 880 899 901 902 905 906 908 913 914 916
+;->  920 929 930 932 936 944 961 962 964 968 976 992)
+
+
+------------------
+BubbleSort visuale
+------------------
+
+Vedi anche "BubbleSort" su "Funzioni varie".
+
+Funzione di base del BubbleSort:
+
+(define (bubbleSort lst)
+  (local (len cambio)
+    (setq len (length lst))
+    (setq cambio true)
+    (while cambio
+      (setq cambio nil)
+      (for (i 1 (- len 1))
+        (cond ((< (lst i) (lst (- i 1)))
+               (swap (lst i) (lst (- i 1)))
+               (setq cambio true))
+        )
+      )
+      (-- j)
+    )
+  )
+  lst)
+
+(bubbleSort '(5 10 9 8 7 8 6 7 5 4 3 4 5))
+;-> (3 4 4 5 5 5 6 7 7 8 8 9 10)
+
+(bubbleSort (randomize (sequence 1 20)))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+
+Funzione che visualizza l'algoritmo del BubbleSort:
+
+(define (bs lst)
+  (local (iter len cambio)
+    (setq iter 0)
+    (setq len (length lst))
+    (setq cambio true)
+    (while cambio
+      (++ iter)
+      (println "Iterazione: " iter)
+      (println "Lista: " lst)
+      (setq cambio nil)
+      (for (i 1 (- len 1))
+        (cond ((< (lst i) (lst (- i 1)))
+               (print (lst i) " < " (lst (- i 1)) " --> scambio: ")
+               (println "lista(" i ")=" (lst i) " e lista(" (- i 1) ")=" (lst (- i 1)))
+               (swap (lst i) (lst (- i 1)))
+               (print lst )(read-line)
+               (setq cambio true))
+        )
+      )
+      (-- j)
+    )
+    (println "Nessuno scambio --> lista ordinata")
+  lst))
+
+Proviamo:
+
+(setq a '(4 6 3 8 2 9 1))
+(bs a)
+;-> Iterazione: 1
+;-> Lista: (4 6 3 8 2 9 1)
+;-> 3 < 6 --> scambio: lista(2)=3 e lista(1)=6
+;-> (4 3 6 8 2 9 1)
+;-> 2 < 8 --> scambio: lista(4)=2 e lista(3)=8
+;-> (4 3 6 2 8 9 1)
+;-> 1 < 9 --> scambio: lista(6)=1 e lista(5)=9
+;-> (4 3 6 2 8 1 9)
+;-> Iterazione: 2
+;-> Lista: (4 3 6 2 8 1 9)
+;-> 3 < 4 --> scambio: lista(1)=3 e lista(0)=4
+;-> (3 4 6 2 8 1 9)
+;-> 2 < 6 --> scambio: lista(3)=2 e lista(2)=6
+;-> (3 4 2 6 8 1 9)
+;-> 1 < 8 --> scambio: lista(5)=1 e lista(4)=8
+;-> (3 4 2 6 1 8 9)
+;-> Iterazione: 3
+;-> Lista: (3 4 2 6 1 8 9)
+;-> 2 < 4 --> scambio: lista(2)=2 e lista(1)=4
+;-> (3 2 4 6 1 8 9)
+;-> 1 < 6 --> scambio: lista(4)=1 e lista(3)=6
+;-> (3 2 4 1 6 8 9)
+;-> Iterazione: 4
+;-> Lista: (3 2 4 1 6 8 9)
+;-> 2 < 3 --> scambio: lista(1)=2 e lista(0)=3
+;-> (2 3 4 1 6 8 9)
+;-> 1 < 4 --> scambio: lista(3)=1 e lista(2)=4
+;-> (2 3 1 4 6 8 9)
+;-> Iterazione: 5
+;-> Lista: (2 3 1 4 6 8 9)
+;-> 1 < 3 --> scambio: lista(2)=1 e lista(1)=3
+;-> (2 1 3 4 6 8 9)
+;-> Iterazione: 6
+;-> Lista: (2 1 3 4 6 8 9)
+;-> 1 < 2 --> scambio: lista(1)=1 e lista(0)=2
+;-> (1 2 3 4 6 8 9)
+;-> Iterazione: 7
+;-> Lista: (1 2 3 4 6 8 9)
+;-> Nessuno scambio --> lista ordinata
+;-> (1 2 3 4 6 8 9)
+
+(setq b '(4 3 2 1))
+(bs b)
+;-> Iterazione: 1
+;-> Lista: (4 3 2 1)
+;-> 3 < 4 --> scambio: lista(1)=3 e lista(0)=4
+;-> (3 4 2 1)
+;-> 2 < 4 --> scambio: lista(2)=2 e lista(1)=4
+;-> (3 2 4 1)
+;-> 1 < 4 --> scambio: lista(3)=1 e lista(2)=4
+;-> (3 2 1 4)
+;-> Iterazione: 2
+;-> Lista: (3 2 1 4)
+;-> 2 < 3 --> scambio: lista(1)=2 e lista(0)=3
+;-> (2 3 1 4)
+;-> 1 < 3 --> scambio: lista(2)=1 e lista(1)=3
+;-> (2 1 3 4)
+;-> Iterazione: 3
+;-> Lista: (2 1 3 4)
+;-> 1 < 2 --> scambio: lista(1)=1 e lista(0)=2
+;-> (1 2 3 4)
+;-> Iterazione: 4
+;-> Lista: (1 2 3 4)
+;-> Nessuno scambio --> lista ordinata
+;-> (1 2 3 4)
+
+(setq c '(1 2 3 4))
+(bs c)
+;-> Iterazione: 1
+;-> Lista: (1 2 3 4)
+;-> Nessuno scambio --> lista ordinata
+;-> (1 2 3 4)
+
 ============================================================================
 

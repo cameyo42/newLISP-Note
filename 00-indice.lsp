@@ -2343,6 +2343,9 @@ NOTE LIBERE 22
   Codici ANSI ESCape (ESCAPE ANSI CODE)
   Funzione matta
   Numeri interi come somma o differenza di due quadrati
+  Multipli di un numero
+  0, 1 e decimali
+  BubbleSort visuale
 
 PROBLEMI SUI DADI
 =================

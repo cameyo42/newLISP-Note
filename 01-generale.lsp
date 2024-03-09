@@ -7358,6 +7358,11 @@ Esempio 1
 
 Esempio 2
 ----------
+Cambia spazi multipli con un solo spazio
+(replace {[" "]+} "a    b" " " 0)
+;-> "a b"
+$0
+;-> "    "
 
 
 =======

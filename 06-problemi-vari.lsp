@@ -53,7 +53,7 @@ Versione ricorsiva:
 Versione iterativa:
 
 (define (bubbleSort lst)
-  (local (i j continua)
+  (local (j continua)
     (setq continua 1)
     (setq j (length lst))
     (while (= continua 1)
@@ -66,12 +66,12 @@ Versione iterativa:
       )
       (-- j)
     )
-  )
-  lst
-)
+  lst))
 
 (bubbleSort '(5 10 9 8 7 8 6 7 5 4 3 4 5))
 ;-> (3 4 4 5 5 5 6 7 7 8 8 9 10)
+
+Vedi anche "BubbleSort visuale" su "Note libere 22".
 
 
 ---------
