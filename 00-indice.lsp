@@ -2346,6 +2346,8 @@ NOTE LIBERE 22
   Multipli di un numero
   0, 1 e decimali
   BubbleSort visuale
+  slice all (sottoliste e sottostringhe)
+  Numeri segmentati
 
 PROBLEMI SUI DADI
 =================

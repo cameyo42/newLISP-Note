@@ -6223,5 +6223,171 @@ Proviamo:
 ;-> Nessuno scambio --> lista ordinata
 ;-> (1 2 3 4)
 
+
+--------------------------------------
+slice all (sottoliste e sottostringhe)
+--------------------------------------
+
+Data una lista (o una stringa), generare tutte le sottoliste (sottostringhe) contigue:
+
+  lista (a1, a2, ... an)
+  sottoliste contigue:
+  (a1) (a1 a2) ... (a1 a2 ... an)
+  (a2) (a2 a3) ... (a2 ... an)
+  ...
+  (an)
+
+Per esempio:
+
+  lista = (1 2 3 4)
+  Output:
+  (1) (12) (123) (1234)
+  (2) (23) (234)
+  (3) (34)
+  (4)
+
+In pratica si tratta di effettuare ogni "slice" possibile della lista (stringa):
+
+Prima riga:
+(slice 0 1)
+(slice 0 2)
+...
+(slice 0 n)
+
+Seconda riga:
+(slice 1 1)
+(slice 1 2)
+...
+(slice 1 n)
+
+I-esima riga:
+(slice i 1)
+(slice i 2)
+...
+(slice i n)
+
+N-esima riga:
+(slice n 1)
+
+Possiamo scrivere una funzione unica che si applica sia alle liste che alle stringhe.
+
+Funzione che genera tutte le sottoliste (sottostringhe) contigue:
+
+(define (slice-all obj)
+  (let ( (out '()) (len (length obj)) )
+    (for (i 0 (- len 1))
+      (for (j 1 (- len i))
+        (push (slice obj i j) out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(slice-all "1234")
+;-> ("1" "12" "123" "1234" "2" "23" "234" "3" "34" "4")
+(slice-all '(1 2 3 4))
+;-> ((1) (1 2) (1 2 3) (1 2 3 4) (2) (2 3) (2 3 4) (3) (3 4) (4))
+
+(length (slice-all "1234"))
+;-> 10
+(length (slice-all "12345"))
+;-> 15
+(length (slice-all "123456"))
+;-> 21
+(length (slice-all "1234567"))
+;-> 28
+(length (slice-all "1234567"))
+
+Nota: il numero delle sottoliste/sottostringhe è dato dalla somma dei numeri da 1 fino alla lunghezza della lista/stringa iniziale:
+
+  lunghezza-output = Sum[1..lunghezza-input] = 
+  = (lunghezza-input*(lunghezza-input+1))/2
+
+
+-----------------
+Numeri segmentati
+-----------------
+
+I numeri segmentati (OEIS A002048) è la sequenza di numeri tale che ciascun membro è il più piccolo numero positivo (maggiore di zero) che non può essere composto da una somma di numeri consecutivi precedenti, partendo con a(0) = 1.
+
+Sequenza OEIS: A002048
+  1, 2, 4, 5, 8, 10, 14, 15, 16, 21, 22, 25, 26, 28, 33, 34, 35, 36, 38,
+  40, 42, 46, 48, 49, 50, 53, 57, 60, 62, 64, 65, 70, 77, 80, 81, 83, 85,
+  86, 90, 91, 92, 100, 104, 107, 108, 116, 119, 124, 127, 132, 133, 137,
+  141, 144, 145, 148, 150, 151, 154, 158, 159, 163, 165, ...
+
+Esempio
+  a(0) = 1
+  a(1) = 2
+  a(2) = 4 (perchè 3 può essere formato con 1 + 2)
+  a(3) = 5
+  a(4) = 8 (perchè 6=2+4 e 7=1+2+4)
+  a(5) = 10 (perchè 9=4+5)
+  a(6) = 14 (perchè 11=2+4+5, 12=1+2+4+5 e 13=5+8)
+  ...
+
+Funzione che calcola tutte le sottoliste contigue:
+
+(define (slice-all obj)
+  (let ( (out '()) (len (length obj)) )
+    (for (i 0 (- len 1))
+      (for (j 1 (- len i))
+        (push (slice obj i j) out -1)
+      )
+    )
+    out))
+
+(slice-all '(1 2 4))
+;-> ((1) (1 2) (1 2 4) (2) (2 4) (4))
+
+(map (fn(x) (apply + x)) (slice-all '(1 2 4)))
+;-> (1 3 7 2 6 4)
+
+(define (segmentati limite)
+  (local (out somme max-somme new-value)
+    (setq out '(1))
+    (for (i 1 (- limite 1))
+      ; calcola tutte le somme possibili con gli elementi della lista out
+      (setq somme (map (fn(x) (apply + x)) (slice-all out)))
+      ; trova il valore massimo delle somme
+      (setq max-somma (apply max somme))
+      ; per trovare il nuovo valore da inserire nella sequenza
+      ; calcoliamo la differenza tra la sequenza (1...(max-somma+1)) e
+      ; la lista delle somme.
+      ; Il primo numero della differenza è il nuovo valore da inserire
+      (setq new-value (first (difference (sequence 1 (+ max-somma 1)) somme)))
+      (push new-value out -1)
+      ;(println new-value)
+      ;(print out) (read-line)
+    )
+    out))
+
+Proviamo:
+
+(segmentati 10)
+;-> (1 2 4 5 8 10 14 15 16 21)
+
+(segmentati 100)
+;-> (1 2 4 5 8 10 14 15 16 21 22 25 26 28 33 34 35 36 38 40 42 46 48 49
+;->  50 53 57 60 62 64 65 70 77 80 81 83 85 86 90 91 92 100 104 107 108
+;->  116 119 124 127 132 133 137 141 144 145 148 150 151 154 158 159 163
+;->  165 172 173 174 175 178 180 182 184 187 188 195 198 201 206 207 208
+;->  213 219 221 222 226 228 231 233 236 241 242 245 247 248 253 256 262
+;->  266 268 272 274)
+
+Nota: Senza il requisito che le somme siano formate solo con i termini minori consecutivi, la sequenza diventa la sequenza delle potenze di 2 (Sequenza OEIS: A000079).
+
+La funzione è lenta.
+
+(time (segmentati 100))
+;-> 403.305
+
+(time (segmentati 150))
+;-> 4100.817
+
+(time (segmentati 200))
+;-> 20690.252
+
 ============================================================================
 
