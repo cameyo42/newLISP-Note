@@ -2348,6 +2348,8 @@ NOTE LIBERE 22
   BubbleSort visuale
   slice all (sottoliste e sottostringhe)
   Numeri segmentati
+  Poligoni costruibili con riga e compasso
+  Caratteri con matrice 5x5
 
 PROBLEMI SUI DADI
 =================

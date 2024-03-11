@@ -6389,5 +6389,182 @@ La funzione è lenta.
 (time (segmentati 200))
 ;-> 20690.252
 
+Vediamo una implementazione in C fornita da Samuel B. Reid:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+int main(int argc, char **argv)
+{
+  if (argc == 2) {
+    uint64_t max = strtoull(argv[1], NULL, 10);
+    uint64_t *terms = calloc((((max + 1) >> 6) + 1), sizeof(*terms));
+    for (uint64_t i = 1; i <= max; i++) {
+      if (!((terms[i >> 6] >> (i & 0x3F)) & 1)) {
+        printf("%lu ", i);
+        uint64_t total = i;
+        for (uint64_t j = i - 1; j >= 1; j--) {
+          if (!((terms[j >> 6] >> (j & 0x3F)) & 1)) {
+            total += j;
+            if (total > max) {
+              break;
+            }
+            terms[total >> 6] |= (1ULL << (total & 0x3F));
+          }
+        }
+      }
+    }
+    free(terms);
+  }
+  printf("\n");
+  return 0;
+}
+
+
+----------------------------------------
+Poligoni costruibili con riga e compasso
+----------------------------------------
+
+Un n-gono costruibile è un poligono regolare con n lati che è possibile utilizzando solo un compasso e un righello non contrassegnato.
+
+Gauss ha dimostrato che l'unico n per cui un n-gono è costruibile è un prodotto di un numero qualsiasi di numeri primi di Fermat distinti e una potenza di 2 (cioè n=2^k*p1*p2*... con k essendo un numero intero e ogni p(i) un primo di Fermat distinto).
+
+Un primo di Fermat è un numero primo che può essere espresso come 2^(2^𝑛) + 1 con n un intero positivo.
+Gli unici primi di Fermat conosciuti sono per n=0,1,2,3 e 4.
+
+Inoltre risulta che un poligono con n lati è costruibile se il toziente di n è una potenza di 2.
+
+Scrivere una funzione che genera la sequenza dei lati dei poligoni che sono costruibili.
+
+Sequenza OEIS: A003401
+Numbers of edges of regular polygons constructible with ruler and compass.
+  1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 16, 17, 20, 24, 30, 32, 34, 40, 48, 51,
+  60, 64, 68, 80, 85, 96, 102, 120, 128, 136, 160, 170, 192, 204, 240, 255,
+  256, 257, 272, 320, 340, 384, 408, 480, 510, 512, 514, 544, 640, 680, 768,
+  771, 816, 960, 1020, 1024, 1028, 1088, 1280, 1285, ...
+
+(define (totient num)
+"Calculates the eulero totient of a given number"
+  (if (= num 1) 1
+    (let (res num)
+      (dolist (f (unique (factor num)))
+        (setq res (- res (/ res f))))
+      res)))
+
+(define (power-of-2? num)
+"Checks if an integer is a power of 2"
+  (zero? (& num (- num 1))))
+
+(define (sides limite)
+  (let (out '(1 2))
+    (for (i 3 limite)
+      (if (power-of-2? (totient i)) (push i out -1))
+    )
+    out))
+
+Proviamo:
+
+(sides 200)
+;-> (1 2 3 4 5 6 8 10 12 15 16 17 20 24 30 32 34 40 48 51 60 
+;->  64 68 80 85 96 102 120 128 136 160 170 192)
+
+
+-------------------------
+Caratteri con matrice 5x5
+-------------------------
+
+Funzione che genera i caratteri maiuscoli con matrici 5x5:
+
+(define (load-data)
+  (setq a '((0 0 1 0 0) (0 1 0 1 0) (1 0 0 0 1) (1 1 1 1 1) (1 0 0 0 1)))
+  (setq b '((1 1 1 1 0) (1 0 0 0 1) (1 1 1 1 0) (1 0 0 0 1) (1 1 1 1 0)))
+  (setq c '((0 1 1 1 1) (1 0 0 0 0) (1 0 0 0 0) (1 0 0 0 0) (0 1 1 1 1)))
+  (setq d '((1 1 1 1 0) (1 0 0 0 1) (1 0 0 0 1) (1 0 0 0 1) (1 1 1 1 0)))
+  (setq e '((1 1 1 1 1) (1 0 0 0 0) (1 1 1 0 0) (1 0 0 0 0) (1 1 1 1 1)))
+  (setq f '((1 1 1 1 1) (1 0 0 0 0) (1 1 1 0 0) (1 0 0 0 0) (1 0 0 0 0)))
+  (setq g '((0 1 1 1 1) (1 0 0 0 0) (1 0 0 1 1) (1 0 0 0 1) (0 1 1 1 1)))
+  (setq h '((1 0 0 0 1) (1 0 0 0 1) (1 1 1 1 1) (1 0 0 0 1) (1 0 0 0 1)))
+  (setq i '((1 1 1 1 1) (0 0 1 0 0) (0 0 1 0 0) (0 0 1 0 0) (1 1 1 1 1)))
+  (setq j '((1 1 1 1 1) (0 0 0 1 0) (0 0 0 1 0) (1 0 0 1 0) (0 1 1 0 0)))
+  (setq k '((1 0 0 0 1) (1 0 0 1 0) (1 1 1 0 0) (1 0 0 1 0) (1 0 0 0 1)))
+  (setq l '((1 0 0 0 0) (1 0 0 0 0) (1 0 0 0 0) (1 0 0 0 0) (1 1 1 1 1)))
+  (setq m '((1 0 0 0 1) (1 1 0 1 1) (1 0 1 0 1) (1 0 0 0 1) (1 0 0 0 1)))
+  (setq n '((1 0 0 0 1) (1 1 0 0 1) (1 0 1 0 1) (1 0 0 1 1) (1 0 0 0 1)))
+  (setq o '((0 1 1 1 0) (1 0 0 0 1) (1 0 0 0 1) (1 0 0 0 1) (0 1 1 1 0)))
+  (setq p '((1 1 1 1 0) (1 0 0 0 1) (1 1 1 1 0) (1 0 0 0 0) (1 0 0 0 0)))
+  (setq q '((0 1 1 1 0) (1 0 0 0 1) (1 0 1 0 1) (1 0 0 1 0) (0 1 1 0 1)))
+  (setq r '((1 1 1 1 0) (1 0 0 0 1) (1 1 1 1 0) (1 0 0 0 1) (1 0 0 0 1)))
+  (setq s '((0 1 1 1 1) (1 0 0 0 0) (0 1 1 1 0) (0 0 0 0 1) (1 1 1 1 0)))
+  (setq t '((1 1 1 1 1) (0 0 1 0 0) (0 0 1 0 0) (0 0 1 0 0) (0 0 1 0 0)))
+  (setq u '((1 0 0 0 1) (1 0 0 0 1) (1 0 0 0 1) (1 0 0 0 1) (0 1 1 1 0)))
+  (setq v '((1 0 0 0 1) (1 0 0 0 1) (1 0 0 0 1) (0 1 0 1 0) (0 0 1 0 0)))
+  (setq w '((1 0 0 0 1) (1 0 0 0 1) (1 0 1 0 1) (1 1 0 1 1) (1 0 0 0 1)))
+  (setq x '((1 0 0 0 1) (0 1 0 1 0) (0 0 1 0 0) (0 1 0 1 0) (1 0 0 0 1)))
+  (setq y '((1 0 0 0 1) (0 1 0 1 0) (0 0 1 0 0) (0 0 1 0 0) (0 0 1 0 0)))
+  (setq z '((1 1 1 1 1) (0 0 0 1 0) (0 0 1 0 0) (0 1 0 0 0) (1 1 1 1 1)))
+  (setq lst '(a b c d e f g h i j k l m n o p q r s t u v w x y z))
+  (setq link (map (fn(ch) (list $idx (eval ch))) lst)))
+
+Funzione che stampa una matrice (caratteri):
+
+(define (print-matrix matrix ch)
+  (setq rows (length matrix))
+  (setq cols (length (matrix 0)))
+  (for (r 0 (- rows 1))
+    (for (c 0 (- cols 1))
+      (if (= (matrix r c) 1) 
+          (print ch)
+          ;else
+          (print " ")
+      )
+    )
+    (println)
+  )
+  '>)
+
+Funzione che crea la matrice di caratteri di una stringa:
+
+(define (string-matrix str spaces)
+  (local (len out cur-row idx)
+    (load-data)
+    (setq str (upper-case str))
+    (setq len (length str))
+    (setq out '())
+    (for (r 0 4)
+      (setq cur-row '())
+      (for (k 0 (- len 1))
+        (setq idx (- (char (str k)) (char "A")))
+        ;(println idx)
+        ;(print (lookup idx link)) (read-line)
+        (extend cur-row ((lookup idx link) r) (dup 0 spaces))
+      )
+      (push cur-row out -1)
+    )
+    out))
+
+Proviamo:
+
+(print-matrix (string-matrix "newlisp" 2) "*")
+;-> *   *  *****  *   *  *      *****   ****  ****
+;-> **  *  *      *   *  *        *    *      *   *
+;-> * * *  ***    * * *  *        *     ***   ****
+;-> *  **  *      ** **  *        *        *  *
+;-> *   *  *****  *   *  *****  *****  ****   *
+
+(print-matrix (string-matrix "newlisp" 2) "■")
+;-> ■   ■  ■■■■■  ■   ■  ■      ■■■■■   ■■■■  ■■■■
+;-> ■■  ■  ■      ■   ■  ■        ■    ■      ■   ■
+;-> ■ ■ ■  ■■■    ■ ■ ■  ■        ■     ■■■   ■■■■
+;-> ■  ■■  ■      ■■ ■■  ■        ■        ■  ■
+;-> ■   ■  ■■■■■  ■   ■  ■■■■■  ■■■■■  ■■■■   ■
+
+(print-matrix (string-matrix "newlisp" 2) "█")
+;-> █   █  █████  █   █  █      █████   ████  ████
+;-> ██  █  █      █   █  █        █    █      █   █
+;-> █ █ █  ███    █ █ █  █        █     ███   ████
+;-> █  ██  █      ██ ██  █        █        █  █
+;-> █   █  █████  █   █  █████  █████  ████   █
+
 ============================================================================
 
