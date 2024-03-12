@@ -6566,5 +6566,74 @@ Proviamo:
 ;-> █  ██  █      ██ ██  █        █        █  █
 ;-> █   █  █████  █   █  █████  █████  ████   █
 
+
+------------------------------------------------
+Rettangolo minimo di inclusione di circonferenze
+------------------------------------------------
+
+Dato una lista di circonferenze (centro e raggio), generare le coordinate del rettangolo più piccolo che contiene tutti le circonferenze.
+
+    ul (x-min y-max)                   ur (x-max y-max)
+     +---------------------------------+              
+     |             |                   | 
+     |    |      --+--                 |
+     |    |        | C2        |       |
+     |----+----                |       |
+     |    | C1                 |       |
+     |    |             -------+-------|
+     |                         | C3    |
+     |                         |       |
+     |                         |       |
+     +---------------------------------+
+    ll (x-min y-min)                   lr (x-max y-min)
+
+(define (circle-xmax x y r) (list (sub x r) (add x r)))
+(define (circle-ymax x y r) (list (sub y r) (add y r)))
+
+lista = ((x1 y1 r1) (x2 y2 r2) ... (xn yn rn))
+
+(setq lst '((0 0 5) (4 4 4) (2 2 2)))
+(apply circle-xmax '(0 0 5))
+;-> (-5 5)
+(apply circle-ymax '(4 4 4))
+;-> (0 8)
+
+Funzione che calcola il rettangolo che include tutti i cerchi:
+
+(define (rect-all lst ll ul ur lr area)
+  (local (x-ccord y-coord x-max y-max x-min x-y-min)
+    (setq x-coord (map (fn(z) (apply circle-xmax z)) lst))
+    (setq y-coord (map (fn(z) (apply circle-ymax z)) lst))
+    (setq x-coord (flat x-coord))
+    (setq y-coord (flat y-coord))
+    (setq x-max (apply max x-coord))
+    (setq y-max (apply max y-coord))
+    (setq x-min (apply min x-coord))
+    (setq y-min (apply min y-coord))  
+    ; lower-left
+    (setq ll (list x-min y-min))
+    ;upper-left
+    (setq ul (list x-min y-max))
+    ; upper-right
+    (setq ur (list x-max y-max))
+    ; lower-right
+    (setq lr (list x-max y-min))
+    (setq area (mul (sub x-max x-min) (sub y-max y-min)))
+    (list area ll ul ur lr)))
+
+Proviamo:
+
+(rect-all lst)
+;-> (169 (-5 -5) (-5 8) (8 8) (8 -5))
+
+(rect-all '((-1 -1 5) (0 0 12) (-5 -3 8)))
+;-> (600 (-13 -12) (-13 12) (12 12) (12 -12))
+
+Nota: se le circonferenze sono libere di muoversi, allora ci troviamno di fronte ad un problema  "quadratically-constrained quadratic program" e trovare l'ottimo globale per un QCQP non convesso è NP-hard.
+Per problemi di questo tipo possiamo utilizzare il programma free "SCIP", disponibile al seguente indirizzo web: https://www.scipopt.org/.
+"SCIP is currently one of the fastest non-commercial solvers for mixed integer programming (MIP) and mixed integer nonlinear programming (MINLP). 
+It is also a framework for constraint integer programming and branch-cut-and-price.
+It allows for total control of the solution process and the access of detailed information down to the guts of the solver."
+
 ============================================================================
 

@@ -2350,6 +2350,7 @@ NOTE LIBERE 22
   Numeri segmentati
   Poligoni costruibili con riga e compasso
   Caratteri con matrice 5x5
+  Rettangolo minimo di inclusione di circonferenze
 
 PROBLEMI SUI DADI
 =================
