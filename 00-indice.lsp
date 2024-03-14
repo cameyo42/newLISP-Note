@@ -2351,6 +2351,9 @@ NOTE LIBERE 22
   Poligoni costruibili con riga e compasso
   Caratteri con matrice 5x5
   Rettangolo minimo di inclusione di circonferenze
+  Conversione da stringa numerica a big-integer
+  Numeri biografici
+  Numeri autobiografici
 
 PROBLEMI SUI DADI
 =================

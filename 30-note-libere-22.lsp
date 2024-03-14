@@ -6635,5 +6635,357 @@ Per problemi di questo tipo possiamo utilizzare il programma free "SCIP", dispon
 It is also a framework for constraint integer programming and branch-cut-and-price.
 It allows for total control of the solution process and the access of detailed information down to the guts of the solver."
 
+
+---------------------------------------------
+Conversione da stringa numerica a big-integer
+---------------------------------------------
+
+Per convertire una stringa numerica in un numero intero possiamo usare la funzione "int".
+Per esempio:
+
+(int "3652")
+;-> 3652
+
+Purtroppo la funzione int non si applica ai numeri big-integer:
+
+(int "34585725372834572357423475")
+;-> -1
+
+Scriviamo una funzione che converte una stringa numerica in big-integer:
+
+(define (string-int str)
+"Convert a numeric string to big-integer"
+  (let (num 0L)
+    (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))))
+
+Proviamo:
+
+(string-int "3652")
+;-> 3652L
+(integer? 3652L)
+;-> true
+(bigint? 3652L)
+;-> true
+
+(string-int "34585725372834572357423475")
+;-> 34585725372834572357423475L
+(integer? 34585725372834572357423475L)
+;-> true
+(bigint? 34585725372834572357423475L) 
+;-> true
+
+Per convertire un big-integer in intero (se possibile) possiamo usare la seguente funzione:
+
+(define (bigint-int num)
+  (let ( (MAX-INT 9223372036854775807) (MIN-INT -9223372036854775808) )
+    (if (or (< num MIN-INT) (> num MAX-INT))
+        num
+        (+ 0 num))))
+
+Proviamo:
+
+(bigint-int 3652L)
+;-> 3652
+
+(bigint-int 34585725372834572357423475L)
+;-> 34585725372834572357423475L
+
+
+-----------------
+Numeri biografici
+-----------------
+
+I numeri biografici sono numeri che descrivono un numero.
+Vediamo come funziona il processo di descrizione di un numero:
+  Per ogni cifra da 0 a 9 presente nel numero,
+  prendere la frequenza di quella cifra e poi la cifra.
+
+Per esempio:
+  N = 102422
+  cifra   frequenza   sequenza
+    0        1        10
+    1        1        11
+    2        3        32
+    4        1        14
+  Output = 10113214
+
+Altri esempi:
+  0 --> Uno 0 --> 10
+  1 --> Un 1 --> 11
+  2 --> Un 2 --> 12
+  ...
+  30 --> Un 3 e Uno 0 --> 1013 (ordine crescente delle cifre del numero)
+
+Sequenza OEIS: A047842
+Describe n (count digits in order of increasing value, ignoring missing digits)
+  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 1011, 21, 1112, 1113, 1114, 1115,
+  1116, 1117, 1118, 1119, 1012, 1112, 22, 1213, 1214, 1215, 1216, 1217, 1218,
+  1219, 1013, 1113, 1213, 23, 1314, 1315, 1316, 1317, 1318, 1319, 1014, 1114,
+  1214, 1314, 24, 1415, 1416, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che "descrive" un numero:
+
+(define (descrizione num)
+  (local (lst uniq conta coppie out)
+    (setq lst (sort (int-list num)))
+    ; cifre uniche
+    (setq uniq (unique lst))
+    ; conta la frequenza delle cifre uniche
+    (setq conta (count uniq lst))
+    ; crea la lista delle coppie frequenza-cifra
+    (setq coppie (flat (map list conta uniq)))
+    ; unisce le coppie in un unica stringa
+    (setq out (join (map string coppie)))
+    ; rimuove eventuali "L" per i big-integer
+    (replace "L" out "")))
+
+Nota: MAX-INT = 9223372036854775807
+
+Proviamo:
+
+(descrizione 102422)
+;-> "10113214"
+
+(descrizione 30)
+;-> "1013"
+
+(descrizione 12345678901234567890)
+;-> "20212223242526272829"
+     
+(map descrizione (sequence 1 50))
+;-> ("11" "12" "13" "14" "15" "16" "17" "18" "19" "1011" "21" "1112" "1113"
+;->  "1114" "1115" "1116" "1117" "1118" "1119" "1012" "1112" "22" "1213"
+;->  "1214" "1215" "1216" "1217" "1218" "1219" "1013" "1113" "1213" "23"
+;->  "1314" "1315" "1316" "1317" "1318" "1319" "1014" "1114" "1214" "1314"
+;->  "24" "1415" "1416" "1417" "1418" "1419" "1015")
+
+Questo processo di descrizione non ci permette di risalire al numero originario perchè non è una funzione biunivoca, cioè alcuni numeri originari hanno la stessa rappresentazione.
+Per esempio:
+
+(descrizione 18)
+;-> "1118"
+(descrizione 81)
+;-> "1118"
+
+Questo è dovuto al fatto che ordiniamo le cifre in modo crescente.
+Per poter risalire al numero originario basta non ordinare le cifre del numero:
+
+(define (descrizione-lineare num)
+  (local (lst uniq conta coppie out)
+    (setq lst (int-list num))
+    ; cifre uniche
+    (setq uniq (unique lst))
+    ; conta la frequenza delle cifre uniche
+    (setq conta (count uniq lst))
+    ; crea la lista delle coppie frequenza-cifra
+    (setq coppie (flat (map list conta uniq)))
+    ; unisce le coppie in un unica stringa
+    (setq out (join (map string coppie)))
+    ; rimuove eventuali "L" per i big-integer
+    (replace "L" out "")))
+
+Proviamo:
+
+(descrizione-lineare 18)
+;-> "1118"
+(descrizione-lineare 81)
+;-> "1811"
+
+
+---------------------
+Numeri autobiografici
+---------------------
+
+I numeri autobiografici sono numeri uguali alla loro descrizione.
+Vediamo come funziona il processo di descrizione di un numero:
+  Per ogni cifra da 0 a 9 presente nel numero,
+  prendere la frequenza di quella cifra e poi la cifra.
+
+Per esempio:
+  N = 102422
+  cifra   frequenza   sequenza
+    0        1        10
+    1        1        11
+    2        3        32
+    4        1        14
+  Output = 10113214
+
+Quindi un numero è autobiografico se risulta:
+
+ N = Descrizione(N)
+
+Esempi di numeri autobiografici:
+
+  22
+  10213223
+
+Sequenza OEIS: A047841
+Autobiographical numbers: Fixed under operator T (A047842): "Say what you see"
+  22, 10213223, 10311233, 10313314, 10313315, 10313316, 10313317, 10313318,
+  10313319, 21322314, 21322315, 21322316, 21322317, 21322318, 21322319,
+  31123314, 31123315, 31123316, 31123317, 31123318, 31123319, ...
+  ..., 101112213141516171819.
+
+Questa sequenza è finita, poiché Descrizione(N) < N per ogni N con almeno 22 cifre.
+L'ultimo termine è a(109) = 101112213141516171819 (Schimke).
+
+Scrivere una funzione per trovare tutti i numeri autobiografici.
+
+Funzione che "descrive" un numero (stringa):
+
+(define (describe num)
+  (local (lst uniq conta coppie out)
+    (setq lst (sort (explode num)))
+    ; cifre uniche
+    (setq uniq (unique lst))
+    ; conta la frequenza delle cifre uniche
+    (setq conta (count uniq lst))
+    ; crea la lista delle coppie frequenza-cifra
+    (setq coppie (flat (map list conta uniq)))
+    ; unisce le coppie in un unica stringa
+    (setq out (join (map string coppie)))
+    ; rimuove eventuali "L" per i big-integer
+    (replace "L" out "")))
+
+Proviamo:
+
+(describe "102422")
+;-> "10113214"
+
+(describe "30")
+;-> "1013"
+
+(describe "12345678901234567890")
+;-> "20212223242526272829"
+
+Non è possibile verificare ogni numero da 1 a 101112213141516171819.
+Possiamo sfruttare il fatto che ogni cifra ha un numero limitato di occorrenze:
+  cifra 0: 1 volta al massimo
+  cifra 1: 11 volte al massimo
+  cifra 2: 3 volte al massimo
+  cifra 3: 3 volte al massimo
+  cifra 4: 2 volte al massimo
+  cifra 5: 2 volte al massimo
+  cifra 6: 2 volte al massimo
+  cifra 7: 2 volte al massimo
+  cifra 8: 1 volte al massimo
+  cifra 9: 1 volte al massimo
+
+Possiamo inserire i valori in una lista con elementi (frequenza cifra):
+
+(setq coppie '((11 1) (3 2) (3 3) (2 4) (2 5) (2 6) (2 7) (1 8) (1 9) (1 0)))
+
+Poi scriviamo la funzione che genera tutti i numeri che rispettano le occorrenze delle cifre specificate in una lista:
+
+Usiamo la ricorsione per generare tutti i possibili numeri combinando le cifre fornite nella lista, rispettando il numero massimo di ripetizioni (frequenza) per ciascuna cifra. 
+
+(define (genera-aux coppie idx cur-number)
+  (local (freq-max digit new-number)
+  (cond ((= idx (length coppie))
+            (++ conta))
+            ;(println cur-number))
+        (true
+          (setq freq-max (coppie idx 0))
+          (setq digit (coppie idx 1))
+          ;(println "freq-max: " freq-max { } "digit: "digit)
+          (for (freq 0 freq-max)
+            (setq new-number (string cur-number (dup (string digit) freq)))
+            (genera-aux coppie (+ idx 1) new-number))))))
+
+(define (genera lista-cifre)
+  (let (conta 0)
+    (genera-aux lista-cifre 0 "")
+    (- conta 1)))
+
+Proviamo:
+
+Con (println cur-number):
+(genera '((2 1) (3 2)))
+;-> 2
+;-> 22
+;-> 222
+;-> 1
+;-> 12
+;-> 122
+;-> 1222
+;-> 11
+;-> 112
+;-> 1122
+;-> 11222
+;-> 11 ; quantità di numeri generati
+
+A prima vista sembra che manchino alcuni numeri, per esempio abbiamo il numero 122, ma non abbiamo il numero 221. In realtà il numero 221 non ci serve, perchè abbiamo bisogno solo di una rappresentazione per ogni combinazione di frequenze e cifre per scoprire se un numero è autobiografico.
+Per esempio:
+Numero autobiografico = 106132231526171891
+Nella lista dei numeri generati non abbiamo il numero 106132231526171891, ma abbiamo un numero con la stessa frequenza di cifre (per esempio il suo inverso 198171625132231601).
+Per vedere se il numero che abbiamo è autobigrafico applichiamo il seguente metodo:
+
+   nuovo-numero = describe(numero)
+   se (nuovo-numero = describe(nuovo-numero)) allora nuovo-numero è autobiografico.
+
+(setq numero "198171625132231601")
+;-> "198171625132231601"
+(setq nuovo-numero (describe numero))
+"106132231526171819"
+(= nuovo-numero (describe nuovo-numero))
+;-> true
+
+Adesso vediamo quanti sono i numeri da controllare con la lista "coppie":
+
+(genera coppie)
+;-> 124415 ; quantità di numeri generati
+
+Scriviamo la funzione che calcola tutti i numeri autobiografici:
+
+(define (autobio-aux coppie idx cur-number)
+  (local (freq-max digit new-number x)
+  (cond ((= idx (length coppie))
+         ;(println (int cur-number)) (read-line)
+         ; controllo numero autobiografico
+         (setq x (describe cur-number))
+         (if (= x (describe x)) 
+           (begin 
+             ;(println "x: " x)
+             (++ conta)
+             (push x out -1))))
+        (true
+          (setq freq-max (coppie idx 0))
+          (setq digit (coppie idx 1))
+          (for (freq 0 freq-max)
+            (setq new-number (string cur-number (dup (string digit) freq)))
+            (autobio-aux coppie (+ idx 1) new-number)
+          )))))
+
+(define (autobio lista-cifre)
+  (local (conta out)
+    (setq out '())
+    (setq conta 0)
+    (autobio-aux lista-cifre 0 "")
+    ;(println (- conta 1))
+    ; rimuove il primo elemento che vale: ""
+    (slice out 1)))
+
+Proviamo:
+
+(setq seq (autobio coppie))
+;-> ("22" "10213223" "21322319" "21322318" "21322317" "21322316" "21322315"
+;->  "21322314" "10313319" "10313318" "31331819" "10313317" "31331719" 
+;->  "31331718" "10313316" "31331619" "31331618" "31331617" "10313315" 
+;->  ...
+;->  "1011112131415161718" "1111213141516171819" "101112213141516171819")
+
+(length seq)
+;-> 109
+
+(time (setq seq (autobio coppie)))
+;-> 3422.303
+
 ============================================================================
 
