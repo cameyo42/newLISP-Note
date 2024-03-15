@@ -6987,5 +6987,638 @@ Proviamo:
 (time (setq seq (autobio coppie)))
 ;-> 3422.303
 
+
+-------------------
+Il gioco del Domino
+-------------------
+
+Il gioco del domino è un gioco da tavolo che coinvolge l'utilizzo di tessere rettangolari, comunemente chiamate "tessere", ciascuna delle quali è divisa in due parti da una linea centrale.
+Ogni parte della tessera è contrassegnata con un certo numero di punti (o "pips") da 0 a 6.
+Le regole di base del gioco del domino sono le seguenti:
+
+Obiettivo del gioco:
+Il giocatore cerca di sbarazzarsi di tutte le proprie tessere facendo corrispondere il numero dei pips sulle estremità delle tessere con quelli sul tavolo.
+
+Inizio del gioco:
+Si parte con tutte le tessere mescolate e disposte coperte sul tavolo.
+I giocatori pescano un certo numero di tessere (di solito 7 a testa in un gioco a due giocatori, meno in giochi con più partecipanti).
+Il resto delle tessere costituisce il "banco", che viene posizionato coperto al centro del tavolo per nascondere le tessere ai giocatori.
+
+Giocare una tessera:
+Il primo giocatore inizia ponendo una tessera sul tavolo.
+Il giocatore successivo deve quindi giocare una tessera che corrisponda in numero a una delle estremità della tessera già in gioco.
+Ad esempio, se la tessera sul tavolo ha un lato con tre pips, il giocatore successivo deve giocare una tessera con un lato che abbia anche tre pips.
+Se un giocatore non ha tessere con cui giocare, deve pescarne una dal mazzo e passare il turno.
+
+Punteggio:
+Il punteggio viene assegnato ogni volta che un giocatore riesce a sbarazzarsi di tutte le sue tessere.
+Il punteggio di ogni giocatore è la somma dei pips sulle tessere rimaste nelle mani degli altri giocatori.
+Il primo giocatore a raggiungere un certo punteggio prestabilito (di solito 100 punti) vince la partita.
+
+Doppio sei (opzionale):
+Quando un giocatore pone la tessera "doppio sei" (cioè la tessera con due sezioni, ciascuna con sei pips) il giocatore successivo è bloccato e deve passare il suo turno
+Questa regola è opzionale.
+
+Queste sono solo le regole di base del gioco del domino.
+Esistono molte varianti del gioco che possono includere regole aggiuntive o modifiche alle regole di base sopra descritte.
+
+Tipi di domino [n:n]
+I vari tipi di domino si differenziano per il numero maggiore n disponibile sulle tessere [n:n].
+Ad esempio il set standard con numeri che vanno da 0 a 6 viene identificato con [6:6]
+In commercio esistono i seguenti tipi di domino:
+
+  Tipo        Numero di tessere
+  [6-6]	         28  (set standard)
+  [9-9]	         55
+  [12-12]	       91
+  [15-15]	       136
+  [18-18]	       190
+
+Il numero di tessere in una serie di [n-n] tessere del domino è dato dalla formula:
+
+  (n+1)*(n+2)/2  = (n^2 + 3n + 2)/2
+
+Ad esempio, il numero di tessere in un set [6-6] è (6*6 + 3*6 + 2)/2 = 28.
+
+  numero-tessere = (n+1)*(n+2)/2
+
+Il numero di pips in una serie di [n-n] tessere del domino è dato dalla formula:
+
+  pips = n * numero-tessere = n*(n+1)*(n+2)/2
+
+Una delle proprietà più importanti di una serie [n-n] di tessere del domino è che qualsiasi numero k (dove 0 <= k <= n) apparirà (n+2) volte sulle tessere.
+La ragione per cui questo è importante per un giocatore è che quando vuoi sapere se puoi bloccare un altro giocatore, puoi contare rapidamente le occorrenze di un numero nella tua mano e sul tavolo.
+Se il conteggio è uguale a (n+2), sai che nessun altro giocatore può eguagliare quel numero.
+Cerca un doppio, solitamente giocato come spinner nella maggior parte dei giochi, e troverai immediatamente quattro delle otto occorrenze.
+
+Dato un set di [n-n] tessere del domino, è possibile disporre tutte le tessere in un unico treno?
+Un treno è una linea di tessere, ciascuna delle cui estremità corrisponde all'estremità delle tessere immediatamente a sinistra e a destra, con l'eccezione delle due tessere finali che coincidono solo su un'estremità, ovviamente.
+Quanti treni diversi si possono costruire con un le tessere del domino standard [6:6]?
+Qualcuno ha calcolato che sono 7.959.229.931.520 se si contano le inversioni o la metà se non si contano.
+
+Funzione che crea le tessere di un domino (lista di coppie):
+
+(define (crea-tessere lst)
+  (let ( (out '()) (len (length lst)) )
+    (for (i 0 (- len 1))
+      (for (j i (- len 1))
+          (push (list (lst i) (lst j)) out -1)))))
+
+(crea-tessere (sequence 0 6))
+;-> ((0 0) (0 1) (0 2) (0 3) (0 4) (0 5) (0 6)
+;->  (1 1) (1 2) (1 3) (1 4) (1 5) (1 6)
+;->  (2 2) (2 3) (2 4) (2 5) (2 6)
+;->  (3 3) (3 4) (3 5) (3 6)
+;->  (4 4) (4 5) (4 6)
+;->  (5 5) (5 6)
+;->  (6 6))
+
+Numero di tessere:
+(length (crea-tessere (sequence 0 6)))
+;-> 28
+
+La formula per numero di tessere è la seguente:
+
+  num-tessere = (n+1)*(n+2)/2
+
+(define (numero-tessere n) (/ (* (+ n 1) (+ n 2)) 2))
+
+(numero-tessere 6)
+;-> 28
+
+Numero di pips:
+(apply + (flat (crea-tessere (sequence 0 6))))
+;-> 168
+
+La formula per numero di pips è la seguente:
+
+  pips = n * numero-tessere = n*(n+1)*(n+2)/2
+
+(* 28 6)
+;-> 168
+
+(define (pips n) (/ (* n (+ n 1) (+ n 2)) 2))
+(pips 6)
+;-> 168
+
+Funzione che calcola le frequenze dei numeri (pips) in un domino:
+
+(define (frequenza-numeri tessere)
+  (setq t (flat tessere))
+  (setq uniq (unique t))
+  (setq conta (count uniq t))
+  (map list uniq conta))
+
+(setq domino6 (crea-tessere (sequence 0 6)))
+
+(frequenza-numeri domino6)
+;-> ((0 8) (1 8) (2 8) (3 8) (4 8) (5 8) (6 8))
+
+Scriviamo alcune funzioni per simulare una partita a domino [6:6] tra due giocatori.
+
+Come disegniamo le tessere del domino?
+
+Primo tentativo:
+
+(define (draw coppia)
+  (let ( (a (coppia 0)) (b (coppia 1)) )
+   (println "+-+")
+   (println "|" a "|")
+   (println "+-+")
+   (println "|" b "|")
+   (println "+-+")))
+
+(draw '(1 2))
+;-> +-+
+;-> |1|
+;-> +-+
+;-> |2|
+;-> +-+
+
+Proviamo ad usare i seguenti caratteri:
+
+(print "╔") (print "╗")
+(print "══") (print "║")
+(print "╚") (print "╝")
+(print "╬") (print "╩") (print "╦") (print "╠") (print "╣")
+
+Verticale:
+
+(define (draw-v coppia)
+  (let ( (a (coppia 0)) (b (coppia 1)) )
+   (println "╔═╗")
+   (println "║" a "║")
+   (println "╠═╣")
+   (println "║" b "║")
+   (println "╚═╝")))
+
+(draw-v '(1 2))
+;-> ╔═╗
+;-> ║1║
+;-> ╠═╣
+;-> ║2║
+;-> ╚═╝
+
+Orizzontale:
+
+(define (draw-h coppia)
+  (let ( (a (coppia 0)) (b (coppia 1)) )
+    (println "╔═╦═╗")
+    (println "║" a "║" b "║")
+    (println "╚═╩═╝")))
+
+(draw-h '(1 2))
+;-> ╔═╦═╗
+;-> ║1║2║
+;-> ╚═╩═╝
+
+Però dobbiamo stampare una lista di tessere in orizzontale:
+
+  ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+  ║1║2║ ║2║3║ ║3║6║
+  ╚═╩═╝ ╚═╩═╝ ╚═╩═╝...
+
+Funzione che stampa una matrice di caratteri:
+
+(define (print-matrix matrix)
+  (setq rows (length matrix))
+  (setq cols (length (matrix 0)))
+  (for (r 0 (- rows 1))
+    (for (c 0 (- cols 1))
+      (print (matrix r c))
+    )
+    (println)
+  ))
+
+(setq m '(("╔" "═" "╦" "═" "╗")
+          ("║" "a" "║" "b" "║")
+          ("╚" "═" "╩" "═" "╝")))
+
+(print-matrix m)
+;-> ╔═╦═╗
+;-> ║a║b║
+;-> ╚═╩═╝
+
+Elementi da modificare:
+
+  "a" = (m 1 1)
+  "b" = (m 1 3)
+
+Funzione che crea la matrice di caratteri di una lista di tessere:
+
+(define (create-matrix tessere spazi)
+  (local (t len out cur-row)
+    (setq t '(("╔" "═" "╦" "═" "╗")
+              ("║" "a" "║" "b" "║")
+              ("╚" "═" "╩" "═" "╝")))
+    (setq len (length tessere))
+    (for (row 0 2)
+      (setq cur-row '())
+      (dolist (coppia tessere)
+        ; a
+        (setf (t 1 1) (string (coppia 0)))
+        ; b
+        (setf (t 1 3) (string (coppia 1)))
+        (extend cur-row (t row) (dup " " spazi true))
+      )
+      (push cur-row out -1)
+    )))
+
+(print-matrix (create-matrix '((0 0) (0 6) (6 6) (6 5)) 0))
+;-> ╔═╦═╗╔═╦═╗╔═╦═╗╔═╦═╗
+;-> ║0║0║║0║6║║6║6║║6║5║
+;-> ╚═╩═╝╚═╩═╝╚═╩═╝╚═╩═╝
+
+(print-matrix (create-matrix '((0 0) (0 6) (6 6) (6 5)) 1))
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║0║0║ ║0║6║ ║6║6║ ║6║5║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+Funzione che aggiunge una tessera (coppia) a destra di un treno di tessere:
+
+(define (add-right coppia lst)
+  (cond ((zero? (length lst)) ; lista vuota?
+          (push coppia lst))
+        ((= (coppia 0) (lst -1 1)) ; tessera a|b
+          (push coppia lst -1))
+        ((= (coppia 1) (lst -1 1)) ; tessera b|a
+          (push (list (coppia 1) (coppia 0)) lst -1))
+        (true
+          (println "Error: number mismatch " (lst -1 1) " with ("(coppia 0) " " (coppia 1) ")."))
+  )
+  lst)
+
+Funzione che aggiunge una tessera (coppia) a sinistra del treno di tessere:
+
+(define (add-left coppia lst)
+  (cond ((zero? (length lst)) ; lista vuota?
+          (push coppia lst))
+        ((= (coppia 1) (lst 0 0)) ; tessera a|b
+          (push coppia lst))
+        ((= (coppia 0) (lst 0 0)) ; tessera b|a
+          (push (list (coppia 1) (coppia 0)) lst))
+        (true
+          (println "Error: number mismatch " (lst 0 0) " with ("(coppia 0) " " (coppia 1) ")."))
+  )
+  lst)
+
+(setq d '((0 0) (0 6) (6 6) (6 5)))
+
+(add-right '(3 4) d)
+;-> Error: number mismatch 5 with (3 4).
+;-> ((0 0) (0 6) (6 6) (6 5))
+
+(add-right '(5 4) d)
+;-> ((0 0) (0 6) (6 6) (6 5) (5 4))
+
+(add-right '(4 5) d)
+;-> ((0 0) (0 6) (6 6) (6 5) (5 4))
+
+(add-left '(4 5) d)
+;-> Error: number mismatch 0 with (4 5).
+;-> ((0 0) (0 6) (6 6) (6 5))
+
+(add-left '(0 5) d)
+;-> ((5 0) (0 0) (0 6) (6 6) (6 5))
+
+(print-matrix (create-matrix (add-left '(5 0) d) 1))
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║5║0║ ║0║0║ ║0║6║ ║6║6║ ║6║5║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+Funzione che stampa la situazione corrente del gioco:
+
+(define (print-game)
+  (println "Bank:")
+  (println"╔═╦═╗")
+  (println"║ ║ ║ " (length banco))
+  (println"╚═╩═╝")
+  (println "Player 1:")
+  (print-matrix (create-matrix tile1 1))
+  (println "Train:")
+  (if (= treno '()) (begin
+      (println"╔═╦═╗")
+      (println"║ ║ ║")
+      (println"╚═╩═╝"))
+      ;else
+      (print-matrix (create-matrix treno 0))
+  )
+  (println "Player 2:")
+  (print-matrix (create-matrix tile2 1))
+)
+
+Funzione che inizia una nuova partita:
+
+(define (new-game)
+    (setq domino (randomize (crea-tessere (sequence 0 6))))
+    (setq tile1 (slice domino 0 7))
+    (setq tile2 (slice domino 7 7))
+    (setq banco (slice domino 14))
+    (setq treno '())
+    (print-game))
+
+(new-game)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 14
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║0║0║ ║2║5║ ║1║1║ ║4║5║ ║3║3║ ║0║1║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗
+;-> ║ ║ ║
+;-> ╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║5║5║ ║4║6║ ║0║3║ ║0║6║ ║0║2║ ║1║3║ ║3║5║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+Funzione che permette ad un giocatore di prendere una carta dal banco:
+
+(define (take player)
+  (cond ((= banco '())
+          (println ("Error: no more tile to get."))
+          banco)
+        (true
+          (cond ((= player 1)
+                  (push (pop banco) tile1 -1)
+                  tile1)
+                ((= player 2)
+                  (push (pop banco) tile2 -1)
+                  tile2)
+                (true (println "Error: wrong player") banco)))
+  )
+  (print-game))
+
+(take 2)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 13
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║0║0║ ║2║5║ ║1║1║ ║4║5║ ║3║3║ ║0║1║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗
+;-> ║ ║ ║
+;-> ╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║5║5║ ║4║6║ ║0║3║ ║0║6║ ║0║2║ ║1║3║ ║3║5║ ║0║4║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+Funzione che permette ad un giocatore di inserire una tessera a sinistra del treno:
+
+(define (sx coppia player)
+  (let (len (length treno))
+    (cond ((= player 1)
+            (cond ((ref coppia tile1)
+                    (setq treno (add-left coppia treno))
+                    (if (!= len (length treno))
+                        (pop tile1 (ref coppia tile1))))
+                  (true (println "Error: " coppia " do not exists."))))
+          ((= player 2)
+            (cond ((ref coppia tile2)
+                    (setq treno (add-left coppia treno))
+                    (if (!= len (length treno))
+                        (pop tile2 (ref coppia tile2))))
+                  (true (println "Error: " coppia " do not exists."))))
+          (true (println "Error: wrong player " player))
+    )
+    (print-game)))
+
+Funzione che permette ad un giocatore di inserire una tessera a destra del treno:
+
+(define (dx coppia player)
+  (let (len (length treno))
+    (cond ((= player 1)
+            (cond ((ref coppia tile1)
+                    (setq treno (add-right coppia treno))
+                    (if (!= len (length treno))
+                        (pop tile1 (ref coppia tile1))))
+                    (true (println "Error: " coppia " do not exists."))))
+          ((= player 2)
+            (cond ((ref coppia tile2)
+                    (setq treno (add-right coppia treno))
+                    (if (!= len (length treno))
+                        (pop tile2 (ref coppia tile2))))
+                  (true (println "Error: " coppia " do not exists."))))
+          (true (println "Error: wrong player " player))
+    )
+    (print-game)))
+
+Facciamo una partita:
+
+(new-game)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 14
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║2║6║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗
+;-> ║ ║ ║
+;-> ╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║2║5║ ║5║6║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(dx '(5 5) 1)
+;-> Error: (5 5) do not exists.
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 14
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║2║6║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗
+;-> ║ ║ ║
+;-> ╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║2║5║ ║5║6║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(dx '(6 6) 2)
+;-> Error: (6 6) do not exists.
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 14
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║2║6║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗
+;-> ║ ║ ║
+;-> ╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║2║5║ ║5║6║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(dx '(2 6) 3)
+;-> Error: wrong player 3
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 14
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║2║6║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗
+;-> ║ ║ ║
+;-> ╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║2║5║ ║5║6║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(dx '(2 6) 1)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 14
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗
+;-> ║2║6║
+;-> ╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║2║5║ ║5║6║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(dx '(5 6) 2)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 14
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗╔═╦═╗
+;-> ║2║6║║6║5║
+;-> ╚═╩═╝╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║2║5║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(take 1)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 13
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║ ║1║4║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗╔═╦═╗
+;-> ║2║6║║6║5║
+;-> ╚═╩═╝╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║2║5║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(dx '(2 5) 2)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 13
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║2║2║ ║1║4║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗╔═╦═╗╔═╦═╗
+;-> ║2║6║║6║5║║5║2║
+;-> ╚═╩═╝╚═╩═╝╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(sx '(2 2) 1)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 13
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║1║4║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗╔═╦═╗╔═╦═╗╔═╦═╗
+;-> ║2║2║║2║6║║6║5║║5║2║
+;-> ╚═╩═╝╚═╩═╝╚═╩═╝╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+
+(take 2)
+;-> Bank:
+;-> ╔═╦═╗
+;-> ║ ║ ║ 12
+;-> ╚═╩═╝
+;-> Player 1:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║2║4║ ║0║1║ ║1║1║ ║3║4║ ║0║0║ ║1║4║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+;-> Train:
+;-> ╔═╦═╗╔═╦═╗╔═╦═╗╔═╦═╗
+;-> ║2║2║║2║6║║6║5║║5║2║
+;-> ╚═╩═╝╚═╩═╝╚═╩═╝╚═╩═╝
+;-> Player 2:
+;-> ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗ ╔═╦═╗
+;-> ║1║2║ ║3║5║ ║4║5║ ║4║6║ ║0║4║ ║6║6║
+;-> ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝ ╚═╩═╝
+...
+banco
+;-> ((0 5) (4 4) (1 5) (1 3) (3 6) (1 6) (3 3) (0 6) (0 3) (2 3) (5 5) (0 2))
+
+Nota:
+Il tipo di gioco del domino più comune è quello delle "connessioni".
+I giocatori, a turno, aggiungono tessere a un layout.
+Le tessere vengono normalmente giocate l'una dopo l'altra, con il numero di pip sulle estremità che si toccano corrispondenti.
+Tali layout possono assumere diverse forme a seconda delle regole di connessione:
+
+1) braccio - quando il layout ha una sola estremità aperta alla quale è possibile aggiungere tessere, formando una linea che cresce in una sola direzione.
+2) linea - quando il layout può estendersi da entrambe le estremità della tessera iniziale, formando una linea che può crescere ad entrambe le estremità.
+3) croce - quando la disposizione inizia con un doppio da cui possono svilupparsi quattro bracci formando una forma a croce.
+4) stella - quando i bracci del layout possono crescere in molte direzioni dalla tessera iniziale, a volte formando un braccio per ogni giocatore.
+5) albero - quando non solo il doppio iniziale, ma ogni doppio giocato consente al layout di ramificarsi.
+5) rete - quando il layout può non solo ramificarsi ma anche ricongiungersi, formando una struttura complessa che può includere circuiti chiusi.
+6) griglia - quando le tessere vengono giocate in una griglia bidimensionale regolare.
+7) layout disconnesso: quando sono presenti più righe, colonne o gruppi separati a cui è possibile aggiungere riquadri.
+
+Sebbene la regola di connessione più comune sia che le estremità in contatto delle tessere adiacenti debbano avere lo stesso numero di pip, sono possibili altre regole di connessione.
+Uno di questi è la connessione "matador" in cui il numero totale di punti sulle estremità che si toccano è un numero fisso - ad esempio 7 nel caso di un set [6:6], in modo che se un braccio termina con un 2, la tessera successiva giocata su quel braccio deve avere un 5 che tocca il 2.
+
+La maggior parte dei giochi di connessione di domino sono giochi di perdita in cui l'obiettivo è essere il primo a terminare tutte le tue tessere.
+
+Maggiori informazioni sul sito web: https://www.pagat.com/domino/
+
 ============================================================================
 

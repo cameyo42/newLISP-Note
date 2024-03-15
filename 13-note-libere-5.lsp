@@ -2394,7 +2394,9 @@ Per gli scettici come me scriviamo una funzione:
 Problema dei fiammiferi di Banach con N scatole
 -----------------------------------------------
 
-Una persona ha N scatole di fiammiferi nello zaino ognuna contenente M fiammiferi. Ogni volta che ha bisogno di un fiammifero lo prende da una delle N scatole (cioè, ha la stessa probabilità di scegliere una delle N scatole). Ad un certo punto (N-1) scatole saranno diventate vuote: in media, quanti fiammiferi ci sono nell'unica scatola rimasta?
+Una persona ha N scatole di fiammiferi nello zaino ognuna contenente M fiammiferi.
+Ogni volta che ha bisogno di un fiammifero lo prende da una delle N scatole (cioè, ha la stessa probabilità di scegliere una delle N scatole).
+Ad un certo punto (N-1) scatole saranno diventate vuote: in media, quanti fiammiferi ci sono nell'unica scatola rimasta?
 Una scatola è considerata vuota quando viene selezionata e contiene 0 fiammiferi.
 Ci sono due modi di simulare il problema a seconda del seguente comportamento:
 1) le scatole vuote non vengono gettate e quindi possono essere riselezionate
@@ -4480,7 +4482,7 @@ Scriviamo una funzione che calcola il "Nuovo BMI" e la relativa classe:
 
 Facciamo alcune prove:
 
-(newBMI 79 1.80)
+(newBMI 75 1.80)
 ;-> (23.62594457708111 "Normale")
 (newBMI 89 1.75)
 ;-> (28.55868703815026 "Sovrappeso")
