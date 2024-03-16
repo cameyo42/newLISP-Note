@@ -6006,6 +6006,8 @@ Mi fermo qui, per chi vuole imparare a programmare in modo funzionale (pratico) 
 
 Nota: newLISP non è un linguaggio di programmazione funzionale "puro". Si tratta di un mix tra programmazione iterativa e programmazione funzionale (con un pò di programmazione ad oggetti - FOOP).
 
+Vedi anche "Le caratteristiche di un linguaggio funzionale" su "Note libere 22".
+
 
 ----------------------------------
 Unione di liste di attributi (zip)

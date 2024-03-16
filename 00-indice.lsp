@@ -2355,6 +2355,11 @@ NOTE LIBERE 22
   Numeri biografici
   Numeri autobiografici
   Il gioco del Domino
+  Numeri densi
+  Life passing
+  Operazioni diverse con gli elementi di due liste
+  Le caratteristiche di un linguaggio funzionale
+  The story of "null"
 
 PROBLEMI SUI DADI
 =================

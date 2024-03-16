@@ -7620,5 +7620,197 @@ La maggior parte dei giochi di connessione di domino sono giochi di perdita in c
 
 Maggiori informazioni sul sito web: https://www.pagat.com/domino/
 
+
+------------
+Numeri densi
+------------
+
+Un numero denso è un numero che ha esattamente tanti divisori primi quanti divisori non primi (inclusi 1 e se stesso come divisori).
+In modo equivalente, un numero denso è un numero primo o un prodotto di due numeri primi distinti.
+
+Sequenza OEIS: A167171
+Squarefree semiprimes together with primes
+  2, 3, 5, 6, 7, 10, 11, 13, 14, 15, 17, 19, 21, 22, 23, 26, 29, 31, 33,
+  34, 35, 37, 38, 39, 41, 43, 46, 47, 51, 53, 55, 57, 58, 59, 61, 62, 65,
+  67, 69, 71, 73, 74, 77, 79, 82, 83, 85, 86, 87, 89, 91, 93, 94, 95, 97,
+  101, 103, 106, 107, 109, 111, 113, 115, 118, 119, 122, 123, ...
+
+Usiamo la seconda definizione.
+
+(define (dense? num)
+  (let (f (factor num))
+    (or (= (length f) 1)
+        (and (= (length f) 2) (!= (f 0) (f 1))))))
+
+Proviamo:
+
+(filter dense? (sequence 2 123))
+;-> (2 3 5 6 7 10 11 13 14 15 17 19 21 22 23 26 29 31 33
+;->  34 35 37 38 39 41 43 46 47 51 53 55 57 58 59 61 62 65
+;->  67 69 71 73 74 77 79 82 83 85 86 87 89 91 93 94 95 97
+;->  101 103 106 107 109 111 113 115 118 119 122 123)
+
+
+------------
+Life passing
+------------
+
+(define (life last-years current-years)
+  (local (all-weeks gone-weeks y)
+    (setq all-weeks (+ (/ (* 365 last-years) 7) (/ (/ last-years 4) 7)))
+    (setq gone-weeks (+ (/ (* 365 current-years) 7) (/ (/ current-years 4) 7)))
+    (setq y 1)
+    (print "  1 ")
+    (for (w 1 all-weeks)
+      (cond ((<= w gone-weeks) (print "0"))
+            ((> w gone-weeks)  (print "1"))
+      )
+      (if (zero? (% w 52)) (print "\n" (format "%3d" (++ y)) " "))
+    ) '>))
+
+(life 80 55)
+;->   1 0000000000000000000000000000000000000000000000000000
+;->   2 0000000000000000000000000000000000000000000000000000
+;->   3 0000000000000000000000000000000000000000000000000000
+;->  ...
+;->  53 0000000000000000000000000000000000000000000000000000
+;->  54 0000000000000000000000000000000000000000000000000000
+;->  55 0000000000000000000000000000000000000000000000000000
+;->  56 0000000011111111111111111111111111111111111111111111
+;->  57 1111111111111111111111111111111111111111111111111111
+;->  58 1111111111111111111111111111111111111111111111111111
+;->  59 1111111111111111111111111111111111111111111111111111
+;->  60 1111111111111111111111111111111111111111111111111111
+;->  61 1111111111111111111111111111111111111111111111111111
+;->  62 1111111111111111111111111111111111111111111111111111
+;->  63 1111111111111111111111111111111111111111111111111111
+;->  64 1111111111111111111111111111111111111111111111111111
+;->  65 1111111111111111111111111111111111111111111111111111
+;->  66 1111111111111111111111111111111111111111111111111111
+;->  67 1111111111111111111111111111111111111111111111111111
+;->  68 1111111111111111111111111111111111111111111111111111
+;->  69 1111111111111111111111111111111111111111111111111111
+;->  70 1111111111111111111111111111111111111111111111111111
+;->  71 1111111111111111111111111111111111111111111111111111
+;->  72 1111111111111111111111111111111111111111111111111111
+;->  73 1111111111111111111111111111111111111111111111111111
+;->  74 1111111111111111111111111111111111111111111111111111
+;->  75 1111111111111111111111111111111111111111111111111111
+;->  76 1111111111111111111111111111111111111111111111111111
+;->  77 1111111111111111111111111111111111111111111111111111
+;->  78 1111111111111111111111111111111111111111111111111111
+;->  79 1111111111111111111111111111111111111111111111111111
+;->  80 1111111111111111111111111111111111111111111111111111
+;->  81 1111111111111>
+
+
+------------------------------------------------
+Operazioni diverse con gli elementi di due liste
+------------------------------------------------
+
+Abbiamo due liste di numeri interi con la stessa lunghezza L.
+Per ogni coppia di numeri con lo stesso indice bisogna effettuare un'operazione diversa.
+Per esempio:
+lista1 = (1 2 6 4)
+lista2 = (4 1 3 5)
+Operazioni = (+ - / *)
+Output = ((1+4) (2-1) (6/3) (4*5)) = (5 1 2 20)
+
+Mettiamo le operazioni in una lista e poi usiamo "eval" per valutare le varie operazioni:
+
+(setq f '(+ - / *))
+((eval (f 0)) 1 2)
+;-> 3
+((eval (f 1)) 1 2)
+;-> -1
+
+(define (operazioni lst1 lst2 op)
+  (map (fn(x y z) ((eval x) y z)) f lst1 lst2))
+
+Proviamo:
+
+(operazioni '(1 2 6 4) '(4 1 3 5) op)
+;-> (5 1 2 20)
+
+
+----------------------------------------------
+Le caratteristiche di un linguaggio funzionale
+----------------------------------------------
+
+Immutability (Immutabilità)
+---------------------------
+L'aspetto più importante della FP è l'immutabilità.
+In generale, questo significa mancanza di cambiamento. 
+Qualcosa è considerato immutabile se non possiamo modificarlo in qualche modo.
+
+Considera il seguente semplice ciclo for che stampa i numeri da 0 a 10.
+
+(for (i 0 10) (println i))
+
+Questo tipo di codice si utilizza continuamente.
+In pratica il codice modifica in continuazione il valore di "i".
+
+Come potremmo farlo esprimerlo in modo immutabile?
+Un approccio comune in FP è l'uso di funzioni ricorsive:
+una funzione ricorsiva è quella che chiama se stessa.
+
+(define (ciclo i)
+  (cond ((> i 10) nil)
+        (true
+          (println i)
+          (ciclo (+ i 1)))))
+
+(ciclo 0)
+
+Questo codice è un po' più lungo, ma non modifica nessuno stato.
+
+Referential Transparency (Trasparenza referenziale)
+---------------------------------------------------
+La prossima caratteristica cruciale della FP è la trasparenza referenziale.
+Diciamo che un'espressione è referenzialmente trasparente se possiamo sostituirla con il suo valore in qualsiasi punto del codice.
+Sembra che sia sempre possibile farlo. Vediamo un esempio eseguendo la funzione "now":
+
+(now)
+;-> (2024 3 16 15 28 29 184021 76 6 60 1)
+
+Se sostituisco il corpo della funzione con questo risultato e chiamo nuovamente la funzione otterrò la risposta sbagliata. 
+Quindi la funzione oggi non ha trasparenza referenziale.
+Un concetto correlato FP è la "purezza".
+In generale, una funzione si dice pura se non ha effetti collaterali e per un dato input,
+restituisce sempre lo stesso output.
+Ciò significa sostanzialmente che se l'input è x e l'output è y, non importa quante volte chiami la funzione con x come input, la funzione restituirà sempre y come output.
+Un effetto collaterale è tutto ciò che accade all'esterno del contesto della funzione.
+
+Higher Order Functions (Funzioni di ordine superiore)
+-----------------------------------------------------
+La FP è tutta una questione di funzioni. 
+Ciò che vogliamo, in un linguaggio FP, è la capacità di trattare le funzioni come 'cittadini di prima classe'. 
+Ciò significa che dovremmo essere in grado di passarle come parametri di funzione e restituirle dalle funzioni.
+
+Lazy evaluation (Valutazione pigra)
+-----------------------------------
+Un'altra componente della FP è la Lazy evaluation.
+Ciò significa semplicemente che un'espressione non è valutata finché non sarà necessario.
+Ciò non è, in senso stretto, necessario per un linguaggio funzionale, ma spesso i linguaggi che sono per loro natura più funzionali tendono ad essere lazy.
+
+Vedi anche "Programmazione Funzionale e Pensiero Funzionale" su "Note libere 7".
+
+
+-------------------
+The story of "null"
+-------------------
+
+Tony Hoare, the inventor of null, said it was his billion-dollar mistake:
+
+I call it my billion-dollar mistake. 
+It was the invention of the null reference in 1965.
+At that time, I was designing the first comprehensive type system for references in an object-oriented language (ALGOL W).
+My goal was to ensure that all use of references should be absolutely safe, with checking performed automatically by the compiler.
+But I couldn't resist the temptation to put in a null reference, simply because it was so easy to implement.
+This has led to innumerable errors, vulnerabilities, and system crashes, which have probably caused a billion dollars of pain and damage in the last forty years.
+
+Hoare, Tony: "Null References: The Billion Dollar Mistake."
+Historically Bad Ideas. Lecture presented at the QCon, 2009.
+
 ============================================================================
 
