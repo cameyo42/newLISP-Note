@@ -4690,6 +4690,82 @@ Proviamo:
 
 (anim3 3 50)
 
+Animazione 4:
+-------------
+
+(define (cls)
+"Clear screen of REPL (ANSI sequence)"
+  (print "\027[H\027[2J"))
+
+(define (print-matrix matrix)
+  (local (rows cols)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+        (print (matrix r c))
+      )
+      (println))))
+
+(setq linee '(
+  "    *             *             *             *             *         " 
+  "   * *           * *           * *           * *           * *        "
+  "  *   *         *   *         *   *         *   *         *   *       "
+  " *     *       *     *       *     *       *     *       *     *      "
+  "*       *     *       *     *       *     *       *     *       *     "
+  "         *   *         *   *         *   *         *   *         *   *"
+  "          * *           * *           * *           * *           * * "
+  "           *             *             *             *             *  "))
+
+(define (anim4)
+  (setq m (map explode linee))
+  (for (i 10000 1)
+    (cls)
+    (print-matrix m)
+    (setq m (transpose (rotate (transpose m))))
+    (sleep 75)))
+
+(anim4)
+
+(setq linee '(
+  "QQBQBQBBBQBQBBBQBBBQBBBQBQBBBBBQBBBQBBBBBBBBBBBBBBQQBBBQBBBQBBBQBgBBBQ"
+  "QBQBQBQBQBBBBBBBQBQBQBQBQQZgMMQBBBBBBBQPqDDQBBBBQBBBBBBBBBBBBBBBBdQBBB"
+  "BQBBBBBQBQBBBQBBBQQQQZMZDESqDgMEgQBBBQQPKPSvvjSbQBBBBBBBBQBBBBBBBBBBBB"
+  "QBBBQBQBBBBBBBQQRQQQMgRMgRZgQQDggQBQRQQBBBBBBQbXSPgQRBBBBBBBQBBBBBBBBB"
+  "BQBBBQBQBQBBBDgPDRBBRRgEQQBQQgEDDZRDMMBQBBBBBBBBBqrKQPZBBBBBBBBBBBBQBQ"
+  "QBQBQBBBBBBDbK2EQQQQQRdgDRgMZPu1uIj5IPSSKZPbEMDRQBBXYd22MBBBQBQBBBBBQB"
+  "BQBBBQBQBQPK2KBBBBQgbUJvjJJu1j2su11jL7sJs1IIPPDEPdBBR5PuKEBBBBBBBBBBBB"
+  "BBQBBBBBgbPrqBBBDPIUJs77rriri77vJsvvrrrvrvLvvUIDRgqgBBQUqgMBBBBBBBBBBB"
+  "BQBQBBBRRgiPBQZI1sJLY777ririi:iii:i:::i:iiiirr772qEdPZBM1RBMQQBBBBBBBQ"
+  "QBBBBBgMB7bBPdIXUJLLrrii::::::..::.:.::::::iiiirr771dZdBQrZBQBBBBBBBBB"
+  "BQBBBQXQUqBS1jKPuvLv7ii::.......:...:::.::::iiirvs2v72EgBZ7QBQBBBBBQBQ"
+  "QBQBBPUQUBDdbEPIss77ri:::........:.....:.:::::irrvYPSvvqRBgEQBQBQBQBQB"
+  "BQBQM5dRQQBMQZUJJ77ri::...............:...iirrvYY77Ydb7YbQBBggQQBBBBBQ"
+  "QBBBDZMQQBQBDuJ1L7rrr7iriri:....   ..:::ivLYvv7LUK5IIZK1PQBBMgRQQBBBBB"
+  "BBBQRMQQBQBR5vI2Y7s11L7irr777ri.:...::irr:.     .:YqdPM2SDQBBZRgQBBBBB"
+  "QBQBQQQBBBRPj52SUP27:.     ..:ii:. ..:ri.::r7uUsLi:vSbXIjDdQBZbDgBQBBB"
+  "BQBBQQQQBRZU25I1KJi.:iv5XYIri..ii.  :r7.iiSBQBg:KPvr7YJYqPZQBQDEERBBBB"
+  "QBQBgBMgBBZK22u777iiUDiPBRBg:i i7i::i7vi:..YUKJirv7ri7vUPd1PQBBMqgBBBB"
+  "BQQQRQQRBBBR5Juri:irY7ir5u7:..i777rr7vvv7:.   ..:.:i7rYuKZbQBZPQZdBQBQ"
+  "QBQBQBQQgBBQg51viiir::..   .:r7vvviiirsu7rir:::::::ir7LuuRXqQBZQPdBBBB"
+  "BBBQQQBRESrYRPuL7rr::...::iii.:Yj:.  .:J2:..::::iiiirr12bZY.:SjKPDBBBQ"
+  "BBQQQQQRggL:2MYu77ii:::i:i:.. .vi7i..iviri   ...::irrvUqZKr. URMPQBBQB"
+  "BBBMBQQZgE5rrv1Lj7iiiii::.. . .::i:::.:::..   ..::ii7vXPIiiv1MQgQQBBBQ"
+  "QBQQQBgXMgs77715Yuri:i::...  ...::.....::i.....::iirrJKq..:PQBgdbQQQQB"
+  "BQQQQQB5dQB5v:iJ7vLrrii::.. ...::iri7rrLv7ri:.:::ir7vv2QqUYEBQBQgZQQQB"
+  "QBQBQBBQbQBB5usjsir7rr::::....rs5duij7rXIdPY...::irrrvDBBDv7QBBBQgdgRQ"
+  "BQBQBQBBQZMMDDBBBd::iii:::....7jIU1jUuJYuJ7:....:iri7PBQMq2iIBBQBMRDRg"
+  "QQQBQBQBQBgRQQBBQBgY7rii::...:...:::::::::...:..:rrvDBQIdULvLqQBQQRMQB"
+  "BQBQBQBQBQBBBQBBBBBRP5Jri::.:..........   ..:::i7v1gQXBBQP7v7LSQBQQZDg"
+  "QBBBQBQQQBBBPr7BBR5BqsIqULr:::....       ...iLvYJ5qQ: .KBBSU5U1XbgQBQM"
+  "BQQQQQBQBBq   .MBQv.gP:rUXq21Lr::........:i7Ys1uUj5P.   rgBd5XqXKSPDBB"
+  "QBQBQBBBBS     :BBBsvBZ:.iruUIU177rrirr77YLuJ2UY7vu7.     vBBEqPXbbEPZ"
+  "QQBQBBBBr       iMBBQKBY....:ivYujuJusuJJYu1ILrirrUXi      PBBBggEgDgM"
+  "QBQBBBBi         7RBMRQv.:.....:irr7777v7LvLi::i7rKB.   .. :QBBBBBBBQB"
+  "BQBBYi.        .  uBqX2Ji.:.........::::iii:..i77iP:    .. .7:KZBQBBBB"))
+
+(anim4)
+
 
 ------------------------------------------
 Coppie di primi che sommano ad un intero N
@@ -7028,11 +7104,11 @@ Ad esempio il set standard con numeri che vanno da 0 a 6 viene identificato con 
 In commercio esistono i seguenti tipi di domino:
 
   Tipo        Numero di tessere
-  [6-6]	         28  (set standard)
-  [9-9]	         55
-  [12-12]	       91
-  [15-15]	       136
-  [18-18]	       190
+  [6-6]          28  (set standard)
+  [9-9]          55
+  [12-12]        91
+  [15-15]        136
+  [18-18]        190
 
 Il numero di tessere in una serie di [n-n] tessere del domino è dato dalla formula:
 
@@ -7181,14 +7257,14 @@ Però dobbiamo stampare una lista di tessere in orizzontale:
 Funzione che stampa una matrice di caratteri:
 
 (define (print-matrix matrix)
-  (setq rows (length matrix))
-  (setq cols (length (matrix 0)))
-  (for (r 0 (- rows 1))
-    (for (c 0 (- cols 1))
-      (print (matrix r c))
-    )
-    (println)
-  ))
+  (local (rows cols)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+        (print (matrix r c))
+      )
+      (println))))
 
 (setq m '(("╔" "═" "╦" "═" "╗")
           ("║" "a" "║" "b" "║")
@@ -7811,6 +7887,213 @@ This has led to innumerable errors, vulnerabilities, and system crashes, which h
 
 Hoare, Tony: "Null References: The Billion Dollar Mistake."
 Historically Bad Ideas. Lecture presented at the QCon, 2009.
+
+
+-----------------------------------------
+Numeri divisibili dalla somma dei fattori
+-----------------------------------------
+
+Determinare la sequenza dei numeri che sono esattamente divisibili dalla somma dei loro fattori.
+
+Sequenza OEIS: A036844
+  Numbers k such that k/sopfr(k) is an integer.
+  Where sopfr = sum-of-prime-factors
+  2, 3, 4, 5, 7, 11, 13, 16, 17, 19, 23, 27, 29, 30, 31, 37, 41, 43, 47,
+  53, 59, 60, 61, 67, 70, 71, 72, 73, 79, 83, 84, 89, 97, 101, 103, 105,
+  107, 109, 113, 127, 131, 137, 139, 149, 150, 151, 157, 163, 167, 173,
+  179, 180, 181, 191, 193, 197, 199, 211, 220, 223, ...
+
+(define (div-soprf? num)
+  (zero? (% num (apply + (factor num)))))
+
+Proviamo:
+
+(filter div-soprf? (sequence 2 200))
+;-> (2 3 4 5 7 11 13 16 17 19 23 27 29 30 31 37 41 43 47
+;->  53 59 60 61 67 70 71 72 73 79 83 84 89 97 101 103 105
+;->  107 109 113 127 131 137 139 149 150 151 157 163 167 173
+;->  179 180 181 191 193 197 199)
+
+
+---------------------
+Primi di Wolstenholme
+---------------------
+
+I primi di Wolstenholme sono quei primi p tale che:
+
+  binomial(2p-1,p-1) == 1 (mod p^4)
+
+Sequenza OEIS: A088164
+Wolstenholme primes: primes p such that binomial(2p-1,p-1) == 1 (mod p^4)
+  16843, 2124679, ...
+
+(define (binom num k)
+"Calculates the binomial coefficient (n k) = n!/(k!*(n - k)!) (combinations of k elements without repetition from n elements)"
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (wols? num)
+  (and (prime? num) (= (% (binom (- (* 2 num) 1) (- num 1)) (* 1L num num num num)) 1)))
+
+Proviamo:
+
+(wols? 16843)
+;-> true
+
+(time (wols? 16843))
+;-> 446.114
+
+(* 1L 16843 16843 16843 16843)
+;-> 80478114820849201L
+
+(time (println (wols? 2124679)))
+;-> true
+;-> 7020543.3 ; 1h 57m 543ms
+
+(* 1L 2124679 2124679 2124679 2124679)
+;-> 20378551049298456998947681L
+
+
+-------------------
+Fibonacci invertito
+-------------------
+
+Dato un numero di fibonacci F(n), determinare il valore di n.
+
+Primo metodo
+------------
+Calcolo di tutti i numeri di fibonacci da 0 al numero cercato.
+
+(define (fibo-i num)
+"Calculates the Fibonacci number of an integer number"
+  (if (zero? num) 0L
+  ;else
+  (local (a b c)
+    (setq a 0L b 1L c 0L)
+    (for (i 0 (- num 1))
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a)))
+
+(map fibo-i (sequence 0 10))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
+
+(define (number fibo)
+  (let ( (found nil) (val -1) )
+    (until found
+      (++ val)
+      (cond ((= (fibo-i val) fibo) (setq found true))
+            ; se F(val) > fibo, allora fibo non è un numero di Fibonacci
+            ((> (fibo-i val) fibo) (setq found true) (setq val nil))
+      )
+    )
+    val))
+
+Proviamo:
+
+(number (fibo-i 10))
+;-> 10
+
+(number (fibo-i 25))
+;-> 25
+
+(number (fibo-i 100))
+;-> 100
+
+(number 77)
+;-> nil
+
+Secondo metodo
+--------------
+Inversione della formula di Binet:
+
+  fibonacci(n) ≈ ((1 + sqrt(5)) / 2)^n / sqrt(5)
+
+applichiamo il log ad entrambi i membri:
+
+log(fibonacci(n)) ≈ n log((1 + sqrt(5)) / 2) - log(sqrt(5))
+
+ed otteniamo:
+
+   g(n) ≈ (log(n) + log(quadrato(5))) / log((1 + quadrato(5))/2)
+
+(define (number2 fibo)
+ (round (div (add (log fibo) (log (sqrt 5)))
+             (log (div (add 1 (sqrt 5)) 2))) 0))
+
+Proviamo:
+
+(number2 (fibo-i 10))
+;-> 10
+
+(number2 (fibo-i 25))
+;-> 25
+
+(number2 (fibo-i 100))
+;-> 100
+
+(number2 77)
+;-> 11 ; in questo caso non riconosciamo un numero non-fibonacci
+
+Terzo metodo
+------------
+Inversione diretta della formula di Binet (analogo al precedente):
+
+  F(n) = near-int((phi^n)/sqrt(5)), per n >= 0
+
+dove "near-int" è la funzione nearest-integer (simile a "round" in newLISP).
+e phi = (1 + sqrt(5))/2 = 1.618033988749895... (golden ratio)
+
+  n(F) = near-int(log_phi(sqrt(5)*F)), per F >= 1
+
+(round 0.999 0)
+;-> 1
+(round 1.0001 0)
+;-> 1
+(round 1.5 0)
+;-> 2
+
+(define (number3 fibo)
+  (let (phi (div (add 1 (sqrt 5)) 2))
+    (round (log (mul fibo (sqrt 5)) phi) 0)))
+
+(number3 (fibo-i 10))
+;-> 10
+
+(number3 (fibo-i 25))
+;-> 25
+
+(number3 (fibo-i 100))
+;-> 100
+
+(number3 77)
+;-> 11 ; in questo caso non riconosciamo un numero non-fibonacci
 
 ============================================================================
 

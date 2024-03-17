@@ -2360,6 +2360,13 @@ NOTE LIBERE 22
   Operazioni diverse con gli elementi di due liste
   Le caratteristiche di un linguaggio funzionale
   The story of "null"
+  Numeri divisibili dalla somma dei fattori
+  Primi di Wolstenholme
+  Fibonacci invertito
+
+NOTE LIBERE 23
+==============
+
 
 PROBLEMI SUI DADI
 =================
