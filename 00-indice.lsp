@@ -2366,6 +2366,9 @@ NOTE LIBERE 22
 
 NOTE LIBERE 23
 ==============
+  Dijstra challenge
+  n AND (n - 1)
+  Prodotto quadrato delle cifre
 
 
 PROBLEMI SUI DADI

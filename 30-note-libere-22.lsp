@@ -6732,7 +6732,12 @@ Scriviamo una funzione che converte una stringa numerica in big-integer:
 (define (string-int str)
 "Convert a numeric string to big-integer"
   (let (num 0L)
-    (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))))
+    (cond ((= (str 0) "-")
+            (pop str)
+            (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))
+            (* num -1))
+          (true 
+            (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))))))
 
 Proviamo:
 
