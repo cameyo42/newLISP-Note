@@ -5476,6 +5476,29 @@ In questo ultimo caso l'indentazione vale 2 spazi.
 
 (exit)
 
+Possiamo anche sfruttare newLISP per indentare il codice di una funzione:
+
+(define (fibo-i num) "Calculates the Fibonacci number of an integer number"
+  (if (zero? num) 0L
+  (local (a b c) (setq a 0L b 1L c 0L) (for (i 0 (- num 1))
+  (setq c (+ a b)) (setq a b) (setq b c)) a)))
+
+fibo-i
+;-> (lambda (num) "Calculates the Fibonacci number of an integer number"
+;->  (if (zero? num)
+;->   0L
+;->   (local (a b c)
+;->    (setq a 0L b 1L c 0L)
+;->    (for (i 0 (- num 1))
+;->     (setq c (+ a b))
+;->     (setq a b)
+;->     (setq b c)) a)))
+
+Oppure possiamo avere il codice della funzione come stringa:
+
+(source 'fibo-i)
+"(define (fibo-i num)\r\n  \"Calculates the Fibonacci number of an integer number\" \r\n  (if (zero? num) \r\n   0L \r\n   (local (a b c) \r\n    (setq a 0L b 1L c 0L) \r\n    (for (i 0 (- num 1)) \r\n     (setq c (+ a b)) \r\n     (setq a b) \r\n     (setq b c)) a)))\r\n\r\n"
+
 
 ------------------------------------------------
 Annidare i caratteri di una stringa in una lista

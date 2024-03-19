@@ -2369,7 +2369,12 @@ NOTE LIBERE 23
   Dijstra challenge
   n AND (n - 1)
   Prodotto quadrato delle cifre
-
+  Binary recurrence sequence
+  Sequenza (2x + 1) e (3x -1)
+  Liste sum-free
+  Ordinare un numero in base all'ordine alfabetico delle cifre
+  Raggruppare in sottoliste tutti gli elementi uguali di una lista
+  Inversione e sottrazione
 
 PROBLEMI SUI DADI
 =================
