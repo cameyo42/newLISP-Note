@@ -1106,7 +1106,7 @@ NOTE LIBERE 7
   Stooge Sort
   Slow Sort
   Bogo Sort
-  CriptoAritmetica
+  CriptoAritmetica (Alfametica)
   Centroide di un insieme di punti
   guiserver.lsp
   La funzione "memcmp" del C
@@ -2375,6 +2375,8 @@ NOTE LIBERE 23
   Ordinare un numero in base all'ordine alfabetico delle cifre
   Raggruppare in sottoliste tutti gli elementi uguali di una lista
   Inversione e sottrazione
+  a*b + c = N
+  Coppia di multipli invertita
 
 PROBLEMI SUI DADI
 =================

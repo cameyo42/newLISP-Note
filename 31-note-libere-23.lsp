@@ -734,5 +734,177 @@ Sembra che i numeri iniziali hanno una delle seguenti due forme:
 
 Nota: Non possono mai essere necessari più di 10*N passi per raggiungere un ciclo, perché la trasformazione non può aumentare il numero di cifre e ci sono meno di 10*N numeri che hanno non più cifre di N.
 
+
+-----------
+a*b + c = N
+-----------
+
+Dato un intero N trovare (se esistono) gli interi a, b e c che soddisfano tutte le seguenti condizioni:
+
+1) a > b > c
+2) a, b, c sono numeri primi
+3) a*b + c = N
+
+Primo metodo
+------------
+Calcolo dei primi fino a N/3.
+Combinazioni di 3 elementi di tutti i primi calcolati.
+Verifica della condizione 3) per ogni combinazione.
+
+I primi vengono calcolatil limite è impostato su N/3 perché nell'equazione a*b c = N con a > b > c, se c fosse maggiore di N/3, allora a*b sarebbe maggiore di N, violando l'equazione.
+Questo garantisce di non cercare valori c che supererebbero i vincoli dell'equazione.
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(length (comb 3 (primes-to 100)))
+;-> 2300
+
+(define (abc-1 num)
+  (local (out prove)
+    (setq out '())
+    (setq prove (comb 3 (primes-to (/ num 3))))
+    (dolist (p prove)
+      (if (= (+ (* (p 2) (p 1)) (p 0)) num)
+          (push (list (p 2) (p 1) (p 0)) out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(abc-1 35)
+;-> ((11 3 2))
+
+(abc-1 101)
+;-> ()
+
+(abc-1 148)
+;-> ((29 5 3) (13 11 5))
+
+(abc-1 208)
+;-> ((41 5 3) (29 7 5))
+
+Secondo metodo
+--------------
+Calcolo dei primi fino a N/3.
+Tre cicli for per a,b e c e verifica delle condizioni per ogni tripla.
+
+(define (abc-2 N)
+  (letn ( (limit (/ N 3))
+          (primes (primes-to limit))
+          (result '()) )
+    (dolist (a primes)
+      (dolist (b primes)
+        (dolist (c primes)
+          ;(print a { } b { } c) (read-line)
+          (when (and (< c b) (< b a) (= (+ (* a b) c) N))
+            (push (list a b c) result -1)))))
+    result))
+
+Proviamo:
+
+(abc-2 35)
+;-> ((11 3 2))
+
+(abc-2 101)
+;-> ()
+
+(abc-2 148)
+;-> ((13 11 5) (29 5 3))
+
+(abc-2 208)
+;-> ((29 7 5) (41 5 3))
+
+Vediamo la velocità delle funzioni:
+
+(abc-1 2007)
+;-> ((401 5 2))
+(abc-2 2007)
+;-> ((401 5 2))
+
+(time (abc-1 2007) 10)
+;-> 3939.236
+(time (abc-2 2007) 10)
+;-> 1565.53
+
+(time (abc-2 10000))
+;-> 9301.794
+
+
+----------------------------
+Coppia di multipli invertita
+----------------------------
+
+Due numeri a e b sono una coppia di multipli invertita se risulta:
+
+  a*b = reverse((a-1)*b)
+
+(define (coppia? a b) (= (* a b) (int (reverse (string (* (- a 1) b))) 0 10)))
+
+Proviamo:
+
+(coppia? 34 2079)
+;-> true
+
+(coppia? 2079 34)
+;-> nil
+
+(define (show a b)
+  (list (* a b) (int (reverse (string (* (- a 1) b))) 0 10)))
+
+(show 34 2079)
+;-> (70686 70686)
+
+(define (find-coppie limite)
+  (setq out '())
+  (for (a 1 limite)
+    (for (b (+ a 1) limite)
+      (if (coppia? a b) (push (list a b) out -1))
+      (if (coppia? b a) (push (list b a) out -1))
+    )
+  )
+  out)
+
+Proviamo:
+
+(find-coppie 100)
+;-> ((6 9) (6 99))
+
+(find-coppie 1000)
+;-> ((6 9) (6 99) (6 909) (6 999))
+
+(time (println (setq c10000 (find-coppie 10000))))
+;-> ((3 2178) (6 9) (6 99) (6 909) (6 999) (6 9009) (6 9999)
+;->  (19 1089) (28 1089) (34 2079) (37 1089) (46 1089))
+;-> 70932.871
+
+(setq c10000 
+'((3 2178) (6 9) (6 99) (6 909) (6 999) (6 9009) (6 9999)
+ (19 1089) (28 1089) (34 2079) (37 1089) (46 1089)))
+
+(map (fn(x) (apply show x)) c10000)
+;-> ((6534 6534) (54 54) (594 594) (5454 5454) (5994 5994) (54054 54054)
+;->  (59994 59994) (20691 20691) (30492 30492) (70686 70686) (40293 40293)
+;->  (50094 50094))
+
 ============================================================================
 

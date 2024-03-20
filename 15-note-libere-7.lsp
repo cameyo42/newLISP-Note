@@ -9850,9 +9850,9 @@ Quantum Bogosort
 Quantum bogosort è un ipotetico algoritmo di ordinamento basato su bogosort, creato come uno scherzo tra gli informatici. L'algoritmo genera una permutazione casuale del suo input utilizzando una fonte quantistica di entropia, controlla se l'elenco è ordinato e, in caso contrario, distrugge l'universo. Assumendo che l'interpretazione dei "molti mondi" sia valida, l'uso di questo algoritmo risulterà in almeno un universo sopravvissuto in cui l'input è stato ordinato con successo in tempo O(n).
 
 
-----------------
-CriptoAritmetica
-----------------
+-----------------------------
+CriptoAritmetica (Alfametica)
+-----------------------------
 
 La criptoaritmetica è l'arte di risolvere puzzle costituiti da un'equazione matematica tra numeri sconosciuti, le cui cifre sono rappresentate da lettere dell'alfabeto. L'obiettivo è identificare la cifra associata ad ogni lettera. Il nome può essere esteso a puzzle che utilizzano simboli non alfabetici al posto delle lettere.
 L'equazione è un'operazione di base dell'aritmetica, come addizione, moltiplicazione o divisione.
@@ -10455,10 +10455,12 @@ Scriviamo la funzione "solve-all" che è molto simile a "solve":
 
 Facciamo alcune prove:
 
+ABC + BCA + CAB = ABBC
 (time (println (solve-all '("abc" "bca" "cab") "abbc" "+")))
 ;-> ((("a" 1) ("b" 9) ("c" 8)))
 ;-> 31872.032
 
+LISP + FUN = NEWLISP
 (time (println (solve-all '("lisp" "fun") "newlisp" "*")))
 ;-> ((("e" 8) ("f" 2) ("i" 3) ("l" 7) ("n" 1) ("p" 0) ("s" 6) ("u" 5) ("w" 4))
 ;->  (("e" 9) ("f" 7) ("i" 6) ("l" 2) ("n" 1) ("p" 0) ("s" 4) ("u" 5) ("w" 8))
@@ -10469,6 +10471,39 @@ Facciamo alcune prove:
 ;-> ((("A" 7) ("E" 0) ("H" 5) ("M" 2) ("N" 6)
 ;->   ("O" 1) ("R" 8) ("S" 3) ("T" 9) ("Y" 4)))
 ;-> 726961.943
+
+FOUR + FIVE = EIGHT
+(time (println (solve-all '("four" "five") "eight" "+")))
+;-> ((("e" 1) ("f" 6) ("g" 3) ("h" 7) ("i" 2) ("o" 0) ("r" 4) ("t" 5) ("u" 8) ("v" 9))
+;->  (("e" 1) ("f" 8) ("g" 7) ("h" 4) ("i" 6) ("o" 0) ("r" 2) ("t" 3) ("u" 5) ("v" 9))
+;->  (("e" 1) ("f" 6) ("g" 3) ("h" 4) ("i" 2) ("o" 0) ("r" 7) ("t" 8) ("u" 5) ("v" 9))
+;->  (("e" 1) ("f" 8) ("g" 0) ("h" 3) ("i" 7) ("o" 2) ("r" 5) ("t" 6) ("u" 4) ("v" 9))
+;->  (("e" 1) ("f" 8) ("g" 7) ("h" 2) ("i" 6) ("o" 0) ("r" 4) ("t" 5) ("u" 3) ("v" 9))
+;->  (("e" 1) ("f" 8) ("g" 0) ("h" 5) ("i" 7) ("o" 2) ("r" 3) ("t" 4) ("u" 6) ("v" 9))
+;->  (("e" 1) ("f" 7) ("g" 2) ("h" 3) ("i" 5) ("o" 6) ("r" 9) ("t" 0) ("u" 4) ("v" 8))
+;->  (("e" 1) ("f" 6) ("g" 3) ("h" 7) ("i" 2) ("o" 0) ("r" 4) ("t" 5) ("u" 9) ("v" 8))
+;->  (("e" 1) ("f" 8) ("g" 7) ("h" 2) ("i" 6) ("o" 0) ("r" 4) ("t" 5) ("u" 9) ("v" 3))
+;->  (("e" 1) ("f" 6) ("g" 7) ("h" 8) ("i" 2) ("o" 5) ("r" 9) ("t" 0) ("u" 4) ("v" 3))
+;->  (("e" 1) ("f" 8) ("g" 9) ("h" 0) ("i" 6) ("o" 2) ("r" 4) ("t" 5) ("u" 7) ("v" 3))
+;->  (("e" 1) ("f" 6) ("g" 7) ("h" 8) ("i" 2) ("o" 5) ("r" 9) ("t" 0) ("u" 3) ("v" 4))
+;->  (("e" 1) ("f" 7) ("g" 2) ("h" 3) ("i" 5) ("o" 6) ("r" 9) ("t" 0) ("u" 8) ("v" 4))
+;->  (("e" 1) ("f" 8) ("g" 0) ("h" 3) ("i" 7) ("o" 2) ("r" 5) ("t" 6) ("u" 9) ("v" 4))
+;->  (("e" 1) ("f" 6) ("g" 3) ("h" 4) ("i" 2) ("o" 0) ("r" 7) ("t" 8) ("u" 9) ("v" 5))
+;->  (("e" 1) ("f" 8) ("g" 7) ("h" 4) ("i" 6) ("o" 0) ("r" 2) ("t" 3) ("u" 9) ("v" 5))
+;->  (("e" 1) ("f" 7) ("g" 8) ("h" 2) ("i" 4) ("o" 3) ("r" 9) ("t" 0) ("u" 6) ("v" 5))
+;->  (("e" 1) ("f" 7) ("g" 8) ("h" 2) ("i" 4) ("o" 3) ("r" 9) ("t" 0) ("u" 5) ("v" 6))
+;->  (("e" 1) ("f" 8) ("g" 0) ("h" 5) ("i" 7) ("o" 2) ("r" 3) ("t" 4) ("u" 9) ("v" 6))
+;->  (("e" 1) ("f" 8) ("g" 9) ("h" 0) ("i" 6) ("o" 2) ("r" 4) ("t" 5) ("u" 3) ("v" 7)))
+;-> 41793.88
+
+THESE + TEASE + TIRED = READER
+(time (println (solve-all '("these" "tease" "tired") "reader" "+")))
+;-> ((("a" 0) ("d" 9) ("e" 6) ("h" 3) ("i" 2) ("r" 1) ("s" 4) ("t" 5)))
+;-> 49866.527
+
+UNO + DUE = TRE
+(length (solve-all '("uno" "due") "tre" "+"))
+;-> 492
 
 Soluzione fornita da rickyboy:
 
