@@ -7950,6 +7950,8 @@ Per ottenere tutti gli accoppiamenti della soluzione possiamo scrivere:
 (sort (map (fn(x) (list $idx x)) (couple m w)))
 ;-> ((0 3) (1 1) (2 4) (3 2) (4 0))
 
+Vedi anche "Il problema dei matrimoni stabili" su "Rosetta code".
+Vedi anche "Massima soddisfazione" su "Note libere 22".
 
 ----------------------------------
 Il problema dello zaino (Knapsack)

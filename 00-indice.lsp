@@ -2377,6 +2377,8 @@ NOTE LIBERE 23
   Inversione e sottrazione
   a*b + c = N
   Coppia di multipli invertita
+  Massima soddisfazione
+  Selezionare k oggetti diversi da N oggetti diversi
 
 PROBLEMI SUI DADI
 =================

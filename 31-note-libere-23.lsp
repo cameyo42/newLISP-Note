@@ -906,5 +906,179 @@ Proviamo:
 ;->  (59994 59994) (20691 20691) (30492 30492) (70686 70686) (40293 40293)
 ;->  (50094 50094))
 
+
+---------------------
+Massima soddisfazione
+---------------------
+
+Abbiamo N persone e N oggetti non necessariamente distinti (con N <= 10).
+Ogni persona compila una lista di preferenze degli oggetti (le preferenze vanno da 1 (prima scelta) a N (ultima scelta)). Vogliamo calcolare la distribuzione degli oggetti in modo da massimizzare la soddisfazione totale delle persone.
+Per misurare la soddisfazione totale usiamo la seguente formula:
+
+  Sum[i=1,N](valore-oggetto(i))
+
+dove valore-oggetto(i) è il valore dell'oggetto (secondo le preferenze della i-esima persona) assegnato alla i-esima persona.
+Questa somma deve essere minima per massimizzare la soddisfazione totale, quindi si tratta di minimizzare l'insoddisfazione totale.
+Il valore minimo della (in)soddisfazione totale vale N, questo avviene quando ad ogni persona viene assegnato l'oggetto che questa aveva selezionato come prima scelta (con valore 1).
+Il valore massimo della (in)soddisfazione totale vale N*N, questo avviene quando ad ogni persona viene assegnato l'oggetto che questa aveva selezionato come ultima scelta (con valore N).
+
+Questo problema è un caso particolare dell'algoritmo dei matrimoni stabili di Gale-Shapley in cui le donne o gli uomini (in questo caso gli oggetti) non hanno liste di preferenza.
+
+Vedi anche "Il problema dei matrimoni stabili" su "Rosetta code".
+Vedi anche "Algoritmo di Gale-Shapley" su "Note libere 3".
+
+In questo caso proviamo a risolvere il problema con la forza bruta.
+Calcoliamo tutte le permutazioni delle possibili assegnazione degli N oggetti alle N persone e per ogni assegnazione calcoliamo la (in)soddisfazione totale e teniamo traccia del valore ottimale.
+
+Le liste di preferenza devono essere complete (è sempre possibile assegnare in modo casuale i valori rimanenti agli oggetti non valutati) e contenere tutti i valori da 1 a N (nessun pari merito).
+
+Per comodità facciamo iniziare le preferenze da 0 (invece che da 1).
+In questo modo il valore minimo della (in)soddisfazione totale vale 0 e il valore massimo vale (N-1)*(N-1).
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che massimizza la soddisfazione:
+
+(define (satisfy pref)
+  (local (N ottimo distr assegnazioni soddisfazione)
+    (setq N (length pref))
+    (setq ottimo (+ (* N N) 1))
+    (setq distr '())
+    (setq assegnazioni (perm (sequence 0 (- N 1))))
+    (dolist (values assegnazioni)
+      (setq soddisfazione 0)
+      (dolist (v values)
+        (setq soddisfazione (+ soddisfazione (find v (pref $idx))))
+      )
+      (if (< soddisfazione ottimo) (set 'ottimo soddisfazione 'distr values))
+      ;(println soddisfazione { } values { } ottimo)
+    )
+    (list ottimo distr)))
+
+Proviamo:
+
+(setq pr '((3 0 2 1) (0 1 2 3) (2 1 0 3) (0 2 1 3)))
+(satisfy pr)
+;-> 5 (0 1 2 3) 5
+;-> 6 (1 0 2 3) 5
+;-> 6 (2 0 1 3) 5
+;-> 7 (0 2 1 3) 5
+;-> 10 (1 2 0 3) 5
+;-> 8 (2 1 0 3) 5
+;-> 4 (3 1 0 2) 4
+;-> 9 (1 3 0 2) 4
+;-> 6 (0 3 1 2) 4
+;-> 2 (3 0 1 2) 2
+;-> 7 (1 0 3 2) 2
+;-> 6 (0 1 3 2) 2
+;-> 8 (0 2 3 1) 2
+;-> 7 (2 0 3 1) 2
+;-> 2 (3 0 2 1) 2
+;-> 6 (0 3 2 1) 2
+;-> 9 (2 3 0 1) 2
+;-> 6 (3 2 0 1) 2
+;-> 3 (3 2 1 0) 2
+;-> 6 (2 3 1 0) 2
+;-> 6 (1 3 2 0) 2
+;-> 1 (3 1 2 0) 1
+;-> 6 (2 1 3 0) 1
+;-> 8 (1 2 3 0) 1
+;-> (1 (3 1 2 0))
+
+(setq pr '((0 1 2 3) (1 2 3 0) (2 3 0 1) (3 0 1 2)))
+(satisfy pr)
+;-> (0 (0 1 2 3))
+
+(setq pr '((0 1 2) (2 0 1) (1 2 0)))
+(satisfy pr)
+;-> (0 (0 2 1))
+
+
+--------------------------------------------------
+Selezionare k oggetti diversi da N oggetti diversi
+--------------------------------------------------
+
+Vogliamo trovare qual è la probabilità di scegliere k oggetti diversi scegliendo a caso tra N oggetti diversi.
+Per esempio, qual è la probabilità di scegliere 3 cifre diverse su 10 (0..9)?
+La prima scelta ha probabilità 1 di essere diversa perchè non abbiamo ancora nessuna cifra.
+La seconda scelta ha probabilità 9/10, cioè ci sono 9 su 10 cifre diverse da quella che abbiamo scelto precedentemente.
+La terza scelta ha probabilità 8/10, cioè ci sono 8 su 10 cifre diverse da quelle che abbiamo scelto precedentemente.
+Quindi la probabilità di scegliere 3 cifre diverse su 10 vale:
+
+  p(3) = 1 * 9/10 * 8/10 = 0.72
+
+Possiamo estrapolare la formula generale:
+
+  p(n,k) = Prod[i=1..(k-1)]((n-i)/n)
+
+Nel caso delle cifre:
+
+  p(k) = Prod[i=1..(k-1)]((10-i)/10)
+
+Scriviamo la funzione generale:
+
+(define (diverse k n)
+  (let (prob 1)
+    (for (i 0 (- k 1))
+      (setq prob (mul prob (div (- n i) n)))
+    )
+    prob))
+
+Proviamo:
+
+(map (fn(x) (list x (diverse x 10))) (sequence 1 10))
+;-> ((1 1) (2 0.9) (3 0.72) (4 0.504) (5 0.3024) 
+;->  (6 0.1512) (7 0.06048) (8 0.018144) (9 0.0036288) (10 0.00036288))
+
+Scriviamo una funzione che simula il processo un certo numero di volte e calcola la probabilità di selezionare k cifre diverse su 10 cifre (0..9):
+
+(define (simula k iter)
+  (setq tot 0)
+  (for (i 1 iter)
+    (do-while (zero? (cifre 0)) (setq cifre (rand 10 k)))
+    (if (= cifre (unique cifre)) (++ tot))
+      ;(begin (print cifre) (read-line) (++ tot))
+      ;(println "--" cifre))
+  )
+  (div tot iter))
+
+Proviamo:
+
+(map (fn(x) (list x (simula x 1e6))) (sequence 1 10))
+;-> ((1 1) (2 0.899721) (3 0.72089) (4 0.504817) (5 0.302187)
+;->  (6 0.151611) (7 0.060339) (8 0.01815) (9 0.003624) (10 0.000371))
+
+(time (println (simula 10 1e7)))
+;-> 0.0003573
+;-> 14829.444
+;-> 0.000360
+
+I risultati simulati sono congruenti con quelli calcolati matematicamente.
+
 ============================================================================
 
