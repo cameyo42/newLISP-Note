@@ -2379,6 +2379,9 @@ NOTE LIBERE 23
   Coppia di multipli invertita
   Massima soddisfazione
   Selezionare k oggetti diversi da N oggetti diversi
+  Bit Weaving
+  Numeri escludivisibili
+  Probabilità di almeno r numeri uguali/diversi scegliendo k numeri su N
 
 PROBLEMI SUI DADI
 =================

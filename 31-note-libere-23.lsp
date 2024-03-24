@@ -1080,5 +1080,323 @@ Proviamo:
 
 I risultati simulati sono congruenti con quelli calcolati matematicamente.
 
+La probabilità di selezionare k oggetti diversi su N oggetti diversi può essere calcolata anche con la seguente formula:
+
+                N!
+  P(k) = ----------------, con N >= k
+          N^k * (N - k)!
+
+e la probabilità che almeno due oggetti siano uguali è 1 – P(k).
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (prob n k)
+  (div (fact-i n)
+       (mul (pow n k) (fact-i (- n k)))))
+
+Proviamo:
+
+(prob 10 3)
+;-> 0.72
+
+(prob 10 10)
+;-> 0.00036288
+
+Comunque con valori moderatamente grandi di N e k è probabile che la formula produca un overflow se implementata direttamente. 
+Quindi, come al solito, il trucco è usare i logaritmi per evitare overflow o underflow.
+
+(define (pr n k)
+  (exp (sub (gammaln (+ n 1)) (gammaln (sub n k -1)) (mul k (log n)))))
+
+Proviamo:
+
+(pr 10 3)
+;-> 0.7200000000005714
+(pr 10 10)
+;-> 0.0003628800000003172
+
+
+-----------
+Bit Weaving
+-----------
+
+Il linguaggio di programmazione esoterico "evil" ha una funzione di nome "weaving" che opera sui bit di un byte.
+In pratica effettua una permutazione degli otto bit di un byte in base al seguente schema:
+
+  0 1 2 3 4 5 6 7
+  │┌┘ │┌┘ │┌┘ └┐│
+  └┼┐ └┼─┐└┼──┐││
+  ┌┘└─┐│ └┐│┌─┼┼┘
+  │ ┌─┼┘┌─┼┘│ │└┐
+  0 1 2 3 4 5 6 7
+
+  Il Bit 0 viene spostato nel Bit 2
+  Il Bit 1 viene spostato nel Bit 0
+  Il Bit 2 viene spostato nel Bit 4
+  Il Bit 3 viene spostato nel Bit 1
+  Il Bit 4 viene spostato nel Bit 6
+  Il Bit 5 viene spostato nel Bit 3
+  Il Bit 6 viene spostato nel Bit 7
+  Il Bit 7 viene spostato nel Bit 5
+
+Analogamente:
+
+  1 3 0 5 2 7 4 6
+  | | | | | | | |
+  | | | | | | | |
+  | | | | | | | |
+  | | | | | | | |
+  0 1 2 3 4 5 6 7
+
+  Il Bit 0 assume il valore del Bit 1
+  Il Bit 1 assume il valore del Bit 3
+  Il Bit 2 assume il valore del Bit 0
+  Il Bit 3 assume il valore del Bit 5
+  Il Bit 4 assume il valore del Bit 2
+  Il Bit 5 assume il valore del Bit 7
+  Il Bit 6 assume il valore del Bit 4
+  Il Bit 7 assume il valore del Bit 6
+
+Nota: non importa da quale estremità del byte iniziamo a contare, poiché lo schema è simmetrico.
+Nota: applicando otto volte la funzione "weaving" il byte non cambia
+Nota: la funzione "weaving" viene utilizzata per ridurre la quantità di comandi utilizzati per generare costanti.
+
+Per simulare la funzione "weaving" possiamo usare la funzione "select":
+
+(define (weaving byte) (select byte '(1 3 0 5 2 7 4 6)))
+
+Proviamo:
+
+(weaving "20416375")
+;-> "01234567"
+(weaving "01234567")
+;-> "13052746"
+
+(weaving '(2 0 4 1 6 3 7 5))
+;-> (0 1 2 3 4 5 6 7)
+(weaving '(0 1 2 3 4 5 6 7))
+;-> (1 3 0 5 2 7 4 6)
+
+(setq b "10011101")
+(dotimes (x 8) (setq b (weaving b)))
+;-> "10011101"
+
+(weaving "11111111")
+;-> "11111111"
+(weaving "00000000")
+;-> "00000000"
+
+(weaving "10101010")
+;-> "00101011"
+(weaving "01010101")
+;-> "11010100"
+
+(weaving "11110000")
+;-> "11101000"
+(weaving "00001111")
+;-> "00010111"
+
+Vediamo cosa accade ai numeri decimali coinvolti nella trasformazione:
+
+(define (decimali byte)
+  (setq a (int byte 0 2))
+  (setq wyte (weaving byte))
+  (setq b (int wyte 0 2))
+  (list (list byte a) (list wyte b) (abs (- a b))))
+
+(decimali "11110000")
+;-> (("11110000" 240) ("11101000" 232) 8)
+(decimali "00001111")
+;-> (("00001111" 15) ("00010111" 23) 8)
+
+(decimali "01010101")
+;-> (("01010101" 85) ("11010100" 212) 127)
+(decimali "10101010")
+;-> (("10101010" 170) ("00101011" 43) 127)
+
+(decimali "11001100")
+;-> (("11001100" 204) ("10110010" 178) 26)
+(decimali "00110011")
+;-> (("00110011" 51) ("01001101" 77) 26)
+
+(decimali "10110111")
+;-> (("10110111" 183) ("01111101" 125) 58)
+(decimali "01001000")
+;-> (("01001000" 72) ("10000010" 130) 58)
+
+
+----------------------
+Numeri escludivisibili
+----------------------
+
+Un numero escluidivisibile ha la seguente proprietà:
+ogni cifra divide esattamente il numero formato con le altre cifre.
+Vediamo un esempio:
+
+N = 742
+Prediamo la cifra 7, il resto delle cifre vale 42: 42/7 = 6
+Prediamo la cifra 4, il resto delle cifre vale 72: 72/4 = 18
+Prediamo la cifra 2, il resto delle cifre vale 74: 74/2 = 37
+Quindi 742 è un numero escludivisibile.
+
+Nota: se il numero contiene la cifra 0, allora non è escludivisibile.
+I numeri da 1 a 9 sono tutti escludivisibili.
+
+Sequenza OEIS: A353729
+Numbers with property that if any digit is deleted then the result is divisible by that digit
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 111, 122,
+  124, 126, 142, 155, 162, 168, 186, 222, 244, 248, 284, 324, 333, 342,
+  366, 444, 488, 555, 648, 666, 684, 728, 742, 777, 888, 999, 1111, 1113,
+  1122, 1124, 1128, 1131, 1142, 1146, 1155, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione che verifica se un numero è escludivisibile:
+
+(define (escludiv? num)
+  (setq digits (int-list num))
+  (cond ((find 0 digits) nil)
+        ((= (length digits) 1) true)
+        (true
+          (setq stop nil)
+          (dolist (d digits stop)
+            (setq cur-num digits)
+            (pop cur-num $idx)
+            (setq cur-num (list-int cur-num))
+            (if (!= (% cur-num d) 0) (setq stop true))
+          )
+          (not stop))))
+
+Proviamo:
+
+(escludiv? 324)
+;-> true
+
+(filter escludiv? (sequence 1 1000))
+;-> (1 2 3 4 5 6 7 8 9 11 22 33 44 55 66 77 88 99 111 122 124 126 142
+;->  155 162 168 186 222 244 248 284 324 333 342 366 444 488 555 648 666
+;->  684 728 742 777 888 999)
+
+(length (filter escludiv? (sequence 1 1e6)))
+;-> 3201
+
+
+----------------------------------------------------------------------
+Probabilità di almeno r numeri uguali/diversi scegliendo k numeri su N
+----------------------------------------------------------------------
+
+Scegliendo k numeri su N qual è la probabilità che almeno r dei numeri scelti siano tutti uguali?
+Scegliendo k numeri su N qual è la probabilità che almeno r dei numeri scelti siano tutti diversi?
+
+Vediamo di scrivere le funzioni che simulano i processi.
+
+Probabilità che almeno r numeri sui k scelti siano tutti uguali
+---------------------------------------------------------------
+
+(define (prob-uguali n k r iter)
+  (local (eventi seq)
+    (setq eventi 0)
+    ; lista dei numeri (0..n-1)
+    (setq seq (sequence 0 (- n 1)))
+    (for (i 1 iter)
+      ; selezione di k numeri su (0..n-1)
+      (setq choice (rand n k))
+      ; conta le occorrenze dei numeri 0..(n-1)
+      ; nei k numeri selezionati
+      (setq conta (count seq choice))
+      ;(println choice)
+      ;(print conta) (read-line)
+      ; se la massima occorrenza di un numero scelto
+      ; è uguale o supera r, allora abbiamo un evento positivo
+      (if (>= (apply max conta) r) (++ eventi))
+    )
+    (div eventi iter)))
+
+Proviamo:
+
+Questo è il caso del problema del compleanno, abbiamo con 22 persone e vogliano sapere la probabilità che almeno 2 di loro abbia lo stesso compleanno.
+valore vero = 0.4756953076625502
+(prob-uguali 365 22 2 1e5)
+;-> 0.4755
+(compleanno 22)
+;-> 0.4756953076625502
+
+Problema del compleanno: 50 persone e 2 con lo stesso compleanno
+valore vero = 0.9703735795779884
+(prob-uguali 365 50 2 1e5)
+;-> 0.97099
+
+Problema del compleanno: 100 persone e 2 con lo stesso compleanno
+valore vero = 0.9999996927510721
+(prob-uguali 365 100 2 1e5)
+;-> 1
+
+(prob-uguali 1 1 1 1e5)
+;-> 1
+
+(prob-uguali 10 5 2 1e5)
+;-> 0.69748
+
+Probabilità che almeno r numeri sui k scelti siano tutti diversi
+----------------------------------------------------------------
+
+(define (prob-diversi n k r iter)
+  (local (eventi seq)
+    (setq eventi 0)
+    ; lista dei numeri (0..n-1)
+    (setq seq (sequence 0 (- n 1)))
+    (for (i 1 iter)
+      ; selezione di k numeri su (0..n-1)
+      (setq choice (rand n k))
+      ; conta le occorrenze dei numeri 0..(n-1)
+      ; nei k numeri selezionati
+      (setq conta (count seq choice))
+      ;(println choice)
+      ;(print conta) (read-line)
+      ; se esistono almeno r occorrenze singole (1)
+      ; allora abbiamo un evento positivo
+      (if (>= (first (count '(1) conta)) r) (++ eventi))
+    )
+    (div eventi iter)))
+
+Proviamo:
+
+Questo è il caso in cui r=k.
+Probabilità di selezionare r oggetti diversi da N oggetti diversi.
+valore vero = 0.72
+(prob-diversi 10 3 3 1e6)
+;-> 0.72072
+
+Questo è il caso in cui r=k.
+Probabilità di selezionare r oggetti diversi da N oggetti diversi.
+valore vero = 0.3024
+(prob-diversi 10 5 5 1e6)
+;-> 0.30284
+
+Probabilità di selezionare 10 cifre diverse.
+valore vero = 0.00036288
+(prob-diversi 10 10 10 1e7)
+;-> 0.000362
+
+Vedi anche "Selezionare k oggetti diversi da N oggetti diversi" su "Note libere 23".
+
+Vedi anche "Il problema del compleanno" su "Problemi vari".
+
 ============================================================================
 
