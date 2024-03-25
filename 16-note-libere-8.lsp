@@ -1462,10 +1462,10 @@ Dopo il primo anno, come visto sopra, abbiamo 500 euro in più e un capitale di 
   C(n) = C0*(1 + t/k)^(k*n)
 
   C(n): Capitale dopo n anni
-  C0:   Capitale iniziale
-  t :   Tasso d'interesse
-  n:    Numero di anni
-  k: Numero di periodi di capitalizzazione composta per anno
+    C0: Capitale iniziale
+     t: Tasso d'interesse
+     n: Numero di anni
+     k: Numero di periodi di capitalizzazione composta per anno
   (notare che il numero totale di periodi di capitalizzazione composta è k*n)
 
 se k = 1  ==>  C(n) = C0*(1 + t)^n

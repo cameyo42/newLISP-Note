@@ -2366,7 +2366,7 @@ NOTE LIBERE 22
 
 NOTE LIBERE 23
 ==============
-  Dijstra challenge
+  Dijkstra challenge
   n AND (n - 1)
   Prodotto quadrato delle cifre
   Binary recurrence sequence
@@ -2382,6 +2382,8 @@ NOTE LIBERE 23
   Bit Weaving
   Numeri escludivisibili
   Probabilità di almeno r numeri uguali/diversi scegliendo k numeri su N
+  Funzioni finanziarie
+  Puzzle cromatico
 
 PROBLEMI SUI DADI
 =================
