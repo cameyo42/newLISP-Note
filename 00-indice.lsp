@@ -2384,6 +2384,8 @@ NOTE LIBERE 23
   Probabilità di almeno r numeri uguali/diversi scegliendo k numeri su N
   Funzioni finanziarie
   Puzzle cromatico
+  Pseudofattoriale
+  Strette di mano (handshaking)
 
 PROBLEMI SUI DADI
 =================

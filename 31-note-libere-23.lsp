@@ -1663,5 +1663,130 @@ Facciamo una partita:
 ;-> 0 1 1
 ;-> 1 1 1
 
+
+----------------
+Pseudofattoriale
+----------------
+
+Lo pseudofattoriale di un numero intero N è il minimo comune multiplo dei numeri da 1 a N.
+In altre parole, è il numero più basso che ha come fattori tutti i numeri da 1 a N.
+
+Sequenza OEIS: A003418
+Least common multiple (or LCM) of {1, 2, ..., n} for n >= 1, a(0) = 1
+  1, 1, 2, 6, 12, 60, 60, 420, 840, 2520, 2520, 27720, 27720, 360360, 360360,
+  360360, 720720, 12252240, 12252240, 232792560, 232792560, 232792560,
+  232792560, 5354228880, 5354228880, 26771144400, 26771144400, 80313433200,
+  80313433200, 2329089562800, 2329089562800, ...
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (map eval (args)) 2))
+
+(define (lcm-sum num) (apply lcm (sequence 1 num)))
+
+(lcm-sum 2)
+;-> 2520
+
+Versione base:
+
+(define (seq1 limit)
+  (let (out '(1 1))
+    (for (i 2 (- limit 1)) (push (lcm-sum i) out -1))
+    out))
+
+(seq1 20)
+;-> (1 1 2 6 12 60 60 420 840 2520 2520 27720 27720 360360 360360 360360
+;->  720720 12252240 12252240 232792560)
+
+Nota: lcm(1..N) = lcm(N, lcm(1..(N-1)))
+
+(lcm 1 2)
+;-> 2
+(lcm 2 2)
+;-> 2
+(lcm 2 3)
+;-> 6
+(lcm 6 4)
+;-> 12
+(lcm 12 5)
+;-> 60
+(lcm 60 6)
+;-> 60
+(lcm 60 7)
+;-> 420
+...
+
+Versione ottimizzata:
+
+(define (seq2 limit)
+  (let ( (out '(1)) (a 1L) )
+    (for (i 1 (- limit 1))
+      (setq a (/ (* a i) (gcd a i)))
+      (push a out -1))
+    out))
+
+(seq2 20)
+;-> (1 1 2 6 12 60 60 420 840 2520 2520 27720 27720 360360 360360 360360
+;->  720720 12252240 12252240 232792560)
+
+(= (seq1 20) (seq2 20))
+;-> true
+
+(time (seq1 30) 1e4)
+;-> 1335.459
+
+(time (seq2 30) 1e4)
+;-> 272.375
+
+
+-----------------------------
+Strette di mano (handshaking)
+-----------------------------
+
+Il problema delle strette di mano è un problema classico con la seguente formulazione: se ci sono N persone in una stanza e tutti si stringono la mano, qual è il numero totale di strette di mano che si verificano?
+
+Per trovare la funzione che calcola le strette di mano per N persone utilizziamo il Metodo delle differenze.
+Vedi "Polinomi generatori di sequenze - Metodo delle differenze" su "Note libere 15".
+
+Persone: 1, 2, 3, 4, 5,  6,...
+Strette: 0, 1, 3, 6, 10, 15, ...
+
+Differenze: 1 2 3 4 5
+             1 1 1 1
+
+Equazione di secondo grado: P(N) = a*N^2 + b*N + c
+
+Sistema di equazioni per trovare a, b e c:
+
+  P(1) = a + b + c = 0
+  P(2) = 4a + 2b + c = 1
+  P(3) = 9a + 3b + c = 3
+
+Soluzione: a = 1/2, b = -1/2, c = 0
+
+P(N) = (1/2)N^2 - (1/2)N = (N*(N-1))/2
+
+Formula che fornisce il numero di strette di mano tra N persone:
+
+               N*(N-1) 
+  handshake = ---------
+                  2
+
+Si tratta della formula della somma dei primi N numeri interi utilizzando (N-1) al posto di N.
+
+ Sum[i=1..N](i) = (N*(N+1))/2
+
+(define (handshake num) (/ (* num (- num 1)) 2))
+
+(map handshake (sequence 1 20))
+;-> (0 1 3 6 10 15 21 28 36 45 55 66 78 91 105 120 136 153 171 190)
+
+(define (sum num) (/ (* num (+ num 1)) 2))
+
+(map sum (sequence 1 20))
+;-> (1 3 6 10 15 21 28 36 45 55 66 78 91 105 120 136 153 171 190 210)
+
 ============================================================================
 
