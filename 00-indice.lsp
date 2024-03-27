@@ -2386,6 +2386,8 @@ NOTE LIBERE 23
   Puzzle cromatico
   Pseudofattoriale
   Strette di mano (handshaking)
+  Orologio binario
+  Rimuovere le occorrenze di un elemento in una lista
 
 PROBLEMI SUI DADI
 =================

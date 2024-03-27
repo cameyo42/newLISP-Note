@@ -2681,7 +2681,7 @@ E l'esempio con il "my-append" - la funzione "cons", che aggiunge un elemento in
 
 In un LISP tradizionale, dove le liste sono rappresentate come una testa e una coda, "cons" svolge un ruolo molto più significativo combinando questi due componenti. In newLISP, le liste sono costruiti su una base "lineare".
 
-Di maggiore interesse sono funzioni progettate per convertire una lista in un'altra. La più semplice e più attesa è la funzione "filter", che filtra la lista, lasciando in essa solo i valori​ ​che soddisfano la condizione data:
+Di maggiore interesse sono funzioni progettate per convertire una lista in un'altra. La più semplice e più attesa è la funzione "filter", che filtra la lista, lasciando in essa solo i valori che soddisfano la condizione data:
 
 ; (filter test_function list)
 

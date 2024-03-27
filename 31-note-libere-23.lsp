@@ -1788,5 +1788,266 @@ Si tratta della formula della somma dei primi N numeri interi utilizzando (N-1) 
 (map sum (sequence 1 20))
 ;-> (1 3 6 10 15 21 28 36 45 55 66 78 91 105 120 136 153 171 190 210)
 
+
+----------------
+Orologio binario
+----------------
+
+La funzione "now" restituisce una lista con i seguenti elementi:
+
+Name	                        Description
+-----------------------------------------
+year	                        Gregorian calendar
+month	                        (1–12)
+day	                          (1–31)
+hour	                        (0–23) UTC
+minute	                      (0–59)
+second	                      (0–59)
+microsecond	                  (0–999999) OS-specific, millisecond resolution
+day of current year	          Jan 1st is 1
+day of current week        	  (1–7) starting Monday
+time zone offset in minutes	  west of GMT including daylight savings bias
+daylight savings time type	  (0–6) on Linux/Unix or (0–2) on MS Windows
+
+Prima rappresentazione
+----------------------
+Orario: 10:37:49
+Binario: 1010:100101:110001
+
+(define (binclock1 show)
+  (local (orario bin-h bin-m bin-s)
+    (setq orario (now))
+    (setq hours (orario 3))
+    (setq mins (orario 4))
+    (setq secs (orario 5))
+    (setq bin-h (bits hours))
+    (setq bin-m (bits mins))
+    (setq bin-s (bits secs))
+    (if show (println hours ":" mins ":" secs))
+    (println bin-h ":" bin-m ":" bin-s) '>))
+
+(binclock1 true)
+;-> 14:42:9
+;-> 1110:101010:1001
+
+Seconda rappresentazione
+------------------------
+Orario: 10:37:49
+Binario:
+     H M S
+   1 0 1 1
+   2 1 0 0
+   4 0 1 0
+   8 1 0 0
+  16 0 0 1
+  32 0 1 1
+
+(define (print-matrix grid)
+  (local (rows cols)
+    (setq rows (length grid))
+    (setq cols (length (first grid)))
+    ;(println "  " (join (map string (sequence 0 (- cols 1))) " "))
+    (for (i 0 (- rows 1))
+      ;(print i { })
+      (for (j 0 (- cols 1))
+         (print (grid i j) " ")
+      )
+      (println)
+    ) '>))
+
+(define (binclock2 show)
+  (local (orario binary hours mins secs bin-h bin-m bin-s matrix)
+    (setq orario (now))
+    (setq binary '(" 1" " 2" " 4" " 8" "16" "32"))
+    (setq hours (orario 3))
+    (setq mins (orario 4))
+    (setq secs (orario 5))
+    (setq bin-h (format "%06s" (bits hours)))
+    (setq bin-m (format "%06s" (bits mins)))
+    (setq bin-s (format "%06s" (bits secs)))
+    (setq bin-h (reverse (explode bin-h)))
+    (setq bin-m (reverse (explode bin-m)))
+    (setq bin-s (reverse (explode bin-s)))
+    (setq matrix (transpose (list binary bin-h bin-m bin-s)))
+    (if show (println hours ":" mins ":" secs))
+    (println "   H M S")
+    (print-matrix matrix)) '>)
+
+(binclock2 true)
+;-> 15:43:49
+;->    H M S
+;->  1 1 1 1
+;->  2 1 1 0
+;->  4 1 0 0
+;->  8 1 1 0
+;-> 16 0 0 1
+;-> 32 0 1 1
+
+Terza rappresentazione
+----------------------
+Orario: 10:37:49
+Binario:
+     H H  M M  S S
+  1  1 0  1 1  0 1
+  2  0 0  1 1  0 0
+  4  0 0  0 1  1 0
+  8  0 0  0 0  0 1
+  ----------------
+     1 0  3 7  4 9
+
+(define (binclock3 show)
+  (local (orario binary hours mins secs bin-h bin-m bin-s matrix
+          h1 h2 m1 m2 s1 s2 bin-h1 bin-h2 bin-m1 bin-m2 bin-s1 bin-s2)
+    (setq orario (now))
+    (setq binary '("1" "2" "4" "8"))
+    (setq hours (orario 3))
+    (setq mins (orario 4))
+    (setq secs (orario 5))
+    (if (< hours 10) 
+        (set 'h1 0 'h2 hours)
+        (set 'h1 (/ hours 10) 'h2 (% hours 10)))
+    (if (< mins 10) 
+        (set 'm1 0 'm2 mins)
+        (set 'm1 (/ mins 10) 'm2 (% mins 10)))
+    (if (< secs 10) 
+        (set 's1 0 's2 hours)
+        (set 's1 (/ secs 10) 's2 (% secs 10)))
+    (setq bin-h1 (format "%04s" (bits h1)))
+    (setq bin-h2 (format "%04s" (bits h2)))
+    (setq bin-m1 (format "%04s" (bits m1)))
+    (setq bin-m2 (format "%04s" (bits m2)))
+    (setq bin-s1 (format "%04s" (bits s1)))
+    (setq bin-s2 (format "%04s" (bits s2)))
+    (setq bin-h1 (reverse (explode bin-h1)))
+    (setq bin-h2 (reverse (explode bin-h2)))
+    (setq bin-m1 (reverse (explode bin-m1)))
+    (setq bin-m2 (reverse (explode bin-m2)))
+    (setq bin-s1 (reverse (explode bin-s1)))
+    (setq bin-s2 (reverse (explode bin-s2)))
+    (setq matrix (transpose 
+          (list binary bin-h1 bin-h2 bin-m1 bin-m2 bin-s1 bin-s2)))
+    (if show (println hours ":" mins ":" secs))
+    (println "  H H M M S S")
+    (print-matrix matrix)) '>)
+
+(binclock3 true)
+;-> 15:56:34
+;->   H H M M S S
+;-> 1 1 1 1 0 1 0
+;-> 2 0 0 0 1 1 0
+;-> 4 0 1 1 1 0 1
+;-> 8 0 0 0 0 0 0
+
+
+---------------------------------------------------
+Rimuovere le occorrenze di un elemento in una lista
+---------------------------------------------------
+
+Il problema è quello di rimuovere la prima o tutte le occorrenze di un elemento in una lista (annidata e non).
+
+Per togliere la prima occorrenza di un elemento in una lista non annidata possiamo usare la seguente funzione:
+
+(define (remove-first elt lst)
+  (let ((elt-pos (find elt lst)))
+    (if elt-pos (pop lst elt-pos))
+    lst))
+
+(setq lst '(a a b c b a b))
+(remove-first 'a lst)
+;-> (a b c b a b)
+
+Sostituendo "find" con "ref" possiamo applicare la funzione anche alle liste annidate:
+
+(define (remove-first elt lst)
+  (let ((elt-pos (ref elt lst)))
+    (if elt-pos (pop lst elt-pos))
+    lst))
+
+(setq lst '(a a b c b a b))
+(remove-first 'a lst)
+;-> (a b c b a b)
+
+(setq lst '((a b) a (a b c) (b (c (a))) a))
+(remove-first 'a lst)
+;-> ((b) a (a b c) (b (c (a))) a)
+
+Per rimuovere tutte le occorrenze di un elemento in una lista non annidata possiamo usare la funzione primitiva "replace":
+
+(setq lst '(a a b c b a b))
+(replace 'a lst)
+;-> (b c b b)
+
+Purtroppo se la lista è annidata "replace" rimuove solo le occorrenze di primo livello dell'elemento:
+
+(setq lst '((a b) a (a b c) (b (c (a))) a))
+(replace 'a lst)
+;-> ((a b) (a b c) (b (c (a))))
+Non vengono rimosse le occorrenze che sono annidate.
+
+Scriviamo una funzione per rimuovere tutte le occorrenze di un elemento in una lista annidata.
+
+Metodo ricorsivo:
+
+(define (remove1 element lst)
+  (cond
+    ((atom? lst) lst)
+    ((= (length lst) 0) '())
+    ((= (first lst) element) (remove1 element (rest lst)))
+    (true (cons (remove1 element (first lst))
+                (remove1 element (rest lst))))))
+
+(setq lst '((a b) a (a b c) (b (c (a))) a))
+(remove1 'a lst)
+;-> ((b) (b c) (b (c ())))
+
+Metodo iterativo:
+
+(define (remove2 element lst)
+  (while (setq idx (ref element lst)) (pop lst idx))
+  lst)
+
+(setq lst '((a b) a (a b c) (b (c (a))) a))
+(remove2 'a lst)
+;-> ((b) (b c) (b (c ())))
+
+Vediamo la velocità delle funzioni:
+
+(setq t '((1 (2 (3 4 (5 6)) 5 )) 5 (4 (5 6 (7 5)) 5) (1 (5) 5 (5) 6 (7 (5)))))
+
+(= (remove1 5 t) (remove2 5 t))
+;-> true
+
+(time (remove1 5 t) 1e5)
+;-> 1099.06
+(time (remove2 5 t) 1e5)
+;-> 283.27
+
+Scriviamo una funzione più generica che permette di eliminare la prima o tutte le occorrenze di un elemento per liste annidate e non annidate.
+
+(define (remove elt lst all)
+  (cond (all
+          (while (setq idx (ref elt lst)) (pop lst idx))
+          lst)
+        (true
+          (let ((elt-pos (ref elt lst)))
+            (if elt-pos (pop lst elt-pos))
+            lst))))
+
+Se il parametro 'all' vale true, allora elimina tutte le occorrenze.
+
+Proviamo:
+
+(setq lst '((a b) a (a b c) (b (c (a))) a))
+(remove 'a lst)
+;-> ((b) a (a b c) (b (c (a))) a)
+(remove 'a lst true)
+;-> ((b) (b c) (b (c ())))
+
+(setq lst '(a a b c b a b))
+(remove 'a lst)
+;-> (a b c b a b)
+(remove 'a lst true)
+;-> (b c b b)
+
 ============================================================================
 

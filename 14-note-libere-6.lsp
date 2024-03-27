@@ -7859,7 +7859,7 @@ Facciamo alcune prove:
 ;-> (6 4 2 8 1 7 5 3)
 
 Infine cerchiamo di risolvere il problema con carta e penna:
-Notiamo che i numeri più facili da posizionare sono 1 e 8, perché ognuno ha un solo numero a cui non può essere adiacente, rispettivamente 2 e 7. ​
+Notiamo che i numeri più facili da posizionare sono 1 e 8, perché ognuno ha un solo numero a cui non può essere adiacente, rispettivamente 2 e 7.
 Inoltre i quadrati più difficili da riempire sono quelli al centro ("d" e "e"), poiché ognuno è adiacente ad altri sei.
 Ciò suggerisce di posizionare 1 e 8 nei quadrati centrali (ad esempio, "d" = 1 e "e" = 8).
 Con 1 a sinistra di 8, le uniche posizioni possibili per 2 e 7 sono "c" = 7 e "f" = 2.

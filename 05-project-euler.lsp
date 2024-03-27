@@ -1671,7 +1671,7 @@ Funzione cha calcola il numero di divisori di un numero n:
 Dal punto di vista matematico, il numero di divisori di un numero naturale n è dato da tau(n) o τ(n) o talvolta  delta(n) o δ(n). Ogni numero naturale può essere espresso come il prodotto dei loro fattori primi k in questo modo:
 
 n = Prod[1..k] p(i)^e(i)
-​
+
 Quindi il numero di divisori è dato da:
 
 tau(n) = Prod[1..k] e(i) + 1
