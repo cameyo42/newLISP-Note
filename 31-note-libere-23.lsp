@@ -2049,5 +2049,131 @@ Proviamo:
 (remove 'a lst true)
 ;-> (b c b b)
 
+
+---------------------------------------------------------------------------
+Numero maggiore di N con somma digitale pari a N o alla somma digitale di N
+---------------------------------------------------------------------------
+
+1) Dato un numero intero positivo N, trovare il primo numero maggiore di N che ha la somma digitale pari a N.
+
+Per esempio:
+N = 1
+Il primo numero successivo a 1 che ha somma digitale pari a 1 è 10.
+
+Sequenza OEIS: A161561
+The smallest number larger than n with digital sum equal to n
+  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 29, 39, 49, 59, 69, 79, 89, 99,
+  199, 299, 399, 499, 599, 699, 799, 899, 999, 1999, 2999, 3999, 4999,
+  5999, 6999, 7999, 8999, 9999, 19999, 29999, 39999, 49999, 59999, 69999,
+  79999, 89999, 99999, 199999, 299999, 399999, ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (major1 num)
+  (local (found cur-num)
+    (setq found nil)
+    (setq cur-num num)
+    (until found
+      (++ cur-num)
+      (if (= num (digit-sum cur-num)) (setq found true))
+    )
+    cur-num))
+
+Proviamo:
+
+(map major1 (sequence 1 30))
+;-> (10 11 12 13 14 15 16 17 18 19 29 39 49 59 69 79 89 99
+;->  199 299 399 499 599 699 799 899 999 1999 2999 3999)
+
+
+2) Dato un numero intero positivo N, trovare il primo numero maggiore di N che ha la stessa somma digitale di N.
+
+Per esempio:
+N = 10
+La somma digitale di 10 vale 1.
+Il primo numero successivo a 10 che ha somma digitale pari a 1 è 100.
+
+Sequenza OEIS: 228915
+Next larger integer with same digital sum as n
+  10, 11, 12, 13, 14, 15, 16, 17, 18, 100, 20, 21, 22, 23, 24, 25, 26, 27,
+  28, 101, 30, 31, 32, 33, 34,  35, 36, 37, 38, 102, 40, 41, 42, 43, 44,
+  45, 46, 47, 48, 103, 50, 51, 52, 53, 54, 55, 56, 57, 58, 104, 60, 61,
+  62, 63, 64, 65, 66, 67, 68, 105, 70, 71, 72, ...
+
+(define (major2 num)
+  (local (dsum found cur-num)
+    (setq dsum (digit-sum num))
+    (setq found nil)
+    (setq cur-num num)
+    (until found
+      (++ cur-num)
+      (if (= dsum (digit-sum cur-num)) (setq found true))
+    )
+    cur-num))
+
+Proviamo:
+
+(map major2 (sequence 1 30))
+;-> (10 11 12 13 14 15 16 17 18 100 20 21 22 23 24 25
+;->  26 27 28 101 30 31 32 33 34 35 36 37 38 102)
+
+
+-------------------------
+Scacchi e chicchi di riso
+-------------------------
+
+Una leggenda indiana racconta che l'inventore del gioco degli scacchi sarebbe stato ricompensato dal suo imperatore con qualsiasi cosa egli avesse chiesto.
+L'uomo chiese di essere pagato in riso.
+Voleva un chicco di riso per la prima casella della scacchiera, due per la seconda, quattro per la terza, otto per la quarta e così via, fino alla 64-esima casella.
+L'imperatore rimase stupito che l'uomo chiedesse una ricompensa così piccola, ma quando i suoi matematici terminarono il conteggio si accorse di non avere abbastanza riso per pagare.
+
+Data la lunghezza del lato di un'ipotetica scacchiera (valore standard 8) e il moltiplicatore tra le caselle (nella leggenda vale 2), calcolare il numero di chicchi di riso necessario per pagare.
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1L
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+Funzione che calcola i chicchi di riso necessari per una scacchiera di un certo lato e con un certo moltiplicatore:
+
+(define (chicchi lato molt)
+      ; se il moltiplicatore vale 1...
+  (if (= molt 1) (* lato lato)
+      ; se il moltiplicatoe è maggiore di 1...
+      (let (out 0L)
+        (for (i 0 (- (* lato lato) 1)) (++ out (** molt i)))
+        out)))
+
+Proviamo:
+
+(chicchi 8 2)
+;-> 18446744073709551615L
+
+(chicchi 8 3)
+;-> 1716841910146256242328924544640L
+
+(chicchi 256 1)
+;-> 65536
+
+(chicchi 3 6)
+;-> 2015539L
+
+(chicchi 6 4)
+;-> 1574122160956548404565L
+
+(chicchi 5 -3)
+;-> 211822152361L
+
+Vedi anche "La leggenda della nascita degli scacchi" in "Note libere 12".
+
 ============================================================================
 

@@ -2388,6 +2388,8 @@ NOTE LIBERE 23
   Strette di mano (handshaking)
   Orologio binario
   Rimuovere le occorrenze di un elemento in una lista
+  Numero maggiore di N con somma digitale pari a N o alla somma digitale di N
+  Scacchi e chicchi di riso
 
 PROBLEMI SUI DADI
 =================
