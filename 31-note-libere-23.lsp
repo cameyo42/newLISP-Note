@@ -2134,7 +2134,7 @@ L'uomo chiese di essere pagato in riso.
 Voleva un chicco di riso per la prima casella della scacchiera, due per la seconda, quattro per la terza, otto per la quarta e così via, fino alla 64-esima casella.
 L'imperatore rimase stupito che l'uomo chiedesse una ricompensa così piccola, ma quando i suoi matematici terminarono il conteggio si accorse di non avere abbastanza riso per pagare.
 
-Data la lunghezza del lato di un'ipotetica scacchiera (valore standard 8) e il moltiplicatore tra le caselle (nella leggenda vale 2), calcolare il numero di chicchi di riso necessario per pagare.
+Data la lunghezza del lato di un'ipotetica scacchiera (valore standard 8) e il moltiplicatore tra le caselle (nella leggenda vale 2), calcolare il numero di chicchi di riso da pagare.
 
 (define (** num power)
 "Calculates the integer power of an integer"
@@ -2174,6 +2174,149 @@ Proviamo:
 ;-> 211822152361L
 
 Vedi anche "La leggenda della nascita degli scacchi" in "Note libere 12".
+
+
+---------------------------
+Sistema di numerazione Maya
+---------------------------
+
+Il sistema di numerazione usato dai Maya era vigesimale (a base venti), posizionale e comprendeva l'uso dello zero.
+I numeri erano rappresentati attraverso tre simboli, una conchiglia vuota, un puntino ed una striscia.
+A volte le cifre erano rappresentate come glifi a forma di faccia (questo uso è però raro).
+Conversione da base 10 a base 20 e viceversa
+La conchiglia rappresenta lo zero, mentre le cifre da 1 a 19 erano rappresentati nel modo seguente:
+
+  1  2   3    4     5     
+  *  **  ***  ****  ====
+ 
+  6     7     8     9     10
+  *     **    ***   ****  ====
+  ====  ====  ====  ====  ====
+  
+  11    12    13    14    15
+  *     **    ***   ****  ====
+  ====  ====  ====  ====  ====
+  ====  ====  ====  ====  ====
+
+  16    17    18    19  
+  *     **    ***   ****
+  ====  ====  ====  ====
+  ====  ====  ====  ====
+  ====  ====  ====  ====
+
+Vedi immagine "maya.png" nella cartella "data".
+
+Funzione che converte un numero da base 10 a base 20:
+
+(define (b10-b20 number)
+  (let ((base 20)
+        (charset "0123456789ABCDEFGHIJ")
+        (result '())
+        (quotient number))
+    (while (>= quotient base)
+      (push (charset (% quotient base)) result)
+      (setq quotient (/ quotient base))
+    )
+    (push (charset quotient) result)
+    (join result)))
+
+Proviamo:
+
+(b10-b20 123)
+;-> "63"
+
+Funzione che converte un numero (stringa) da base 20 a base 10:
+
+(define (b20-b10 number-string)
+  (let ((base 20)
+        (charset "0123456789ABCDEFGHIJ")
+        (result 0)
+        (len (length number-string)))
+    (dolist (digit (explode number-string))
+      (setq result (+ (* result base) (find digit charset)))
+    )
+    result))
+
+Proviamo:
+
+(b20-b10 "63")
+;-> 123
+
+(b10-b20 4232)
+;-> "ABC"
+(b20-b10 "ABC")
+;-> 4232
+
+(b10-b20 123456789)
+;-> "1IBC1J9"
+(b20-b10 "1IBC1J9")
+;-> 187456389
+
+
+-------------------------------------------
+Conversione da base 10 a base N e viceversa
+-------------------------------------------
+
+Per convertire un numero da base 10 a base N abbiamo bisogno di N simboli diversi.
+Possiamo utilizzare le cifre da 0 a 9 (9), le lettere maiuscole da 'A' a 'Z' (26) e le lettere minuscole da 'a' a 'z' (26).
+In totale abbiamo a disposizione 62 simboli diversi, quindi la base N è compresa tra 2 e 62.
+
+Funzione che converte da base 10 a base N:
+
+(define (base10-baseN number base)
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result '())
+        (quotient number))
+    (while (>= quotient base)
+      (push (charset (% quotient base)) result)
+      (setq quotient (/ quotient base))
+    )
+    (push (charset quotient) result)
+    (join result)))
+
+Proviamo:
+
+(base10-baseN 123 20)
+;-> "63"
+
+(base10-baseN 123 60)
+;-> "23"
+
+Funzione che converte da base N a base 10::
+
+(define (baseN-base10 number-string base)
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result 0)
+        (len (length number-string)))
+    (dolist (digit (explode number-string))
+      (setq result (+ (* result base) (find digit charset)))
+    )
+    result))
+
+Proviamo:
+
+(baseN-base10 "23" 60)
+;-> 123
+(baseN-base10 "63" 20)
+;-> 123
+
+(base10-baseN 123456789 20)
+;-> "1IBC1J9"
+(baseN-base10 "1IBC1J9" 20)
+;-> 123456789
+
+Funzione che verifica la correttezza delle funzioni "base10-baseN" e "baseN-base10":
+
+(define (test prove)
+  (local (rnd base)
+    (for (i 1 prove)
+      (setq rnd (rand 1e8))
+      (setq base (+ 2 (rand 61)))
+      (if (!= rnd (baseN-base10 (base10-baseN rnd base) base))
+          (println rnd)))))
+
+(test 1e6)
+;-> nil
 
 ============================================================================
 

@@ -2390,6 +2390,8 @@ NOTE LIBERE 23
   Rimuovere le occorrenze di un elemento in una lista
   Numero maggiore di N con somma digitale pari a N o alla somma digitale di N
   Scacchi e chicchi di riso
+  Sistema di numerazione Maya
+  Conversione da base 10 a base N e viceversa
 
 PROBLEMI SUI DADI
 =================
@@ -2434,7 +2436,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (268 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (275 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
