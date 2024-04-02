@@ -2392,6 +2392,10 @@ NOTE LIBERE 23
   Scacchi e chicchi di riso
   Sistema di numerazione Maya
   Conversione da base 10 a base N e viceversa
+  Palindromi di Watson-Crick
+  Bit di parità di una stringa
+  Corrispondenza uno-a-uno tra interi e coppie di interi
+  Massimo prodotto di due interi con somma N
 
 PROBLEMI SUI DADI
 =================

@@ -2318,5 +2318,207 @@ Funzione che verifica la correttezza delle funzioni "base10-baseN" e "baseN-base
 (test 1e6)
 ;-> nil
 
+
+--------------------------
+Palindromi di Watson-Crick
+--------------------------
+
+Una stringa di DNA contiene quattro tipi di caratteri:
+
+  A = Adenina
+  T = Timina
+  C = Citosina
+  G = Guanina
+
+Una stringa di DNA è un palindromo di Watson-Crick se il complemento del suo inverso è uguale a se stesso.
+Data una stringa di DNA, prima invertirla e poi fare il complemento secondo la seguente trasformazione delle basi del DNA: (A <--> T e C <--> G).
+Se la stringa originale è uguale al complemento della stringa inversa, allora è un palindromo di Watson-Crick.
+
+(define (dna-pali str)
+  (let ( (comp "") (inv (reverse (copy str))) )
+    (dolist (ch (explode inv))
+      (cond ((= ch "A") (extend comp "T"))
+            ((= ch "T") (extend comp "A"))
+            ((= ch "C") (extend comp "G"))
+            ((= ch "G") (extend comp "C"))
+            (true (println "Error: " ch " is not a DNA base"))
+      )
+    )
+    (= comp str)))
+
+Proviamo:
+
+(dna-pali "ATCGCGAT")
+;-> true
+(dna-pali "AGT")
+;-> nil
+(dna-pali "GTGACGTCAC")
+;-> true
+(dna-pali "GTACGTAC")
+;-> true
+(dna-pali "GCAGTGA")
+;-> nil
+(dna-pali "GCGC")
+;-> true
+(dna-pali "AACTGCGTTTAC")
+;-> nil
+(dna-pali "ACTG")
+;-> nil
+
+
+----------------------------
+Bit di parità di una stringa
+----------------------------
+
+Il bit di parità è un codice di controllo che viene utilizzato per prevenire errori nella trasmissione o nella memorizzazione dei dati. 
+Tale sistema prevede l'aggiunta di un bit ridondante ai dati, calcolato a seconda che il numero di bit che valgono 1 sia pari o dispari. 
+I bit di parità sono uno dei codici di rilevazione e correzione d'errore più semplici.
+Ci sono due varianti del bit di parità: bit di parità pari e bit di parità dispari.
+Bit di parità pari: vale 1 se il numero di "1" in un certo insieme di bit è dispari (facendo diventare il numero totale di "1" pari). 
+Bit di parità dispari: vale 1 se il numero di "1" in un certo insieme di bit è pari (facendo diventare il numero totale di "1" dispari).
+Il bit di parità è un caso particolare di cyclic redundancy check (CRC), quando il 1-bit CRC è generato dal polinomio (x + 1).
+
+Il bit di parità per una stringa viene calcolato utilizzando come insieme di bit i valori binari dei caratteri ASCII che compongono la stringa.
+Per esempio:
+
+  stringa = "pippo"
+  p = 112 --> 1110000 contiene (3 '1')
+  i = 105 --> 1101001 contiene (4 '1')
+  p = 112 --> 1110000 contiene (3 '1')
+  p = 111 --> 1110000 contiene (3 '1')
+  o = 111 --> 1101111 contiene (6 '1')
+  Numero totale bit  = 3 + 4 + 3 + 3 + 6 = 19
+  Bit di parità (pari): 1
+  Bit di parità (dispari): 0
+
+Questo metodo consente la rilevazione di un singolo errore e garantisce di rilevare solo un numero dispari di errori (infatti un numero pari di errori è impossibile da rilevare).
+
+(define (parity str type)
+  (let (binary "")
+    (dostring (x str)
+      (extend binary (bits x))
+    )
+    (setq uno (length (find-all "1" binary)))
+    ; type = 0 --> parity even
+    ; type = 1 --> parity odd
+    (cond ((and (= type 0) (odd? uno)) 1)
+          ((and (= type 0) (even? uno)) 0)
+          ((and (= type 1) (odd? uno)) 0)
+          ((and (= type 1) (even? uno)) 1))))
+
+Proviamo:
+
+(parity "pippo" 0)
+;-> 1
+(parity "pippo" 1)
+;-> 0
+
+(parity "newLISP" 0)
+;-> 1
+(parity "newLISP" 1)
+;-> 0
+
+
+------------------------------------------------------
+Corrispondenza uno-a-uno tra interi e coppie di interi
+------------------------------------------------------
+
+In matematica, le corrispondenze biunivoche tra coppie di numeri interi e numeri interi positivi possono essere stabilite utilizzando varie tecniche. Un metodo comune consiste nell'utilizzare una funzione di abbinamento.
+La formula per la funzione di accoppiamento, spesso indicata come P(x, y), che mappa coppie di numeri interi non negativi (x, y) in un unico numero intero positivo, è:
+
+  P(x, y) = (x + y)*(x + y + 1)/2 + y
+
+E l'inverso di questa funzione, che associa un intero positivo z alla corrispondente coppia di interi non negativi (x, y), è dato da:
+
+  x = w - t
+  y = t
+
+dove w è il più grande intero tale che w*(w + 1)/2 <= z e t viene calcolato come:
+
+  t = z - w*(w + 1)/2
+
+Questa formula stabilisce una corrispondenza uno a uno tra coppie di numeri interi non negativi e numeri interi positivi.
+
+(define (pairing-function x y)
+  (+ (/ (* (+ x y) (+ x y 1)) 2) y))
+
+Proviamo:
+
+(pairing-function 3 4)
+;-> 32
+(pairing-function 5 7)
+;-> 85
+
+(define (inverse-pairing-function z)
+  (letn ( (w (/ (floor (sub (sqrt (add (mul 8 z) 1)) 1)) 2))
+          (t (- z (/ (* w (+ w 1)) 2))) )
+  (list (- w t) t)))
+
+Proviamo:
+
+(inverse-pairing-function 32)
+;-> (3 4)
+
+(inverse-pairing-function 85)
+;-> 5 7
+
+Funzione di test:
+
+(define (test prove)
+  (local (x y z)
+    (for (i 1 prove)
+      (setq x (rand 1e6))
+      (setq y (rand 1e6))
+      (setq z (pairing-function x y))
+      (if (!= (inverse-pairing-function z) (list x y))
+          (println x { } y { } z)))))
+
+(test 1e6)
+;-> nil
+
+
+------------------------------------------
+Massimo prodotto di due interi con somma N
+------------------------------------------
+
+Dato un numero intero positivo N, determinare il prodotto massimo di due numeri interi la cui somma è N.
+
+Sequenza OEIS: A002620
+Quarter-squares: a(n) = floor(n/2)*ceiling(n/2) or a(n) = floor(n^2/4)
+  0, 0, 1, 2, 4, 6, 9, 12, 16, 20, 25, 30, 36, 42, 49, 56, 64, 72, 81, 90,
+  100, 110, 121, 132, 144, 156, 169, 182, 196, 210, 225, 240, 256, 272,
+  289, 306, 324, 342, 361, 380, 400, 420, 441, 462, 484, 506, 529, 552,
+  576, 600, 625, 650, 676, 702, 729, 756, 784, 812, ...
+
+Possiamo trovare il prodotto massimo analizzando tutte le possibili coppie di numeri interi la cui somma dà come risultato N e tenendo traccia del prodotto massimo trovato.
+
+(define (max-product-with-sum n)
+  (let ( (max-product 0) (i-max -1) (j-max -1) )
+    (for (i 1 (floor (/ n 2)))
+      (let ((j (- n i)))
+        (when (> (* i j) max-product)
+          (set 'max-product (* i j) 'i-max i 'j-max j))))
+    (list max-product i-max j-max)))
+
+Proviamo:
+
+(max-product-with-sum 10)
+;-> (25 5 5)
+(max-product-with-sum 11)
+;-> (30 5 6)
+
+(map first (map max-product-with-sum (sequence 0 20)))
+;-> (0 0 1 2 4 6 9 12 16 20 25 30 36 42 49 56 64 72 81 90 100)
+
+Possiamo anche utilizzare direttamente la formula:
+
+  a(n) = floor(n^2/4)
+
+(define (seq n)
+  (floor (/ (* n n) 4)))
+
+(map seq (sequence 0 20))
+;-> (0 0 1 2 4 6 9 12 16 20 25 30 36 42 49 56 64 72 81 90 100)
+
 ============================================================================
 
