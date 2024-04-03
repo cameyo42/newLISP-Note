@@ -2520,5 +2520,196 @@ Possiamo anche utilizzare direttamente la formula:
 (map seq (sequence 0 20))
 ;-> (0 0 1 2 4 6 9 12 16 20 25 30 36 42 49 56 64 72 81 90 100)
 
+
+-------------------------------------------------------------------------
+Vettori linearmente dipendenti e indipendenti (Algoritmo di Gauss-Jordan)
+-------------------------------------------------------------------------
+
+Dato una lista di vettori tutti della stessa dimensione, determinare se sono linearmente dipendenti o meno.
+Un insieme di vettori v1, v2, ... è linearmente dipendente se per alcuni scalari a1, a2, ..., an (non tutti uguali a 0), a1*v1 + a2*v2 + ... + an*vn = 0 (0 è il vettore zero).
+
+Un altro metodo per verificare se un insieme di vettori è linearmente dipendente è quello di calcolare il determinante della matrice in cui le colonne sono i vettori dati. Se il determinante della matrice vale 0, allora i vettori sono linearmente dipendenti.
+
+(define (linear? lst)
+  (println lst)
+  (nil? (det (transpose lst))))
+
+Proviamo:
+
+(linear? '((0 1) (2 3)))
+;-> nil
+(linear? '((1 2) (2 4)))
+;-> true
+(linear? '((1 2 3) (1 3 5) (0 0 0)))
+;-> true
+(linear? '((1 0 0) (0 1 0) (0 0 1)))
+;-> nil
+
+Purtroppo questo metodo non funziona se la matrice non è quadrata.
+
+(linear? '((2 6 8) (3 9 12)))
+;-> ERR: wrong dimensions : (transpose lst)
+;-> called from user function (linear? '((2 6 8) (3 9 12)))
+;-> False
+
+Comunque se det(A * AT) = 0, allora i vettori sono linearmente dipendenti (AT = trasposta(A)).
+
+La funzione calcola il determinante di A * AT e controlla se vale zero, indicando che i vettori sono linearmente dipendenti.
+
+(define (linear-dependent? lst)
+  (let (a (transpose lst))
+    (nil? (det (multiply a lst)))))
+
+Proviamo:
+
+(linear-dependent? '((0 1) (2 3)))
+;-> nil
+(linear-dependent? '((1 2) (2 4)))
+;-> true
+(linear-dependent? '((1 2 3) (1 3 5) (0 0 0)))
+;-> true
+(linear-dependent? '((1 0 0) (0 1 0) (0 0 1)))
+;-> nil
+(linear-dependent? '((2 6 8) (3 9 12)))
+;-> true
+
+Nota: per determinare se un insieme di vettori sono linearmente dipendenti si può usare anche l'algoritmo di eliminazione di Gauss-Jordan.
+
+La seguente funzione prende una matrice (lista di liste) e restituisce la matrice in forma ridotta di riga.
+La funzione itera attraverso le colonne della matrice, trovando il pivot in ciascuna colonna e utilizzando le operazioni elementari di riga per azzerare gli elementi sotto e sopra il pivot.
+Al termine, restituisce la matrice ridotta.
+
+(define (gauss-jordan matrix)
+(catch
+  (local (rows cols idx)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (setq idx 0)
+    (for (r 0 (- rows 1))
+      (if (>= idx cols) (throw matrix))
+      (setq i r)
+      (while (= (matrix i idx) 0)
+        (++ i)
+        (if (= i rows) (begin
+            (setq i r)
+            (++ idx)
+            (if (= idx cols) (throw matrix)))
+        )
+      )
+      (swap (matrix i) (matrix r))
+      (if (!= (matrix r idx) 0) (begin
+          (setq divisore (matrix r idx))
+          (for (j 0 (- cols 1))
+            (setf (matrix r j) (div (matrix r j) divisore))
+          ))
+      )
+      (for (i 0 (- rows 1))
+        (if (!= i r) (begin
+          (setq fattore (matrix i idx))
+          (for (j 0 (- cols 1))
+            (setq (matrix i j) (sub (matrix i j) (mul fattore (matrix r j))))
+          ))
+        )
+      )
+      (++ idx)
+    )
+    matrix)))
+
+Proviamo:
+
+(setq m '((1 2 3)
+          (4 5 6)
+          (7 8 9)
+          (10 11 12)))
+
+(gauss-jordan m)
+;-> ((1 0 -1) (-0 1 2) (0 0 0) (0 0 0))
+
+Verifichiamo gli esempi sopra considerando che se l'algoritmo di Gauss-Jordan produce una matrice che ha una riga con tutti 0, allora i vettori sono linearmente dipendenti.
+
+(gauss-jordan '((0 1) (2 3)))
+;-> ((0 1) (1 0)) 
+Nessuna riga con tutti 0: vettori indipendenti
+
+(gauss-jordan '((1 2) (2 4)))
+;-> ((1 2) (0 0))
+Riga con tutti 0: vettori dipendenti
+
+(gauss-jordan '((1 2 3) (1 3 5) (0 0 0)))
+;-> ((1 0 -1) (0 1 2) (0 0 0))
+Riga con tutti 0: vettori dipendenti
+
+(gauss-jordan '((1 0 0) (0 1 0) (0 0 1)))
+;-> ((1 0 0) (0 1 0) (0 0 1))
+Nessuna riga con tutti 0: vettori indipendenti
+
+(gauss-jordan '((2 6 8) (3 9 12)))
+;-> ((1 3 4) (0 0 0))
+Riga con tutti 0: vettori dipendenti
+(gauss-jordan (transpose '((2 6 8) (3 9 12))))
+;-> ((1 1.5) (0 0) (0 0))
+
+
+-------------------------------------
+Sostituzione di elementi in una lista
+-------------------------------------
+
+Il problema è quello di sostituire alcuni elementi di una lista con altri elementi.
+Per esempio:
+  lista = (1 2 3 4 5 2)
+  sostituzioni = ((1 2) (2 4))
+  Si tratta di sostituire 1 con 2 e 2 con 4 nella lista (1 2 3 4 5 2).
+  Risultato = (2 4 3 4 5 4)
+
+Dobbiamo applicare le sostituzioni con un solo passaggio nella lista.
+Se attraversiamo la lista per ogni sostituzione otteniamo un risultato diverso:
+
+  lista = (1 2 3 4 5 2)
+  prima sostituzione = (1 2)
+  Risultato = (2 2 3 4 5 2)
+  seconda sostituzione = (2 4)
+  Risultato = (4 4 3 4 5 4)
+
+La lista delle sostituzioni ha la seguente struttura:
+
+  (elemento1 sostituzione1) ... (elementoN sostituzioneN)
+
+Funzione che effettua la sostituzione degli elementi di una lista:
+
+(define (substitute alst lst)
+  (local (out idx)
+    (setq out '())
+    (dolist (el lst)
+      ; ricerca l'elemento nella lista delle sostituzioni
+      (setq idx (find (list el '?) alst match))
+      (cond ((nil? idx) ; elemento trovato
+              (push el out -1))
+            (true ; elemento non trovato
+              (setq subst (alst idx 1))
+              (push subst out -1))
+      )
+    )
+    out))
+
+Proviamo:
+
+(setq a '(1 2 3 4 5 2))
+(setq b '((1 2) (2 4)))
+(substitute b a)
+;-> (2 4 3 4 5 4)
+
+(setq a '(1 2 3 4 5 6 7 8 9))
+(setq b '((1 2) (3 4) (8 9)))
+(substitute b a)
+;-> (2 2 4 4 5 6 7 9 9)
+
+(setq a '(1 2 1 2 1 2 1 2))
+(setq b '((1 2) (2 1)))
+(substitute b a)
+;-> (2 1 2 1 2 1 2 1)
+
+Vedi anche "Sostituzioni multiple in liste o stringhe" su "Note libere 2".
+Vedi anche "replace multiplo" su "Note libere 4".
+
 ============================================================================
 

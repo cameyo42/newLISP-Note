@@ -2396,6 +2396,8 @@ NOTE LIBERE 23
   Bit di parità di una stringa
   Corrispondenza uno-a-uno tra interi e coppie di interi
   Massimo prodotto di due interi con somma N
+  Vettori linearmente dipendenti e indipendenti (Algoritmo di Gauss-Jordan)
+  Sostituzione di elementi in una lista
 
 PROBLEMI SUI DADI
 =================

@@ -7,6 +7,22 @@
 In questo capitolo definiremo alcune funzioni che operano sulle liste e altre funzioni di carattere generale. Alcune di queste ci serviranno successivamente per risolvere i problemi che andremo ad affrontare.
 Poichè newLISP permette sia lo stile funzionale che quello imperativo, le funzioni sono implementate in modo personale e possono essere sicuramente migliorate.
 
+Angle convention:
+
+                             +y
+                        
+                             |    /
+                             |   /
+                             |  /   + Theta
+                             | / )
++-180 degrees    -x ------------------- +x    0 degrees
+                             | \ )
+                             |  \   - Theta
+                             |   \
+                             |    \
+                          
+                            -y
+
 -------------
 Tabella ASCII
 -------------

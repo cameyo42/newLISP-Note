@@ -2942,6 +2942,9 @@ Nota: attenzione alle modifiche circolari,
 
 Ogni elemento nella lista sost modifica tutti gli elementi della lista lst in sequenza.
 
+Vedi anche "Sostituzioni multiple in liste o stringhe" su "Note libere 2".
+Vedi anche "Sostituzione di elementi in una lista" su "Note libere 23".
+
 
 ----------------
 ASCII Mandelbrot

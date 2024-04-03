@@ -3177,6 +3177,9 @@ text
 
 Risulta comodo accoppiare le modifiche nel caso ci siano parecchie modifiche da effettuare.
 
+Vedi anche "replace multiplo" su "Note libere 4".
+Vedi anche "Sostituzione di elementi in una lista" su "Note libere 23".
+
 
 -------------
 Cambio monete
