@@ -1795,19 +1795,19 @@ Orologio binario
 
 La funzione "now" restituisce una lista con i seguenti elementi:
 
-Name	                        Description
+Name                          Description
 -----------------------------------------
-year	                        Gregorian calendar
-month	                        (1–12)
-day	                          (1–31)
-hour	                        (0–23) UTC
-minute	                      (0–59)
-second	                      (0–59)
-microsecond	                  (0–999999) OS-specific, millisecond resolution
-day of current year	          Jan 1st is 1
-day of current week        	  (1–7) starting Monday
-time zone offset in minutes	  west of GMT including daylight savings bias
-daylight savings time type	  (0–6) on Linux/Unix or (0–2) on MS Windows
+year                          Gregorian calendar
+month                         (1–12)
+day                           (1–31)
+hour                          (0–23) UTC
+minute                        (0–59)
+second                        (0–59)
+microsecond                   (0–999999) OS-specific, millisecond resolution
+day of current year           Jan 1st is 1
+day of current week           (1–7) starting Monday
+time zone offset in minutes   west of GMT including daylight savings bias
+daylight savings time type    (0–6) on Linux/Unix or (0–2) on MS Windows
 
 Prima rappresentazione
 ----------------------
@@ -2710,6 +2710,95 @@ Proviamo:
 
 Vedi anche "Sostituzioni multiple in liste o stringhe" su "Note libere 2".
 Vedi anche "replace multiplo" su "Note libere 4".
+
+
+-------------------
+Taglio di una torta
+-------------------
+
+Se tagliamo una torta con N tagli, qual'è il numero massimo di pezzi che possiamo ottenere?
+
+Sequenza OEIS: A000124
+Maximal number of pieces formed when slicing a pancake with n cuts: n(n+1)/2 + 1
+  1, 2, 4, 7, 11, 16, 22, 29, 37, 46, 56, 67, 79, 92, 106, 121, 137, 154,
+  172, 191, 211, 232, 254, 277, 301, 326, 352, 379, 407, 436, 466, 497,
+  529, 562, 596, 631, 667, 704, 742, 781, 821, 862, 904, 947, 991, 1036,
+  1082, 1129, 1177, 1226, 1276, 1327, 1379, ...
+
+Primo metodo: (utilizziamo direttamente la formula)
+
+(define (pieces n) (+ (/ (* n (+ n 1)) 2) 1))
+
+(map pieces (sequence 0 50))
+;-> (1 2 4 7 11 16 22 29 37 46 56 67 79 92 106 121 137 154 172 191 211
+;->  232 254 277 301 326 352 379 407 436 466 497 529 562 596 631 667 704
+;->  742 781 821 862 904 947 991 1036 1082 1129 1177 1226 1276)
+
+Secondo metodo: (ricorsione)
+La formula per calcolare il numero massimo di pezzi ottenibili tagliando una torta con N tagli può essere ottenuta osservando il modello che si forma man mano che vengono effettuati i tagli. 
+
+Ogni nuovo taglio (ottimale) divide ogni pezzo esistente in due parti, quindi il numero di pezzi aumenta di N. 
+Inoltre, ogni nuovo taglio crea anche un nuovo pezzo, quindi il numero totale di pezzi aumenta di 1.
+
+Quindi, possiamo scrivere la formula ricorsiva come:
+
+  numero-max-pezzi(N) = N + numero-max-pezzi(N - 1)
+
+dove il caso base è quando non ci sono tagli, e quindi il numero di pezzi è 1:
+
+  numero-max-pezzi(0) = 1
+
+Utilizzando questa formula ricorsiva, possiamo calcolare il numero massimo di pezzi ottenibili tagliando una torta con N tagli.
+
+(define (pezzi x)
+  (cond ((zero? x) 1)
+        (true (+ x (pezzi (- x 1))))))
+
+(map pezzi (sequence 0 50))
+;-> (1 2 4 7 11 16 22 29 37 46 56 67 79 92 106 121 137 154 172 191 211
+;->  232 254 277 301 326 352 379 407 436 466 497 529 562 596 631 667 704
+;->  742 781 821 862 904 947 991 1036 1082 1129 1177 1226 1276)
+
+Comunque la funzione ricorsiva genera un errore di stack overflow quando N cresce abbastanza:
+
+(pezzi 682)
+;-> ERR: call or result stack overflow in function cond : zero?
+;-> called from user function (pezzi (- x 1))
+;-> ...
+;-> called from user function (pezzi (- x 1))
+
+Per risolvere il problema usiamo la macro "memoize":
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize mpezzi
+  (lambda (x)
+    (cond ((zero? x) 1)
+          (true (+ x (mpezzi (- x 1)))))))
+
+Proviamo:
+
+(map mpezzi (sequence 1 50))
+;-> (2 4 7 11 16 22 29 37 46 56 67 79 92 106 121 137 154 172 191 211 232
+;->  254 277 301 326 352 379 407 436 466 497 529 562 596 631 667 704 742
+;->  781 821 862 904 947 991 1036 1082 1129 1177 1226 1276)
+
+(mpezzi 682)
+;-> 232904
+
+Vediamo la velocità delle tre funzioni:
+
+(time (pieces 680) 1e4)
+;-> 0
+(time (pezzi 680) 1e4)
+;-> 1046.584
+(time (mpezzi 680) 1e4)
+;-> 15.586
 
 ============================================================================
 

@@ -3992,7 +3992,7 @@ Vediamo i tempi di esecuzione:
 (time (explodes seq -7 true) 10)
 ;-> 7.951
 
-Infine vediamo una funzione che simula "explode":
+Adesso vediamo una funzione che simula "explode":
 
 (define (my-exp llst number)
   (if (empty? llst)
@@ -4001,6 +4001,18 @@ Infine vediamo una funzione che simula "explode":
 
 (my-exp '(0 1 2 3 4 5 6 7 8 9) 3)
 ;-> ((0 1 2) (3 4 5) (6 7 8) (9))
+
+Infine vediamo come "esplodere" le stringhe UTF-8:
+
+(setq str "αεμπστφ")
+;-> "αεµπστφ"
+(explode str 2)
+;-> ("αεµπστ" "φ\000àí") ???
+
+(unpack (dup "c" (length str)) str)
+;-> (-32 -18 -26 -29 -27 -25 -19)
+(unpack (dup "s" (length str)) str)
+;-> ("α" "ε" "µ" "π" "σ" "τ" "φ")
 
 
 --------------------
@@ -4578,6 +4590,7 @@ f) La distanza tra loro è al massimo 2*D (per la disuguaglianza triangolare), c
 -----------------------------------------------
 Verificare se due segmenti/rette sono paralleli
 -----------------------------------------------
+
 Dati due segmenti AB e CD aventi A = (x1 y1), B = (x2 y2), C = (x3 y3) e D = (x4 y4), verificare se sono paralleli (cioè le linee a cui appartengono questi segmenti sono parallele).
 Due rette si dicono parallele hanno pendenze uguali (m1 = m2).
 

@@ -2398,6 +2398,7 @@ NOTE LIBERE 23
   Massimo prodotto di due interi con somma N
   Vettori linearmente dipendenti e indipendenti (Algoritmo di Gauss-Jordan)
   Sostituzione di elementi in una lista
+  Taglio di una torta
 
 PROBLEMI SUI DADI
 =================
@@ -2442,7 +2443,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (275 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (276 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
