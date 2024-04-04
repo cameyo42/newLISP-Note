@@ -2800,5 +2800,140 @@ Vediamo la velocità delle tre funzioni:
 (time (mpezzi 680) 1e4)
 ;-> 15.586
 
+
+-----------------------------------------
+Rotolare una pallina attraverso una lista
+-----------------------------------------
+
+Abbiamo una lista binaria (solo 1 e 0) e vogliamo far rotolare una pallina attraverso di essa.
+La pallina ha una posizione e una direzione.
+Ad ogni passo la pallina fa quanto segue:
+1) Se il numero nella sua posizione è 1, inverte la direzione.
+2) Inverte il numero (se è 0 diventa 1, se è 1 diventa 0).
+3) Muove di un passo nella direzione corrente.
+
+Iniziamo con la pallina sul primo indice di sinistra e con direzione destra.
+Quando la pallina si trova fuori dall'intervallo (indice-minimo...indice-massimo), allora interrompiamo l'esecuzione.
+
+Questo processo termina sempre?
+In altre parole, siamo sicuri che di non rimanere all'interno di un ciclo infinito?
+Dimostriamo che il processo termina sempre:
+Supponiamo che la lista di lunghezza N termina.
+L'unico modo in cui una lista di lunghezza N+1 non può fermarsi è se la pallina rimbalza all'infinito tra il primo elemento e la coda.
+Ciò è impossibile, poiché il primo elemento alla fine sarà zero e la pallina continuerà verso sinistra.
+
+(define (roll-ball lst show)
+  (local (dir pos len step)
+    (setq dir "right")
+    (setq pos 0)
+    (setq len (length lst))
+    (setq step 0)
+    (while (and (>= pos 0) (< pos len))
+      (setq cur-bit (lst pos))
+      (++ step)
+      (cond ((= cur-bit 1)
+              ; cambia direzione
+              (if (= dir "left") 
+                  (setq dir "right")
+                  (setq dir "left")
+              )
+              ; inverte il bit corrente
+              (setf (lst pos) 0)
+              ; avanza di un passo nella direzione corrente
+              (if (= dir "left")
+                  (-- pos)
+                  (++ pos)
+              ))
+            ((= cur-bit 0)
+              ; inverte il bit corrente
+              (setf (lst pos) 1)
+              ; avanza di un passo nella direzione corrente
+              (if (= dir "left")
+                  (-- pos)
+                  (++ pos)
+              ))
+      )
+      (when show (print lst) (read-line))
+   )
+   ; restituisce la lista finale e il numero di rotolamenti
+   (list lst step)))
+
+Proviamo:
+
+(setq a '(0 0 0 1 0))
+
+(roll-ball a true)
+;-> (1 0 0 1 0)
+;-> (1 1 0 1 0)
+;-> (1 1 1 1 0)
+;-> (1 1 1 0 0)
+;-> (1 1 0 0 0)
+;-> (1 1 0 1 0)
+;-> (1 1 0 1 1)
+;-> ((1 1 0 1 1) 7)
+
+(roll-ball '(0 0 0 0 0))
+;-> ((1 1 1 1 1) 5)
+(roll-ball '(1 1 1 1 1))
+;-> ((0 1 1 1 1) 1)
+
+(roll-ball '(0 0 0 0 1))
+;-> ((1 1 1 0 1) 7)
+(roll-ball '(1 0 0 0 0))
+;-> ((0 0 0 0 0) 1)
+
+(roll-ball '(1 1 1 1 0))
+;-> ((0 1 1 1 0) 1)
+(roll-ball '(0 1 1 1 1))
+;-> ((0 0 0 0 1) 13)
+
+(roll-ball '(0 1 0 1 0))
+;-> ((0 1 0 1 1) 9)
+(roll-ball '(1 0 1 0 1))
+;-> ((0 0 1 0 1) 1)
+
+Vediamo quali liste permettono il massimo rotolamento della pallina, cioè per quali liste la pallina si muove di più prima di uscire.
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(define (test len)
+  (setq binary (perm-rep len '(0 1)))
+  (setq lst-max '())
+  (setq val-max 0)
+  (dolist (b binary)
+    (setq rolled (roll-ball b))
+    (if (> (rolled 1) val-max)
+      (begin
+        (setq val-max (rolled 1))
+        (setq lst-max b))
+    )
+  )
+  (list lst-max (roll-ball lst-max)))
+
+(for (i 2 10) (println (test i)))
+;-> ((0 1) ((0 1) 4))
+;-> ((0 1 1) ((0 0 1) 7))
+;-> ((0 1 1 1) ((0 0 0 1) 10))
+;-> ((0 1 1 1 1) ((0 0 0 0 1) 13))
+;-> ((0 1 1 1 1 1) ((0 0 0 0 0 1) 16))
+;-> ((0 1 1 1 1 1 1) ((0 0 0 0 0 0 1) 19))
+;-> ((0 1 1 1 1 1 1 1) ((0 0 0 0 0 0 0 1) 22))
+;-> ((0 1 1 1 1 1 1 1 1) ((0 0 0 0 0 0 0 0 1) 25))
+;-> ((0 1 1 1 1 1 1 1 1 1) ((0 0 0 0 0 0 0 0 0 1) 28))
+
+Lo schema della lista con il massimo rotolamento è il seguente:
+
+  (0 1 ... 1)
+
+e il numero massimo di rotolamenti R vale:
+
+ R = 3*len - 2
+
+dove len è la lunghezza della lista.
+
 ============================================================================
 

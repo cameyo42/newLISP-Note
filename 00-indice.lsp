@@ -1158,8 +1158,8 @@ NOTE LIBERE 8
   Numeri Star
   Numeri emirp
   Numeri con tutte le cifre uguali
-  Numeri magici (magic number)
-  Numeri polidivisibili
+  Numeri magici (magic numbers)
+  Numeri polidivisibili (numeri magici)
   Algoritmo jump search
   Numeri intoccabili (untouchable)
   Powerset di una lista
@@ -2399,6 +2399,7 @@ NOTE LIBERE 23
   Vettori linearmente dipendenti e indipendenti (Algoritmo di Gauss-Jordan)
   Sostituzione di elementi in una lista
   Taglio di una torta
+  Rotolare una pallina attraverso una lista
 
 PROBLEMI SUI DADI
 =================

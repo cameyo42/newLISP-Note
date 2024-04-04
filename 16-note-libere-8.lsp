@@ -1516,7 +1516,7 @@ Vediamo un paio di esempi:
 ;-> "ZZZ"
 
 (longest-common-substring "123456789" "123564789")
-;-> "123" 
+;-> "123"
 
 (longest-common-substring "123456789" "1236789")
 ;-> "6789"
@@ -2775,9 +2775,9 @@ Verifichiamo se le funzioni producono gli stessi risultati:
 ;-> true
 
 
-----------------------------
-Numeri magici (magic number)
-----------------------------
+-----------------------------
+Numeri magici (magic numbers)
+-----------------------------
 
 Nella programmazione il termine numero magico (magic number) ha molteplici significati. Potrebbe riferirsi a uno o più dei seguenti:
 
@@ -2890,9 +2890,9 @@ Funzione per invertire un numero:
 ;-> 1536.011
 
 
----------------------
-Numeri polidivisibili
----------------------
+-------------------------------------
+Numeri polidivisibili (numeri magici)
+-------------------------------------
 
 Un numero polidivisibile (o numero magico) è un numero formato dalle cifre "abcde..." che ha le seguenti proprietà:
 
@@ -2953,6 +2953,50 @@ Vediamo i tempi di esecuzione delle due funzioni:
 
 (time (poly-div? 345654) 100000)
 ;-> 150.697
+
+Sequenza OEIS: A144688
+"Magic" numbers: all numbers from 0 to 9 are magic.
+A number >= 10 is magic if it is divisible by the number of its digits and the number obtained by deleting the final digit is also magic.
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28,
+  30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64,
+  66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 102,
+  105, 108, 120, 123, 126, 129, 141, 144, 147, 162, 165, 168, 180, ...
+
+(filter (fn(x) (poly-div? x)) (sequence 0 200))
+;-> (0 1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26 28 30 32 34 36 38
+;->  40 42 44 46 48 50 52 54 56 58 60 62 64 66 68 70 72 74 76 78 80 82
+;->  84 86 88 90 92 94 96 98 102 105 108 120 123 126 129 141 144 147 162
+;->  165 168 180 183 186 189)
+
+Per ogni base b, esiste solo un numero finito di numeri polidivisibili.
+In base 10 il massimo numero polidivisibile è 3.608.528.850.368.400.786.036.725.
+
+Verifichiamolo:
+
+(define (string-int str)
+"Convert a numeric string to big-integer"
+  (let (num 0L)
+    (cond ((= (str 0) "-")
+            (pop str)
+            (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))
+            (* num -1))
+          (true
+            (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))))))
+
+(define (polidivisibile? n)
+  (local (s stop)
+    (setq s (string n))
+    (setq stop nil)
+    (for (i 2 (- (length s) 1) 1 stop)
+        ;(print (slice s 0 i))
+        (if (!= (% (string-int (slice s 0 i)) i) 0)
+            (setq stop true)
+        )
+    )
+    (not stop)))
+
+(polidivisibile? 3608528850368400786036725L)
+;-> true
 
 
 ---------------------
@@ -6564,7 +6608,7 @@ Diventano:
 
 Inoltre, sempre dal manuale,:
 
-Implicit indexing for rest and slice 
+Implicit indexing for rest and slice
 (Indicizzazione implicita per "rest" e "slice")
 È possibile creare forme implicite di "rest" e "slice" anteponendo ad una lista o uno o due numeri per offset e lunghezza.
 
