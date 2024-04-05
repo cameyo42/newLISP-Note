@@ -2400,6 +2400,8 @@ NOTE LIBERE 23
   Sostituzione di elementi in una lista
   Taglio di una torta
   Rotolare una pallina attraverso una lista
+  Funzione narcisistica
+  La sequenza più-meno
 
 PROBLEMI SUI DADI
 =================

@@ -2935,5 +2935,71 @@ e il numero massimo di rotolamenti R vale:
 
 dove len è la lunghezza della lista.
 
+
+---------------------
+Funzione narcisistica
+---------------------
+
+Una funzione narcisistica prende come parametro una funzione e restituisce true se e solo se la funzione passata è lei stessa, altrimenti restituisce nil.
+
+newLISP rende facile scrivere una funzione narcisistica:
+
+(define (narci func)
+  (= (string narci) (string func)))
+
+(define (test a b) (+ a b))
+  
+Proviamo:
+
+(narci test)
+;-> nil
+
+(narci narci)
+;-> true
+
+
+--------------------
+La sequenza più-meno
+--------------------
+
+La sequenza più-meno inizia con due semi, a(0) e b(0).
+Ogni iterazione di questa sequenza è l'addizione e la sottrazione dei due membri precedenti della sequenza.
+In altre parole la definizione della sequenza è la seguente:
+
+  a(N) = a(N-1) + b(N-1)
+  b(N) = a(N-1) - b(N-1)
+
+Usiamo una funzione ricorsiva per calcolare la sequenza partendo da valori dati di a(0) e b(0)
+
+(define (func a b n)
+  (cond ((= n 0) nil)
+        (true 
+          (print (list a b) { })
+          (func (+ a b) (- a b) (- n 1)))))
+
+Proviamo:
+
+(func 1 1 10)
+;-> (1 1) (2 0) (2 2) (4 0) (4 4) (8 0) (8 8) (16 0) (16 16) (32 0)
+
+(func 2 4 10)
+;-> (2 4) (6 -2) (4 8) (12 -4) (8 16) (24 -8) (16 32) (48 -16) (32 64) (96 -32)
+
+(func 4 2 10)
+;-> (4 2) (6 2) (8 4) (12 4) (16 8) (24 8) (32 16) (48 16) (64 32) (96 32)
+
+(func 7 2 50)
+;-> (7 2) (9 5) (14 4) (18 10) (28 8) (36 20) (56 16) (72 40) (112 32) (144 80)
+;-> (224 64) (288 160) (448 128) (576 320) (896 256) (1152 640) (1792 512)
+;-> (2304 1280) (3584 1024) (4608 2560) (7168 2048) (9216 5120) (14336 4096)
+;-> (18432 10240) (28672 8192) (36864 20480) (57344 16384) (73728 40960)
+;-> (114688 32768) (147456 81920) (229376 65536) (294912 163840) 
+;-> (458752 131072) (589824 327680) (917504 262144) (1179648 655360)
+;-> (1835008 524288) (2359296 1310720) (3670016 1048576) (4718592 2621440)
+;-> (7340032 2097152) (9437184 5242880) (14680064 4194304) 
+;-> (18874368 10485760) (29360128 8388608) (37748736 20971520)
+;-> (58720256 16777216) (75497472 41943040) (117440512 33554432)
+;-> (150994944 83886080)
+
 ============================================================================
 
