@@ -1545,6 +1545,42 @@ Infine un polinomio che genera 57 numeri primi (per x da 0 a 56):
 ;->  289511 318259 355573 404267 467617 549391 653879 785923 950947
 ;->  1154987 1404721 1707499 2071373 2505127 3018307 3621251 4325119)
 
+Il matematico canadese Simon Plouffe ha trovato un metodo che riesce a produrre 50 numeri primi:
+
+https://arxiv.org/ftp/arxiv/papers/1901/1901.01849.pdf
+
+Formula di Plouffe:
+
+  a(n+1) = a(n)^(5/4)
+  a(0) = 43.80468771580293481
+
+(define (genera primi)
+  (setq cur 43.80468771580293481)
+  (for (i 1 primi)
+    (setq cur (pow cur (div 5 4)))
+    ; il numero deve essere arrotondato all'intero più vicino
+    (setq p (int (add 0.5 (pow cur (div 5 4)))))
+    (print i { } p { })
+    (if (prime? p) 
+      (println "primo")
+      (println "non primo"))))
+ 
+Proviamo:
+
+(genera 10)
+;-> 1 367 primo
+;-> 2 1607 primo
+;-> 3 10177 primo
+;-> 4 102217 primo
+;-> 5 1827697 primo
+;-> 6 67201679 primo
+;-> 7 6084503671 primo
+;-> 8 1699344564793 primo
+;-> 9 1940223714629438 non primo
+;-> 10 9223372036854775807 non primo
+
+Purtroppo non possiamo calcolare tutti i 50 numeri primi per problemi di floating-point.
+
 Vedi anche "Formula per calcolare i numeri primi" sul capitolo "19-note-libere-11".
 
 

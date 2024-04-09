@@ -2370,7 +2370,7 @@ NOTE LIBERE 23
   n AND (n - 1)
   Prodotto quadrato delle cifre
   Binary recurrence sequence
-  Sequenza (2x + 1) e (3x -1)
+  Sequenza (2x + 1) e (3x - 1)
   Liste sum-free
   Ordinare un numero in base all'ordine alfabetico delle cifre
   Raggruppare in sottoliste tutti gli elementi uguali di una lista
@@ -2402,6 +2402,8 @@ NOTE LIBERE 23
   Rotolare una pallina attraverso una lista
   Funzione narcisistica
   La sequenza più-meno
+  Formula curiosa
+  Verificare se una matrice è una sottomatrice di un'altra matrice
 
 PROBLEMI SUI DADI
 =================

@@ -248,9 +248,9 @@ Proviamo:
 ;-> 123
 
 
----------------------------
-Sequenza (2x + 1) e (3x -1)
----------------------------
+----------------------------
+Sequenza (2x + 1) e (3x - 1)
+----------------------------
 
 Una sequenza di numeri viene calcolata in base alla seguenti regole:
 1) Il primo elemento è 1
@@ -492,14 +492,14 @@ Per esempio:
            (dolist (el lst)
               ; se l'elemento è uguale al precedente aumentiamo il suo conteggio
               (if (= el palo) (++ conta)
-                  ; altrimenti costruiamo la coppia (conta el) e la aggiungiamo al risultato
+                  ; altrimenti aggiungiamo un elemento al risultato
                   (begin (push (dup palo conta true) out -1)
                          (setq conta 1)
                          (setq palo el)
                   )
               )
            )
-           ; aggiungiamo l'ultima coppia di valori
+           ; aggiungiamo l'ultimo elemento
            (push (dup palo conta true) out -1)
            out))))
 
@@ -1977,7 +1977,7 @@ Per rimuovere tutte le occorrenze di un elemento in una lista non annidata possi
 (replace 'a lst)
 ;-> (b c b b)
 
-Purtroppo se la lista è annidata "replace" rimuove solo le occorrenze di primo livello dell'elemento:
+Comunque se la lista è annidata "replace" rimuove solo le occorrenze di primo livello dell'elemento:
 
 (setq lst '((a b) a (a b c) (b (c (a))) a))
 (replace 'a lst)
@@ -2971,24 +2971,24 @@ In altre parole la definizione della sequenza è la seguente:
 
 Usiamo una funzione ricorsiva per calcolare la sequenza partendo da valori dati di a(0) e b(0)
 
-(define (func a b n)
+(define (plus-minus a b n)
   (cond ((= n 0) nil)
         (true 
           (print (list a b) { })
-          (func (+ a b) (- a b) (- n 1)))))
+          (plus-minus (+ a b) (- a b) (- n 1)))))
 
 Proviamo:
 
-(func 1 1 10)
+(plus-minus 1 1 10)
 ;-> (1 1) (2 0) (2 2) (4 0) (4 4) (8 0) (8 8) (16 0) (16 16) (32 0)
 
-(func 2 4 10)
+(plus-minus 2 4 10)
 ;-> (2 4) (6 -2) (4 8) (12 -4) (8 16) (24 -8) (16 32) (48 -16) (32 64) (96 -32)
 
-(func 4 2 10)
+(plus-minus 4 2 10)
 ;-> (4 2) (6 2) (8 4) (12 4) (16 8) (24 8) (32 16) (48 16) (64 32) (96 32)
 
-(func 7 2 50)
+(plus-minus 7 2 50)
 ;-> (7 2) (9 5) (14 4) (18 10) (28 8) (36 20) (56 16) (72 40) (112 32) (144 80)
 ;-> (224 64) (288 160) (448 128) (576 320) (896 256) (1152 640) (1792 512)
 ;-> (2304 1280) (3584 1024) (4608 2560) (7168 2048) (9216 5120) (14336 4096)
@@ -3000,6 +3000,260 @@ Proviamo:
 ;-> (18874368 10485760) (29360128 8388608) (37748736 20971520)
 ;-> (58720256 16777216) (75497472 41943040) (117440512 33554432)
 ;-> (150994944 83886080)
+
+
+---------------
+Formula curiosa
+---------------
+
+Dato un intero positivo N calcolare gli interi a e b (formanti la frazione ridotta a/b) tali che:
+
+   a/b = Prod[k=1..n] = (p(k)^2 - 1)/(p(k)^2 + 1)
+
+dove p(k) è il k-esimo numero primo (con p(1)=2).
+
+Esempi:
+
+N      a,b
+1   -> 3, 5
+2   -> 12, 25
+3   -> 144, 325
+4   -> 3456, 8125
+5   -> 41472, 99125
+10  -> 4506715396450638759507001344, 11179755611058498955501765625
+100 -> very long
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+         (let ((lst '(2)) (arr (array (+ num 1))))
+          (for (x 3 num 2)
+            (when (not (arr x))
+              (push x lst -1)
+              (for (y (* x x) num (* 2 x) (> y num))
+                (setf (arr y) true)))) lst))))
+
+Funzione che riduce una frazione (num den) ai miimi termini:
+
+(define (riduce lst)
+  (letn ((a (first lst))
+         (b (last lst))
+         (g (gcd a b)))
+    (list (/ a g) (/ b g))))
+
+(riduce '(2 4))
+;-> (1 2)
+(riduce '(1456 2384))
+;-> (91 149)
+
+Il numero di primi fino ad un dato numero x vale:
+
+  numero-primi-fino-x ≈ x/ln(x) 
+
+Se vogliamo trovare N primi (come minimo), allora per trovare fino a che numero x dobbiamo arrivare possiamo usare la seguente formula:
+
+  x = k*x*ln(x)
+
+dove k è una costante maggiore di 1.
+
+Facciamo alcune prove:
+
+(define (numprimi N k) 
+  (let (fino (int (mul k (mul N (log N)))))
+    (list fino (length (primes-to fino)) N)))
+    
+Proviamo con k=1.5:
+
+(numprimi 2 1.5)
+;-> (2 1 2) ; non corretta (calcoliamo solo un numero primo e ne vogliamo 2)
+(numprimi 3 1.5)
+;-> (4 2 3) ; non corretta (calcoliamo solo 2 primi e ne vogliamo 3)
+(numprimi 4 1.5)
+;-> (8 4 4) ; corretta (calcoliamo 4 primi e ne vogliamo 4)
+(numprimi 10 1.5)
+;-> (34 11 10) ; corretta (calcoliamo 11 primi e ne vogliamo 10)
+(numprimi 1000 1.5)
+;-> (10361 1271 1000) ; corretta (calcoliamo 1271 primi e ne vogliamo 1000)
+
+Proviamo con k=2:
+
+(numprimi 2 2)
+;-> (2 1 2) ; non corretta (calcoliamo solo un numero primo e ne vogliamo 2)
+(numprimi 3 2)
+;-> (6 3 3) ; corretta
+(numprimi 4 2)
+;-> (11 5 4) ; corretta
+(numprimi 10 2)
+;-> (46 14 10) ; corretta
+(numprimi 1000 2)
+;-> (13815 1633 1000) ; corretta
+
+Proviamo con k=3:
+
+(numprimi 2 3)
+;-> (4 2 2)
+(numprimi 1000 3)
+;-> (20723 2333 1000)
+
+Usiamo k=3.
+
+(define (prodotto N)
+  (if (= N 1) '(3L 5L)
+  ;else
+  (let ((primi (primes-to (int (mul 3 (mul N (log N))))))
+        (num 1L)
+        (den 1L))
+    (for (i 0 (- N 1))
+      (setq p (primi i))
+      ;(println i { } p)
+      (setq num (* num (- (* p p) 1)))
+      (setq den (* den (+ (* p p) 1)))
+    )
+    ;(read-line)
+    (riduce (list num den)))))
+
+Proviamo:
+
+(prodotto 1)
+;-> (3L 5L)
+(prodotto 2)
+;-> (12L 25L)
+(prodotto 3)
+;-> (144L 325L)
+(prodotto 4)
+;-> (3456L 8125L)
+(prodotto 5)
+;-> (41472L 99125L)
+(prodotto 100)
+;-> (476415782933456519300618572445350574056728218531758039160927821931822471
+;->  414193681177862189643962824133391708790265624005778268502748020466780965
+;->  857380342476093105664669834792981822546695974712335603754411386917214808
+;->  1661301750390387330469247043970929556905424074174671951930959004172288L
+;->  
+;->  119043299260290744289221567101167165928613338826514168236428503376409223
+;->  532084586363780114966288875834693208086162438303241539364680745920158755
+;->  032240676770017106643939082978230650133940925860086142384745460142327976
+;->  40572795522992300627259060236874942368228298577139072039009617454203125L)
+(prodotto 500)
+;-> (318566676977...188473729024L
+;->  796367989233...200267040625L)
+
+
+----------------------------------------------------------------
+Verificare se una matrice è una sottomatrice di un'altra matrice
+----------------------------------------------------------------
+
+Date due matrici M e S determinare se S è una sottomatrice di M (cioè se S è contenuta in M).
+
+Per ogni elemento della matrice controlliamo se è l'inizio della sottomatrice e controlliamo se gli elementi successivi sono uguali a quelli della sottomatrice.
+
+(define (submatrix? sub-mat matrix idx)
+  (local (out base-row base-col sub-rows sub-cols mat-rows mat-cols
+          righe colonne check)
+    (setq out nil)
+    (setq base-row nil)
+    (setq base-col nil)
+    (setq sub-rows (length sub-mat))
+    (setq sub-cols (length (sub-mat 0)))
+    (setq mat-rows (length matrix))
+    (setq mat-cols (length (matrix 0)))
+    (cond 
+      ((or (zero? sub-rows) (zero? sub-cols)) true)
+      ((or (zero? mat-rows) (zero? mat-cols)) nil)
+      ((or (> sub-rows mat-rows) (> sub-cols mat-cols)) nil)
+      (true
+        (setq righe (- mat-rows sub-rows))
+        (setq colonne (- mat-cols sub-cols))
+        ;(println "righe: " righe ", colonne: " colonne)
+        (for (r 0 righe 1 out)
+          (for (c 0 colonne 1 out)
+            (setq check nil)
+            ;(println "base: " (matrix r c))
+            (for (i 0 (- sub-rows 1) 1 check)
+              (for (j 0 (- sub-cols 1) 1 check)
+                ;(print (sub-mat i j) { } (matrix (+ r i) (+ c j))) (read-line)
+                (if (!= (sub-mat i j) (matrix (+ r i) (+ c j))) (setq check true))
+              )
+            )
+            (if (not check) (set 'out true 'base-row r 'base-col c))
+          )
+        )
+        (if idx (list base-row base-col) out)))))
+
+Proviamo:
+
+(setq m '((1 2 3)
+          (4 5 6)
+          (7 8 9)))
+
+(setq s '((2 3)
+          (5 6)))
+(submatrix? s m)
+;-> true
+(submatrix? s m true)
+;-> (0 1)
+
+(setq s '((1 2 3)
+          (4 5 6)
+          (7 8 9)))
+(submatrix? s m true)
+;-> (0 0)
+
+(setq s '((1 2 3 4)))
+(submatrix? s m true)
+;-> (nil nil)
+
+(setq s '((1) (2) (3) (4)))
+(submatrix? s m true)
+;-> (nil nil)
+
+(setq m '((1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 9 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
+          (2 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 1)))
+
+(setq s '((6 7 8 9 0) (6 7 8 9 1)))
+(submatrix? s m)
+;-> true
+(submatrix? s m true)
+;-> (9 15)
+
+(setq s '((2 2 3 4 5 6)))
+(submatrix? s m true)
+;-> (10 0)
+
+(setq s '((1 2 3 4)
+          (1 2 3 4)
+          (2 2 3 4)))
+(submatrix? s m true)
+;-> (8 0)
+
+(setq s '((1 2 3 4 5 6)
+          (1 2 3 4 5 6)))
+(submatrix? s m true)
+;-> (0 0)
+
+(setq s '((7 8 9 0 1 2)
+          (7 8 9 9 1 2)
+          (7 8 9 0 1 2)
+          (7 8 9 0 1 2)))
+(submatrix? s m true)
+;-> (5 6)
+
+(setq s '((1 2 3)
+          (4 5 6)
+          (7 8 9)))
+(submatrix? s m true)
+;-> (nil nil)
 
 ============================================================================
 

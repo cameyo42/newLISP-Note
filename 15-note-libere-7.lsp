@@ -5611,6 +5611,32 @@ Vediamo se esistono valori minori di -10 o maggiori di 25:
 (filter (fn(x) (or (> x 25) (< x -10))) (random-list2 1000000 -10 25))
 ;-> ()
 
+Per generare le matrici scriviamo una funzione simile:
+
+(define (rand-matrix rows cols min-val max-val type-num)
+  (let ( (out '()) (nums (* rows cols)) )
+    (if type-num
+      ; numeri floating
+      (for (i 1 nums)
+        (push (add min-val (random 0 (sub max-val min-val))) out -1)
+      )
+      ; numeri interi
+      (for (i 1 nums)
+        (push (+ min-val (rand (+ (- max-val min-val) 1))) out -1)
+      )
+    )
+    (explode out cols)))
+
+Proviamo:
+
+(rand-matrix 4 5 0 1)
+;-> ((0 0 1 1 0) (0 0 1 0 0) (0 1 1 1 1) (1 1 1 0 1))
+
+(rand-matrix 3 3 0 5 true)
+;-> ((2.012085329752495 1.268501846369823 0.6826990569780572)
+;->  (4.275948362681967 0.3308206427198095 2.139042329172643)
+;->  (2.866756187627796 1.511429181798761 2.740256965849788))
+
 
 ----------------------------
 Alcune funzioni sugli angoli
@@ -5625,6 +5651,8 @@ Funzione di lerping tra due angoli:
     (setq to (add to 360)))
   (add from (mul frac (sub to from))))
 
+(angle-lerp 120 180 0.5)
+;-> 150
 (angle-lerp 120 180 0.4)
 ;-> 144
 (angle-lerp -90 90 0.5)
