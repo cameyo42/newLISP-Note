@@ -1770,7 +1770,7 @@ P(N) = (1/2)N^2 - (1/2)N = (N*(N-1))/2
 
 Formula che fornisce il numero di strette di mano tra N persone:
 
-               N*(N-1) 
+               N*(N-1)
   handshake = ---------
                   2
 
@@ -1903,13 +1903,13 @@ Binario:
     (setq hours (orario 3))
     (setq mins (orario 4))
     (setq secs (orario 5))
-    (if (< hours 10) 
+    (if (< hours 10)
         (set 'h1 0 'h2 hours)
         (set 'h1 (/ hours 10) 'h2 (% hours 10)))
-    (if (< mins 10) 
+    (if (< mins 10)
         (set 'm1 0 'm2 mins)
         (set 'm1 (/ mins 10) 'm2 (% mins 10)))
-    (if (< secs 10) 
+    (if (< secs 10)
         (set 's1 0 's2 hours)
         (set 's1 (/ secs 10) 's2 (% secs 10)))
     (setq bin-h1 (format "%04s" (bits h1)))
@@ -1924,7 +1924,7 @@ Binario:
     (setq bin-m2 (reverse (explode bin-m2)))
     (setq bin-s1 (reverse (explode bin-s1)))
     (setq bin-s2 (reverse (explode bin-s2)))
-    (setq matrix (transpose 
+    (setq matrix (transpose
           (list binary bin-h1 bin-h2 bin-m1 bin-m2 bin-s1 bin-s2)))
     (if show (println hours ":" mins ":" secs))
     (println "  H H M M S S")
@@ -2186,19 +2186,19 @@ A volte le cifre erano rappresentate come glifi a forma di faccia (questo uso è
 Conversione da base 10 a base 20 e viceversa
 La conchiglia rappresenta lo zero, mentre le cifre da 1 a 19 erano rappresentati nel modo seguente:
 
-  1  2   3    4     5     
+  1  2   3    4     5
   *  **  ***  ****  ====
- 
+
   6     7     8     9     10
   *     **    ***   ****  ====
   ====  ====  ====  ====  ====
-  
+
   11    12    13    14    15
   *     **    ***   ****  ====
   ====  ====  ====  ====  ====
   ====  ====  ====  ====  ====
 
-  16    17    18    19  
+  16    17    18    19
   *     **    ***   ****
   ====  ====  ====  ====
   ====  ====  ====  ====
@@ -2370,11 +2370,11 @@ Proviamo:
 Bit di parità di una stringa
 ----------------------------
 
-Il bit di parità è un codice di controllo che viene utilizzato per prevenire errori nella trasmissione o nella memorizzazione dei dati. 
-Tale sistema prevede l'aggiunta di un bit ridondante ai dati, calcolato a seconda che il numero di bit che valgono 1 sia pari o dispari. 
+Il bit di parità è un codice di controllo che viene utilizzato per prevenire errori nella trasmissione o nella memorizzazione dei dati.
+Tale sistema prevede l'aggiunta di un bit ridondante ai dati, calcolato a seconda che il numero di bit che valgono 1 sia pari o dispari.
 I bit di parità sono uno dei codici di rilevazione e correzione d'errore più semplici.
 Ci sono due varianti del bit di parità: bit di parità pari e bit di parità dispari.
-Bit di parità pari: vale 1 se il numero di "1" in un certo insieme di bit è dispari (facendo diventare il numero totale di "1" pari). 
+Bit di parità pari: vale 1 se il numero di "1" in un certo insieme di bit è dispari (facendo diventare il numero totale di "1" pari).
 Bit di parità dispari: vale 1 se il numero di "1" in un certo insieme di bit è pari (facendo diventare il numero totale di "1" dispari).
 Il bit di parità è un caso particolare di cyclic redundancy check (CRC), quando il 1-bit CRC è generato dal polinomio (x + 1).
 
@@ -2628,7 +2628,7 @@ Proviamo:
 Verifichiamo gli esempi sopra considerando che se l'algoritmo di Gauss-Jordan produce una matrice che ha una riga con tutti 0, allora i vettori sono linearmente dipendenti.
 
 (gauss-jordan '((0 1) (2 3)))
-;-> ((0 1) (1 0)) 
+;-> ((0 1) (1 0))
 Nessuna riga con tutti 0: vettori indipendenti
 
 (gauss-jordan '((1 2) (2 4)))
@@ -2735,9 +2735,9 @@ Primo metodo: (utilizziamo direttamente la formula)
 ;->  742 781 821 862 904 947 991 1036 1082 1129 1177 1226 1276)
 
 Secondo metodo: (ricorsione)
-La formula per calcolare il numero massimo di pezzi ottenibili tagliando una torta con N tagli può essere ottenuta osservando il modello che si forma man mano che vengono effettuati i tagli. 
+La formula per calcolare il numero massimo di pezzi ottenibili tagliando una torta con N tagli può essere ottenuta osservando il modello che si forma man mano che vengono effettuati i tagli.
 
-Ogni nuovo taglio (ottimale) divide ogni pezzo esistente in due parti, quindi il numero di pezzi aumenta di N. 
+Ogni nuovo taglio (ottimale) divide ogni pezzo esistente in due parti, quindi il numero di pezzi aumenta di N.
 Inoltre, ogni nuovo taglio crea anche un nuovo pezzo, quindi il numero totale di pezzi aumenta di 1.
 
 Quindi, possiamo scrivere la formula ricorsiva come:
@@ -2833,7 +2833,7 @@ Ciò è impossibile, poiché il primo elemento alla fine sarà zero e la pallina
       (++ step)
       (cond ((= cur-bit 1)
               ; cambia direzione
-              (if (= dir "left") 
+              (if (= dir "left")
                   (setq dir "right")
                   (setq dir "left")
               )
@@ -2948,7 +2948,7 @@ newLISP rende facile scrivere una funzione narcisistica:
   (= (string narci) (string func)))
 
 (define (test a b) (+ a b))
-  
+
 Proviamo:
 
 (narci test)
@@ -2973,7 +2973,7 @@ Usiamo una funzione ricorsiva per calcolare la sequenza partendo da valori dati 
 
 (define (plus-minus a b n)
   (cond ((= n 0) nil)
-        (true 
+        (true
           (print (list a b) { })
           (plus-minus (+ a b) (- a b) (- n 1)))))
 
@@ -2993,10 +2993,10 @@ Proviamo:
 ;-> (224 64) (288 160) (448 128) (576 320) (896 256) (1152 640) (1792 512)
 ;-> (2304 1280) (3584 1024) (4608 2560) (7168 2048) (9216 5120) (14336 4096)
 ;-> (18432 10240) (28672 8192) (36864 20480) (57344 16384) (73728 40960)
-;-> (114688 32768) (147456 81920) (229376 65536) (294912 163840) 
+;-> (114688 32768) (147456 81920) (229376 65536) (294912 163840)
 ;-> (458752 131072) (589824 327680) (917504 262144) (1179648 655360)
 ;-> (1835008 524288) (2359296 1310720) (3670016 1048576) (4718592 2621440)
-;-> (7340032 2097152) (9437184 5242880) (14680064 4194304) 
+;-> (7340032 2097152) (9437184 5242880) (14680064 4194304)
 ;-> (18874368 10485760) (29360128 8388608) (37748736 20971520)
 ;-> (58720256 16777216) (75497472 41943040) (117440512 33554432)
 ;-> (150994944 83886080)
@@ -3050,7 +3050,7 @@ Funzione che riduce una frazione (num den) ai miimi termini:
 
 Il numero di primi fino ad un dato numero x vale:
 
-  numero-primi-fino-x ≈ x/ln(x) 
+  numero-primi-fino-x ≈ x/ln(x)
 
 Se vogliamo trovare N primi (come minimo), allora per trovare fino a che numero x dobbiamo arrivare possiamo usare la seguente formula:
 
@@ -3060,10 +3060,10 @@ dove k è una costante maggiore di 1.
 
 Facciamo alcune prove:
 
-(define (numprimi N k) 
+(define (numprimi N k)
   (let (fino (int (mul k (mul N (log N)))))
     (list fino (length (primes-to fino)) N)))
-    
+
 Proviamo con k=1.5:
 
 (numprimi 2 1.5)
@@ -3131,7 +3131,7 @@ Proviamo:
 ;->  414193681177862189643962824133391708790265624005778268502748020466780965
 ;->  857380342476093105664669834792981822546695974712335603754411386917214808
 ;->  1661301750390387330469247043970929556905424074174671951930959004172288L
-;->  
+;->
 ;->  119043299260290744289221567101167165928613338826514168236428503376409223
 ;->  532084586363780114966288875834693208086162438303241539364680745920158755
 ;->  032240676770017106643939082978230650133940925860086142384745460142327976
@@ -3159,10 +3159,13 @@ Per ogni elemento della matrice controlliamo se è l'inizio della sottomatrice e
     (setq sub-cols (length (sub-mat 0)))
     (setq mat-rows (length matrix))
     (setq mat-cols (length (matrix 0)))
-    (cond 
-      ((or (zero? sub-rows) (zero? sub-cols)) true)
-      ((or (zero? mat-rows) (zero? mat-cols)) nil)
-      ((or (> sub-rows mat-rows) (> sub-cols mat-cols)) nil)
+    (cond
+      ((or (zero? sub-rows) (zero? sub-cols))
+        (if idx (list true true) true))
+      ((or (zero? mat-rows) (zero? mat-cols))
+       (if idx (list nil nil) nil))
+      ((or (> sub-rows mat-rows) (> sub-cols mat-cols))
+        (if idx (list nil nil) nil))
       (true
         (setq righe (- mat-rows sub-rows))
         (setq colonne (- mat-cols sub-cols))
@@ -3204,10 +3207,23 @@ Proviamo:
 (setq s '((1 2 3 4)))
 (submatrix? s m true)
 ;-> (nil nil)
+(submatrix? s m)
+;-> nil
 
 (setq s '((1) (2) (3) (4)))
 (submatrix? s m true)
 ;-> (nil nil)
+(submatrix? s m)
+;-> nil
+
+(submatrix? '(()) m)
+;-> true
+
+(submatrix? s '(()))
+;-> nil
+
+(submatrix? '(()) '(()))
+;-> true
 
 (setq m '((1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
           (1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0)
@@ -3254,6 +3270,118 @@ Proviamo:
           (7 8 9)))
 (submatrix? s m true)
 ;-> (nil nil)
+(submatrix? s m)
+;-> nil
+
+
+-------------------------------------
+Case bianche e nere di una scacchiera
+-------------------------------------
+
+Scrivere una funzione che restituisce le coordinate delle case bianche oppure le coordinate delle case nere oppure entrambe in base ad un parametro.
+Le coordinate devono essere stampate ordinate come in una scacchiera.
+
+tipo = "w" (white) oppure "b" (black) oppure nil (black and white)
+
+(char "a");-> 97
+(char "h")
+;-> 104
+
+(define (caselle tipo)
+(local (tipo guard))
+  (if (= tipo "b")
+      (setq guard 0)
+      ;else
+      (setq guard 1))
+  (for (traversa 8 1)
+    (for (colonna 97 104)
+      (cond ((and (= tipo "b") (= guard 1))
+              (print (char colonna) traversa { })
+              (setq guard 0))
+            ((and (= tipo "b") (= guard 0))
+              (print "   ")
+              (setq guard 1))
+            ((and (= tipo "w") (= guard 0))
+              (print "   ")
+              (setq guard 1))
+            ((and (= tipo "w") (= guard 1))
+              (print (char colonna) traversa { })
+              (setq guard 0))
+            ((= tipo nil)
+              (print (char colonna) traversa { }))
+      )
+    )
+    (cond ((= tipo "b")
+           (setq tipo "w")
+           (setq guard 1))
+          ((= tipo "w")
+           (setq tipo "b")
+           (setq guard 0))
+    )
+    (println)
+  )
+)
+
+Proviamo:
+
+> (caselle "b")
+;->    b8    d8    f8    h8
+;-> a7    c7    e7    g7
+;->    b6    d6    f6    h6
+;-> a5    c5    e5    g5
+;->    b4    d4    f4    h4
+;-> a3    c3    e3    g3
+;->    b2    d2    f2    h2
+;-> a1    c1    e1    g1
+
+(caselle "w")
+;-> a8    c8    e8    g8
+;->    b7    d7    f7    h7
+;-> a6    c6    e6    g6
+;->    b5    d5    f5    h5
+;-> a4    c4    e4    g4
+;->    b3    d3    f3    h3
+;-> a2    c2    e2    g2
+;->    b1    d1    f1    h1
+
+(caselle)
+;-> a8 b8 c8 d8 e8 f8 g8 h8
+;-> a7 b7 c7 d7 e7 f7 g7 h7
+;-> a6 b6 c6 d6 e6 f6 g6 h6
+;-> a5 b5 c5 d5 e5 f5 g5 h5
+;-> a4 b4 c4 d4 e4 f4 g4 h4
+;-> a3 b3 c3 d3 e3 f3 g3 h3
+;-> a2 b2 c2 d2 e2 f2 g2 h2
+;-> a1 b1 c1 d1 e1 f1 g1 h1
+
+
+--------------------------
+La sequenza van der Corput
+--------------------------
+
+I primi termini della successione di van der Corput sono:
+
+  0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.01
+  0.11 0.21 0.31 0.41 0.51 0.61 0.71 0.81 0.91 0.02
+  0.12 0.22 0.32 0.42 0.52 0.62 0.72 0.82 0.92 ...
+
+Il suo n-esimo termine ha la seguente struttura:
+
+ 0.N
+
+dove N è in base 10 e invertito.
+
+(define (corput N) (string "0." (reverse (string N))))
+
+(corput 1)
+;-> "0.1"
+
+(map corput (sequence 1 50))
+;-> ("0.1" "0.2" "0.3" "0.4" "0.5" "0.6" "0.7" "0.8" "0.9" "0.01"
+;->  "0.11" "0.21" "0.31" "0.41" "0.51" "0.61" "0.71" "0.81" "0.91" "0.02"
+;->  "0.12" "0.22" "0.32" "0.42" "0.52" "0.62" "0.72" "0.82" "0.92" "0.03"
+;->  "0.13" "0.23" "0.33" "0.43" "0.53" "0.63" "0.73" "0.83" "0.93" "0.04"
+;->  "0.14" "0.24" "0.34" "0.44" "0.54" "0.64" "0.74" "0.84" "0.94" "0.05")
 
 ============================================================================
 

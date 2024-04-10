@@ -2404,6 +2404,8 @@ NOTE LIBERE 23
   La sequenza più-meno
   Formula curiosa
   Verificare se una matrice è una sottomatrice di un'altra matrice
+  Case bianche e nere di una scacchiera
+  La sequenza van der Corput
 
 PROBLEMI SUI DADI
 =================
