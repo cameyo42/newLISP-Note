@@ -3383,5 +3383,252 @@ dove N è in base 10 e invertito.
 ;->  "0.13" "0.23" "0.33" "0.43" "0.53" "0.63" "0.73" "0.83" "0.93" "0.04"
 ;->  "0.14" "0.24" "0.34" "0.44" "0.54" "0.64" "0.74" "0.84" "0.94" "0.05")
 
+
+-----------------------
+Relazioni di congruenza
+-----------------------
+
+Dati 3 interi positivi a, b e n, scrivere una funzione che restituisce vero se a ≡ b (mod n) e falso altrimenti.
+Nota: a ≡ b (mod n) è vera se e solo se a mod n = b mod n (o, equivalentemente, (a - b) mod n = 0).
+
+(define (congruence1 a b n) (= (% a n) (% b n)))
+(define (congruence2 a b n) (zero? (% (- a b) n)))
+(define (congruence3 a b n) (let (t (- a b)) (= (div t n) (/ t n))))
+
+Proviamo:
+
+(congruence1 1 2 3)
+;-> nil
+(congruence2 1 2 3)
+;-> nil
+(congruence3 1 2 3)
+;-> nil
+
+(congruence1 25 45 20)
+;-> true
+(congruence2 25 45 20)
+;-> true
+(congruence3 25 45 20)
+;-> true
+
+(congruence1 28 78 5)
+;-> true
+(congruence2 28 78 5)
+;-> true
+(congruence3 28 78 5)
+;-> true
+
+(congruence1 20 7 82)
+;-> nil
+(congruence2 20 7 82)
+;-> nil
+(congruence3 20 7 82)
+;-> nil
+
+Velocità delle funzioni:
+
+(time (congruence1 1011 377 317) 1e6)
+;-> 132.561
+(time (congruence2 1011 377 317) 1e6)
+;-> 124.991
+(time (congruence3 1011 377 317) 1e6)
+;-> 181.468
+
+
+---------
+Metaquine
+---------
+
+Una metaquine è un programma che non è un quine, ma il cui output, se eseguito come un programma nello stesso linguaggio, genera un quine.
+
+
+(define (meta)
+  (eval (lambda (s) (print (list s (list 'quote s))))))
+
+Proviamo:
+
+(meta)
+;-> (lambda (s) (print (list s (list 'quote s))))
+
+(eval (meta))
+;-> (lambda (s) (print (list s (list 'quote s))))
+
+(setq quine (meta))
+;-> (lambda (s) (print (list s (list 'quote s))))
+
+quine
+;-> (lambda (s) (print (list s (list 'quote s))))
+(eval quine)
+;-> (lambda (s) (print (list s (list 'quote s))))
+
+Vedi anche "Quine" su "Note libere 1".
+
+
+--------------------------------------
+Kernel di numeri a un cubo di distanza
+--------------------------------------
+
+I numeri a un cubo di distanza di un intero n sono definiti come l'insieme dei numeri interi che sono distanti x^3 per un dato x.
+Ad esempio con n=80 e x=2 i numeri a distanza di un cubo sono (72 98).
+
+Questo può essere esteso a un insieme più ampio semplicemente utilizzando un elenco di valori x.
+Con x in (1 2 3 4) e lo stesso n=80, abbiamo la lista risultante (81 79 88 72 107 53 144 16).
+
+Definiamo CD(n x) come l'insieme di tutti i valori assoluti degli interi n ± z^3 con z in (1 2 3 ... x).
+
+Per l'esempio sopra CD(80 4) nota che (79 107 53) sono tutti primi.
+Se li rimuoviamo dalla lista rimangono: (81 88 72 144 16).
+Tutti i divisori primi (fattori) di questi numeri sono (in ordine):
+(3 3 3 3 2 2 2 11 2 2 2 3 3 2 2 2 2 3 3 2 2 2 2).
+Se consideriamo solo i divisori primi distinti otteniamo: (3 2 11).
+Possiamo quindi definire che CD(80 4) ha kernel pari a 3.
+
+Nota: il numero 1 non è considerato un divisore primo.
+
+Scrivere una funzione che restituisce il kernel di un dato n e x.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (kernel n x)
+  (local (seq cubi cubi-noprimi fattori))
+    (setq seq (sequence 1 x))
+    (setq cubi (flat (map (fn(x) (list (+ n (* x x x)) (abs (- n (* x x x))))) seq)))
+    (setq cubi-noprimi (clean prime? cubi))
+    (setq fattori (flat (map factor cubi-noprimi)))
+    (length (unique fattori)))
+
+Proviamo:
+
+(kernel 80 4)
+;-> 3
+(kernel 2 1)
+;-> 1
+(kernel 5 1)
+;-> 2
+(kernel 100 4)
+;-> 5
+(kernel 720 6)
+;-> 11
+
+Una funzione compatta:
+
+(define (k n x)
+    (length (unique 
+      (flat (map factor 
+            (clean prime? 
+            (flat (map (fn(x) (list (+ n (* x x x)) (abs (- n (* x x x)))))
+                       (sequence 1 x)))))))))
+
+(define(k n x)(length(unique(flat(map factor(clean prime?(flat(map(fn(x)(list(+ n(* x x x))(abs(- n(* x x x)))))(sequence 1 x)))))))))
+
+Lunghezza funzione: 135 caratteri
+
+Proviamo:
+
+(k 80 4)
+;-> 3
+(k 2 1)
+;-> 1
+(k 5 1)
+;-> 2
+(k 100 4)
+;-> 5
+(k 720 6)
+;-> 11
+
+
+----------------------
+La derivata aritmetica
+----------------------
+
+La derivata aritmetica a(n) oppure n' viene definita da una serie di proprietà simili alla derivata di una funzione:
+
+   a(0) = a(1) = 0,
+   a(p) = 1, dove p è un numero primo qualsiasi
+   a(mn) = m*a(n) + n*a(m)
+
+La terza regola si basa sulla regola del prodotto per la differenziazione delle funzioni.
+Per le funzioni f(x) e g(x) si ha che (fg)' = f'g + fg'.
+Quindi con i numeri, (ab)' = a'b + ab'.
+
+La derivata aritmetica può essere estesa ai numeri negativi tramite questa semplice relazione, a(-n) = -a(n).
+
+Sequenza OEIS A003415
+a(n) = n' = arithmetic derivative of n: a(0) = a(1) = 0, a(prime) = 1, a(m*n) = m*a(n) + n*a(m)
+  0, 0, 1, 1, 4, 1, 5, 1, 12, 6, 7, 1, 16, 1, 9, 8, 32, 1, 21, 1, 24, 10, 13,
+  1, 44, 10, 15, 27, 32, 1, 31, 1, 80, 14, 19, 12, 60, 1, 21, 16, 68, 1, 41,
+  1, 48, 39, 25, 1, 112, 14, 45, 20, 56, 1, 81, 16, 92, 22, 31, 1, 92, 1, 33,
+  51, 192, 18, 61, 1, 72, 26, 59, 1, 156, 1, 39, 55, 80, 18, 71, ...
+
+Un altra definizione della derivata aritmetica è la seguente:
+la derivata aritmetica di un numero intero x è uguale a x per la somma dei reciproci dei fattori primi di x.
+
+(define (der a)
+  (cond ((= a 0) 0)
+        ((= a 1) 0)
+        ((prime? a) a)
+        ((< a 0)
+         (- (mul (abs a) (apply add (map div (factor (abs a)))))))
+        (true
+            (mul a (apply add (map div (factor  a)))))))
+
+Proviamo:
+
+(der 0)
+;-> 0
+(der 1)
+;-> 0
+(der 7)
+;-> 7
+(der 14)
+;-> 9
+(der -5)
+;-> -1
+(der 225)
+;-> 240
+(der 1111)
+;-> 112
+(der 299792458)
+;-> 196831491
+
+Altro algoritmo:
+
+(define (deriva a)
+  (local (copia divisor out)
+    (setq copia a)
+    (setq divisor 2)
+    (setq out 0)
+    (while (<= divisor (abs copia))
+      (cond ((zero? (% a divisor))
+              (setq a (/ a divisor))
+              (setq out (+ out (/ copia divisor))))
+            (true (++ divisor))
+      )
+    )
+    out))
+
+Proviamo:
+
+(deriva 1)
+;-> 0
+(deriva 7)
+;-> 1
+(deriva 14)
+;-> 9
+(deriva -5)
+;-> -1
+(deriva 8)
+;-> 12
+(deriva 225)
+;-> 240
+(deriva 1111)
+;-> 112
+(time (println (deriva 299792458)))
+;-> 196831491
+;-> 34253.214
+
 ============================================================================
 

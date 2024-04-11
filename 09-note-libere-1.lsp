@@ -2108,6 +2108,8 @@ Un altro quine è il seguente:
   (exit))
 (quine)
 
+Vedi anche "Metaquine" su "Note libere 23".
+
 
 -----------------------------
 I buchi delle cifre numeriche

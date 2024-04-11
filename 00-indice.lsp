@@ -2406,6 +2406,10 @@ NOTE LIBERE 23
   Verificare se una matrice è una sottomatrice di un'altra matrice
   Case bianche e nere di una scacchiera
   La sequenza van der Corput
+  Relazioni di congruenza
+  Metaquine
+  Kernel di numeri a un cubo di distanza
+  La derivata aritmetica
 
 PROBLEMI SUI DADI
 =================
@@ -2450,7 +2454,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (276 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (277 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
