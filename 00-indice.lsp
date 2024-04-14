@@ -2410,6 +2410,8 @@ NOTE LIBERE 23
   Metaquine
   Kernel di numeri a un cubo di distanza
   La derivata aritmetica
+  Sequenza RATS
+  Sequenza RATS2
 
 PROBLEMI SUI DADI
 =================

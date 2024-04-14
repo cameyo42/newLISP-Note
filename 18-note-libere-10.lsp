@@ -4107,7 +4107,7 @@ cioè, 3 rosse + 3 bianche + 3 blu + 1 (rossa o bianca o blu) = 10
 
 Forma forte del Principio della Piccionaia
 ------------------------------------------
-Teorema: Siano q1, q2, . . . , qn numeri interi positivi.
+Teorema: Siano q1, q2, ... , qn numeri interi positivi.
 Se q1 + q2 + ... + qn – n + 1 oggetti vengono inseriti in n caselle, quindi o la prima casella contiene almeno q1 oggetti o la seconda casella contiene almeno q2 oggetti, ..., o l'ennesima casella contiene almeno qn oggetti.
 
 Problema 3
@@ -5317,11 +5317,11 @@ Facciamo alcune prove:
 (itoa -1567 10)
 ;-> "-1567"
 (itoa -1567 16)
-;-> -61f
+;-> "-61f"
 (itoa 1567 2)
-;-> 11000011111
+;-> "11000011111"
 (itoa -1567 8)
-;-> -3037
+;-> "-3037"
 (itoa 7a1 10)
 ;-> ERR: value expected in function % : base
 ;-> called from user function (itoa 7 a1 10)
@@ -5662,7 +5662,8 @@ Funzione che calcola le quadruple di numeri consecutivi duffiniani fino ad un da
 ;-> ()
 ;-> 673358.296
 
-FIno a 100 milioni (1e8 non esistono quadruple duffiniane. Cerchiamo ancora:
+Fino a 100 milioni (fino a 1e8 non esistono quadruple duffiniane).
+Cerchiamo ancora:
 
 (define (duffi-quadruplets start end)
   (local (out d1 d2 d3 d4)
@@ -5752,7 +5753,7 @@ Scoperta da Leonhard Euler intorno al 1730, è la costante matematica più onnip
 Viene chiamata gamma e misura quanto le somme parziali della serie armonica (la più semplice serie divergente) differiscono dalla funzione logaritmica (il suo integrale approssimativo):
 
   lim[1 + 1/2 + 1/3 + ... + 1/n − log(n)] = lim[Hn - log(n)]
- n → ∞                                      n → ∞
+  n->inf                                    n->inf
 
 La costante gamma vale:
 
@@ -7323,7 +7324,7 @@ map range - rescale
 -------------------
 
 Dati due intervalli (a1..a2) e (b1..b2) e un valore s nel range (a1..a2), calcolare il valore t che rappresenta la mappatura lineare del valore s nell'intervallo (b1..b2).
-Il valore t viene caclolato con la seguente formula:
+Il valore t viene calcolato con la seguente formula:
 
              (s - a1)*(b2 - b1)
   t = b1 + ----------------------

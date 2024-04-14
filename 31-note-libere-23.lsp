@@ -3630,5 +3630,97 @@ Proviamo:
 ;-> 196831491
 ;-> 34253.214
 
+
+-------------
+Sequenza RATS
+-------------
+
+Le operazioni RATS (Reverse Add Then Sort) su un numero n per ottenere RATS(n) sono le seguenti:
+
+  1) m = inversione del numero n
+  2) s = m + n
+  3) Ordinamento crescente delle cifre di s
+
+  RATS(n) = sort-digit (n + inverso(n))
+
+Sequenza OESIS: A036839
+RATS(n): Reverse Add Then Sort the digits.
+  0, 2, 4, 6, 8, 1, 12, 14, 16, 18, 11, 22, 33, 44, 55, 66, 77, 88, 99,
+  11, 22, 33, 44, 55, 66, 77, 88, 99, 11, 112, 33, 44, 55, 66, 77, 88,
+  99, 11, 112, 123, 44, 55, 66, 77, 88, 99, 11, 112, 123, 134, 55, 66,
+  77, 88, 99, 11, 112, 123, 134, 145, 66, 77, ...
+
+(define (rats n)
+  (int (join (sort (explode 
+                    (string (+ (int (reverse (string n)) 0 10) n))))) 0 10))
+
+(map rats (sequence 0 60))
+;-> (0 2 4 6 8 1 12 14 16 18 11 22 33 44 55 66 77 88 99
+;->  11 22 33 44 55 66 77 88 99 11 112 33 44 55 66 77 88
+;->  99 11 112 123 44 55 66 77 88 99 11 112 123 134 55 66
+;->  77 88 99 11 112 123 134 145 66)
+
+
+--------------
+Sequenza RATS2
+--------------
+
+La sequenza RATS2 è simile alla sequenza RATS, ma utilizza il termine precedente ad n.
+In altre parole risulta:
+
+  a(n) = RATS(n), per la sequenza RATS
+  a(n) = RATS(a(n-1)), per la sequenza RATS2 (con a(1) = 1).
+
+I primi termini della sequenza sono: 1 2 4 8 16 77 145 668 ...
+Per esempio per calcolare a(8) = 668, dobbiamo prendere il termine precedente 145 e applicare le operazioni RATS:
+  145 + 541 = 686 --> 668.
+
+Sequenza OEIS: A004000
+RATS: Reverse Add Then Sort the digits applied to previous term, starting with 1
+  1, 2, 4, 8, 16, 77, 145, 668, 1345, 6677, 13444, 55778, 133345, 666677,
+  1333444, 5567777, 12333445, 66666677, 133333444, 556667777, 1233334444,
+  5566667777, 12333334444, 55666667777, 123333334444, 556666667777,
+  1233333334444, 5566666667777, 12333333334444
+
+(define (rats-aux n)
+  (int (join (sort (explode 
+                    (string (+ (int (reverse (string n)) 0 10) n))))) 0 10))
+
+Per calcolare RATS2(n) occorre calcolare tutti i valori precedenti da 1 a (n-1):
+
+(define (rats2 n)
+  (cond ((= n 1) 1)
+        (true
+         (setq r 1)
+         (for (i 1 (- n 1))
+            (setq r (rats-aux r))))))
+
+(map rats2 (sequence 1 30))
+;-> (1 2 4 8 16 77 145 668 1345 6677 13444 55778 133345 666677 1333444 
+;->  5567777 12333445 66666677 133333444 556667777 1233334444 5566667777
+;->  12333334444 55666667777 123333334444 556666667777 1233333334444 
+;->  5566666667777 12333333334444 55666666667777)
+
+Si ipotizza che, qualunque sia il termine iniziale, l'applicazione ripetuta di RATS2 porti a questa sequenza o ad un ciclo di lunghezza finita.
+
+(define (rats3 start n)
+  (cond ((= n 1) start)
+        (true
+         (setq r start)
+         (for (i 1 (- n 1))
+            (setq r (rats-aux r))))))
+
+Sequenza OEIS: A066710
+
+(map (curry rats3 3) (sequence 1 30))
+;-> (3 6 12 33 66 123 444 888 1677 3489 12333 44556 111 222 444 888 1677
+;->  3489 12333 44556 111 222 444 888 1677 3489 12333 44556 111 222)
+
+Sequenza OEIS: A066711
+
+(map (curry rats3 9) (sequence 1 30))
+;-> (9 18 99 189 117 288 117 288 117 288 117 288 117 288 117 288 117 288 117
+;->  288 117 288 117 288 117 288 117 288 117 288)
+
 ============================================================================
 
