@@ -2412,6 +2412,9 @@ NOTE LIBERE 23
   La derivata aritmetica
   Sequenza RATS
   Sequenza RATS2
+  Zeri nell'intervallo
+  Numeri di Rien
+  Fattori primi palindromi
 
 PROBLEMI SUI DADI
 =================

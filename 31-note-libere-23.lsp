@@ -3566,6 +3566,11 @@ a(n) = n' = arithmetic derivative of n: a(0) = a(1) = 0, a(prime) = 1, a(m*n) = 
 Un altra definizione della derivata aritmetica è la seguente:
 la derivata aritmetica di un numero intero x è uguale a x per la somma dei reciproci dei fattori primi di x.
 
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
 (define (der a)
   (cond ((= a 0) 0)
         ((= a 1) 0)
@@ -3721,6 +3726,215 @@ Sequenza OEIS: A066711
 (map (curry rats3 9) (sequence 1 30))
 ;-> (9 18 99 189 117 288 117 288 117 288 117 288 117 288 117 288 117 288 117
 ;->  288 117 288 117 288 117 288 117 288 117 288)
+
+
+--------------------
+Zeri nell'intervallo
+--------------------
+
+Scrivere una funzione che accetta due numeri interi non negativi 'a' e 'b' (a <= b) e calcola quanti zeri sono compresi nei numeri da 'a' a 'b' (compreso).
+
+(define (zeri a b)
+  (count '("0") (flat (map (fn(x) (explode (string x))) (sequence a b)))))
+
+Proviamo:
+
+(zeri 0 500)
+;-> (92)
+(zeri 1 1000)
+;-> (192)
+(zeri 200 300)
+;-> (22)
+
+
+--------------
+Numeri di Rien
+--------------
+
+Per ogni intero positivo n il numero di Rien Ri(n) viene calcolato come segue:
+
+1) Concatenare i primi n numeri naturali (da 1 a n).
+2) Ordinare i valori delle cifre in ordine crescente.
+3) Spostare tutti gli zeri dopo il primo 1 (questo per rendere minimo il numero ottenuto).
+
+Vediamo un esempio con n=20:
+Concatenazione dei numeri da 1 a 20 = 1234567891011121314151617181920
+Ordinamento delle cifre = 0011111111111122233445566778899
+Spostamento degli zeri = 1001111111111122233445566778899
+Ri(20) = 1001111111111122233445566778899
+
+Algoritmo:
+
+(setq n 20)
+(setq a (map string (sequence 1 n)))
+;-> ("1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "11"
+;->  "12" "13" "14" "15" "16" "17" "18" "19" "20")
+(setq b (flat (map explode a)))
+;-> ("1" "2" "3" "4" "5" "6" "7" "8" "9" "1" "0" "1" "1" "1" "2" "1"
+;->  "3" "1" "4" "1" "5" "1" "6" "1" "7" "1" "8" "1" "9" "2" "0")
+(setq c (sort b))
+;-> ("0" "0" "1" "1" "1" "1" "1" "1" "1" "1" "1" "1" "1" "1" "2" "2"
+;->  "2" "3" "3" "4" "4" "5" "5" "6" "6" "7" "7" "8" "8" "9" "9")
+(setq idx (find "1" c))
+;-> 2
+(pop c idx)
+;-> "1"
+c
+;-> ("0" "0" "1" "1" "1" "1" "1" "1" "1" "1" "1" "1" "1" "2" "2" 
+;->  "2" "3" "3" "4" "4" "5" "5" "6" "6" "7" "7" "8" "8" "9" "9")
+(push "1" c)
+;-> ("1" "0" "0" "1" "1" "1" "1" "1" "1" "1" "1" "1" "1" "1" "2" "2"
+;->  "2" "3" "3" "4" "4" "5" "5" "6" "6" "7" "7" "8" "8" "9" "9")
+(join c)
+;-> "1001111111111122233445566778899"
+
+Funzione che calcola in numero di Rien per un intero positivo n:
+
+(define (rien n)
+  (local (s idx)
+    ; creazione delle cifre ordinate
+    (setq s (sort (flat (map explode (map string (sequence 1 n))))))
+    ; ricerca del primo 1 nelle cifre
+    (setq idx (find "1" s))
+    ; spostamento del primo 1 davanti a tutte le cifre
+    (pop s idx)
+    (push "1" s)
+    ; unione delle cifre
+    (join s)))
+
+Proviamo: 
+
+(rien 1)
+;-> "1"
+
+(rien 10)
+;-> "10123456789"
+
+(rien 20)
+;-> "1001111111111122233445566778899"
+
+(rien 50)
+;-> "10000011111111111111222222222222222333333333333333
+;->  44444444444444455555566666777778888899999"
+
+(rien 100)
+;-> "100000000000111111111111111111112222222222222222222233333333333333333333
+;->  444444444444444444445555555555555555555566666666666666666666
+;->  777777777777777777778888888888888888888899999999999999999999"
+
+(length (rien 1000))
+;-> 2893
+
+
+------------------------
+Fattori primi palindromi
+------------------------
+
+Un numero ha fattori primi palindromi se una qualsiasi delle permutazioni dei fattori primi di quell'intero è palindroma quando viene concatenata.
+Determinare la sequenza di tali numeri fino ad un determinato numero intero N.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che verifica se un numero ha una permutazione palindroma dei suoi fattori primi:
+
+(define (fattori-pali? n)
+  (if (= n 1) nil
+  ;else
+  (local (f permute found pali)
+    (setq f (explode (join (map string (factor n)))))
+    (cond ((= (length f) 1) (list n n))
+          (true
+            (setq permute (perm f))
+            (setq found nil)
+            (setq pali "")
+            (dolist (p permute found)
+              ;(println p) (read-line)
+              (if (= p (reverse (copy p)))
+                  (set 'found true 'pali p)
+              )
+            )
+            (if found (list n pali)))))))
+
+Proviamo:
+
+(fattori-pali? 1)
+;-> nil
+
+(fattori-pali? 2)
+;-> (2 2)
+
+(fattori-pali? 10)
+;-> nil
+
+(fattori-pali? 100)
+;-> (100 ("5" "2" "2" "5"))
+
+(fattori-pali? 216)
+;-> nil
+
+(fattori-pali? 403)
+;-> (403 ("1" "3" "3" "1"))
+
+(fattori-pali? 432)
+;-> (432 ("3" "2" "2" "3" "2" "2" "3"))
+
+(fattori-pali? 999)
+;-> (999 ("3" "3" "7" "3" "3"))
+
+(fattori-pali? 1207)
+;-> (1207 ("1" "7" "7" "1"))
+
+(fattori-pali? 2352)
+;-> (2352 ("7" "2" "2" "3" "2" "2" "7"))
+
+(filter fattori-pali? (sequence 1 1000))
+;-> (2 3 4 5 7 8 9 11 12 16 18 20 22 25 27 28 32 33 36 39 44 45 46 48
+;->  49 50 55 58 63 64 69 72 75 77 80 81 88 93 98 99 100 101 108 111 112
+;->  113 119 121 125 128 129 131 132 138 144 147 151 156 159 162 169 175
+;->  176 180 181 184 191 192 196 198 199 200 211 219 220 223 225 227 229
+;->  232 233 242 243 245 249 252 256 259 265 275 276 277 288 289 295 297
+;->  300 308 311 313 320 324 329 331 337 338 339 343 351 352 353 361 363
+;->  372 373 383 392 393 396 400 403 404 405 414 422 429 432 433 441 443
+;->  444 448 449 450 452 466 469 476 484 495 497 499 500 506 507 511 512
+;->  516 522 524 528 529 539 550 552 553 554 557 567 576 577 578 588 598
+;->  599 604 605 621 624 625 636 638 648 661 663 669 675 676 677 678 679
+;->  690 693 700 704 720 722 724 727 729 733 736 741 755 757 759 764 768
+;->  773 777 784 786 787 792 795 796 797 800 806 811 825 837 841 844 845
+;->  847 867 876 877 880 881 882 883 887 891 892 900 908 909 911 916 919
+;->  928 929 932 933 961 966 968 972 975 977 980 991 996 997 999)
+
+Vediamo la velocità (che dipende per la maggior parte dalla funzione "perm"):
+
+(time (filter fattori-pali? (sequence 1 1000)))
+;-> 3573.767
+
+(time (filter fattori-pali? (sequence 1 2000)))
+;-> 150568.599
 
 ============================================================================
 
