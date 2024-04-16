@@ -3746,6 +3746,20 @@ Proviamo:
 (zeri 200 300)
 ;-> (22)
 
+Possiamo generalizzare la funzione per contare le occorrenze di una data cifra in un dato intervallo:
+
+(define (digit-count digit a b)
+  (count (list (string digit)) 
+         (flat (map (fn(x) (explode (string x))) (sequence a b)))))
+
+Proviamo:
+(digit-count 0 0 500)
+;-> (92)
+(digit-count 1 0 10000)
+;-> (4001)
+(digit-count 2 0 10000)
+;-> (4000)
+
 
 --------------
 Numeri di Rien
@@ -3935,6 +3949,97 @@ Vediamo la velocità (che dipende per la maggior parte dalla funzione "perm"):
 
 (time (filter fattori-pali? (sequence 1 2000)))
 ;-> 150568.599
+
+
+------------------------------------
+Torneo con accoppiamento round-robin
+------------------------------------
+
+In un torneo con accoppiamento round-robin, ogni partecipante gioca contro tutti gli altri partecipanti esattamente una volta.
+Se ci sono N partecipanti, ci saranno (N*(N-1))/2 partite (round) in totale.
+Ad esempio, se ci sono 8 partecipanti, ci saranno (8*7)/2 = 28 partite.
+Poichè ogni partecipante incontra tutti gli altri una solta volta, ognuno gioca (N-1) partite.
+Se il numero di partecipanti è dispari, allora bisogna aggiungere un partecipante fittizio.
+Ad ogni turno ci sarà un partecipante che sarà accoppiato con il partecipante fittizio e quindi 'riposerà'.
+Questo sistema viene usato spesso perchè fornisce una valutazione equa delle capacità di ogni partecipante.
+
+(define (rr plyr)
+  (local (pl torneo meta turno)
+    (setq pl (length plyr))
+    ; se dispari, aggiunge un giocatore fittizio (0)
+    (when (odd? pl)
+      (push 0 plyr -1)
+      (++ pl)
+    )
+    (setq torneo '())
+    (setq meta (/ pl 2))
+    (for (i 0 (- pl 2))
+      (setq turno '())
+      (for (j 0 (- meta 1))
+        (push (list (plyr j) (plyr (- pl j 1))) turno -1)
+      )
+      (push turno torneo -1)
+      ; ruota la lista dei giocatori (tranne il primo elemento)
+      (push (pop plyr -1) plyr 1)
+    )
+    torneo))
+
+Proviamo:
+
+(rr '(1 2 3 4))
+;-> (((1 4) (2 3))  ; primo turno
+;->  ((1 3) (4 2))  ; secondo turno
+;->  ((1 2) (3 4))) ; terzo turno
+
+(rr '(1 2 3 4 5))
+;-> (((1 0) (2 5) (3 4))   ; primo turno
+;->  ((1 5) (0 4) (2 3))   ; secondo turno
+;->  ((1 4) (5 3) (0 2))   ; terzo turno
+;->  ((1 3) (4 2) (5 0))   ; quarto turno
+;->  ((1 2) (3 0) (4 5)))  ; quinto turno
+
+(rr '("Tal" "Fisher" "Capablanca" "Ivanchuk"))
+;-> ((("Tal" "Ivanchuk") ("Fisher" "Capablanca"))
+;->  (("Tal" "Capablanca") ("Ivanchuk" "Fisher"))
+;->  (("Tal" "Fisher") ("Capablanca" "Ivanchuk")))
+
+In alcuni giochi esiste un vantaggio per chi gioca per primo (es. negli scacchi il bianco muove per primo).
+Se vogliamo rendere equo il torneo ogni giocatore dovrebbe giocare con tutti gli avversari una volta con il Bianco e una volta con il Nero.
+Per fare questo basta invertire l'ordine dei giocatori per ogni turno dell'accoppiamento round-robin normale.
+
+(define (rr-double plyr)
+  (local (torneo prima-parte)
+    ; calcolo della prima parte del torneo round-robin doppio
+    (setq torneo (rr plyr))
+    (setq prima-parte torneo)
+    ; calcolo della seconda parte del torneo round-robin doppio
+    ; (inverte l'ordine dei giocatori per ogni turno della prima parte)
+    (dolist (t prima-parte)
+      (push (map (fn(x) (list (x 1) (x 0))) t) torneo -1)
+    )
+    torneo))
+
+Proviamo:
+
+(rr-double '(1 2 3 4))
+;-> (((1 4) (2 3))   ; prima parte
+;->  ((1 3) (4 2))   ; prima parte
+;->  ((1 2) (3 4))   ; prima parte
+;->  ((4 1) (3 2))   ; seconda parte
+;->  ((3 1) (2 4))   ; seconda parte
+;->  ((2 1) (4 3)))  ; seconda parte
+
+(rr-double '(1 2 3 4 5))
+;-> (((1 0) (2 5) (3 4))    ; prima parte
+;->  ((1 5) (0 4) (2 3))    ; prima parte
+;->  ((1 4) (5 3) (0 2))    ; prima parte
+;->  ((1 3) (4 2) (5 0))    ; prima parte
+;->  ((1 2) (3 0) (4 5))    ; prima parte
+;->  ((0 1) (5 2) (4 3))    ; seconda parte
+;->  ((5 1) (4 0) (3 2))    ; seconda parte
+;->  ((4 1) (3 5) (2 0))    ; seconda parte
+;->  ((3 1) (2 4) (0 5))    ; seconda parte
+;->  ((2 1) (0 3) (5 4)))   ; seconda parte
 
 ============================================================================
 

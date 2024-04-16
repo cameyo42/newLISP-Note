@@ -2415,6 +2415,7 @@ NOTE LIBERE 23
   Zeri nell'intervallo
   Numeri di Rien
   Fattori primi palindromi
+  Torneo con accoppiamento round-robin
 
 PROBLEMI SUI DADI
 =================
