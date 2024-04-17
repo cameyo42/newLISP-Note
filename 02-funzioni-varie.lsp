@@ -5831,7 +5831,7 @@ Versione generale:
     (setq lastx 1)
     (setq lasty 0)
     (while (not (zero? b))
-      (setq q (div a b))
+      (setq q (/ a b))
       (setq r (% a b))
       (setq a b)
       (setq b r)
@@ -5852,6 +5852,31 @@ Versione generale:
 (gcdex 8 -6)
 ;-> (2 1 1)
 
+Versione alternativa:
+
+(define (gcd-coeff x y)
+  (local (q temp q11 q12 q22 t11 t22)
+    (set 'q11 1 'q22 1 'q12 0 'q21 0)
+    (until (zero? y)
+      (setq temp y)
+      (setq q (/ x y))
+      (setq y (% x y))
+      (setq x temp)
+      (setq t21 q21)
+      (setq t22 q22)
+      (setq q21 (- q11 (* q q21)))
+      (setq q22 (- q12 (* q q22)))
+      (setq q11 t21)
+      (setq q12 t22)
+    )
+    (list x q11 q12)))
+
+(gcd-coeff 120 23)
+;-> (1 -9 47)
+
+(gcd-coeff 8 -6)
+;-> (2 1 1)
+
 Versione equivalente (più lenta):
 
 (define (extended-euclid a b)
@@ -5864,6 +5889,7 @@ Versione equivalente (più lenta):
 
 (extended-euclid 120 23)
 ;-> (1 -9 47)
+
 (extended-euclid 8 -6)
 ;-> (2 1 1)
 

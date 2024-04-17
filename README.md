@@ -36,11 +36,11 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 28) Note libere 20 (80)
 29) Note libere 21 (80)
 30) Note libere 22 (80)
-30) Note libere 23 (50)
+30) Note libere 23 (52)
 96) Problemi sui dadi (76)
 97) Appendici (31)
 98) Bibliografia
-99) yo library (yo.zip) (277)
+99) yo library (yo.zip) (280)
 
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  

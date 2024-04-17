@@ -4041,5 +4041,78 @@ Proviamo:
 ;->  ((3 1) (2 4) (0 5))    ; seconda parte
 ;->  ((2 1) (0 3) (5 4)))   ; seconda parte
 
+
+----------------------
+Numeri di sole lettere
+----------------------
+
+Determinare la sequenza dei numeri interi positivi che in esadecimale sono costituiti solo da lettere ("A"..."F").
+
+(define (upper? ch)
+  "Check if a char is uppercase (A..Z)"
+   (and (>= ch "A") (<= ch "Z")))
+
+Sequenza OEIS: A228774
+Numbers n such that the digits of n, once written in base 16, are only the hexadecimal digits A to F.
+  10, 11, 12, 13, 14, 15, 170, 171, 172, 173, 174, 175, 186, 187, 188,
+  189, 190, 191, 202, 203, 204, 205, 206, 207, 218, 219, 220, 221, 222,
+  223, 234, 235, 236, 237, 238, 239, 250, 251, 252, 253, 254, 255, 2730,
+  2731, 2732, 2733, 2734, 2735, 2746, 2747, 2748, ...
+
+(format "%X" 202)
+;-> "CA"
+
+(format "%X" 2730)
+;-> "AAA"
+
+(define (only-char n)
+  (let (out '())
+    (for (i 1 n)
+      (if (for-all upper? (explode (format "%X" i)))
+        ;(println i { } (format "%x" i))
+        (push i out -1))
+    )
+    out))
+
+Proviamo:
+
+(only-char 200)
+;-> (10 11 12 13 14 15 170 171 172 173 174 175 186 187 188 189 190 191)
+
+
+--------------------------
+Sequenza somma delle cifre
+--------------------------
+
+Determinare la sequenza dei numeri interi che sono la somma delle cifre di tutti i numeri fino a n.
+In altre parole:
+
+  a(n) = a(n-1) + somma delle cifre di n
+  
+Sequenza OEIS: A037123
+a(n) = a(n-1) + sum of digits of n.
+  0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 46, 48, 51, 55, 60, 66, 73, 81, 
+  90, 100, 102, 105, 109, 114, 120, 127, 135, 144, 154, 165, 168, 172,
+  177, 183, 190, 198, 207, 217, 228, 240, 244, 249, 255, 262, 270, 279,
+  289, 300, 312, 325, 330, 336, 343, 351, 360, 370, 381, ...
+
+(define (digit-sum num)
+"Calculates the sum of the digits of an integer"
+  (let (out 0)
+    (while (!= num 0)
+      (setq out (+ out (% num 10)))
+      (setq num (/ num 10))
+    )
+    out))
+
+(define (somma-cifre n)
+  (let ( (out '()) (somma 0) )
+    (for (i 0 n)
+      (++ somma (digit-sum i))
+      (push somma out -1))))
+
+(somma-cifre 20)
+;-> (0 1 3 6 10 15 21 28 36 45 46 48 51 55 60 66 73 81 90 100 102)
+
 ============================================================================
 

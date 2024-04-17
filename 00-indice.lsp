@@ -2416,6 +2416,8 @@ NOTE LIBERE 23
   Numeri di Rien
   Fattori primi palindromi
   Torneo con accoppiamento round-robin
+  Numeri di sole lettere
+  Sequenza somma delle cifre
 
 PROBLEMI SUI DADI
 =================
@@ -2460,7 +2462,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (277 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (280 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
