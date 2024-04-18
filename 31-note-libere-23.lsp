@@ -4114,5 +4114,347 @@ a(n) = a(n-1) + sum of digits of n.
 (somma-cifre 20)
 ;-> (0 1 3 6 10 15 21 28 36 45 46 48 51 55 60 66 73 81 90 100 102)
 
+
+---------------------------------------------
+Numeri unici nelle tabelle di moltiplicazioni
+---------------------------------------------
+
+Scrivere una funzione che prende un intero positivo N e restituisce la lista ordinata (ascendente) dei numeri univoci che appaiono nella tabella di moltiplicazione i cui moltiplicatori di riga e di colonna vanno entrambi da 1 a N compreso.
+
+(define (uni-table n)
+  (let (out '())
+    (for (i 1 n)
+      (for (j 1 n) (push (* i j) out -1))
+    )
+    (sort (unique out))))
+
+Vediamo per i primi 10 numeri:
+
+(map uni-table (sequence 1 10))
+;-> ((1)
+;->  (1 2 4)
+;->  (1 2 3 4 6 9)
+;->  (1 2 3 4 6 8 9 12 16)
+;->  (1 2 3 4 5 6 8 9 10 12 15 16 20 25)
+;->  (1 2 3 4 5 6 8 9 10 12 15 16 18 20 24 25 30 36)
+;->  (1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21 24 25 28 30 35 36 42 49)
+;->  (1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21 24 25 28 30 32 35 36 40
+;->   42 48 49 56 64)
+;->  (1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21 24 25 27 28 30 32 35 36
+;->   40 42 45 48 49 54 56 63 64 72 81)
+;->  (1 2 3 4 5 6 7 8 9 10 12 14 15 16 18 20 21 24 25 27 28 30 32 35 36
+;->   40 42 45 48 49 50 54 56 60 63 64 70 72 80 81 90 100))
+
+Fino a quale intero N bisogna calcolare i numeri univoci per avere tutti i numeri da 1 a 100?
+La risposta è 97.
+(difference (slice (sort (unique (flat(map uni-table (sequence 1 97))))) 0 100) (sequence 1 100))
+;-> ()
+
+Fino a quale intero N bisogna calcolare i numeri univoci per avere tutti i numeri da 1 a 200?
+La risposta è 199.
+(difference (slice (sort (unique (flat(map uni-table (sequence 1 199))))) 0 200) (sequence 1 200))
+;-> ()
+
+Fino a quale intero N bisogna calcolare i numeri univoci per avere tutti i numeri da 1 a 300?
+La risposta è 293.
+(difference (slice (sort (unique (flat(map uni-table (sequence 1 293))))) 0 300) (sequence 1 300))
+
+
+-----------------------------
+Inversione binaria e quadrato
+-----------------------------
+
+Generare la sequenza dei numeri in base alle seguenti operazioni su un numero naturale N:
+  1) Rappresentare N in base 2 
+  2) Invertire il numero binario
+  3) Rappresentare il numero binario invertito in base 10
+  4) Elevare al quadrato
+
+Esempio con N = 6:
+
+  base2        inverte        base10    quadrato 
+6 -----> "110" -------> "011" ------> 3 --------> 9
+
+(define (inv-quad n) (pow (int (reverse (bits n)) 0 2) 2))
+
+(map inv-quad (sequence 0 50))
+;-> (0 1 1 9 1 25 9 49 1 81 25 169 9 121 49 225 1 289 81 625 25 441
+;->  169 841 9 361 121 729 49 529 225 961 1 1089 289 2401 81 1681 
+;->  625 3249 25 1369 441 2809 169 2025 841 3721 9 1225 361)
+
+
+------------------
+Identità di Bezout
+------------------
+
+L'identità di Bezout afferma che se a e b sono interi (non entrambi nulli) e il loro massimo comun divisore è d, allora esistono due interi x e y tali che
+
+  a*x + b*y = d
+
+Tali coppie di numeri (x,y) possono essere determinate utilizzando l'algoritmo esteso di Euclide, ma non sono univocamente determinate (nel senso che esistono infinite coppie di numeri che soddisfano l'identità).
+A partire da una soluzione (x0,y0) si può dimostrare che l'insieme delle soluzioni è costituito da elementi del tipo:
+
+  a*(x0 - k*(b/d)) + b*(y0 + k*(a/d)) = d,  con k numero naturale
+
+Funzione che calcola una soluzione (x0,y0).
+Utilizza l'algoritmo di Euclide esteso e restituisce una lista del tipo (gcd(a,b) x0 y0):
+
+(define (gcd-coeff a b)
+  (local (q temp q11 q12 q22 t11 t22)
+    (set 'q11 1 'q22 1 'q12 0 'q21 0)
+    (until (zero? b)
+      (setq temp b)
+      (setq q (/ a b))
+      (setq b (% a b))
+      (setq a temp)
+      (setq t21 q21)
+      (setq t22 q22)
+      (setq q21 (- q11 (* q q21)))
+      (setq q22 (- q12 (* q q22)))
+      (setq q11 t21)
+      (setq q12 t22)
+    )
+    (list a q11 q12)))
+
+Proviamo:
+
+(gcd-coeff 5 3)
+;-> (1 -1 2)
+
+(gcd-coeff 120 20)
+;-> (20 0 1)
+
+(gcd-coeff 120 23)
+;-> (1 -9 47)
+
+(gcd-coeff 6839 746)
+;-> (1 -185 1696)
+
+(gcd-coeff 14 4)
+;-> (2 1 -3)
+
+Funzione che verifica le prime S soluzioni a partire da (x0,y0):
+
+(define (check a b sol S)
+  (setq d (sol 0))
+  (setq x0 (sol 1))
+  (setq y0 (sol 2))
+  (println "  k   val mcd")
+  (for (k 0 S)
+    (setq val (+ (* a (- x0 (/ (* k b) d))) (* b (+ y0 (/ (* k a) d)))))
+    (println (format "%3d %3d %3d" k val d))
+  ))
+
+Proviamo:
+
+(check 5 3 (gcd-coeff 5 3) 5)
+;->   k   val mcd
+;->   0   1   1
+;->   1   1   1
+;->   2   1   1
+;->   3   1   1
+;->   4   1   1
+;->   5   1   1
+
+(check 120 20 (gcd-coeff 120 20) 5)
+;->   k   val mcd
+;->   0  20  20
+;->   1  20  20
+;->   2  20  20
+;->   3  20  20
+;->   4  20  20
+;->   5  20  20
+
+(check 120 23 (gcd-coeff 120 23) 5)
+;->   k   val mcd
+;->   0   1   1
+;->   1   1   1
+;->   2   1   1
+;->   3   1   1
+;->   4   1   1
+;->   5   1   1
+
+(check 6839 746 (gcd-coeff 6839 746) 5)
+;->   k   val mcd
+;->   0   1   1
+;->   1   1   1
+;->   2   1   1
+;->   3   1   1
+;->   4   1   1
+;->   5   1   1
+
+(check 14 4 (gcd-coeff 14 4) 5)
+;->   k   val mcd
+;->   0   2   2
+;->   1   2   2
+;->   2   2   2
+;->   3   2   2
+;->   4   2   2
+;->   5   2   2
+
+
+----------------------------------------------
+Eliminazione di righe e colonne di una matrice
+----------------------------------------------
+
+Vediamo alcune funzione per eliminare righe e/o colonne da una matrice.
+
+Funzione che elimina una riga da una matrice:
+
+(define (delete-row row matrix) (pop matrix row) matrix)
+
+Funzione che elimina una colonna da una matrice:
+
+(define (delete-col col matrix)
+  (let (t (transpose matrix))
+    (pop t col)
+    (transpose t)))
+
+(setq m '((  7 -2 12)
+          ( -1 -6  9)
+          (-19  2 -8)))
+
+(delete-row 1 m)
+;-> ((7 -2 12) (-19 2 -8))
+
+(delete-col 1 m)
+;-> ((7 12) (-1 9) (-19 -8))
+
+Funzione che elimina una riga e una colonna da una matrice:
+
+(define (delete-row-col row col matrix)
+  (local (t)
+    ; elimina riga
+    (pop matrix row)
+    ; elimina colonna (elimina riga della matrice trasposta)
+    (setq t (transpose matrix))
+    ;(print t)
+    (pop t col)
+    (transpose t)))
+
+(setq m '(( 2 3 -1)
+          ( 4 5 -2)
+          (-1 0  3)))
+
+Proviamo:
+
+(delete-row-col 1 1 m)
+;-> ((2 -1) (-1 3))
+
+(delete-row-col 0 1 m)
+;-> ((4 -2) (-1 3))
+
+
+-----------------
+Matrice cofattore
+-----------------
+
+Per calcolare la matrice cofattore (o matrice dei complementi algebrici) di una matrice quadrata A, seguire questi passaggi:
+
+1) Calcolo dei complementi algebrici
+- Per ogni elemento a(ij) della matrice A, calcola il suo complemento algebrico C(i j).
+- Il complemento algebrico di a(i j) è determinato dal determinante della sottomatrice minore ottenuta eliminando la riga i e la colonna j da A, moltiplicato per (-1)^(i+j).
+
+2) Costruire la matrice cofattore
+- La matrice cofattore C è una matrice di uguali dimensioni di A.
+- Mettere il complemento algebrico C(i j) nella posizione (i,j) della matrice C.
+
+Esempio:
+
+Calcoliamo la matrice cofattore della seguente matrice M:
+
+  |  2  3  -1 |
+  |  4  5  -2 |
+  | -1  0   3 |
+
+1) Complementi algebrici
+  C(0 0) = (-1)^(0+0) * det((5 -2) (0 3))  = 15
+  C(0 1) = (-1)^(0+1) * det((4 -2) (-1 3)) = -10
+  C(0 2) = (-1)^(0+2) * det((4 5) (-1 0))  = 5
+  C(1 0) = (-1)^(1+0) * det((3 -1) (0 3))  = -9
+  C(1 1) = (-1)^(1+1) * det((2 -1) (-1 3)) = 5
+  C(1 2) = (-1)^(1+2) * det((2 3) (-1 0))  = -3
+  C(2 0) = (-1)^(2+0) * det((3 -1) (5 -2)) = -1
+  C(2 1) = (-1)^(2+1) * det((2 -1) (4 -2)) = 0
+  C(2 2) = (-1)^(2+2) * det((2 3) (4 5))   = -2
+
+2) Matrice cofattore
+
+  | 15 -10   5 |
+  | -9   5  -3 |
+  | -1   0  -2 |
+
+Proprietà:
+- La trasposta della matrice cofattore di una matrice quadrata A è uguale alla matrice cofattore della sua trasposta.
+- Il determinante di una matrice quadrata A è uguale alla somma dei prodotti degli elementi di una riga (o colonna) per i loro rispettivi cofattori.
+
+Funzione che calcola i complementi algebrici di una matrice quadrata:
+
+(define (comp-algeb row col matrix)
+  (local (t)
+    ; elimina riga row
+    (pop matrix row)
+    ; elimina colonna col
+    (setq t (transpose matrix))
+    (pop t col)
+    (setq t (transpose t))
+    ;(println t)
+    ; calcola (-1)^(row+col) * det(t)
+    (if (odd? (+ row col))
+        (round (- (det t 0.0)) -6)
+        (round (det t 0.0) -6))))
+
+Proviamo:
+
+(setq m '(( 2 3 -1)
+          ( 4 5 -2)
+          (-1 0  3)))
+
+(comp-algeb 0 0 m)
+;-> 15
+
+(comp-algeb 0 1 m)
+;-> -10
+
+Funzione che calcola la matrice cofattore di una matrice quadrata:
+
+(define (cofattore matrix)
+  (local (rows cols ca)
+    (setq rows (length matrix))
+    (setq cols (length (matrix 0)))
+    (setq ca (array rows cols (* rows cols)))
+    (for (r 0 (- rows 1))
+      (for (c 0 (- cols 1))
+        ;(println (comp-algeb r c matrix))
+        (setf (ca r c) (comp-algeb r c matrix))
+      )
+    )
+    ca))
+
+Proviamo:
+
+(cofattore m)
+;-> ((15 -10 5)
+;->  (-9 5 -3)
+;->  (-1 0 -2))
+
+(setq h '((1 2 3)
+          (4 5 6)
+          (7 8 9)))
+
+(cofattore h)
+;-> ((-3   6 -3)
+;->  ( 6 -12  6)
+;->  (-3   6 -3)))
+
+(setq p '((2 3 5)
+          (7 11 13)
+          (17 19 23)))
+
+(cofattore p)
+;-> ((6 60 -54) 
+;->  (26 -39 13)
+;->  (-16 9 1))
+
 ============================================================================
 

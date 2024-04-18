@@ -7506,6 +7506,7 @@ La soluzione modificata non è stabile.
 Vedi anche "Algoritmo di Gale-Shapley" su "Note libere 3".
 Vedi anche "Massima soddisfazione" su "Note libere 22".
 
+
 -----------------------
 TEST PRIMI MILLER-RABIN
 -----------------------

@@ -1993,9 +1993,9 @@ Scriviamo due funzioni per estrarre una riga o una colonna da una matrice:
 ;-> (3 6)
 
 
--------------------------------------------
-Modifiche di righe o colonne di una matrice
--------------------------------------------
+------------------------------------------
+Modifica di righe o colonne di una matrice
+------------------------------------------
 
 Vediamo come possiamo modificare una riga o una colonna di una matrice:
 

@@ -2418,6 +2418,11 @@ NOTE LIBERE 23
   Torneo con accoppiamento round-robin
   Numeri di sole lettere
   Sequenza somma delle cifre
+  Numeri unici nelle tabelle di moltiplicazioni
+  Inversione binaria e quadrato
+  Identità di Bezout
+  Eliminazione di righe e colonne di una matrice
+  Matrice cofattore
 
 PROBLEMI SUI DADI
 =================
