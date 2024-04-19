@@ -4553,5 +4553,147 @@ Proviamo:
 (map (curry biggest m) (sequence 1 3))
 ;-> (8 83 831)
 
+
+--------------------------------------
+Colore di una casella della scacchiera
+--------------------------------------
+
+Data una coordinata algebrica di una scacchiera standard (es. c3) determinare il colore della casella.
+
+Per determinare se una casella di una scacchiera è bianca o nera, possiamo usare una formula basata sulle coordinate della casella (numero ASCII del carattere).
+In una scacchiera standard, le caselle alternate hanno colori diversi.
+Ad esempio, la casella in alto a sinistra è bianca, mentre quella adiacente a destra è nera e così via.
+La formula è la seguente:
+
+ se (ascii(colonnna) + ascii(riga)) modulo 2) == 1,
+ allora la casella è bianca (white)
+ 
+ se (ascii(colonnna) + ascii(riga)) modulo 2) == 0,
+ allora la casella è nera (black)
+
+(define (b? coord) ; check for black
+  (zero? (% (+ (char (coord 0)) (char (coord 1))) 2)))
+
+(define (w? coord) ; check for white
+  (not (zero? (% (+ (char (coord 0)) (char (coord 1))) 2))))
+
+Proviamo:
+
+(map b? '("a1" "a2" "a3" "a4" "a5" "a6" "a7" "a8"))
+;-> (true nil true nil true nil true nil)
+(map w? '("a1" "a2" "a3" "a4" "a5" "a6" "a7" "a8"))
+;-> (nil true nil true nil true nil true)
+
+(map b? '("b1" "b2" "b3" "b4" "b5" "b6" "b7" "b8"))
+;-> (nil true nil true nil true nil true)
+(map w? '("b1" "b2" "b3" "b4" "b5" "b6" "b7" "b8"))
+;-> (true nil true nil true nil true nil)
+
+(map b? '("c1" "c2" "c3" "c4" "c5" "c6" "c7" "c8"))
+;-> (true nil true nil true nil true nil)
+(map w? '("c1" "c2" "c3" "c4" "c5" "c6" "c7" "c8"))
+;-> (nil true nil true nil true nil true)
+
+(map b? '("h1" "h2" "h3" "h4" "h5" "h6" "h7" "h8"))
+;-> (nil true nil true nil true nil true)
+(map w? '("h1" "h2" "h3" "h4" "h5" "h6" "h7" "h8"))
+;-> (true nil true nil true nil true nil)
+
+
+----------------
+Fibonacci (Lutz)
+----------------
+
+L'i-esimo numero di Fibonacci F(i) viene definito nel modo seguente:
+
+     F(i) = 0                 se i = 0
+     F(i) = 1                 se i = 1
+     F(i) = F(i-1) + F(i-2)   se i >= 2
+
+1) Funzione iterativa
+
+(define (fibo-i num)
+"Calculates the Fibonacci number of an integer number"
+  (if (zero? num) 0L
+  ;else
+  (local (a b c)
+    (setq a 0L b 1L c 0L)
+    (for (i 0 (- num 1))
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a)))
+
+2) Funzione ricorsiva
+
+(define (fibo-r num)
+  (cond ((= num 0L) 0L)
+        ((= num 1L) 1L)
+        (true (+ (fibo-r (- num 1)) (fibo-r (- num 2))))))
+
+2) Funzione ricorsiva memoized
+
+(define-macro (memoize mem-func func)
+"Memoize tail recursive function"
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize fibo-m
+  (lambda (num)
+  (cond ((= num 0L) 0L)
+        ((= num 1L) 1L)
+        (true (+ (fibo-m (- num 1)) (fibo-m (- num 2)))))))
+
+Proviamo:
+
+(map fibo-i (sequence 0 10))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
+
+(map fibo-r (sequence 0 10))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
+
+(map fibo-m (sequence 0 10))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
+
+Velocità delle funzioni:
+
+(time (map fibo-i (sequence 0 10)) 1000)
+;-> 31.207
+(time (map fibo-r (sequence 0 10)) 1000)
+;-> 109.341
+(time (map fibo-m (sequence 0 10)) 1000)
+;-> 15.586
+
+La funzione "fibo-r" è molto lenta.
+
+(time (map fibo-i (sequence 0 1000)) 100)
+;-> 13329.34
+(time (map fibo-m (sequence 0 1000)) 100)
+;-> 93.742
+
+Infine vediamo la funzione per calcolare i numeri di Fibonacci scritta da Lutz Mueller (creatore di newLISP):
+
+; all fibonacci numbers up to 200, only the first number
+; needs to be formatted as big integer, the rest follows
+; automatically - when executed from the command line in
+; a 120 char wide terminal, this shows a beautiful pattern
+(let (x 1L) (series x (fn (y) (+ x (swap y x))) 200))
+
+Modifichiamola per fare in modo che restituisca gli stessi risultati di "fibo-i", "fibo-r" e "fibo-m":
+
+(define (fibo-lutz num)
+  (let ( (out '(0L 1L)) (x 1L) )
+    (extend out (series x (fn (y) (+ x (swap y x))) (- num 1)))))
+
+(fibo-lutz 10)
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L)
+
+(time (fibo-lutz 1000) 100)
+;-> 62.476 ; Lutz wins
+
 ============================================================================
 

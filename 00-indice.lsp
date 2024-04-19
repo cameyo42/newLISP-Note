@@ -2424,6 +2424,8 @@ NOTE LIBERE 23
   Eliminazione di righe e colonne di una matrice
   Matrice cofattore
   Numero maggiore in una matrice di cifre
+  Colore di una casella della scacchiera
+  Fibonacci (Lutz)
 
 PROBLEMI SUI DADI
 =================
