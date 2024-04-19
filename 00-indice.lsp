@@ -2423,6 +2423,7 @@ NOTE LIBERE 23
   Identità di Bezout
   Eliminazione di righe e colonne di una matrice
   Matrice cofattore
+  Numero maggiore in una matrice di cifre
 
 PROBLEMI SUI DADI
 =================

@@ -4456,5 +4456,102 @@ Proviamo:
 ;->  (26 -39 13)
 ;->  (-16 9 1))
 
+
+---------------------------------------
+Numero maggiore in una matrice di cifre
+---------------------------------------
+
+Data una matrice NxM di cifre (0..9) e un numero di cifre K, trovare nella matrice il numero più grande che ha K cifre.
+Il numero di K cifre può apparire orizzontalmente o verticalmente nella matrice e può essere letto normalmente da sinistra a destra o al contrario (da destra a sinistra).
+Il valore di K deve essere minore o uguale a (max N M).
+
+Vediamo alcuni esempi:
+
+Matrice:
+  0 0 0
+  0 1 0
+  0 0 0
+numero-massimo = 1, per k=1
+numero-massimo = 10, per k=2
+numero-massimo = 10, per k=3 (010 è valido per k=3)
+
+Matrice:
+  8 1 7
+  2 0 2
+  1 3 8
+numero-massimo = 8, per k=1
+numero-massimo = 83, per k=2
+numero-massimo = 831, per k=3
+
+Matrice:
+  8 5 3 4 
+  2 6 4 2 
+  7 9 2 1
+numero-massimo = 9, per k=1
+numero-massimo = 97, per k=2
+numero-massimo = 965, per k=3
+numero-massimo = 8534, per k=4
+
+(define (group-block lst num)
+"Creates a list with blocks of elements: (0..num) (1..num+1) (n..num+n)"
+  (local (out items len)
+    (setq out '())
+    (setq len (length lst))
+    (if (>= len num) (begin
+        ; numero di elementi nella lista di output (numero blocchi)
+        (setq items (- len num (- 1)))
+        (for (k 0 (- items 1))
+          (push (slice lst k num) out -1)
+        )
+    ))
+  out))
+
+(group-block '(8 5 3 4) 2)
+;-> ((8 5) (5 3) (3 4))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione che trova il numero con k cifre più grande in una matrice di cifre:
+
+(define (biggest matrix k)
+  (let (nums '())
+    ; estrae numeri dalle righe (come liste di cifre)
+    (dolist (r matrix) (extend nums (group-block r k)))
+    ; estrae numeri dalle righe (come liste di cifre)
+    (dolist (r (transpose matrix)) (extend nums (group-block r k)))
+    ; genera i numeri al contrario (inverte le liste di cifre)
+    (extend nums (map reverse nums))
+    ;(println nums)
+    (apply max (map (fn(x) (list-int x)) nums))))
+
+Proviamo:
+
+(setq m '((0)))
+(biggest m 1)
+;-> 0
+
+(setq m '((0 0 0) (0 1 0) (0 0 0)))
+(biggest m 1)
+;-> 1
+(biggest m 2)
+;-> 10
+(biggest m 3)
+;-> 10
+
+(setq m '((8 5 3 4) 
+          (2 6 4 2) 
+          (7 9 2 1)))
+(map (curry biggest m) (sequence 1 4))
+;-> (9 97 965 8534)
+
+(setq m '((8 1 7)
+          (2 0 2)
+          (1 3 8)))
+(map (curry biggest m) (sequence 1 3))
+;-> (8 83 831)
+
 ============================================================================
 
