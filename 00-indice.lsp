@@ -2426,6 +2426,9 @@ NOTE LIBERE 23
   Numero maggiore in una matrice di cifre
   Colore di una casella della scacchiera
   Fibonacci (Lutz)
+  Macchina della verità
+  Norma di un vettore
+  Angolo tra due punti
 
 PROBLEMI SUI DADI
 =================
@@ -2470,7 +2473,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (280 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (281 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

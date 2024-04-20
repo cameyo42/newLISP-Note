@@ -4695,5 +4695,98 @@ Modifichiamola per fare in modo che restituisca gli stessi risultati di "fibo-i"
 (time (fibo-lutz 1000) 100)
 ;-> 62.476 ; Lutz wins
 
+
+---------------------
+Macchina della verità
+---------------------
+
+Una macchina della verità è un semplice programma con il seguente comportamento:
+
+1) Prende un numero (0 o 1) in input.
+2) Se il numero è 0, stampa 0 e termina.
+    Se il numero è 1, stampa 1 per sempre.
+
+(define (verita num)
+  (if (zero? num)
+      (println 0)
+      (while true (print 1)))'>)
+
+(verita 0)
+;-> 0
+
+(verita 1)
+;-> 111111111111111111111111111111111111111111111111111111111111...
+Premere CTRL-C per terminare il programma
+
+
+-------------------
+Norma di un vettore
+-------------------
+
+La norma (modulo) di un vettore rappresenta la sua lunghezza nello spazio N-dimensionale.
+In pratica è la distanza tra il punto rappresentato dalle coordinate del vettore con l'origine dello spazio N-dimensionale (0).
+
+(define (norm v)
+"Calculates the norm of a vector of arbitrary length (distance from origin)"
+  (sqrt (apply add (map (fn(x) (mul x x)) v))))
+
+Proviamo:
+
+(norm '(1 1 1))
+;-> 1.732050807568877
+
+(norm '(1 2 3 4))
+;-> 5.477225575051661
+
+
+--------------------
+Angolo tra due punti
+--------------------
+
+Dati due punti A e B, trovare l'angolo formato dalla retta AO alla retta BO attorno al punto O dove O è l'origine (0,0).
+L'angolo (gradi decimali) è positivo o negativo (-360..360) a seconda della posizione dei punti.
+L'angolo può essere la versione positiva o negativa dello stesso angolo (90 gradi equivalgono a -270 gradi).
+
+Esempi:
+A = (3 0), B = (2 2) --> angolo = 45
+A = (2 2), B = (3 0) --> angolo = -45
+
+A = (3 3), B = (3 -3) --> angolo = -90
+A = (3 -3), B = (3 3) --> angolo = 90
+
+A = (2 1), B = (-2 -2) --> angolo = -161.565051177078
+A = (-2 -2), B = (2 1) --> angolo = 161.565051177078
+
+A = (3 3), B = (-3 -3) --> angolo = -180
+A = (-3 -3), B = (3 3) --> angolo = 180
+
+Funzione che calcola l'angolo (gradi) tra due punti:
+
+(define (angle p1 p2) 
+  (let (angle-rad (sub (atan2 (p2 1) (p2 0)) (atan2 (p1 1) (p1 0))))
+    (div (mul angle-rad 180) 3.1415926535897931)))
+
+Proviamo:
+
+(angle '(3 3) '(3 -3))
+;-> -90
+(angle '(3 -3) '(3 3))
+;-> 90
+
+(angle '(2 2) '(3 0))
+;-> -45
+(angle '(3 0) '(2 2))
+;-> 45
+
+(angle '(1 1) '(-1 -1))
+;-> -180
+(angle '(-1 -1) '(1 1))
+;-> 180
+
+(angle '(1 2) '(-3 -4))
+;-> -190.304846468766
+(angle '(1 2) '(-3 -4))
+;-> 190.304846468766
+
 ============================================================================
 
