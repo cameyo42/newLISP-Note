@@ -4788,5 +4788,56 @@ Proviamo:
 (angle '(1 2) '(-3 -4))
 ;-> 190.304846468766
 
+
+----------------------
+Angolo tra due vettori
+----------------------
+
+L'angolo tra due vettori x e y è dato dalla seguente formula:
+
+                     dot-product(x,y)
+  angle(x,y) = acos -------------------
+                     norm(x) * norm(y) 
+
+(define (dot-product x y)
+"Calculates the dot-product of two list/array of arbitrary length"
+  (apply add (map mul x y)))
+
+(dot-product '(1 2 3) '(4 5 6))
+;-> 32
+
+(define (norm v)
+"Calculates the norm of a vector of arbitrary length (distance from origin)"
+  (sqrt (apply add (map (fn(x) (mul x x)) v))))
+
+(norm '(1 2 3))
+;-> 3.741657386773941
+(sqrt 14)
+;-> 3.741657386773941
+
+(norm '(4 5 6))
+;-> 8.774964387392123
+(sqrt 77)
+;-> 8.774964387392123
+
+Funzione che calcola l'angolo (radianti) tra due vettori:
+
+(define (angle-vector x y)
+  (acos (div (dot-product x y) (mul (norm x) (norm y)))))
+
+Proviamo:
+
+(angle-vector '(3 3) '(3 -3))
+;-> 1.570796326794897 ; radianti
+
+(define (rad-deg rad)
+"Convert radiants to decimal degrees"
+  (div (mul rad 180) 3.1415926535897931))
+
+(rad-deg (angle-vector '(3 3) '(3 -3)))
+;-> 90
+(rad-deg (angle-vector '(3 -3) '(3 3)))
+;-> 90
+
 ============================================================================
 

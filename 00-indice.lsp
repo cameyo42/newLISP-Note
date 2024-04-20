@@ -2429,6 +2429,7 @@ NOTE LIBERE 23
   Macchina della verità
   Norma di un vettore
   Angolo tra due punti
+  Angolo tra due vettori
 
 PROBLEMI SUI DADI
 =================
