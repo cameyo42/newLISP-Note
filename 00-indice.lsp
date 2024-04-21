@@ -2430,6 +2430,7 @@ NOTE LIBERE 23
   Norma di un vettore
   Angolo tra due punti
   Angolo tra due vettori
+  Somma cumulativa di una lista
 
 PROBLEMI SUI DADI
 =================

@@ -4839,5 +4839,61 @@ Proviamo:
 (rad-deg (angle-vector '(3 -3) '(3 3)))
 ;-> 90
 
+
+-----------------------------
+Somma cumulativa di una lista
+-----------------------------
+
+La somma cumulativa di una lista viene calcolata semplicemente facendo la somma di tutti gli elementi precedenti. Ad esempio:
+
+           lista = (1 2 3 -1 -1 -1 2 1 -2 3 -3))
+somma_cumulativa = (1 3 6 5 4 3 5 6 4 7 4)
+
+(define (cum-sum1 lst)
+  (let ( (cur 0) (out '()) )
+    (dolist (el lst) (push (++ cur el) out -1))))
+
+(define (cum-sum2 lst)
+  (let (cur 0)
+    (map (fn(x) (++ cur x)) lst)))
+
+(setq a '(1  2  3 -1 -1 -1 2 1 -2 3 -3))
+
+Proviamo:
+
+(cum-sum1 a)
+;-> (1 3 6 5 4 3 5 6 4 7 4)
+
+(cum-sum2 a)
+;-> (1 3 6 5 4 3 5 6 4 7 4)
+
+Vediamo la velocità delle funzioni:
+
+(silent (setq test (rand 10 10000)))
+
+(time (cum-sum1 test) 1000)
+;-> 687.659
+
+(time (cum-sum2 test) 1000)
+;-> 743.374
+
+In alcuni problemi occorre calcolare la somma cumulativa ripetuta K volte.
+
+(define (cum-sum-rip lst k)
+  (local (cur)
+    (for (i 1 k)
+      (setq cur 0)
+      (setq lst (map (fn(x) (++ cur x)) lst))
+    )
+    lst))
+
+Proviamo:
+
+(cum-sum-rip a 3)
+;-> (1 5 15 30 49 71 98 131 168 212 260)
+
+(cum-sum1 (cum-sum1 (cum-sum1 a)))
+;-> (1 5 15 30 49 71 98 131 168 212 260)
+
 ============================================================================
 

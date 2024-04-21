@@ -2531,13 +2531,13 @@ Altrimenti, possono essere utilizzare una o più lettere:
 "k" (il Nero può arroccare corto),
 "q" (il Nero può arroccare lungo).
 
-4.  Possibilità di catturare en passant: se non è possibile effettuare alcuna cattura en passant, si indica "-".
+4. Possibilità di catturare en passant: se non è possibile effettuare alcuna cattura en passant, si indica "-".
 Se un pedone ha appena effettuato la sua prima mossa di due case e c'è la possibilità di catturarlo en passant, verrà indicata la casa "alle spalle" del pedone stesso.
 
-5.  Numero delle semimosse:  è il numero di semimosse dall'ultima spinta di pedone o dall'ultima cattura.
+5. Numero delle semimosse:  è il numero di semimosse dall'ultima spinta di pedone o dall'ultima cattura.
 È usato per determinare se si può chiedere patta per la regola delle cinquanta mosse.
 
-6.  Numero di mosse: il numero complessivo di mosse della partita.
+6. Numero di mosse: il numero complessivo di mosse della partita.
 Inizia da 1, ed aumenta di una unità dopo ogni mossa del Nero.
 
 Come esempio consideriamo la seguente stringa FEN e ricostruiamo la posizione:
@@ -2727,6 +2727,39 @@ Funzione che converte una posizione sulla scacchiera nella stringa FEN:
 (board-fen board)
 ;-> "[r1bq1rk1/pp3ppp/3n4/2p1N3/2B5/7P/PPP2PP1/R1BQR1K1]"
 
+Possiamo valutare una posizione FEN utilizzando la seguente tabella:
+
+  p / P = Pawn   = 1 point
+  n / N = Knight = 3 points
+  b / B = Bishop = 3 points
+  r / R = Rook   = 5 points
+  q / Q = Queen  = 9 points
+  k / K = King   = 0 point
+
+(define (eval-fen fen)
+  (let ((val 0)
+        (link '(("P" 1) ("p" -1) ("N" 3) ("n" -3) ("B" 3) ("b" -3)
+               ("R" 5) ("r" -5)  ("Q" 9) ("q" -9))))
+    (dolist (el (explode (first (parse fen " "))))
+          (setq pieces (lookup el link))
+          (if pieces (setq val (+ val pieces)))
+    )
+    val))
+
+Proviamo:
+
+(setq fen "[r1bq1rk1/pp3ppp/3n4/2p1N3/2B5/7P/PPP2PP1/R1BQR1K1 w]")
+(eval-fen fen)
+;-> 3
+
+(setq fen "[rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2]")
+(eval-fen fen)
+;-> 0
+
+(setq fen "[nbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2]")
+(eval-fen fen)
+;-> 5
+
 
 --------------------------------------------------------
 ASCII caratteri stampabili (printable characters 32-127)
@@ -2833,7 +2866,7 @@ La numerazione di Godel assegna numeri alle lettere, diciamo A=1...Z=26, quindi 
 
 Il processo è reversibile, cioè è possibile scomporre il numero di Godel e decodificare gli esponenti.
 
-Nota: la numerazione di Godedl genera un numero diverso (univoco) per ogni stringa.
+Nota: la numerazione di Godel genera un numero diverso (univoco) per ogni stringa.
 
 (define (** num power)
 "Calculates the integer power of an integer"
