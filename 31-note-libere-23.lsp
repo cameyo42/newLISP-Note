@@ -4895,5 +4895,225 @@ Proviamo:
 (cum-sum1 (cum-sum1 (cum-sum1 a)))
 ;-> (1 5 15 30 49 71 98 131 168 212 260)
 
+Possiamo anche considerare la differenza cumulativa di una lista:
+
+(define (cum-diff lst)
+  (let (cur 0)
+    (map (fn(x) (-- cur x)) lst)))
+
+(cum-diff '(1  2  3 -1 -1 -1 2 1 -2 3 -3))
+;-> (-1 -3 -6 -5 -4 -3 -5 -6 -4 -7 -4)
+
+
+----------------------------------------------------------------
+Eliminazione degli elementi di una lista con una lista di indici
+----------------------------------------------------------------
+
+Supponiamo di avere una lista di elementi e di voler eliminare gli elementi indicati da una lista di indici.
+
+Per esempio:
+  lista = (3 -2 7 5 1)
+  indici = (0 2 3)
+Eliminando gli elementi lista(0)=3, lista(2)=7 e lista(3)=5, rimane la lista:
+  lista = (-2 1)
+
+Si tratta di scrivere una funzione simile a "select" che, invece di selezionare gli elementi da una lista, li elimina.
+
+Non è possibile eliminare gl elementi uno ad uno utilizzando la funzione "pop", perchè dopo la prima cancellazione gli indici non corrisponderebbero (infatti gli indici fanno riferimento alla lista originale).
+
+Funzione che elimina gli elementi di una lista utilizzando una lista di indici:
+
+(define (delete-index lst idx)
+  (select lst (difference (sequence 0 (- (length lst) 1)) idx)))
+
+Proviamo:
+(delete-index '(3 -2 7 5 1) '(0 2 3))
+;-> (-2 1)
+
+(setq c '(0 1 2 3 4 5 6 7 8 9))
+(delete-index c '(0 3 5))
+;-> (1 2 4 6 7 8 9)
+
+
+---------------------------------------
+Percentuale degli elementi di una lista
+---------------------------------------
+
+Data una lista calcolare la percentuale di ogni elemento della lista della somma di tutti gli elementi.
+Per esempio, 
+  lista = (4 4 2)
+  percentuali = (40 40 20)
+
+(define (perc-list lst)
+  (map (fn(x) (mul (div x somma) 100)) lst))
+
+(setq a '(1 3 3 2 6 4 -2 -4 9 8 -4))
+(perc-list a)
+;-> (3.846153846153846 11.53846153846154 11.53846153846154 7.692307692307693
+;->  23.07692307692308 15.38461538461539 -7.692307692307693 -15.38461538461539
+;->  34.61538461538461 30.76923076923077 -15.38461538461539)
+
+(apply add (perc-list a))
+;-> 100
+
+Nota: se arrotondiamo i risultati, allora la somma potrebbe non essere 100.
+
+
+--------------------------
+Il gioco dell'eliminazione
+--------------------------
+
+Nel gioco, i partecipanti stanno in cerchio e ognuno ha un numero intero.
+In ogni turno del gioco, ogni partecipante elimina la persona N-esima, dove N è il numero che possiede:
+se N è positivo, contano verso destra,
+se N è negativo, contano verso sinistra,
+se N è zero, si autoeliminano.
+I partecipanti eliminati lasciano il cerchio al termine del turno.
+Il gioco continua finché rimane uno o nessun partecipante.
+
+Esempio 1:
+  lista = (0 1 2 3 4)
+  Turno 1:
+    Indici da eliminare: (0 1 2 3 4)
+    Elementi da eliminare: (0 1 2 3 4)
+    lista = ()
+  Stop.
+
+Esempio 2:
+  lista = (2 1 -2 0 4)
+  Turno 1:
+    Indici da eliminare: (0 2 3)
+    Elementi da eliminare: (2 -2 0)
+    lista = (1 4)
+  Turno 2:
+    Indici da eliminare: (1)
+    Elementi da eliminare: (4)
+    lista = (1)
+  Stop.
+
+Esempio 3:
+  lista = (-1 0 3 2 4 -2)
+  Turno 1:
+    Indici da eliminare: (1 2 3 5)
+    Elementi da eliminare: (0 3 2 -2)
+    lista = (-1 4)
+  Turno 2:
+    Indici da eliminare: (1)
+    Elementi da eliminare: (4)
+    lista = (-1)
+  Stop.
+
+(elimination '(0 1 2 3 4))
+
+Funzione che prende un indice di partenza e si sposta nella lista di k posti (a destra se k è positivo e a sinistra se k è negativo), restituendo l'indice di arrivo (la lista viene considerata circolare):
+
+(define (locate-index lst i k)
+  (local (len idx)
+    (setq len (length lst))
+    (setq idx (% (+ i k) len))
+    (if (< idx 0) (setq idx (+ idx len)))
+    idx))
+
+(locate-index '(7 -2 9 6) 1 6)
+;-> 3
+
+Funzione che elimina da una lista gli elementi indicati da una lista di indici:
+
+(define (delete-index lst indexes)
+  (select lst (difference (sequence 0 (- (length lst) 1)) indexes)))
+
+(delete-index '(2 4 5 1) '(0 2))
+;-> (4 1)
+
+(define (elim lst)
+  (local (len index-to-delete)
+    (setq len (length lst))
+    (while (> len 1)
+      (setq index-to-delete '())
+      ; crea la lista degli indici da eliminare
+      (dolist (el lst)
+        (push (find-idx lst $idx el) index-to-delete)
+      )
+      (setq index-to-delete (unique (sort index-to-delete)))
+      (println index-to-delete)
+      ; Elimina gli elementi dalla lista
+      (setq lst (delete-index lst index-to-delete))
+      (println lst)
+      (read-line)
+      ; calcola la nuova lunghezza della lista
+      (setq len (length lst))
+    )
+    lst))
+
+Funzione che simula il gioco dell'eliminazione:
+
+(define (elimination lst)
+  (local (len index-to-delete)
+    (setq len (length lst))
+    (while (> len 1)
+      ; Crea la lista degli indici da eliminare
+      (setq index-to-delete '())
+      (dolist (el lst)
+        (push (locate-index lst $idx el) index-to-delete)
+      )
+      (setq index-to-delete (unique (sort index-to-delete)))
+      ;(println index-to-delete)
+      ; Elimina gli elementi dalla lista
+      (setq lst (delete-index lst index-to-delete))
+      ;(println lst)
+      ; calcola la nuova lunghezza della lista
+      (setq len (length lst))
+    )
+    lst))
+
+Proviamo:
+
+(setq e1 '(0 1 2 3 4))
+(elimination e1)
+;-> ()
+
+(setq e2 '(2 1 -2 0 4))
+(elimination e2)
+;-> (1)
+
+(setq e3 '(-1 0 3 2 4 -2))
+(elimination e3)
+;-> (-1)
+
+(setq t '(11 -16 -12 2 -21 1 6 12 -4 2 1 -10 3 -10))
+(elimination t)
+;-> ()
+
+Vediamo quante volte il gioco termina con un elemento e con nessun elemento:
+
+(define (test num-item max-val iter)
+  (setq zeri 0)
+  (setq uni 0)
+  (for (i 1 iter)
+    (setq a (rand max-val num-item))
+    (if (= (elimination a) '())
+        (++ zeri)
+        (++ uni)
+    )
+  )
+  (list zeri uni (div zeri iter) (div uni iter)))
+
+Proviamo:
+
+(test 20 100 10000)
+;-> (3416 6584 0.3416 0.6584)
+
+(test 100 100 10000)
+;-> (3275 6725 0.3275 0.6725)
+
+(test 20 1000 10000)
+;-> (3533 6467 0.3533 0.6467000000000001)
+
+(time (println (test 100 1000 10000)))
+;-> (3366 6634 0.3366 0.6634)
+;-> 1644.422
+
+Sembra che 1/3 terzo dei giochi finisce con 0 elementi e 2/3 finisce con un elemento.
+
 ============================================================================
 
