@@ -2434,6 +2434,7 @@ NOTE LIBERE 23
   Eliminazione degli elementi di una lista con una lista di indici
   Percentuale degli elementi di una lista
   Il gioco dell'eliminazione
+  Creazione automatica di espressioni con CAR e CDR
 
 PROBLEMI SUI DADI
 =================

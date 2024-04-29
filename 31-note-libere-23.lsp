@@ -5115,5 +5115,238 @@ Proviamo:
 
 Sembra che 1/3 terzo dei giochi finisce con 0 elementi e 2/3 finisce con un elemento.
 
+
+-------------------------------------------------
+Creazione automatica di espressioni con CAR e CDR
+-------------------------------------------------
+
+In LISP possiamo estrarre qualunque elemento di una lista utilizzando solo le funzioni "CAR" e "CDR" (in newLISP "first" a "rest").
+
+Per esempio, per estrarre 2 dalla lista (3 4 2 1) possiamo scrivere:
+
+  (car (cdr (cdr '(3 4 2 1))))
+
+In newLISP:
+
+(first (rest (rest '(3 4 2 1))))
+;-> 2
+
+Per comodità definiamo "CAR" e "CDR":
+
+(define car first)
+;-> first@4071B9
+
+(define cdr rest)
+;-> rest@4072CA
+
+(car (cdr (cdr '(3 4 2 1))))
+;-> 2
+
+Comunque se abbiamo una lista annidata le espressioni diventano più complicate.
+Ad esempio se vogliamo estrarre il numero 8 dalla seguente lista:
+
+(setq a '(4 5 (1 2 (7) 9 (10 8 14))))
+
+dobbiamo scrivere:
+
+(car (cdr (car (cdr (cdr (cdr (cdr (car (cdr (cdr a))))))))))
+;-> 8
+
+Scriviamo una funzione che crea queste espressioni in modo automatico.
+La funzione prende una lista e un elemento da estrarre e crea l'espressione con "car" e "cdr" che estrae quelle'elemento dalla lista.
+
+Partiamo calcolando la lista degli indici dell'elemento cercato:
+
+(ref 8 a)
+;-> (2 4 1)
+
+Analizziamo ogni elemento della lista degli indici:
+
+indice 1 = 2
+(a 2)
+;-> (1 2 (7) 9 (10 8 14))
+Per estrarre questo elemento dobbiamo scrivere:
+(setq due (car (cdr (cdr a))))
+;-> (1 2 (7) 9 (10 8 14))
+
+indice 2 = 2 4
+(a 2 4)
+;-> (10 8 14)
+Per estrarre questo elemento dobbiamo scrivere:
+(setq quattro (car (cdr (cdr (cdr (cdr due))))))
+;-> (10 8 14)
+
+indice 3 = 2 4 1
+(a 2 4 1)
+;-> 8
+Per estrarre questo elemento dobbiamo scrivere:
+(setq uno (car (cdr quattro)))
+;-> 8
+
+Notiamo che per un indice singolo K l'espressione contiene un "car" e (k-1) "cdr" applicati alla lista corrente.
+Mettendo insieme tutte le espressioni degli indici otteniamo:
+
+(setq uno (car (cdr quattro)))
+;-> 8
+(setq uno (car (cdr (car (cdr (cdr (cdr (cdr due))))))))
+;-> 8
+(setq uno (car (cdr (car (cdr (cdr (cdr (cdr (car (cdr (cdr a)))))))))))
+;-> 8
+(car (cdr (car (cdr (cdr (cdr (cdr (car (cdr (cdr a))))))))))
+;-> 8
+
+Quindi possiamo utilizzare l'indice dell'elemento cercato per costruire l'espressione con "car" e "cdr".
+
+Funzione che genera le espressioni con "car" e "cdr":
+
+(define (car-cdr lst val)
+  (local (indici expr idx-expr)
+    ; calcolo lista degli indici
+    (setq indici (ref val lst))
+    ; espressione globale
+    (setq expr "")
+    ; ciclo sull'inverso della lista degli indici
+    ; (l'espressione globale viene costruita all'indietro partendo dalla fine)
+    (dolist (el (reverse indici))
+      ; espressione dell'indice corrente
+      (setq idx-expr "")
+      ; creazione dell'espressione corrente
+      (for (i 0 el)
+        (if (zero? i)
+            ; all'inizio mette un "car"
+            (extend idx-expr "(car ")
+            ;else
+            ; poi mette "cdr"
+            (extend idx-expr "(cdr ")
+        )
+      )
+      ; inserisce le parentesi finali all'espressione corrente
+      (extend idx-expr "lst" (dup ")" (+ el 1)))
+      ;(println idx-expr)
+      ; Aggiorna l'espressione globale utilizzando l'espressione corrente
+      (if (= expr "")
+          ; all'inizio l'espressione globale diventa quella corrente
+          (setq expr idx-expr)
+          ;else
+          ; poi l'espressione globale (una parte) viene aggiornata
+          ; con l'espressione corrente
+          (replace "lst" expr idx-expr)
+      )
+      ;(println "expr: " expr)
+    )
+    ; stampa l'espressione globale
+    (println "expr: " expr)
+    ; valuta l'espressione globale
+    (eval-string expr)))
+
+Proviamo:
+
+(car-cdr '(3 4 2 1) 2)
+;-> expr: (car (cdr (cdr lst)))
+;-> 2
+
+(car-cdr a 8)
+;-> expr: (car (cdr (car (cdr (cdr (cdr (cdr (car (cdr (cdr lst))))))))))
+;-> 8
+
+(setq b '(1 (2 4 (7 (9)) 5 6)))
+(car-cdr b 9)
+;-> expr: (car (car (cdr (car (cdr (cdr (car (cdr lst))))))))
+;-> 9
+(car-cdr b 1)
+;-> expr: (car lst)
+;-> 1
+
+Se nella lista esistono due o più elementi con lo stesso valore da ricercare, la funzione "car-cdr" restituisce solo l'espressione per estrarre la prima occorrenza del valore cercato.
+
+(setq c '(1 (2) 2 3))
+(car-cdr c 2)
+;-> expr: (car (car (cdr lst)))
+;-> 2
+
+Per restituire tutte le espressioni possiamo usare la funzione "ref-all" e modificare la funzione. 
+
+(define (car-cdr lst val)
+  (local (indici expr idx-expr)
+    ; calcolo lista degli indici di tutte le occorrenze
+    (setq all-indici (ref-all val lst))
+    ; ciclo per ogni occorrenza dell'elemento
+    (dolist (indici all-indici)
+      ; espressione globale
+      (setq expr "")
+      ; ciclo sull'inverso della lista degli indici
+      ; (l'espressione globale viene costruita all'indietro partendo dalla fine)
+      (dolist (el (reverse indici))
+        ; espressione dell'indice corrente
+        (setq idx-expr "")
+        ; creazione dell'espressione corrente
+        (for (i 0 el)
+          (if (zero? i)
+              ; all'inizio mette un "car"
+              (extend idx-expr "(car ")
+              ;else
+              ; poi mette "cdr"
+              (extend idx-expr "(cdr ")
+          )
+        )
+        ; inserisce le parentesi finali all'espressione corrente
+        (extend idx-expr "lst" (dup ")" (+ el 1)))
+        ;(println idx-expr)
+        ; Aggiorna l'espressione globale utilizzando l'espressione corrente
+        (if (= expr "")
+            ; all'inizio l'espressione globale diventa quella corrente
+            (setq expr idx-expr)
+            ;else
+            ; poi l'espressione globale (una parte) viene aggiornata
+            ; con l'espressione corrente
+            (replace "lst" expr idx-expr)
+        )
+        ;(println "expr: " expr)
+      )
+      ; stampa l'espressione globale
+      (println "expr: " expr)
+      ; valuta l'espressione globale
+      (println (eval-string expr)))'>))
+
+Proviamo:
+
+(car-cdr '(3 4 2 1) 2)
+;-> expr: (car (cdr (cdr lst)))
+;-> 2
+
+(car-cdr a 8)
+;-> expr: (car (cdr (car (cdr (cdr (cdr (cdr (car (cdr (cdr lst))))))))))
+;-> 8
+
+(setq b '(1 (2 4 (7 (9)) 5 6)))
+(car-cdr b 9)
+;-> expr: (car (car (cdr (car (cdr (cdr (car (cdr lst))))))))
+;-> 9
+(car-cdr b 1)
+;-> expr: (car lst)
+;-> 1
+
+(setq c '(1 (2) 2 3))
+(car-cdr c 2)
+;-> expr: (car (car (cdr lst)))
+;-> 2
+;-> expr: (car (cdr (cdr lst)))
+;-> 2
+
+(setq d '((((1)) 2 1) 3 (1) (1 (1)) 1))
+(car-cdr d 1)
+;-> expr: (car (car (car (car lst))))
+;-> 1
+;-> expr: (car (cdr (cdr (car lst))))
+;-> 1
+;-> expr: (car (car (cdr (cdr lst))))
+;-> 1
+;-> expr: (car (car (cdr (cdr (cdr lst)))))
+;-> 1
+;-> expr: (car (car (cdr (car (cdr (cdr (cdr lst)))))))
+;-> 1
+;-> expr: (car (cdr (cdr (cdr (cdr lst)))))
+;-> 1
+
 ============================================================================
 
