@@ -2435,6 +2435,8 @@ NOTE LIBERE 23
   Percentuale degli elementi di una lista
   Il gioco dell'eliminazione
   Creazione automatica di espressioni con CAR e CDR
+  Programma che aumenta di dimensione
+  La funzione "nest"
 
 PROBLEMI SUI DADI
 =================

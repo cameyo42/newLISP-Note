@@ -5257,14 +5257,21 @@ Proviamo:
 ;-> expr: (car lst)
 ;-> 1
 
-Se nella lista esistono due o più elementi con lo stesso valore da ricercare, la funzione "car-cdr" restituisce solo l'espressione per estrarre la prima occorrenza del valore cercato.
+Versione compatta (211 caratteri):
+
+(define(f l v)(let((i(ref v l))(e "")(t ""))(dolist(k(reverse i))(setq t "")(for(i 0 k)(if(zero? i)(extend t "(car ")(extend t "(cdr ")))(extend t "l"(dup ")"(+ k 1)))(if(= e "")(setq e t)(replace "l" e t)))e))
+
+(f a 8)
+;-> "(car (cdr (car (cdr (cdr (cdr (cdr (car (cdr (cdr l))))))))))"
+
+Se nella lista data esistono due o più elementi con lo stesso valore da ricercare, la funzione "car-cdr" restituisce solo l'espressione per estrarre la prima occorrenza del valore cercato.
 
 (setq c '(1 (2) 2 3))
 (car-cdr c 2)
 ;-> expr: (car (car (cdr lst)))
 ;-> 2
 
-Per restituire tutte le espressioni possiamo usare la funzione "ref-all" e modificare la funzione. 
+Per restituire tutte le espressioni possiamo usare la funzione "ref-all" e modificare la funzione aggiungendo un ciclo: 
 
 (define (car-cdr lst val)
   (local (indici expr idx-expr)
@@ -5347,6 +5354,176 @@ Proviamo:
 ;-> 1
 ;-> expr: (car (cdr (cdr (cdr (cdr lst)))))
 ;-> 1
+
+
+-----------------------------------
+Programma che aumenta di dimensione
+-----------------------------------
+
+Scrivere una funzione che ogni volta che viene chiamata aumenta di tanti caratteri quanti sono quelli del parametro passato.
+
+Sfruttiamo una particolarità della funzione "extend" che modifica il valore "in-place".
+Se "extend" viene usata senza un simbolo iniziale, allora modifica la funzione con il valore dell'espressione.
+
+(define (grow obj) (extend "" (string obj)))
+;-> (lambda (obj) (extend "" (string obj)))
+(length (string grow))
+;-> 39
+
+Proviamo:
+
+(grow "123")
+;-> "123"
+grow
+;-> (lambda (obj) (extend "123" (string obj)))
+(length (string grow))
+;-> 42
+
+(grow 1234)
+;-> "1231234"
+grow
+;-> (lambda (obj) (extend "1231234" (string obj)))
+(length (string grow))
+;-> 46
+
+(grow '(1 2 3))
+;-> "1231234(1 2 3)"
+grow
+;-> (lambda (obj) (extend "1231234(1 2 3)" (string obj)))
+(length (string grow))
+;-> 53
+
+
+------------------
+La funzione "nest"
+------------------
+
+La funzione "nest" prende tre parametri:
+1) func, la funzione da applicare
+2) start-value, il valore iniziale a cui applicare la funzione
+3) times, il numero di volte che deve essere applicata la funzione.
+
+La funzione restituisce il valore della funzione applicata times volte partendo da start-val.
+In altre parole la funzione restituisce:
+
+ <-- times volte -->
+ func(func(...(func (start-value))
+
+Versione ricorsiva:
+
+(define (nest func start-value times)
+  (if (zero? times)
+      start-value
+      (nest func (func start-value) (- times 1))))
+
+Proviamo:
+
+(nest sin 0.5 3)
+;-> 0.4450853368470909
+(sin(sin(sin 0.5)))
+;-> 0.4450853368470909
+
+(nest pow 2 3)
+;-> 256
+(pow (pow (pow 2)))
+;-> 256
+
+Versione iterativa:
+
+(define (nest func start-value times)
+  (let (out start-value)
+    (dotimes (i times) (setq out (func out)))
+    out))
+
+Proviamo:
+
+(nest sin 0.5 3)
+;-> 0.4450853368470909
+(sin(sin(sin 0.5)))
+;-> 0.4450853368470909
+
+(nest pow 2 3)
+;-> 256
+(pow (pow (pow 2)))
+;-> 256
+
+Nota: la funzione "func" deve avere lo stesso tipo di dato in ingresso e in uscita.
+
+La seguente espressione genera un errore perchè "first" restituisce un elemento che non è una lista:
+
+(nest first '(1 2 3 4 5) 3)
+;-> ERR: array, list or string expected in function first : out
+;-> called from user function (nest first '(1 2 3 4 5) 3)
+
+Possiamo anche usare una funzione utente:
+
+(define (somma lst) (map ++ lst))
+(nest somma '(1 2 3) 6)
+;-> (7 8 9)
+
+(define (pot lst) (list (lst 0) (pow (lst 0) (lst 1))))
+(nest pot '(2 3) 2)
+;-> (2 256)
+
+Golden ratio: 
+  phi(x) = 1 / (1 + x)
+(define (phi x) (div (add 1 x)))
+(nest phi 1 10)
+;-> 0.6180555555555556
+
+La funzione primitiva "series" è simile alla funzione "nest", ma genera una lista con tutti i risultati calcolati:
+
+(series 1 phi 10)
+;-> (1 0.5 0.6666666 0.6 0.625 0.6153846 0.619047 0.6176470 0.6181818 
+;->  0.6179775 0.6180555 0.6180257 0.6180371 0.6180327 0.6180344 
+;->  0.6180338 0.6180340 0.6180339 0.6180339 0.6180339)
+
+(series "a" (fn (c) (char (inc (char c)))) 5)
+;-> ("a" "b" "c" "d" "e")
+
+La funzione "nest" restituisce un valore come risultato (numero o lista), adesso scriviamo una funzione "nest-f" che restituisce un'altra funzione che effettua l'operazione di nest indicata con qualunque valore come parametro.
+
+Per esempio:
+  (nest-f 'sin 'x 3 "sin3")
+deve produrre la funzione:
+  (define (sin3 x) (sin (sin (sin x))))
+  (lambda (x) (sin (sin (sin x))))
+
+I parametri della funzione "nest-f" sono i seguenti:
+1) func, la funzione da applicare
+2) par, il parametro della funzione
+3) times, il numero di volte che deve essere applicata la funzione.
+3) fname, il nome della funzione da generare
+
+(define (nest-f func par times fname)
+  (let (expr (string "(define (" fname " " par ") "))
+    (for (i 1 times) (extend expr (string "(" func " ")))
+    (extend expr (string par) (dup ")" (+ times 1)))
+    (println expr)
+    (eval-string expr)))
+
+Proviamo:
+
+(nest-f "sin" "x" 3 "sin3")
+;-> (define (sin3 x) (sin (sin (sin x))))
+;-> (lambda (x) (sin (sin (sin x))))
+(sin3 0.5)
+;-> 0.4450853368470909
+
+(nest-f 'cos 'x 2 'cos2)
+;-> (define (cos2 x) (cos (cos x)))
+;-> (lambda (x) (cos (cos x)))
+(cos2 0.5)
+;-> 0.6390124941652592
+(cos (cos 0.5))
+;-> 0.6390124941652592
+
+(define (somma lst) (map ++ lst))
+(nest-f 'somma 'lst 4 'sum4)
+;-> (define (sum4 lst) (somma (somma (somma (somma lst)))))
+;-> (lambda (lst) (somma (somma (somma (somma lst)))))
+(sum4 '(1 1 1))
+;-> (5 5 5)
 
 ============================================================================
 
