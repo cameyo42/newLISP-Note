@@ -5257,9 +5257,9 @@ Proviamo:
 ;-> expr: (car lst)
 ;-> 1
 
-Versione compatta (211 caratteri):
+Versione compatta (201 caratteri):
 
-(define(f l v)(let((i(ref v l))(e "")(t ""))(dolist(k(reverse i))(setq t "")(for(i 0 k)(if(zero? i)(extend t "(car ")(extend t "(cdr ")))(extend t "l"(dup ")"(+ k 1)))(if(= e "")(setq e t)(replace "l" e t)))e))
+(define(f l v)(let((i(ref v l))(e"")(t""))(dolist(k(reverse i))(setq t"")(for(i 0 k)(if(zero? i)(extend t"(car ")(extend t"(cdr ")))(extend t"l"(dup")"(+ k 1)))(if(= e"")(setq e t)(replace"l" e t)))e))
 
 (f a 8)
 ;-> "(car (cdr (car (cdr (cdr (cdr (cdr (car (cdr (cdr l))))))))))"
@@ -5393,6 +5393,10 @@ grow
 (length (string grow))
 ;-> 53
 
+Versione compatta (33 caratteri):
+
+(define(g o)(extend""(string o)))
+
 
 ------------------
 La funzione "nest"
@@ -5524,6 +5528,185 @@ Proviamo:
 ;-> (lambda (lst) (somma (somma (somma (somma lst)))))
 (sum4 '(1 1 1))
 ;-> (5 5 5)
+
+
+----------------------------------------------
+Uscita anticipata da funzioni, cicli e blocchi
+----------------------------------------------
+
+In genere per uscire da una funzione (ciclo o blocco) si utilizano le primitive "catch" e "throw".
+Comunque in alcuni casi possiamo usare le funzioni logiche "and" e "or".
+
+Utilizzando le funzioni logiche and e or è possibile costruire blocchi di istruzioni che vengono terminati in base al risultato booleano delle funzioni racchiuse:
+
+(and
+     (funzione-a)
+     (funzione-b)
+     (funzione-c)
+     (funzione-d))
+
+L'espressione "and" ritornerà non appena una delle funzioni del blocco restituirà nil o () (lista vuota).
+Se nessuna delle funzioni precedenti provoca l'uscita dal blocco, viene restituito il risultato dell'ultima funzione.
+
+La funzione "or" può essere utilizzato in modo simile:
+
+(or
+     (funzione-a)
+     (funzione-b)
+     (funzione-c)
+     (funzione-d))
+
+Il risultato dell'espressione "or" sarà la prima funzione che restituisce un valore diverso da nil o ().
+
+
+--------------------------------------------------------------
+Somma massima di una sottolista (Maximum Subarray Sum Problem)
+--------------------------------------------------------------
+
+Data una lista con numeri interi positivi e negativi trovare la somma massima di una sua sottolista.
+
+La lista potrebbe rappresentare l'andamento di un titolo di Borsa espresso come una sequenza di differenze giornaliere delle sue quotazioni.
+Determinare la migliore strategia di acquisto e vendita per quel titolo (vale a dire la coppia di giorni (x,y) che massimizza i nostri ricavi se acquistiamo il titolo all'inizio del giorno x e lo vendiamo alla fine del giorno y) è equivalente a trovare la somma massima di una sottolista della lista data.
+
+Per esempio:
+  B = (4 -6 3 1 3 -2 3 -4 1 -9 6)
+  Soluzione (1-index): B(3,7) = (3 1 3 -2 3), Somma = 8
+  Soluzione (0-index): B(2,6) = (3 1 3 -2 3), Somma = 8
+
+Vediamo tre algoritmi che hanno complessità temporale differente: cubica, quadratica e lineare.
+
+Per maggiori spiegazioni vedere "Somma massima di una sottolista (Algoritmo Kadane)" su "Problemi vari".
+
+1) Cubica
+---------
+
+(define (cubic lst)
+  (local (len max-sum tmp-sum x0 y0)
+    (setq len (length lst))
+    (setq max-sum -999999)
+    (for (x 0 (- len 1))
+      (for (y x (- len 1))
+        (setq tmp-sum 0)
+        (for (i x y)
+          (++ tmp-sum (lst i))
+          (if (> tmp-sum max-sum)
+              (set 'max-sum tmp-sum 'x0 x 'y0 y)))))
+    (list max-sum x0 y0)))
+
+(setq B '(4 -6 3 1 3 -2 3 -4 1 -9 6))
+(cubic B)
+;-> (8 2 6)
+
+2) Quadratica
+-------------
+
+(define (quadratic lst)
+  (local (len max-sum tmp-sum b0 s0)
+    (setq len (length lst))
+    (setq max-sum -999999)
+    (for (b 0 (- len 1))
+      (setq tmp-sum 0)
+      (for (s b (- len 1))
+        (++ tmp-sum (lst s))
+          (if (> tmp-sum max-sum)
+              (set 'max-sum tmp-sum 'b0 b 's0 s))))
+    (list max-sum b0 s0)))
+
+(quadratic B)
+;-> (8 2 6)
+
+3) Lineare
+----------
+
+(define (linear lst)
+  (local (len max-sum tmp-sum b0 s0)
+    (setq len (length lst))
+    (setq max-sum -999999)
+    (setq tmp-sum 0)
+    (setq b 0)
+    (for (s 0 (- len 1))
+      (++ tmp-sum (lst s))
+      (if (> tmp-sum max-sum)
+          (set 'max-sum tmp-sum 'b0 b 's0 s))
+      (if (< tmp-sum 0)
+          (set 'tmp-sum 0  'b (+ s 1)))
+    )
+    (list max-sum b0 s0)))
+
+(linear B)
+;-> (8 2 6)
+
+Velocità delle funzioni:
+
+(define (rand-range min-val max-val)
+"Generate a random integer in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+
+a) con una Lista
+----------------
+
+(setq t10 (collect (rand-range -10 10) 10))
+(setq t100 (collect (rand-range -10 10) 100))
+(setq t1000 (collect (rand-range -10 10) 1000))
+
+(= (cubic t10) (quadratic t10) (linear t10))
+;-> true
+
+(time (cubic t10) 10000)
+;-> 230.41
+(time (quadratic t10) 10000)
+;-> 64.812
+(time (linear t10) 10000)
+;-> 20.948
+
+(= (cubic t100) (quadratic t100) (linear t100))
+;-> true
+
+(time (cubic t100) 100)
+;-> 1852.059
+(time (quadratic t100) 100)
+;-> 62.859
+(time (linear t100) 100)
+;-> 0.994
+
+(= (cubic t1000) (quadratic t1000) (linear t1000))
+;-> true
+
+(time (cubic t1000))
+;-> 85184.333
+(time (quadratic t1000))
+;-> 345.077
+(time (linear t1000))
+;-> 0.998
+
+b) con un Vettore
+-----------------
+
+(setq t10 (array 10 (collect (rand-range -10 10) 10)))
+(setq t100 (array 100 (collect (rand-range -10 10) 100)))
+(setq t1000 (array 1000 (collect (rand-range -10 10) 1000)))
+
+(time (cubic t10) 10000)
+;-> 209.614
+(time (quadratic t10) 10000)
+;-> 59.964
+(time (linear t10) 10000)
+;-> 20.107
+
+(time (cubic t100) 100)
+;-> 1294.849
+(time (quadratic t100) 100)
+;-> 40.067
+(time (linear t100) 100)
+;-> 0
+
+(time (cubic t1000))
+;-> 12.236.787
+(time (quadratic t1000))
+;-> 39.944
+(time (linear t1000))
+;-> 0
 
 ============================================================================
 

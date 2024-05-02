@@ -5174,7 +5174,7 @@ L'algoritmo può essere codificato nel seguente modo:
 La soluzione completa consiste nel restituire tre valori:
 1) il valore della somma massima
 2) l'indice di inizio della sottolista massima
-2) l'indice di fine della sottolista massima
+3) l'indice di fine della sottolista massima
 Inoltre bisogna trattare il caso della lista vuota e quello delle liste che hanno tutti valori negativi.
 
 La funzione definitiva è la seguente:
@@ -5247,6 +5247,8 @@ La funzione definitiva è la seguente:
 ;-> (nil nil nil)
 
 L'algoritmo Kadane ha complessità temporale O(n).
+
+Vedi anche "Somma massima di una sottolista (Maximum Subarray Sum Problem)" su "Note libere 23".
 
 
 ----------------------------------
@@ -9950,7 +9952,7 @@ Implementiamo una struttura dati che si comporta come una lista circolare.
 ; ritorniamo al contesto principale
 (context MAIN)
 
-proviamo la nostra struttura:
+Proviamo la nostra struttura:
 
 (circ-list:init (sequence 1 3))
 ;-> 3 ; numero di elementi della lista
@@ -9972,6 +9974,27 @@ proviamo la nostra struttura:
 ;-> 3 ;lunghezza della lista
 (circ-list:values)
 ;-> (1 2 3) ; valori della lista
+
+Se invece vogliamo muoverci in una lista con indici circolari, allora possiamo usare la seguente funzione.
+La funzione prende una lista (lst), un indice di partenza (start-idx) e uno spostamento (shift).
+Lo spostamento può essere positivo (spostamento a destra) o negativo (spostamento a sinistra).
+La funzione restituisce l'indice di arrivo.
+
+(define (rotate-index lst start-idx shift)
+  (local (len idx)
+    (setq len (length lst))
+    (setq idx (% (+ start-idx shift) len))
+    (when (< idx 0) (++ idx len))
+    idx))
+
+Proviamo:
+
+(rotate-index '(7 -2 9 6) 2 0)
+;-> 2
+(rotate-index '(7 -2 9 6) 1 6)
+;-> 3
+(rotate-index '(7 -2 9 6) 1 -4)
+;-> 1
 
 
 ------------------------

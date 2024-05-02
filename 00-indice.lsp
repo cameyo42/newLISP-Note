@@ -2437,6 +2437,8 @@ NOTE LIBERE 23
   Creazione automatica di espressioni con CAR e CDR
   Programma che aumenta di dimensione
   La funzione "nest"
+  Uscita anticipata da funzioni, cicli e blocchi
+  Somma massima di una sottolista (Maximum Subarray Sum Problem)
 
 PROBLEMI SUI DADI
 =================
