@@ -2439,6 +2439,9 @@ NOTE LIBERE 23
   La funzione "nest"
   Uscita anticipata da funzioni, cicli e blocchi
   Somma massima di una sottolista (Maximum Subarray Sum Problem)
+  La Pasta e la teoria della Programmazione
+  Esecuzione di un programma python con newLISP
+  Calcolatore con registri
 
 PROBLEMI SUI DADI
 =================

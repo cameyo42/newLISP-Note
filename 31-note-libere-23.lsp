@@ -5708,5 +5708,200 @@ b) con un Vettore
 (time (linear t1000))
 ;-> 0
 
+
+-----------------------------------------
+La Pasta e la teoria della Programmazione
+-----------------------------------------
+
+La teoria della programmazione basata sulla Pasta è un'analogia per lo sviluppo di applicazioni che descrive diverse strutture di programmazione come popolari piatti di pasta italiani.
+
+Codice Spaghetti
+----------------
+Il codice Spaghetti è una frase utilizzata per codice sorgente non strutturato e difficile da mantenere. 
+Come gli spaghetti, il flusso del codice è intricato ed è difficile capire la relazione tra le diverse parti di codice.
+Ad esempio, il codice che include molte istruzioni GOTO invece di costrutti di programmazione strutturati è un codice spaghetti: il codice risultante è contorto e difficile da comprendere.
+
+Codice Lasagna
+--------------
+Il codice Lasagna viene utilizzato per descrivere un codice strutturato, comprensibile e stratificato.
+Questo codice, sebbene strutturato, è monolitico e difficile da modificare.
+Gli strati sono così complicati e intrecciati che apportare una modifica a uno strato può richiedere modifiche a tutti gli altri strati.
+Un esempio di questo tipo di codice è un codice orientato agli oggetti con molte piccole classi e diverse interdipendenze imprevedibili tra di loro.
+
+Codice Ravioli
+--------------
+Il codice Ravioli è la struttura ideale per il software. 
+È specifico della programmazione orientata agli oggetti e si riferisce al codice composto da classi ben strutturate che sono facili da comprendere isolatamente. 
+Nel codice Ravioli, ciascuno dei componenti, o oggetti, è autonomo.
+Quindi qualsiasi componente può essere modificato o sostituito senza influenzare in modo significativo gli altri componenti.
+
+Codice Macaroni
+---------------
+Si tratta del codice che utilizza una miscela di linguaggi informatici in un unico documento. Per esempio nella programmazione web è abbastanza comune avere HTML, JavaScript, SQL e PHP nella stessa applicazione. 
+
+Extra: Codice Pizza
+-------------------
+Codice con classi interconnesse o funzioni senza un chiaro ruolo. Questo comporta un'architettura piatta.
+
+
+---------------------------------------------
+Esecuzione di un programma python con newLISP
+---------------------------------------------
+
+Con newLISP possiamo eseguire uno script python e catturare il relativo output in una lista.
+Per eseguire lo script usiamo la funzione "exec" per lanciare l'interprete python e lo script associato.
+Nota: ovviamente occorre avere installato python nel proprio sistema.
+
+Supponiamo di avere il seguente file "hello.py" nel disco F:\\
+
+# script python
+# stampa il quadrato dei numeri 0..10
+def f(x):
+  return (x * x)
+
+for i in range (11):
+  print(f(i))
+#eof
+
+Per eseguirlo basta spostarsi sulla cartella dove si trova lo script:
+
+(change-dir "f:\\")
+;-> true
+
+e poi scrivere:
+
+(exec "python hello.py")
+;-> ("0" "1" "4" "9" "16" "25" "36" "49" "64" "81" "100")
+
+L'output del programma python viene catturato come lista di stringhe.
+
+Questo metodo funziona anche all'interno di una funzione:
+
+(define (test)
+  (change-dir "f:\\")
+  (let (lst (exec "python hello.py"))
+    (map int lst)))
+
+(test)
+;-> (0 1 4 9 16 25 36 49 64 81 100)
+
+
+------------------------
+Calcolatore con registri
+------------------------
+
+Un semplice calcolatore con registri funziona nel modo seguente:
+
+Possiede 26 registri chiamati A,B,C,...,Z
+Ogni registro può contenere un numero intero.
+Tutti i registri sono inizializzati a 0.
+
+Il calcolatore esegue istruzioni composte di 3 caratteri:
+il primo carattere è uno degli operatori tra +,-,*,/,= (addizione, sottrazione, moltiplicazione, divisione, copia)
+il secondo carattere è il nome di un registro
+il terzo carattere è il nome di un registro oppure (0 o 1).
+
+Vediamo alcuni esempi:
+
+  "=AB" significa A = B
+  "=A0" significa A = 0
+  "=B1" significa B = 1
+  "+AB" significa A = A + B
+  "/AB" significa A = A / B
+  "+A1" significa A = A + 1
+  "-A1" significa A = A - 1
+
+Il calcolatore prende in input una lista di istruzioni consecutive e restituisce il risultato dell'ultima operazione, alcuni esempi:
+  lista di istruzioni: (=A1 +A1 *AA), output A=4.
+  lista di istruzioni: (+A1 +A1 =BA +A1 *AB), output A=6.
+  lista di istruzioni: (+A1 +A1 +A1 *AA =BA -B1 *AB), output A=72.
+
+Funzione che simula il calcolatore con 5 registri (A,B,C,D,E):
+
+(define (register lst)
+  (local (reg op r1 r2 v1 v2)
+    (setq reg '(("0" 0) ("1" 1) ("A" 0) ("B" 0) ("C" 0) ("D" 0) ("E" 0)))
+    (dolist (code lst)
+      (setq op (code 0))
+      (setq r1 (code 1))
+      (setq r2 (code 2))
+      (setq v1 (lookup r1 reg))
+      (setq v2 (lookup r2 reg))
+      (cond ((= op "=") (setf (lookup r1 reg) v2))
+            ((= op "+") (setf (lookup r1 reg) (+ v1 v2)))
+            ((= op "-") (setf (lookup r1 reg) (- v1 v2)))
+            ((= op "*") (setf (lookup r1 reg) (* v1 v2)))
+            ((= op "/") (setf (lookup r1 reg) (/ v1 v2)))
+      )
+    )
+    reg))
+
+Proviamo:
+
+(register '("+A1"))
+;-> (("0" 0) ("1" 1) ("A" 1) ("B" 0) ("C" 0) ("D" 0) ("E" 0))
+
+(register '("+A1"))
+;-> (("0" 0) ("1" 1) ("A" 1) ("B" 0) ("C" 0) ("D" 0) ("E" 0))
+
+(register '("+A1" "+A1" "=BA" "+A1" "*AB"))
+;-> (("0" 0) ("1" 1) ("A" 6) ("B" 2) ("C" 0) ("D" 0) ("E" 0))
+
+(register '("=A1" "+A1" "*AA"))
+;-> (("0" 0) ("1" 1) ("A" 4) ("B" 0) ("C" 0) ("D" 0) ("E" 0))
+
+(register '("+A1" "+A1" "+A1" "*AA" "=BA" "-B1" "*AB"))
+;-> (("0" 0) ("1" 1) ("A" 72) ("B" 8) ("C" 0) ("D" 0) ("E" 0))
+
+Funzione che simula il calcolatore con un numero di registri specificato:
+
+(define (register1 lst num-reg)
+  (local (reg op r1 r2 v1 v2 val)
+    ; crea la lista dei registri
+    ; ("0" 0) ("1" 1) + ("A" 0) ("B" 0) ...
+    (setq reg (append '(("0" 0) ("1" 1))
+          (map (fn(x) (list x 0))
+              (series "A" (fn (c) (char (inc (char c)))) num-reg))))
+    (println
+      (dolist (code lst)
+        (set 'op (code 0) 'r1 (code 1) 'r2 (code 2))
+        (set 'v1 (lookup r1 reg) 'v2 (lookup r2 reg))
+        (setq val 0)
+        (case op
+          ("=" (setq val v2))
+          ("+" (setq val (+ v1 v2)))
+          ("-" (setq val (- v1 v2)))
+          ("*" (setq val (* v1 v2)))
+          ("/" (setq val (/ v1 v2)))
+          (true (println "Error: wrong operator.")))
+        ; aggiorna il valore del registro per l'istruzione corrente
+        (setf (lookup r1 reg) val)
+      )
+    ) ; print the exit value of "dolist"
+    reg))
+
+Proviamo:
+
+(register1 '("lA1") 5)
+;-> Error: wrong operator.
+;-> 0
+;-> (("0" 0) ("1" 1) ("A" 0) ("B" 0) ("C" 0) ("D" 0) ("E" 0))
+
+(register1 '("+A1") 2)
+;-> 1
+;-> (("0" 0) ("1" 1) ("A" 1) ("B" 0))
+
+(register1 '("+A1" "+A1" "=BA" "+A1" "*AB") 3)
+;-> 6
+;-> (("0" 0) ("1" 1) ("A" 6) ("B" 2) ("C" 0))
+
+(register1 '("=A1" "+A1" "*AA") 1)
+;-> 4
+;-> (("0" 0) ("1" 1) ("A" 4))
+
+(register1 '("+A1" "+A1" "+A1" "*AA" "=BA" "-B1" "*AB") 2)
+;-> 72
+;-> (("0" 0) ("1" 1) ("A" 72) ("B" 8))
+
 ============================================================================
 
