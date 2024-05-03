@@ -2442,6 +2442,8 @@ NOTE LIBERE 23
   La Pasta e la teoria della Programmazione
   Esecuzione di un programma python con newLISP
   Calcolatore con registri
+  Leggere espressioni matematiche
+  Formattare un testo in colonne
 
 PROBLEMI SUI DADI
 =================

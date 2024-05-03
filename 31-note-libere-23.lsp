@@ -5903,5 +5903,137 @@ Proviamo:
 ;-> 72
 ;-> (("0" 0) ("1" 1) ("A" 72) ("B" 8))
 
+
+-------------------------------
+Leggere espressioni matematiche
+-------------------------------
+
+Scrivere una funzione che prende una espressione aritmetica e restituisce il testo dell'espressione.
+
+Per esempio:
+Input: "1 + 2 = 3"
+Output: "Uno più Due uguale Tre"
+
+Input: "2 + (40 / 10) = 4"
+Output: "Due più aperta parentesi Quattro Zero diviso Uno Zero chiusa parentesi uguale Sei"
+
+Input: "2.1 - 1.2 = 0.9"
+Output: "Due punto Uno meno Uno punto Due uguale Zero punto Nove"
+
+Elementi dell'espressione: +, -, *, /, (,)
+
+Tipi di numeri: interi e floating
+
+I termini dell'espressione devono essere separati da uno spazio.
+
+(setq link '(("0" "Zero") ("1" "Uno") ("2" "Due") ("3" "Tre")
+             ("4" "Quattro") ("5" "Cinque") ("6" "Sei") ("7" "Sette")
+             ("8" "Otto") ("9" "Nove")
+             ("+" "più") ("-" "meno") ("*" "per") ("/" "diviso")
+             ("=" "uguale") ("." "punto")
+             ("(" "aperta parentesi") (")" "chiusa parentesi")))
+
+(define (speak expr)
+  (setq lst (parse expr))
+  (dolist (el lst)
+    (setq simbolo (lookup el link))
+    (setq len (length el))
+    (cond ((= len 0) nil)
+          ((= len 1) (print simbolo { }))
+          ((> len 1) ; numero negativo o numero con più cifre 
+            (dolist (ch (explode el))
+              (print (lookup ch link) { }))))))
+
+Proviamo:
+
+(speak "1 + 2 = 3")
+;-> Uno più Due uguale Tre
+
+(speak "2 + (40 / -10) = -2")
+;-> Due più aperta parentesi Quattro Zero diviso meno Uno Zero chiusa parentesi
+;-> uguale meno Due
+
+(speak "2.1 - 1.2 = 0.9")
+;-> Due punto Uno meno Uno punto Due uguale Zero punto Nove
+
+(speak "12 + (2 * 3) = 18")
+;-> Uno Due più aperta parentesi Due per Tre chiusa parentesi uguale Uno Otto
+
+
+------------------------------
+Formattare un testo in colonne
+------------------------------
+
+Dato un testo (stringa) vogliamo formattarlo in colonne con una determinata larghezza.
+
+Per esempio:
+
+testo =
+"Questo problema non si preoccupa della sillabazione delle parole.
+Dobbiamo solo distribuire il testo in K colonne di larghezza L."
+
+Output con 4 colonne larghe 10 =
+
+  |Questo pro| |illabazion| |istribuire| |hezza L.|
+  |blema non | |e delle pa| | il testo | |        |
+  |si preoccu| |role.Dobbi| |in K colon| |        |
+  |pa della s| |amo solo d| |ne di larg| |        |
+
+Algoritmo
+1) Dividere il testo in stringhe di una data lunghezza
+2) Creare una matrice con le stringhe create
+3) Invertire la matrice
+
+(define (formatting text cols width)
+  (local (rows len matrix)
+    ; rimuove gli Invii (Carriage Return)
+    (setq text (replace "\r\n" text ""))
+    ; divide il testo in stringhe di lunghezza width
+    (setq rows (explode text width))
+    ; numero di righe
+    (setq len (length rows))
+    ; Inserisce righe bianche in rows (se necessario)
+    ; (la matrice deve essere completa)
+    (setq modulo (% len cols))
+    (when (!= modulo 0)
+      ; inserisce righe in rows
+      (for (i 1 (- cols modulo)) (push (dup " " width) rows -1))
+      ; aggiorna il numero di righe
+      (setq len (+ len (- cols modulo)))
+    )
+    ; crea una matrice con le righe del testo
+    (setq matrix (array cols (/ len cols) rows))
+    ; inverte la matrice
+    (transpose matrix)))
+
+Proviamo:
+
+(setq txt
+"Questo problema non si preoccupa della sillabazione delle parole.
+Dobbiamo solo distribuire il testo in K colonne di larghezza L.")
+
+(formatting txt 4 10)
+;-> (("Questo pro" "illabazion" "istribuire" "hezza L.") 
+;->  ("blema non " "e delle pa" " il testo " "          ")
+;->  ("si preoccu" "role.Dobbi" "in K colon" "          ")
+;->  ("pa della s" "amo solo d" "ne di larg" "          "))
+
+(setq txt
+"Nagarjuna (150-250 circa).
+Spesso indicato come il secondo Buddha dalle tradizioni buddiste Mahayana (Grande Veicolo) tibetane e dell'Asia orientale, Nagarjuna ha proposto aspre critiche alla filosofia sostanzialista braminica e buddista, alla teoria della conoscenza e agli approcci alla pratica.
+La filosofia di Nagarjuna rappresenta una sorta di spartiacque non solo nella storia della filosofia indiana, ma nella storia della filosofia nel suo complesso, poiché mette in discussione alcuni presupposti filosofici a cui si ricorre facilmente nel tentativo di comprendere il mondo.")
+
+(formatting txt 4 15)
+;-> (("Nagarjuna (150-" "agarjuna ha pro" "ilosofia di Nag" "lesso, poiché m")
+;->  ("250 circa).Spes" "posto aspre cri" "arjuna rapprese" "ette in discuss")
+;->  ("so indicato com" "tiche alla filo" "nta una sorta d" "ione alcuni pre")
+;->  ("e il secondo Bu" "sofia sostanzia" "i spartiacque n" "supposti filoso")
+;->  ("ddha dalle trad" "lista braminica" "on solo nella s" "fici a cui si r")
+;->  ("izioni buddiste" " e buddista, al" "toria della fil" "icorre facilmen")
+;->  (" Mahayana (Gran" "la teoria della" "osofia indiana," "te nel tentativ")
+;->  ("de Veicolo) tib" " conoscenza e a" " ma nella stori" "o di comprender")
+;->  ("etane e dell'As" "gli approcci al" "a della filosof" "e il mondo.")
+;->  ("ia orientale, N" "la pratica.La f" "ia nel suo comp" "               "))
+
 ============================================================================
 
