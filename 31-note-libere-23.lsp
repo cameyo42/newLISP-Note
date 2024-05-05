@@ -6035,5 +6035,138 @@ La filosofia di Nagarjuna rappresenta una sorta di spartiacque non solo nella st
 ;->  ("etane e dell'As" "gli approcci al" "a della filosof" "e il mondo.")
 ;->  ("ia orientale, N" "la pratica.La f" "ia nel suo comp" "               "))
 
+
+-------------------------------------
+Funzioni trigonometriche degli angoli
+-------------------------------------
+
+Quando parliamo di angoli le funzioni seno (sin), coseno (cos), tangente (tan) sono tutte conosciute.
+Comunque esistono anche funzioni meno conosciute come secante (sec), cosecante (csc) e cotangente (cot).
+Ancora più raramente sono menzionate le funzioni versine (versin) e coversin (cvs), exsecant (exsec) e excosecant (excsc) .
+
+Vedi immagine "angoli.png" nella cartella "data".
+
+secant
+  sec(x) = 1/cos(x)
+
+cosecant
+  csc(x) = 1/sin(x)
+
+cotangent
+  cot(x) = 1/tan(x)
+
+versin
+  versin(x) = 2*sin^2(x/2) = 1 - cos(x)
+
+vercosine
+  cvs(x) = versin(pi/2 - x) = 1 - sin(x)
+
+exsecant
+  exsec = sec(x) - 1 = 1/sin(x) - 1
+
+excosecant
+  excsc = csc(x) - 1 = 1/cos(x) - 1
+
+(define (sec x) (div (cos x)))
+(define (csc x) (div (sin x)))
+(define (cot x) (div (tan x)))
+(define (versin x) (sub 1 (cos x)))
+(define (cvs x) (sub 1 (sin x)))
+(define (exsec x) (sub (div (cos x)) 1))
+(define (excsc x) (sub (div (sin x)) 1))
+
+Proviamo:
+
+(setq f '(sin cos tan sec csc cot versin cvs exsec excsc))
+
+Funzione che applica una lista di funzioni ad un valore:
+
+(define (mapfun lst x) (map (fn(el) (eval (list el x))) lst))
+
+(setq pi 3.141592653589793)
+(setq angle (div (mul 60 pi) 180))
+
+(mapfun f angle)
+;-> (0.8660254037844386
+;->  0.5000000000000001
+;->  1.732050807568877
+;->  2
+;->  1.154700538379252
+;->  0.577350269189626
+;->  0.4999999999999999
+;->  0.1339745962155614
+;->  0.9999999999999996
+;->  0.1547005383792517)
+
+Per gli appassionati esistono anche le seguenti funzioni:
+
+  vercosin(x) = 2*cos^2(x/2) = 1 + cos(x)
+
+  coversin(x) = vercosin(pi/2 - x) = 1 + sin(x)
+
+  haversin(x) = versin(x)/2 = sin^2(x/2) = (1 - cos(x))/2
+
+  hacoversin(x) = coversin(x)/2 = (1 - sin(x))/2
+
+  havercosin(x) = vercosin(x)/2 = cos^2(x/2) = (1 + cos(x))/2
+
+  hacovercosin(x) = covercosin(x)/2 = (1 + sin(x))/2
+
+
+--------------------------------------------
+Somma delle differenze ripetute di un numero
+--------------------------------------------
+
+Definiamo la somma delle differenze ripeture di un numero (Digit Difference Sum - DDS) come l'operazione di prendere ripetutamente le differenze assolute delle cifre di un numero per formare un nuovo numero fino a che non rimane un numero con una sola cifra, quindi aggiungere tutti i numeri risultanti all'originale.
+
+Per esempio:
+numero = 137264 --> differenze 2 4 5 4 2
+numero = 24542  --> differenze = 2 1 1 2
+numero = 2112   --> differenze = 1 0 1
+numero = 101    --> differenze = 1 1
+numero = 0      --> stop
+somma = 137264 + 24542 + 2112 + 10 + 0 = 164030
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (pair-func lst func rev)
+"Produces a list applying a function to each pair of elements of a list"
+      (if rev
+          (map func (chop lst) (rest lst))
+          (map func (rest lst) (chop lst))))
+
+Funione che calcola la somma delle differenze ripeture delle cifre di un numero:
+
+(define (dds num)
+  (local (sum lst)
+    (setq sum num)
+    (while (> (length num) 1)
+      (setq lst (int-list num))
+      ; calcolo delle differenze assolute tra coppie di cifre
+      (setq lst (map (fn(x y) (abs (- y x))) (chop lst) (rest lst)))
+      (setq num (list-int lst))
+      ;(println num)
+      (++ sum num)
+    )
+    sum))
+
+Proviamo:
+
+(dds 137264)
+;-> 164030
+
+(map dds (sequence 0 20))
+;-> (0 1 2 3 4 5 6 7 8 9 11 11 13 15 17 19 21 23 25 27 22)
+
 ============================================================================
 

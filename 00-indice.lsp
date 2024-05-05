@@ -2444,6 +2444,11 @@ NOTE LIBERE 23
   Calcolatore con registri
   Leggere espressioni matematiche
   Formattare un testo in colonne
+  Funzioni trigonometriche degli angoli
+  Somma delle differenze ripetute di un numero
+
+NOTE LIBERE 24
+==============
 
 PROBLEMI SUI DADI
 =================
