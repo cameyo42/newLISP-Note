@@ -2449,6 +2449,9 @@ NOTE LIBERE 23
 
 NOTE LIBERE 24
 ==============
+  Numeri sommati alle proprie cifre
+  Stima della popolazione mondiale
+  Frequenza delle cifre nei numeri primi
 
 PROBLEMI SUI DADI
 =================

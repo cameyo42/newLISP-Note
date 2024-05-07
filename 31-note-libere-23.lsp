@@ -109,7 +109,7 @@ n AND (n - 1)
 
 Calcolare la sequenza di numeri generata dall'operazione di AND binario (n & (n - 1)).
 
-Sequenza OEIS:
+Sequenza OEIS: 129760
 Bitwise AND of binary representation of n-1 and n
   0, 0, 2, 0, 4, 4, 6, 0, 8, 8, 10, 8, 12, 12, 14, 0, 16, 16, 18, 16, 20,
   20, 22, 16, 24, 24, 26, 24, 28, 28, 30, 0, 32, 32, 34, 32, 36, 36, 38,
@@ -4945,7 +4945,8 @@ Per esempio,
   percentuali = (40 40 20)
 
 (define (perc-list lst)
-  (map (fn(x) (mul (div x somma) 100)) lst))
+  (let (somma (apply add lst))
+    (map (fn(x) (mul (div x somma) 100)) lst)))
 
 (setq a '(1 3 3 2 6 4 -2 -4 9 8 -4))
 (perc-list a)
