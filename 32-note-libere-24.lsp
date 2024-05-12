@@ -207,5 +207,219 @@ N = 1e8
 ;->  (9 11.98165890985055))
 ;-> 61818.008
 
+
+-------------------------------------------------
+Problema della brocca d'acqua (Water-Jug Problem)
+-------------------------------------------------
+
+Il problema della brocca d'acqua è un classico rompicapo che coinvolge due brocche (di capacità x e y litri) e una fonte d'acqua.
+L'obiettivo è misurare 'z' litri d'acqua utilizzando le due brocche che non hanno contrassegni di volume.
+Si tratta della ricerca nello spazio degli stati, in cui lo stato iniziale consiste nelle due brocche vuote e lo stato finale è quello in cui una brocca contiene 'z' litri.
+Varie operazioni come il riempimento, lo svuotamento e il versamento tra le brocche vengono utilizzate per trovare una sequenza efficiente di passaggi per ottenere la quantità d'acqua desiderata.
+In particolare le operazioni consentite sono:
+a) Riempire la brocca A: riempire completamente la brocca A.
+b) Riempire la brocca B: riempire completamente la brocca B.
+c) Svuotare la brocca A: svuotare la brocca A.
+d) Svuotare la brocca B: svuotare la brocca B.
+e) Travasare da A a B: versare l'acqua dalla brocca A alla brocca B, a meno che non si ottenga una brocca A vuota o una brocca B piena.
+f) Travasare da B ad A: Versare l'acqua dalla brocca B alla brocca A fino a quando la brocca B è vuota o la brocca A è piena.
+
+Esistono diversi modi per risolvere questo problema (Breadth-First Search, Matematica, Programmazione Dinamica).
+
+Vediamo l'algoritmo Breadth-First Search (BFS):
+
+Iniziare con lo stato iniziale in cui entrambe le brocche sono vuote.
+Creare una coda.
+Aggiungere lo stato iniziale alla coda
+Finchè la coda non è vuota:
+  Estrarre lo stato dall'inizio dalla coda.
+  Applicare tutte le possibili operazioni tra le due brocche per generare nuovi stati.
+  Controllare se qualcuno di questi nuovi stati corrisponde allo stato obiettivo.
+  Se viene trovato lo stato obiettivo, il problema è risolto.
+  In caso contrario, aggiungere i nuovi stati alla coda per le successive esplorazioni.
+
+(define (brocche x y z)
+  (local (a b visitati coda out)
+    (setq visitati '())
+    (setq coda '((0 0)))
+    ; finchè la coda non è vuota...
+    (while (!= coda '())
+      ; estrae il primo elemento (stato) della coda
+      (map set '(a b) (pop coda))
+            ; Controllo se è lo stato finale (obbiettivo)
+      (cond ((or (= a z) (= b z) (= (+ a b) z)) (setq out true))
+            ; Se l'elemento corrente è stato già visitato
+            ; passiamo al prossimo elemento
+            ((!= (find (list a b) visitati) nil) nil)
+            ; Se l'elemento corrente non è stato già visitato
+            ; generiamo tutte le opzioni (stati) possibili
+            (true
+              ; inserisce l'elemento corrente nella lista visitati
+              (push (list a b) visitati)
+              ; Genera tutti i possibili stati dallo stato corrente
+              ; riempie la brocca A
+              (if (< a x) (push (list x b) coda -1))
+              ; riempie la brocca A
+              (if (< b y) (push (list a y) coda -1))
+              ; svuota la brocca A
+              (if (> a 0) (push (list 0 b) coda -1))
+              ; svuota la brocca B
+              (if (> b 0) (push (list a 0) coda -1))
+              ; travaso da A a B
+              (if (>= (+ a b) y)
+                (push (list (- a (- y b)) y) coda -1)
+                ;else
+                (push (list 0 (+ a b)) coda -1)
+              )
+              ; travaso da B a A
+              (if (>= (+ a b) x)
+                  (push (list x (- b (- x a))) coda -1)
+                  ;else
+                  (push (list (+ a b) 0) coda -1)
+              ))
+      )
+      ;(println "V: " visitati)
+      ;(println "C: " coda)
+    )
+    out))
+
+Proviamo:
+
+(brocche 4 3 2)
+;-> true
+
+(brocche 5 4 2)
+;-> true
+
+(brocche 8 6 3)
+;-> nil
+
+(brocche 3 5 4)
+;-> true
+
+Adesso vediamo un approccio matematico.
+
+Il problema può essere rappresentato mediante l'equazione diofantea della forma ax + by = d che è risolvibile se e solo se mcd(a,b) divide d.
+Inoltre, la soluzione x,y per la quale l'equazione è soddisfatta può essere trovata utilizzando l'algoritmo di Euclide esteso per il calcolo del MCD.
+Naturalmente la soluzione non può esistere (fisicamente) se risulta:
+  (d > a) and (d > b)
+Vediamo un esempio: abbiamo una brocca A da 5 litri (a=5) e un'altra brocca B da 3 litri (b=3) e dobbiamo misurare 1 litro d'acqua.
+L'equazione associata sarà 5x + 3y = 1.
+Il problema può essere risolto poiché mcd(3,5) = 1 che divide 1.
+Utilizzando l'algoritmo di Euclide esteso, otteniamo valori di x e y per i quali l'equazione è soddisfatta, che sono x = 2 e y = -3.
+I valori n = 2 e m = -3 significano che dobbiamo riempire A due volte e svuotare B tre volte.
+
+Se vogliamo trovare il numero minimo di operazioni da eseguire dobbiamo decidere quale brocca riempire per prima.
+A seconda di quale brocca si sceglie da riempire e quale da svuotare abbiamo due soluzioni diverse e la minima tra queste sarà la soluzione.
+
+Algoritmo 1 (Versare sempre dalla brocca da 'a' litri alla brocca da 'b' litri)
+-----------
+1) Riempire la brocca da m litro e svuotarla nella brocca da 'b' litri.
+2) Ogni volta che la brocca da 'a' litri si svuota, riempirla.
+3) Ogni volta che la brocca da 'b' litri si riempie, svuotarla.
+4) Ripetere i passaggi 1,2,3 finché la brocca da 'b' litri o la brocca da 'a' litri non conterrà 'd' litri di acqua.
+Ciascuno dei passaggi 1, 2 e 3 viene conteggiato come un'operazione da eseguire.
+L'algoritmo 1 raggiunge il compito in K1 operazioni.
+
+Algoritmo 2 (versare sempre dalla brocca da 'b' litri alla brocca da 'a' litri)
+-----------
+Riempire la brocca da 'b' litri e svuotarla nella brocca da 'a'.
+Ogni volta che la brocca da 'b' litri si svuota, riempirla.
+Ogni volta che la brocca da 'a' litri si riempie, svuotarla.
+Ripetere i passaggi 1, 2 e 3 finché la brocca da 'b' litri o la brocca da 'a' litri non conterrà 'd' litri di acqua.
+Ciascuno dei passaggi 1, 2 e 3 viene conteggiato come un'operazione da eseguire.
+L'algoritmo 2 raggiunge il compito in K2 operazioni.
+
+La soluzione finale sarà il minimo tra K1 e K2.
+
+Funzione che calcola il numero e i passi necessari per avere 'd' litri in una brocca:
+
+(define (travasi a b d)
+  (local (from to step temp)
+    (println a { } b { } d)
+    ; inizializza la quantità di acqua nelle brocche origine e destinazione
+    (setq from a)
+    (setq to 0)
+    (println (list from to))
+    ; numero di travasi
+    (setq step 1)
+    ; stop se abbiamo trovato la soluzione
+    (while (and (!= from d) (!= to d))
+      ; quantità massima che può essere travasata
+      (setq temp (min from (- b to)))
+      # travasa 'temp' litri dalla brocca origine alla brocca destinazione
+      (setq to (+ to temp))
+      (setq from (- from temp))
+      (println (list from to))
+      (++ step)
+      ; non fare nulla se abbiamo trovato la soluzione
+      (cond ((or (= from d) (= to d)) nil)
+            (true
+              ; se la prima brocca si svuota, la riempie
+              (when (zero? from) (setq from a) (++ step) (println (list from to)))
+              ; se la seconda brocca si riempie, la svuota
+              (when (= to b) (setq to 0) (++ step) (println (list from to))))
+      )
+    )
+    step))
+
+Proviamo:
+
+(travasi 3 5 4)
+;-> 3 5 4
+;-> (3 0)
+;-> (0 3)
+;-> (3 3)
+;-> (1 5)
+;-> (1 0)
+;-> (0 1)
+;-> (3 1)
+;-> (0 4)
+;-> 8
+
+(travasi 5 3 4)
+;-> 5 3 4
+;-> (5 0)
+;-> (2 3)
+;-> (2 0)
+;-> (0 2)
+;-> (5 2)
+;-> (4 3)
+;-> 6
+
+Funzione che calcola il numero minimo e i passi necessari per avere 'd' litri in una brocca:
+
+(define (travasi-min m n d)
+  ; verifica che m < n
+  (if (> m n) (swap m n))
+  (cond
+    ; verifica se la soluzione è fisicamente possibile  
+    ((> d n) nil)
+    ; verifica se la soluzione è matematicamente possibile
+    ((!= (% d (gcd n m)) 0) nil)
+    (true
+      (min (travasi m n d) (travasi n m d)))))
+
+Proviamo:
+
+(travasi-min 3 5 4)
+;-> 3 5 4
+;-> (3 0)
+;-> (0 3)
+;-> (3 3)
+;-> (1 5)
+;-> (1 0)
+;-> (0 1)
+;-> (3 1)
+;-> (0 4)
+;-> 5 3 4
+;-> (5 0)
+;-> (2 3)
+;-> (2 0)
+;-> (0 2)
+;-> (5 2)
+;-> (4 3)
+;-> 6
+
 ============================================================================
 

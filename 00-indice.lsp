@@ -2452,6 +2452,7 @@ NOTE LIBERE 24
   Numeri sommati alle proprie cifre
   Stima della popolazione mondiale
   Frequenza delle cifre nei numeri primi
+  Problema della brocca d'acqua (Water-Jug Problem)
 
 PROBLEMI SUI DADI
 =================
