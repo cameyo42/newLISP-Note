@@ -2453,6 +2453,8 @@ NOTE LIBERE 24
   Stima della popolazione mondiale
   Frequenza delle cifre nei numeri primi
   Problema della brocca d'acqua (Water-Jug Problem)
+  cmp(x, y) di python 2
+  Operazioni in sequenza
 
 PROBLEMI SUI DADI
 =================

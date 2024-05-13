@@ -421,5 +421,155 @@ Proviamo:
 ;-> (4 3)
 ;-> 6
 
+
+---------------------
+cmp(x, y) di python 2
+---------------------
+
+cmp(x, y)
+Compare the two objects x and y and return an integer according to the outcome.
+The return value is negative if x < y, zero if x = y and strictly positive if x > y.
+
+Confronta i due oggetti x e y e restituisce un numero intero in base al risultato.
+Il valore restituito è negativo se x < y, zero se x = y e strettamente positivo se x > y.
+
+Scriviamo una funzione equivalente in newLISP.
+In questo caso il valore restituito è -1 se x < y, 0 se x = y e +1 se x > y.
+
+(define (cmp x y)
+  (if (> x y) 1
+      (= x y) 0
+      (< x y) -1))
+
+Proviamo:
+
+Numeri interi:
+
+(cmp 3 4)
+;-> -1
+(cmp 4 4)
+;-> 0
+(cmp 4 3)
+;-> 1
+
+Numeri float:
+
+(cmp 3.2 4.1)
+;-> -1
+(cmp 4.1 4.1)
+;-> 0
+(cmp 4.1 3.2)
+;-> 1
+
+Stringhe:
+
+(cmp "abc" "ab")
+;-> 1
+(cmp "abc" "abc")
+;-> 0
+(cmp "abc" "xyz")
+;-> -1
+
+Liste:
+
+(cmp '(1 2 3) '(1 2 4))
+;-> -1
+(cmp '(1 2 3) '(1 2 3))
+;-> 0
+(cmp '(1 2 4) '(1 2 3))
+;-> 1
+
+Funzioni:
+
+(cmp cmp cmp)
+;-> 0
+(cmp cmp map)
+;-> 1
+(cmp map cmp)
+;-> -1
+(cmp cmp apply)
+;-> 1
+(cmp apply cmp)
+;-> -1
+
+Vediamo un semplice esempio:
+
+(define (confronta a b) (println a { } ('(= > <) (cmp a b)) { } b))
+
+(confronta 10 11)
+;-> 10 < 11
+
+(confronta 3 3)
+;-> 3 = 3
+
+(confronta 2 1)
+;-> 2 > 1
+
+
+----------------------
+Operazioni in sequenza
+----------------------
+
+Supponiamo di avere una lista di numeri e operatori aritmetici del tipo:
+  
+  (num0 op0 num1 op1 ... numN opN)
+
+e vogliamo calcolare il valore ottenuto eseguendo 'linearmente' le operazioni da sinistra a destra.
+
+Per esempio:
+
+  Lista = (4 + 2 / 2 * 3)
+  Calcolo = 4 + 2 = 6
+            6 / 2 = 3
+            3 * 3 = 9
+  Risultato = 9
+
+Il termine 'linearmente' significa che gli operatori si applicano direttamente ai termini che trovano a sinistra e a destra (di volta in volta).
+Questo significa che non contano le normali precedenze algebriche degli operatori.
+
+Per esempio:
+
+  (4 + 6 / 2) --> 4 + 6 = 10 --> 10 / 2 = 5
+
+Per semplicità, supponiamo che la lista sia formata correttamente (nessun controllo di errore).
+
+Non abbiamo bisogno di costruire un mini-parser, basta leggere gli elementi della lista a due a due (prendendo il primo elemento come valore iniziale).
+
+(define (linear-calc lst)
+  (local (tot idx operator value)
+    ; valore corrente
+    (setq tot (lst 0))
+    ; indice della lista
+    (setq idx 1)
+    ; ciclo di lettura della lista
+    (while (< idx (length lst))
+      ; legge l'operatore
+      (setq operator (lst idx))
+      ; legge il valore
+      (setq value (lst (+ idx 1)))
+      (print tot { } operator { } value " = " )
+      ; effettua l'operazione corrente
+      (setq tot ((eval operator) tot value))
+      (println tot)
+      ; sposta l'indice sul prossimo operatore
+      (++ idx 2)
+   ) tot))
+
+Proviamo:
+
+(setq a '(4 + 2 / 2 * 3))
+(linear-calc a)
+;-> 4 + 2 = 6
+;-> 6 / 2 = 3
+;-> 3 * 3 = 9
+;-> 9
+
+(setq b '(4.2 add 2 div 2.1 mul 3))
+(linear-calc b)
+;-> 4.2 add 2 = 6.2
+;-> 6.2 div 2.1 = 2.952380952380953
+;-> 2.952380952380953 mul 3 = 8.857142857142858
+;-> 8.857142857142858
+
 ============================================================================
 
