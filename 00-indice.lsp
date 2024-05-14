@@ -2455,6 +2455,8 @@ NOTE LIBERE 24
   Problema della brocca d'acqua (Water-Jug Problem)
   cmp(x, y) di python 2
   Operazioni in sequenza
+  Cifre delle pagine di un libro
+  Codifica e decodifica di una stringa
 
 PROBLEMI SUI DADI
 =================

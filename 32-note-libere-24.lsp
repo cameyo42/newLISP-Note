@@ -571,5 +571,183 @@ Proviamo:
 ;-> 2.952380952380953 mul 3 = 8.857142857142858
 ;-> 8.857142857142858
 
+
+------------------------------
+Cifre delle pagine di un libro
+------------------------------
+
+Dato un libro con un numero di pagine P, determinare le occorrenze di ogni cifra (0..9) necessarie per numerare le pagine da 1 a P.
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (cifre-pagine P)
+  (count '(0 1 2 3 4 5 6 7 8 9) (flat (map int-list (sequence 1 P)))))
+
+Proviamo:
+
+(cifre-pagine 100)
+;-> (11 21 20 20 20 20 20 20 20 20)
+
+(cifre-pagine 1000)
+;-> (192 301 300 300 300 300 300 300 300 300)
+
+(cifre-pagine 999)
+;-> (189 300 300 300 300 300 300 300 300 300)
+
+Quante cifre occorrono per un libro di P pagine?
+
+Sequenza OEIS: A058183 
+Number of digits in concatenation of first n positive integers.
+Or, total number of digits in numbers from 1 through n.
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31,
+  33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67,
+  69, 71, 73, 75, 77, 79, 81, 83, 85, 87, 89, 91, 93, 95, 97, 99, 101, 103,
+  105, 107, 109, 111, 113, 115, 117, 119, ...
+
+(define (numero-cifre P) (apply + (cifre-pagine P)))
+
+Proviamo:
+
+(map numero-cifre (sequence 1 50))
+;-> (1 2 3 4 5 6 7 8 9 11 13 15 17 19 21 23 25 27 29 31 33 35 37 39 41 43 45
+;->  47 49 51 53 55 57 59 61 63 65 67 69 71 73 75 77 79 81 83 85 87 89 91)
+
+(numero-cifre 1000)
+;-> 2893
+
+(numero-cifre 250)
+;-> 642
+
+Rapporto numero-pagine/numero-cifre:
+
+(map (fn(x) (div x (+ $idx 1))) (map numero-cifre (sequence 1 50)))
+;-> (1 1 1 1 1 1 1 1 1 1.1 1.181818181818182 1.25 1.307692307692308
+;->  1.357142857142857 1.4 1.4375 1.470588235294118 1.5 1.526315789473684
+;->  1.55 1.571428571428571 1.590909090909091 1.608695652173913
+;->  1.625 1.64 1.653846153846154 1.666666666666667 1.678571428571429
+;->  1.689655172413793 1.7 1.709677419354839 1.71875 1.727272727272727
+;->  1.735294117647059 1.742857142857143 1.75 1.756756756756757
+;->  1.763157894736842 1.769230769230769 1.775 1.780487804878049
+;->  1.785714285714286 1.790697674418605 1.795454545454545 1.8
+;->  1.804347826086957 1.808510638297872 1.8125 1.816326530612245
+;->  1.82)
+
+
+------------------------------------
+Codifica e decodifica di una stringa
+------------------------------------
+
+Vogliamo inviare un messaggio segreto.
+Inventare un metodo personale per codificare e decodificare una stringa.
+La stringa è composta solo da caratteri ASCII.
+
+Algoritmo di codifica
+---------------------
+1) Per ogni carattere della stringa:
+     calcolare il valore in base 3 del suo codice ASCII (format "%05d")
+2) Unire tutti i valori in una stringa unica
+3) Aggiungere in modo casuale un numero casuale di cifre (3..9) alla stringa
+4) Invertire la stringa
+5) Restituire la stringa (codificata)
+
+Vediamo un esempio:
+
+stringa = "newLISP"
+caratteri = "n" "e" "w" "L" "I" "S" "P"
+base3 = "11002" "10202" "11102" "02211" "02201" "10002" "02222"
+stringa = "11002102021110202211022011000202222"
+stringa+(3..9) = "71555336108023130892980237319795154137476554303420224518
+                  567677618402929703648119793084699673068906889520462982242"
+codifica = "2422892640259886098603769964803979118463079292048167767658154
+            2202430345567473145159791373208929803132080163355517"
+
+Chiarimenti:
+Formattiamo il numero in base 3 con 5 caratteri (0-pad) perchè al massimo i valori hanno 5 cifre.
+Il procedimento di inserire nella stringa unita un numero casuale di tutte le cifre che vanno da 3 a 9 serve per mascherare il messaggio.
+Ma quante volte inseriamo la cifra 3? e quante volte la cifra 4? ... e quante volte la cifra 9?
+Prendiamo il valore minimo e il valore massimo delle occorrenze di 0, 1 e 2 nella stringa unica.
+Poi, per ogni cifra da 3 a 9, la inseriamo nella stringa un numero casuale di volte che va dal valore minimo al valore massimo.
+
+Algoritmo di decodifica
+-----------------------
+1) Invertire la stringa
+2) togliere tutti i caratteri "3", "4", ..., "9".
+3) Per ogni blocco di 5 caratteri della stringa:
+    convertire il blocco in carattere
+    aggiungere il carattere al messaggio
+4) restituire il messaggio
+
+(define (b1-b2 num base1 base2)
+"Convert an integer from base1 to base2 (2 <= base <= 10)"
+  (if (zero? num) num
+      (+ (% num base2) (* base1 (b1-b2 (/ num base2) base1 base2)))))
+
+(define (rand-range min-val max-val)
+"Generate a random integer in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+
+(define (clean-str chars str)
+"Clean chars from a string"
+  (join (difference (explode str) (explode chars) true)))
+
+(define (filter-str chars str)
+"Filter chars from a string"
+  (join (intersect (explode str) (explode chars) true)))
+
+Funzione di codifica della stringa:
+
+(define (encode str)
+  (local (base chars nums n012 vmin vmax len)
+    (setq base 3)
+    (setq chars (explode str))
+    (setq nums "")
+    ; creazione stringa unica
+    (dolist (ch chars)
+      (extend nums (format "%05d" (b1-b2 (char ch) 10 base)))
+    )
+    ; conta le occorrenze di 0, 1 e 2
+    (setq n012 (count '("0" "1" "2") (explode nums)))
+    ; calcola valore massimo e minimo
+    (setq vmax (apply max n012))
+    (setq vmin (apply min n012))
+    (setq len (length nums))
+    ; inserisce ogni cifra da 3 a 9 un numero casuale di volte
+    (for (digit 3 9)
+      (for (i 1 (rand-range vmin vmax))
+        (push (string digit) nums (rand len))
+        (++ len)
+      )
+    )
+    (reverse nums)))
+
+Proviamo:
+
+(encode "newLISP")
+;-> "23522202388064788797839039458037814194697058664220418317
+;->  6622839077204976611123660545720534915203084679359715159"
+
+Funzione di decodifica della stringa:
+
+(define (decode str)
+  (let (msg "")
+    (reverse str)
+    (setq str (clean-str "3456789" str))
+    (dolist (el (explode str 5))
+      (extend msg (char (b1-b2 (int el 0 10) 3 10))))))
+
+Proviamo:
+
+(decode (encode "newLISP"))
+;-> "newLISP"
+
+(decode (encode "--- HeLlO WoRlD ---"))
+;-> "--- HeLlO WoRlD ---"
+
 ============================================================================
 
