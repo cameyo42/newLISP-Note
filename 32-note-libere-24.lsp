@@ -749,5 +749,204 @@ Proviamo:
 (decode (encode "--- HeLlO WoRlD ---"))
 ;-> "--- HeLlO WoRlD ---"
 
+
+--------------------------
+Generare un grafo regolare
+--------------------------
+
+Dati due interi positivi n,k con n>k>=1, generare una matrice binaria nxn tale che ogni riga e colonna contenga esattamente k '1' e la diagonale principale ha tutti i valori a 0.
+Questa è la matrice di adiacenza di un grafo regolare.
+
+Soluzione originale in python 2 (Jonathan Allan):
+
+  lambda n,k:[(i/n+~i)%n<k for i in range(n*n)]
+
+Conversione della soluzione in newLISP:
+
+Nota: ~x = (- (x + 1))
+L'operatore "~" è il complemento bit a bit, che inverte tutti i bit di un numero intero.
+Quindi, ~x fornisce effettivamente la negazione bit a bit di 'x'.
+Nella rappresentazione in complemento a due, che newLISP utilizza per gli interi, la negazione bit a bit di un intero 'x' è equivalente a (-x - 1) = -(x + 1).
+
+Funzione / di python2:
+
+(define (pydiv a b)
+  (cond ((or (and (> a 0) (> b 0)) (and (< a 0) (< b 0))) (/ a b))
+        ((zero? (% a b)) (/ a b))
+        (true (- (/ a b) 1))))
+
+Funzione mod di python 2:
+
+(define (pymod a b) (% (+ (% a b) b) b))
+
+Funzione che stampa una matrice binaria:
+
+(define (print-matrix matrix)
+  (local (row col)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (matrix i j) { })
+      )
+      (println))))
+
+Funzione che crea una matrice di adiacenza di un grafo regolare:
+
+(define (regular-graph n k)
+  (setq out '())
+  (for (i 0 (- (* n n) 1))
+    ; this do not work...
+    ; (setq v (% (+ (/ i n) (~ i)) n))
+    (setq v (pymod (+ (pydiv i n) (~ i)) n))
+    (if (< v k)
+      (push 1 out -1)
+      (push 0 out -1)
+    )
+  )
+  (print-matrix (array-list (array n n out))))
+
+Proviamo:
+
+(regular-graph 2 1)
+;-> 0 1
+;-> 1 0
+
+(regular-graph 3 2)
+;-> 0 1 1
+;-> 1 0 1
+;-> 1 1 0
+
+(regular-graph 5 3)
+;-> 0 0 1 1 1
+;-> 1 0 0 1 1
+;-> 1 1 0 0 1
+;-> 1 1 1 0 0
+;-> 0 1 1 1 0
+
+(regular-graph 6 2)
+;-> 0 0 0 0 1 1
+;-> 1 0 0 0 0 1
+;-> 1 1 0 0 0 0
+;-> 0 1 1 0 0 0
+;-> 0 0 1 1 0 0
+;-> 0 0 0 1 1 0
+
+
+---------------------
+Sequenza Sleter-Velez
+---------------------
+
+La sequenza Sleter-Velez viene costruta con le seguenti regole:
+  a(1) = 1,
+  Il numero successivo a(n) sarà il numero più piccolo che:
+  1) non è già apparso nella sequenza
+  2) la sua differenza assoluta dal numero che lo precede non è uguale a qualsiasi differenza assoluta precedente tra elementi consecutivi.
+
+Vediamo la costruzione dei primi termini della sequenza:
+
+Il primo termine è 1 poiché è il più piccolo intero positivo.
+Dopodiché viene 2,
+   Sequenza: (1 2)
+   Differenze: (1)
+
+3 è il numero più piccolo successivo, ma la differenza da 2 è uguale alla differenza tra
+1 e 2, quindi 4 è il termine successivo.
+
+  Sequenza: (1 2 4)
+  Differenze: (1 2)
+
+Ora si può aggiungere 3, poiché la sua differenza da 7 è 4 che non esiste nella lista delle diferenze.
+
+   Sequenza: (1 2 4 7 3)
+   Differenze: (1 2 3 4)
+
+Poiché le differenze arrivano fino a 4, sappiamo che la successiva differenza è almeno 5, quindi il numero successivo è almeno 8.
+8 non è apparso, quindi possiamo aggiungerlo.
+
+   Sequenza: (1 2 4 7 3 8)
+   Differenze: (1 2 3 4 5)
+
+Sequenza OEIS: A081145
+a(1)=1, thereafter, a(n) is the least positive integer which has not already occurred and is such that |a(n)-a(n-1)| is different from any |a(k)-a(k-1)| which has already occurred.
+  1, 2, 4, 7, 3, 8, 14, 5, 12, 20, 6, 16, 27, 9, 21, 34, 10, 25, 41, 11,
+  28, 47, 13, 33, 54, 15, 37, 60, 17, 42, 68, 18, 45, 73, 19, 48, 79, 22,
+  55, 23, 58, 94, 24, 61, 99, 26, 66, 107, 29, 71, 115, 30, 75, 121, 31,
+  78, 126, 32, 81, 132, 35, 87, 140, 36, 91, 147, 38, 96, 155, 39, ...
+
+La spiegazione dell'algoritmo si trova nei commenti della funzione.
+
+(define (slater num)
+  (local (nums seq diff continua found cur-diff)
+  ; Per avere x numeri nella sequenza abbiamo bisogno
+  ; di una lista di numeri da 2 a 2.5*x (approssimazione per eccesso).
+  ; lista di numeri da 2 a (2.5*num)
+  (setq nums (sequence 2 (int (mul num 2.5))))
+  ; lista della sequenza
+  (setq seq '(1))
+  ; lista delle differenze
+  (setq diff '())
+  ; trovato un numero da inserire in un ciclo completo di nums?
+  (setq continua true)
+  ; finchè ci sono numeri in nums e non abbiamo effettuato un ciclo a vuoto...
+  (while (and nums continua)
+    ; flag per segnalare che abbiamo trovato un numero da inserire
+    (setq found nil)
+    (dolist (el nums found)
+      ; calcola la differenza corrente
+      (setq cur-diff (abs (- el (seq -1))))
+      ; quando il numero non compare nella sequenza e 
+      ; la differenza corrente non compare nelle differenze...
+      (when (and (not (find el seq))
+                (not (find cur-diff diff)))
+        ; inseriamo il numero nella sequenza
+        (push el seq -1)
+        ; inseriamo la differenza corrente nelle differenze
+        (push cur-diff diff -1)
+        ; segnaliamo che abbiamo trovato e inserito un numero da nums a seq
+        (setq found true)
+      )
+    )
+    ; se usciamo dal ciclo di nums senza aver inserito alcun numero,
+    ; allora abbiamo terminato il calcolo della sequenza
+    ; (perchè nessun numero rimasto può essere inserito)
+    (if (= found nil) (setq continua nil))
+    ; quando abbiamo trovato un numero da inserire nella sequenza
+    ; dobbiamo rimuoverlo da nums
+    (when found
+      ; rimuove il numero inserito nella sequenza da nums
+      (pop nums (find (seq -1) nums))
+      ; azzeramento del flag per una nuova ricerca
+      (setq found nil)
+    )
+  )
+  ; poichè abbiamo calcolato un numero di elementi leggermente maggiore
+  ; di quello stabilito dal parametro num, allora operiamo uno slice.
+  (slice seq 0 num)))
+
+Proviamo:
+
+(slater 70)
+;-> (1 2 4 7 3 8 14 5 12 20 6 16 27 9 21 34 10 25 41 11
+;->  28 47 13 33 54 15 37 60 17 42 68 18 45 73 19 48 79 22
+;->  55 23 58 94 24 61 99 26 66 107 29 71 115 30 75 121 31
+;->  78 126 32 81 132 35 87 140 36 91 147 38 96 155 39)
+
+(time (println (slater 1000)))
+;-> (1 2 4 7 3 8 14 5 12 20 6 16 27 9 21 34 10 25 41 11 28 47 13 33 54
+;->  15 37 60 17 42 68 18 45 73 19 48 79 22 55 23 58 94 24 61 99 26 66
+;->  ...
+;->  541 1359 2179 543 1364 2186 544 1367 2191 545 1370 2196 546 1373
+;->  2201 548 1377 2208 549 1381 2214 552 1386 2221 553 1389 2226 555)
+;-> 2239.297
+
+(length (slater 1000))
+;-> 1000
+
+(time (slater 2000))
+;-> 17157.765
+
+Per velocizzare la funzione si potrebbero usare le hash-map (dizionari) al posto delle liste.
+
 ============================================================================
 

@@ -2457,6 +2457,8 @@ NOTE LIBERE 24
   Operazioni in sequenza
   Cifre delle pagine di un libro
   Codifica e decodifica di una stringa
+  Generare un grafo regolare
+  Sequenza Sleter-Velez
 
 PROBLEMI SUI DADI
 =================
