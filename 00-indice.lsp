@@ -2459,6 +2459,7 @@ NOTE LIBERE 24
   Codifica e decodifica di una stringa
   Generare un grafo regolare
   Sequenza Sleter-Velez
+  Operatori binari di INTERCAL
 
 PROBLEMI SUI DADI
 =================
@@ -2503,7 +2504,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (281 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (283 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

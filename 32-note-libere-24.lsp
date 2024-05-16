@@ -948,5 +948,210 @@ Proviamo:
 
 Per velocizzare la funzione si potrebbero usare le hash-map (dizionari) al posto delle liste.
 
+
+----------------------------
+Operatori binari di INTERCAL
+----------------------------
+
+Il Compiler Language With No Pronounceable Acronym, abbreviato INTERCAL, è un linguaggio di programmazione unico creato da Don Woods e James M. Lyon, due studenti dell'Università di Princeton, nel 1972.
+Lo scopo principale del linguaggio era quello di discostarsi il più possibile da tutti i linguaggi esistenti (e ci sono riusciti).
+
+I due operatori binari di INTERCAL sono 'interleave' (noto anche come 'mingle') e 'select'.
+
+L'interleave è rappresentato dal carattere "¢" e la 'select' dal carattere "~".
+
+L'operatore 'interleave' accetta due valori a 16 bit e produce un risultato a 32 bit alternando i bit degli operandi.
+
+Per esempio:
+
+  234 ¢ 4321
+  234    = 0000011101010
+  4321   = 1000011100001
+  Result = 01000000001111110010001001
+  Output = 16841865
+
+L'operatore 'select' prende dal primo operando i bit che corrispondono a 1 nel secondo operando e li unisce a destra nel risultato.
+Entrambi gli operandi vengono automaticamente riempiti a sinistra con zero fino a 32 bit prima che avvenga la selezione, quindi i tipi di variabile non hanno restrizioni.
+Se vengono selezionati più di 16 bit, il risultato è un valore a 32 bit, altrimenti è un valore a 16 bit.
+
+Per esempio:
+
+  2345 ~ 7245
+  2345 =   0100100101001
+  7245 =   1110001001101
+  Take =   010   0  10 1
+  Pack =   0100101
+  Output = 37
+
+1) Funzione "interleave" (mingle)
+
+(define (mingle num1 num2)
+  (local (b1 b2)
+    (setq b1 (explode (format "%016s" (bits num1))))
+    (setq b2 (explode (format "%016s" (bits num2))))
+    ;(println a "\n" b)
+    (int (join (flat (map list b1 b2))) 0 2)))
+
+Proviamo:
+
+(mingle 234 4321)
+;-> ("0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "0" "1" "0" "1" "0")
+;-> ("0" "0" "0" "1" "0" "0" "0" "0" "1" "1" "1" "0" "0" "0" "0" "1")
+;-> 16841865
+
+(mingle 5 6)
+;-> 54
+
+(mingle 51234 60003)
+;-> 4106492941
+
+2) Funzione "select" (selector)
+
+(define (selector num1 num2)
+  (local (b1 b2)
+    (setq b1 (explode (format "%032s" (bits num1))))
+    (setq b2 (explode (format "%032s" (bits num2))))
+    ;(println b1 "\n" b2)
+    (int (join (select b1 (flat (ref-all "1" b2)))) 0 2)))
+
+Proviamo:
+
+(selector 2345 7245)
+;-> ("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0"
+;->  "0" "0" "0" "1" "0" "0" "1" "0" "0" "1" "0" "1" "0" "0" "1")
+;-> ("0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0"
+;->  "0" "0" "1" "1" "1" "0" "0" "0" "1" "0" "0" "1" "1" "0" "1")
+;-> 37
+
+(selector 5 6)
+;-> 2
+
+(selector 51234 60003)
+;-> 422
+
+Adesso scriviamo due funzioni che permettono ai due operatori, (interleave e select), di utilizzare i big-integer.
+
+(define (string-int str)
+"Convert a numeric string to big-integer"
+  (let (num 0L)
+    (cond ((= (str 0) "-")
+            (pop str)
+            (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))
+            (* num -1))
+          (true 
+            (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))))))
+
+(define (bits-i num)
+"Convert a decimal integer (big integer) to binary string"
+  (setq max-int (pow 2 62)) ; put this outside when doing a lot of calls
+  (define (prep s) (string (dup "0" (- 62 (length s))) s))
+  (if (<= num max-int) (bits (int num))
+      (string (bits-i (/ num max-int))
+              (prep (bits (int (% num max-int)))))))
+
+(define (binary-bigint bin)
+"Convert a binary string to big integer"
+  (let (num 0L)
+    ; remove left padded 0
+    (while (= (bin 0) "0") (pop bin))
+    (if (= bin "") 0L
+        ; else, build big integer number  
+        (dolist (el (explode bin))
+          (setq num (+ (* num 2) (int el)))))))
+
+1) Funzione "interleave" (mingle) per big-integer:
+
+(define (mingle-big num1 num2)
+  (local (b1 b2 len1 len2 fmt)
+    (setq len1 (length (setq b1 (bits-i num1))))
+    (setq len2 (length (setq b2 (bits-i num2))))
+    (setq fmt (string "%0" (max len1 len2) "s"))
+    (setq b1 (explode (format fmt b1)))
+    (setq b2 (explode (format fmt b2)))
+    (println b1 "\n" b2)
+    (binary-bigint (join (flat (map list b1 b2))))))
+
+Proviamo:
+
+(mingle-big 1234567890 1234567890)
+;-> ("1" "0" "0" "1" "0" "0" "1" "1" "0" "0" "1" "0" "1" "1" "0" "0" "0"
+;->  "0" "0" "0" "0" "1" "0" "1" "1" "0" "1" "0" "0" "1" "0")
+;-> ("1" "0" "0" "1" "0" "0" "1" "1" "0" "0" "1" "0" "1" "1" "0" "0" "0"
+;->  "0" "0" "0" "0" "1" "0" "1" "1" "0" "1" "0" "0" "1" "0")
+;-> 3513866796745421580L
+
+(mingle-big 12345678901234567890 12345678900987654321)
+;-> ("1" "0" "1" "0" "1" "0" "1" "1" "0" "1" "0" "1" "0" "1" "0" "0" "1"
+;->  "0" "1" "0" "1" "0" "0" "1" "1" "0" "0" "0" "1" "1" "0" "0" "1" "1"
+;->  "1" "0" "1" "0" "1" "1" "0" "0" "0" "1" "1" "1" "1" "1" "0" "0" "0"
+;->  "0" "1" "0" "1" "0" "1" "1" "0" "1" "0" "0" "1" "0")
+;-> ("1" "0" "1" "0" "1" "0" "1" "1" "0" "1" "0" "1" "0" "1" "0" "0" "1"
+;->  "0" "1" "0" "1" "0" "0" "1" "1" "0" "0" "0" "1" "1" "0" "0" "1" "1"
+;->  "0" "1" "1" "1" "0" "0" "0" "1" "1" "0" "0" "1" "1" "1" "0" "1" "1"
+;->  "1" "0" "0" "0" "0" "1" "0" "1" "1" "0" "0" "0" "1")
+;-> 272238354859052727989328541678683350793L
+
+(mingle-big 234 4321)
+;-> ("0" "0" "0" "0" "0" "0" "0" "0" "1" "1" "1" "0" "1" "0" "1" "0")
+;-> ("0" "0" "0" "1" "0" "0" "0" "0" "1" "1" "1" "0" "0" "0" "0" "1")
+;-> 16841865L
+
+(mingle-big 5 6)
+;-> ("1" "0" "1")
+;-> ("1" "1" "0")
+;-> 54L
+
+(mingle-big 51234 60003)
+;-> ("1" "1" "0" "0" "1" "0" "0" "0" "0" "0" "1" "0" "0" "0" "1" "0")
+;-> ("1" "1" "1" "0" "1" "0" "1" "0" "0" "1" "1" "0" "0" "0" "1" "1")
+;-> 4106492941L
+
+2) Funzione "select" (selector) per big integer:
+
+(define (selector-big num1 num2)
+  (local (b1 b2 len1 len2 fmt)
+    (setq len1 (length (setq b1 (bits-i num1))))
+    (setq len2 (length (setq b2 (bits-i num2))))
+    (setq fmt (string "%0" (max len1 len2) "s"))
+    (setq b1 (explode (format fmt b1)))
+    (setq b2 (explode (format fmt b2)))
+    (println b1 "\n" b2)
+    (binary-bigint (join (select b1 (flat (ref-all "1" b2)))) 0 2)))
+
+Proviamo:
+
+(selector-big 1234567890 1234567890)
+;-> ("1" "0" "0" "1" "0" "0" "1" "1" "0" "0" "1" "0" "1" "1" "0" "0" "0"
+;->  "0" "0" "0" "0" "1" "0" "1" "1" "0" "1" "0" "0" "1" "0")
+;-> ("1" "0" "0" "1" "0" "0" "1" "1" "0" "0" "1" "0" "1" "1" "0" "0" "0"
+;->  "0" "0" "0" "0" "1" "0" "1" "1" "0" "1" "0" "0" "1" "0")
+;-> 3513866796745421580L
+
+(selector-big 12345678901234567890 12345678900987654321)
+;-> ("1" "0" "1" "0" "1" "0" "1" "1" "0" "1" "0" "1" "0" "1" "0" "0" "1"
+;->  "0" "1" "0" "1" "0" "0" "1" "1" "0" "0" "0" "1" "1" "0" "0" "1" "1"
+;->  "1" "0" "1" "0" "1" "1" "0" "0" "0" "1" "1" "1" "1" "1" "0" "0" "0"
+;->  "0" "1" "0" "1" "0" "1" "1" "0" "1" "0" "0" "1" "0")
+;-> ("1" "0" "1" "0" "1" "0" "1" "1" "0" "1" "0" "1" "0" "1" "0" "0" "1"
+;->  "0" "1" "0" "1" "0" "0" "1" "1" "0" "0" "0" "1" "1" "0" "0" "1" "1"
+;->  "0" "1" "1" "1" "0" "0" "0" "1" "1" "0" "0" "1" "1" "1" "0" "1" "1"
+;->  "1" "0" "0" "0" "0" "1" "0" "1" "1" "0" "0" "0" "1")
+;-> 4294943626L
+
+(selector-big 2345 7245)
+;-> ("0" "1" "0" "0" "1" "0" "0" "1" "0" "1" "0" "0" "1")
+;-> ("1" "1" "1" "0" "0" "0" "1" "0" "0" "1" "1" "0" "1")
+;-> 37L
+
+(selector-big 5 6)
+;-> ("1" "0" "1")
+;-> ("1" "1" "0")
+;-> 2L
+
+(selector-big 51234 60003)
+;-> ("1" "1" "0" "0" "1" "0" "0" "0" "0" "0" "1" "0" "0" "0" "1" "0")
+;-> ("1" "1" "1" "0" "1" "0" "1" "0" "0" "1" "1" "0" "0" "0" "1" "1")
+;-> 422L
+
 ============================================================================
 
