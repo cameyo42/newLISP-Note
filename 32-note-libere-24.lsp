@@ -1153,5 +1153,200 @@ Proviamo:
 ;-> ("1" "1" "1" "0" "1" "0" "1" "0" "0" "1" "1" "0" "0" "0" "1" "1")
 ;-> 422L
 
+
+-----------------
+Stringhe perfette
+-----------------
+
+Una parola perfetta, è una parola in cui la somma della posizione nell'alfabeto di ciascuna lettera della parola è perfettamente divisibile per la lunghezza totale della parola.
+Ad esempio, "abcabc" è una parola perfetta perché 1 + 2 + 3 + 1 + 2 + 3 = 12 e 12 / 6 = 2.
+
+Scrivere la funzione più breve possibile per verificare se una parola è perfetta.
+La parola è costituita solo da lettere minuscole (a..z).
+
+Prima versione:
+
+(char "a")
+;-> 97
+
+(define (perfect? str)
+  (let (somma 0)
+    (dostring (ch str) (setq somma (+ somma (- ch 96))))
+    (zero? (% somma (length str)))))
+
+Proviamo:
+
+(perfect? "abcabc")
+;-> true
+(perfect? "newlisp")
+;-> true
+(perfect? "python")
+;-> nil
+(perfect? "julia")
+;-> nil
+
+Seconda versione:
+
+(define (perfect? str)
+  (let (somma 0)
+    (setq somma (apply + (map (fn(x) (- (char x) 96)) (explode str))))
+    (zero? (% somma (length str)))))
+
+Terza versione:
+
+(define (perfect? s)
+  (zero? (% (apply + (map (fn(x) (- (char x) 96)) (explode s))) (length s))))
+
+Quarta versione:
+
+Se poniamo "a" = 1, "b" = 2, ecc. oppure "a" = 97, "b" = 98, ecc. il risultato della divisione non cambia.
+
+(define (perfect? s)
+  (zero? (% (apply + (map char (explode s))) (length s))))
+
+Quinta versione (63 caratteri):
+
+(define(p s)(zero?(%(apply +(map char(explode s)))(length s))))
+
+Proviamo:
+
+(p "abcabc")
+;-> true
+(p "newlisp")
+;-> true
+(p "python")
+;-> nil
+(p "julia")
+;-> nil
+
+
+--------------------------------------------
+Interlacciare gli elementi di N liste (args)
+--------------------------------------------
+
+Abbiamo due liste e vogliamo creare una lista con elementi che hanno lo stesso indice.
+
+Per esempio:
+  L1 = (1 2 3)
+  L2 = (4 5 6)
+  Output = ((1 4) (2 5) (3 6))
+
+Per fare questo possiamo usare le funzioni "map" e "list":
+
+(map list '(1 2 3) '(4 5 6))
+;-> ((1 4) (2 5) (3 6))
+
+Questa espressione funziona anche con più liste:
+
+(map list '(1 2 3) '(4 5 6) '(7 8 9))
+;-> ((1 4 7) (2 5 8) (3 6 9))
+
+Scriviamo una funzione per interlacciare due liste:
+
+(define (interleave lst1 lst2) (map list lst1 lst2))
+
+(interleave '(1 2 3) '(4 5 6))
+;-> ((1 4) (2 5) (3 6))
+
+Per utilizzare "interleave" con più di due liste dobbiamo utilizzare (args).
+
+Non possiamo utilizzare direttamente il valore di (args):
+
+(define (interleave) (map list (args)))
+
+(interleave '(1 2 3) '(4 5 6) '(7 8 9))
+;-> (((1 2 3)) ((4 5 6)) ((7 8 9)))
+
+non otteniamo il risultato voluto perchè (args) vale (L1 L2 L3) e non L1 L2 L3.
+
+Allora dobbiamo usare la funzione "apply" e la funzione "cons":
+
+(define (interleave) (apply map (cons list (args))))
+
+(interleave '(1 2 3) '(4 5 6) '(7 8 9))
+;-> ((1 4 7) (2 5 8) (3 6 9))
+
+Analizziamo come si comporta la funzione:
+
+1) (args) cattura tutti gli argomenti passati alla funzione.
+2) (cons list (args)) crea una lista in cui il primo elemento è la funzione "list" e il resto sono gli argomenti catturati.
+3) apply viene utilizzato per applicare la funzione map agli argomenti raccolti.
+
+(set 'L1 '(1 2 3))
+(set 'L2 '(4 5 6))
+(set 'L3 '(7 8 9))
+
+(interleave L1 L2 L3)
+;-> ((1 4 7) (2 5 8) (3 6 9))
+
+Se le liste non hanno lo stesso numero di elementi, allora qualche sottolista ha un numero minore di elementi:
+
+(set 'L4 '(10 11))
+
+(interleave L1 L2 L3 L4)
+;-> ((1 4 7 10) (2 5 8 11) (3 6 9))
+
+(interleave '(1 2 3) '(4 5) '(6))
+;-> ((1 4 6) (2 5) (3))
+
+(interleave '(6) '(4 5) '(1 2 3))
+;-> ((6 4 1))
+
+(interleave '(4 5) '(1 2 3) '(6))
+;-> ((4 1 6) (5 2))
+
+(interleave '(4 5) '(6) '(1 2 3))
+;-> ((4 6 1) (5))
+
+La funzione "interleave" è simile alla funzione "zip":
+
+(define (zip)
+"Transpose multiple lists into one"
+  (transpose (args)))
+
+(zip '(1 2 3) '(4 5 6) '(7 8 9))
+;-> ((1 4 7) (2 5 8) (3 6 9))
+
+(interleave '(1 2 3) '(4 5 6) '(7 8 9))
+;-> ;-> ((1 4 7) (2 5 8) (3 6 9))
+
+Le due funzioni si comportano diversamente quando le liste hanno un numero di elementi diverso:
+
+(zip '(1 2 3) '(4 5 6) '(7 8))
+;-> ((1 4 7) (2 5 8) (3 6 nil))
+
+(interleave '(1 2 3) '(4 5 6) '(7 8))
+;-> ((1 4 7) (2 5 8) (3 6))
+
+La funzione "zip" usa sempre 'nil' per gli argomenti mancanti:
+(zip L1 L2 L3 L4)
+;-> ((1 4 7 10) (2 5 8 11) (3 6 9 nil))
+
+Comunque il numero di elementi della lista risultante è sempre uguale al numero di elementi della prima lista passata:
+
+(zip '(1 2 3) '(4 5) '(6))
+;-> ((1 4 6) (2 5 nil) (3 nil nil))
+
+(zip '(6) '(4 5) '(1 2 3))
+;-> ((6 4 1))
+
+(zip '(4 5) '(1 2 3) '(6))
+;-> ((4 1 6) (5 2 nil))
+
+(zip '(4 5) '(6) '(1 2 3))
+;-> ((4 6 1) (5 nil 2))
+
+Se abbiamo come parametro una lista di N liste (invece che N liste) allora possiamo usare "apply":
+
+(apply zip '((1 2 3) (4 5 6) (7 8)))
+;-> ((1 4 7) (2 5 8) (3 6 nil))
+
+(apply interleave '((1 2 3) (4 5 6) (7 8)))
+;-> ((1 4 7) (2 5 8) (3 6))
+
+Nota: la funzione "zip" usa (args) direttamente perchè "transpose" accetta una lista di liste.
+
+Vedi anche "Interlacciamento di stringhe e liste" su "Note libere 19".
+
 ============================================================================
 

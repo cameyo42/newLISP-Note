@@ -2460,6 +2460,8 @@ NOTE LIBERE 24
   Generare un grafo regolare
   Sequenza Sleter-Velez
   Operatori binari di INTERCAL
+  Stringhe perfette
+  Interlacciare gli elementi di N liste (args)
 
 PROBLEMI SUI DADI
 =================
