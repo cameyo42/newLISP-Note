@@ -1348,5 +1348,290 @@ Nota: la funzione "zip" usa (args) direttamente perchè "transpose" accetta una 
 
 Vedi anche "Interlacciamento di stringhe e liste" su "Note libere 19".
 
+
+------------------------------------
+La costante di Champernowne (Mahler)
+------------------------------------
+
+La costante di Champernowne (o costante di Mahler) C10 è una costante reale trascendente, presentata in un articolo del 1933 dal matematico David Gawen Champernowne.
+
+In base 10, il numero è definito concatenando i numeri naturali nel modo seguente:
+
+  C10 = 0.12345678910111213141516...
+
+Anche per ogni altra base si può costruire una costante in modo analogo:
+
+Base 2: C2 = 0.11011100101110111...
+
+Base 3: C3 = 0.12101112202122...
+
+Sequenza OEIS: A033307
+Decimal expansion of Champernowne constant (or Mahler's number), formed by concatenating the positive integers.
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 0, 1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6,
+  1, 7, 1, 8, 1, 9, 2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 2, 5, 2, 6, 2, 7, 2, 8,
+  2, 9, 3, 0, 3, 1, 3, 2, 3, 3, 3, 4, 3, 5, 3, 6, 3, 7, 3, 8, 3, 9, 4, 0,
+  4, 1, 4, 2, 4, 3, 4, 4, 4, 5, 4, 6, 4, 7, 4, 8, 4, 9, 5, 0, 5, 1, 5, 2,
+  5, 3, 5, 4, 5, 5, 5, 6, 5, 7, 5, 8, ...
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (A033307 limit)
+  (let (out '())
+    (for (i 1 limit) (extend out (int-list i)))))
+
+(A033307 58)
+;-> (1 2 3 4 5 6 7 8 9 1 0 1 1 1 2 1 3 1 4 1 5 1 6
+;->  1 7 1 8 1 9 2 0 2 1 2 2 2 3 2 4 2 5 2 6 2 7 2 8
+;->  2 9 3 0 3 1 3 2 3 3 3 4 3 5 3 6 3 7 3 8 3 9 4 0
+;->  4 1 4 2 4 3 4 4 4 5 4 6 4 7 4 8 4 9 5 0 5 1 5 2
+;->  5 3 5 4 5 5 5 6 5 7 5 8)
+
+Funzione che genera la costante di Champernowne (base10) fino ad un dato numero:
+
+(define (c10 limit)
+  (let (out '())
+    (for (i 1 limit) (extend out (map string (int-list i))))
+    (append "0." (join out))))
+
+Proviamo:
+
+(c10 20)
+;-> "0.1234567891011121314151617181920"
+
+Adesso vediamo la funzione per creare la costante in base N (N <= 62).
+
+(define (base10-baseN number base)
+"Convert a number from base 10 to base N (<=62)"
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result '())
+        (quotient number))
+    (while (>= quotient base)
+      (push (charset (% quotient base)) result)
+      (setq quotient (/ quotient base))
+    )
+    (push (charset quotient) result)
+    (join result)))
+
+(base10-baseN 10 3)
+
+Funzione che genera la costante di Champernowne (base N) fino ad un dato numero:
+
+(define (cn base limit)
+  (let (out "")
+    (for (i 1 limit) (extend out (base10-baseN i base)))
+    (println out)
+    (append "0." out)))
+
+Proviamo:
+
+(cn 2 10)
+"0.11011100101110111100010011010"
+
+(cn 3 10)
+"0.12101112202122100101"
+
+(cn 22 42)
+"0.123456789ABCDEFGHIJKL101112131415161718191A1B1C1D1E1F1G1H1I1J1K"
+
+
+------------------------
+Bussola e Rosa dei Venti
+------------------------
+
+I punti della bussola sono un insieme di direzioni cardinali orizzontali (o azimut) disposte radialmente utilizzate nella navigazione e nella cartografia.
+Una rosa dei venti è composta principalmente da quattro direzioni cardinali: nord, est, sud e ovest, ciascuna separata da 90 gradi e secondariamente divisa da quattro direzioni ordinali (intercardinali): nord-est, sud-est, sud-ovest e nord-ovest, ciascuna situata a metà strada tra due direzioni cardinali.
+Alcune discipline come la meteorologia e la navigazione dividono ulteriormente la bussola con azimut aggiuntivi.
+Nella tradizione europea, una bussola completamente definita ha 32 "punti".
+
+Ciascuna direzione è 11.25 (360/32) gradi più lontana della precedente.
+Ad esempio, N (nord) è 0 gradi, NbE (nord-est) è 11,25 gradi, NNE (nord-nordest) è 22,5 gradi, ecc.
+
+Nel dettaglio i nomi sono così assegnati:
+- 0 gradi è N, 90 gradi è E, 180 gradi è S e 270 gradi è W. Queste sono chiamate direzioni cardinali.
+- I punti a metà strada tra le direzioni cardinali sono semplicemente le direzioni cardinali tra loro concatenate. N o S vanno sempre per primi e W o E sono sempre secondi. Queste sono chiamate direzioni ordinali. Le direzioni ordinale e cardinale insieme formano i venti principali.
+- I punti intermedi tra i venti principali sono le direzioni tra cui sono concatenati. Le direzioni cardinali vanno per prime, quelle ordinali per seconda. Questi sono chiamati mezzi venti.
+- I punti a metà strada tra i venti principali e quelli mezzi sono i venti principali adiacenti "per" la direzione cardinale più vicina lontano dal vento principale.
+Questo è indicato con una b. Questi sono chiamati venti quarti.
+
+I nomi "tradizionali" degli otto venti principali sono:
+
+  (N)  – Tramontana
+  (NE) – Greco (o Grecale o Bora in veneziano)
+  (E)  – Levante (o Oriente)
+  (SE) – Scirocco (o Exaloc in catalano)
+  (S)  – Ostro (o Mezzogiorno in veneziano)
+  (SW) – Libeccio (o Garbino, Eissalot in provenzale)
+  (W)  – Ponente (o Zefiro in greco)
+  (NW) – Maestro (o Mistral in provenzale)
+
+Vedi immagini "Bussola32.png" e "RosaVenti.jpg" (wikipedia) nella cartella "data".
+
+  #   Gradi    Codice  Nome                 Vento
+  1   0        N       North                Tramontana
+  2   11.25    NbE     North by east        Quarto di Tramontana verso Greco
+  3   22.5     NNE     North-northeast      Greco-Tramontana
+  4   33.75    NEbN    Northeast by north   Quarto di Greco verso Tramontana
+  5   45       NE      Northeast            Greco
+  6   56.25    NEbE    Northeast by east    Quarto di Greco verso Levante
+  7   67.5     ENE     East-northeast       Greco-Levante
+  8   78.75    EbN     East by north        Quarto di Levante verso Greco
+  9   90       E       East                 Levante
+  10  101.25   EbS     East by south        Quarto di Levante verso Scirocco
+  11  112.5    ESE     East-southeast       Levante-Scirocco
+  12  123.75   SEbE    Southeast by east    Quarto di Scirocco verso Levante
+  13  135      SE      Southeast            Scirocco
+  14  146.25   SEbS    Southeast by south   Quarto di Scirocco verso Ostro
+  15  157.5    SSE     South-southeast      Ostro-Scirocco
+  16  168.75   SbE     South by east        Quarto di Ostro verso Scirocco
+  17  180      S       South                Ostro
+  18  191.25   SbW     South by west        Quarto di Ostro verso Libeccio
+  19  202.5    SSW     South-southwest      Ostro-Libeccio
+  20  213.75   SWbS    Southwest by south   Quarto di Libeccio verso Ostro
+  21  225      SW      Southwest            Libeccio
+  22  236.25   SWbW    Southwest by west    Quarto di Libeccio verso Ponente
+  23  247.5    WSW     West-southwest       Ponente-Libeccio
+  24  258.75   WbS     West by south        Quarto di Ponente verso Libeccio
+  25  270      W       West                 Ponente
+  26  281.25   WbN     West by north        Quarto di Ponente verso Maestro
+  27  292.5    WNW     West-northwest       Maestro-Ponente
+  28  303.75   NWbW    Northwest by west    Quarto di Maestro verso Ponente
+  29  315      NW      Northwest            Maestro
+  30  326.25   NWbN    Northwest by north   Quarto di Maestro verso Tramontana
+  31  337.5    NNW     North-northwest      Maestro-Tramontana
+  32  348.75   NbW     North by west        Quarto di Tramontana verso Maestro
+
+(setq p32 '(
+ (1  0      "N"    "North"              "Tramontana")
+ (2  11.25  "NbE"  "North by east"      "Quarto di Tramontana verso Greco")
+ (3  22.5   "NNE"  "North-northeast"    "Greco-Tramontana")
+ (4  33.75  "NEbN" "Northeast by north" "Quarto di Greco verso Tramontana")
+ (5  45     "NE"   "Northeast"          "Greco")
+ (6  56.25  "NEbE" "Northeast by east"  "Quarto di Greco verso Levante")
+ (7  67.5   "ENE"  "East-northeast"     "Greco-Levante")
+ (8  78.75  "EbN"  "East by north"      "Quarto di Levante verso Greco")
+ (9  90     "E"    "East"               "Levante")
+ (10 101.25 "EbS"  "East by south"      "Quarto di Levante verso Scirocco")
+ (11 112.5  "ESE"  "East-southeast"     "Levante-Scirocco")
+ (12 123.75 "SEbE" "Southeast by east"  "Quarto di Scirocco verso Levante")
+ (13 135    "SE"   "Southeast"          "Scirocco")
+ (14 146.25 "SEbS" "Southeast by south" "Quarto di Scirocco verso Ostro")
+ (15 157.5  "SSE"  "South-southeast"    "Ostro-Scirocco")
+ (16 168.75 "SbE"  "South by east"      "Quarto di Ostro verso Scirocco")
+ (17 180    "S"    "South"              "Ostro")
+ (18 191.25 "SbW"  "South by west"      "Quarto di Ostro verso Libeccio")
+ (19 202.5  "SSW"  "South-southwest"    "Ostro-Libeccio")
+ (20 213.75 "SWbS" "Southwest by south" "Quarto di Libeccio verso Ostro")
+ (21 225    "SW"   "Southwest"          "Libeccio")
+ (22 236.25 "SWbW" "Southwest by west"  "Quarto di Libeccio verso Ponente")
+ (23 247.5  "WSW"  "West-southwest"     "Ponente-Libeccio")
+ (24 258.75 "WbS"  "West by south"      "Quarto di Ponente verso Libeccio")
+ (25 270    "W"    "West"               "Ponente")
+ (26 281.25 "WbN"  "West by north"      "Quarto di Ponente verso Maestro")
+ (27 292.5  "WNW"  "West-northwest"     "Maestro-Ponente")
+ (28 303.75 "NWbW" "Northwest by west"  "Quarto di Maestro verso Ponente")
+ (29 315    "NW"   "Northwest"          "Maestro")
+ (30 326.25 "NWbN" "Northwest by north" "Quarto di Maestro verso Tramontana")
+ (31 337.5  "NNW"  "North-northwest"    "Maestro-Tramontana")
+ (32 348.75 "NbW"  "North by west"      "Quarto di Tramontana verso Maestro")))
+
+Funzione che ricerca uno qualunque dei valori di 'Numero', 'Gradi', 'Codice', e 'Nome':
+
+(define (find-points value)
+  (let (idx (ref value p32))
+    (if idx (p32 (idx 0)) nil)))
+
+Proviamo:
+
+(find-points "South")
+;-> (17 180 "S" "South" "Ostro")
+
+(find-points "SbW")
+;-> (18 191.25 "SbW" "South by west" "Quarto di Ostro verso Libeccio")
+
+(find-points 281.25)
+;-> (26 281.25 "WbN" "West by north" "Quarto di Ponente verso Maestro")
+
+(find-points "Ponente-Libeccio")
+;-> (23 247.5 "WSW" "West-southwest" "Ponente-Libeccio")
+
+(find-points "Nord")
+;-> nil
+
+Adesso scriviamo una funzione che prende un valore in gradi tra 0 e 359 e restituisce il punto  della bussola più vicino:
+
+(define (point gradi)
+  (local (found val1 val2 diff1 diff2 idx)
+    ; 0 <= gradi <= 359
+    (while (>= gradi 360) (setq gradi (- gradi 360)))
+    ; estrae la colonna 'Gradi' dalla lista p32
+    (setq column ((transpose p32) 1))
+    ; ricerca del valore più vicino
+    (setq found nil)
+    (dolist (el column found)
+      (cond
+        ; Caso ultimo settore (348.75 - 0)
+        ((>= gradi (column -1))
+          (setq found true)
+          (setq diff1 (abs (sub gradi (column -1))))
+          (setq diff2 (abs (sub gradi 360)))
+          ;(println diff1 { } diff2)
+          (if (>= diff1 diff2)
+              (setq idx $idx)
+              (setq idx (- $idx 1))))
+        ; Per tutti gli altri settori
+        ; quando 'gradi' è minore o uguale al valore corrente
+        ; allora abbiamo trovato il settore (range) di appartenenza
+        ; del valore 'gradi'
+        ((<= gradi el)
+          (setq found true)
+          (setq val1 el)
+          (setq val2 (column (+ $idx 1)))
+          (setq diff1 (abs (sub gradi val1)))
+          (setq diff2 (abs (sub gradi val2)))
+          ;(println val1 { } val2 { } diff1 { } diff2)
+          (if (>= diff1 diff2)
+              (setq idx (+ $idx 1))
+              (setq idx $idx)))
+      )
+    )
+    (if found (p32 idx) nil)))
+
+Proviamo:
+
+(point 0)
+;-> (1 0 "N" "North" "Tramontana")
+
+(point 33.75)
+;-> (4 33.75 "NEbN" "Northeast by north" "Quarto di Greco verso Tramontana")
+
+(point 45)
+;-> (5 45 "NE" "Northeast" "Greco")
+
+(point 60)
+;-> (7 67.5 "ENE" "East-northeast" "Greco-Levante")
+
+(point 90)
+;-> (9 90 "E" "East" "Levante")
+
+(point 123.123)
+;-> (12 123.75 "SEbE" "Southeast by east" "Quarto di Scirocco verso Levante")
+
+(point 360)
+;-> (1 0 "N" "North" "Tramontana")
+
+(point 355)
+;-> (1 0 "N" "North" "Tramontana")
+
+(point 350)
+;-> (32 348.75 "NbW" "North by west" "Quarto di Tramontana verso Maestro")
+
+(point 348.75)
+;-> (32 348.75 "NbW" "North by west" "Quarto di Tramontana verso Maestro")
+
 ============================================================================
 

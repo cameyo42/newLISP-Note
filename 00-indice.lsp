@@ -2462,6 +2462,8 @@ NOTE LIBERE 24
   Operatori binari di INTERCAL
   Stringhe perfette
   Interlacciare gli elementi di N liste (args)
+  La costante di Champernowne (Mahler)
+  Bussola e Rosa dei Venti
 
 PROBLEMI SUI DADI
 =================

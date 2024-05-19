@@ -4696,7 +4696,7 @@ Problema 42
 
 Numeri triangolari codificati
 
-L'ennesimo termine della sequenza di numeri triangolari è dato da, t(n) = ½*n*(n + 1), quindi i primi dieci numeri di triangolari sono:
+L'ennesimo termine della sequenza di numeri triangolari è dato da, t(n) = (1/2)*n*(n + 1), quindi i primi dieci numeri di triangolari sono:
 
 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, ...
 
@@ -8364,7 +8364,7 @@ Problema 72
 
 Conteggio delle frazioni
 
-Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n <de HCF (n, d) = 1, si parla di frazione propria ridotta.
+Considera la frazione, n/d, dove n e d sono numeri interi positivi. Se n < d e HCF(n, d) = 1, si parla di frazione propria ridotta.
 
 Se elenchiamo l'insieme delle frazioni proprie ridotte per d ≤ 8 in ordine crescente di dimensione, otteniamo:
 
