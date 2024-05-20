@@ -1633,5 +1633,186 @@ Proviamo:
 (point 348.75)
 ;-> (32 348.75 "NbW" "North by west" "Quarto di Tramontana verso Maestro")
 
+
+-------------------
+Valore delle parole
+-------------------
+
+Data una parola (stringa) valutiamo il suo valore in base alle seguenti regole:
+
+1) Le lettere minuscole valgono 'a'=1, 'b'=2, 'c'=3, ... 'z'=26.
+2) Ogni lettera maiuscola vale 1.5 volte la corrispondente minuscola.
+Per esempio, il valore di 'C' vale 'c'*1.5 = 3*1.5 = 4.5.
+3) Tutti gli altri caratteri valgono 0.5.
+
+(define (lower? ch)
+"Check if a char is lowercase (a..z)"
+  (and (>= ch "a") (<= ch "z")))
+
+(define (upper? ch)
+"Check if a char is uppercase (A..Z)"
+   (and (>= ch "A") (<= ch "Z")))
+
+(map char '("a" "z" "A" "Z"))
+;-> (97 122 65 90)
+
+Distanza tra maiuscole e minuscole = 32
+(- 97 65)
+;-> 32
+
+Funzione che calcola il valore di una parola (stringa):
+
+(define (wordvalue str)
+  (let (value 0)
+    (dostring (ch str)
+      (cond
+        ; minuscole
+        ((and (>= ch 97) (<= ch 122))
+          (setq value (add value (- ch 96))))
+        ; maiuscole
+        ((and (>= ch 65) (<= ch 90))
+          (++ ch 32)
+          (setq value (add value (mul 1.5 (- ch 96)))))
+        ; tutti gli altri caratteri
+        (true (setq value (add value 0.5)))
+      )
+    )
+    value))
+
+Proviamo:
+
+(wordvalue "c")
+(wordvalue "Cc")
+(wordvalue "Zz")
+
+Nota: (mul (sub (char c) 64) 1.5) è uguale a (sub (mul 1.5 (char c)) 96).
+
+
+------------------------------------------------
+Eguagliare la somma di due liste (scambio unico)
+------------------------------------------------
+
+Date due liste di numeri interi possiamo effettuare una sola volta uno scambio tra un elemento della prima lista con un elemento della seconda lista.
+Lo scambio deve servire per eguagliare la somma delle due liste.
+
+In pratica, dobbiamo trovare una coppia di elementi, uno da ciascuna lista, che scambiati rendano uguali le somme delle due liste.
+
+Per equagliare le somme delle due liste, lo scambio di due elementi deve correggere la differenza delle somme.
+Quindi dobbiamo trovare due elementi la cui differenza è esattamente metà della differenza tra le somme delle due liste.
+
+(define (equalize-sum A B)
+  (local (sum1 sum2 diff found out1 out2)
+    (setq tmp1 A)
+    (setq tmp2 B)
+    (setq sum1 (apply + A))
+    (setq sum2 (apply + B))
+    (setq diff (- sum1 sum2))
+    (cond
+      ; le lista hanno già somma uguale
+      ((zero? diff)
+        (println "Nessuno scambio.")
+        (println A { } B { } sum1))
+      ; Se la differenza è dispari,
+      ; non è possibile eguagliare le somme con un singolo scambio.
+      ((odd? diff)
+        (println "Differenza dispari tra somme.")
+        (println "Impossibile eguagliare le somme con un solo scambio."))
+      ; ricerca della coppia di elementi
+      (true
+        (setq found nil)
+        (dolist (x A)
+          (setq idx1 $idx)
+          (dolist (y B)
+            (setq idx2 $idx)
+            ; cerchiamo due elementi la cui differenza è esattamente metà
+            ; della differenza tra le somme delle due liste
+            (when (= (- x y) (/ diff 2))
+                (setq found true)
+                (println "Scambiare " x " in A con " y " in B")
+                (swap (tmp1 idx1) (tmp2 idx2))
+                (println tmp1 { } tmp2 { } (apply + tmp1) { } (apply + tmp2))
+                (setq tmp1 A)
+                (setq tmp2 B))
+          )
+        )
+        (if (not found)
+          (println "Impossibile eguagliare le somme con un solo scambio.")))) '>))
+
+Proviamo:
+
+(setq a '(1 2 3 4 5))
+(setq b '(2 4 6 8 10))
+(equalize-sum a b)
+
+(setq a '(1 2 3 4 6))
+(setq b '(2 4 6 8 10))
+(equalize-sum lst1 lst2)
+;-> Scambiare 1 in A con 8 in B
+;-> (8 2 3 4 6) (2 4 6 1 10) 23 23
+;-> Scambiare 3 in A con 10 in B
+;-> (1 2 10 4 6) (2 4 6 8 3) 23 23
+
+
+------------------------------
+Numero di cifre dei fattoriali
+------------------------------
+
+Per calcolare il numero di cifre di N! (dove N è un intero positivo) possiamo utilizzare i logaritmi:
+
+  Numero cifre numero N = floor(log10 N) + 1
+
+  Numero cifre numero N! = floor(log10 N!) + 1
+
+Per la proprietà: log10(a*b) = log10(a) + log10(b)
+
+  log10(N!) = log10(1) + log10(2) + ... + log10(N)
+
+  Numero cifre numero N! = floor(log10(1) + log10(2) + ... + log10(N)) + 1
+
+(define (log10 x) (log x 10))
+
+Formula che calcola il numero di cifre del fattoriale di un numero N:
+
+(define (digit-fact N)
+  (add (floor (apply add (map log10 (sequence 1 N)))) 1)
+)
+
+Formula che calcola il fattoriale di un numero N:
+
+(define (fact n) (apply * (map bigint (sequence 1 n))))
+
+Proviamo:
+
+(digit-fact 10)
+;-> 7
+(length (fact 10))
+;-> 7
+
+(digit-fact 100)
+;-> 158
+(length (fact 100))
+;-> 158
+
+(digit-fact 1000)
+;-> 2568
+(length (fact 1000))
+;-> 2567
+
+(digit-fact 10000)
+La seguente espressione manda in crash la REPL di newLISP (probabilmente il numero risultante eccede la memoria disponibile):
+;(length (fact 10000))
+
+Comunque possiamo continuare a contare le cifre del fattoriale con "digit-fact".
+
+(digit-fact 1e6)
+;-> 5565709
+
+Se una pagina contiene 40 righe con 80 caratteri ognuna, allora occorrono 1740 pagine per scrivere 1e6!:
+
+(div 5565709 (mul 40 80))
+;-> 1739.2840625
+
+Vedi anche "Numero di cifre dei fattoriali (formula di Kamenetsky)" su "Note libere 11".
+
 ============================================================================
 

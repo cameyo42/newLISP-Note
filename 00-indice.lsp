@@ -2464,6 +2464,9 @@ NOTE LIBERE 24
   Interlacciare gli elementi di N liste (args)
   La costante di Champernowne (Mahler)
   Bussola e Rosa dei Venti
+  Valore delle parole
+  Eguagliare la somma di due liste (scambio unico)
+  Numero di cifre dei fattoriali
 
 PROBLEMI SUI DADI
 =================

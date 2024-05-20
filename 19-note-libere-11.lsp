@@ -1089,10 +1089,15 @@ Facciamo alcune prove:
 
 (fact-digit 120)
 ;-> 199
+(length (apply * (map bigint (sequence 1 120))))
+;-> 199
+
 (fact-digit 1e6)
 ;-> 5565709
 (fact-digit 1e9)
 ;-> 8565705523
+
+Vedi anche "Numero di cifre dei fattoriali" su "Note libere 24".
 
 
 --------------------------------
