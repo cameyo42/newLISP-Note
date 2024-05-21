@@ -1969,5 +1969,289 @@ Cerchiamo tutte le parole equilibrate:
 (length (filter balanced? data))
 ;-> 983
 
+
+-----------------------------------------
+Righe e colonne delle matrici come numeri
+-----------------------------------------
+
+Data una matrice NxM di interi non negativi trovare:
+
+1) la somma dei numeri di ogni riga e di ogni colonna
+2) i numeri (uniti come strighe) di ogni riga e di ogni colonna
+
+Per esempio:
+
+            |1 3 2|
+  matrice = |4 3 6|
+            |0 7 8|
+
+  somma-numeri-riga (N) = (1 + 3 + 2 = 6) (4 + 3 + 6 = 13) (0 + 7 + 8 = 15) =
+                        = 6 13 15
+  somma-numeri-colonna (M) = (1 + 4 + 0 = 5) (3 + 3 + 7 = 13) (2 + 6 + 8 = 16) =
+                        = 5 13 16
+  output = 6 13 15 5 13 16 (N+M elementi)
+
+  numeri-stringa-riga (N) = 132 436 78
+  numeri-stringa-colonna (M) = 140 337 268
+  output = 132 436 78 140 337 268 (N+M elementi)
+
+Funzione che restituisce la lista delle somme dei numeri di ogni riga e di ogni colonna di una matrice:
+
+(define (rows-cols-sums matrix)
+  (let (out '())
+    ; somma degli elementi di ogni riga
+    (extend out (map (fn(x) (apply + x)) matrix))
+    ; somma degli elementi di ogni colonna
+    (extend out (map (fn(x) (apply + x)) (transpose matrix)))))
+
+(rows-cols-sums '((1 3 2) (4 3 6) (0 7 8)))
+;-> (6 13 15 5 13 16)
+(matrix-numbers '((1 3 2) (4 3 6) (0 7 8)))
+
+Funzione che restituisce la lista dei numeri (uniti come strighe) di ogni riga e di ogni colonna di una matrice:
+
+(define (rows-cols-numbers matrix)
+  (let (out '())
+    ; per ogni riga: converte i numeri in stringhe, unisce le stringhe,
+    ; infine converte la stringa unita in un numero intero.
+    (extend out (map (fn(x) (int (join (map string x)) 0 10)) matrix))
+    ; per ogni colonna: converte i numeri in stringhe, unisce le stringhe,
+    ; infine converte la stringa unita in un numero intero.
+    (extend out (map (fn(x) (int (join (map string x)) 0 10)) (transpose matrix)))))
+
+(rows-cols-numbers '((1 3 2) (4 3 6) (0 7 8)))
+;-> (132 436 78 140 337 268)
+
+
+-----------------------------------
+Quadrati di cifre con somma massima
+-----------------------------------
+
+Data una lista di cifre (0..9), disporre le cifre nella forma quadrata che ha somma massima.
+La lista contiene sempre un numero quadrato di cifre.
+La somma viene calcolata con i numeri creati unendo le cifre di ogni riga e di ogni colonna.
+
+Vediamo un esempio:
+
+  lista = (1 2 4 4)
+  una forma quadrata:  1 2
+                       4 4
+  somma = 12 + 44 + 14 + 24 = 94
+
+  altra forma quadrata: 4 2
+                        1 4
+  somma = 42 + 14 + 41 + 24 = 121
+
+  forma quadrata massima: 4 4
+                          2 1
+  somma = 44 + 21 + 42 + 41 = 148
+
+Una soluzione è quella di generare tutte le permutazioni dei numeri della lista e calcolare la matrice che ha somma massima.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che restituisce la lista dei numeri (uniti come strighe) di ogni riga e di ogni colonna di una matrice:
+
+(define (rows-cols-numbers matrix)
+  (let (out '())
+    ; per ogni riga: converte i numeri in stringhe, unisce le stringhe,
+    ; infine converte la stringa unita in un numero intero.
+    (extend out (map (fn(x) (int (join (map string x)) 0 10)) matrix))
+    ; per ogni colonna: converte i numeri in stringhe, unisce le stringhe,
+    ; infine converte la stringa unita in un numero intero.
+    (extend out (map (fn(x) (int (join (map string x)) 0 10)) (transpose matrix)))))
+
+Funzione che trova la matrice quadrata con somma massima:
+
+(define (matrice-somma-massima lst)
+  (local (permute sum-max mat-max)
+    (setq side (sqrt (length lst)))
+    (setq sum-max 0)
+    (setq mat-max '())
+    (setq permute (perm lst))
+    (dolist (p permute)
+      (setq a (array side side p))
+      (setq sum (apply + (rows-cols-numbers a)))
+      (if (> sum sum-max) (set 'sum-max sum 'mat-max a)
+      )
+    )
+    (list sum-max mat-max)))
+
+Proviamo:
+
+(setq lst '(1 2 4 4))
+(setq matrix (matrice-somma-massima '(1 2 4 4)))
+;-> (148 (4 4) (2 1))
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+(setq matrix (matrice-somma-massima lst))
+;-> (4698 ((9 7 6) (8 4 3) (5 2 1)))
+
+(setq lst '(2 2 4 3 1 1 2 3 2))
+(time (println (setq matrix (matrice-somma-massima lst))))
+;-> (1939 ((4 3 2) (3 2 1) (2 2 1)))
+;-> 5001.764
+
+Comunque se la lista contiene più di 9 elementi (la successiva lista contiene 16 elementi), allora il calcolo delle permutazioni è irrealizzabile.
+
+Un'altra idea è quella di determinare quali posizioni della matrice hanno un 'peso' maggiore nell'operazione di somma.
+La posizione in alto a destra della matrice ha il 'peso' maggiore, infatti è la posizione che viene moltiplicata per la potenza di 10 più grande.
+Vediamo per esempio una matrice 3x3:
+
+  |a b c|
+  |d e f|
+  |g h i|
+
+Per le righe:
+  La posizione 'a' vale 100, la posizione 'b' vale 10, la posizione 'c' vale 1.
+  La posizione 'd' vale 100, la posizione 'e' vale 10, la posizione 'f' vale 1.
+  La posizione 'g' vale 100, la posizione 'h' vale 10, la posizione 'i' vale 1.
+
+Per le colonne:
+  La posizione 'a' vale 100, la posizione 'd' vale 10, la posizione 'g' vale 1.
+  La posizione 'b' vale 100, la posizione 'e' vale 10, la posizione 'h' vale 1.
+  La posizione 'c' vale 100, la posizione 'f' vale 10, la posizione 'i' vale 1.
+
+Per ogni posizione sommiamo i relativi valori di riga e colonna:
+  a = 100 + 100 = 200
+  b = 10 + 100 = 110
+  ...
+  i = 1 + 1 = 2
+
+Otteniamo:
+
+   a   b   c   d   e  f  g   h  i
+  (200 110 101 110 20 11 101 11 2)
+
+Vediamo come creare una lista con i valori e gli indici di ogni posizione:
+
+  (valore (i j))
+
+(setq pos '())
+(setq side 3)
+
+(for (i 0 (- side 1))
+  (for (j 0 (- side 1))
+    (setq ival (pow 10 (- (- side 1) i)))
+    (setq jval (pow 10 (- (- side 1) j)))
+    (setq val (+ ival jval))
+    (push (list val (list i j)) pos -1)
+  )
+)
+;-> ((200 (0 0)) (110 (0 1)) (101 (0 2)) (110 (1 0)) (20 (1 1))
+;->  (11 (1 2)) (101 (2 0)) (11 (2 1)) (2 (2 2)))
+
+Con questa lista possiamo facilmente creare il quadrato con la somma massima:
+1) Ordinare la lista delle posizioni (decrescente).
+2) Ordinare la lista dei numeri (decrescente).
+3) Ciclo sulla lista dei numeri
+     Inserire il numero corrente nella matrice agli indici (i, j)
+     individuati dalla posizione corrente ($idx)
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+(sort pos >)
+;-> ((200 (0 0)) (110 (1 0)) (110 (0 1)) (101 (2 0)) (101 (0 2))
+;->  (20 (1 1)) (11 (2 1)) (11 (1 2)) (2 (2 2)))
+(sort lst >)
+;-> (9 8 7 6 5 4 3 2 1)
+
+(setq out (array-list (array side side '(0))))
+;-> ((0 0 0) (0 0 0) (0 0 0))
+
+(dolist (el lst) (setf (out (pos $idx 1)) el))
+out
+;-> ((9 7 5) (8 4 2) (6 3 1))
+
+Calcoliamo la somma di questa matrice:
+
+(apply + (rows-cols-numbers out))
+;-> 4698
+
+Quindi la soluzione vale:
+
+somma = 4698
+matrice = (9 7 5)
+          (8 4 2)
+          (6 3 1)
+
+Scriviamo la funzione che calcola la matrice quadrata con somma massima:
+
+(define (mat-sum-max lst)
+  (local (pos len side ival jval val out)
+    ; Creazione della lista delle posizioni
+    (setq pos '())
+    (setq len (length lst))
+    (setq side (sqrt len))
+    (for (i 0 (- side 1))
+      (for (j 0 (- side 1))
+        (setq ival (pow 10 (- side 1 i)))
+        (setq jval (pow 10 (- side 1 j)))
+        (setq val (+ ival jval))
+        (push (list val (list i j)) pos -1)
+      )
+    )
+    ; ordina la lista delle posizioni
+    (sort pos >)
+    ; ordina la lista data
+    (sort lst >)
+    ; Inserisce gli elementi della lista data nella matrice 'out'
+    ; in modo da avere somma massima
+    (setq out (array-list (array side side '(0))))
+    (dolist (el lst)
+      (setf (out (pos $idx 1)) el)
+    )
+    out))
+
+Proviamo:
+
+(setq lst '(1 2 3 4 5 6 7 8 9))
+(setq matrix (mat-sum-max lst))
+;-> ((9 7 5) (8 4 2) (6 3 1))
+(apply + (rows-cols-numbers matrix))
+;-> 4698
+
+(setq lst '(1 2 4 4))
+(setq matrix (mat-sum-max '(1 2 4 4)))
+;-> ((4 2) (4 1))
+(apply + (rows-cols-numbers matrix))
+;-> 148
+
+(setq lst '(2 2 4 3 1 1 2 3 2))
+(setq matrix (mat-sum-max lst))
+;-> ((4 3 2) (3 2 1) (2 2 1))
+(apply + (rows-cols-numbers matrix))
+;-> 1939
+
+(setq lst '(5 4 3 6 9 2 6 8 8 1 6 8 5 2 8 4 2 4 5 7 3 7 6 6 7))
+(setq matrix (mat-sum-max lst))
+;-> ((9 8 8 7 6) (8 6 6 5 5) (8 6 4 4 3) (7 6 4 2 2) (7 5 3 2 1))
+(apply + (rows-cols-numbers matrix))
+;-> 836445
+
 ============================================================================
 

@@ -2469,6 +2469,8 @@ NOTE LIBERE 24
   Numero di cifre dei fattoriali
   Generazione di numeri primi in un intervallo
   Carattere medio di una stringa e stringhe equilibrate
+  Righe e colonne delle matrici come numeri
+  Quadrati di cifre con somma massima
 
 PROBLEMI SUI DADI
 =================
