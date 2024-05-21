@@ -2467,6 +2467,8 @@ NOTE LIBERE 24
   Valore delle parole
   Eguagliare la somma di due liste (scambio unico)
   Numero di cifre dei fattoriali
+  Generazione di numeri primi in un intervallo
+  Carattere medio di una stringa e stringhe equilibrate
 
 PROBLEMI SUI DADI
 =================
@@ -2511,7 +2513,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (283 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (284 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

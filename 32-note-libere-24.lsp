@@ -1814,5 +1814,160 @@ Se una pagina contiene 40 righe con 80 caratteri ognuna, allora occorrono 1740 p
 
 Vedi anche "Numero di cifre dei fattoriali (formula di Kamenetsky)" su "Note libere 11".
 
+
+--------------------------------------------
+Generazione di numeri primi in un intervallo
+--------------------------------------------
+
+Per generare i numeri primi da 1 a N possiamo usare la seguente funzione:
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+          (let ((lst '(2)) (arr (array (+ num 1))))
+            (for (x 3 num 2)
+              (when (not (arr x))
+                (push x lst -1)
+                (for (y (* x x) num (* 2 x) (> y num))
+                  (setf (arr y) true)))) lst))))
+
+Per generare i numeri primi in un intervallo (a..b) modifichiamo la funzione precedente:
+
+(define (primes-range a b)
+"Generates all prime numbers in the range (a..b) included"
+  (if (> a b) (swap a b))
+  (cond ((= b 1) '())
+        ((= b 2) '(2))
+        (true
+          (let ((lst '(2)) (arr (array (+ b 1))))
+            ; initialize lst 
+            (if (> a 2) (setq lst '()))
+            (for (x 3 b 2)
+              (when (not (arr x))
+                ; push current primes (x) only if > a
+                (if (>= x a) (push x lst -1))
+                (for (y (* x x) b (* 2 x) (> y b))
+                  (setf (arr y) true)))) lst))))
+
+Proviamo:
+
+(primes-range 1 2)
+;-> (2)
+(primes-range 1 3)
+;-> (2 3)
+(primes-range 10 100)
+;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+(= (primes-range 1 1e6) (primes-to 1e6))
+;-> true
+
+Per verificare i risultati della funzione "primes-range" usiamo un'altra funzione che calcola i primi in un intervallo:
+
+(define (primi-tra a b) 
+  (filter (fn(x) (= (length (factor x)) 1)) (sequence a b)))
+
+(= (primes-range 3 20) (primi-tra 3 20))
+;-> true
+(= (primes-range 1 1e6) (primi-tra 1 1e6))
+;-> true
+(= (primes-range 101 1e5) (primi-tra 101 1e5))
+;-> true
+(= (primes-range 1e5 1e6) (primi-tra 1e5 1e6))
+;-> true
+
+Vediamo la  velocitè delle funzioni:
+
+(time (primes-to 1e6))
+;-> 144.871
+(time (primes-range 1 1e6))
+;-> 145.462
+(time (primi-tra 1 1e6))
+;-> 800.222
+
+(time (primi-tra 1e3 1e5))
+;-> 50.189
+(time (primes-range 1e3 1e5))
+;-> 9.929
+
+(time (primi-tra 1e5 1e6))
+;-> 763.068
+(time (primes-range 1e5 1e6))
+;-> 143.841
+
+
+-----------------------------------------------------
+Carattere medio di una stringa e stringhe equilibrate
+-----------------------------------------------------
+
+Il carattere medio di una stringa viene calcolato nel modo seguente:
+
+1) sommare i valori ASCII di tutti i caratteri della stringa (sum)
+2) dividere la somma per la lunghezza della stringa (x = sum/len)
+3) arrotondare il risultato all'intero più vicino  (x = int(x + 0.5))
+4) convertire il risultato in carattere char(x)
+
+Per esempio:
+  stringa = "newLISP"
+  caratteri = "n" "e" "w" "L" "I" "S" "P"
+  ascii = 110 101 119 76 73 83 80
+  somma = 642
+  x = 642/7 = 91.71428571428571
+  x = int(0.5 + x) = 92
+  carattere-medio = char(92) = "\\"
+
+Funzione che calcola il carattere medio di una stringa:
+
+(define (avg-ch str)
+  (char (int (add 0.5 (div (apply + (map char (explode str))) (length str))))))
+
+Proviamo:
+
+(avg-ch "program")
+;-> "m"
+(avg-ch "chess")
+;-> "k"
+(avg-ch "newlisp"))
+;-> "n"
+(avg-ch "MATHEMATICS")
+;-> "J"
+
+Una stringa è equilibrata quando il primo carattere è uguale al suo carattere medio.
+
+(define (balanced? str) (= (str 0) (avg-ch str)))
+
+Proviamo:
+
+(balanced? "newlisp")
+;-> true
+(balanced? "home")
+;-> nil
+(balanced? "massimo")
+;-> true
+
+Ricerchiamo le parole equilibrate in un file (unixdict.txt) che contiene 25104 parole.
+Il file "unixdict.txt" si trova nella cartella "data".
+
+Leggiamo tutto il file in una stringa:
+
+(setq datafile (read-file "unixdict.txt"))
+
+Trasformiamo questa stringa in una lista di stringhe delimitate dal carattere di fine linea (eol - end of line). La funzione "parse" fa proprio questo, suddivide una stringa in sottostringhe basandosi su un delimitatore (in windows il delimitatore di fine linea è "\r\n", mentre su UNIX è "\n"):
+
+(setq data (parse datafile "\n"))
+
+Cerchiamo tutte le parole equilibrate:
+
+(filter balanced? data)
+;-> ("a" "aaa" "aba" "ababa" "b" "bad" "c" "cabbage" "cb" "cdc" "d" 
+;->  "d'oeuvre" "dabble" "dade" "dc" "dead" "deadhead" "deaf" "dec" 
+;->  ...
+;->  "sylow" "synonymy" "t" "tory" "toy" "troy" "trust" "trw" "u" 
+;->  "usury" "ut" "v" "w" "wv" "x" "y" "z") 
+
+(length (filter balanced? data))
+;-> 983
+
 ============================================================================
 

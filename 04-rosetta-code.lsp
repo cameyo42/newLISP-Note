@@ -3532,7 +3532,7 @@ Tipi di punteggi:
   6  41  Barry       5.0  41  Barry
   7  39  Stephen     7.0  39  Stephen
 
-Definiamo una lista che contiene i concorrenti e i relativi risultati:
+Definiamo una lista ordinata che contiene i concorrenti e i relativi risultati:
 
 (setq lst '((44 Solomon) (42 Jason) (42 Errol) (41 Garry) (41 Bernard) (41 Barry) (39 Stephen)))
 
