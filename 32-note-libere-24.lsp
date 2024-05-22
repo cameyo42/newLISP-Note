@@ -2253,5 +2253,493 @@ Proviamo:
 (apply + (rows-cols-numbers matrix))
 ;-> 836445
 
+
+-------------------------------------------
+Quanto vale la radice 0-esima di un numero?
+-------------------------------------------
+
+La radice cubica (3) di 27 vale 3.
+
+(define (cbrt x)
+"Calculates the cube root of a number"
+  (if (< x 0)
+      (sub (pow (sub x) (div 3)))
+      ;else (positive number)
+      (pow x (div 3))))
+
+(cbrt 27)
+;-> 3
+
+La radice quadrata (2) di 16 vale 4.
+
+(sqrt 16)
+;-> 4
+
+La radice (0) di un numero x vale ?
+
+Se x^n = a, allora x = rootN(a)
+  dove rootN rappresenta la radice N-esima (root2 = "sqrt", root3 = "cbrt")
+
+Quindi, ponendo n=0:  
+
+  x^0 = a, allora x = root0(a)
+
+Poichè qualunque numero x elevato a 0 vale 1: x^0 = 1,
+
+Risulta:  2^0 = 1, allora 2 = root0(1)
+Ma anche: 5^0 = 1, allora 5 = root0(1)
+
+che è chiaramente impossibile.
+
+Scriviamo la radice N-esima in un altro modo:
+
+  rootN(x) = x^(1/N)
+
+Ponendo N = 0 (root0) otteniamo:
+
+  root0(x) = x^(1/0)
+  
+A questo punto possiamo considerare due casi distinti:
+
+1) Consideriamo la divisione per zero come una operazione indefinita, di conseguenza anche root0(x) è indefinita.
+
+2) Consideriamo 1/0 = infinito, allora vediamo quanto vale x^infinito:
+se x > 1:     x^inf = inf
+se 0 < x < 1: x^inf = 0
+se x = 1:     1^inf = 1  
+se x = 0:     0^inf = 0
+se x < 0:     l'espressione non è ben definita per esponenti reali infiniti
+
+In conclusione i matematici hanno stabilito che l'estrazione della radice 0-esima di un numero è una operazione indefinita.
+
+
+-----------------
+Indice di Simpson
+-----------------
+
+L'indice Simpson è una misura della diversità di una collezione di elementi con duplicati.
+In ecologia viene spesso utilizzato per quantificare la biodiversità di un habitat.
+Tiene conto del numero di specie presenti, nonché dell'abbondanza di ciascuna specie.
+Si tratta di una misura della diversità che tiene conto del numero di specie presenti, nonché dell'abbondanza relativa di ciascuna specie.
+Dal punto di vista matematico l'indice è equivalente alla probabilità di estrarre in modo casuale due elementi diversi da una collezione di elementi.
+
+L'indice viene calcolato con la seguente formula:
+
+                       n(i)*(n(i) - 1)
+  S = 1 - Sum[i=1,k](-------------------)
+                          N*(N - 1)
+
+  dove:
+  N = numero totale di elementi
+  n(1), n(2), ..., n(k) = numero di elementi uguali del gruppo i-esimo (i=1..k)
+
+Vediamo un esempio:
+
+(setq lst '(1 1 2 2 2 3 3 4 5 6 7 7))
+;-> (1 1 2 2 2 3 3 4 5 6 7 7)
+(setq len (length lst))
+;-> 12
+
+Calcolo dei valori unici:
+
+(setq unici (unique lst))
+;-> (1 2 3 4 5 6 7)
+
+Conteggio delle occorrenze di ogni valore unico:
+
+(setq conta (count unici lst))
+;-> (2 3 2 1 1 1 2)
+
+Calcolo dell'indice di Simpson:
+
+(setq S 0)
+(dolist (el conta)
+  (setq S (add S (mul el (- el 1))))
+  (println el { } S)
+)
+(setq S (sub 1 (div S (mul len (- len 1)))))
+;-> 0.9090909090909091
+
+Scriviamo la funzione che calcola l'indice di Simpson per una lista di elementi:
+
+(define (simpson lst)
+  (local (len unici conta S)
+    (setq len (length lst))
+    ; calcolo valori unici:
+    (setq unici (unique lst))
+    ; conteggio delle occorrenze di ogni valore unico:
+    (setq conta (count unici lst))
+    ; Calcolo dell'indice di Simpson:
+    (setq S 0)
+    (dolist (el conta) (setq S (add S (mul el (- el 1)))))
+    (setq S (sub 1 (div S (mul len (- len 1)))))))
+
+Proviamo:
+
+(setq lst '(1 1 2 2 2 3 3 4 5 6 7 7))
+(simpson lst)
+;-> 0.9090909090909091
+
+(setq lst '(1 1 1 2 2 3))
+(simpson lst)
+;-> 0.7333333333333334
+
+(simpson (explode "AAABBCC"))
+;-> 0.7619047619047619
+
+Con elementi tutti uguali l'indice vale 0:
+(simpson (explode "AAA"))
+;-> 0
+
+Con elementi tutti diversi l'indice vale 1:
+(simpson (explode "ABC"))
+;-> 1
+
+Vediamo di calcolare l'indice di Simpson con una simulazione del processo di estrazione di due elementi dalla lista.
+
+(define (simula lst iter)
+  (let ( (ok 0) (r '()) )
+    (for (i 1 iter)
+      (setq r (randomize lst))
+      (if (= (r 0) (r 1)) (++ ok)))
+    (sub 1 (div ok iter))))
+
+Proviamo:
+
+(setq lst '(1 1 2 2 2 3 3 4 5 6 7 7))
+(simula lst 1e6)
+;-> 0.908613
+
+(setq lst '(1 1 1 2 2 3))
+(simula lst 1e6)
+;-> 0.734974
+
+(simula (explode "AAABBCC") 1e6)
+;-> 0.762323
+
+Con elementi tutti uguali l'indice vale 0:
+(simula (explode "AAA") 1e6)
+;-> 0
+
+Con elementi tutti diversi l'indice vale 1:
+(simula (explode "ABC") 1e6)
+;-> 1
+
+
+----------------------------
+Generazione di somme diverse
+----------------------------
+
+Scrivere una funzione che prende un numero intero N e restituisce due numeri interi X e Y la cui somma è il numero dato.
+Ulteriore requisito: nessun numero può far parte dell'output per due input diversi.
+
+Esempio 1:
+
+  1 --> 4 -3
+  2 --> 7 -5
+  4 --> 8 -5 
+  Errato, perchè '-5' è già stato usato
+
+Esempio 2:
+
+  -2 --> -5  3
+   0 -->  0  0
+   1 --> -8  9
+   2 --> -5  7
+   3 --> 11 -8
+  Corretto...fino a questo punto.
+
+Il problema può essere risolto se restringiamo il numero in ingresso in un determinato intervallo [a..b].
+
+Per esempio, supponiamo di voler considerare l'intervallo [-32768 .. 32767].
+Dobbiamo trovare una funzione che genera numeri sufficientemente distanziati.
+Una funzione potrebbe essere l'elevamento al cubo:
+
+  numero = N
+  X = -(N^3)
+  Y = N - X
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1L
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (diff num)
+  (letn ( (num (bigint num)) (potenza (** num 3)) )
+    (list (- potenza) (+ num potenza))))
+
+(map diff (sequence 0 10))
+;-> ((0L 0L) (-1L 2L) (-8L 10L) (-27L 30L) (-64L 68L) (-125L 130L)
+;->  (-216L 222L) (-343L 350L) (-512L 520L) (-729L 738L) (-1000L 1010L))
+
+Questi numeri sono distinti perché i cubi sono sufficientemente distanziati che l'aggiunta di n a n**3 non è sufficiente per superare lo spazio vuoto fino al cubo successivo: n**3 < n+n**3 < (n+1)**3 per n positivo e simmetricamente per n negativo.
+
+Vediamo se la funzione di elevamento al cubo copre tutto l'intervallo:
+
+Generiamo tutti i numeri di output da -32768 a 32767
+
+(setq all '())
+(silent (for (i -32768 32767) (extend all (diff i))))
+
+Vediamo se esistono numeri duplicati (a parte lo 0 a causa di 0 = 0 - 0):
+
+(length all)
+;-> 131072
+(length (unique all))
+;-> 131071
+(count '(0) all)
+;-> (2)
+(count '(0) (unique all))
+;-> (1)
+
+Per questo intervallo l'elevamento al cubo è sufficiente per generare sempre numeri diversi.
+Per intervalli più grandi potremmo utilizzare l'elevamento a potenza con k>3:
+
+(define (diff num k)
+  (letn ( (num (bigint num)) (potenza (** num k)) )
+    (list (- potenza) (+ num potenza))))
+
+Intervallo (-1e5.. 1e5), proviamo con k = 4:
+
+(setq all '())
+(silent (for (i -1e5 1e5) (extend all (diff i 4))))
+
+Vediamo se esistono numeri duplicati (a parte lo 0 a causa di 0 = 0 - 0):
+
+(length all)
+;-> 400002
+(length (unique all))
+;-> 300000
+
+Esistono duplicati, quindi usiamo una potenza superiore k = 5:
+
+(setq all '())
+(silent (for (i -1e5 1e5) (extend all (diff i 5))))
+(length all)
+;-> 400002
+(length (unique all))
+;-> 400001
+
+In questo caso l'elevamento a potenza con k=5 è sufficiente ad ottenere numeri tutti distinti.
+
+
+--------------------
+Distanze tra pianeti
+--------------------
+
+Le distanze tra i pianeti varieranno a seconda di dove si trova ciascun pianeta nella sua orbita attorno al Sole. A volte le distanze saranno più vicine e altre volte saranno più lontane.
+
+Questo accade perchè i pianeti hanno orbite ellittiche e nessuno di essi è un cerchio perfetto. Ad esempio, la distanza tra Mercurio e la Terra può variare da 77 milioni di km nel punto più vicino, fino a 222 milioni di km nel punto più lontano. C'è un'enorme differenza nelle distanze tra i pianeti a seconda della loro posizione sul loro percorso orbitale.
+
+((Sole)) Mercurio - Venere - Terra - Marte - Giove - Saturno - Urano - Nettuno
+
+La tabella delle distanze medie tra pianeti è la seguente:
+  +---------------------+---------------+---------------+
+  |      Pianeti        | Distanza (km) | Distanza (AU) |
+  +---------------------+---------------+---------------+
+  | Mercurio -> Venere  |      50290000 |
+  | Venere   -> Terra   |      41400000 |
+  | Terra    -> Marte   |      78340000 |
+  | Marte    -> Giove   |     550390000 |
+  | Giove    -> Saturno |     646270000 |
+  | Saturno  -> Urano   |    1448950000 |
+  | Urano    -> Nettuno |    1627450000 |
+  | Nettuno  -> Plutone |    1405380000 |
+  +---------------------+---------------+---------------+
+La colonna Distanza (AU) rappresenta la distanza in Unità Astronomiche.
+1 AU è la distanza tra il Sole e la Terra, ovvero 149.600.000 km.
+
+Dividiamo la tabella in due liste:
+
+(setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove" 
+                "Saturno" "Urano" "Nettuno" "Plutone"))
+
+(setq dist '(50290000 41400000 78340000 550390000 646270000
+             1448950000 1627450000 1405380000))
+
+Troviamo gli indici dei pianeti:
+
+(setq idx1 (find "Venere" planets))
+;-> 1
+(setq idx2 (find "Giove" planets))
+;-> 4
+
+Troviamo la lista delle distanze da considerare:
+
+(setq lst (slice dist idx1 (- idx2 idx1)))
+;-> (41400000 78340000 550390000)
+
+Sommiamo le distanze della lista:
+
+(apply + lst)
+;-> 670130000
+
+Funzione che calcola la distanza tra due pianeti (km):
+
+(define (distanza p1 p2)
+  (setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove" 
+                  "Saturno" "Urano" "Nettuno" "Plutone"))
+  (setq dist '(50290000 41400000 78340000 550390000 646270000
+               1448950000 1627450000 1405380000))
+  (setq idx1 (find p1 planets))
+  (setq idx2 (find p2 planets))
+  (cond
+    ((nil? idx1) (println "Pianeta: " p1 " non trovato") nil)
+    ((nil? idx2) (println "Pianeta: " p2 " non trovato") nil)
+    ((= idx1 idx2) (println "Distanza tra " p1 " e " p2 ": 0 km") nil)
+    (true
+      (if (> idx1 idx2) (swap idx1 idx2) (swap p1 p2))
+      (setq d (apply + (slice dist idx1 (- idx2 idx1))))
+      (println "Distanza tra " p1 " e " p2 ": " d " km") true)))
+
+Proviamo:
+
+(distanza "Mercurio" "Venere")
+;-> Distanza tra Venere e Mercurio: 50290000 km
+;-> true
+(distanza "Mercurio" "Mercurio")
+;-> Distanza tra Mercurio e Mercurio: 0 km
+;-> nil
+(distanza "Nettuno" "Marte")
+;-> Distanza tra Nettuno e Marte: 4273060000 km
+;-> true
+(distanza "Terra" "Plutone")
+;-> Distanza tra Plutone e Terra: 5756780000 km
+;-> 5756780000
+(distanza "Mercurio" "Nettuno")
+;-> Distanza tra Nettuno e Mercurio: 4443090000 km
+;-> true
+
+Conversione Kilometri <--> Unita Astronomiche:
+
+(define (km-AU km) (div km 149600000))
+(define (AU-km AU) (mul AU 149600000))
+
+Funzione che calcola la distanza tra due pianeti (km o AU):
+
+(define (distance p1 p2 AU)
+  (local (planets dist idx1 idx2 km)
+    (setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove" 
+                    "Saturno" "Urano" "Nettuno" "Plutone"))
+    (setq dist '(50290000 41400000 78340000 550390000 646270000
+                1448950000 1627450000 1405380000))
+    (setq idx1 (find p1 planets))
+    (setq idx2 (find p2 planets))
+    (cond
+      ((nil? idx1) nil)
+      ((nil? idx2) nil)
+      ((= idx1 idx2) 0)
+      (true
+        (if (> idx1 idx2) (swap idx1 idx2) (swap p1 p2))
+        (setq km (apply + (slice dist idx1 (- idx2 idx1))))
+        (if AU (div km 149600000) km)))))
+
+Proviamo:
+
+(distance "Mercurio" "Venere")
+;-> 50290000
+(distance "Mercurio" "Mercurio")
+;-> 0
+(distance "Nettuno" "Marte")
+;-> 4273060000
+(distance "Terra" "Plutone")
+;-> 5756780000
+(distance "Mercurio" "Nettuno")
+;-> 4443090000
+(distance "Mercurio" "Nettuno" true)
+;-> 29.69979946524064
+
+Tabella delle distanze degli otto pianeti (senza Plutone):
+
+    DA         A      (AU)       (km)
++---------+---------+-------+------------+
+| Mercury | Venus   | 0.34  | 50290000   |
++---------+---------+-------+------------+
+| Mercury | Earth   | 0.61  | 91691000   |
++---------+---------+-------+------------+
+| Mercury | Mars    | 1.14  | 170030000  |
++---------+---------+-------+------------+
+| Mercury | Jupiter | 4.82  | 720420000  |
++---------+---------+-------+------------+
+| Mercury | Saturn  | 9.14  | 1366690000 |
++---------+---------+-------+------------+
+| Mercury | Uranus  | 18.82 | 2815640000 |
++---------+---------+-------+------------+
+| Mercury | Neptune | 29.7  | 4443090000 |
++---------+---------+-------+------------+
+| Venus   | Earth   | 0.28  | 41400000   |
++---------+---------+-------+------------+
+| Venus   | Mars    | 0.8   | 119740000  |
++---------+---------+-------+------------+
+| Venus   | Jupiter | 4.48  | 670130000  |
++---------+---------+-------+------------+
+| Venus   | Saturn  | 8.8   | 1316400000 |
++---------+---------+-------+------------+
+| Venus   | Uranus  | 18.49 | 2765350000 |
++---------+---------+-------+------------+
+| Venus   | Neptune | 29.37 | 4392800000 |
++---------+---------+-------+------------+
+| Earth   | Mars    | 0.52  | 78340000   |
++---------+---------+-------+------------+
+| Earth   | Jupiter | 4.2   | 628730000  |
++---------+---------+-------+------------+
+| Earth   | Saturn  | 8.52  | 1275000000 |
++---------+---------+-------+------------+
+| Earth   | Uranus  | 18.21 | 2723950000 |
++---------+---------+-------+------------+
+| Earth   | Neptune | 29.09 | 4351400000 |
++---------+---------+-------+------------+
+| Mars    | Jupiter | 3.68  | 550390000  |
++---------+---------+-------+------------+
+| Mars    | Saturn  | 7.99  | 1196660000 |
++---------+---------+-------+------------+
+| Mars    | Uranus  | 17.69 | 2645610000 |
++---------+---------+-------+------------+
+| Mars    | Neptune | 28.56 | 4273060000 |
++---------+---------+-------+------------+
+| Jupiter | Saturn  | 4.32  | 646270000  |
++---------+---------+-------+------------+
+| Jupiter | Uranus  | 14.01 | 2095220000 |
++---------+---------+-------+------------+
+| Jupiter | Neptune | 24.89 | 3722670000 |
++---------+---------+-------+------------+
+| Saturn  | Uranus  | 9.7   | 1448950000 |
++---------+---------+-------+------------+
+| Saturn  | Neptune | 20.57 | 3076400000 |
++---------+---------+-------+------------+
+| Uranus  | Neptune | 10.88 | 1627450000 |
++---------+---------+-------+------------+
+
+(setq d8 '((Mercury Venus 0.34 50290000)
+           (Mercury Earth 0.61 91691000)
+           (Mercury Mars 1.14 170030000)
+           (Mercury Jupiter 4.82 720420000)
+           (Mercury Saturn 9.14 1366690000)
+           (Mercury Uranus 18.82 2815640000)
+           (Mercury Neptune 29.70 4443090000)
+           (Venus Earth 0.28 41400000)
+           (Venus Mars 0.8 119740000)
+           (Venus Jupiter 4.48 670130000)
+           (Venus Saturn 8.80 1316400000)
+           (Venus Uranus 18.49 2765350000)
+           (Venus Neptune 29.37 4392800000)
+           (Earth Mars 0.52 78340000)
+           (Earth Jupiter 4.2 628730000)
+           (Earth Saturn 8.52 1275000000)
+           (Earth Uranus 18.21 2723950000)
+           (Earth Neptune 29.09 4351400000)
+           (Mars Jupiter 3.68 550390000)
+           (Mars Saturn 7.99 1196660000)
+           (Mars Uranus 17.69 2645610000)
+           (Mars Neptune 28.56 4273060000)
+           (Jupiter Saturn 4.32 646270000)
+           (Jupiter Uranus 14.01 2095220000)
+           (Jupiter Neptune 24.89 3722670000)
+           (Saturn Uranus 9.7 1448950000)
+           (Saturn Neptune 20.57 3076400000)
+           (Uranus Neptune 10.88 1627450000)))
+
 ============================================================================
 

@@ -2471,6 +2471,10 @@ NOTE LIBERE 24
   Carattere medio di una stringa e stringhe equilibrate
   Righe e colonne delle matrici come numeri
   Quadrati di cifre con somma massima
+  Quanto vale la radice 0-esima di un numero?
+  Indice di Simpson
+  Generazione di somme diverse
+  Distanze tra pianeti
 
 PROBLEMI SUI DADI
 =================
