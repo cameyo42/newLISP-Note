@@ -2475,6 +2475,8 @@ NOTE LIBERE 24
   Indice di Simpson
   Generazione di somme diverse
   Distanze tra pianeti
+  Liste bilanciate
+  Stringhe con caratteri minuscoli e maiuscoli casuali
 
 PROBLEMI SUI DADI
 =================

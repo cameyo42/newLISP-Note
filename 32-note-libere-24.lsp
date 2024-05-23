@@ -2741,5 +2741,159 @@ Tabella delle distanze degli otto pianeti (senza Plutone):
            (Saturn Neptune 20.57 3076400000)
            (Uranus Neptune 10.88 1627450000)))
 
+
+----------------
+Liste bilanciate
+----------------
+
+Una lista a(1), a(2), a(3), ..., a(n) è considerata bilanciata se soddisfa uno dei seguenti criteri:
+
+1) esiste un indice 'i' per cui risulta:
+   
+   Sum(a(0) + ... + a(i)) = Sum(a(i+1) + a(i+2) + ... + a(n))
+
+2) esiste un indice 'i' per cui risulta:
+   
+   Sum(a(0) + ... + a(i-1)) = Sum(a(i+1) + a(i+2) + ... + a(n))
+
+Nel primo caso la lista può essere divisa all'indice 'i' in due parti che hanno somma uguale
+(l'elemento alla posizione 'i' appartiene alla parte sinistra della lista):
+
+  (1 4 6 5 3 2 1) --> (1 4 6) (5 3 2 1) --> 1 + 4 + 6 = 5 + 3 + 2 + 1
+
+Nel secondo caso la lista può essere divisa all'indice 'i' in due parti che hanno somma uguale
+(l'elemento alla posizione 'i' non appartiene a nessuna delle due parti della lista):
+
+  (2 5 3 4 1 2) --> (2 5) 3 (4 1 2) --> 2 + 5 = 4 + 1 + 2
+
+Criterio 1
+----------
+
+(define (balance1 lst)
+  (local (out sx dx stop)
+    (setq out '())
+    ; somma parte sinistra
+    (setq sx 0)
+    ; somma parte destra
+    (setq dx (apply + lst))
+    (setq stop nil)
+    ; ciclo per ogni elemento della lista
+    (dolist (el lst)
+      ; somma corrente parte sinistra    
+      (setq sx (+ sx el))
+      ; somma corrente parte destra    
+      (setq dx (- dx el))
+      ; somme uguali?
+      (cond ((= sx dx)
+              (setq out (list $idx el sx dx))
+              (setq stop true))
+            ((> sx dx) (setq stop true))
+      )
+    )
+    out))
+
+Proviamo:
+
+(setq lst1 '(1 4 6 5 3 2 1))
+(setq lst2 '(2 5 3 4 1 2))
+
+(balance1 lst1)
+;-> (2 6 11 11)
+
+(balance1 lst2)
+;-> ()
+
+Criterio 2
+----------
+
+(define (balance2 lst)
+  (local (out sx dx stop)
+    (setq out '())
+    ; somma parte sinistra
+    (setq sx (lst 0))
+    ; numero pivot
+    (setq pivot (lst 1))
+    ; somma parte destra
+    (setq dx (- (apply + lst) (lst 0) (lst 1)))
+    (setq stop nil)
+    (for (i 1 (- (length lst) 2) 1 stop)
+      ;(print (lst i) { } sx { } dx) (read-line)
+      ; somme uguali?
+      (cond ((= sx dx)
+              (setq out (list (lst i) i sx dx))
+              (setq stop true))
+            ((> sx dx) (setq stop true))
+      )
+      ; somma corrente parte sinistra
+      (setq sx (+ sx pivot))
+      ; nuovo numero pivot
+      (setq pivot (lst (+ i 1)))
+      ; somma corrente parte destra
+      (setq dx (- dx pivot))
+    )
+    out))
+
+Proviamo:
+
+(balance2 lst1)
+;-> ()
+
+(balance2 lst2)
+;-> (3 2 7 7)
+
+
+----------------------------------------------------
+Stringhe con caratteri minuscoli e maiuscoli casuali
+----------------------------------------------------
+
+Data una stringa con caratteri ASCII, scrivere una funzione più breve possibile per restituire la stringa con gli stessi caratteri, ma con minuscole e maiuscole distribuite in modo casuale.
+
+Per esempio:
+  stringa = "newlisp"
+  output  = "NEwLisP" (una delle tante risposte possibili)
+
+Prima versione:
+
+(define (r s)
+  (dolist (c (explode s))
+    (if (zero? (rand 2))
+        (setf (s $idx) (upper-case c))
+        (setf (s $idx) (lower-case c)))
+  ) s)
+
+113 caratteri:
+(define(r1 s)(dolist(c(explode s))(if(zero?(rand 2))(setf(s $idx)(upper-case c))(setf(s $idx)(lower-case c)))) s)
+
+Proviamo:
+
+(r1 "newlisp")
+;-> "NEwLIsp"
+(r1 "newlisp")
+;-> "NeWlisP"
+(r1 "newlisp")
+;-> "NEWlisp"
+(r1 "newlisp")
+;-> "NEwLIsp"
+
+Seconda versione:
+
+(define (r2 s)
+  (join (map (fn(x) (eval (list ('(upper-case lower-case) (rand 2)) x)))
+             (explode s))))
+
+91 caratteri:
+(define(r2 s)(join(map(fn(x)(eval(list('(upper-case lower-case)(rand 2)) x)))(explode s))))
+
+Proviamo:
+
+(r2 "newlisp")
+;-> "NeWliSP"
+(r2 "newlisp")
+;-> "NewLisp"
+(r2 "newlisp")
+;-> "NEwLIsp"
+(r2 "newlisp")
+;-> "NEwlisP"
+
 ============================================================================
 
