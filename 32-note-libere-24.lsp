@@ -2895,5 +2895,256 @@ Proviamo:
 (r2 "newlisp")
 ;-> "NEwlisP"
 
+
+---------------------------------
+Esplosioni all'interno di matrici
+---------------------------------
+
+Abbiamo una matrice NxM con valori interi.
+Facciamo esplodere una 'bomba' di potenza B nella cella (x,y).
+Restituire la matrice dopo lo scoppio della 'bomba'.
+La potenza della bomba B può essere positiva o negativa.
+
+Come funziona l'esplosione?
+1) La cella (x,y) aumenta il valore di B (o diminuisce se B è negativo)
+2) Le celle intorno a (x,y) aumentano di valore (B - 1)
+3) Le celle intorno al rettangolo 2) aumentano di valore (B - 2)
+4) Le celle intorno al rettangolo 3) aumentano di valore (B - 3)
+...
+B) Le celle intorno al rettangolo precedente aumentano di valore 1.
+
+In altre parole, dalla cella (x,y) vengono creati contorni chiusi con valori determinati da B e dal valore delle celle.
+
+Per esempio:
+
+Matrice (7x9):  0 0 0 0 0 0 0 0 0
+                0 0 0 0 0 0 0 0 0
+                0 0 0 0 0 0 0 0 0
+                0 0 0 0 0 0 0 0 0
+                0 0 0 0 0 0 0 0 0
+                0 0 0 0 0 0 0 0 0
+                0 0 0 0 0 0 0 0 0
+
+Bomba a (3,4) di valore 3:  0 0 0 0 0 0 0 0 0
+                            0 0 1 1 1 1 1 0 0
+                            0 0 1 2 2 2 1 0 0
+                            0 0 1 2 3 2 1 0 0
+                            0 0 1 2 2 2 1 0 0
+                            0 0 1 1 1 1 1 0 0
+                            0 0 0 0 0 0 0 0 0
+
+Funzione che esplode una bomba di valore B alla cella (i,j) della matrice mx:
+
+(define (bomb mx i j B)
+  (local (rows cols)
+    (setq rows (length mx))
+    (setq cols (length (mx 0)))
+    ;
+    ; Funzione che aggiorna il valore di una cella
+    (define (set-cell x y value)
+      ; se la cella individuata dalle coordinate x,y è interna alla matrice...
+      (if (and (>= x 0) (< x (length mx)) (>= y 0) (< y (length (mx 0))))
+        ;... allora aggiorna il valore della cella
+        (setf (mx x y) (+ (mx x y) value))
+      )
+    )
+    (cond 
+      ((> B 0) ; valore bomba positivo
+        ; Ciclo decrescente sulla potenza della Bomba
+        (for (k 0 (- B 1))
+          ; Creazione rettangolo di valori k
+          (for (di (- k) k)   ; righe
+            (for (dj (- k) k) ; colonne
+              (if (or (= (abs di) k) (= (abs dj) k))
+                (set-cell (+ i di) (+ j dj) (- B k))
+              )
+            )
+          )
+        ))
+      ((< B 0) ; valore bomba negativo
+        (setq B (abs B))
+        ; Ciclo decrescente sulla potenza della Bomba
+        (for (k 0 (- B 1))
+          ; Creazione rettangolo di valori k
+          (for (di (- k) k)   ; righe
+            (for (dj (- k) k) ; colonne
+              (if (or (= (abs di) k) (= (abs dj) k))
+                (set-cell (+ i di) (+ j dj) (+ (- B) k))
+              )
+            )
+          )
+        ))
+    )
+    mx))
+
+Proviamo:
+
+(setq m '((0 0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0 0)
+          (0 0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0 0)
+          (0 0 0 0 0 0 0 0 0)))
+
+(map println (bomb m 3 4 3))
+;-> (0 0 0 0 0 0 0 0 0)
+;-> (0 0 1 1 1 1 1 0 0)
+;-> (0 0 1 2 2 2 1 0 0)
+;-> (0 0 1 2 3 2 1 0 0)
+;-> (0 0 1 2 2 2 1 0 0)
+;-> (0 0 1 1 1 1 1 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+
+(map println (bomb m 0 0 9))
+;-> (9 8 7 6 5 4 3 2 1)
+;-> (8 8 7 6 5 4 3 2 1)
+;-> (7 7 7 6 5 4 3 2 1)
+;-> (6 6 6 6 5 4 3 2 1)
+;-> (5 5 5 5 5 4 3 2 1)
+;-> (4 4 4 4 4 4 3 2 1)
+;-> (3 3 3 3 3 3 3 2 1)
+
+(map println (bomb m 6 8 9))
+;-> (1 2 3 3 3 3 3 3 3)
+;-> (1 2 3 4 4 4 4 4 4)
+;-> (1 2 3 4 5 5 5 5 5)
+;-> (1 2 3 4 5 6 6 6 6)
+;-> (1 2 3 4 5 6 7 7 7)
+;-> (1 2 3 4 5 6 7 8 8)
+;-> (1 2 3 4 5 6 7 8 9)
+
+Bombe multiple:
+
+(map println (setq m (bomb m 2 2 3)))
+;-> (1 1 1 1 1 0 0 0 0)
+;-> (1 2 2 2 1 0 0 0 0)
+;-> (1 2 3 2 1 0 0 0 0)
+;-> (1 2 2 2 1 0 0 0 0)
+;-> (1 1 1 1 1 0 0 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+
+(map println (setq m (bomb m 2 2 3)))
+;-> (2 2 2 2 2 0 0 0 0)
+;-> (2 4 4 4 2 0 0 0 0)
+;-> (2 4 6 4 2 0 0 0 0)
+;-> (2 4 4 4 2 0 0 0 0)
+;-> (2 2 2 2 2 0 0 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+
+Bomba negativa:
+
+(map println (setq m (bomb m 2 2 -2)))
+;-> (2 2 2 2 2 0 0 0 0)
+;-> (2 3 3 3 2 0 0 0 0)
+;-> (2 3 4 3 2 0 0 0 0)
+;-> (2 3 3 3 2 0 0 0 0)
+;-> (2 2 2 2 2 0 0 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+
+Bomba altra cella:
+
+(map println (setq m (bomb m 3 4 3)))
+;-> (2 2 2 2 2 0 0 0 0)
+;-> (2 3 4 4 3 1 1 0 0)
+;-> (2 3 5 5 4 2 1 0 0)
+;-> (2 3 4 5 5 2 1 0 0)
+;-> (2 2 3 4 4 2 1 0 0)
+;-> (0 0 1 1 1 1 1 0 0)
+;-> (0 0 0 0 0 0 0 0 0)
+
+Bomba altra cella:
+
+(map println (setq m (bomb m 5 7 10)))
+;-> (5  6  7  7  7  5  5  5  5)
+;-> (5  7  9 10  9  7  7  6  6)
+;-> (5  7 10 11 11  9  8  7  7)
+;-> (5  7  9 11 12 10  9  8  8)
+;-> (5  6  8 10 11 10 10  9  9)
+;-> (3  4  6  7  8  9 10 10  9)
+;-> (3  4  5  6  7  8  9  9  9)
+
+Questa funzione è la base per calcolare i risultati del lancio di una bomba in un gioco del tipo "Battaglia Navale" (un pò più avanzato).
+
+
+------------------------------
+Wolfram Engine e WolframScript
+------------------------------
+
+Cos'è WolframScript?
+----------------------
+WolframScript è un'interfaccia a riga di comando per Wolfram Engine.
+Consente di eseguire il codice WolframLang da un terminale.
+Wolfram Engine viene fornito con WolframScript in bundle.
+
+Download Wolfram Engine (Free):
+https://www.wolfram.com/developer/
+
+WolframScript Reference:
+https://reference.wolfram.com/language/ref/program/wolframscript.html
+
+Tutorial
+--------
+1) Esegue WolframScript dal terminale
+
+type "wolframscript"
+
+Wolfram Language 12.2.0 Engine for Microsoft Windows (64-bit)
+Copyright 1988-2020 Wolfram Research, Inc.
+
+In[1]:= Integrate[1/x^3,x]
+
+          1  1
+Out[1]= -(-) --
+          2   2
+             x
+
+In[2]:= Expand[(x^2 + xy +y^2)^3]
+
+         6      4         2   2     3      4  2      2     2       2  2      2  4         4    6 
+Out[3]= x  + 3 x  xy + 3 x  xy  + xy  + 3 x  y  + 6 x  xy y  + 3 xy  y  + 3 x  y  + 3 xy y  + y
+
+In[3]:=
+...
+
+2) Exit WolframScript
+Type "Exit" or "Quit".
+
+3) Esegue codice WolframLang
+wolframscript -code "3+1"
+
+4) Esegue un file con codice WolframLang
+wolframscript -file test.wls
+
+5) Stampa risultato
+# run a file and print last expression
+wolframscript -file test.wls -print
+
+6) Stampa tutti i risultati
+# run a file and print all expressions
+wolframscript -file test.wls -print all
+
+7) Stampa la versione di WolframScript.
+wolframscript -version
+
+8) Fornisce aiuto per le opzioni:
+wolframscript -h
+
+WolframScript complete Reference:
+https://reference.wolfram.com/language/ref/program/wolframscript.html
+
+Vediamo alcuni semplici esempi di come usare WolframScript con newLISP:
+
+(exec {wolframscript -code "3+1"})
+;-> ("4")
+
+(exec {wolframscript -code "Integrate[1/x^3,x]"})
+;-> ("-1/2*1/x^2")
+
+(exec {wolframscript -code "Expand[(x^2 + xy +y^2)^3]"})
+;-> ("x^6 + 3*x^4*xy + 3*x^2*xy^2 + xy^3 + 3*x^4*y^2 + 6*x^2*xy*y^2 +
+;->   3*xy^2*y^2 + 3*x^2*y^4 + 3*xy*y^4 + y^6")
+
+Le possibilità di utilizzo sono innumerevoli.
+
 ============================================================================
 

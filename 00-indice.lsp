@@ -2477,6 +2477,8 @@ NOTE LIBERE 24
   Distanze tra pianeti
   Liste bilanciate
   Stringhe con caratteri minuscoli e maiuscoli casuali
+  Esplosioni all'interno di matrici
+  Wolfram Engine e WolframScript
 
 PROBLEMI SUI DADI
 =================
