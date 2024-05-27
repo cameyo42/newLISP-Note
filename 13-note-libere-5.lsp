@@ -6251,21 +6251,21 @@ Queste permutazioni si hanno quando:
 - oppure ve ne sono diversi ripetuti, a1 ripetuto k1 volte, a2 ripetuto k2 volte, a3 ripetuto k3 volte, ecc.
 Esempio:
 Ad esempio, se vogliamo costruire le permutazioni di "abcc" prendiamo le permutazioni di 4 elementi, abcd e sostituiamo c al posto di d, poi eliminiamo le permutazioni uguali:
-Per n = 4: (abcd abdc acbd acdbadbc adcb
+Per n = 4: (abcd abdc acbd acdb adbc adcb
             bacd badc bcad bcda bdac bdca
             cabd cadb cbad cbda cdab cdba
             dabc dacb dbac dbca dcab dcba)
 
 Sostituiamo:
-(abcc abcc acbc accbacbc accb
+(abcc abcc acbc accb acbc accb
  bacc bacc bcac bcca bcac bcca
  cabc cacb cbac cbca ccab ccba
  cabc cacb cbac cbca ccab ccba)
 
 Eliminiamo i doppioni:
-(abccabcc acbcaccbacbc accb
- baccbacc bcacbccabcac bcca
- cabccacbcbaccbcaccabccba
+(abcc abcc acbc accb acbc accb
+ bacc bacc bcac bcca bcac bcca
+ cabc cacb cbac cbca ccab ccba
  cabc cacb cbac cbca ccab ccba)
 
 Si procede allo stesso modo se gli oggetti ripetuti sono più di uno.
@@ -6276,10 +6276,11 @@ Funzione per il calcolo del numero di Permutazioni con ripetizione:
   PR(n, k1, k2, k3,...,km) = n! / k1!*k2!*k3!*...*km!
 
 (define (PR n rip)
-  (* (fact n) (apply * (map fact q))))
+  (/ (fact n) (apply * (map fact rip))))
 
 (PR 10 '(2 3 4))
-;-> 43545600L
+;-> 12600L
+
 
 Permutazioni cicliche - PC(n)
 -----------------------------

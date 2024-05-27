@@ -2479,6 +2479,9 @@ NOTE LIBERE 24
   Stringhe con caratteri minuscoli e maiuscoli casuali
   Esplosioni all'interno di matrici
   Wolfram Engine e WolframScript
+  Simboli di una matrice 3x3 (permutazioni con ripetitione)
+  Verificare se una lista è sottoinsieme di un'altra lista
+  Numeri binari in basi diverse
 
 PROBLEMI SUI DADI
 =================

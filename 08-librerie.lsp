@@ -3454,7 +3454,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;; @author Dexter Santucci 2018
 ;; <h3>Definitions and a function to display message boxes on Windows</h3>
 ;; This module is platform-specific (Windows)
-;; 
+;;
 ;; Before using the module it must be loaded:
 ;; <pre>
 ;; (load "C:\Program Files (x86)/newlisp/modules/message-box.lsp")
@@ -3472,23 +3472,23 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ; message box types
 (constant 'MB_ABORTRETRYIGNORE      0x00000002) ; The message box contains three push buttons: Abort, Retry, and Ignore.
-(constant 'MB_CANCELTRYCONTINUE     0x00000006) ; The message box contains three push buttons: Cancel, Try Again, Continue. Use this message box type instead of MB_ABORTRETRYIGNORE. 
-(constant 'MB_HELP                  0x00004000) ; Adds a Help button to the message box. When the user clicks the Help button or presses F1, the system sends a WM_HELP message to the owner. 
-(constant 'MB_OK                    0x00000000) ; The message box contains one push button: OK. This is the default. 
-(constant 'MB_OKCANCEL              0x00000001) ; The message box contains two push buttons: OK and Cancel. 
-(constant 'MB_RETRYCANCEL           0x00000005) ; The message box contains two push buttons: Retry and Cancel. 
-(constant 'MB_YESNO                 0x00000004) ; The message box contains two push buttons: Yes and No. 
-(constant 'MB_YESNOCANCEL           0x00000003) ; The message box contains three push buttons: Yes, No, and Cancel. 
+(constant 'MB_CANCELTRYCONTINUE     0x00000006) ; The message box contains three push buttons: Cancel, Try Again, Continue. Use this message box type instead of MB_ABORTRETRYIGNORE.
+(constant 'MB_HELP                  0x00004000) ; Adds a Help button to the message box. When the user clicks the Help button or presses F1, the system sends a WM_HELP message to the owner.
+(constant 'MB_OK                    0x00000000) ; The message box contains one push button: OK. This is the default.
+(constant 'MB_OKCANCEL              0x00000001) ; The message box contains two push buttons: OK and Cancel.
+(constant 'MB_RETRYCANCEL           0x00000005) ; The message box contains two push buttons: Retry and Cancel.
+(constant 'MB_YESNO                 0x00000004) ; The message box contains two push buttons: Yes and No.
+(constant 'MB_YESNOCANCEL           0x00000003) ; The message box contains three push buttons: Yes, No, and Cancel.
 
 ; message box icons
 (constant 'MB_ICONEXCLAMATION       0x00000030) ; An exclamation-point icon appears in the message box.
-(constant 'MB_ICONWARNING           0x00000030) ; An exclamation-point icon appears in the message box.  
-(constant 'MB_ICONINFORMATION       0x00000040) ; An icon consisting of a lowercase letter i in a circle appears in the message box.  
-(constant 'MB_ICONASTERISK          0x00000040) ; An icon consisting of a lowercase letter i in a circle appears in the message box. 
-(constant 'MB_ICONQUESTION          0x00000020) ; A question-mark icon appears in the message box. 
+(constant 'MB_ICONWARNING           0x00000030) ; An exclamation-point icon appears in the message box.
+(constant 'MB_ICONINFORMATION       0x00000040) ; An icon consisting of a lowercase letter i in a circle appears in the message box.
+(constant 'MB_ICONASTERISK          0x00000040) ; An icon consisting of a lowercase letter i in a circle appears in the message box.
+(constant 'MB_ICONQUESTION          0x00000020) ; A question-mark icon appears in the message box.
 (constant 'MB_ICONSTOP              0x00000010) ; A stop-sign icon appears in the message box.
 (constant 'MB_ICONERROR             0x00000010) ; A stop-sign icon appears in the message box.
-(constant 'MB_ICONHAND              0x00000010) ; A stop-sign icon appears in the message box. 
+(constant 'MB_ICONHAND              0x00000010) ; A stop-sign icon appears in the message box.
 
 ; message box default button specification
 (constant 'MB_DEFBUTTON1            0x00000000) ; The first button is the default button. MB_DEFBUTTON1 is the default unless another is specified.
@@ -3537,10 +3537,10 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;    (11         (win-message-box:show appname "You clicked on Continue."  win-message-box:MB_OK))
 ;;    (true       (win-message-box:show appname (append "You clicked on ID: " (string result)) win-message-box:MB_OK)))
 ;; @example
-;; (setq result (win-message-box:show "Test" "Select:" 
-;;              (+ win-message-box:MB_SETFOREGROUND 
-;;               win-message-box:MB_CANCELTRYCONTINUE 
-;;               win-message-box:MB_ICONQUESTION 
+;; (setq result (win-message-box:show "Test" "Select:"
+;;              (+ win-message-box:MB_SETFOREGROUND
+;;               win-message-box:MB_CANCELTRYCONTINUE
+;;               win-message-box:MB_ICONQUESTION
 ;;               win-message-box:MB_DEFBUTTON3))
 (define (show title message flags)
   (int (MessageBoxA 0 message title flags)))
@@ -3549,9 +3549,9 @@ https://github.com/DexterLagan/newlisp-message-box
 
 
 ========================================
- KAZIMIR-MAJORINC 
+ KAZIMIR-MAJORINC
  Instprog.default-library.lsp
- http://kazimirmajorinc.com/Default.lsp 
+ http://kazimirmajorinc.com/Default.lsp
 ========================================
 
 ;;##############################################################
@@ -3561,9 +3561,9 @@ https://github.com/DexterLagan/newlisp-message-box
 ;; Kazimir Majorinc, 2008-13
 ;;
 ;; It is library I typically load into all of my programs. It
-;; contains many unrelated groups of functions, however, I do 
+;; contains many unrelated groups of functions, however, I do
 ;; not separate them into small libraries, because I do not
-;; want to think about dependencies. 
+;; want to think about dependencies.
 ;;
 ;; If the version you look at is in HTML form, then you need to
 ;; copy all, paste in your text editor, and then save.
@@ -3572,21 +3572,21 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (set 'Default.number-of-symbols.before
      (length (symbols)))
-     
+
 (set 'Default.number-of-primitives.before
      (length (filter primitive? (map eval (symbols)))))
-     
+
 (set 'Default.number-of-functions.before
      (length (filter lambda? (map eval (symbols)))))
-     
+
 (set 'Default.number-of-macros.before
      (length (filter macro? (map eval (symbols)))))
-     
-(set 'Default.loading-time (time (begin 
+
+(set 'Default.loading-time (time (begin
 
 ;===============================================================
 ; Group:             The constants needed for protection of the
-;                    symbols. 
+;                    symbols.
 
 (set 'left-parenthesis-equivalent ".<_")
 (set 'right-parenthesis-equivalent ".>_")
@@ -3625,18 +3625,18 @@ https://github.com/DexterLagan/newlisp-message-box
        (setq L (replace "'"  L apostrophe-equivalent ))
        (setq L (replace "\"" L quotation-mark-equivalent ))
        (sym L)))
-       
+
 (set 'symbol-from-sexpr sexpr-to-symbol)
 
 ;===============================================================
 ;
-; Group:             Dynamic scope protection. 
+; Group:             Dynamic scope protection.
 ;
 ;---------------------------------------------------------------
 ;
-; Names:             set-protected1, 
+; Names:             set-protected1,
 ;                    set-protected2,
-;                    protect1, 
+;                    protect1,
 ;                    protect2
 ;
 ; Type:              functions
@@ -3645,58 +3645,58 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                    (set-protected2 <name> <definition-code> <variables-to-be-protected>)
 ;                    (protect1 <name> <vars>)
 ;                    (protect2 <name> <vars>)
-; 
+;
 ; Purpose:           Protection from accidental name clashes.
 ;                    In dynamic scope, variables can be accidentally
-;                    overwritten. Especially well known is so called 
-;                    funarg problem. Functions protect1 and protect2 
+;                    overwritten. Especially well known is so called
+;                    funarg problem. Functions protect1 and protect2
 ;                    make accidental overwritting less probable
-;                    by automatic renaming of variables, while 
+;                    by automatic renaming of variables, while
 ;                    keeping dynamic scope. Protect1 provides same
 ;                    level of safety as contexts, while Protect2,
 ;                    as far as I can see, prevent even the hardest
 ;                    funarg problems.
 
-                 
+
 (set 'set-protected1
   (lambda(function/macro-name definition-code variables)
-    (set function/macro-name 
+    (set function/macro-name
       (expand definition-code
               (map (lambda(x)
                         (list x (symbol-from-sexpr (list function/macro-name x))))
                         variables)))))
-                        
+
 (set 'protect1 (lambda(function/macro-name variables)
-                 (set-protected1 function/macro-name 
-                                 (eval function/macro-name) 
+                 (set-protected1 function/macro-name
+                                 (eval function/macro-name)
                                  variables)))
 
-((copy set-protected1) 'set-protected1 
-                        set-protected1 
-                        '(function/macro-name definition-code 
-                                              variables 
+((copy set-protected1) 'set-protected1
+                        set-protected1
+                        '(function/macro-name definition-code
+                                              variables
                                               x))
-                        
+
 ((copy protect1) 'protect1 '(function/macro-name variables))
 
-(set 'set-protected2 
+(set 'set-protected2
   (lambda(function/macro-name definition-code variables)
-    (set function/macro-name 
-      (expand 
+    (set function/macro-name
+      (expand
          (lambda-macro()
-            (let((name-and-counter (symbol-from-sexpr 
-                                      (list 'function/macro-name 
+            (let((name-and-counter (symbol-from-sexpr
+                                      (list 'function/macro-name
                                             (inc protected2-counter)))))
 
                 (set-protected1 name-and-counter
-                                definition-code 
+                                definition-code
                                 'variables)
 
-                (first (list (eval (cons name-and-counter $args)) ;apply = eval cons       
+                (first (list (eval (cons name-and-counter $args)) ;apply = eval cons
                              (dolist(i 'variables)
-                               (delete (symbol-from-sexpr 
+                               (delete (symbol-from-sexpr
                                   (list name-and-counter i))))
-                             (delete name-and-counter))))) ; no need for (dec counter)                                 
+                             (delete name-and-counter))))) ; no need for (dec counter)
 
            'function/macro-name 'definition-code 'variables))))
 
@@ -3706,7 +3706,7 @@ https://github.com/DexterLagan/newlisp-message-box
                       (eval function/macro-name)
                       variables)))
 
-(protect1 'set-protected2 '(function/macro-name definition-code 
+(protect1 'set-protected2 '(function/macro-name definition-code
                             variables counter name-and-counter i))
 
 (protect1 'protect2 '(function/macro-name variables))
@@ -3719,22 +3719,22 @@ https://github.com/DexterLagan/newlisp-message-box
 (protect1 'sexpr-from-symbol '(S))
 
 ;===============================================================
-; 
+;
 ; Group:             Protection from accidental name clashes.
 ;
-; Names:             <°original_°!>°, <°original_°!=>°,  
+; Names:             <°original_°!>°, <°original_°!=>°,
 ;                    <°original_°$>°...
-;                    
-; Explanation        These symbols point to original versions 
+;
+; Explanation        These symbols point to original versions
 ;                    of built in functions !, != etc, that might
 ;                    be needed in case original names are redefined.
 ;
 ; Example           (constant 'sin cos)
 ;                   ...
-;                   (constant 'sin 
+;                   (constant 'sin
 ;                             (eval (symbol-from-sexpr '(original sin))))
 
-(set 'original 
+(set 'original
   (lambda(x)
     (symbol-from-sexpr (list 'original x))))
 
@@ -3744,7 +3744,7 @@ https://github.com/DexterLagan/newlisp-message-box
         (set (original i) (eval i))))
 
 ;===============================================================
-; 
+;
 ; Group            Handy predicates
 ;
 ; Name             positive? negative?
@@ -3758,40 +3758,40 @@ https://github.com/DexterLagan/newlisp-message-box
 
 
 ;===============================================================
-; 
+;
 ; Group:            Protection from accidental name clashes.
 ;
 ; Name:             originalize
 ;
 ; Type:             function
-;                    
+;
 ; Explanation       replace variables in function definition with
 ;                   variables with prefix original
 ;
 ; Example           (set 'f (lambda(x y)x y))
-;                   
-;                   After 
+;
+;                   After
 ;
 ;                          (originalize 'f '(x))
 ;
-;                   f is 
+;                   f is
 ;
 ;                   (lambda (<°original·x>° y) <°original·x>° y)
-       
-(set 'originalize 
+
+(set 'originalize
   (lambda(function/macro-name variables)
     (set function/macro-name
          (expand (eval function/macro-name)
                  (map (lambda(x)(list x (original x)))
                       variables)))))
-                      
+
 ; (set 'f (lambda(x y)x y))
 ; (originalize 'f '(x))
 ; (println f)
 ;
 
 ;===============================================================
-; 
+;
 ; Group:             Supressing printing
 ;
 ; Functions:         print, println
@@ -3801,32 +3801,32 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Purpose            Supress printing in some parts of the program.
 ;                    Functions print and println are redefined to
-;                    work dependently on the value of 
+;                    work dependently on the value of
 ;                    (symbol-from-sexpr '(println supressed)) symbols
 ;
 ; Example:           (set (symbol-from-sexpr '(println supressed)) true)
 
 (set 'evaluate-all-and-return-last begin)
 
-(constant 'print 
+(constant 'print
           (lambda-macro()(eval (cons (if (or (eval (symbol-from-sexpr '(print supressed)))
                                              [print.supressed])
-                                         evaluate-all-and-return-last 
+                                         evaluate-all-and-return-last
                                          (original 'print))
                                       (args)))))
 
 (constant 'println
           (lambda-macro()(eval (cons (if (or (eval (symbol-from-sexpr '(println supressed)))
-                                             [println.supressed])     
-                                         evaluate-all-and-return-last 
+                                             [println.supressed])
+                                         evaluate-all-and-return-last
                                          (original 'println))
                                       (args)))))
-                                      
+
 ;===============================================================
 ;
 ; Group:             Expressions as graphs
 ;
-; Names:             depth, size, width 
+; Names:             depth, size, width
 ;
 ; Syntax:            (depth <L>) - length of the longest branch
 ;                    (size <L>) - number of nodes
@@ -3835,14 +3835,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                    (width <L>) - number of branches
 ;                    (size-string <L>) - size as string
 ;
-; Examples:       
+; Examples:
 
 (set 'depth (lambda(x)
                (cond ((quote? x)(+ 1 (depth (eval x))))
                      ((and (list? x) (empty? x)) 1)
                      ((list? x)(+ 1 (apply max (map depth x))))
                      (true 1))))
-                      
+
 (set 'size (lambda(x)
               (+ 1 (cond ((quote? x)(size (eval x)))
                          ((list? x)(apply + (map size x)))
@@ -3851,22 +3851,22 @@ https://github.com/DexterLagan/newlisp-message-box
               (+ 1 (cond ((quote? x)(size (eval x)))
                          ((list? x)(apply + (map size x)))
                          (true 0)))))
-                         
+
 (set 'size2 (lambda(x)
               (+ 1 (cond ((quote? x)(size (eval x)))
                          ((list? x)(+ (apply + (map size2 x)) 1))
                          (true 0)))))
-                         
+
 (set 'width (lambda(x)
               (cond ((quote? x)(width (eval x)))
                     ((list? x)(apply + (map width x)))
                     (true 1))))
-                    
+
 (set 'width-noq (lambda(x)
               (cond ;((quote? x)(width (eval x)))
                     ((list? x)(apply + (map width x)))
                     (true 1))))
-                    
+
 (set 'size-string (lambda(x)(length (string x))))
 
 ;===============================================================
@@ -3875,14 +3875,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ;---------------------------------------------------------------
 ;
-; Symbols:           set-undefined, SU 
-;                    setf-undefined, SfU 
+; Symbols:           set-undefined, SU
+;                    setf-undefined, SfU
 ;                    setq-undefined, SqU
 ;
-; Purpose:           Assignement that prevents unintentional 
-;                    redefinition of already defined symbols. 
+; Purpose:           Assignement that prevents unintentional
+;                    redefinition of already defined symbols.
 ;                    Thesw work just as normal set, setf and setq,
-;                    except they 
+;                    except they
 ;
 ; Syntax:            (set-undefined <var-expr> <val-expr>)
 ;                    (SU <var-expr> <val-expr>)
@@ -3899,14 +3899,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                    already has an value.
 ;
 ; Result:            nil
-;                    
+;
 ; Error conditions:  var-expr is already defined.
-; 
+;
 ; Example:           (set-undefined 'x 44), (SU 'x 44)
 ;
-; Limitation:        If value of some symbol is intentionally 
+; Limitation:        If value of some symbol is intentionally
 ;                    defined as nil, SU recognizes it as undefined.
-    
+
 (set 'set-undefined
      (lambda-macro(var-expr val-expr)
         (let ((evar-expr (eval var-expr)))
@@ -3914,7 +3914,7 @@ https://github.com/DexterLagan/newlisp-message-box
                    (throw-error (append (dup (char 8) 3)
                                         ": (set-undefined " (string var-expr)
                                          " ...) is already defined ")))
-             (set 'toeval (list 'set 
+             (set 'toeval (list 'set
                                 (list 'quote evar-expr)
                                 val-expr))
              (eval toeval)
@@ -3929,7 +3929,7 @@ https://github.com/DexterLagan/newlisp-message-box
                    (throw-error (append (dup (char 8) 3)
                                         ": (setf-undefined " (string var-expr)
                                          " ...) is already defined ")))
-        (set 'toeval (list 'setf 
+        (set 'toeval (list 'setf
                            var-expr
                            val-expr))
         (eval toeval)
@@ -3937,14 +3937,14 @@ https://github.com/DexterLagan/newlisp-message-box
                               ", depth=" (depth (eval evar-expr))
                               " and width=" (width (eval evar-expr)) ".\n")
         nil))
-        
+
 (set 'setq-undefined
      (lambda-macro(var-expr val-expr)
         (when (eval var-expr)
                    (throw-error (append (dup (char 8) 3)
                                         ": (setq-undefined " (string var-expr)
                                          " ...) is already defined ")))
-        (set 'toeval (list 'setq 
+        (set 'toeval (list 'setq
                            var-expr
                            val-expr))
         (eval toeval)
@@ -3957,7 +3957,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (set-undefined 'SfU setf-undefined)
 (set-undefined 'SqU setq-undefined)
 
-(set 'protect-later 
+(set 'protect-later
      '(begin (protect1 'set-undefined '(var-expr val-expr evar-expr toeval))
              (protect1 'SU '(var-expr val-expr evar-expr toeval))
              (protect1 'setf-undefined '(var-expr val-expr toeval))
@@ -3967,27 +3967,27 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;===============================================================
 ;;
-;; Group:            Long lines for printing 
+;; Group:            Long lines for printing
 ;;
 ;;--------------------------------------------------------------
 ;;
-;; Name:             ---, ===, +++, ***, ###, $$$$, ///, \\\, 
+;; Name:             ---, ===, +++, ***, ###, $$$$, ///, \\\,
 ;;                   |||, ___, ...
 ;;
 ;; Type:             Functions.
 ;;
 ;; Syntax:           (---), (===), (+++) ...
 ;;
-;; Purpose:          Long lines useful in printing. 
+;; Purpose:          Long lines useful in printing.
 ;;
-;; Result:           Line 64 characters long. 
+;; Result:           Line 64 characters long.
 ;;
 ;; Limitation:       Some characters are special and cannot
 ;;                   be used as the names of the functions
 ;;                   on the simple way. For example (###) cannot.
-;;                   For that case, more complicated expressions 
-;;                   like (eval (list (sym "###"))) are possible 
-;;                   although unpractical. 
+;;                   For that case, more complicated expressions
+;;                   like (eval (list (sym "###"))) are possible
+;;                   although unpractical.
 
 (dostring (i "-=+*#$/\|_~^%&<>@.")
   (SU (sym (dup (char i) 3))
@@ -4008,7 +4008,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Type:             Macro
 ;;
-;; Syntax:           (with-device (_ _ _) ...) 
+;; Syntax:           (with-device (_ _ _) ...)
 ;;
 ;; Works like        (device _ _ _) ... (close (device))
 ;;
@@ -4017,8 +4017,8 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (define-macro (with-device l)
    (letn((l1 (args))
-         (l2 (append (list 'begin (list 'device l)) 
-                     l1 
+         (l2 (append (list 'begin (list 'device l))
+                     l1
                      (list (quote (close (device)))))))
    ;(println l2)
    (eval l2)))
@@ -4033,16 +4033,16 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Type:             Macros.
 ;;
-;; Syntax:           (assert <expr>) 
+;; Syntax:           (assert <expr>)
 ;;                   (test <name> <expr>)
 ;;
 ;; Parameters:       <name> - string that describes test.
 ;;                   <expr> - expression that will be evaluated.
 ;;
-;; Purpose:          Testing expressions and catching errors. 
-;;                   If expression fails, report is printed. 
-;;                   In the case of assert, evaluation of the 
-;;                   program stops. 
+;; Purpose:          Testing expressions and catching errors.
+;;                   If expression fails, report is printed.
+;;                   In the case of assert, evaluation of the
+;;                   program stops.
 ;;
 ;; Result:           Result of the evaluation of expression.
 ;;
@@ -4052,23 +4052,23 @@ https://github.com/DexterLagan/newlisp-message-box
 ;; Error conditions: unknown
 ;;
 ;; Note:             assert and test are protected with functions
-;;                   protect1, see under definition of protect1. 
+;;                   protect1, see under definition of protect1.
 
 (SU '[test.counter] 0)
 (SU '[test.failed] 0)
 (SU '[test.passed] 0)
 
-(SU 'test 
+(SU 'test
      (lambda-macro(testname expr)
         (inc [test.counter])
         (if (eval expr)
             (begin (inc [test.passed])
                    (dotimes(i [test.failed])
                      (print "-"))
-                   (println "Passed " [test.counter] 
+                   (println "Passed " [test.counter]
                             ". test \"" testname "\"\n     " expr ".\n"))
             (begin (inc [test.failed])
-                   (println "\n*********\nFAILED " [test.counter] 
+                   (println "\n*********\nFAILED " [test.counter]
                             ". test \"" testname "\"\n     " expr ".\n")))))
 
 (push '(protect1-simplified 'test '(testname expr i))
@@ -4106,10 +4106,10 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Syntax:           (symbol-append <x1> <x2> ... <xm>)
 ;;
-;; Parameters:       <x1>, ... <xm> - expressions evaluating to 
+;; Parameters:       <x1>, ... <xm> - expressions evaluating to
 ;;                   strings or symbols.
 ;;
-;; Result:           symbol or string resulting from concatenation 
+;; Result:           symbol or string resulting from concatenation
 ;;                   of <x1> <x2> ... <xm>
 ;;
 ;; Side effects:     No known side effects.
@@ -4131,22 +4131,22 @@ https://github.com/DexterLagan/newlisp-message-box
 (SU '+$ string-append)
 
     (test "+$" (= (+$  'a "b" 34) "ab34"))
-    
+
 (SU 'symbol-append (lambda()(sym (apply 'append (map string $args)))))
 (SU '+sym symbol-append)
-                 
-    (test "+sym" (= (+sym 'a "b" 34) 'ab34))                 
+
+    (test "+sym" (= (+sym 'a "b" 34) 'ab34))
 
 (SU '-sym (lambda(x y)
-             (when (> (length (args)) 0) 
+             (when (> (length (args)) 0)
                 (throw-error "-sym for 3+ arguments not implemented yet."))
-             (if (ends-with (string x) (string y)) 
+             (if (ends-with (string x) (string y))
                  (sym (chop (string x) (length (string y))))
                  (throw-error (append "(-sym " x " " y "): x doesn't end with y")))))
-                 
+
     (test "-sym1" (= (-sym 'a1 "") 'a1))
     (test "-sym2" (= (-sym 'a1 1) 'a))
-    (test "-sym3" (= (-sym 'a12 12) 'a))             
+    (test "-sym3" (= (-sym 'a12 12) 'a))
 
 (SU 'ends-with-sym (lambda(x y)
                     (ends-with (string x) (string y))))
@@ -4158,22 +4158,22 @@ https://github.com/DexterLagan/newlisp-message-box
    (lambda(safename unsafename vars)
       (inc [protect1.counter])
       (dolist(i vars)
-          (set (+sym "[" safename "." i "]") (eval i)))      
-      (set safename 
-           (eval (list 'letex 
+          (set (+sym "[" safename "." i "]") (eval i)))
+      (set safename
+           (eval (list 'letex
                        (map (lambda(x)
                                (expand '(x (+sym "[" safename "." 'x "]"))
                                        'x))
                             vars)
                        (eval unsafename))))))
-                                             
+
 (SU 'protect1-simplified-with-original-values
    (lambda(safename unsafename vars)
       (inc [protect1.counter])
       (dolist(i vars)
           (set (+sym "[" safename "." i "]") (eval i)))
-      (set safename 
-           (eval (list 'letex 
+      (set safename
+           (eval (list 'letex
                        (map (lambda(x)
                                (expand '(x (+sym "[" safename "." 'x "]"))
                                        'x))
@@ -4182,7 +4182,7 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;;==============================================================
 ;;
-;; Group:              Debug support. 
+;; Group:              Debug support.
 ;;
 ;; Names:              debug-wrap, debug-unwrap
 ;;
@@ -4190,12 +4190,12 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Syntax:             (debug-wrap <name>)
 ;;                     (debug-unwrap <name>)
-;;                     
+;;
 ;;                     where <name> is name of the primitive,
-;;                     function or macro. 
+;;                     function or macro.
 
 (SU 'pretty-string (lambda(L)
-  (if (not (list? L)) 
+  (if (not (list? L))
       (string L)
       (let ((result "(")
             (blanks (dup " " (- (depth L) 1))))
@@ -4205,12 +4205,12 @@ https://github.com/DexterLagan/newlisp-message-box
                   (extend result (string i)))
               (when (!= (+ $idx 1) (length L)) (extend result blanks)))
             (extend result ")")))))
-            
+
 (protect1 'pretty-string '(L result i blanks))
 
 ;;==============================================================
 ;;
-;; Group:              Debug support. 
+;; Group:              Debug support.
 ;;
 ;; Names:              debug-wrap, debug-unwrap
 ;;
@@ -4218,21 +4218,21 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Syntax:             (debug-wrap <name>)
 ;;                     (debug-unwrap <name>)
-;;                     
+;;
 ;;                     where <name> is name of the primitive,
-;;                     function or macro. 
+;;                     function or macro.
 
 ; usage: (debug-wrap <function-name|macro-name|primitive-name>)
 ;        (debug-unwrap <function-name|macro-name|primitive-name>)
-;  
+;
 ; Example:
-; 
+;
 ; (debug-wrap fibo)
 ; (fibo 4)
-; 
-; After that, (fibo 4) beside evaluating result, also produces 
+;
+; After that, (fibo 4) beside evaluating result, also produces
 ; following output in the properly indented s-expr form:
-; 
+;
 ; (fibo (in 4)
 ;       (fibo (in 3)
 ;             (fibo (in 2)
@@ -4243,14 +4243,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ;       (fibo (in 2)
 ;             (out 1)); t=1, mem=0, sym=0
 ;       (out 3)); t=3, mem=0, sym=0
-; 
-; If you have bug in some of your function, just produce output 
-; on this way, and if needed copy output into some editor that 
-; recognize parentheses (I prefer PLT Scheme) and find where error 
-; occured. You can "debug-wrap" and later "debug-unwrap" many 
-; function in the same time, output will be properly nested. 
-; If your bugs are complicated and truely logical, this approach 
-; beats IDE, because you'll have complete evaluation "on paper" 
+;
+; If you have bug in some of your function, just produce output
+; on this way, and if needed copy output into some editor that
+; recognize parentheses (I prefer PLT Scheme) and find where error
+; occured. You can "debug-wrap" and later "debug-unwrap" many
+; function in the same time, output will be properly nested.
+; If your bugs are complicated and truely logical, this approach
+; beats IDE, because you'll have complete evaluation "on paper"
 ; instead "in time."
 ;
 
@@ -4258,17 +4258,17 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (SU 'debug-wrap
   (lambda-macro();`function-name)
-   (dolist(`function-name (args)) 
+   (dolist(`function-name (args))
     (letn ((function-name (eval `function-name))
            (indent-step (+ (length (string `function-name)) 2))
            (in-line (append "(" (string `function-name) " " ))
            (is-function (lambda? function-name)))
        ((if (protected? function-name) set constant)
-        `function-name 
-        (expand 
+        `function-name
+        (expand
            (lambda-macro()
              function-name
-             (local (t 
+             (local (t
                      result
                      used-memory-before
                      used-memory-after
@@ -4278,23 +4278,23 @@ https://github.com/DexterLagan/newlisp-message-box
                      largs
                      eargs
                      indent2)
-                     
+
                 (set 'largs (args))
                 (when is-function (set 'eargs (map eval largs)))
-                
-;                 (println (dup " " indent) 
+
+;                 (println (dup " " indent)
 ;                          in-line
-;                          
+;
 ;                          (cons 'in (if is-function (map string eargs)
 ;                                                    (map string largs )))
 ;                           ;"; is-function=" is-function "; largs=" largs "; eargs=" eargs
 ;                           )
                   (pretty-print 50000)
-                  (setf indent2 (+ (apply max 
-                                      (map length 
+                  (setf indent2 (+ (apply max
+                                      (map length
                                            (map string
                                                 (if is-function eargs largs)))) 2))
-                                       
+
                   (print (dup " " indent) in-line "(in ")
                   (println (dup " " indent2) " ; " (length (if is-function eargs largs)) ". args ")
                   (dolist (t2 (if is-function eargs largs))
@@ -4303,37 +4303,37 @@ https://github.com/DexterLagan/newlisp-message-box
                                (string t2)
                                (if (string? t2) "\"" "")
                                (if (symbol? t2)
-                                     (append 
-                                       (dup " " (- indent2 (length (string t2)))) 
+                                     (append
+                                       (dup " " (- indent2 (length (string t2))))
                                        " ; symbol")
                                        "")))
                   (println (dup " " (+ indent (length in-line))) ")")
 ;
-                                                   
+
                 (inc indent indent-step)
-                (set 'to-be-evaluated 
-                     (cons function-name 
+                (set 'to-be-evaluated
+                     (cons function-name
                            (if is-function (map quote eargs)
                                            largs)))
                 (set 'symbols-before (length (symbols)))
                 (set 'used-memory-before (sys-info 0))
-                                           
+
                 (set 't (time (set 'result (eval to-be-evaluated))))
-                                                
+
                 (set 'used-memory-after (sys-info 0))
                 (set 'symbols-after (length (symbols)))
-                                         
+
                 (print (dup " " indent)
                          "(out " (if (string? result)
                                      (append "\"" result "\"")
                                      (string result))
                          "))")
-                
+
                 (print "; t=" t)
                 (print "; mem=" (- used-memory-after used-memory-before 2))
                 (print "; syms=" (- symbols-after symbols-before))
                 (println)
-                
+
                 (dec indent indent-step)
                 result))
                'function-name
@@ -4344,10 +4344,10 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ; pažnja: debug-wrap ne radi za funkcije koje ne primaju argumente.
 
-(originalize 'debug-wrap '(+ - > append args cons constant 
-                          dec dup eval expand if inc lambda? 
-                          length length letn local map print println 
-                          protected? quote set string string? symbols 
+(originalize 'debug-wrap '(+ - > append args cons constant
+                          dec dup eval expand if inc lambda?
+                          length length letn local map print println
+                          protected? quote set string string? symbols
                           sys-info time when))
 
 '(println debug-wrap)
@@ -4356,7 +4356,7 @@ https://github.com/DexterLagan/newlisp-message-box
                          function-name
                          indent
                          indent2
-                         indent-step 
+                         indent-step
                          in-line
                          is-function
                          t
@@ -4369,12 +4369,12 @@ https://github.com/DexterLagan/newlisp-message-box
                          to-be-evaluated
                          largs
                          eargs))
-       
+
 (SU 'debug-unwrap
      (lambda-macro()
        (letn ((`function-name (first (args)))
               (function-name (eval `function-name)))
-             ((if (protected? function-name) set constant) 
+             ((if (protected? function-name) set constant)
                   `function-name
                   (nth 1 function-name)))))
 
@@ -4386,56 +4386,56 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;;--------------------------------------------------------------
 ;;
-;; Name:             assoc-list, 
+;; Name:             assoc-list,
 ;;                   let-from-assoc-list, letn-from-assoc-list
 ;;                   setf-from-assoc-list, ath, assoc-values
-;;                   modify-assoc-list 
+;;                   modify-assoc-list
 
 (SU 'assoc-list
   (lambda()
      (map (lambda(x)(list x (eval x))) (args))))
-     
+
      (protect1 'assoc-list '(x))
-     
+
      (test "assoc-list" (= (let((x1 1)(x2 2)(x3 3))
                               (assoc-list 'x1 'x2 'x3))
                            '((x1 1)(x2 2)(x3 3))))
 
 ;;--------------------------------------------------------------
-(SU 'let-from-assoc-list 
+(SU 'let-from-assoc-list
     (lambda(L)
        (eval (append (list 'let-from-assoc-list L) (args)))))
-       
+
      (protect1 'let-assoc-list '(L))
-;;--------------------------------------------------------------  
-(SU 'letn-from-assoc-list 
+;;--------------------------------------------------------------
+(SU 'letn-from-assoc-list
     (lambda(L)
       (eval (append (list 'letn-from-assoc-list L)) (args))))
-      
+
      (protect1 'letn-from-assoc-list '(L))
-;;--------------------------------------------------------------  
-(SU 'setf-from-assoc-list 
+;;--------------------------------------------------------------
+(SU 'setf-from-assoc-list
     (lambda(L)
        (eval (cons 'setf (apply append L)))))
-       
+
      (protect1 'setf-from-assoc-list  '(L))
-                           
-     (test "setf-from-assoc-list" 
+
+     (test "setf-from-assoc-list"
            (= (begin (setf-from-assoc-list '((x1 44)(x2 55)(x3 66)))
                      (+ x1 x2 x3))
                165))
-;;--------------------------------------------------------------                           
+;;--------------------------------------------------------------
 (SU 'aval
      (lambda(a b)(last (assoc a b))))
-     
+
      (protect1 'aval '(a b))
-;;--------------------------------------------------------------          
+;;--------------------------------------------------------------
 (SU 'avals
      (lambda(a b)(rest (assoc a b))))
-     
+
      (protect1 'avals '(a b))
 ;;--------------------------------------------------------------
-(SU 'setfa1 
+(SU 'setfa1
     (lambda(a b)
       (local(flag result)
          (setf result (map (lambda(x)(if (= (first x) a)
@@ -4448,13 +4448,13 @@ https://github.com/DexterLagan/newlisp-message-box
 
      (protect1 'setfa1 '(a b flag result))
 
-(test "setfa1" 
+(test "setfa1"
       (= (begin (setf L '((x1 44)(x2 55)(x3 56)))
                 (setf x2 57)
                 (setf L (setfa1 'x2 L))
                 L)
         '((x1 44)(x2 57)(x3 56))))
-        
+
 (SU 'setfa2
     (lambda(a b)
       (local(flag result)
@@ -4468,40 +4468,40 @@ https://github.com/DexterLagan/newlisp-message-box
 
      (protect1 'setfa2 '(a b flag result))
 
-(test "setfa2" 
+(test "setfa2"
       (= (begin (setf L '((x1 44)(x2 55)(x3 56)))
                 (setf L (setfa2 '(x2 57) L))
                 L)
         '((x1 44)(x2 57)(x3 56))))
 
-(SU 'setfa 
+(SU 'setfa
     (lambda-macro(a L b)
       ;(println L a b)
       (local(flag result)
         (set L (map(lambda(x)(println x a)
                              (if (= (first x) a)
-                                
+
                                   (begin (setf flag true)
                                          (list a (eval b)))
                                   x))
                     (eval L)))
         (when (not flag) (push (list a (eval b)) (eval L) -1)))
         L))
-        
-(SU 'seta 
+
+(SU 'seta
     (lambda(a L b)
       ;(println L a b)
       (local(flag result)
         (set L (map(lambda(x);(println x a)
                              (if (= (first x) a)
-                                
+
                                   (begin (setf flag true)
                                          (list a b))
                                   x))
                     (eval L)))
         (when (not flag) (push (list a b) (eval L) -1)))
         L))
-  
+
 
 ;---------------------------------------------------------------
 ;
@@ -4511,7 +4511,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (define (recursive-map f x)
   (if (atom? x) (f x)
       (map (lambda(y)(recursive-map f y)) x)))
-      
+
 (protect1 'recursive-map '(f x y))
 
 '(test "recursive-map" (= (recursive-map (lambda(x)(* x x))
@@ -4526,14 +4526,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;
 
-(set 'sublists 
+(set 'sublists
    (lambda(L)
      (if (zero? (length L))
          '(())
          (let ((s (sublists (chop L))))
               (append s (map (lambda(x)(append x (list (last L))))
                              s))))))
-                             
+
 (protect1 'sublists '(L s x))
 
 ;;==============================================================
@@ -4560,7 +4560,7 @@ https://github.com/DexterLagan/newlisp-message-box
                     (setq n1 (+ n1 n2))
                     (setq n2 (+ n1 n2)))
                   (if (even? n) n2 n1))))
-            
+
 (protect1 'fibo2 '(n n1 n2))
 
 
@@ -4582,46 +4582,46 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                    (list-to-single-expression '(expr1 ... exprn))
 ;                              -> (begin expr1 ... exprn)
 
-(SU 'list-to-single-expression 
+(SU 'list-to-single-expression
      (lambda(L)
        (if (= (length L) 1)
            (first L)
            (cons 'begin L))))
-           
+
 (SU 'LSE list-to-single-expression)
 (protect1 'list-to-single-expression '(L))
 (protect1 'LSE '(L))
 
 ;;==============================================================
-;;       
+;;
 ;; Group:            Identity function and macro.
 ;;
 ;;--------------------------------------------------------------
-;;             
+;;
 ;; Name:             identity-function, IF
 ;;                   identity-macro, IM
 ;;
 ;; Type:             Function and macro, respectively.
 ;;
 ;; Purpose:          Identity and identity-macro return their
-;;                   arguments, evaluated and non-evaluated 
+;;                   arguments, evaluated and non-evaluated
 ;;                   respectively. Identity is very important
 ;;                   from mathematical point of view.
 ;;
-;; Syntax:           (identity-function <expr>), 
+;; Syntax:           (identity-function <expr>),
 ;;                   (identity-macro <expr>)
 ;;                   (IF <expr>)
 ;;                   (IM <expr>)
 ;;
 ;; Parameters:       <expr> - any evaluable expression
-;; 
+;;
 ;; Result:           Evaluated and unevaluated <expr> respectively.
 ;;
 ;; Side effects:     no
 ;;
 ;; Error condition:  These functions and macros do not cause
 ;;                   error on their own.
-;; 
+;;
 ;; Example:          (set 'x '(+ 2 3))
 ;;                   (identity-function x) => (+ 2 3)
 ;;                   (identity-macro x) => x
@@ -4649,20 +4649,20 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Name:            =$, ->$
 ;;
-;; Type:            macro 
+;; Type:            macro
 ;;
 ;; Syntax:          (=$ <expr>)
 ;;                  (->$ <expr>)
 ;;
 ;; Parameters:      <expr> - any s-expression
 ;;
-;; Result:          string containing expr, = and result of 
+;; Result:          string containing expr, = and result of
 ;;                  evaluation of the expression.
 ;;
 ;; Side effects:    expr is evaluated
 ;;
 ;; Error condition: if evaluation of expr causes error
-;; 
+;;
 ;; Examples:        (=$ (sin 1)) -> "(sin 1)=0.8414709848;"
 ;;                  (->$ (sin 4)) -> "(->(sin 4) -0.7568024953)"
 
@@ -4689,7 +4689,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;;--------------------------------------------------------------
 ;;
-;; Name:            print=, println=, print->, println-> 
+;; Name:            print=, println=, print->, println->
 ;;
 ;; Type:            macros.
 ;;
@@ -4700,7 +4700,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;; Result:          Result of evaluation of (=$ exprn) or (->$ exprn)
 ;;
 
-(SU 'print= 
+(SU 'print=
     (lambda-macro()
       (doargs(i)
          (print i)
@@ -4714,8 +4714,8 @@ https://github.com/DexterLagan/newlisp-message-box
                    (println)))
 
 (SU 'print-> (lambda-macro()
-                (eval (cons 'print 
-                            (map (lambda()(list '->$ 
+                (eval (cons 'print
+                            (map (lambda()(list '->$
                                                 (first (args))))
                                  (args))))))
 
@@ -4735,7 +4735,7 @@ https://github.com/DexterLagan/newlisp-message-box
                  (underline (string L) "-")
                  (dolist(i (eval L))
                       (println (+ $idx 1) ". " i))))
-                      
+
 (SU 'PL printlist)
 (protect1 'printlist '(i L))
 (protect1 'PL '(i L))
@@ -4743,7 +4743,7 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;;==============================================================
 ;;
-;; Group:            Booleans constant and predicate. 
+;; Group:            Booleans constant and predicate.
 ;;
 ;;--------------------------------------------------------------
 ;;
@@ -4788,7 +4788,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (SU '<-> (lambda(a b)(or (and a b)
                          (and (not a) (not b)))))
 (protect1 '<-> '(a b))
-                         
+
 (SU '-><- (lambda(a b)(not (<-> a b))))
 (SU 'xor -><-)
 
@@ -4811,7 +4811,7 @@ https://github.com/DexterLagan/newlisp-message-box
           (test "-><- 2" (= (-><- nil  true) true))
           (test "-><- 3" (= (-><- true nil)  true))
           (test "-><- 4" (= (-><- true true) nil))
-          
+
 ;;==============================================================
 ;;
 ;; Group:            Operators of propositional calculus.
@@ -4822,14 +4822,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Type              Functions.
 ;;
-;; Purpose:          Returns equivalent formula in other form. 
+;; Purpose:          Returns equivalent formula in other form.
 
-(SU 'infix<->prefix 
+(SU 'infix<->prefix
   (lambda(L)
     (cond ((not (list? L)) L)
           ((= (length L) 2) (map infix<->prefix L))
           ((= (length L) 3) (let((L1 (map infix<->prefix L)))
-                                (list (nth 1 L1) (nth 0 L1) (nth 2 L1))))))) 
+                                (list (nth 1 L1) (nth 0 L1) (nth 2 L1)))))))
 
 (SU 'prefix<->infix infix<->prefix)
 (protect1 'infix<->prefix '(L))
@@ -4848,10 +4848,10 @@ https://github.com/DexterLagan/newlisp-message-box
     (lambda(x)(find x '(-> <- or and not yest <-> -><- nor xor nand))))
 
     (protect1 'propositional-operator? '(x))
-    
+
     (test "propositional-operator?" (propositional-operator? '->))
 
-(SU 'prefix-variables-in-formula 
+(SU 'prefix-variables-in-formula
       (lambda(p theorem)
         (recursive-map (lambda(x)(if (propositional-operator? x)
                                      x
@@ -4860,34 +4860,34 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (protect1 'prefix-variables-in-formula '(p theorem x))
 
-(test "prefix-variables-in-formula" 
+(test "prefix-variables-in-formula"
       (= (prefix-variables-in-formula 'p '(-> (-> A B) P))
          '(-> (-> pA pB) pP)))
-         
-(SU 'suffix-variables-in-formula 
+
+(SU 'suffix-variables-in-formula
       (lambda(p theorem)
         (recursive-map (lambda(x)(if (propositional-operator? x)
                                      x
                                      (sym (string x p))))
                        theorem)))
-                       
+
 (protect1 'suffix-variables-in-formula '(p theorem x))
 
-(test "prefix-variables-in-formula" 
+(test "prefix-variables-in-formula"
       (= (suffix-variables-in-formula 'p '(-> (-> A B) P))
          '(-> (-> Ap Bp) Pp)))
 
 ;;==============================================================
-;;       
+;;
 ;; Group:            Aliases for arithmetic operations.
-;;             
+;;
 ;; Name:             -. +. *. /. %.
 ;;
 ;; Type:             Primitives.
 ;;
 ;; Purpose:          Shorter names for add, sub, mul, div, mod
-;; 
-;; Example:          (*. (-. a b) (+. a b)) instead of 
+;;
+;; Example:          (*. (-. a b) (+. a b)) instead of
 ;;                   (mul (sub a b) (add a b))
 
 (SU '-. sub)
@@ -4898,29 +4898,29 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;;--------------------------------------------------------------
 ;; Group:            Aliases for first and rest
-;;                   
+;;
 ;; Purpose:          more descriptive names of the functions
 
 (SU 'operator first)
 (SU 'arguments rest)
 
 ;;==============================================================
-;;       
+;;
 ;; Group:            Set operations.
 ;;
 ;;--------------------------------------------------------------
-;; Name:             -S2, +S2, *S2, 
+;; Name:             -S2, +S2, *S2,
 ;;                   -S, +S, *S
 ;;
 ;; Type:             Primitives and functions
 ;;
-;; Purpose:          -S2, and *S2 are shorter names for built in 
+;; Purpose:          -S2, and *S2 are shorter names for built in
 ;;                   difference and intersection, +S2 is equivalent
 ;;                   union operations. -S, +S and *S are not binary,
 ;;                   but n-ary operators, n>=0, and in the case of +
-;;                   n can be equal to 0. 
+;;                   n can be equal to 0.
 
-(SU '-S2 difference) ; 
+(SU '-S2 difference) ;
 (SU '*S2 intersect)
 (SU '+S2 (lambda()((if (and (= (length $args) 3)
                           ($args 3))
@@ -4964,35 +4964,35 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Name:              hset
 ;
-; Syntax:            (hset operator) 
+; Syntax:            (hset operator)
 ;
-; Purpose:           hset generates the functions that modify 
-;                    values of the symbols. Names of these 
+; Purpose:           hset generates the functions that modify
+;                    values of the symbols. Names of these
 ;                    functions are results of appending "setq"
 ;                    and function names.
 ;
 ; Examples:          (hset '+) generates the functions setq+, setf
-;                    and set+ such that if x is 3, after (setq+ x 7), 
-;                    (setf+ x 7) and (set+ 'x 7) the value of x is 10. 
+;                    and set+ such that if x is 3, after (setq+ x 7),
+;                    (setf+ x 7) and (set+ 'x 7) the value of x is 10.
 ;
-;                    (hset 'append) generates the function setqappend 
-;                    such that if value of z is "hihi" then after 
-;                    (setqappend z "ho") the value of z is "hihiho". 
+;                    (hset 'append) generates the function setqappend
+;                    such that if value of z is "hihi" then after
+;                    (setqappend z "ho") the value of z is "hihiho".
 
-(SU 'hset 
+(SU 'hset
     (lambda()
        (letn ((old-function-name (first (args))))
              (set (sym (append "setq"(string old-function-name)))
                   (expand '(lambda-macro()
-                               (set (first (args)) 
-                                    (apply old-function-name 
-                                           (map eval (args))))) 
+                               (set (first (args))
+                                    (apply old-function-name
+                                           (map eval (args)))))
                                 'old-function-name))
 
              (set (sym (append "set" (string old-function-name)))
                   (expand '(lambda-macro()
                                 (set (eval (first (args)))
-                                     (apply old-function-name 
+                                     (apply old-function-name
                                            (map eval
                                                (cons (eval (first (args)))
                                                      (rest (args)))))))
@@ -5002,17 +5002,17 @@ https://github.com/DexterLagan/newlisp-message-box
                   (expand '(lambda-macro()
                                (eval
                                  (letex((x (first (args))))
-                                    '(setf x (apply old-function-name 
+                                    '(setf x (apply old-function-name
                                                    (map eval (args)))))))
                             'old-function-name)))))
 
-(protect1 'hset 
+(protect1 'hset
      '(x old-function-name))
 
-(dolist(i '( + - * / % 
-             +. -. *. /. %. 
+(dolist(i '( + - * / %
+             +. -. *. /. %.
              add mul sub div mod
-             append max min and or 
+             append max min and or
              nand nor -> <-> -><-
              +S -S *S
              +S2 -S2 *S2))
@@ -5023,21 +5023,21 @@ https://github.com/DexterLagan/newlisp-message-box
                             (= (L 3) 2)))
 
 ;;===============================================================
-;; 
+;;
 ;; Group:          Apostrophe
 ;;
-;; Name:           apostrophe 
-;; 
+;; Name:           apostrophe
+;;
 ;; Example         (apostrophe (list '+ 1 2)) => '(+ 1 2)
 
-(set 'apostrophe 
+(set 'apostrophe
      (lambda(x)(expand ''x 'x)))
 
 (protect1 'apostrophe '(x))
 
 ;;==============================================================
 ;; Group:          Manipulating second element of list
-;; 
+;;
 ;; Purpose:        Mostly internal purposes, switching from let
 ;;                 to met, using result of unification in construction
 ;;                 of let expressions
@@ -5045,11 +5045,11 @@ https://github.com/DexterLagan/newlisp-message-box
 (set 'apostrophe-second
      (lambda(x)
        (list (first x) (apostrophe (last x)))))
-       
+
 (set 'quote-second
      (lambda(x)
        (list (first x) (list 'quote (last x)))))
-       
+
 (set 'eval-second
      (lambda(x)
        (list (first x) (eval (last x)))))
@@ -5072,12 +5072,12 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Purpose:          Well known property.
 ;;
-;; Result:           true or false. 
+;; Result:           true or false.
 ;;
 ;; Side effects:     There is no side effects.
 ;;
 ;; Error conditions: No known error conditions.
-;; 
+;;
 ;; Example:          (even? 3) => nil, (odd? 3) => true
 ;;
 
@@ -5085,11 +5085,11 @@ https://github.com/DexterLagan/newlisp-message-box
 ;     (lambda(n)(and (integer? n)
 ;                     (= (% n 2) 0))))
 ; (protect1 'even? '(n))
-;                     
+;
 ; (SU 'odd?
 ;     (lambda(n)(and (integer? n)
 ;                     (not (= (% n 2) 0)))))
-;                     
+;
 ; (protect1 'odd? '(n))
 ;
 
@@ -5113,9 +5113,9 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (SU 'Collatz-list (lambda(x)
              (cond ((= x 1) (list 1))
-                   (true (append (list x) 
+                   (true (append (list x)
                                  (Collatz (Collatz-next x)))))))
-                                  
+
 (set 'Collatz-list (lambda(x)
                (let((result (list x)))
                    (while(!= x 1)
@@ -5129,7 +5129,7 @@ https://github.com/DexterLagan/newlisp-message-box
                           (setf x (Collatz-next x))
                           (inc result))
                         result)))
-                        
+
 (protect1 'Collatz-list '(x))
 (protect1 'Collatz-next '(x))
 (protect1 'Collatz-count '(x))
@@ -5147,18 +5147,18 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Type:             Functions.
 ;;
-;; Syntax:           (prime? expr) 
+;; Syntax:           (prime? expr)
 ;;                   (composite? expr)
 ;;
 ;; Parameters:       Expr - expression that evaluates to integer.
 ;;
-;; Result:           true or false. 
+;; Result:           true or false.
 ;;
 ;; Side effects:     There is no side effects.
 ;;
 ;; Error conditions: No known error conditions.
-;; 
-;; Example:          (prime? 577) => true; 
+;;
+;; Example:          (prime? 577) => true;
 ;;                   (composite? 577) => false
 ;;
 
@@ -5166,16 +5166,16 @@ https://github.com/DexterLagan/newlisp-message-box
 (protect1 'divisible? '(n i))
 
 (SU 'prime? (lambda(n)
-               (if (= n 1) 
-                   nil 
+               (if (= n 1)
+                   nil
                    (let((is_composite nil))
                        (for(i 2 (int (sqrt n)) 2 is_composite)
                            ;(println i)
                            (when (divisible? n i)
                                  (set 'is_composite true)))
                        (not is_composite)))))
-                
-(SU 'composite? 
+
+(SU 'composite?
     (lambda(n)(if (= n 1)
                   nil
                   (not (prime? n)))))
@@ -5183,12 +5183,12 @@ https://github.com/DexterLagan/newlisp-message-box
 (protect1 'prime? '(n i))
 (protect1 'composite? '(n))
 
-(SU  'power-of-two? 
+(SU  'power-of-two?
   (lambda(i)
      (cond((= i 1) true)
           ((odd? i) nil)
           ((even? i) (power-of-two? (/ i 2))))))
-          
+
 (protect1 'power-of-two? '(i))
 
 (test "divisible? 1" (divisible? 343 7))
@@ -5221,11 +5221,11 @@ https://github.com/DexterLagan/newlisp-message-box
                               (if (divisible? n i)
                                   (set+ 'result (+ i (/ n i)))))
                           result)))
-            
+
 (protect1 'sum-dividers '(n result i))
-            
+
 (test "sum-dividers" (= (sum-dividers 12) 16))
-       
+
 ;;==============================================================
 ;;
 ;; Group:            Integer functions
@@ -5249,7 +5249,7 @@ https://github.com/DexterLagan/newlisp-message-box
                           (if (divisible? n i)
                               (set+ 'result (+ i (/ n i)))))
                       (= result n))))
-  
+
 (protect1 'perfect? '(n result i))
 
 (test "perfect 1" (perfect? 6))
@@ -5285,40 +5285,40 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Side effects:     No known side effects
 ;;
-;; Error conditions: Errors happen if parameters are not of the 
+;; Error conditions: Errors happen if parameters are not of the
 ;;                   described type or functions are not applicable
-;;                   on elements. 
-;; 
-;; Examples:      
-;; 
+;;                   on elements.
+;;
+;; Examples:
+;;
 ;; Tested expression: (map 'sin '(1 2 3))
 ;; Result:            (0.8414709848 0.9092974268 0.1411200081)
-;; 
+;;
 ;; Tested expression: (pam '(sin cos) 3)
 ;; Result:            (0.1411200081 -0.9899924966)
 ;;
 ;; Tested expression: (pamq '(sin cos) 3)
 ;; Result:            ((sin 3) (cos 3))
-;; 
+;;
 ;; Tested expression: (mapq 'sin '(1 2 3))
 ;; Result:            ((sin 1) (sin 2) (sin 3))
 ;;
 
 (SU 'pamq (lambda(L a)
           (map (lambda(li)(list li a)) L)))
-          
+
 (protect1 'pamq '(L li a))
 
 (SU 'pam (lambda(L a)
          (map (lambda(fi)(eval (list fi a))) L)))
-         
+
 (protect1 'pam '(L fi a))
-          
+
 (SU 'mapq (lambda(f L)
           (map (lambda(li)(list f li)) L)))
-          
+
 (protect1 'pam '(f L li))
-           
+
 (test "map" (= (map (lambda(x)(* x x)) '(1 2 3)) '(1 4 9)))
 (test "pam" (= (pam '((lambda(x)(+ 1 x)) (lambda(x)(* x 2))) 3)
                '(4 6)))
@@ -5332,7 +5332,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Name:            maplist
 ;
 ; Type:            macro
-; 
+;
 ; Example:         (maplist '(a b c) '(1 2 3) '("x" "y" "z")))
 ;                  ==> ((a 1 "x") (b 2 "y") (c 3 "z"))
 
@@ -5343,23 +5343,23 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (test "maplist" (= (maplist '(a b c) '(1 2 3) '("x" "y" "z"))
                    '((a 1 "x") (b 2 "y") (c 3 "z"))))
-                   
+
 ;===============================================================
 ;
 ; Group:          map relatives
-; 
+;
 ; name:           appendall
-; 
+;
 ; Type:           function
 ;
 ; Syntax          (appendall f b)
 ;
 ; Result:         returns result of appending (f b1), ... (f bn)
-;                 where b = (b1 ... bn) 
+;                 where b = (b1 ... bn)
 ;
-; Example:        (appendall (lambda(x)(list x (sqrt x x))) 
-;                            '(1 4 9 16 25)) 
-;                 
+; Example:        (appendall (lambda(x)(list x (sqrt x x)))
+;                            '(1 4 9 16 25))
+;
 ;                 = (1 1 4 2 9 3 16 4 25 5)
 
 (SU 'appendall (lambda(a b)
@@ -5367,7 +5367,7 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (protect1 'appendall '(a b))
 
-(test "appendall" (= (appendall (lambda(x)(list x (sqrt x x))) 
+(test "appendall" (= (appendall (lambda(x)(list x (sqrt x x)))
                                 '(1 4 9 16 25))
                                 '(1 1 4 2 9 3 16 4 25 5)))
 
@@ -5384,14 +5384,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ;; Syntax:           (increase-order f)
 ;;
 ;; Parameters:       f - expression that evaluates to function,
-;;                       primitive or macro or their names. 
+;;                       primitive or macro or their names.
 ;;
 ;; Purpose:          increase-order takes function of the nth
 ;;                   order and returns appropriate function of the
-;;                   increased order. See examples. 
+;;                   increased order. See examples.
 ;;
-;; Result:           Let us assume that f is function that accept 
-;;                   m arguments, (f x1 ... xm), and F is result of 
+;; Result:           Let us assume that f is function that accept
+;;                   m arguments, (f x1 ... xm), and F is result of
 ;;                   (increase-order f), then F can be applied on
 ;;                   functions that return x1 ... xm. Say g1 ... gm
 ;;                   are such functions, and f0=(F g1 ...gm), then
@@ -5402,22 +5402,22 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Error conditions: Nothing particular.
 ;;
-;; Examples: 
+;; Examples:
 ;;
 ;; (set 'notf (increase-order 'not))
 ;; (set 'noteven? (notf even?))
-;; 
+;;
 ;; (println= (noteven? 3))  ;(noteven? 3)=true;
 ;; (println= (noteven? 6))  ;(noteven? 6)=nil;
-;; 
-;; (set '+.f (increase-order '+.)) 
+;;
+;; (set '+.f (increase-order '+.))
 ;; (set '+.sincos (+.f 'sin 'cos))
-;; 
+;;
 ;; (println= (+.sincos 3)) ;(+.sincos 3)=-0.8488724885;
 ;; (println= (+. (sin 3) (cos 3))) ;(+. (sin 3) (cos 3))=-0.8488724885;
 ;;
 
-(SU 'increase-order 
+(SU 'increase-order
      (lambda(main-connective)
         (expand (lambda()
                    (let ((tmp1 (args)))
@@ -5443,85 +5443,85 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;;--------------------------------------------------------------
 ;;
-;; Name:             not^, or^, and^, 
+;; Name:             not^, or^, and^,
 ;;                   ~^, &^, |^, ->^, <-^, <->^, -><-^
 ;;                   +^, -^, *^, /^, %^
-;;                   +.^, -.^, *.^, /.^, %.^ 
+;;                   +.^, -.^, *.^, /.^, %.^
 ;;
 ;; Type:             Functions.
 ;;
 ;; Syntax:           (not^ f), (or^ f1 f2), (+^ f1 f2 f3 ... )
 ;;
-;; Parameters:       f, f1, ... expression that evaluates to 
+;; Parameters:       f, f1, ... expression that evaluates to
 ;;                              function, primitive or macro
 ;;
 ;; Purpose:          Basic operations of a higher order. It can
-;;                   simplify programs and make errors less probable. 
+;;                   simplify programs and make errors less probable.
 ;;
 ;; Result:           The functions that behave as operations over
-;;                   functions. See examples. 
+;;                   functions. See examples.
 ;;
 ;; Side effects:     There are no known side effects.
 ;;
 ;; Error conditions: Nothing particular.
 ;;
 
-(dolist (i '(not or and          
-             nand nor xor -> <- <-> -><-         
-             + - * / %       
-             +. -. *. /. %.     
+(dolist (i '(not or and
+             nand nor xor -> <- <-> -><-
+             + - * / %
+             +. -. *. /. %.
              +S2 -S2 *S2
              +S -S *S))
-             
+
         (SU (+sym i "^") (IO i)))
-        
+
 (dolist (i '(true nil))
    (dolist (j '(true nil))
-      (eval (expand 
+      (eval (expand
                 '(test "not^" (= ((not^ or) i j) (not (or i j))))
                 'i 'j))))
 
 (dolist (i '(true nil))
    (dolist (j '(true nil))
       '(println= i j)
-      (eval (expand 
-                '(test "and^" (= ((and^ or and) i j) 
+      (eval (expand
+                '(test "and^" (= ((and^ or and) i j)
                                  (and (or i j) (and i j))))
                 'i 'j))))
 
 (dolist (i '(true nil))
    (dolist (j '(true nil))
-      (eval (expand 
-                '(test "or^" (= ((or^ or and ->) i j) 
+      (eval (expand
+                '(test "or^" (= ((or^ or and ->) i j)
                                 (or (or i j) (and i j) (-> i j))))
                 'i 'j))))
 
 ;===============================================================
-;;                                                              
-;; Name:             function-or-macro?, FM?                    
-;;                                                              
-;; Type:             Function.                                  
-;;                                                              
-;; Syntax:           (function-or-macro f)                      
 ;;
-;; Parameters:       f - expression that evaluates to function, 
-;;                       primitive or macro                     
+;; Name:             function-or-macro?, FM?
 ;;
-;; Purpose:          Not a big deal, but I've needed it once,   
-;;                   so its here.                               
+;; Type:             Function.
 ;;
-;; Result:           True if f evaluates to function or macro,  
-;;                   false otherwise.                           
-;;                                                              
-;; Side effects:     No known side effects                      
-;;                                                              
-;; Error conditions: Nothing particular.                        
-;;                                                              
-;; Examples:                                                    
+;; Syntax:           (function-or-macro f)
+;;
+;; Parameters:       f - expression that evaluates to function,
+;;                       primitive or macro
+;;
+;; Purpose:          Not a big deal, but I've needed it once,
+;;                   so its here.
+;;
+;; Result:           True if f evaluates to function or macro,
+;;                   false otherwise.
+;;
+;; Side effects:     No known side effects
+;;
+;; Error conditions: Nothing particular.
+;;
+;; Examples:
 
-(SU 'function-or-macro? 
+(SU 'function-or-macro?
      (lambda(x)(or (lambda? x)(macro? x))))
-     
+
 (SU 'FM? function-or-macro)
 
 (protect1 'function-or-macro '(x))
@@ -5531,7 +5531,7 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;===============================================================
 ;;
-;; Group:            Predicates from relations. 
+;; Group:            Predicates from relations.
 ;;
 ;; Name:             predicatize
 ;;
@@ -5541,28 +5541,28 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Parameters:       r - expression that evaluates to relation.
 ;;
-;; Purpose:          Produces useful predicates from relations. 
+;; Purpose:          Produces useful predicates from relations.
 ;;                   Similar to curry but simpler for extensive
-;;                   use. Check examples. 
+;;                   use. Check examples.
 ;;
 ;; Result:           Tramsrofms relation r(x,y) into function of
-;;                   one argument r?(y) which for given y0 returns 
-;;                   predicate r(x,y0). 
+;;                   one argument r?(y) which for given y0 returns
+;;                   predicate r(x,y0).
 ;;
 ;; Side effects:     No known side effects
 ;;
 ;; Error conditions: Nothing particular.
 ;;
-;; Examples:         (predicatize '<=) ;result: <=? see bellow. 
+;; Examples:         (predicatize '<=) ;result: <=? see bellow.
 
-(SU 'predicatize 
+(SU 'predicatize
      (lambda(relation)
             (local (left rigth relvar)
-                   (set 'left 
+                   (set 'left
                          (sym (append (string relation) "?")))
-                   (set 'relvar 
+                   (set 'relvar
                          (sym (append "[" (string relation) "?.arg]")))
-                   (set 'right 
+                   (set 'right
                          (expand (lambda(x)
                                     (expand (lambda(relvar)
                                                 (relation relvar x))
@@ -5576,7 +5576,7 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;===============================================================
 ;;
-;; Group:            Predicates from relations. 
+;; Group:            Predicates from relations.
 ;;
 ;; Name:             <? >? =? <=? >=? !=? or? and? not? &? |? ~?
 ;;                   ->? <-? <->? -><-?
@@ -5587,12 +5587,12 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Parameters:       x - real number.
 ;;
-;; Purpose:          (<? x) has the meaning of the predicate 
-;;                   "less than x". 
+;; Purpose:          (<? x) has the meaning of the predicate
+;;                   "less than x".
 ;;
 ;; Result:           Transforms relation r(x,y) into function of
-;;                   one argument r?(y) which for given y0 returns 
-;;                   predicate r(x,y0). 
+;;                   one argument r?(y) which for given y0 returns
+;;                   predicate r(x,y0).
 ;;
 ;; Side effects:     No known side effects
 ;;
@@ -5608,13 +5608,13 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;===============================================================
 ;;
-;; Group:            Floating point rounding support. 
+;; Group:            Floating point rounding support.
 ;;
 ;; Name:             gfloor, ground, gceil
 ;;
 ;; Type:             Functions.
 ;;
-;; Syntax:           (gfloor number precision) 
+;; Syntax:           (gfloor number precision)
 ;;                   (ground number precision)
 ;;                   (gceil  number precision)
 ;;
@@ -5623,15 +5623,15 @@ https://github.com/DexterLagan/newlisp-message-box
 ;; Purpose:          Well known functions floor, round and ceil
 ;;                   in different form. Precision can be 0, in that
 ;;                   case, number is returned. If precision is negative,
-;;                   result is equivalent of - (gfloor (- number) 
+;;                   result is equivalent of - (gfloor (- number)
 ;;
 ;; Result:           Transrofms relation r(x,y) into function of
-;;                   one argument r?(y) which for given y0 returns 
-;;                   predicate r(x,y0). 
+;;                   one argument r?(y) which for given y0 returns
+;;                   predicate r(x,y0).
 ;;
 ;; Side effects:     No known side effects
 ;;
-;; Error conditions: If step < 0. 
+;; Error conditions: If step < 0.
 ;;
 ;; Examples:         (gfloor 3.17492 0.01)=3.17;
 ;;                   (ground 3.17492 0.01)=3.17;
@@ -5640,7 +5640,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (dolist(j '(floor ceil round))
   (SU (+sym 'g j)
       (expand (lambda(x step)
-                 (when (< step 0) 
+                 (when (< step 0)
                        (throw-error "gfloor, gceil or ground: step < 0"))
                  (if (= step 0)
                      x
@@ -5664,18 +5664,18 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Syntax:           (rnd from to step)
 ;;                   (irnd from to)
-;;                
+;;
 ;; Parameters:       from - start of the segment
 ;;                   to   - end of the segment
-;;                   step - granularity of the segment. 
+;;                   step - granularity of the segment.
 ;;
-;; Purpose:          Random number function in the syntax similar 
-;;                   to for and sequence. 
+;; Purpose:          Random number function in the syntax similar
+;;                   to for and sequence.
 ;;
-;; Result:           Random number from set starting with "from" 
-;;                   and ending with "to" - both included - increased 
-;;                   by "step." If "step" is 0, then any floating 
-;;                   point number in segment can be random number. 
+;; Result:           Random number from set starting with "from"
+;;                   and ending with "to" - both included - increased
+;;                   by "step." If "step" is 0, then any floating
+;;                   point number in segment can be random number.
 ;;
 ;; Side effects:     No known side effects.
 ;;
@@ -5686,28 +5686,28 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;                    (rnd 1 3 0)=2.170018616;
 ;;
 
-(SU 'rnd 
+(SU 'rnd
     (lambda(a b step)
-       (if (> a b) 
+       (if (> a b)
            (rnd b a step) ; because of specificity of Newlisp for
            (begin (when (not step) (set 'step 1))
-           
-                  (let ((result 
-                       (if (and (= step 0) 
-                                (= (random) (random)))  
+
+                  (let ((result
+                       (if (and (= step 0)
+                                (= (random) (random)))
                            b
 
                            (let ((r (random)))
                                 (while (or (= 0 r) (= 1 r))
                                        (set 'r (random)))
                                 (let((scale (+. (gfloor (- b a) step) ; [??]
-                                                step)))       
+                                                step)))
                                     (+. a (gfloor (*. scale r)
                                                   step)))))))
-                        (if (or (< result a) (> result b)) 
+                        (if (or (< result a) (> result b))
                             (println= "error!" result a b step r)
                              result))))))
-                                         
+
 (SU 'irnd (lambda(a b)(rnd a b 1)))
 
 (protect1 'rnd '(a b step scale r result))
@@ -5720,9 +5720,9 @@ https://github.com/DexterLagan/newlisp-message-box
 ;; Type:             Function.
 ;;
 ;; Syntax:           (random-element list)
-;;                
+;;
 ;; Examples:         (random-element (list 1 2 3))
-;;                   
+;;
 
 (SU 'random-element (lambda(L)(apply amb L)))
 (SU 'RE random-element)
@@ -5746,18 +5746,18 @@ https://github.com/DexterLagan/newlisp-message-box
       (let ((result '())
             (left-in-list (length L)))
            (when (> pick-from-list left-in-list)
-            (throw-error (append "There is no n=" 
+            (throw-error (append "There is no n="
                                  (string pick-from-list)
                                  " elements in L.")))
            (dolist (element L (= pick-from-list 0))
-                   (let ((probability (div pick-from-list 
+                   (let ((probability (div pick-from-list
                                            left-in-list)))
                          (when (<= (random 0 1) probability)
                                (push element result -1)
                                (dec pick-from-list))
                          (dec left-in-list)))
             result)))
-            
+
 (SU 'RS random-sublist)
 
 (protect1 'random-sublist '(L pick-from-list result left-in-list element
@@ -5782,7 +5782,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (setq third (lambda()(first(rest(rest (first(args)))))))
 
 ;===============================================================
-;; 
+;;
 ;; Name:             type
 ;;
 ;; Type:             Function.
@@ -5799,15 +5799,15 @@ https://github.com/DexterLagan/newlisp-message-box
                 "primitive" "primitive" "primitive"
                 "quote" "list" "lambda" "macro" "array"))
        (types (& 0xf ((dump x) 1)))))
-       
+
 (protect1 'type '(x))
 
 ;===============================================================
-; 
+;
 ; Name:              evaluation-level-indent
 ;
 ; Syntax             (evaluation-level-indent <indent-character>)
-;                    if indent-character is omitted, then " " is 
+;                    if indent-character is omitted, then " " is
 ;                    used.
 
 (set 'evaluation-level-indent
@@ -5818,11 +5818,11 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; Group:              functions for memory control.
 ;;
-;; Name:               memory-watch, memory-watch-reset, 
+;; Name:               memory-watch, memory-watch-reset,
 ;;                     memory-watch-report
-;; 
+;;
 ;; Example of use:
-;; 
+;;
 ;; (memory-watch-reset)
 ;; (set 'fibo (lambda(n)
 ;;                 (memory-watch)
@@ -5830,40 +5830,40 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;                     (+ (fibo (- n 1)) (fibo (- n 2))))))
 ;; (fibo 20)
 ;; (memory-watch-report)
-;; 
+;;
 ;; prints following line:
-;; 
+;;
 ;; Memory watch report: 1593-1696 (difference 103) cells used.
 
 (SU 'memory-watch-reset (lambda()
-                             (set '[memory-watch.min-used-cells] 
+                             (set '[memory-watch.min-used-cells]
                                    (sys-info 0))
-                             (set '[memory-watch.max-used-cells] 
+                             (set '[memory-watch.max-used-cells]
                                    (sys-info 0))))
 (SU 'memory-watch (lambda()
                      (when (> (sys-info 0) max-used-cells)
-                           (set '[memory-watch.max-used-cells] 
+                           (set '[memory-watch.max-used-cells]
                                 (sys-info 0)))
                      (when (< (sys-info 0) min-used-cells)
-                           (set '[memory-watch.min-used-cells] 
+                           (set '[memory-watch.min-used-cells]
                                 (sys-info 0)))))
-                           
+
 (protect1 'memory-watch '(max-used-cells min-used-cells))
 
-(SU 'memory-watch-report 
-    (lambda()(println "Memory watch report: " 
-                      [memory-watch.min-used-cells] 
-                      "-" 
-                      [memory-watch.max-used-cells] 
-                      " (difference " 
-                      (- [memory-watch.max-used-cells] 
-                         [memory-watch.min-used-cells]) 
+(SU 'memory-watch-report
+    (lambda()(println "Memory watch report: "
+                      [memory-watch.min-used-cells]
+                      "-"
+                      [memory-watch.max-used-cells]
+                      " (difference "
+                      (- [memory-watch.max-used-cells]
+                         [memory-watch.min-used-cells])
                       ") cells used.")))
 
 ; (memory-watch-reset)
 ; (set 'fibo (lambda(n)
 ;                 (memory-watch)
-;                 (if (< n 3) 
+;                 (if (< n 3)
 ;                     1
 ;                     (+ (fibo (- n 1)) (fibo (- n 2))))))
 ; (fibo 25)
@@ -5882,9 +5882,9 @@ https://github.com/DexterLagan/newlisp-message-box
 ;;
 ;; USAGE:              (function-from-macro p) only changes the
 ;;                     "lambda-macro" from definition of p into
-;;                     lambda. 
+;;                     lambda.
 ;;
-;;                     (macro-from-function p) does the same, 
+;;                     (macro-from-function p) does the same,
 
 (SU 'function-from-macro (lambda()
                              (append '(lambda) ; quote can be omitted
@@ -5903,7 +5903,7 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (test "macro-from-function" (= (MF (lambda(x)(sin x)))
                                (lambda-macro(x)(sin x))))
-                               
+
 ;;==============================================================
 ;;
 ;; Group:              Conversion between functions, macros and
@@ -5940,16 +5940,16 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;===============================================================
 ;
-; Group:             Functions supporting lambda and lambda-macro 
+; Group:             Functions supporting lambda and lambda-macro
 ;                    lists
 ;
 ; Name:              mapg, cleang
 ;
 ; Type:              Functions.
 ;
-; Syntax:            (mapg f list), (cleang f L) 
+; Syntax:            (mapg f list), (cleang f L)
 ;
-; Purpose:           Same like map and clean, they just keep 
+; Purpose:           Same like map and clean, they just keep
 ;                    special type of lists, i.e. if applied on
 ;                    lambda and lambda macro lists, they return
 ;                    same kinds of lists
@@ -5995,12 +5995,12 @@ https://github.com/DexterLagan/newlisp-message-box
         (let ((result
               (if (and (list? expr)
                        (not (empty? expr)))
-                          
+
                    (if (= (first expr) 'prepare-time)
                        (eval expr)           ; [1]
-                       
+
                        (begin (set 'expr (mapg prepare expr)); recursion
-                              
+
                               (if (prepare-time-fn? (first expr))
                                   (eval expr) ; [2]
                                   expr)))
@@ -6016,17 +6016,17 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Group:             List splitting.
 ;
-; Names:             except-last, 
-;                    first-half-inclusive, 
-;                    first-half-exclusive, 
+; Names:             except-last,
+;                    first-half-inclusive,
+;                    first-half-exclusive,
 ;                    second-half-inclusive,
-;                    second-half-exclusive, 
+;                    second-half-exclusive,
 ;                    middle,
 ;                    except-nth
 ;
 ; Syntax:            (except-last L) etc
 
-(SU 'except-last 
+(SU 'except-last
       (lambda(L)
         (slice L 0 (- (length L) 1))))
         (SU 'EL except-last)
@@ -6040,7 +6040,7 @@ https://github.com/DexterLagan/newlisp-message-box
         (SU 'FHI first-half-inclusive)
         (protect1 'first-half-inclusive '(L))
         (protect1 'FHI '(L))
-        (test "first-half-inclusive" 
+        (test "first-half-inclusive"
               (= (first-half-inclusive '(1 2 3)) '(1 2)))
 
 (SU 'first-half-exclusive
@@ -6051,7 +6051,7 @@ https://github.com/DexterLagan/newlisp-message-box
        (protect1 'FHE '(L))
        (test "first-half-exclusive" (= (first-half-exclusive '(1 2 3))
                                         '(1)))
-        
+
 (SU 'second-half-inclusive
     (lambda(L)
        (slice L (floor (/. (length L) 2))
@@ -6059,7 +6059,7 @@ https://github.com/DexterLagan/newlisp-message-box
        (SU 'SHI second-half-inclusive)
        (protect1 'second-half-inclusive '(L))
        (protect1 'SHI '(L))
-       (test "second-half-inclusive" 
+       (test "second-half-inclusive"
              (= (second-half-inclusive '(1 2 3)) '(2 3)))
 
 (SU 'second-half-exclusive
@@ -6099,15 +6099,15 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Syntax:            (branches L), (leafs L)
 ;
-; Examples:       
+; Examples:
 ;
 ; (println (branches '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))))
 ;
 ; (println (leafs '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))))
 ;
-; ((+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))) 
+; ((+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))
 ; (- 1 2) 1 2 (+ 3 4) 3 4 (- 5 (+ 6 7)) 5 (+ 6 7) 6 7)
-; (1 2 3 4 5 6 7)   
+; (1 2 3 4 5 6 7)
 
 (SU 'branches
     (lambda(L)
@@ -6128,18 +6128,18 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (protect1 'leafs '(L))
 
-(test "branches 1" 
+(test "branches 1"
        (= (branches '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))))
-          '((+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))) 
+          '((+ (- 1 2) (+ 3 4) (- 5 (+ 6 7)))
            (- 1 2) 1 2 (+ 3 4) 3 4 (- 5 (+ 6 7)) 5 (+ 6 7) 6 7)))
-           
+
 (test "branches 2" (= (branches '(+ 1 '2)) '((+ 1 '2) 1 '2 2)))
 
-(test "branches-exclusive" 
-       (= (branches-exclusive 
+(test "branches-exclusive"
+       (= (branches-exclusive
             '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))))
             '((- 1 2) 1 2 (+ 3 4) 3 4 (- 5 (+ 6 7)) 5 (+ 6 7) 6 7)))
-          
+
 (test "leafs" (= (leafs '(+ (- 1 2) (+ 3 4) (- 5 (+ 6 7))))
                  '(1 2 3 4 5 6 7)))
 
@@ -6148,12 +6148,12 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Group:             List operations
 ;
 ; Names              *list
-; 
+;
 ; Syntax:            (*list <L1> <L2>)
 ;
 ; Result:            Cartesian product of lists <L1> and <L2.>
 ;
-; Example:           (*list '(1 2) '(4 5 6)) -> 
+; Example:           (*list '(1 2) '(4 5 6)) ->
 ;                    ((1 4) (1 5) (1 6) (2 4) (2 5) (2 6))
 
 (set '*list (lambda(l1 l2)
@@ -6162,18 +6162,18 @@ https://github.com/DexterLagan/newlisp-message-box
                      (dolist(j l2)
                        (push (list i j) result -1)))
                    result)))
-                   
+
 (protect1 '*list '(i l1 l2 result))
 
-(test "*list" (=  (*list '(1 2) '(4 5 6)) 
+(test "*list" (=  (*list '(1 2) '(4 5 6))
               '((1 4) (1 5) (1 6) (2 4) (2 5) (2 6))))
-              
+
 ;===============================================================
 ;
 ; Group:             List operations
 ;
 ; Names              element
-; 
+;
 ; Syntax:            (element x L)
 ;
 ; Result:            nil if x not element L, place in the list
@@ -6181,13 +6181,13 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                    find, just with different name
 ;
 
-(set 'element find)                  
+(set 'element find)
 
 ;===============================================================
 ;
 ; Group:             Expressions as graphs
 ;
-; Names:             depth, size, size2, size-string, width 
+; Names:             depth, size, size2, size-string, width
 ;
 ; Syntax:            (depth <L>) - length of the longest branch
 ;                    (size <L>)  - number of nodes
@@ -6195,17 +6195,17 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                                  terminal nodes are counted with 2.
 ;                    (string-size <L>) - size of the string
 ;                    (width <L>) - number of branches
-;    
+;
 ; (set 'depth (lambda(x)
 ;                (cond ((quote? x)(+ 1 (depth (eval x))))
 ;                       ((list? x)(+ 1 (apply max (map depth x))))
 ;                       (true 1))))
-;                       
+;
 ; (set 'size (lambda(x)
 ;               (+ 1 (cond ((quote? x)(size (eval x)))
 ;                          ((list? x)(apply + (map size x)))
 ;                          (true 0)))))
-;                          
+;
 ; (set 'width (lambda(x)
 ;               (cond ((quote? x)(width (eval x)))
 ;                     ((list? x)(apply + (map width x)))
@@ -6234,9 +6234,9 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Names:             most-probable-cond, least-probable-cond
 ;
-; Syntax:            
+; Syntax:
 ;
-; Examples:       
+; Examples:
 
 (SU 'most-probable-cond
     (lambda-macro(formula-for-a-number-of-evals)
@@ -6252,7 +6252,7 @@ https://github.com/DexterLagan/newlisp-message-box
                      (dotimes (this-eval number-of-evals)
                           (when (eval (first clause))
                                 (inc counter-of-successes)))
-                                
+
 ;                      (println "Clause: " $idx
 ;                               ". " ($args $idx)
 ;                               ": " counter-of-successes
@@ -6268,7 +6268,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                      ": " maximal-clause-successes " times.")
 ;
             (eval (last ($args maximal-clause-index)))))))
-            
+
 (SU 'MPC most-probable-cond)
 
 (protect1 'most-probable-cond '(formula-for-a-number-of-evals
@@ -6295,7 +6295,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;            (println "Number of evals: " number-of-evals)
             (doargs(clause)
                 (let ((counter-of-successes 0))
-                     
+
                      (dotimes (this-eval number-of-evals)
                           (when (eval (first clause))
                                 (inc counter-of-successes)))
@@ -6341,25 +6341,25 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ;                    Attention: use only uppercase for variables.
 ;
-; Examples:          
+; Examples:
 ;
 ; (macrocall '((X Y)(println "X=" X "; Y=" Y))
 ;            '((+ 1 2) (- (* 4 5))))
-; 
+;
 ; (macrocall '(L (println "L=" L))
 ;            '((+ 1 2) (- (* 4 5))))
-;                     
+;
 ; (macrocall '((X (Y Z)) (println "X=" X "; Y=" Y "; Z=" Z))
 ;            '((+ 1 2) (- (* 4 5))))
-;                      
-;                      
+;
+;
 ; X=(+ 1 2); Y=(- (* 4 5))
 ; L=((+ 1 2) (- (* 4 5)))
 ; X=(+ 1 2); Y=-; Z=(* 4 5)
 ;
 ; (macrocall '((X (Y Z#)) (println "X=" X "; Y=" Y "; Z=" Z))
 ;            '((+ 1 2) (- (* 4 5))))
-; 
+;
 ; X=(+ 1 2); Y=-; Z=20   - It works
 
 (SU 'macrocall-quote-second (lambda(x)
@@ -6376,18 +6376,18 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (SU 'equivalent-let-block
      (lambda (definition arguments)
-             (list 'let 
+             (list 'let
                     (map macrocall-quote-second
                          (unify (first definition)
                                        arguments))
                     (last definition))))
-                    
+
 (SU 'ELB equivalent-let-block)
 
 (protect1 'equivalent-let-block '(definition arguments))
 (protect1 'ELB '(definition arguments))
 
-(SU 'macrocall 
+(SU 'macrocall
      (lambda (definition arguments)
              (eval (equivalent-let-block definition arguments))))
 
@@ -6401,7 +6401,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Name:              calculate-or-ask
 ;
-; Syntax:            see example: 
+; Syntax:            see example:
 ;
 ; (calculate-or-ask
 ;      (Diagonal)
@@ -6410,7 +6410,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;      (Price)
 ;      (Pixels               (* Height Width))
 ;      (Area                 (/ (* Diagonal Diagonal Width Height)
-;                               (+ (* Width Width) 
+;                               (+ (* Width Width)
 ;                                  (* Height Height))))
 ;      (Pixels/Unit-of-area  (/ Pixels Area))
 ;      (Pixels/Unit-of-price (/ Pixels Price)))
@@ -6482,18 +6482,18 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Description:       internal, for producing multi loops, might
 ;                    be useful for some people.
 
-(SU 'multiloop 
+(SU 'multiloop
    (lambda(loop)
      (let ((new-loop (sym (append (string loop) "-multi"))))
         (SU new-loop
-           (expand 
+           (expand
              (lambda-macro(L)
-                (let ((variables (first L)))                           
+                (let ((variables (first L)))
                   (if (empty? variables)
                       (eval (list-to-single-expression (args)))
-                      (letex ((head1 (cons (first variables) 
+                      (letex ((head1 (cons (first variables)
                                            (rest L)))
-                              (head2 (cons (rest variables) 
+                              (head2 (cons (rest variables)
                                            (rest L)))
                              (body  (list-to-single-expression (args))))
                          (loop head1
@@ -6534,16 +6534,16 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Names:            factorial, double-factorial
 ;
 
-(set 'factorial 
+(set 'factorial
      (lambda(n)
        (let((result 1))
          (when (> n 0)
             (for(i 1 n 1)
                 (set 'result (* result i))))
           result)))
-          
+
 (protect1 'factorial '(result n i))
-         
+
 ; one might expect that "sequence" work better than loop here,
 ; but sequence definition is really different, so it requires some
 ; changes that at the end, make definition more similar to loop.
@@ -6551,7 +6551,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (test "factorial 1" (= (factorial 6) 720))
 (test "factorial 2" (= (factorial 0) 1))
 
-(set 'double-factorial 
+(set 'double-factorial
      (lambda(n)
        (let((result 1))
         (when (> n 0)
@@ -6566,13 +6566,13 @@ https://github.com/DexterLagan/newlisp-message-box
 (test "double-factorial 3" (= (double-factorial 0) 1))
 
 ;===============================================================
-; 
+;
 ; GROUP:        PROPOSITIONAL VARIABLES AND FORMULAS
 ;
 ; Description:  Few elementary functions related to propositional
 ;               formulas, implemented on the simplest way.
-;               Some of the functions can redefine values of 
-;               the variables in the propositional formulas. 
+;               Some of the functions can redefine values of
+;               the variables in the propositional formulas.
 ;
 ;               They use some other library functions I wrote,
 ;               so this code cannot be just cutted and pasted
@@ -6610,9 +6610,9 @@ https://github.com/DexterLagan/newlisp-message-box
 ;               (satisfaction '(-> A (not A))) ==> '((A nil)))
 ;
 
-(SU 'propositional-variables ; SU is my version of set, it warns 
+(SU 'propositional-variables ; SU is my version of set, it warns
                              ; if variable is already defined
-  
+
   (lambda(f)(difference (unique (leafs f)) ; (leafs '(-> (-> x y) z)) ==> (x y z)
                                 booleans)))        ; booleans = '(true nil)
 
@@ -6620,19 +6620,19 @@ https://github.com/DexterLagan/newlisp-message-box
         (protect1 'propositional-variables '(f)) ; protect1 is my protection
                                             ; function roughly equivalent
                                             ; to built in contexts.
-                                            
+
                                             ; I use it instead of contexts
-                                            ; primarily because I can 
-                                            ; experiment. 
+                                            ; primarily because I can
+                                            ; experiment.
         (protect1 'PV '(f))
-        
-        (test "propositional-variables 1" 
+
+        (test "propositional-variables 1"
           (= (propositional-variables '(-> nil (-> nil nil)))
-             '()))                    
-                   ; -> is implication, the propositional logical 
-                   ; connective like or and not, defined 
+             '()))
+                   ; -> is implication, the propositional logical
+                   ; connective like or and not, defined
                    ; earlier in library.
-             
+
         (test "propositional-variables 2"
           (= (propositional-variables '(-> A (or B (and D true) nil)))
              '(A B D)))
@@ -6641,16 +6641,16 @@ https://github.com/DexterLagan/newlisp-message-box
   (lambda(formula)
     (let ((tautology true))
       (letex ((L (propositional-variables formula)))
-        (dolist-multi(L booleans (not tautology)) 
+        (dolist-multi(L booleans (not tautology))
           (setand 'tautology (eval formula)))) ; (setand 'x y) = (set 'x (and x y))
       tautology)))
-      
+
           (test "tautology" (not (tautology? '(-> A B))))
           (test "tautology2" (tautology? (-> nil (-> nil nil))))
 
 (SU 'falsifiable? (not^ tautology?))  ; not^ is a higher order not;
                                       ; it can be applied on functions
-                                      ; ((not^ f) x) = (not (f x)) 
+                                      ; ((not^ f) x) = (not (f x))
                                       ; for every x
 
           (test "falsifiable? 1" (not (falsifiable? true)))
@@ -6659,14 +6659,14 @@ https://github.com/DexterLagan/newlisp-message-box
           (protect1 'tautology? '(formula tautology L))
           (protect1 'falsifiable? '(formula tautology L))
 
-(SU 'falsification 
+(SU 'falsification
   (lambda(formula)
     (let ((tautology true)
           (result nil))
       (letex ((L (propositional-variables formula)))
         (dolist-multi(L booleans (not tautology))
           (setand 'tautology (eval formula))
-          (unless tautology 
+          (unless tautology
                   (set 'result (map (lambda(x)(list x (eval x)))
                                     'L)))))
       result)))
@@ -6687,7 +6687,7 @@ https://github.com/DexterLagan/newlisp-message-box
           (protect1 'contradiction? '(f))
 
 ;===============================================================
-; 
+;
 ; Group:          Propositional variables and functions (2)
 ;
 ; Description:    canonization
@@ -6699,21 +6699,21 @@ https://github.com/DexterLagan/newlisp-message-box
 ; as about essentially same formula; or as two equivalent formulas.
 ;
 ; However, it is not trivial to recognize that two formulas are
-; equivalent on that way. Possible approach is to transform the 
-; formula in some canonical (normal, standard) form and in that case, 
+; equivalent on that way. Possible approach is to transform the
+; formula in some canonical (normal, standard) form and in that case,
 ; recognition that two formulas are equivalent can be purely graphical.
 ;
 ; The simplest normal form in this case is probably one in which
 ; the first occurence of the variable is chosen by
-; alphabetical order, e.g. (-> A (-> B A)). 
+; alphabetical order, e.g. (-> A (-> B A)).
 ;
 ; Two functions are defined here: "canon" returns formula in canonic
 ; form, "canonization" returns substitution able to transform original
-; formula in normal form. 
-; 
-; Example: 
+; formula in normal form.
 ;
-;      (canonization '(-> X (or A X))) 
+; Example:
+;
+;      (canonization '(-> X (or A X)))
 ;
 ;           ===> ((X TEMP-A) (A TEMP-B) (TEMP-A A) (TEMP-B B))
 ;
@@ -6724,11 +6724,11 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ;                                            ==>(-> A (or B A))
 ;
-; Note that variables like TEMP-A are needed.  
+; Note that variables like TEMP-A are needed.
 ;
 ;      (canon '(-> X (or A X))) ==> '(-> A (or B A))
 
-(SU 'canonization          
+(SU 'canonization
      (lambda (formula)
         (letn((L1 (map (lambda(x)(list x (sym (append "TEMP-" (char (+ $idx 65))))))
                        (propositional-variables formula)))
@@ -6736,13 +6736,13 @@ https://github.com/DexterLagan/newlisp-message-box
                                        (sym (char (+ $idx 65)))))
                        L1)))
              (append L1 L2))))
-             
+
       (protect1 'canonization '(formula L1 x L2))
 
       (test "canonization" (= (canonization '(-> X (or A X)))
                               '((X TEMP-A) (A TEMP-B) (TEMP-A A) (TEMP-B B))))
-             
-(SU 'canon 
+
+(SU 'canon
      (lambda(formula)
         (expand formula (canonization formula))))
 
@@ -6751,8 +6751,8 @@ https://github.com/DexterLagan/newlisp-message-box
       (test "canon" (= (canon '(-> X (or A X))) '(-> A (or B A))))
 
 ;===============================================================
-; 
-;   Group: Propositional variables and functions: 
+;
+;   Group: Propositional variables and functions:
 ;
 ; Name:     serial-substitute
 ; Type:     primitive
@@ -6780,9 +6780,9 @@ https://github.com/DexterLagan/newlisp-message-box
          (map (lambda(x)(list x (sym (append prefix (string x)))))
               (propositional-variables formula))))
 
-(SU 'prefix-variables 
+(SU 'prefix-variables
    (lambda(formula prefix)
-      (serial-substitute 
+      (serial-substitute
          formula
          (map (lambda(x)(list x (sym (append prefix (string x)))))
               (propositional-variables formula)))))
@@ -6799,10 +6799,10 @@ https://github.com/DexterLagan/newlisp-message-box
     (lambda(formula prefix)
         (let ((substitution '()))
              (dolist(v (propositional-variables formula))
-                  (when (starts-with (string v) 
+                  (when (starts-with (string v)
                                      (string prefix))
                         (push (list v
-                                    (sym (slice (string v) 
+                                    (sym (slice (string v)
                                                 (length prefix))))
                               substitution))))))
 
@@ -6811,13 +6811,13 @@ https://github.com/DexterLagan/newlisp-message-box
         (let ((substitution '()))
              (dolist(v (propositional-variables formula))
                   ;(println v)
-                  (when (starts-with (string v) 
+                  (when (starts-with (string v)
                                      (string prefix))
                         (push (list v
-                                    (sym (slice (string v) 
+                                    (sym (slice (string v)
                                                 (length prefix))))
                               substitution)))
-             (serial-substitute 
+             (serial-substitute
                      formula
                      substitution))))
 
@@ -6827,21 +6827,21 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (test "deprefix-variables" (= (deprefix-variables '(-> -X -Y) "-")
                               '(-> X Y)))
-                     
+
 (SU 'underscore-variables
      (lambda(formula)(prefix-variables formula "_")))
-     
+
 (protect1 'underscore-variables '(formula))
 
-(test "underscore-variables"  (= (underscore-variables '(-> X Y)) 
+(test "underscore-variables"  (= (underscore-variables '(-> X Y))
                                  '(-> _X _Y)))
-    
+
 (SU 'deunderscore-variables
      (lambda(formula)(deprefix-variables formula "_")))
 
 (protect1 'underscore-variables '(formula))
 
-(test "deunderscore-variables"  (= (deunderscore-variables '(-> _X _Y)) 
+(test "deunderscore-variables"  (= (deunderscore-variables '(-> _X _Y))
                                    '(-> X Y)))
 
 ;===============================================================
@@ -6856,13 +6856,13 @@ https://github.com/DexterLagan/newlisp-message-box
        (if (= nil (unify (prefix-variables f1 "_") f2))
            nil
            true)))
-           
+
 (protect1 'instance? '(f1 f2))
 
 (SU 'instantiate
      (lambda(f1 f2)
        (unify (prefix-variables f1 "-") f2)))
-       
+
 (protect1 'instantiate '(f1 f2))
 
 (SU 'instantiation
@@ -6873,32 +6873,32 @@ https://github.com/DexterLagan/newlisp-message-box
               (pf2 (serial-substitute pf1 l2))
               (l3 (deprefixing-substitution pf2 "_")))
              (append l1 l2 l3))))
-                    
-(protect1 'instantiation '(f1 f2 l1 l2 l3 pf1 pf2))                    
+
+(protect1 'instantiation '(f1 f2 l1 l2 l3 pf1 pf2))
 
 ;===============================================================
 ;
 ;   Group:  Propositional variables and Functions
 ;
 
-(SU 'upper-case-formula 
+(SU 'upper-case-formula
      (lambda(f)
        (cond ((list? f)(map upper-case-formula f))
-             ((> (length (string f)) 1) f)  
+             ((> (length (string f)) 1) f)
              (true (sym (upper-case (string f)))))))
-             
+
 (protect1 'upper-case-formula '(f))
-             
-(SU 'lower-case-formula 
+
+(SU 'lower-case-formula
      (lambda(f)
        (cond ((list? f)(map lower-case-formula f))
-             ((> (length (string f)) 1) f)  
+             ((> (length (string f)) 1) f)
              (true (sym (lower-case (string f)))))))
-             
+
 (protect1 'lower-case-formula '(f))
 
 ;===============================================================
-; 
+;
 ; Group:       Propositional formulas
 ;
 ; Names:       all-pf
@@ -6913,12 +6913,12 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (set 'all-pf
   (lambda(len leafs unary binary)
-     (if (= len 1) 
+     (if (= len 1)
         leafs
         (append (appendall (lambda(connective)
                               (map (lambda(x)(list connective x))
                                    (all-pf (- len 1) leafs unary binary)))
-                           unary)        
+                           unary)
                 (if (> len 2)
                     (appendall (lambda(connective)
                                   (appendall (lambda(r)
@@ -6930,7 +6930,7 @@ https://github.com/DexterLagan/newlisp-message-box
                     '())))))
 
 ;===============================================================
-; 
+;
 ; Group:       Propositional formulas
 ;
 ; Names:       rnd-pf
@@ -6946,13 +6946,13 @@ https://github.com/DexterLagan/newlisp-message-box
 (set 'rnd-pf
   (lambda(len leafs unary binary)
     (let ((connectives (append unary binary)))
-      (cond ((= len  1) 
+      (cond ((= len  1)
                (apply amb leafs))
-            ((= len  2) 
-               (list (apply amb unary) 
+            ((= len  2)
+               (list (apply amb unary)
                  (rnd-pf 1 leafs unary binary)))
 
-            ((> len  2) 
+            ((> len  2)
                (let ((connective (apply amb connectives)))
                  (cons connective
                        (if (element connective unary)
@@ -6962,51 +6962,51 @@ https://github.com/DexterLagan/newlisp-message-box
                                        (rnd-pf (- len 1 r) leafs unary binary)))))))))))
 
 ;===============================================================
-; 
+;
 ; Group:       Adding and multiplying digits
 ;
-; Names:       add-digits, 
+; Names:       add-digits,
 ;              multiply-digits.
 ;              add-digits-recursively
 ;              multiply-digits-recursively
-;                                  
+;
 
 (SU 'add-digits (lambda(n)
                     (apply + (map int (explode (string n))))))
-        
+
 (protect1 'add-digits '(n))
 
 (test "add-digits" (= (add-digits 12345) 15))
 
 (SU  'multiply-digits (lambda(n)
                          (apply * (map int (explode (string n))))))
-        
+
 (protect1 'multiply-digits '(n))
 
 (test "multiply-digits" (= (multiply-digits 12345) 120))
 
 (SU  'recursively-add-digits (lambda(n)(if (< n 10)
                                             n
-                                            (recursively-add-digits 
+                                            (recursively-add-digits
                                               (add-digits n)))))
 
 (protect1 'recursively-add-digits '(n))
 
-(test "recursively-add-digits" 
+(test "recursively-add-digits"
       (= (recursively-add-digits 12345) 6))
 
-(SU  'recursively-multiply-digits 
+(SU  'recursively-multiply-digits
   (lambda(n)(if (< n 10)
                 n
                 (recursively-multiply-digits (multiply-digits n)))))
 
 (protect1 'recursively-add-digits '(n))
 
-(test "recursively-multiply-digits" 
+(test "recursively-multiply-digits"
       (= (recursively-multiply-digits 12345) 0))
 
 ;===============================================================
-; 
+;
 ; Group:           Text titles support
 ;
 ; Name:            number-of-columns, max-title-width
@@ -7017,7 +7017,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (SU '[text-titles.max-title-width] 24)
 
 ;===============================================================
-; 
+;
 ; Group:           Text titles support
 ;
 ;---------------------------------------------------------------
@@ -7027,9 +7027,9 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Type:            Function
 ;
 ; Description      (nth-cyclic i L) returns (nth (i mod length L) L)
-; 
+;
 ; Examples:
-; 
+;
 ;         (nth-cyclic -6 '(2 3 4))=2
 ;         (nth-cyclic -5 '(2 3 4))=3
 ;         (nth-cyclic -4 '(2 3 4))=4
@@ -7045,29 +7045,29 @@ https://github.com/DexterLagan/newlisp-message-box
 ;         (nth-cyclic 6 '(2 3 4))=2
 ;
 
-(SU 'nth-cyclic 
+(SU 'nth-cyclic
      (lambda(i l)(nth (mod i (length l)) l)))
 
 (protect1 'nth-cyclic '(i l))
 
 ;===============================================================
-; 
+;
 ; Group:           Text titles support
 ;
 ; Name:            find-last
 ; Type:            Function
-; Description      Returns the index of the last occurence of the 
+; Description      Returns the index of the last occurence of the
 ;                  element in the string or list.
 
-(SU 'find-last 
+(SU 'find-last
      (lambda(d l)
        (let ((result (find (reverse d) (reverse l))))
             (if result (- (length l) result (length d))))))
-          
+
 (protect1 'find-last '(d l result))
-           
+
 ;===============================================================
-; 
+;
 ; Group:           Text titles support
 ;
 ; Name:            break-title
@@ -7075,25 +7075,25 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Description      breaks the title in the list of strings, each
 ;                  of them shorter than max-title-width
 
-(SU 'break-title 
+(SU 'break-title
   (lambda(title-string)
     (let ((title-string (trim title-string))
           (lts (length title-string)))
       (if (<= lts [text-titles.max-title-width])
           (list (trim title-string))
-          (let ((s (or (find-last " " (slice title-string 
-                                             0 
+          (let ((s (or (find-last " " (slice title-string
+                                             0
                                              [text-titles.max-title-width]))
                        [text-titles.max-title-width])))
               (cons (trim (slice title-string 0 s))
-                     (break-title (slice title-string 
-                                         s 
+                     (break-title (slice title-string
+                                         s
                                          (- lts s)))))))))
 
 (protect1 'break-title '(title-string lts s))
 
 ;===============================================================
-; 
+;
 ; Group:           Text titles support
 ;
 ; Name:            clean string
@@ -7101,19 +7101,19 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Description      returns string without double blanks, (chr 13)
 ;                  and (chr 10)
 
-(SU 'clean-string 
+(SU 'clean-string
      (lambda(x)
-        (dolist(i (list (list "  " " ") 
-                         (list (char 13) "") 
+        (dolist(i (list (list "  " " ")
+                         (list (char 13) "")
                          (list (char 10) "")))
            (while (find (i 0) x)
                (replace (i 0) x (i 1))))
         x))
-        
+
 (protect1 'clean-string '(i x))
 
 ;===============================================================
-; 
+;
 ; Group:           Text titles support
 ;
 ;---------------------------------------------------------------
@@ -7131,17 +7131,17 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Example:         (underline "This is title" "X")
 ;                  (underline-left "And this is title" "=")
 ;                  (underline-right "And this also" "#")
-;                  
-;                  
-; 
+;
+;
+;
 ;                          This is title
 ;                          XXXXXXXXXXXXX
-; 
-; 
+;
+;
 ; And this is title
 ; =================
-; 
-; 
+;
+;
 ;                                                    And this also
 ;                                                    #############
 
@@ -7152,10 +7152,10 @@ https://github.com/DexterLagan/newlisp-message-box
        (println)
        (let ((cc 0))
             (dolist(i (break-title (clean-string title-text)))
-              (let ((indent (dup " " 
+              (let ((indent (dup " "
                                  (round (div (sub [text-titles.number-of-columns]
                                                   (length i)
-                                                  +0.1) 
+                                                  +0.1)
                                               2)))))
                   (print indent i "\n" indent)
                   (dotimes(j (length i))
@@ -7163,7 +7163,7 @@ https://github.com/DexterLagan/newlisp-message-box
                      (print (nth-cyclic cc underline-string)))
                   (println)))
             (println)))))
-     
+
 (SU 'underline-left
     (lambda()
       (let ((title-text (apply append (map string (chop (args)))))
@@ -7186,10 +7186,10 @@ https://github.com/DexterLagan/newlisp-message-box
         (println)
         (let ((cc 0))
           (dolist(i (break-title (clean-string title-text)))
-            (let ((indent (dup " " 
+            (let ((indent (dup " "
                                (round (sub [text-titles.number-of-columns]
                                                 (length i)
-                                                +0.1) 
+                                                +0.1)
                                             ))))
                 (print indent i "\n" indent)
                 (dotimes(j (length i))
@@ -7214,21 +7214,21 @@ https://github.com/DexterLagan/newlisp-message-box
 ;                  (box-right arg1 ... argn box-string)
 ;
 ; Description      prints boxed title with various frames
-; 
+;
 ; Example:         (box "This is title" "X")
 ;                  (box-left "And this is title" "=")
 ;                  (box-right "And this also" "#")
-; 
+;
 ;                        XXXXXXXXXXXXXXXXX
 ;                        X This is title X
 ;                        XXXXXXXXXXXXXXXXX
-; 
-; 
+;
+;
 ; =====================
 ; = And this is title =
 ; =====================
-; 
-; 
+;
+;
 ;                                                #################
 ;                                                # And this also #
 ;                                                #################
@@ -7242,26 +7242,26 @@ https://github.com/DexterLagan/newlisp-message-box
            (letn ((cc 0)
                   (L (map trim (break-title (clean-string title-text))))
                   (maxlength (apply max (map length L)))
-                  (indent (dup " " (/ (- [text-titles.number-of-columns] 
-                                         maxlength 
-                                         4) 
+                  (indent (dup " " (/ (- [text-titles.number-of-columns]
+                                         maxlength
+                                         4)
                                        2))))
                (print indent)
                (for(i 1 (+ maxlength 4))
                   (print (nth-cyclic cc box-string))
                   (inc cc))
                (println)
-                     
+
                (dolist(i L)
-                   (print indent (nth-cyclic cc box-string)) 
-                   (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                         (length i) 
-                                                         +0.1) 
+                   (print indent (nth-cyclic cc box-string))
+                   (print (dup " " (+ 1 (round (div (sub maxlength
+                                                         (length i)
+                                                         +0.1)
                                                     2)))))
                    (inc cc)
                    (print i)
-                   (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                         (length i) 
+                   (print (dup " " (+ 1 (round (div (sub maxlength
+                                                         (length i)
                                                          -0.1)
                                                     2)))))
                    (println (nth-cyclic cc box-string))
@@ -7289,17 +7289,17 @@ https://github.com/DexterLagan/newlisp-message-box
               (print (nth-cyclic cc box-string))
               (inc cc))
            (println)
-                 
+
            (dolist(i L)
-               (print indent (nth-cyclic cc box-string)) 
-               (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                     (length i) 
-                                                     +0.1) 
+               (print indent (nth-cyclic cc box-string))
+               (print (dup " " (+ 1 (round (div (sub maxlength
+                                                     (length i)
+                                                     +0.1)
                                                 2)))))
                (inc cc)
                (print i)
-               (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                     (length i) 
+               (print (dup " " (+ 1 (round (div (sub maxlength
+                                                     (length i)
                                                      -0.1)
                                                 2)))))
                (println (nth-cyclic cc box-string))
@@ -7312,7 +7312,7 @@ https://github.com/DexterLagan/newlisp-message-box
            (println)
 
            (println)))))
-           
+
 (SU 'box-right
      (lambda()
      (let ((title-text (apply append (map string (chop (args)))))
@@ -7321,26 +7321,26 @@ https://github.com/DexterLagan/newlisp-message-box
        (letn ((cc 0)
               (L (map trim (break-title (clean-string title-text))))
               (maxlength (apply max (map length L)))
-              (indent (dup " " (- [text-titles.number-of-columns] 
-                                     maxlength 
-                                     4) 
+              (indent (dup " " (- [text-titles.number-of-columns]
+                                     maxlength
+                                     4)
                                    )))
            (print indent)
            (for(i 1 (+ maxlength 4))
               (print (nth-cyclic cc box-string))
               (inc cc))
            (println)
-                 
+
            (dolist(i L)
-               (print indent (nth-cyclic cc box-string)) 
-               (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                     (length i) 
-                                                     +0.1) 
+               (print indent (nth-cyclic cc box-string))
+               (print (dup " " (+ 1 (round (div (sub maxlength
+                                                     (length i)
+                                                     +0.1)
                                                 2)))))
                (inc cc)
                (print i)
-               (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                     (length i) 
+               (print (dup " " (+ 1 (round (div (sub maxlength
+                                                     (length i)
                                                      -0.1)
                                                 2)))))
                (println (nth-cyclic cc box-string))
@@ -7365,7 +7365,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Type:            Function
 ; Syntax:          (box-standard title-text)
 ; Description      prints boxed title with standard frame
- 
+
 (SU 'box-standard
   (lambda()
     (let ((title-text (apply append (map string (args)))))
@@ -7373,29 +7373,29 @@ https://github.com/DexterLagan/newlisp-message-box
          (letn ((cc 0)
                 (L (break-title (clean-string title-text)))
                 (maxlength (apply max (map length L)))
-                (indent (dup " " (/ (- [text-titles.number-of-columns] 
-                                       maxlength 
-                                       4) 
+                (indent (dup " " (/ (- [text-titles.number-of-columns]
+                                       maxlength
+                                       4)
                                     2))))
              (print indent)
              (println "+" (dup "-" (+ maxlength 2)) "+")
              (dolist(i L)
-                 (print indent "|") 
-                 (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                      (length i) 
+                 (print indent "|")
+                 (print (dup " " (+ 1 (round (div (sub maxlength
+                                                      (length i)
                                                       +0.1) 2)))))
                  (print i)
-                 (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                       (length i) 
+                 (print (dup " " (+ 1 (round (div (sub maxlength
+                                                       (length i)
                                                        -0.1) 2)))))
                  (println "|"))
              (print indent)
              (println "+" (dup "-" (+ maxlength 2)) "+")
              (println)))))
-        
+
 (SU 'box-standard-left
     (lambda()
-       (let ((title-text (apply append (map string (args)))))  
+       (let ((title-text (apply append (map string (args)))))
          (println)
          (letn ((cc 0)
                 (L (break-title (clean-string title-text)))
@@ -7404,49 +7404,49 @@ https://github.com/DexterLagan/newlisp-message-box
              (print indent)
              (println "+" (dup "-" (+ maxlength 2)) "+")
              (dolist(i L)
-                 (print indent "|") 
-                 (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                      (length i) 
+                 (print indent "|")
+                 (print (dup " " (+ 1 (round (div (sub maxlength
+                                                      (length i)
                                                       +0.1) 2)))))
                  (print i)
-                 (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                       (length i) 
+                 (print (dup " " (+ 1 (round (div (sub maxlength
+                                                       (length i)
                                                        -0.1) 2)))))
                  (println "|"))
              (print indent)
              (println "+" (dup "-" (+ maxlength 2)) "+")
              (println)))))
-        
+
 (SU 'box-standard-right
   (lambda()
-    (let ((title-text (apply append (map string (args)))))  
+    (let ((title-text (apply append (map string (args)))))
       (println)
       (letn ((cc 0)
              (L (break-title (clean-string title-text)))
              (maxlength (apply max (map length L)))
-             (indent (dup " " (- [text-titles.number-of-columns] 
-                                 maxlength 
+             (indent (dup " " (- [text-titles.number-of-columns]
+                                 maxlength
                                  4))))
           (print indent)
           (println "+" (dup "-" (+ maxlength 2)) "+")
           (dolist(i L)
-              (print indent "|") 
-              (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                   (length i) 
+              (print indent "|")
+              (print (dup " " (+ 1 (round (div (sub maxlength
+                                                   (length i)
                                                    +0.1) 2)))))
               (print i)
-              (print (dup " " (+ 1 (round (div (sub maxlength 
-                                                    (length i) 
+              (print (dup " " (+ 1 (round (div (sub maxlength
+                                                    (length i)
                                                     -0.1) 2)))))
               (println "|"))
           (print indent)
           (println "+" (dup "-" (+ maxlength 2)) "+")
           (println)))))
-           
+
 (protect1 'box-standard '(title-text maxlength cc i indent L))
 (protect1 'box-standard-left '(title-text maxlength cc i indent L))
 (protect1 'box-standard-right '(title-text maxlength cc i indent L))
-                                     
+
 ;===============================================================
 ; Name:            slice-sequence
 ; Type:            Function
@@ -7454,19 +7454,19 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Description      returns parts of string or list X determined by
 ;                  sequence from to and step
 
-(SU 'slice-sequence  
+(SU 'slice-sequence
      (lambda(X)
         (apply append (map (lambda(i)((if (string? X)
                                           identity-function
                                           list)
                                       (nth i X)))
                            (eval (cons 'sequence (args)))))))
-                           
+
 (protect1 'slice-sequence '(X i))
 
-(test "slice-sequence" (= (slice-sequence "abcdefghijkl" 
-                                          1 
-                                          (length "abcdefghijkl") 
+(test "slice-sequence" (= (slice-sequence "abcdefghijkl"
+                                          1
+                                          (length "abcdefghijkl")
                                           2)
                            "bdfhjl"))
 
@@ -7477,7 +7477,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Description      returns string of the length m with string s
 ;                  in center and blanks left and right of it.
 
-(SU 'center-string 
+(SU 'center-string
     (lambda(s m)
        (let ((ls (length s)))
             (append (dup " " (round (/. (-. m ls +0.1) 2)))
@@ -7500,11 +7500,11 @@ https://github.com/DexterLagan/newlisp-message-box
    (lambda-macro(head)
      (eval (append '(let)
                    (list (map (lambda(x)
-                                 (list (first x) 
+                                 (list (first x)
                                        (list 'quote (last x))))
                                head))
                    (args)))))
-                   
+
 (protect1 'met '(head x))
 
 (test "met" (= (met ((x (sin x))) x)
@@ -7522,11 +7522,11 @@ https://github.com/DexterLagan/newlisp-message-box
     (lambda-macro(head)
       (eval (append '(letex)
                     (list (map (lambda(x)
-                                  (list (first x) 
+                                  (list (first x)
                                         (list 'quote (last x))))
                                 head))
                     (args)))))
-                   
+
 (protect1 'metex '(head x))
 
 (test "metex" (= (metex ((x (sin 3))
@@ -7538,14 +7538,14 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Name:            letex2
 ; Type:            macro
 ; Syntax:          (letex2 <head> <body>)
-; Purpose:         Just like letex, but "safer", i.e 
+; Purpose:         Just like letex, but "safer", i.e
 ;                  (letex2 <head> <body>)=(eval (letex <head> '<body>))
 
-(SU 'letex2 
+(SU 'letex2
      (lambda-macro(head)
         (eval (eval (cons 'letex
-                          (list head 
-                                (list 'quote 
+                          (list head
+                                (list 'quote
                                       (LSE (args)))))))))
 
 (protect1 'letex2 '(head))
@@ -7554,16 +7554,16 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Name:            metex2
 ; Type:            macro
 ; Syntax:          (metex2 <head> <body>)
-; Purpose:         Just like letex, but "safer", i.e 
+; Purpose:         Just like letex, but "safer", i.e
 ;                  (metex2 <head> <body>)=(eval (metex <head> '<body>))
 
 (SU 'metex2
      (lambda-macro(head)
         (eval (eval (cons 'letex2
-                          (list head 
-                                (list 'quote 
+                          (list head
+                                (list 'quote
                                       (LSE (args)))))))))
-                                      
+
 (protect1 'metex2 '(head))
 
 ;===============================================================
@@ -7583,9 +7583,9 @@ https://github.com/DexterLagan/newlisp-message-box
                      "."
                      (string [gensym.counter])
                      "]"  ))))
-                     
+
 (SU 'GS gensym)
-                     
+
 (SU 'gensym-illegal
      (lambda(i)
        (inc [gensym.counter])
@@ -7607,10 +7607,10 @@ https://github.com/DexterLagan/newlisp-message-box
 ; Name:            genlet
 ; Type:            Function
 
-(SU 'genlet 
+(SU 'genlet
   (lambda-macro()
     (eval
-          ; Eval has to be done after all local variables are 
+          ; Eval has to be done after all local variables are
           ; cleaned, except those gensyms.
           ; Preparation of the code to be evaluated should
           ; be completely syntactical.
@@ -7619,14 +7619,14 @@ https://github.com/DexterLagan/newlisp-message-box
             (body (rest (args))))
            (letex ((H1 (map (lambda(x)
                                (list (nth 0 x)
-                                     (list 'gensym 
+                                     (list 'gensym
                                            (list 'quote (nth 0 x)))))
                              head))
                    (H2 head)
                    (H3 (cons 'begin body))
                    (H4 (cons 'begin (map (lambda(x)
-                                            (list 'delete 
-                                                  (list 'quote 
+                                            (list 'delete
+                                                  (list 'quote
                                                          (nth 0 x))))
                                            head))))
                    (letex H1
@@ -7644,21 +7644,21 @@ https://github.com/DexterLagan/newlisp-message-box
 
              ((H1 (map (lambda(x)
                         (list x
-                              (list 'gensym 
+                              (list 'gensym
                                     (list 'quote x))))
                       head))
 
              (H2 (cons 'local (cons head body)))
 
              (H3 (cons 'begin (map (lambda(x)
-                                     (list 'delete 
-                                           (list 'quote 
+                                     (list 'delete
+                                           (list 'quote
                                                   x)))
                                     head))))
 
                  ; body:
 
-                 (letex H1          
+                 (letex H1
                        (first (list H2
                                     H3)))))))
 
@@ -7684,15 +7684,15 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Purpose:         Same like built in replace, but recursive.
 ;                  Note that deep-replace works even if a is not
-;                  formula. 
-; 
+;                  formula.
+;
 ; Attention: deep replace can be done using expand with its binding
-; form. 
+; form.
 
 (SU 'deep-replace ; nondestructive
   (lambda(a x b)
       (cond ((= x a) b)
-            ((quote? x) (letex((qx (deep-replace a (eval x) b))) 
+            ((quote? x) (letex((qx (deep-replace a (eval x) b)))
                               ''qx))
             ((list? x) (append (cond ((macro? x)'(lambda-macro))
                                      ((lambda? x)'(lambda))
@@ -7700,31 +7700,31 @@ https://github.com/DexterLagan/newlisp-message-box
                                (map (lambda(y)(deep-replace a y b))
                                     x)))
             (true x))))
-            
+
 (protect1 'deep-replace '(a x b qx y))
 
 ;===============================================================
 ;                   CANTORS ENUMERATIONS
 ;
 
-(SU 'cantors-diagonal1 
+(SU 'cantors-diagonal1
   (lambda(n)(ceil (div (add (- 1)
                             (sqrt (add 1 (mul 8 n))))
                         2))))
-  
+
 (protect1 'cantors-diagonal '(n))
 
-(SU 'cantors-row 
-    (lambda (n) 
+(SU 'cantors-row
+    (lambda (n)
        (let ((cd (cantors-diagonal1 n)))
-            (- n (/ (* cd 
+            (- n (/ (* cd
                        (- cd 1))
                     2)))))
-   
+
 (protect1 'cantors-row '(n cd))
 
-(SU 'cantors-column (lambda (n) (+ (cantors-diagonal1 n) 
-                                   (- (cantors-row n)) 
+(SU 'cantors-column (lambda (n) (+ (cantors-diagonal1 n)
+                                   (- (cantors-row n))
                                    1)))
 
 (protect1 'cantors-row '(n))
@@ -7737,15 +7737,15 @@ https://github.com/DexterLagan/newlisp-message-box
     (lambda(r c)
        (let ((cd (cantors-diagonal2 r c)))
              (+ (/ (* cd (- cd 1)) 2) r))))
-      
+
 (protect1 'cantors-number '(r c))
 
-(SU 'cantors-enumeration 
+(SU 'cantors-enumeration
     (lambda(p n)
        (cond ((= p 1) (list n))
              ((> p 1) (cons (cantors-row n)
                             (cantors-enumeration (- p 1) (cantors-column n)))))))
-      
+
 (protect1 'cantors-enumeration '(p n))
 
 (SU 'cantors-enumeration-inverse
@@ -7753,51 +7753,51 @@ https://github.com/DexterLagan/newlisp-message-box
       ; p is not needed since it can be calculated from the
       ; number of arguments
       (letn((arguments (args))
-           (p (length arguments)))        
+           (p (length arguments)))
           (cond ((= p 1) (first arguments))
-                ((> p 1) (apply cantors-number 
+                ((> p 1) (apply cantors-number
                                 (cons (first arguments)
                                       (apply cantors-enumeration-inverse
                                              (rest arguments)))))))))
-        
+
 (protect1 'cantors-enumeration-inverse '(p arguments))
 
 (SU 'cantors-enumeration-finite
     (lambda(n)
       (cantors-enumeration (cantors-row n) (cantors-column n))))
-        
+
     (protect1 'cantors-enumeration-finite '(n))
 
 (SU 'cantors-enumeration-finite-inverse
     (lambda()
       (let((arguments (args)))
-        (cantors-enumeration-inverse 
+        (cantors-enumeration-inverse
             (length arguments)
             (apply cantors-enumeration-inverse arguments)))))
 
-    (protect1 'cantors-enumeration-finite-inverse 
+    (protect1 'cantors-enumeration-finite-inverse
               '(arguments))
-              
-              
+
+
 (SU 'cantors-square (lambda(n)
                      (+ (floor (sqrt (- n 1))) 1)))
-                     
 
-(SU 'cantors-row2 
+
+(SU 'cantors-row2
     (lambda(n)
       (letn((d (cantors-square n))
             (r (- n (* (- d 1) (- d 1)))))
             ;(println= d r)
          (cond((<= r d) d)
               ((> r d) (- d (- r d)))))))
-              
-(SU 'cantors-column2 
+
+(SU 'cantors-column2
     (lambda(n)
       (letn((d (cantors-square n))
             (r (- n (* (- d 1) (- d 1)))))
          (cond((<= r d) r)
               ((> r d) d)))))
-              
+
 ;(for(i 1 10)
 ;  (print i "->(" (cantors-row2 i) ", " (cantors-column2 i)"), "))
 
@@ -7807,34 +7807,34 @@ https://github.com/DexterLagan/newlisp-message-box
 ; The lambda-expressions are defined on following way:
 ;
 ; (a) a, b, c, ... are lambda-expressions. These lambda expressions
-;     are named "variables". 
+;     are named "variables".
 ;
 ; (b) if X is variable and E is lambda-expression, then
-; 
-;                            (^ X . E) 
+;
+;                            (^ X . E)
 ;
 ;     is lambda-expression as well. These lambda-expressions are
-;     named "functions". 
+;     named "functions".
 ;
 ; (c) if E and F are lambda-expressions, then (E F) is lambda-
 ;     expression as well. These lambda expressions are named
 ;     "applications."
 ;
 ; Using functions for Cantor's enumeration developed in last few
-; posts, now in my library, I'll define functions for enumeration 
-; of all lambda-expressions, i.e. bijective function 
+; posts, now in my library, I'll define functions for enumeration
+; of all lambda-expressions, i.e. bijective function
 ;
 ;                    lam: N -> all lambda-exprsions
 ;
 ; Enumerations of variables, functions, and applications will be
-; defined independently. 
+; defined independently.
 ;
 ;       var1, var2, ..., varn, ...
 ;       fun1, fun2, ..., funn, ...
 ;       app1, app2, ..., appn, ...
 ;
 ; After that, all lambda expressions will be enumerated on following
-; way: 
+; way:
 ;
 ;       var1, fun1, app1, var2, fun2, app2, ...
 ;
@@ -7848,7 +7848,7 @@ https://github.com/DexterLagan/newlisp-message-box
 ;       x, y, z, x1, y1, z1, x2, y2, z2 ...
 ;
 ; It slightly complicates enumeration, but it looks better than
-; 
+;
 ;       x0, y0, z0, x1, y1, ...
 
 (SU 'var (lambda(n alphabet)
@@ -7858,14 +7858,14 @@ https://github.com/DexterLagan/newlisp-message-box
                                (if (= n1 0) "" (string n1)))))
                   (sym (append first-char rest-chars))))
           '(n alphabet l n1 first-char rest-chars))
-                                   
+
 (SU 'var-inverse (lambda(v alphabet)
                      (letn((l (length alphabet))
                            (first-char (first (string v)))
                            (rest-chars (rest (string v))))
                           (when (= rest-chars "")
                                 (setf rest-chars "0"))
-                          (+ (* (int rest-chars) l) 
+                          (+ (* (int rest-chars) l)
                              (find first-char alphabet) 1)))
                 '(v alphabet l first-char rest-chars))
 ;
@@ -7875,17 +7875,17 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Every function has form (^ <var> <lambda-expression>), where
 ; any variable and lambda-expression is allowed. All pairs of
-; variables and lambda-expressions can be enumerated using 
-; Cantor's enumeration: 
+; variables and lambda-expressions can be enumerated using
+; Cantor's enumeration:
 
 (SU 'fun (lambda(n alphabet)
-             (list '^ 
+             (list '^
                    (var (cantors-row n) alphabet)
                    '.
                    (lam (cantors-column n) alphabet)))
          '(n alphabet))
-                        
-(SU 'fun-inverse 
+
+(SU 'fun-inverse
   (lambda(f alphabet)
      (cantors-enumeration-inverse (var-inverse (f 1) alphabet)
                                   (lam-inverse (f 3) alphabet)))
@@ -7897,18 +7897,18 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Every application has form (<lambda-expression1> <lambda-expression2>),
 ; For enumeration of pairs of lambda-expressions, we need Cantors
-; enumeration again. 
+; enumeration again.
 
 (SU 'app (lambda(n alphabet)
             (list (lam (cantors-row n) alphabet)
                   (lam (cantors-column n) alphabet)))
          '(n alphabet))
-                  
-(SU 'app-inverse 
+
+(SU 'app-inverse
   (lambda(a alphabet)
     (cantors-enumeration-inverse (lam-inverse (first a) alphabet)
                                  (lam-inverse (last a) alphabet)))
-                                 
+
   '(a alphabet))
 
 ;
@@ -7932,7 +7932,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (SU 'fun? (lambda(l)(and (list? l) (= (length l) 4))) '(l))
 (SU 'app? (lambda(l)(and (list? l) (= (length l) 2))) '(l))
 
-(SU 'lam-inverse 
+(SU 'lam-inverse
       (lambda(l alphabet)
          (local(row column)
            (cond ((var? l)(setf row 1)
@@ -7942,14 +7942,14 @@ https://github.com/DexterLagan/newlisp-message-box
                  ((app? l)(setf row 3)
                           (setf column (app-inverse l alphabet))))
             (+ (* 3 (- column 1)) row)))
-            
+
       '(l alphabet row column))
-      
-(SU 'lambda-expression-pretty-form 
+
+(SU 'lambda-expression-pretty-form
    (lambda(t)
       (replace " . " (replace "^ " (replace ") (" (string t) ")(") "^") "."))
    '(t))
-   
+
 (SU 'parallelize-association-list
   (lambda(L)
     (letex((new-var '(sym (append "temp-" (string $idx)))))
@@ -7957,16 +7957,16 @@ https://github.com/DexterLagan/newlisp-message-box
                   (map (lambda(x)(list new-var (last x))) L))))
   '(L new-var x))
 
-(SU 'normalize-variables 
+(SU 'normalize-variables
       (lambda(E alphabet)
         (let((EF (unique (filter (lambda(x)(find (first (string x)) alphabet)) (flat (list E))))))
            (setf toexpand (parallelize-association-list (map (lambda(x)(list x (var (+ $idx 1) alphabet))) EF)))
            (expand E toexpand)))
       '(E alphabet EF x toexpand))
-      
+
 ;---------------------------------------------------------------
 ;
-;  (beta-reduce-once E) search for one beta reduction in E and 
+;  (beta-reduce-once E) search for one beta reduction in E and
 ;                       performs it, if possible.
 ;
 ; returns
@@ -7974,28 +7974,28 @@ https://github.com/DexterLagan/newlisp-message-box
 ;        (true result)  if beta-reduction is possible
 ;        (nil E)        if beta-reduction is impossible
 
-(SU 'beta-reduce-once ; assumption - alpha conversion happened 
+(SU 'beta-reduce-once ; assumption - alpha conversion happened
   (lambda(E)
     (cond ((var? E) (list 'nil E))
-    
-          ((fun? E) 
-           (let((rfb (beta-reduce-once (last E)))) 
-             (if (first rfb) 
-                 (list 'true (append (chop E) 
+
+          ((fun? E)
+           (let((rfb (beta-reduce-once (last E))))
+             (if (first rfb)
+                 (list 'true (append (chop E)
                                      (list (last rfb))))
                  (list 'nil E))))
-                                     
-          ((app? E)             
+
+          ((app? E)
            (let ((F (first E))
                  (G (last E)))
-           
+
              (if (fun? F)
-              
+
                   ;E=((^V._) G) ==> E10[V:=E2]
-                 
+
                   (list 'true (expand (last F) (list (list (nth 1 F) G)))) ;)
 
-                  ;E=(F G) ==> 
+                  ;E=(F G) ==>
 
                   (let ((rF (beta-reduce-once F)))
                      (cond ((= (first rF) true)
@@ -8010,16 +8010,16 @@ https://github.com/DexterLagan/newlisp-message-box
 
 ;---------------------------------------------------------------
 ;
-;               (alpha-convert E bounded-vars) 
+;               (alpha-convert E bounded-vars)
 ;
-; converts the formula E to the form such that occurences of bounded 
-; variables have different names, among themself, and different than 
+; converts the formula E to the form such that occurences of bounded
+; variables have different names, among themself, and different than
 ; free variables.
 ;
 ; The function returns (true F), where F is result of alpha-conversion,
 ; if such conversion possible, or (nil E) if it is impossible.
 
-(SU 'alpha-convert0 
+(SU 'alpha-convert0
   (lambda(E bounded-vars)
      (cond ((var? E) E)
            ((fun? E)
@@ -8030,7 +8030,7 @@ https://github.com/DexterLagan/newlisp-message-box
                       (list '^
                             new-E-2
                             '.
-                            (expand (alpha-convert0 (E 3) bounded-vars) 
+                            (expand (alpha-convert0 (E 3) bounded-vars)
                                     (list (list (E 1) new-E-2)))))))
            ((app? E)
             (list (alpha-convert0 (first E) bounded-vars)
@@ -8043,29 +8043,29 @@ https://github.com/DexterLagan/newlisp-message-box
     (letn((bounded-counter 0)
           (temporary-vars '())
           (semi-result (alpha-convert0 E bounded-vars))
-          (free-vars (clean (lambda(t)(or (= t '^) (= t '.) (starts-with (string t) "temp-"))) 
+          (free-vars (clean (lambda(t)(or (= t '^) (= t '.) (starts-with (string t) "temp-")))
                             (flat (list semi-result))))
           (final-substitution '())
-                            
-          (F)) 
-                     
+
+          (F))
+
           (setf bounded-counter 0)
           (dolist(i temporary-vars)
                  (do-while (find (var bounded-counter bounded-vars) free-vars)
            ;             (println "*")
                         (inc bounded-counter))
                  (push (list i (var bounded-counter bounded-vars)) final-substitution -1))
-          
+
           ;(println r "," final-substitution "," frees "," F "," final-substitution2)
           (setf F (expand semi-result final-substitution))
-          ;(println F)          
+          ;(println F)
 
-          (if (= E F) 
+          (if (= E F)
               (list nil E)
               (list true F)))))
 
 (protect1 'alpha-convert
-          '(E bounded-vars F semi-result free-vars t final-substitution i)) 
+          '(E bounded-vars F semi-result free-vars t final-substitution i))
 
 ;---------------------------------------------------------------
 ;
@@ -8075,34 +8075,34 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; Example: (eta-reduce-once '(^ x . (F x))) => F
 
-(SU 'eta-reduce-once             
+(SU 'eta-reduce-once
   (lambda(E)
     (cond ((var? E) (list nil E))
-          ((fun? E) 
+          ((fun? E)
            (let((E0 (last E))) ; E=(^ x . E0)
-             (cond 
-             
+             (cond
+
                 ; E=(^ x . (... x)), where ... is free for x
-                
+
                 ((and (app? E0)
                       (= (nth 1 E) (last E0))
-                      (= (first E0) (expand (first E0) 
+                      (= (first E0) (expand (first E0)
                                             (list (list (nth 1 E)
                                                          'eta-dummy)))))
-                         ; needed to prevent (^y.(y y)) => y                                
+                         ; needed to prevent (^y.(y y)) => y
 
                  (list true (first E0)))
-              
+
                 ; E=(^ x . (... v)), v!=x
                 ; E=(^ x . F), F isn't list
-                
+
                 ((or (not (list? E0))
                      (and (list? E0)
                           (!= (nth 1 E) E0)))
-                          
+
                   (let((reduced-E0 (eta-reduce-once E0)))
-                      (list (first reduced-E0) 
-                            (list '^ 
+                      (list (first reduced-E0)
+                            (list '^
                                    (nth 1 E)
                                    '.
                                    (last reduced-E0))))))))
@@ -8111,22 +8111,22 @@ https://github.com/DexterLagan/newlisp-message-box
            (letn((E1 (first E))
                  (E2 (last E))
                  (reduced-E1 (eta-reduce-once E1)))
-                         
+
                 (if (= (first reduced-E1) true)
-                    (list 'true (list (last reduced-E1) 
+                    (list 'true (list (last reduced-E1)
                                       E2))
                     (let((reduced-E2 (eta-reduce-once E2)))
-                        (list (first reduced-E2) 
-                              (list E1 
+                        (list (first reduced-E2)
+                              (list E1
                                     (last reduced-E2)))))))))
-                                    
+
    '(E E0 E1 E2 reduced-E1 reduced-E2))
 
 ;---------------------------------------------------------------
 ;
 ;  (reduce^ <expression> <max-reductions> <to-print>)
 ;
-; Standard reduction of lambda calculus, using normal order. 
+; Standard reduction of lambda calculus, using normal order.
 ;
 ; <max-reductions> is maximal number of reductions. After that number
 ; is reached, further reductions are canceled. Important for
@@ -8136,22 +8136,22 @@ https://github.com/DexterLagan/newlisp-message-box
 ;
 ; The function returns
 ;
-; (reduced <result of reductions> <number of steps>) 
+; (reduced <result of reductions> <number of steps>)
 ;
 ;                        if reduction succeeded
 ;
-; (unreduced <last expression in derivation> <number of steps>) 
+; (unreduced <last expression in derivation> <number of steps>)
 ;
 ;                        if max-reductions number of steps is reached
-; 
+;
 ; (irreducible <last expression in derivation> <number of steps>)
 ;
 ;                        if cycle is discovered
 
-(SU 'reduce^  
+(SU 'reduce^
 
   (lambda(new-expr max-reductions to-print)
-  
+
     (local(result
            alpha-success
            beta-success
@@ -8159,88 +8159,88 @@ https://github.com/DexterLagan/newlisp-message-box
            max-reductions-success
            reductions
            reduce-end)
-           
+
       (setf print-reduction-report
             (lambda(reduction-name)
-              (when to-print 
+              (when to-print
                   (println (format "%5d" (+ (length reductions) 1))
-                           ". ==[" reduction-name "]==> " 
+                           ". ==[" reduction-name "]==> "
                            (lambda-expression-pretty-form new-expr)))))
-                           
+
       (setf check-cycle
             (lambda()(when (find new-expr reductions)
-                           (when to-print 
+                           (when to-print
                               (println "\n       IRREDUCIBLE: CYCLE DISCOVERED."))
                            (setf reduce-end true)
                            (setf result 'irreducible))))
-           
+
       (setf reductions '())
       (print-reduction-report " start    ")
       (push new-expr reductions -1)
 
   ;(println= reduce-end)
   (until reduce-end
-      
+
      (setf aplha-success nil eta-success nil)
-     
+
       ;Attempt of alpha conversion
 
      (unless reduce-end
-       
+
        (setf alpha-result (alpha-convert (last reductions) "xyzuvwpqr"))
        (setf alpha-success (first alpha-result))
        (when alpha-success
-       
+
              (setf new-expr (last alpha-result))
              (print-reduction-report " alpha    ")
-             (check-cycle)      
+             (check-cycle)
              (push new-expr reductions -1)))
-      
+
        ;Attempt of eta conversion
-                 
+
        (unless (or reduce-end alpha-success)
-                     
+
           (setf eta-result (eta-reduce-once (last reductions)))
           (setf eta-success (first eta-result))
 
           (when eta-success
                 (setf new-expr (last eta-result))
-                (print-reduction-report " eta      ") 
-                (check-cycle)        
+                (print-reduction-report " eta      ")
+                (check-cycle)
                 (push new-expr reductions -1)))
 
-      ; Beta redukcija 
+      ; Beta redukcija
 
       (unless (or reduce-end alpha-success eta-success)
-      
+
          (setf beta-result (beta-reduce-once (last reductions)))
          (setf beta-success (first beta-result))
-      
-         (when beta-success         
+
+         (when beta-success
                (setf new-expr (last beta-result))
-               (print-reduction-report " beta     ") 
+               (print-reduction-report " beta     ")
                (check-cycle)
                (push new-expr reductions -1)))
-                        
+
        (when (and (= (length reductions) max-reductions)
                   (not reduce-end))
-              (when to-print     
+              (when to-print
                 (println "\n       UNREDUCED: MAX NUMBER OF REDUCTIONS REACHED."))
               (setf max-reduction-success true)
               (setf reduce-end true)
               (setf result 'unreduced))
-                     
+
        (unless (or alpha-success beta-success eta-success max-reductions-success)
-       
-               (when to-print 
+
+               (when to-print
                  (println "\n       REDUCED TO NORMAL FORM."))
                (setf reduce-end true)
                (setf result 'reduced)))
     (list result new-expr (length reductions)))))
-    
-(protect1 'reduce^ '(new-expr 
-                     max-reductions 
-                     to-print 
+
+(protect1 'reduce^ '(new-expr
+                     max-reductions
+                     to-print
                      result
                      alpha-success
                      beta-success
@@ -8249,32 +8249,32 @@ https://github.com/DexterLagan/newlisp-message-box
                      reductions
                      reduce-end))
 
-(SU 'meta-var? 
+(SU 'meta-var?
     (lambda(v)
       (and (= (string v) (upper-case (string v)))
            (!= v '^)
            (!= v '.))))
-           
+
 (protect1 'meta-var? '(v))
 
-(SU 'expand-once^ 
+(SU 'expand-once^
     (lambda(expr)
        (let((expandable-meta-variables (filter (lambda(x)(and (meta-var? x)
                                                               (not (nil? (eval x)))))
                                                (flat (list expr)))))
           (eval (append '(expand expr)
                          (map quote expandable-meta-variables))))))
-  
+
 (protect1 'expand-once^ '(expr expandable-meta-variables))
-                    
-(SU 'expand^ 
+
+(SU 'expand^
   (lambda(expr max-expansions to-print)
     (let((expansions 0))
       (when to-print
          (println)
          (---)
-         (println "\n       EXPANSION AND REDUCTION OF " 
-                  (lambda-expression-pretty-form expr) 
+         (println "\n       EXPANSION AND REDUCTION OF "
+                  (lambda-expression-pretty-form expr)
                   "\n\n"
                   (format "%5d" (+ expansions 1))
                   ". ==[ original ]==> "
@@ -8285,10 +8285,10 @@ https://github.com/DexterLagan/newlisp-message-box
                       (flat (list expr)))
 
           (setf expr (expand-once^ expr))
-          (inc expansions)           
+          (inc expansions)
           (when to-print
              (println (format "%5d" (+ expansions 1))
-                     ". ==[ expanded ]==> " 
+                     ". ==[ expanded ]==> "
                      (lambda-expression-pretty-form expr)))))
         (when to-print
              (println "\n       META-VARIABLES EXPANDED.\n"))
@@ -8297,13 +8297,13 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (protect1 'expand^ '(expr max-expansions to-print expansions))
 
-(SU 'expand-and-reduce^ 
+(SU 'expand-and-reduce^
     (lambda(expr max-expand-and-reduce to-print)
-       (when (nil? max-expand-and-reduce) 
+       (when (nil? max-expand-and-reduce)
              (setf max-expand-and-reduce 1000000))
        (setf expr (expand^ expr max-expand-and-reduce to-print))
        (reduce^ expr max-expand-and-reduce to-print)))
-    
+
 (protect1 'expand^ '(expr max-expand-and-reduce to-print))
 
 ;---------------------------------------------------------------
@@ -8311,22 +8311,22 @@ https://github.com/DexterLagan/newlisp-message-box
 (define (expand// expr)
   (letn((a (args))
         (expand//sym (lambda(n)(symbol-from-sexpr (list 'expand// n))))
-        (expandlist 
-       
+        (expandlist
+
     (if (empty? a)
         (throw-error "expand//: arguments missing.")
 
         (cond ((symbol? (first a))
                (append (map (lambda(i)(list i (expand//sym $idx))) a)
                        (map (lambda(i)(list (expand//sym $idx) (eval i))) a)))
-                 
+
               ((list? (first a))
                (append (map (lambda(i)(list (i 0) (expand//sym $idx))) (first a))
                        (map (lambda(i)(list (expand//sym $idx) (i 1))) (first a))))))))
-                
+
        ;(println "expandlist=" expandlist)
        (expand expr expandlist)))
-       
+
 (protect1 'expand// '(expr a expand//sym n expandlist i))
 
 (setf x 'y)
@@ -8334,14 +8334,14 @@ https://github.com/DexterLagan/newlisp-message-box
 (test "expand//1" (= (expand// '(x y) 'x 'y) '(y 3)))
 (test "expand//2" (= (expand// '(x y) '((x y)(y 3))) '(y 3)))
 
-    
+
 ;###############################################################
 ;#                                                             #
 ;#           LEAVE THIS ON THE END OF THE LIBRARY              #
 ;#                                                             #
 ;###############################################################
 
-(set 'Default.number-of-symbols.after 
+(set 'Default.number-of-symbols.after
      (length (symbols)))
 
 (set 'Default.number-of-primitives.after
@@ -8350,7 +8350,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (set 'Default.number-of-functions.after
      (length (filter lambda? (map eval (symbols)))))
 
-(set 'Default.number-of-macros.after 
+(set 'Default.number-of-macros.after
      (length (filter macro? (map eval (symbols)))))
 
 ))) ; <=== leave this here - it is end of the timing operation
@@ -8359,22 +8359,22 @@ https://github.com/DexterLagan/newlisp-message-box
 
 (println "Defined\n\n"
    (format "%10d%s"
-           (- Default.number-of-symbols.after 
+           (- Default.number-of-symbols.after
               Default.number-of-symbols.before)
            " symbols:\n")
 
    (format "%10d%s"
-           (- Default.number-of-primitives.after 
+           (- Default.number-of-primitives.after
               Default.number-of-primitives.before)
            " for primitives,\n")
 
    (format "%10d%s"
-           (- Default.number-of-functions.after 
+           (- Default.number-of-functions.after
               Default.number-of-functions.before)
            " for functions and \n")
 
    (format "%10d%s"
-           (- Default.number-of-macros.after 
+           (- Default.number-of-macros.after
               Default.number-of-macros.before)
            " for macros.\n"))
 
@@ -8391,7 +8391,7 @@ https://github.com/DexterLagan/newlisp-message-box
 (println "    Check 'supressing printing' on the beginning of the file.")
 (println "--------------------------------------------------------------")
 
-true 
+true
 
 
 ===========

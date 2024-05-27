@@ -15885,23 +15885,23 @@ Finally, the code:
    (letn((variable           (first (first f)))
          (expression         (last f))
          (derived-expression (d expression variable))
-         
+
          (a                  (eval (expand derived-expression
                                            (list (list variable x0)))))
          (b                  (f x0)))
-        
+
        (expand// '(lambda(x)(+. (*. a (-. x x0)) b))
                   'a 'b 'x0)))
 
 (define (d formula variable)
-  (simplify 
-    (cond 
+  (simplify
+    (cond
       ((= formula variable) 1)
       ((atom? formula) 0)
       ((list? formula)
        (letn((operator (first formula))
              (operands (rest formula))
-             (lexpand 
+             (lexpand
                (lambda(expr)
                  (letn((flatexpr (flat expr))
                        (f  (if (find 'f  flatexpr)(operands 0)))
@@ -15910,7 +15910,7 @@ Finally, the code:
                        (dg (if (find 'dg flatexpr)(d g variable))))
                    (expand// expr 'f 'df 'g 'dg)))))
 
-         (case operator 
+         (case operator
 
            (+. (cons '+. (map (lambda(op)(d op variable)) operands)))
            (-. (cons '-. (map (lambda(op)(d op variable)) operands)))
@@ -15923,7 +15923,7 @@ Finally, the code:
                            variable))))
 
            (/. (case (length operands)
-                 (1    (d (list '/. 1 (first operands)) variable)) 
+                 (1    (d (list '/. 1 (first operands)) variable))
                  (2    (lexpand '(/. (-. (*. df g) (*. f dg)) (*. g g))))
                  (true (d (list '/.  (first operands)
                                      (cons '*. (rest operands)))
@@ -15952,78 +15952,78 @@ Finally, the code:
            ))))))
 
 (define (simplify formula)
-  (cond 
+  (cond
     ((atom? formula) formula)
     ((list? formula)
      (letn((operator (first formula))
            (operands (map simplify (rest formula)))
            (formula (cons operator operands)))
 
-       (cond 
-       
-         ; if all operands are constants, then 
+       (cond
+
+         ; if all operands are constants, then
          ; simplified formula is evaluated formula
-   
+
          ((for-all number? operands)(eval formula))
-   
+
          ; (*. x), (+. x) => x
-         
-         ((and (or (= operator '*.) (= operator '+.)) 
+
+         ((and (or (= operator '*.) (= operator '+.))
                (= (length operands) 1))
            (first operands))
-           
-         ; (*. ... 0 ...) => 0  
-           
+
+         ; (*. ... 0 ...) => 0
+
          ((and (= operator '*.) (find 0 operands)) 0)
-         
+
          ; (*. ... 1 ...) => (*. ...)
-         
+
          ((and (= operator '*.) (find 1 operands))
           (simplify (clean (curry = 1) formula)))
-         
+
          ; (+. ... 0 ...) => 0
-         
+
          ((and (= operator '+.) (find 0 operands))
           (simplify (clean zero? formula)))
-          
+
          ; (-. (-. ...)) => ...
-         
+
          ((match '(-. (-. ?)) formula)
            (last (last formula)))
-           
+
          ; (-. minuend ...)
-         
+
          ((and (= operator '-.) (> (length operands) 1))
-               
+
           (letn((minuend (first operands))
                 (subtrahends (rest operands))
                 (subtrahend  (simplify (cons '+. subtrahends))))
-                
-            (cond ((zero? minuend)        (simplify (list '-. 
+
+            (cond ((zero? minuend)        (simplify (list '-.
                                                           subtrahend)))
                   ((zero? subtrahend)     minuend)
                   ((= minuend subtrahend) 0)
-                  (true                   (list '-. minuend 
+                  (true                   (list '-. minuend
                                                     subtrahend)))))
-                     
+
          ; (/. (/. ...))
-               
+
          ((match '(/. (/. ?)) formula) (last (last formula)))
-         
+
          ; (/. dividend ...)
-         
+
          ((and (= operator '/.) (> (length operands) 1))
           (letn((dividend (first operands))
                 (divisors (rest operands))
                 (divisor  (simplify (cons '*. divisors))))
-            
+
             (cond ((zero? dividend)     0)
                   ((= divisor 1)        dividend)
                   ((= divisor -1)       (simplify (list '-. dividend)))
                   ((= dividend divisor) 1)
                   (true                 (list '/. dividend divisor)))))
-          
-         (true formula)))))) 
+
+         (true formula))))))
 
 
 ---------------------------------------------------
@@ -16067,10 +16067,10 @@ Here is implementation of encoding and decoding in R5RS Scheme.
                                (map sexpr->string L))
                         "]"))
      ";"))
-     
+
 (define (sexpr->symbol L)
   (string->symbol (sexpr->string L)))
-  
+
 (define (string->sexpr S)
   (let((S1 (substring S 0 (- (string-length S) 1))))
     (if (equal? (string-ref  S1 (- (string-length S1) 1)) #\])
@@ -16095,7 +16095,7 @@ Here is implementation of encoding and decoding in R5RS Scheme.
                 ((equal? (string-ref S1 i) #\])
                  (set! level (- level 1))))))
       (string->symbol (substring S 0 (- (string-length S) 1))))))
-      
+
 (define (symbol->sexpr s)
   (string->sexpr (symbol->string s)))
 
@@ -16129,7 +16129,7 @@ should be decoded into list (a (Q b)) where (Q b) isn't list, but symbol. Hence,
     (and (list? r)
          (not (empty? r))
          (= (first r) (quote Q))))
-     
+
 (define (symbol->sexpr r)
   (let((codewalker
          (lambda(r)
@@ -16137,7 +16137,7 @@ should be decoded into list (a (Q b)) where (Q b) isn't list, but symbol. Hence,
                  ((qlist? r) (sym (string r)))
                  ((not (qlist? r)) (map codewalker r))))))
      (codewalker (last (read-expr (string r))))))
-        
+
 --------
 
 > (setq s (sexpr->symbol (quote (a b))))
@@ -16175,7 +16175,7 @@ The code, here in Common Lisp, is sort of trickier than it is in Newlisp or it w
                             (decode-deep result))))
         ((listp r) (mapcar (quote decode-deep) r))))
 
-(defun sexpr->symbol (r) 
+(defun sexpr->symbol (r)
   (make-symbol (write-to-string (list 'q (decode-deep r)))))
 
 (defun encode-deep (r)
@@ -16186,7 +16186,7 @@ The code, here in Common Lisp, is sort of trickier than it is in Newlisp or it w
 
 (defun strip-q (r) (first (rest r)))
 
-(defun symbol->sexpr (r) 
+(defun symbol->sexpr (r)
   (encode-deep (strip-q (read-from-string (string r)))))
 
 -------------
@@ -16219,13 +16219,13 @@ The code will be more complicated and less efficient than if matrices are direct
       (set (matrix-element m i j)
            (nth (+ (* 2 (- i 1)) (- j 1))
                 (list m11 m12 m21 m22))))))
-  
+
 (define (println-matrix m)
   (for(i 1 2)
     (for(j 1 2)
-       (println m "[" i "," j "]=" 
+       (println m "[" i "," j "]="
           (eval (matrix-element m i j))))))
-          
+
 (define (multiply-matrix a b c)
   (for(i 1 2)
     (for(j 1 2)
@@ -16351,7 +16351,7 @@ There are only two differences between these axiom systems.
 It is not obvious that symbolic expressions require infinitely many atoms; it could be only convenience. Perhaps S-expressions like (A . (B . (C . D))) can be used instead of symbols like ABCD, eliminating need for infinitely many atoms.
 
 It remains unclear why these two systems of axioms are so similar.
- 
+
 Commenti:
 ---------
 *** karnataka state board of secondary education 20 June 2012 at 13:39
@@ -16371,9 +16371,9 @@ Sexpron I, Newlisp program for generation of symbolic expressions and one millio
 (println "xxx")
 (define (atomic-symbol n)
         (letn ((l (length))
-               (last-char  (ALPHABET (% (- n 1) l))) 
-               (other-chars (let ((n1 (/ (- n 1) l))) 
-                                 (if (= n1 0) 
+               (last-char  (ALPHABET (% (- n 1) l)))
+               (other-chars (let ((n1 (/ (- n 1) l)))
+                                 (if (= n1 0)
                                      ""
                                      (atomic-symbol n1)))))
               (sym (append (string other-chars) last-char))))
@@ -16386,10 +16386,10 @@ Sexpron I, Newlisp program for generation of symbolic expressions and one millio
         (letn((n1 (- n 1))
               (row (+ (% n1 2) 1))
               (column (+ (/ n1 2) 1)))
-          (println row " -> " (cantors-row n) ", " column " ->" (cantors-column n))    
+          (println row " -> " (cantors-row n) ", " column " ->" (cantors-column n))
           (case row (1 (atomic-symbol column))
                     (2 (pair          column)))))
-                    
+
 (define (symbolic-expression-external n)
         (replace " " (string (symbolic-expression n)) "."))
 
@@ -16398,13 +16398,13 @@ Sexpron I, Newlisp program for generation of symbolic expressions and one millio
   (println "-----------> " (symbolic-experssion-external i)))
 
 ; (setf out-file (open "C://symbolic-expressions.txt" "write"))
-;             
-; (for(i 1 1000000)      
-;   (write-line out-file 
+;
+; (for(i 1 1000000)
+;   (write-line out-file
 ;               (append (string i)
 ;                       ". "
 ;                       (symbolic-expression-external i ALPHABET))))
-;                       
+;
 ; (close out-file)
 ;
 (exit)

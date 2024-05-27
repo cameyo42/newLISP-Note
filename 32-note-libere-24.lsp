@@ -3107,7 +3107,7 @@ In[3]:=
 ...
 
 2) Exit WolframScript
-Type "Exit" or "Quit".
+type "Exit" or "Quit".
 
 3) Esegue codice WolframLang
 wolframscript -code "3+1"
@@ -3145,6 +3145,334 @@ Vediamo alcuni semplici esempi di come usare WolframScript con newLISP:
 ;->   3*xy^2*y^2 + 3*x^2*y^4 + 3*xy*y^4 + y^6")
 
 Le possibilità di utilizzo sono innumerevoli.
+
+
+---------------------------------------------------------
+Simboli di una matrice 3x3 (permutazioni con ripetitione)
+---------------------------------------------------------
+
+Le celle di una matrice 3x3 possono contenere 0 o 1.
+Se consideriamo 0 come il carattere spazio " " e 1 come come il carattere asterisco "*", quanti e quali simboli si possono  formare?
+
+Per esempio:
+matrice = 1 0 1   simbolo = *   *
+          1 0 1             *   *
+          1 1 1             * * *
+
+matrice = 0 1 0   simbolo =   *  
+          1 0 1             *   *
+          0 1 0               *  
+
+Si tratta di creare tutte le permutazioni di 9 elementi con ripetizione dalla lista (0, 1) e poi stamparle come se fossero matrici 3x3.
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+Numero di simboli:
+
+(length (perm-rep 9 '(0 1)))
+;-> 512
+
+Altra funzione che genera permutazioni con ripetizione:
+
+(define (permutations-with-repetitions N K)
+  (if (= N 0)
+    (list '())
+    (let ((sub-permutations (permutations-with-repetitions (- N 1) K)))
+      (apply append
+        (map (lambda (elem)
+               (map (lambda (sub-perm)
+                      (cons elem sub-perm))
+                    sub-permutations))
+             (sequence 0 (- K 1)))))))
+
+(permutations-with-repetitions 4 2)
+;-> ((0 0 0 0) (0 0 0 1) (0 0 1 0) (0 0 1 1) (0 1 0 0) (0 1 0 1) (0 1 1 0)
+;->  (0 1 1 1) (1 0 0 0) (1 0 0 1) (1 0 1 0) (1 0 1 1) (1 1 0 0) (1 1 0 1)
+;->  (1 1 1 0) (1 1 1 1))
+
+Il numero totale di permutazioni con ripetizioni di N elementi scelti da K elementi è dato dalla formula:
+ 
+  numero permutazioni con ripetizione = K^N
+ 
+Questa formula assume che ogni posizione nella sequenza può essere occupata da uno qualsiasi dei K elementi, e quindi ci sono 
+K scelte per ciascuna delle N posizioni.
+
+(pow 2 9)
+;-> 512
+
+Funzione che genera tutti i 512 simboli:
+
+(define (print-all c0 c1)
+  (local (all m)
+    (setq all (perm-rep 9 '(0 1)))
+    (dolist (el all)
+      (setq m (explode el 3))
+      (for (r 0 2)
+        (for (c 0 2)
+          (if (zero? (m r c)) (print c0) (print c1))
+        )
+        (println)
+      )
+      ;(read-line)
+      (println "------"))))
+
+Proviamo:
+
+(print-all "." "█")
+
+;-> ...     █..     .█.     ██.     ..█     █.█
+;-> ...     ...     ...     ...     ...     ...
+;-> ...     ...     ...     ...     ...     ...
+;-> ------  ------  ------  ------  ------  ------
+
+...
+
+;-> .█.     ██.     ..█     █.█     .██     ███
+;-> ███     ███     ███     ███     ███     ███
+;-> ███     ███     ███     ███     ███     ███
+;-> ------  ------  ------  ------  ------  ------
+
+
+--------------------------------------------------------
+Verificare se una lista è sottoinsieme di un'altra lista
+--------------------------------------------------------
+
+Date due liste A e B vogliamo verificare se tutti gli elementi di A appartengono agli elementi di B (cioè se una lista di elementi (A) è costituita solo da elementi di un'altra lista (B)).
+
+Per esempio:
+  A = (1 2 2 1 ),  B = (1 2),     Output = true (ogni valore di A si trova in B)
+  A = (1 2 2 1 3), B = (1 2),     Output = nil  (il 3 di A non si trova in B)
+  A = (1 2 2 1),   B = (1 2 3),   Output = true (il 3 in B non conta)
+  A = (1 2 3),     B = (1 2 2 1), Output = nil  (il 3 di A non si trova in B)
+
+Primo metodo:
+-------------
+(define (subset1? lst1 lst2)
+  (for-all (fn(x) (ref x lst2)) lst1))
+
+(ref x lst2): Restituisce l'indice di x in lst2 se x è presente, altrimenti restituisce nil.
+for-all: Restituisce true solo se la funzione anonima restituisce true per tutti gli elementi di lst1.
+
+Secondo metodo:
+---------------
+
+(define (subset2? lst1 lst2)
+  (= (difference lst1 lst2) '()))
+
+(difference lst1 lst2): restituisce '() se tutti gli elementi di lst1 si trovano in lst2.
+
+Proviamo:
+
+(subset1? '(1 1 2 2 3 3)   '(1 2 3))
+;-> true
+(subset2? '(1 1 2 2 3 3)   '(1 2 3))
+;-> true
+(subset1? '(1 1 2 2 3 3)   '(1 2 3 4))
+;-> true
+(subset2? '(1 1 2 2 3 3)   '(1 2 3 4))
+;-> true
+(subset1? '(1 1 2 2 3 3 4) '(1 2 3))
+;-> nil
+(subset2? '(1 1 2 2 3 3 4) '(1 2 3))
+;-> nil
+
+(subset1? '(1 2 3)   '(1 1 2 2 3 3))
+;-> true
+(subset2? '(1 2 3)   '(1 1 2 2 3 3))
+;-> true
+(subset1? '(1 2 3 4) '(1 1 2 2 3 3))
+;-> nil
+(subset2? '(1 2 3 4) '(1 1 2 2 3 3))
+;-> nil
+(subset1? '(1 2 3)   '(1 1 2 2 3 3 4))
+;-> true
+(subset2? '(1 2 3)   '(1 1 2 2 3 3 4))
+;-> true
+
+Vediamo la velocità delle funzioni:
+
+Output = true
+(time (subset1? t '(0 1 2 3)) 1000)
+;-> 156.206
+(time (subset2? t '(0 1 2 3)) 1000)
+;-> 109.343
+(time (subset1? t '(0 1 2 3)) 10000)
+;-> 1500.393
+(time (subset2? t '(0 1 2 3)) 10000)
+;-> 1031.574
+
+Output = nil
+(time (subset1? t '(0 1 3)) 1000)
+;-> 15.587
+(time (subset2? t '(0 1 3)) 1000)
+;-> 109.338
+(time (subset1? t '(0 1 3)) 10000)
+;-> 62.447
+(time (subset2? t '(0 1 3)) 10000)
+;-> 1031.228
+
+Per liste che danno come risultato true, la versione con "difference" è leggermente più veloce.
+Per liste che danno come risultato nil, la versione con "for-all" è mediamente molto più veloce.
+Questo perchè "for-all" restituisce nil appena un elemento non soddisfa la condizione, mentre restituisce true solo dopo aver controllato tutti gli elementi.
+
+
+-----------------------------
+Numeri binari in basi diverse
+-----------------------------
+
+Dato un numero intero positivo N in quali basi (base <= 10) il numero ha una rappresentazione di soli 0 e 1?
+
+(define (base10-baseN number base)
+"Convert a number from base 10 to base N (<=62)"
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result '())
+        (quotient number))
+    (while (>= quotient base)
+      (push (charset (% quotient base)) result)
+      (setq quotient (/ quotient base))
+    )
+    (push (charset quotient) result)
+    (join result)))
+
+(define (subset? lst1 lst2)
+"Check if all elements of lst1 are in lst2"
+  (for-all (fn(x) (ref x lst2)) lst1))
+
+(subset? '(0 1 0 0 0 0 1 1 1 0) '(0 1))
+;-> true
+(subset? '(0 1 1 0 0 2) '(0 1))
+;-> nil
+(subset? '(1 2 3 2 1 2 3 3 2 1) '(1 2 3))
+;-> true
+(subset? '(1 2 3 2 1 2 3 3 2 1) '(1 2 3 4))
+;-> true
+(subset? '(1 2 3 4) '(1 2 3 2 1 2 3 3 2 1))
+;-> nil
+
+Funzione che restituisce le basi il cui il numero N è costituito solo da 0 e 1:
+
+(define (basi01 N)
+  (setq strN (explode (string N)))
+  (setq basi '())
+  (for (b 2 10)
+    (setq str-num (base10-baseN N b))
+    (setq num (int str-num 0 10))
+    (if (subset? (explode str-num) '("0" "1")) (push (list b num) basi -1))
+  )
+  (push N basi)
+  basi)
+
+Proviamo:
+
+(basi01 10)
+;-> (10 (2 1010) (3 101) (9 11) (10 10))
+(basi01 1111)
+;-> (1111 (2 10001010111) (10 1111))
+
+Funzione che calcola il numero con basi01 massimo:
+
+(define (basi01-max start end)
+  (setq out (basi01 start))
+  (for (k (+ start 1) end)
+    (setq cur (basi01 k))
+    (when (> (length cur) (length out))
+      (println cur)
+      (setq out cur)))
+  out)
+
+Proviamo:
+
+(basi01-max 2 100000)
+;-> (3 (2 11) (3 10))
+;-> (4 (2 100) (3 11) (4 10))
+;-> (9 (2 1001) (3 100) (8 11) (9 10))
+;-> (9 (2 1001) (3 100) (8 11) (9 10))
+
+(basi01-max 100000 2)
+;-> (86356 (2 10101000101010100) (3 11101110101) (4 111011110))
+;-> (82000 (2 10100000001010000) (3 11011111001) (4 110001100) (5 10111000))
+
+(time (basi01-max 2 1e5))
+;-> (3 (2 11) (3 10))
+;-> (4 (2 100) (3 11) (4 10))
+;-> (9 (2 1001) (3 100) (8 11) (9 10))
+;-> 5672.122
+
+(time (basi01-max 2 1e6))
+;-> (3 (2 11) (3 10))
+;-> (4 (2 100) (3 11) (4 10))
+;-> (9 (2 1001) (3 100) (8 11) (9 10))
+;-> 56366.144
+
+Possiamo velocizzare la funzione "basi01", scrivendo una funzione unica:
+
+(define (basi01-fast N)
+  (local (out quotient cur continua)
+    (setq out '())
+    ; Ciclo sulle basi
+    (for (base 2 10)
+      ; Conversione del numero N in base 'base'
+      (setq cur '())
+      (setq continua true)
+      (setq quotient N)
+      (while (and (>= quotient base) continua)
+        ; se la cifra corrente non vale 0 o 1, allora esce
+        ; dal ciclo di conversione di base
+        (if (> (% quotient base) 1)
+            (setq continua nil)
+            (push (% quotient base) cur)
+        )
+        (setq quotient (/ quotient base))
+      )
+      (if continua
+          (if (> quotient 1)
+              (setq continua nil)
+              (push quotient cur)
+          )
+      )
+      ; inserisce la base e la conversione corrente nella lista soluzione
+      ; solo se la conversione è costituita da 0 e 1
+      (if continua (push (list base cur) out -1))
+    )
+    (push N out)
+    out))
+
+Proviamo:
+
+(basi01 10)
+;-> (10 (2 1010) (3 101) (9 11) (10 10))
+(length (basi01 10))
+;-> 5
+
+(basi01-fast 10)
+;-> (10 (2 (1 0 1 0)) (3 (1 0 1)) (9 (1 1)) (10 (1 0)))
+(length (basi01-fast 10))
+;-> 5
+
+(define (basi01-max-fast start end)
+  (setq out (basi01-fast start))
+  (for (k (+ start 1) end)
+    (setq cur (basi01-fast k))
+    (when (> (length cur) (length out))
+      (println cur)
+      (setq out cur)))
+  out)
+
+(time (basi01-max-fast 2 1e5))
+;-> (3 (2 11) (3 10))
+;-> (4 (2 100) (3 11) (4 10))
+;-> (9 (2 1001) (3 100) (8 11) (9 10))
+;-> 718.566
+
+(time (basi01-max-fast 2 1e6))
+;-> (3 (2 11) (3 10))
+;-> (4 (2 100) (3 11) (4 10))
+;-> (9 (2 1001) (3 100) (8 11) (9 10))
+;-> 7594.215
 
 ============================================================================
 
