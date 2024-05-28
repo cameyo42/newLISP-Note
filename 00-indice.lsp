@@ -2482,6 +2482,9 @@ NOTE LIBERE 24
   Simboli di una matrice 3x3 (permutazioni con ripetitione)
   Verificare se una lista è sottoinsieme di un'altra lista
   Numeri binari in basi diverse
+  Dama cinese
+  Griglie esagonali (Hex grid)
+  Autoconteggio dei caratteri
 
 PROBLEMI SUI DADI
 =================

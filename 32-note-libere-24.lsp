@@ -3474,5 +3474,191 @@ Proviamo:
 ;-> (9 (2 1001) (3 100) (8 11) (9 10))
 ;-> 7594.215
 
+
+-----------
+Dama cinese
+-----------
+
+Scrivere una funzione che stampa la seguente raffigurazione di dama cinese:
+
+              G
+             G G
+            G G G
+           G G G G
+  B B B B . . . . . Y Y Y Y
+   B B B . . . . . . Y Y Y
+    B B . . . . . . . Y Y
+     B . . . . . . . . Y
+      . . . . . . . . .
+     P . . . . . . . . O
+    P P . . . . . . . O O
+   P P P . . . . . . O O O
+  P P P P . . . . . O O O O
+           R R R R
+            R R R
+             R R
+              R
+
+Colore dei Pezzi: Green, Yellow, Orange, Red, Purple, Blue
+
+(define (print-chinese)
+  (local (rows chinese)
+    (setq rows
+              '("            G            "
+                "           G G           "
+                "          G G G          "
+                "         G G G G         "
+                "B B B B . . . . . Y Y Y Y"
+                " B B B . . . . . . Y Y Y "
+                "  B B . . . . . . . Y Y  "
+                "   B . . . . . . . . Y   "
+                "    . . . . . . . . .    "
+                "   P . . . . . . . . O   "
+                "  P P . . . . . . . O O  "
+                " P P P . . . . . . O O O "
+                "P P P P . . . . . O O O O"
+                "         R R R R         "
+                "          R R R          "
+                "           R R           "
+                "            R            "))
+    (setq chinese (map explode rows))
+    (for (r 0 (- (length chinese) 1))
+      (for (c 0 (- (length (chinese 0)) 1))
+        (print (chinese r c))) (println))))
+
+(print-chinese)
+;->             G
+;->            G G
+;->           G G G
+;->          G G G G
+;-> B B B B . . . . . Y Y Y Y
+;->  B B B . . . . . . Y Y Y
+;->   B B . . . . . . . Y Y
+;->    B . . . . . . . . Y
+;->     . . . . . . . . .
+;->    P . . . . . . . . O
+;->   P P . . . . . . . O O
+;->  P P P . . . . . . O O O
+;-> P P P P . . . . . O O O O
+;->          R R R R
+;->           R R R
+;->            R R
+;->             R
+
+
+----------------------------
+Griglie esagonali (Hex Grid)
+----------------------------
+
+In una griglia esagonale (per esempio la tavola per il gioco dell'Hex) le celle possono essere indicizzate con una terna (x y z).
+La cella al centro della griglia è (0 0 0).
+La griglia viene ordinata in a base al raggio degli anelli di esagoni concentrici (partendo dall'origine (0 0 0)).
+
+Vedi immagine "Hex-Grid.png" nella cartella "data".
+
+Per generare la lista delle coordinate per ogni anello dobbiamo notare che:
+1) x + y = z = 0 per tutte le celle
+2) la somma dei valori assoluti di x, y e z sono pari al doppio del raggio dell'anello.
+Questo è sufficiente per identificare ogni esagono su ciascun anello successivo.
+Inoltre ogni anello contiene sei celle in più rispetto al precedente e ogni vettore di 120° contiene un punto in più rispetto al centro.
+
+Funzione che genera le coordinate (anello per anello) di una griglia esagonale:
+
+(define (hex-grid rings)
+  (let (out '())
+    (for (i 0 rings)
+      (for (j (- i) i)
+      (for (k (- i) i)
+      (for (l (- i) i)
+        (if (and (= (+ (abs j) (abs k) (abs l)) (* i 2)) (zero? (+ j k l)))
+            (push (list j k l) out -1)))))) out))
+
+Proviamo:
+
+(hex-grid 2)
+;-> ((0 0 0) 
+;->  (-1 0 1) (-1 1 0) (0 -1 1) (0 1 -1) (1 -1 0) (1 0 -1)
+;->  (-2 0 2) (-2 1 1) (-2 2 0) (-1 -1 2) (-1 2 -1) (0 -2 2)
+;->  (0 2 -2) (1 -2 1) (1 1 -2) (2 -2 0) (2 -1 -1) (2 0 -2))
+
+(hex-grid 3)
+;-> ((0 0 0) 
+;->  (-1 0 1) (-1 1 0) (0 -1 1) (0 1 -1) (1 -1 0) (1 0 -1)
+;->  (-2 0 2) (-2 1 1) (-2 2 0) (-1 -1 2) (-1 2 -1) (0 -2 2)
+;->  (0 2 -2) (1 -2 1) (1 1 -2) (2 -2 0) (2 -1 -1) (2 0 -2))
+;->  (-3 0 3) (-3 1 2) (-3 2 1) (-3 3 0) (-2 -1 3) (-2 3 -1)
+;->  (-1 -2 3) (-1 3 -2) (0 -3 3) (0 3 -3) (1 -3 2) (1 2 -3)
+;->  (2 -3 1) (2 1 -3) (3 -3 0) (3 -2 -1) (3 -1 -2) (3 0 -3))
+
+
+---------------------------
+Autoconteggio dei caratteri
+---------------------------
+
+Scrivere una funzione che restituisce una lista con il conteggio dei propri caratteri in odine decrescente di occorrenze.
+
+Per esempio:
+Funzione: (define (demo) (+ 3 2))
+Conteggio caratteri: ((4 " ") (3 "e") (3 "(") (2 "d") (2 ")") (1 "o") (1 "n")
+                      (1 "m") (1 "i") (1 "f") (1 "3") (1 "2") (1 "+"))
+
+(setq s "(define (demo) (+ 3 2)")
+(setq code (explode s))
+(setq uniq (unique code))
+(sort (map (fn(x y) (list y x)) uniq (count uniq code)) >)
+
+Vediamo una funzione di esempio per capire quale rappresentazione usare:
+
+(define (test a b)
+  (local (c s)
+    (setq s "/\\"))
+    (setq c (+ a b)))
+
+Metodi di rappresentazione della funzione:
+
+(explode (source 'test))
+;-> ("(" "d" "e" "f" "i" "n" "e" " " "(" "t" "e" "s" "t" " " "a" " " "b"
+;->  ")" "\r" "\n" " " " " "(" "l" "o" "c" "a" "l" " " "(" "c" " " "s"
+;->  ")" " " "\r" "\n" " " " " " " "(" "s" "e" "t" "q" " " "s" " " "\""
+;->  "/" "\\" "\\" "\"" ")" ")" "\r" "\n" " " " " "(" "s" "e" "t" "q"
+;->  " " "c" " " "(" "+" " " "a" " " "b" ")" ")" ")" "\r" "\n" "\r" "\n")
+
+(parse (source 'test))
+;-> ("(" "define" "(" "test" "a" "b" ")" "(" "local" "(" "c" "s" ")" "("
+;->  "setq" "s" "/\\" ")" ")" "(" "setq" "c" "(" "+" "a" "b" ")" ")" ")")
+
+(explode (string test))
+;-> ("(" "l" "a" "m" "b" "d" "a" " " "(" "a" " " "b" ")" " " "(" "l" "o"
+;->  "c" "a" "l" " " "(" "c" " " "s" ")" " " "(" "s" "e" "t" "q" " " "s"
+;->  " " "\"" "/" "\\" "\\" "\"" ")" ")" " " "(" "s" "e" "t" "q" " " "c"
+;->  " " "(" "+" " " "a" " " "b" ")" ")" ")")
+
+(parse (string test))
+;-> ("(" "lambda" "(" "a" "b" ")" "(" "local" "(" "c" "s" ")" "(" "setq"
+;->  "s" "/\\" ")" ")" "(" "setq" "c" "(" "+" "a" "b" ")" ")" ")")
+
+Il primo metodo sembra quello più appropriato (perchè abbiamo anche i caratteri \r, \n).
+
+(define (auto-count-chars)
+  (local (code uniq)
+    (setq code (explode (source 'auto-count-chars)))
+    (setq uniq (unique code))
+    (sort (map (fn(x y) (list y x)) uniq (count uniq code)) >)))
+
+(auto-count-chars)
+;-> ((48 " ") (20 ")") (20 "(") (18 "o") (18 "e") (15 "u") (15 "c") (13 "t")
+;->  (13 "a") (11 "s") (10 "n") (9 "d") (8 "q") (7 "r") (7 "l") (7 "i")
+;->  (7 "\r") (7 "\n") (6 "-") (5 "p") (4 "x") (3 "m") (3 "h") (2 "y")
+;->  (2 "f") (2 "'") (1 "b") (1 ">"))
+
+Versione minimalista (100 caratteri):
+
+(define(f)(letn((c(explode(source 'f)))(u(unique c)))(sort(map(fn(x y)(list y x)) u(count u c))>)))
+(f)
+;-> ((27 " ") (15 ")") (15 "(") (7 "u") (7 "e") (5 "c") (4 "t") (4 "o")
+;->  (4 "n") (4 "l") (4 "\r") (4 "\n") (3 "x") (3 "s") (3 "i") (3 "f")
+;->  (3 "d") (3 "a") (2 "y") (2 "r") (2 "p") (2 "m") (1 "q") (1 "b")
+;->  (1 ">") (1 "'"))
+
 ============================================================================
 
