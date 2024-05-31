@@ -3660,5 +3660,75 @@ Versione minimalista (100 caratteri):
 ;->  (3 "d") (3 "a") (2 "y") (2 "r") (2 "p") (2 "m") (1 "q") (1 "b")
 ;->  (1 ">") (1 "'"))
 
+
+-------------------------------------------------------------
+Calcolo dei valori di resistenza per resistori (4 band color)
+-------------------------------------------------------------
+
+I resistori hanno delle bande codificate a colori che vengono utilizzate per identificare la loro resistenza in Ohm.
+Consideriamo i normali resistori assiali a 4 bande.
+
+            a   b   c   t
+         +------------------+
+         |  ||  ||  ||  ||  |
+  -------+  ||  ||  ||  ||  +-------
+         |  ||  ||  ||  ||  |
+         +------------------+
+
+Colore    Numero    Moltiplicatore    Lettera
+Black       0         1                  K
+Brown       1         10                 N
+Red         2         100                R
+Orange      3         1000               O
+Yellow      4         10000              Y
+Green       5         100000             G
+Blue        6         1000000            B
+Violet      7         10000000           V
+Gray        8         100000000          A
+White       9         1000000000         W
+Gold                  +/- 5%             g
+Silver                +/- 10%            s
+None                  +/- 20%            n
+
+Formato del codice: a b c t
+
+dove a è la prima banda, b è la seconda banda e possono avere uno dei colori da 0 a 9
+     c è il moltiplicatore (da 1,10,100, ... 1000000000),
+     t è la tolleranza che può valere "Gold", "Silver" o "None".
+
+Il valore del resistore viene calcolato con la seguente formula:
+
+  R = (10*a + b)*c (Ohm) +/-t
+
+Funzione che calcola la resistenza in base ai colori (4 bande):
+
+(define (resistor lst)
+  (local (colors tolerance a b c t ohm)
+    (setq colors '("Black" "Brown" "Red" "Orange" "Yellow" "Green" "Blue"
+                   "Violet" "Gray" "White"))
+    (setq tolerance '(("Gold" 5) ("Silver" 10) ("None" 20)))
+    ; get band 1 color value
+    (setq a (find (lst 0) colors))
+    ; get band 2 color value
+    ;(setq b (lookup (lst 1) colors))
+    (setq b (find (lst 1) colors))
+    ; get multiplicator value
+    (setq c (pow 10 (find (lst 2) colors)))
+    ; get toleranceance
+    (setq t (lookup (lst 3) tolerance))
+    ;(println a { } b { } c { } t)
+    ; calculate value of resistor (Ohm)
+    (setq ohm (* (+ (* 10 a) b) c))
+    (list ohm t)))
+
+Proviamo:
+
+(resistor '("Brown" "Black" "Orange" "Gold"))
+;-> (10000 5)
+(resistor '("Orange" "Red" "Violet" "None"))
+;-> (320000000 20)
+(resistor '("Yellow" "Green" "White" "Silver"))
+;-> (45000000000 10)
+
 ============================================================================
 

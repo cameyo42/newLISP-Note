@@ -2485,6 +2485,7 @@ NOTE LIBERE 24
   Dama cinese
   Griglie esagonali (Hex grid)
   Autoconteggio dei caratteri
+  Calcolo dei valori di resistenza per resistori (4 band color)
 
 PROBLEMI SUI DADI
 =================
