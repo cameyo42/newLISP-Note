@@ -2486,6 +2486,9 @@ NOTE LIBERE 24
   Griglie esagonali (Hex grid)
   Autoconteggio dei caratteri
   Calcolo dei valori di resistenza per resistori (4 band color)
+  Sequenze magiche
+  Sequenza di Alcuin
+  Distanza di Hausdorff
 
 PROBLEMI SUI DADI
 =================

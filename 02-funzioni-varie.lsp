@@ -5806,6 +5806,51 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
 ;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583
 ;->  53174 63261 75175 89134 105558 124754 147273 173525 204226)
 
+Nel 1918 il matematico indiano Ramanujan propose la seguente formula per calcolare il numero di partizioni di un numero n:
+
+  p(n) ≈ (1/(4*n*sqrt(3)))*exp(pi*sqrt(2*n/3)) per n -> Infinto
+
+(setq pi 3.1415926535897931)
+(define (p n)
+  (if (zero? n) 1
+  (int (mul (div (mul 4 n (sqrt 3))) (exp (mul pi (sqrt (div (mul 2 n) 3))))))))
+
+(map p (sequence 0 50))
+;-> (1 1 2 4 6 8 12 18 25 35 48 64 86 115 151 198 257 332 427 545 692
+;->  875 1101 1381 1724 2145 2659 3285 4045 4967 6080 7422 9036 10973
+;->  13293 16064 19369 23303 27977 33519 40080 47833 56981 67756 80431
+;->  95315 112770 133210 157114 185030 217590)
+
+Vediamo come varia l'errore relativo:
+
+  Errore relativo = Errore Assoluto / valore vero
+
+Valori veri:
+
+(setq valori (part-num 50))
+(length valori)
+;-> 51
+
+Valori calcolati con la formula di Ramanujan:
+
+(setq misure (map p (sequence 0 50)))
+(length misure)
+;-> 51
+
+Errore relativo:
+
+(setq err-rel (map (fn(x y) 
+  (format "%.4f" (div (abs (sub x y)) x) )) valori misure))
+;-> ("0.0000" "0.0000" "0.0000" "0.3333" "0.2000" "0.1429" "0.0909" "0.2000"
+;->  "0.1364" "0.1667" "0.1429" "0.1429" "0.1169" "0.1386" "0.1185" "0.1250"
+;->  "0.1126" "0.1178" "0.1091" "0.1122" "0.1037" "0.1048" "0.0988" "0.1004"
+;->  "0.0946" "0.0955" "0.0915" "0.0914" "0.0880" "0.0881" "0.0849" "0.0848"
+;->  "0.0823" "0.0818" "0.0799" "0.0794" "0.0774" "0.0770" "0.0754" "0.0748"
+;->  "0.0734" "0.0729" "0.0716" "0.0711" "0.0699" "0.0693" "0.0683" "0.0678"
+;->  "0.0668" "0.0663" "0.0654")
+
+L'errore diminuisce al crescere di n.
+
 
 ---------------------------
 Algoritmo di Euclide esteso

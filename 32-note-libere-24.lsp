@@ -3675,28 +3675,28 @@ Consideriamo i normali resistori assiali a 4 bande.
          |  ||  ||  ||  ||  |
          +------------------+
 
-Colore    Numero    Moltiplicatore    Lettera
-Black       0         1                  K
-Brown       1         10                 N
-Red         2         100                R
-Orange      3         1000               O
-Yellow      4         10000              Y
-Green       5         100000             G
-Blue        6         1000000            B
-Violet      7         10000000           V
-Gray        8         100000000          A
-White       9         1000000000         W
-Gold                  +/- 5%             g
-Silver                +/- 10%            s
-None                  +/- 20%            n
+  Colore    Numero    Moltiplicatore    Lettera
+  Black       0         1                  K
+  Brown       1         10                 N
+  Red         2         100                R
+  Orange      3         1000               O
+  Yellow      4         10000              Y
+  Green       5         100000             G
+  Blue        6         1000000            B
+  Violet      7         10000000           V
+  Gray        8         100000000          A
+  White       9         1000000000         W
+  Gold                  +/- 5%             g
+  Silver                +/- 10%            s
+  None                  +/- 20%            n
 
 Formato del codice: a b c t
 
-dove a è la prima banda, b è la seconda banda e possono avere uno dei colori da 0 a 9
-     c è il moltiplicatore (da 1,10,100, ... 1000000000),
+dove a è la prima banda, b è la seconda banda e hanno il nome di un colore (i quali sono associati ai numeri 0 .. 9).
+     c è il moltiplicatore (da 1, 10, 100, ..., 1000000000),
      t è la tolleranza che può valere "Gold", "Silver" o "None".
 
-Il valore del resistore viene calcolato con la seguente formula:
+Il valore della resistenza viene calcolato con la seguente formula:
 
   R = (10*a + b)*c (Ohm) +/-t
 
@@ -3710,7 +3710,6 @@ Funzione che calcola la resistenza in base ai colori (4 bande):
     ; get band 1 color value
     (setq a (find (lst 0) colors))
     ; get band 2 color value
-    ;(setq b (lookup (lst 1) colors))
     (setq b (find (lst 1) colors))
     ; get multiplicator value
     (setq c (pow 10 (find (lst 2) colors)))
@@ -3719,16 +3718,165 @@ Funzione che calcola la resistenza in base ai colori (4 bande):
     ;(println a { } b { } c { } t)
     ; calculate value of resistor (Ohm)
     (setq ohm (* (+ (* 10 a) b) c))
-    (list ohm t)))
+    ; convert to string with K,M,G
+    (cond
+      ((>= ohm 1e9) (string (format "%.1f" (div ohm 1e9)) " Gohms (+/- " t "%)"))
+      ((>= ohm 1e6) (string (format "%.1f" (div ohm 1e6)) " Mohms (+/- " t "%)"))
+      ((>= ohm 1e3) (string (format "%.1f" (div ohm 1e3)) " Kohms (+/- " t "%)"))
+    (true (string ohm "ohms +/- " t)))))
 
 Proviamo:
 
 (resistor '("Brown" "Black" "Orange" "Gold"))
-;-> (10000 5)
+;-> "10.0 Kohms (+/- 5%)"
+
 (resistor '("Orange" "Red" "Violet" "None"))
-;-> (320000000 20)
+;-> "320.0 Mohms (+/- 20%)"
+
 (resistor '("Yellow" "Green" "White" "Silver"))
-;-> (45000000000 10)
+;-> "45.0 Gohms (+/- 10%)"
+
+
+----------------
+Sequenze magiche
+----------------
+
+Una sequenza magica è una sequenza di interi non negativi a[0..n-1] tale che ci siano esattamente a[i] occorrenze di i.
+Ad esempio, (5 2 1 0 0 1 0 0 0) è una sequenza magica poiché ci sono cinque 0, due 1, un 2 e un 5.
+Scrivere una funzione che prende un intero positivo N e restituisce una sequenza magica di lunghezza N.
+
+Si può dimostrare che le uniche sequenze magiche sono le seguenti:
+
+N = 4
+Sequenze = (1 2 1 0) oppure (2 0 2 0)
+
+N = 5
+Sequenza =  (2 1 2 0 0)
+
+N >= 7
+Sequenza = (N-4 2 1) + [(N-7) volte 0] + (1 0 0 0)
+
+Dimostrazione di xnor:
+https://codegolf.stackexchange.com/questions/50151/magic-sequences-of-length-n
+
+Funzione che calcola la sequenza magica per un numero n:
+(define (magic-sequence N)
+  (cond ((= N 4) '(1 2 1 0))
+        ((= N 5) '(2 1 2 0 0))
+        ((>= N 7)
+          (let (out '())
+            (extend out (list (- N 4) 2 1))
+            (extend out (dup 0 (- N 7)))
+            (extend out '(1 0 0 0))))
+        (true '())))
+
+Proviamo:
+
+(magic-sequence 9)
+;-> (5 2 1 0 0 1 0 0 0)
+
+(map magic-sequence (sequence 4 20))
+;-> ((1 2 1 0) 
+;->  (2 1 2 0 0) 
+;->  () 
+;->  (3 2 1 1 0 0 0) 
+;->  (4 2 1 0 1 0 0 0)
+;->  (5 2 1 0 0 1 0 0 0)
+;->  (6 2 1 0 0 0 1 0 0 0)
+;->  (7 2 1 0 0 0 0 1 0 0 0)
+;->  (8 2 1 0 0 0 0 0 1 0 0 0)
+;->  (9 2 1 0 0 0 0 0 0 1 0 0 0)
+;->  (10 2 1 0 0 0 0 0 0 0 1 0 0 0)
+;->  (11 2 1 0 0 0 0 0 0 0 0 1 0 0 0)
+;->  (12 2 1 0 0 0 0 0 0 0 0 0 1 0 0 0)
+;->  (13 2 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
+;->  (14 2 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
+;->  (15 2 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0)
+;->  (16 2 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0))
+
+
+------------------
+Sequenza di Alcuin
+------------------
+
+Nella sequenza di Alcuin, a(n) è il numero di triangoli con lati interi e perimetro n.
+
+Sequenza OEIS: A005044
+Alcuin's sequence: expansion of x^3/((1-x^2)*(1-x^3)*(1-x^4)).
+  0, 0, 0, 1, 0, 1, 1, 2, 1, 3, 2, 4, 3, 5, 4, 7, 5, 8, 7, 10, 8, 12, 10,
+  14, 12, 16, 14, 19, 16, 21, 19, 24, 21, 27, 24, 30, 27, 33, 30, 37, 33,
+  40, 37, 44, 40, 48, 44, 52, 48, 56, 52, 61, 56, 65, 61, 70, 65, 75, 70,
+  80, 75, 85, 80, 91, 85, 96, 91, 102, 96, 108, 102, 114, 108, 120, ...
+
+Formula:
+  a(n) = round(n^2/48), se n è pari
+       = round((n+3)^2/48), se n è dispari
+
+(define (alcuin n)
+  (if (even? n)
+      (int (add 0.5 (div (* n n) 48)))
+      (int (add 0.5 (div (* (+ n 3) (+ n 3)) 48)))))
+
+Proviamo:
+
+(alcuin 9)
+;-> 3
+(alcuin 10)
+;-> 2
+
+(map alcuin (sequence 0 70))
+;-> (0 0 0 1 0 1 1 2 1 3 2 4 3 5 4 7 5 8 7 10 8 12
+;->  10 14 12 16 14 19 16 21 19 24 21 27 24 30 27 33 30 37 33
+;->  40 37 44 40 48 44 52 48 56 52 61 56 65 61 70 65 75 70
+;->  80 75 85 80 91 85 96 91 102 96 108 102)
+
+
+---------------------
+Distanza di Hausdorff
+---------------------
+
+La distanza di Hausdorff tra due insiemi finiti non vuoti A e B può essere calcolata trovando l'elemento di A per il quale la distanza dall'elemento più vicino di B è massima, e l'elemento di B per il quale la distanza dall'elemento più vicino di A è massima, e quindi prendendo il massimo di questi distanze.
+Considerando dist(a,b) = (abs (a - b)), l'algoritmo è il seguente:
+
+1. Per ciascun elemento "a" dell'insieme A, trovare la distanza minima da qualsiasi elemento dell'insieme B.
+2. Trovare il massimo di queste distanze minime per tutti gli "a" in A.
+3. Allo stesso modo, per ciascun elemento "b" dell'insieme B, trovare la distanza minima da qualsiasi elemento dell'insieme A.
+4. Trovare il massimo di queste distanze minime per tutti gli "b" in B.
+5. La distanza di Hausdorff è il massimo di questi due massimi.
+
+In altre parole, se la distanza di Hausdorff è d, allora ogni elemento di A si trova entro la distanza d da qualche elemento di B, e viceversa.
+
+(define (min-distance a B)
+  (apply min (map (fn(b) (abs (- a b))) B)))
+
+"min-distance": questa funzione calcola la distanza minima tra un elemento a e tutti gli elementi dell'insieme B.
+Utilizza la funzione 'map' per applicare il calcolo della distanza '(abs (- a b))' a ciascun elemento b in B, quindi trova il valore minimo utilizzando 'apply min'.
+
+(define (max-min-distance set1 set2)
+  (apply max (map (fn(x) (min-distance x set2)) set1)))
+
+"max-min-distance": questa funzione calcola la distanza massima tra tutti gli elementi di un set e un altro set.
+Mappa la funzione "min-distance" su tutti gli elementi in "set1" e applica "max" al risultato.
+
+(define (hausdorff A B)
+  (let ((d_AB (max-min-distance A B))
+        (d_BA (max-min-distance B A)))
+    (max d_AB d_BA)))
+
+"hausdorff": questa è la funzione principale che calcola la distanza di Hausdorff.
+Calcola 'd_AB' come il massimo delle distanze minime dal set A al set B e 'd_BA' come il massimo delle distanze minime dal set B al set A.
+La distanza di Hausdorff è quindi il massimo di 'd_AB' e ' d_BA'.
+
+Proviamo:
+
+(hausdorff '(1 3 5 7) '(2 4 6 8))
+;-> 1
+
+(hausdorff '(3 6 12 8 4) '(4 5 9 8))
+;-> 3
+
+(hausdorff '(1 10 100) '(2 20 200))
+;-> 100
 
 ============================================================================
 
