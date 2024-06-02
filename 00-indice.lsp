@@ -2489,6 +2489,7 @@ NOTE LIBERE 24
   Sequenze magiche
   Sequenza di Alcuin
   Distanza di Hausdorff
+  Sequenza SUDSI
 
 PROBLEMI SUI DADI
 =================

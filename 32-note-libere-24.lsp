@@ -3878,5 +3878,120 @@ Proviamo:
 (hausdorff '(1 10 100) '(2 20 200))
 ;-> 100
 
+
+--------------
+Sequenza SUDSI
+--------------
+
+La sequenza SUDSI (somma, differenza, scambio, incremento) è una sequenza che può essere generata nel modo seguente:
+
+Sia S una lista infinita di numeri naturali: 1 2 3 4 5 6 ... 
+Sia S(i) l'i-esimo elemento di S con un solo indice. 
+Inizialmente, S(1) è 1, S(2) è 2, ecc. (non esiste S(0)).
+
+A partire da S(1) e S(2):
+Calcolare la loro somma: somma = S(1) + S(2)
+Calcolare la loro differenza assoluta: diff = |S(1) - S(2)|
+Scambiare i due valori in S negli indici della somma e della differenza: swap(S(somma), S(diff))
+Incrementare gli indici di S (quindi la prossima volta usiamo la somma e la differenza di S2 e S3, e la volta successiva useremo S3 e S4, ecc.)
+Ripetere questo processo indefinitamente.
+
+Esempio:
+
+Lista S originale:
+[1 2] 3 4 5 6 7 8 9 10 11 12 ...
+
+Dopo che S3 (3 = 1 + 2) e S1 (1 = |1 - 2|) sono stati scambiati:
+3 [2 1] 4 5 6 7 8 9 10 11 12 ...
+
+Dopo che S3 e S1 sono stati scambiati:
+1 2 [3 4] 5 6 7 8 9 10 11 12 ...
+
+Dopo che S7 e S1 sono stati scambiati:
+7 2 3 [4 5] 6 1 8 9 10 11 12 ...
+
+Dopo che S9 e S1 sono stati scambiati:
+9 2 3 4 [5 6] 1 8 7 10 11 12 ...
+
+Dopo che S11 e S1 sono stati scambiati:
+11 2 3 4 5 [6 1] 8 7 10 9 12 ...
+
+Dopo che S7 e S5 sono stati scambiati:
+11 2 3 4 1 6 [5 8] 7 10 9 12 ...
+ecc.
+
+Ecco i primi termini della sequenza SUDSI:
+
+  1 3 1 7 9 11 11 11 15 15 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 
+  19 19 19 57 59 59 59 59 59 59 59 59 59 77 79 81 83 85 87 89 91 91 91 
+  91 91 91 91 91 91 91 91 91 91 115 115 121 123 125 127 127 127 127 127
+  137 139 141 143 145 147 147 147 147 147 147 147 ...
+
+Funzione che calcola la sequenza SUDSI fino ad un dato numero di termini:
+
+(define (sudsi termini)
+  (local (seq out counter idx a b sum diff)
+    (setq seq (sequence 0 (* 2 termini)))
+    (setq out '(1))
+    (setq counter 1)
+    (setq idx 1)
+    (while (< counter termini)
+      (setq a (seq idx))
+      (setq b (seq (+ idx 1)))
+      (setq diff (abs (- a b)))
+      (setq sum (+ a b))
+      (swap (seq diff) (seq sum))
+      (push (seq 1) out -1)
+      (++ idx)
+      (++ counter)
+    )
+    out))
+
+Proviamo:
+
+(sudsi 100)
+;-> (1 3 1 7 9 11 11 11 15 15 19 19 19 19 19 19 19 19 19 19 19 19 19 19
+;->  19 19 19 19 57 59 59 59 59 59 59 59 59 59 77 79 81 83 85 87 89 91
+;->  91 91 91 91 91 91 91 91 91 91 91 91 115 115 121 123 125 127 127 127
+;->  127 127 137 139 141 143 145 147 147 147 147 147 147 147 147 147 147
+;->  147 167 167 167 167 167 167 167 167 167 167 167 167 167 167 167 167)
+
+La funzione è lenta perchè usa una lista.
+
+(time (sudsi 1e4))
+;-> 296.797
+(time (sudsi 1e5))
+;-> 30674.64
+
+Proviamo con un vettore:
+
+(define (sudsi1 termini)
+  (local (seq out counter idx a b sum diff)
+    (setq seq (array (+ (* 2 termini) 2) (sequence 0 (+ (* 2 termini) 1))))
+    (setq out '(1))
+    (setq counter 1)
+    (setq idx 1)
+    (while (< counter termini)
+      (setq a (seq idx))
+      (setq b (seq (+ idx 1)))
+      (setq diff (abs (- a b)))
+      (setq sum (+ a b))
+      (swap (seq diff) (seq sum))
+      (push (seq 1) out -1)
+      (++ idx)
+      (++ counter)
+    )
+    out))
+
+(= (sudsi 100) (sudsi1 100))
+;-> true
+
+(time (sudsi1 1e4))
+;-> 15.586
+(time (sudsi1 1e5))
+;-> 46.859
+(time (sudsi1 1e6))
+;-> 484.346
+
 ============================================================================
 
