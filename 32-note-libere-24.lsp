@@ -393,7 +393,7 @@ Funzione che calcola il numero minimo e i passi necessari per avere 'd' litri in
   ; verifica che m < n
   (if (> m n) (swap m n))
   (cond
-    ; verifica se la soluzione è fisicamente possibile  
+    ; verifica se la soluzione è fisicamente possibile
     ((> d n) nil)
     ; verifica se la soluzione è matematicamente possibile
     ((!= (% d (gcd n m)) 0) nil)
@@ -511,7 +511,7 @@ Operazioni in sequenza
 ----------------------
 
 Supponiamo di avere una lista di numeri e operatori aritmetici del tipo:
-  
+
   (num0 op0 num1 op1 ... numN opN)
 
 e vogliamo calcolare il valore ottenuto eseguendo 'linearmente' le operazioni da sinistra a destra.
@@ -601,7 +601,7 @@ Proviamo:
 
 Quante cifre occorrono per un libro di P pagine?
 
-Sequenza OEIS: A058183 
+Sequenza OEIS: A058183
 Number of digits in concatenation of first n positive integers.
 Or, total number of digits in numbers from 1 through n.
   1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31,
@@ -895,7 +895,7 @@ La spiegazione dell'algoritmo si trova nei commenti della funzione.
     (dolist (el nums found)
       ; calcola la differenza corrente
       (setq cur-diff (abs (- el (seq -1))))
-      ; quando il numero non compare nella sequenza e 
+      ; quando il numero non compare nella sequenza e
       ; la differenza corrente non compare nelle differenze...
       (when (and (not (find el seq))
                 (not (find cur-diff diff)))
@@ -1038,7 +1038,7 @@ Adesso scriviamo due funzioni che permettono ai due operatori, (interleave e sel
             (pop str)
             (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))
             (* num -1))
-          (true 
+          (true
             (dolist (el (explode str)) (setq num (+ (* num 10) (int el))))))))
 
 (define (bits-i num)
@@ -1055,7 +1055,7 @@ Adesso scriviamo due funzioni che permettono ai due operatori, (interleave e sel
     ; remove left padded 0
     (while (= (bin 0) "0") (pop bin))
     (if (= bin "") 0L
-        ; else, build big integer number  
+        ; else, build big integer number
         (dolist (el (explode bin))
           (setq num (+ (* num 2) (int el)))))))
 
@@ -1842,7 +1842,7 @@ Per generare i numeri primi in un intervallo (a..b) modifichiamo la funzione pre
         ((= b 2) '(2))
         (true
           (let ((lst '(2)) (arr (array (+ b 1))))
-            ; initialize lst 
+            ; initialize lst
             (if (> a 2) (setq lst '()))
             (for (x 3 b 2)
               (when (not (arr x))
@@ -1865,7 +1865,7 @@ Proviamo:
 
 Per verificare i risultati della funzione "primes-range" usiamo un'altra funzione che calcola i primi in un intervallo:
 
-(define (primi-tra a b) 
+(define (primi-tra a b)
   (filter (fn(x) (= (length (factor x)) 1)) (sequence a b)))
 
 (= (primes-range 3 20) (primi-tra 3 20))
@@ -1960,11 +1960,11 @@ Trasformiamo questa stringa in una lista di stringhe delimitate dal carattere di
 Cerchiamo tutte le parole equilibrate:
 
 (filter balanced? data)
-;-> ("a" "aaa" "aba" "ababa" "b" "bad" "c" "cabbage" "cb" "cdc" "d" 
-;->  "d'oeuvre" "dabble" "dade" "dc" "dead" "deadhead" "deaf" "dec" 
+;-> ("a" "aaa" "aba" "ababa" "b" "bad" "c" "cabbage" "cb" "cdc" "d"
+;->  "d'oeuvre" "dabble" "dade" "dc" "dead" "deadhead" "deaf" "dec"
 ;->  ...
-;->  "sylow" "synonymy" "t" "tory" "toy" "troy" "trust" "trw" "u" 
-;->  "usury" "ut" "v" "w" "wv" "x" "y" "z") 
+;->  "sylow" "synonymy" "t" "tory" "toy" "troy" "trust" "trw" "u"
+;->  "usury" "ut" "v" "w" "wv" "x" "y" "z")
 
 (length (filter balanced? data))
 ;-> 983
@@ -2280,7 +2280,7 @@ La radice (0) di un numero x vale ?
 Se x^n = a, allora x = rootN(a)
   dove rootN rappresenta la radice N-esima (root2 = "sqrt", root3 = "cbrt")
 
-Quindi, ponendo n=0:  
+Quindi, ponendo n=0:
 
   x^0 = a, allora x = root0(a)
 
@@ -2298,7 +2298,7 @@ Scriviamo la radice N-esima in un altro modo:
 Ponendo N = 0 (root0) otteniamo:
 
   root0(x) = x^(1/0)
-  
+
 A questo punto possiamo considerare due casi distinti:
 
 1) Consideriamo la divisione per zero come una operazione indefinita, di conseguenza anche root0(x) è indefinita.
@@ -2306,7 +2306,7 @@ A questo punto possiamo considerare due casi distinti:
 2) Consideriamo 1/0 = infinito, allora vediamo quanto vale x^infinito:
 se x > 1:     x^inf = inf
 se 0 < x < 1: x^inf = 0
-se x = 1:     1^inf = 1  
+se x = 1:     1^inf = 1
 se x = 0:     0^inf = 0
 se x < 0:     l'espressione non è ben definita per esponenti reali infiniti
 
@@ -2437,7 +2437,7 @@ Esempio 1:
 
   1 --> 4 -3
   2 --> 7 -5
-  4 --> 8 -5 
+  4 --> 8 -5
   Errato, perchè '-5' è già stato usato
 
 Esempio 2:
@@ -2553,7 +2553,7 @@ La colonna Distanza (AU) rappresenta la distanza in Unità Astronomiche.
 
 Dividiamo la tabella in due liste:
 
-(setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove" 
+(setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove"
                 "Saturno" "Urano" "Nettuno" "Plutone"))
 
 (setq dist '(50290000 41400000 78340000 550390000 646270000
@@ -2579,7 +2579,7 @@ Sommiamo le distanze della lista:
 Funzione che calcola la distanza tra due pianeti (km):
 
 (define (distanza p1 p2)
-  (setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove" 
+  (setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove"
                   "Saturno" "Urano" "Nettuno" "Plutone"))
   (setq dist '(50290000 41400000 78340000 550390000 646270000
                1448950000 1627450000 1405380000))
@@ -2621,7 +2621,7 @@ Funzione che calcola la distanza tra due pianeti (km o AU):
 
 (define (distance p1 p2 AU)
   (local (planets dist idx1 idx2 km)
-    (setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove" 
+    (setq planets '("Mercurio" "Venere" "Terra" "Marte" "Giove"
                     "Saturno" "Urano" "Nettuno" "Plutone"))
     (setq dist '(50290000 41400000 78340000 550390000 646270000
                 1448950000 1627450000 1405380000))
@@ -2749,11 +2749,11 @@ Liste bilanciate
 Una lista a(1), a(2), a(3), ..., a(n) è considerata bilanciata se soddisfa uno dei seguenti criteri:
 
 1) esiste un indice 'i' per cui risulta:
-   
+
    Sum(a(0) + ... + a(i)) = Sum(a(i+1) + a(i+2) + ... + a(n))
 
 2) esiste un indice 'i' per cui risulta:
-   
+
    Sum(a(0) + ... + a(i-1)) = Sum(a(i+1) + a(i+2) + ... + a(n))
 
 Nel primo caso la lista può essere divisa all'indice 'i' in due parti che hanno somma uguale
@@ -2779,9 +2779,9 @@ Criterio 1
     (setq stop nil)
     ; ciclo per ogni elemento della lista
     (dolist (el lst)
-      ; somma corrente parte sinistra    
+      ; somma corrente parte sinistra
       (setq sx (+ sx el))
-      ; somma corrente parte destra    
+      ; somma corrente parte destra
       (setq dx (- dx el))
       ; somme uguali?
       (cond ((= sx dx)
@@ -2948,7 +2948,7 @@ Funzione che esplode una bomba di valore B alla cella (i,j) della matrice mx:
         (setf (mx x y) (+ (mx x y) value))
       )
     )
-    (cond 
+    (cond
       ((> B 0) ; valore bomba positivo
         ; Ciclo decrescente sulla potenza della Bomba
         (for (k 0 (- B 1))
@@ -3100,7 +3100,7 @@ Out[1]= -(-) --
 
 In[2]:= Expand[(x^2 + xy +y^2)^3]
 
-         6      4         2   2     3      4  2      2     2       2  2      2  4         4    6 
+         6      4         2   2     3      4  2      2     2       2  2      2  4         4    6
 Out[3]= x  + 3 x  xy + 3 x  xy  + xy  + 3 x  y  + 6 x  xy y  + 3 xy  y  + 3 x  y  + 3 xy y  + y
 
 In[3]:=
@@ -3159,9 +3159,9 @@ matrice = 1 0 1   simbolo = *   *
           1 0 1             *   *
           1 1 1             * * *
 
-matrice = 0 1 0   simbolo =   *  
+matrice = 0 1 0   simbolo =   *
           1 0 1             *   *
-          0 1 0               *  
+          0 1 0               *
 
 Si tratta di creare tutte le permutazioni di 9 elementi con ripetizione dalla lista (0, 1) e poi stamparle come se fossero matrici 3x3.
 
@@ -3195,10 +3195,10 @@ Altra funzione che genera permutazioni con ripetizione:
 ;->  (1 1 1 0) (1 1 1 1))
 
 Il numero totale di permutazioni con ripetizioni di N elementi scelti da K elementi è dato dalla formula:
- 
+
   numero permutazioni con ripetizione = K^N
- 
-Questa formula assume che ogni posizione nella sequenza può essere occupata da uno qualsiasi dei K elementi, e quindi ci sono 
+
+Questa formula assume che ogni posizione nella sequenza può essere occupata da uno qualsiasi dei K elementi, e quindi ci sono
 K scelte per ciascuna delle N posizioni.
 
 (pow 2 9)
@@ -3252,16 +3252,9 @@ Per esempio:
 Primo metodo:
 -------------
 
-(define (sublist? lst1 lst2)
-  ; Checks if all elements of lst1 are in lst2
+(define (subset1? lst1 lst2)
+  ; Checks if all elements of a list (lst1) are in another list (lst2)
   (for-all (fn(x) (ref x lst2)) lst1))
-
-(sublist? '(1 1 2 2 3 3)   '(1 2 3))    --> true
-(sublist? '(1 1 2 2 3 3)   '(1 2 3 4))  --> true
-(sublist? '(1 1 2 2 3 3 4) '(1 2 3))    --> nil
-(sublist? '(1 2 3)   '(1 1 2 2 3 3))    --> true
-(sublist? '(1 2 3 4) '(1 1 2 2 3 3))    --> nil
-(sublist? '(1 2 3)   '(1 1 2 2 3 3 4))  --> true
 
 (ref x lst2): Restituisce l'indice di x in lst2 se x è presente, altrimenti restituisce nil.
 for-all: Restituisce true solo se la funzione anonima restituisce true per tutti gli elementi di lst1.
@@ -3276,6 +3269,35 @@ Secondo metodo:
 
 Proviamo:
 
+(subset1? '(1 1 2 2 3 3)   '(1 2 3))
+;-> true
+(subset2? '(1 1 2 2 3 3)   '(1 2 3))
+;-> true
+
+(subset1? '(1 1 2 2 3 3)   '(1 2 3 4))
+;-> true
+(subset2? '(1 1 2 2 3 3)   '(1 2 3 4))
+;-> true
+
+(subset1? '(1 1 2 2 3 3 4) '(1 2 3))
+;-> nil
+(subset2? '(1 1 2 2 3 3 4) '(1 2 3))
+;-> nil
+
+(subset1? '(1 2 3)   '(1 1 2 2 3 3))
+;-> true
+(subset2? '(1 2 3)   '(1 1 2 2 3 3))
+;-> true
+
+(subset1? '(1 2 3 4) '(1 1 2 2 3 3))
+;-> nil
+(subset2? '(1 2 3 4) '(1 1 2 2 3 3))
+;-> nil
+
+(subset1? '(1 2 3)   '(1 1 2 2 3 3 4))
+;-> true
+(subset2? '(1 2 3)   '(1 1 2 2 3 3 4))
+;-> true
 
 Vediamo la velocità delle funzioni:
 
@@ -3560,13 +3582,13 @@ Funzione che genera le coordinate (anello per anello) di una griglia esagonale:
 Proviamo:
 
 (hex-grid 2)
-;-> ((0 0 0) 
+;-> ((0 0 0)
 ;->  (-1 0 1) (-1 1 0) (0 -1 1) (0 1 -1) (1 -1 0) (1 0 -1)
 ;->  (-2 0 2) (-2 1 1) (-2 2 0) (-1 -1 2) (-1 2 -1) (0 -2 2)
 ;->  (0 2 -2) (1 -2 1) (1 1 -2) (2 -2 0) (2 -1 -1) (2 0 -2))
 
 (hex-grid 3)
-;-> ((0 0 0) 
+;-> ((0 0 0)
 ;->  (-1 0 1) (-1 1 0) (0 -1 1) (0 1 -1) (1 -1 0) (1 0 -1)
 ;->  (-2 0 2) (-2 1 1) (-2 2 0) (-1 -1 2) (-1 2 -1) (0 -2 2)
 ;->  (0 2 -2) (1 -2 1) (1 1 -2) (2 -2 0) (2 -1 -1) (2 0 -2))
@@ -3760,10 +3782,10 @@ Proviamo:
 ;-> (5 2 1 0 0 1 0 0 0)
 
 (map magic-sequence (sequence 4 20))
-;-> ((1 2 1 0) 
-;->  (2 1 2 0 0) 
-;->  () 
-;->  (3 2 1 1 0 0 0) 
+;-> ((1 2 1 0)
+;->  (2 1 2 0 0)
+;->  ()
+;->  (3 2 1 1 0 0 0)
 ;->  (4 2 1 0 1 0 0 0)
 ;->  (5 2 1 0 0 1 0 0 0)
 ;->  (6 2 1 0 0 0 1 0 0 0)
@@ -3869,8 +3891,8 @@ Sequenza SUDSI
 
 La sequenza SUDSI (somma, differenza, scambio, incremento) è una sequenza che può essere generata nel modo seguente:
 
-Sia S una lista infinita di numeri naturali: 1 2 3 4 5 6 ... 
-Sia S(i) l'i-esimo elemento di S con un solo indice. 
+Sia S una lista infinita di numeri naturali: 1 2 3 4 5 6 ...
+Sia S(i) l'i-esimo elemento di S con un solo indice.
 Inizialmente, S(1) è 1, S(2) è 2, ecc. (non esiste S(0)).
 
 A partire da S(1) e S(2):
@@ -3906,8 +3928,8 @@ ecc.
 
 Ecco i primi termini della sequenza SUDSI:
 
-  1 3 1 7 9 11 11 11 15 15 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19 
-  19 19 19 57 59 59 59 59 59 59 59 59 59 77 79 81 83 85 87 89 91 91 91 
+  1 3 1 7 9 11 11 11 15 15 19 19 19 19 19 19 19 19 19 19 19 19 19 19 19
+  19 19 19 57 59 59 59 59 59 59 59 59 59 77 79 81 83 85 87 89 91 91 91
   91 91 91 91 91 91 91 91 91 91 115 115 121 123 125 127 127 127 127 127
   137 139 141 143 145 147 147 147 147 147 147 147 ...
 
@@ -4012,7 +4034,7 @@ Il secondo approccio è quello di usare una variabile globale (_schrodinger):
   ; definisce la variabile solo la prima volta (quando vale nil)
   (if (nil? _schrodinger) (setq _schrodinger (rand 2)))
   (println _schrodinger)
-  (cond 
+  (cond
     ; prima azione
     ((zero? _schrodinger) (while true (read-line)))
     ; seconda azione
@@ -4060,6 +4082,206 @@ Adesso "cat" esegue sempre la seconda azione:
 (cat)
 ;-> 1
 ;-> nil
+
+
+----------------------------------
+Funzioni booleane di due variabili
+----------------------------------
+
+Con due variabili booleane (binarie) A e B possiamo creare 16 funzioni diverse:
+
+A B | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p |
+---------------------------------------------------------------------
+0 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+0 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 |
+1 0 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 1 |
+1 1 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 | 0 | 1 |
+
+Vediamo le espressioni di queste 16 funzioni:
+
+A B | a = (NOT (A OR B OR (NOT (A AND B))))
+-------------------------------------------
+0 0 | 0 |
+0 1 | 0 |
+1 0 | 0 |
+1 1 | 0 |
+
+| A B | b = (A AND B)
+---------------------
+| 0 0 | 0 |
+| 0 1 | 0 |
+| 1 0 | 0 |
+| 1 1 | 1 |
+
+A B | c = (A AND (NOT B)) oppure (A > B)
+----------------------------------------
+0 0 | 0 |
+0 1 | 0 |
+1 0 | 1 |
+1 1 | 0 |
+
+A B | d = (A)
+-------------
+0 0 | 0 |
+0 1 | 0 |
+1 0 | 1 |
+1 1 | 1 |
+
+A B | e = ((NOT A) AND B)) oppure (A < B)
+-----------------------------------------
+0 0 | 0 |
+0 1 | 1 |
+1 0 | 0 |
+1 1 | 0 |
+
+A B | f = (B)
+-------------
+0 0 | 0 |
+0 1 | 1 |
+1 0 | 0 |
+1 1 | 1 |
+
+A B | g = ((A AND (NOT B)) OR ((NOT A) AND B)) = (A XOR B)
+----------------------------------------------------------
+0 0 | 0 |
+0 1 | 1 |
+1 0 | 1 |
+1 1 | 0 |
+
+A B | h = (A OR B)
+------------------
+0 0 | 0 |
+0 1 | 1 |
+1 0 | 1 |
+1 1 | 1 |
+
+A B | i = (NOT (A OR B))
+------------------------
+0 0 | 1 |
+0 1 | 0 |
+1 0 | 0 |
+1 1 | 0 |
+
+A B | j = (NOT (A XOR B))
+-------------------------
+0 0 | 1 |
+0 1 | 0 |
+1 0 | 0 |
+1 1 | 1 |
+
+A B | k = (NOT B))
+------------------
+0 0 | 1 |
+0 1 | 0 |
+1 0 | 1 |
+1 1 | 0 |
+
+A B | l = (A OR (NOT B))
+------------------------
+0 0 | 1 |
+0 1 | 0 |
+1 0 | 1 |
+1 1 | 1 |
+
+A B | m = (NOT A)
+-----------------
+0 0 | 1 |
+0 1 | 1 |
+1 0 | 0 |
+1 1 | 0 |
+
+A B | n = ((NOT A) OR B)
+------------------------
+0 0 | 1 |
+0 1 | 1 |
+1 0 | 0 |
+1 1 | 1 |
+
+A B | o = (NOT (A AND B)) = NAND
+--------------------------------
+0 0 | 1 |
+0 1 | 1 |
+1 0 | 1 |
+1 1 | 0 |
+
+A B | l = (A OR B OR (NOT (A AND B)))
+-------------------------------------
+0 0 | 1 |
+0 1 | 1 |
+1 0 | 1 |
+1 1 | 1 |
+
+(define (xor a b) (or (and a (not b)) (and (not a) b)))
+(define (nand a b) (not (and a b)))
+
+
+--------------------------------------------------
+Tastiera QWERTY e stringhe con caratteri adiacenti
+--------------------------------------------------
+
+Data una stringa contenente solo caratteri alfabetici [A,B,C,...,Z], determinare se può essere scritta utilizzando solo tasti adiacenti di una tastiera QWERTY.
+
+Costruiamo la lista associativa tra ogni tasto e i suoi caratteri adiacenti:
+
+(setq keys '( ("Q" ("Q" "W" "A"))
+              ("W" ("W" "Q" "A" "S" "E"))
+              ("E" ("E" "W" "S" "D" "R"))
+              ("R" ("R" "E" "D" "F" "T"))
+              ("T" ("T" "R" "F" "G" "Y"))
+              ("Y" ("Y" "T" "G" "H" "U"))
+              ("U" ("U" "Y" "H" "J" "I"))
+              ("I" ("I" "U" "J" "K" "O"))
+              ("O" ("O" "I" "K" "L" "P"))
+              ("P" ("P" "O" "L"))
+              ("A" ("A" "Q" "Z" "W" "S"))
+              ("S" ("S" "W" "A" "Z" "X" "D" "E"))
+              ("D" ("D" "E" "S" "X" "C" "F" "R"))
+              ("F" ("F" "R" "D" "C" "V" "G" "T"))
+              ("G" ("G" "T" "F" "V" "B" "H" "Y"))
+              ("H" ("H" "Y" "G" "B" "N" "J" "U"))
+              ("J" ("J" "U" "H" "N" "M" "K" "I"))
+              ("K" ("K" "I" "J" "M" "L" "O"))
+              ("L" ("L" "O" "K" "P"))
+              ("Z" ("Z" "A" "S" "X"))
+              ("X" ("X" "S" "Z" "D" "C"))
+              ("C" ("C" "D" "X" "F" "V"))
+              ("V" ("V" "F" "C" "B" "G"))
+              ("B" ("B" "G" "V" "N" "H"))
+              ("N" ("N" "H" "B" "M" "J"))
+              ("M" ("M" "J" "N" "K"))))
+
+Scriviamo una funzione che scorre la stringa e verifica se ogni carattere è adiacente al precedente:
+
+(define (typeable str)
+  (if (< (length str) 2) true
+  ;else
+  (local (len cur-char stop)
+    (setq str (upper-case str))
+    (setq len (length str))
+    (setq cur-char (str 0))
+    (setq stop nil)
+    (for (i 1 (- len 1) 1 stop)
+      (if (nil? (ref cur-char (lookup (str i) keys))) (setq stop true))
+      (setq cur-char (str i))
+    )
+    (not stop))))
+
+Proviamo:
+
+(typeable "")
+;-> true
+(typeable "s")
+;-> true
+(typeable "qwerty")
+;-> true
+(typeable "pollo")
+;-> true
+(typeable "newLISP")
+;-> nil
+(typeable "desertress")
+;-> true
+(typeable "qwertyuioplkjhgfdsazxcvbnm")
+;-> true
 
 ============================================================================
 

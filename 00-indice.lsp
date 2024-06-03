@@ -2491,6 +2491,8 @@ NOTE LIBERE 24
   Distanza di Hausdorff
   Sequenza SUDSI
   Effetto Schrodinger's cat
+  Funzioni booleane di due variabili
+  Tastiera QWERTY e stringhe con caratteri adiacenti
 
 PROBLEMI SUI DADI
 =================
