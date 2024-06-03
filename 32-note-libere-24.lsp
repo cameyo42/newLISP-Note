@@ -3251,8 +3251,17 @@ Per esempio:
 
 Primo metodo:
 -------------
-(define (subset1? lst1 lst2)
+
+(define (sublist? lst1 lst2)
+  ; Checks if all elements of lst1 are in lst2
   (for-all (fn(x) (ref x lst2)) lst1))
+
+(sublist? '(1 1 2 2 3 3)   '(1 2 3))    --> true
+(sublist? '(1 1 2 2 3 3)   '(1 2 3 4))  --> true
+(sublist? '(1 1 2 2 3 3 4) '(1 2 3))    --> nil
+(sublist? '(1 2 3)   '(1 1 2 2 3 3))    --> true
+(sublist? '(1 2 3 4) '(1 1 2 2 3 3))    --> nil
+(sublist? '(1 2 3)   '(1 1 2 2 3 3 4))  --> true
 
 (ref x lst2): Restituisce l'indice di x in lst2 se x è presente, altrimenti restituisce nil.
 for-all: Restituisce true solo se la funzione anonima restituisce true per tutti gli elementi di lst1.
@@ -3267,31 +3276,6 @@ Secondo metodo:
 
 Proviamo:
 
-(subset1? '(1 1 2 2 3 3)   '(1 2 3))
-;-> true
-(subset2? '(1 1 2 2 3 3)   '(1 2 3))
-;-> true
-(subset1? '(1 1 2 2 3 3)   '(1 2 3 4))
-;-> true
-(subset2? '(1 1 2 2 3 3)   '(1 2 3 4))
-;-> true
-(subset1? '(1 1 2 2 3 3 4) '(1 2 3))
-;-> nil
-(subset2? '(1 1 2 2 3 3 4) '(1 2 3))
-;-> nil
-
-(subset1? '(1 2 3)   '(1 1 2 2 3 3))
-;-> true
-(subset2? '(1 2 3)   '(1 1 2 2 3 3))
-;-> true
-(subset1? '(1 2 3 4) '(1 1 2 2 3 3))
-;-> nil
-(subset2? '(1 2 3 4) '(1 1 2 2 3 3))
-;-> nil
-(subset1? '(1 2 3)   '(1 1 2 2 3 3 4))
-;-> true
-(subset2? '(1 2 3)   '(1 1 2 2 3 3 4))
-;-> true
 
 Vediamo la velocità delle funzioni:
 
@@ -3992,6 +3976,90 @@ Proviamo con un vettore:
 ;-> 46.859
 (time (sudsi1 1e6))
 ;-> 484.346
+
+
+-------------------------
+Effetto Schrodinger's cat
+-------------------------
+
+Scrivere una funzione che alla prima esecuzione esegue (con la stessa probabilità) una delle seguenti azioni:
+1) legge caratteri da STDIN e li stampa su STDOUT indefinitamente (Ctrl-C per terminare)
+2) restituisce nil e si ferma
+Le successive esecuzioni della funzione devono sempre eseguire l'azione effettuata al primo lancio.
+
+Il primo approccio è stato quello di scrivere una funzione che al primo lancio ridefisce la funzione stessa:
+
+(define (cat)
+  (local (choice)
+    (setq choice (rand 2))
+    (println choice)
+    (cond ((zero? choice)
+           (setq f "(define (cat) (while true (read-line)))")
+           (eval-string f)
+           (while true (read-line)))
+          (true
+           (setq f "(define (cat) nil)")
+           (eval-string f)
+           nil))))
+
+Purtoppo newLISP va in crash quando si tenta di ridefinire la funzione in esecuzione:
+(cat)
+La REPl di newLISP...scompare.
+
+Il secondo approccio è quello di usare una variabile globale (_schrodinger):
+
+(define (cat)
+  ; definisce la variabile solo la prima volta (quando vale nil)
+  (if (nil? _schrodinger) (setq _schrodinger (rand 2)))
+  (println _schrodinger)
+  (cond 
+    ; prima azione
+    ((zero? _schrodinger) (while true (read-line)))
+    ; seconda azione
+    (true nil)))
+
+Proviamo:
+
+(cat)
+;-> 0
+caratteri inseriti da tastiera
+per uscire premere CTRL-C
+;-> ERR: received SIGINT - in function read-line
+;-> called from user function (cat)
+
+Adesso "cat" esegue sempre la prima azione:
+
+(cat)
+;-> 0
+...
+;-> ERR: received SIGINT - in function read-line
+;-> called from user function (cat)
+
+(cat)
+;-> 0
+...
+;-> ERR: received SIGINT - in function read-line
+;-> called from user function (cat)
+
+Per resettare il comportamento della funzione poniamo _schrodinger a nil:
+
+(setq _schrodinger nil)
+
+Eseguiamo di nuovo "cat" per la prima volta:
+
+(cat)
+;-> 1
+;-> nil
+
+Adesso "cat" esegue sempre la seconda azione:
+
+(cat)
+;-> 1
+;-> nil
+
+(cat)
+;-> 1
+;-> nil
 
 ============================================================================
 

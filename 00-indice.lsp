@@ -2490,6 +2490,7 @@ NOTE LIBERE 24
   Sequenza di Alcuin
   Distanza di Hausdorff
   Sequenza SUDSI
+  Effetto Schrodinger's cat
 
 PROBLEMI SUI DADI
 =================
@@ -2534,7 +2535,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (284 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (285 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
