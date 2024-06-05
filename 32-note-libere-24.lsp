@@ -4099,8 +4099,9 @@ A B | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p |
 
 Vediamo le espressioni di queste 16 funzioni:
 
-A B | a = (NOT (A OR B OR (NOT (A AND B))))
--------------------------------------------
+
+A B | a = (NOT (A OR B OR (NOT (A AND B)))) oppure (A AND (NOT A))
+-------------------------------------------------------------------
 0 0 | 0 |
 0 1 | 0 |
 1 0 | 0 |
@@ -4204,8 +4205,8 @@ A B | o = (NOT (A AND B)) = NAND
 1 0 | 1 |
 1 1 | 0 |
 
-A B | l = (A OR B OR (NOT (A AND B)))
--------------------------------------
+A B | l = (A OR B OR (NOT (A AND B))) oppure (A OR (NOT A))
+-----------------------------------------------------------
 0 0 | 1 |
 0 1 | 1 |
 1 0 | 1 |
@@ -4282,6 +4283,274 @@ Proviamo:
 ;-> true
 (typeable "qwertyuioplkjhgfdsazxcvbnm")
 ;-> true
+
+
+---------------------------------------------------------
+Sequenze di interi consecutivi che sommano ad un numero N
+---------------------------------------------------------
+
+Dato un numero N, determinare tutte le sequenza di numeri interi consecutivi che sommano a N.
+Per esempio:
+
+  N = 18
+  sequenza1 = (5 6 7)   --> 5 + 6 + 7 = 18
+  sequenza2 = (3 4 5 6) --> 3 + 4 + 5 + 6 = 18
+
+(define (seq-somma N)
+  (local (out somma end continua)
+    (setq out '())
+    ; Ciclo dal numero di partenza della sequenza...
+    (for (base 1 (- N 1))
+      ; calcola la somma iniziale
+      (setq somma base)
+      (setq end (+ base 1))
+      (setq continua true)
+      ; ciclo che aggiunge numneri consecutivi alla sequenza
+      (while (and (< end N) continua)
+      ; calcola la somma corrente
+        (setq somma (+ somma end))
+        ; verifica se la somma della sequenza vale N
+        (if (= somma N) (push (sequence base end) out -1))
+        ; se la somma supera N, allora passiamo ad una base successiva
+        (if (> somma N) (setq continua nil))
+        (++ end)
+      )
+    )
+    out))
+
+Proviamo:
+
+(seq-somma 18)
+;-> ((3 4 5 6) (5 6 7))
+
+(seq-somma 1000)
+;-> ((28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52) (55
+;->   56 57 58 59 60 61 62 63 64 65 66 67 68 69 70)
+;->  (198 199 200 201 202))
+
+Vediamo la velocità:
+
+(time (seq-somma 1000) 1000)
+;-> 763.102
+
+Possiamo utilizzare un approccio matematico.
+La somma di una sequenza di numeri consecutivi x, x+1, x+2, ..., x+k-1 può essere espressa come:
+
+  S = (k/2)*(2x + k - 1)
+
+dove S = N e k è la lunghezza della sequenza.
+
+Per risolvere il problema eseguiamo questi passaggi:
+1. Trovare tutte le possibili lunghezze k della sequenza.
+2. Per ogni k, verificare se esiste un x tale che la sequenza somma a N:
+   in tal caso aggiungere la sequenza trovata alla soluzione.
+
+(define (seq-sum N)
+  (local (out x seq)
+    (setq out '())
+    ; ciclo per ogni k
+    (dotimes (k (int (sqrt (* 2 N))))
+      (let (k (inc k))
+        ; calcolo della x
+        ; utilizzando la formula derivata dalla somma aritmetica
+        (setq x (/ (- (* 2 N) (* k (- k 1))) (* 2 k)))
+        ; x è intero e maggiore di 0 ?
+        (when (and (= x (int x)) (> x 0))
+          ; costruzione della sequenza
+          (setq seq (sequence x (+ x (dec k))))
+          ; verifica se la sequenza somma a N
+          (when (and (= (apply + seq) N) (> (length seq) 1))
+            (push seq out)))))
+    out))
+
+Nota:
+(dotimes (k 5) (print k { }))
+;-> 0 1 2 3 4
+(dotimes (k 5) (setq k 3) (print k { }))
+;-> 3 3 3 3 3 ; perchè sono due 'k' diversi!!
+
+Proviamo:
+
+(seq-sum 18)
+;-> ((3 4 5 6) (5 6 7))
+
+(seq-sum 1000)
+;->((28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52)
+;-> (55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70)
+;-> (198 199 200 201 202))
+
+Vediamo se le due funzioni producono gli stessi risultati fino a N=10000:
+
+(for (i 1 10000) (if (!= (seq-sum i) (seq-somma i)) (println i)))
+;-> nil
+
+Vediamo la velocità:
+
+(time (seq-sum 1000) 1000)
+;-> 39.747
+
+La funzione "seq-sum" è circa 20 volte più veloce di "seq-somma".
+
+Vediamo quante sequenze sono associate ad ogni numero.
+
+Sequenza OEIS: A069283
+Number of nontrivial ways to write n as sum of at least 2 consecutive integers.
+a(n) = -1 + number of odd divisors of n.
+  0, 0, 0, 1, 0, 1, 1, 1, 0, 2, 1, 1, 1, 1, 1, 3, 0, 1, 2, 1, 1, 3, 1, 1,
+  1, 2, 1, 3, 1, 1, 3, 1, 0, 3, 1, 3, 2, 1, 1, 3, 1, 1, 3, 1, 1, 5, 1, 1,
+  1, 2, 2, 3, 1, 1, 3, 3, 1, 3, 1, 1, 3, 1, 1, 5, 0, 3, 3, 1, 1, 3, 3, 1,
+  2, 1, 1, 5, 1, 3, 3, 1, 1, 4, 1, 1, 3, 3, 1, 3, 1, 1, 5, 3, 1, 3, 1, 3,
+  1, 1, 2, 5, 2, ...
+
+(define (seq-count N)
+  (local (out conta x seq)
+    (setq out '())
+    (setq conta 0)
+    ; ciclo per ogni k
+    (dotimes (k (int (sqrt (* 2 N))))
+      (let (k (inc k))
+        ; calcolo della x
+        ; utilizzando la formula derivata dalla somma aritmetica
+        (setq x (/ (- (* 2 N) (* k (- k 1))) (* 2 k)))
+        ; x è intero e maggiore di 0 ?
+        (when (and (= x (int x)) (> x 0))
+          ; costruzione della sequenza
+          (setq seq (sequence x (+ x (dec k))))
+          ; verifica se la sequenza somma a N
+          (when (and (= (apply + seq) N) (> (length seq) 1))
+            (++ conta)))))
+    conta))
+
+Proviamo:
+
+(seq-count 1000)
+;-> 3
+
+(map seq-count (sequence 0 100))
+;-> (0 0 0 1 0 1 1 1 0 2 1 1 1 1 1 3 0 1 2 1 1 3 1 1
+;->  1 2 1 3 1 1 3 1 0 3 1 3 2 1 1 3 1 1 3 1 1 5 1 1
+;->  1 2 2 3 1 1 3 3 1 3 1 1 3 1 1 5 0 3 3 1 1 3 3 1
+;->  2 1 1 5 1 3 3 1 1 4 1 1 3 3 1 3 1 1 5 3 1 3 1 3
+;->  1 1 2 5 2)
+
+Verifichiamo il risultato calcolando la sequenza utilizzando il numero di divisori di N:
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+Funzione che trova i divisori dispari di un numero:
+
+(define (odd-divisors divisori) (filter odd? divisori))
+
+Proviamo:
+
+(odd-divisors (divisors 90))
+;-> (1 3 5 9 15 45)
+
+(map (fn(x) (- (length (odd-divisors (divisors x))) 1)) (sequence 1 100))
+;-> (  0 0 1 0 1 1 1 0 2 1 1 1 1 1 3 0 1 2 1 1 3 1 1 
+;->  1 2 1 3 1 1 3 1 0 3 1 3 2 1 1 3 1 1 3 1 1 5 1 1
+;->  1 2 2 3 1 1 3 3 1 3 1 1 3 1 1 5 0 3 3 1 1 3 3 1
+;->  2 1 1 5 1 3 3 1 1 4 1 1 3 3 1 3 1 1 5 3 1 3 1 3
+;->  1 1 2 5 2)
+
+Le sequenze sono uguali (a parte il primo valore per N = 0 che nel coso dei divisori non viene calcolato).
+
+Per completezza riportiamo la sequenza dei divisori dispari dei numeri interi:
+
+Sequenza OEIS: A001227
+Number of odd divisors of n.
+Number of partitions of n into consecutive positive integers including the trivial partition of length 1 (the number itself).
+a(n) = d(n) if n is odd, 
+    or d(n) - d(n/2) if n is even,
+where d(n) is the number of divisors of n.
+  1, 1, 2, 1, 2, 2, 2, 1, 3, 2, 2, 2, 2, 2, 4, 1, 2, 3, 2, 2, 4, 2, 2,
+  2, 3, 2, 4, 2, 2, 4, 2, 1, 4, 2, 4, 3, 2, 2, 4, 2, 2, 4, 2, 2, 6, 2,
+  2, 2, 3, 3, 4, 2, 2, 4, 4, 2, 4, 2, 2, 4, 2, 2, 6, 1, 4, 4, 2, 2, 4,
+  4, 2, 3, 2, 2, 6, 2, 4, 4, 2, 2, 5, 2, 2, 4, 4, 2, 4, 2, 2, 6, 4, 2,
+  4, 2, 4, 2, 2, 3, 6, 3, 2, 4, 2, 2, 8, ...
+
+
+----------------------------------------
+Calcolo di pi greco con il metodo spigot
+----------------------------------------
+
+Per generare un numero arbitrario di cifre di pi greco usiamo l'algoritmo presentato nel seguente articolo:
+
+"Unbounded Spigot Algorithms for the Digits of Pi" di Jeremy Gibbons
+
+https://www.cs.ox.ac.uk/jeremy.gibbons/publications/spigot.pdf
+
+Programma originale:
+
+> piG3 = g(1,180,60,2) where
+>   g(q,r,t,i) = let (u,y)=(3*(3*i+1)*(3*i+2),div(q*(27*i-12)+5*r)(5*t))
+>                in y : g(10*q*i*(2*i-1),10*u*(q*(5*i-2)+r-y*t),t*u,i+1)
+
+Versione newLISP:
+
+(define (pi-spigot digits)
+  (local (d q r t i u y)
+    (setq d 0)
+    (set 'q 1L 'r 180L 't 60L 'i 2L)
+    (while (< d digits)
+      (setq u (+ (* 27L i (+ i 1L)) 6L))
+      (setq y (/ (+ (* q (- (* 27L i) 12L)) (* 5L r)) (* 5L t)))
+      ;(println u { } y)
+      (print (+ 0 y))
+      (setq r (* (* 10L u) (- (+ (* q (- (* 5L i) 2L)) r) (* y t))))
+      (setq q (* 10L q i (- (* 2L i) 1L)))
+      (setq t (* t u))
+      (setq i (+ i 1))
+      ;(print q { } r { } t { } i) (read-line)
+      (++ d))))
+
+Proviamo:
+
+(pi-spigot 20)
+;-> 3141592653589793238420
+
+(pi-spigot 1000)
+;-> 314159265358979323846264338327950288419716939937510582097494459230781640
+;-> 628620899862803482534211706798214808651328230664709384460955058223172535
+;-> 940812848111745028410270193852110555964462294895493038196442881097566593
+;-> 344612847564823378678316527120190914564856692346034861045432664821339360
+;-> 726024914127372458700660631558817488152092096282925409171536436789259036
+;-> 001133053054882046652138414695194151160943305727036575959195309218611738
+;-> 193261179310511854807446237996274956735188575272489122793818301194912983
+;-> 367336244065664308602139494639522473719070217986094370277053921717629317
+;-> 675238467481846766940513200056812714526356082778577134275778960917363717
+;-> 872146844090122495343014654958537105079227968925892354201995611212902196
+;-> 086403441815981362977477130996051870721134999999837297804995105973173281
+;-> 609631859502445945534690830264252230825334468503526193118817101000313783
+;-> 875288658753320838142061717766914730359825349042875546873115956286388235
+;-> 37875937519577818577805321712268066130019278766111959092164201981000
+
+Vedi anche "Calcolo di e con il metodo spigot" su "Funzioni varie".
 
 ============================================================================
 

@@ -2493,6 +2493,8 @@ NOTE LIBERE 24
   Effetto Schrodinger's cat
   Funzioni booleane di due variabili
   Tastiera QWERTY e stringhe con caratteri adiacenti
+  Sequenze di interi consecutivi che sommano ad un numero N
+  Calcolo di pi greco con il metodo spigot
 
 PROBLEMI SUI DADI
 =================

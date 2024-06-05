@@ -4754,6 +4754,8 @@ Calcoliamo il numero "e" con 500 cifre dopo la virgola:
 
 In questo caso tutte le cifre sono corrette.
 
+Vedi anche "Calcolo di pi greco con il metodo spigot" su "Note libere 24".
+
 
 -----------
 Calcolo IVA
