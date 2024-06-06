@@ -4552,5 +4552,175 @@ Proviamo:
 
 Vedi anche "Calcolo di e con il metodo spigot" su "Funzioni varie".
 
+
+-----------------------------------
+Fissione totale di un numero intero
+-----------------------------------
+
+La fissione F di un numero N è la sequenza del maggior numero di interi positivi consecutivi che si sommano a N.
+
+Per esempio per N = 18 abbiamo:
+
+  18 = 3 + 4 + 5 + 6  (sequenza con 4 termini)
+e 
+  18 =5 + 6 + 7 (sequenza con 3 termini)
+
+Quindi F(18) = (3 4 5 6).
+
+Per N = 10:
+
+  10 = 1 + 2 + 3 + 4  -->  F(10) = (1 2 3 4)
+
+La fissione totale FT di un numero N è la fissione F applicata prima a N e  poi ricorsivamente a tutti i numeri generati dalle fissioni precedenti.
+In altre parole, per un intero positivo N, trovare il maggior numero di interi positivi consecutivi (almeno 2) che si sommano a N. Per ognuno di questi fare lo stesso... ripetere fino al completamento.
+
+Vediamo alcuni esempi:
+
+a(10) = 7 perché ci sono 7 numeri generati dall'iterazione:
+
+         10
+          | 
+    +-----------+
+    |   |   |   |
+    1   2   3   4
+           / \
+          1   2
+
+a(24) = 13 perché ci sono 13 numeri generati dall'iterazione:
+
+          24
+          /|\
+         / | \
+        /  |  \
+       7   8   9
+      / \     /|\
+     3   4   / | \
+    / \     /  |  \
+   1   2   2   3   4
+              / \
+             1   2
+             
+a(23) = 23 perché ci sono 23 numeri generati dall'iterazione:
+
+                  23
+                  /\
+                 /  \
+                /    \
+               /      \
+              /        \
+             /          \
+            /            \
+          11             12
+          /\             /|\
+         /  \           / | \
+        /    \         /  |  \
+       /      \       3   4   5
+      /        \     / \     / \
+     5          6   1   2   2   3
+    / \        /|\             / \
+   2   3      / | \           1   2
+      / \    /  |  \
+     1   2  1   2   3
+                   / \
+                  1   2
+
+Sequenza OEIS: A256504
+Summative Fission - For a positive integer n, find the greatest number of consecutive positive integers (at least 2) which add to n. For each of these do the same ... iterate to completion. 
+a(n) = the total number of integers (including n itself) defined.
+  0, 1, 1, 3, 1, 5, 6, 5, 1, 6, 7, 12, 10, 12, 11, 12, 1, 8, 16, 14, 17,
+  18, 18, 23, 13, 21, 18, 22, 23, 24, 19, 14, 1, 22, 20, 23, 24, 31, 27,
+  25, 26, 36, 28, 37, 29, 30, 42, 37, 22, 32, 37, 38, 35, 41, 36, 37, 43,
+  42, 37, 44, 44, 34, 33, 47, 1, 48, 49, 43, 53, ...
+
+Funzione che calcola la sequenza di numeri consecutivi più lunga che somma a N:
+(cioè calcola la fissione di un numero N)
+;(define (seq-sum-max-length N)
+(define (fission N)
+  (local (max-length best-seq x seq)
+    (setq max-length 0)
+    (setq best-seq '())
+    ; ciclo per ogni k
+    (dotimes (k (int (sqrt (* 2 N))))
+      (let (k (inc k))
+        ; calcolo della x
+        ; utilizzando la formula derivata dalla somma aritmetica
+        (setq x (/ (- (* 2 N) (* k (- k 1))) (* 2 k)))
+        ; x è intero e maggiore di 0 ?
+        (when (and (= x (int x)) (> x 0))
+          ; costruzione della sequenza
+          (setq seq (sequence x (+ x (dec k))))
+          ; verifica se la sequenza somma a N e controlla la sua lunghezza
+          (when (and (= (apply + seq) N) (> (length seq) max-length))
+                (set 'max-length (length seq))
+                (set 'best-seq seq)))))
+    best-seq))
+
+Proviamo:
+
+(fission 0)
+(fission 23)
+;-> (11 12)
+(fission 12)
+;-> (3 4 5)
+(fission 11)
+;-> (5 6)
+(fission 1)
+;-> (1)
+(fission 9)
+;-> (2 3 4)
+
+Funzione che calcola la fissione totale di un numero N:
+
+(define (fission-total num)
+  (local (total)
+  (setq total (list num))
+  ; lista dei numeri a cui applicare 'fission'
+  (setq seq (fission num))
+  (cond ((= num 0) '()) ; 0 non ha fissione
+        ((= (length seq) 1) (list num)) ; fissione lunga 1
+        (true
+          ; ciclo sulla lista dei numeri a cui applicare 'fission'
+          (until (= seq '())
+            ; estrae il primo numero dalla lista (numero corrente)
+            (setq cur-num (pop seq))
+            ; calcola la fissione del numero corrente
+            (setq cur-fission (fission cur-num))
+            (cond 
+              ; se la fissione produce una lista con lo stesso numero...
+              ((= (length cur-fission) 1)
+                    ; allora aggiungo il numero alla lista totale
+                    (push cur-num total -1))
+              ; se la fissione produce una lista con più di un numero...                    
+                  ((> (length cur-fission) 1)
+                    ; allora aggiungo il numero alla lista totale
+                    (push cur-num total -1)
+                    ; e aggiungo la fissione corrente alla lista 'seq'
+                    (extend seq cur-fission))
+            )
+          )
+          total))))
+
+Proviamo:
+
+(fission-total 0)
+;-> ()
+(fission-total 10)
+;-> (10 1 2 3 4 1 2)
+(fission-total 23)
+;-> (23 11 12 5 6 3 4 5 2 3 1 2 3 1 2 2 3 1 2 1 2 1 2)
+(fission-total 24)
+;-> (24 7 8 9 3 4 2 3 4 1 2 1 2) 
+
+Calcoliamo la sequenza OEIS:
+
+(define (A256504 num)
+  (map (fn(x) (length (fission-total x))) (sequence 0 num)))
+
+(A256504 70)
+;-> (0 1 1 3 1 5 6 5 1 6 7 12 10 12 11 12 1 8 16 14 17
+;->  18 18 23 13 21 18 22 23 24 19 14 1 22 20 23 24 31 27
+;->  25 26 36 28 37 29 30 42 37 22 32 37 38 35 41 36 37 43
+;->  42 37 44 44 34 33 47 1 48 49 43 53 59 54)
+
 ============================================================================
 

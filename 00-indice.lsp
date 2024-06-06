@@ -2495,6 +2495,7 @@ NOTE LIBERE 24
   Tastiera QWERTY e stringhe con caratteri adiacenti
   Sequenze di interi consecutivi che sommano ad un numero N
   Calcolo di pi greco con il metodo spigot
+  Fissione totale di un numero intero
 
 PROBLEMI SUI DADI
 =================
