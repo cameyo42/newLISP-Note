@@ -2496,6 +2496,9 @@ NOTE LIBERE 24
   Sequenze di interi consecutivi che sommano ad un numero N
   Calcolo di pi greco con il metodo spigot
   Fissione totale di un numero intero
+  Sequenze annidate
+  Numeri scacchistici
+  Il gioco della Morra
 
 PROBLEMI SUI DADI
 =================

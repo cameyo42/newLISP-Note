@@ -4722,5 +4722,255 @@ Calcoliamo la sequenza OEIS:
 ;->  25 26 36 28 37 29 30 42 37 22 32 37 38 35 41 36 37 43
 ;->  42 37 44 44 34 33 47 1 48 49 43 53 59 54)
 
+
+-----------------
+Sequenze annidate
+-----------------
+
+Scrivere una funzione che genera una sequenza di numeri interi consecutivi annidati da 'a' a 'b'.
+La funzione primitiva "sequence" (a=1 e b=5) genera una lista di interi consecutivi:
+
+(sequence 1 5)
+;-> (1 2 3 4 5)
+
+Invece la nostra funzione deve generare la lista annidata:
+
+  (1 (2 (3 (4 (5)))))
+
+La funzione deve essere in grado di trattare numeri interi positivi e/o negativi per i seguenti casi:
+
+1) a = b
+2) a > b
+3) a < b
+
+Funzione che genera una lista annidata di numeri consecutivi:
+
+(define (nested-range a b)
+  (cond
+    ((= a b) (list a))
+    ((< a b) (let (x (list b)) (for (k (- b 1) a) (setq x (list k x)))))
+    ((> a b) (let (x (list b)) (for (k (+ b 1) a) (setq x (list k x)))))))
+
+oppure
+
+(define (nested-range a b)
+    (if (< a b) (setq s (- b 1)))
+    (if (> a b) (setq s (+ b 1)))
+    (if (= a b)
+        (list a)
+        (let (x (list b)) (for (k s a) (setq x (list k x))))))
+
+Proviamo:
+
+(nested-range 0 0)
+;-> (0)
+(nested-range 2 2)
+;-> (2)
+(nested-range 2 3)
+;-> (2 (3))
+(nested-range 3 2)
+;-> (3 (2))
+(nested-range 1 5)
+;-> (1 (2 (3 (4 (5)))))
+(nested-range 5 -1)
+;-> (5 (4 (3 (2 (1 (0 (-1)))))))
+(nested-range -3 -1)
+;-> (-3 (-2 (-1)))
+(nested-range -3 4)
+;-> (-3 (-2 (-1 (0 (1 (2 (3 (4))))))))
+(nested-range 3 -4)
+;-> (3 (2 (1 (0 (-1 (-2 (-3 (-4))))))))
+(nested-range -1 -5)
+;-> (-1 (-2 (-3 (-4 (-5)))))
+(nested-range -5 -1)
+;-> (-5 (-4 (-3 (-2 (-1)))))
+
+
+-------------------
+Numeri scacchistici
+-------------------
+
+Un numero scacchistico è un numero in base 10 che, quando convertito in base 18, risulta in una coppia di coordinate scacchistiche valida, dove il primo carattere è A,B,C,...,H e il secondo carattere è [1..8].
+Scrivere una funzione che genera tutti i numeri scacchistici come coppie:
+
+  (n10(1) n18(1)) (n10(2) n18(2)) ... (n10(64) n18(64))
+
+(define (baseN-base10 number-string base)
+"Convert a number from base N (<=62) to base 10"
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result 0)
+        (len (length number-string)))
+    (dolist (digit (explode number-string))
+      (setq result (+ (* result base) (find digit charset)))
+    )
+    result))
+
+(baseN-base10 "A1" 18)
+;-> 181
+(baseN-base10 "H8" 18)
+;-> 314
+
+(define (base10-baseN number base)
+"Convert a number from base 10 to base N (<=62)"
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result '())
+        (quotient number))
+    (while (>= quotient base)
+      (push (charset (% quotient base)) result)
+      (setq quotient (/ quotient base))
+    )
+    (push (charset quotient) result)
+    (join result)))
+
+Funzione che trova tutti i numeri scacchistici:
+
+(define (chess-numbers)
+  (let (out '())
+    (for (i 181 314)
+      (setq b18 (base10-baseN i 18))
+      (if (and (>= (b18 0) "A") (<= (b18 0) "H")
+               (>= (b18 1) "1") (<= (b18 1) "8"))
+          (push (list (base10-baseN i 18) i) out -1)))
+    out))
+
+Proviamo:
+
+(chess-numbers)
+;-> (("A1" 181) ("A2" 182) ("A3" 183) ("A4" 184) ("A5" 185) ("A6" 186) 
+;->  ("A7" 187) ("A8" 188) ("B1" 199) ("B2" 200) ("B3" 201) ("B4" 202)
+;->  ("B5" 203) ("B6" 204) ("B7" 205) ("B8" 206) ("C1" 217) ("C2" 218)
+;->  ("C3" 219) ("C4" 220) ("C5" 221) ("C6" 222) ("C7" 223) ("C8" 224)
+;->  ("D1" 235) ("D2" 236) ("D3" 237) ("D4" 238) ("D5" 239) ("D6" 240)
+;->  ("D7" 241) ("D8" 242) ("E1" 253) ("E2" 254) ("E3" 255) ("E4" 256)
+;->  ("E5" 257) ("E6" 258) ("E7" 259) ("E8" 260) ("F1" 271) ("F2" 272)
+;->  ("F3" 273) ("F4" 274) ("F5" 275) ("F6" 276) ("F7" 277) ("F8" 278)
+;->  ("G1" 289) ("G2" 290) ("G3" 291) ("G4" 292) ("G5" 293) ("G6" 294)
+;->  ("G7" 295) ("G8" 296) ("H1" 307) ("H2" 308) ("H3" 309) ("H4" 310)
+;->  ("H5" 311) ("H6" 312) ("H7" 313) ("H8" 314))
+
+(length (chess-numbers))
+;-> 64
+
+
+--------------------
+Il gioco della Morra
+--------------------
+
+La Morra è un antico gioco tradizionale che consiste nell'indovinare la somma dei numeri che vengono mostrati con le dita dai giocatori.
+Simultaneamente due giocatori tendono il braccio mostrando il pugno oppure stendendo un numero di dita a scelta, mentre gridano un numero da due a dieci (il "pugno" equivale all'uno e il dieci è anche chiamato proprio "morra").
+Il giocatore che indovina la somma conquista il punto. Se entrambi i giocatori indovinano la somma il gioco continua e nessuno guadagna il punto. 
+Il gioco finisce quando un giocatore raggiunge il punteggio deciso a priori.
+La Morra può essere giocata anche con più di due giocatori.
+
+Funzione che inizia una nuova partita:
+
+(define (new-game punteggio)
+  ; turni giocati
+  (setq turni 0)
+  ; punteggio da raggiungere
+  (setq punti punteggio)
+  ; punteggi dei due giocatori
+  (setq p1 0)  ; human
+  (setq p2 0)
+  (println "Morra ("punti")")
+  '>) ; computer
+
+Funzione che effettua un turno di una partita:
+
+(define (morra num-hu somma-hu)
+  (local (num-pc somma vmin vmax somma-pc t)
+    (++ turni)
+    ; numero proposto dal computer
+    (setq num-pc (+ (rand 5) 1))
+    ; valore della somma dei due numeri proposti 
+    (setq somma (+ num-hu num-pc))
+    ; Strategia del computer
+    ; valore minimo della somma proposta dal computer
+    (setq vmin (+ num-pc 1))
+    ; valore massimo della somma proposta dal computer
+    (setq vmax (+ num-pc 5))
+    ; valore della somma proposta dal computer (vmin <= somma-pc <= vmax)
+    (setq somma-pc (+ vmin (rand (+ (- vmax vmin) 1))))
+    ; To count the frequency of values (1 2 3 4 5) this funtion must return:
+    ; (- somma-pc num-pc)
+    ; and then (count '(1 2 3 4 5) (collect (morra) 1e6))
+    ; Verifica dell'esito del turno
+    (setq t nil)
+    (cond 
+      ((and (= somma somma-pc) (= somma somma-hu)) (setq t 0))
+      ((= somma somma-hu) (++ p1) (setq t 1))
+      ((= somma somma-pc) (++ p2) (setq t 2))
+      (true (setq t 3))
+    )
+    ; Stampa situazione corrente del gioco
+    (println "TURNO " turni)
+    (println "Somma: " somma)
+    (println "Umano: " num-hu { } somma-hu)
+    (println "Computer: " num-pc { } somma-pc)
+    (cond ((= t 0) (println "Turno patto (entrambi hanno indovinato)"))
+          ((= t 1) (println "Turno vinto dall'umano"))
+          ((= t 2) (println "Turno vinto dal computer"))
+          ((= t 3) (println "Turno nullo (entrambi hanno sbagliato)" ))
+    )
+    (println "Punteggio: ")
+    (println "Umano: " p1 "  ---  Computer: " p2)
+    (if (>= p1 punti) (println "L'umano ha vinto la partita"))
+    (if (>= p2 punti) (println "Il computer ha vinto la partita"))
+    '>))
+
+Facciamo una partita:
+
+(new-game 2)
+;-> Morra (2)
+
+(morra 4 7)
+;-> TURNO 1
+;-> Somma: 6
+;-> Umano: 4 7
+;-> Computer: 2 5
+;-> Turno nullo (entrambi hanno sbagliato)
+;-> Punteggio:
+;-> Umano: 0  ---  Computer: 0
+
+(morra 3 8)
+;-> TURNO 2
+;-> Somma: 5
+;-> Umano: 3 8
+;-> Computer: 2 5
+;-> Turno vinto dal computer
+;-> Punteggio:
+;-> Umano: 0  ---  Computer: 1
+
+(morra 2 5)
+;-> TURNO 3
+;-> Somma: 5
+;-> Umano: 2 5
+;-> Computer: 3 8
+;-> Turno vinto dall'umano
+;-> Punteggio:
+;-> Umano: 1  ---  Computer: 1
+
+(morra 2 6)
+;-> TURNO 4
+;-> Somma: 7
+;-> Umano: 2 6
+;-> Computer: 5 10
+;-> Turno nullo (entrambi hanno sbagliato)
+;-> Punteggio:
+;-> Umano: 1  ---  Computer: 1
+
+...
+...
+
+(morra 1 5)
+;-> TURNO 8
+;-> Somma: 6
+;-> Umano: 1 5
+;-> Computer: 5 6
+;-> Turno vinto dal computer
+;-> Punteggio:
+;-> Umano: 1  ---  Computer: 2
+;-> Il computer ha vinto la partita
+
 ============================================================================
 
