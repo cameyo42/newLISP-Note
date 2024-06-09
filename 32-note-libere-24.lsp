@@ -4972,5 +4972,156 @@ Facciamo una partita:
 ;-> Umano: 1  ---  Computer: 2
 ;-> Il computer ha vinto la partita
 
+
+-----------------
+Sequenza di Stohr
+-----------------
+
+La sequenza di Stohr viene definita nel modo seguente:
+
+ S(0) = 1
+ S(n) = è il numero più piccolo che non può essere espresso come somma di due elementi distinti contenuti nella sequenza.
+
+Vediamo come viene costruita:
+
+n = 0
+S = (1)
+
+n = 1
+Numero corrente = 2
+Somma di tutte le coppie di S: somme = () (non esistono coppie in S)
+Il 2 non si trova in somme quindi lo aggiungiamo a S.
+S = (1 2)
+
+n = 2
+Numero corrente = 3
+Somma di tutte le coppie di S: somme = (3)
+Il 3 si trova in somme quindi non lo aggiungiamo a S e incrementiamo il numero corrente.
+numero corrente = 4
+Somma di tutte le coppie di S: somme = (3)
+Il 4 non si trova in somme quindi lo aggiungiamo a S.
+S = (1 2 4)
+
+n = 3
+Numero corrente = 5
+Somma di tutte le coppie di S: somme = (3 5 6)
+Il 5 si trova in somme quindi non lo aggiungiamo a S e incrementiamo il numero corrente.
+numero corrente = 6
+Somma di tutte le coppie di S: somme = (3 5 6)
+Il 6 si trova in somme quindi non lo aggiungiamo a S e incrementiamo il numero corrente.
+numero corrente = 7
+Somma di tutte le coppie di S: somme = (3 5 6)
+Il 7 non si trova in somme quindi lo aggiungiamo a S.
+S = (1 2 4 7)
+
+n = 4
+Numero corrente = 8
+Somma di tutte le coppie di S: somme = (3 5 8 6 9 11)
+L'8 si trova in somme quindi non lo aggiungiamo a S e incrementiamo il numero corrente.
+numero corrente = 9
+Somma di tutte le coppie di S: somme = (3 5 8 6 9 11)
+Il 9 si trova in somme quindi non lo aggiungiamo a S e incrementiamo il numero corrente.
+numero corrente = 10
+Somma di tutte le coppie di S: somme = (3 5 8 6 9 11)
+Il 10 non si trova in somme quindi lo aggiungiamo a S.
+S = (1 2 4 7 10)
+
+ecc.
+
+Sequenza OEIS: A033627
+0-additive sequence: not the sum of any previous pair.
+  1, 2, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49, 52,
+  55, 58, 61, 64, 67, 70, 73, 76, 79, 82, 85, 88, 91, 94, 97, 100, 103,
+  106, 109, 112, 115, 118, 121, 124, 127, 130, 133, 136, 139, 142, 145,
+  148, 151, 154, 157, 160, 163, 166, 169, 172, 175, ...
+
+Funzione che caclola tutte le somme tra le coppie di elementi di una lista:
+
+(define (pair-sums lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+          (push (+ (lst i) (lst j)) out -1)))))
+
+(pair-sums '(1 2))
+;-> 3
+(pair-sums '(1 2 4 7))
+;-> (3 5 8 6 9 11)
+
+Con le liste la funzione è lenta:
+
+(define (stohr limit)
+  (local (out cur-num)
+    (setq out '(1 2))
+    (setq k 2)
+    (setq cur-num 3)
+    (while (< k limit)
+      (setq somme (pair-sums out))
+      (while (ref cur-num somme) (++ cur-num))
+      (push cur-num out -1)
+      (++ cur-num)
+      (++ k)
+    )
+    out))
+
+Proviamo:
+
+(stohr 10)
+;-> (1 2 4 7 10 13 16 19 22 25)
+(time (stohr 200))
+;-> 281.147
+(time (stohr 300))
+;-> 1172.002
+
+Allora usiamo un vettore:
+
+(define (stohr limit)
+  (local (out cur-num)
+    (setq out '(1 2))
+    (setq k 2)
+    (setq cur-num 3)
+    (while (< k limit)
+      (setq somme (pair-sums (array (length out) out)))
+      (while (ref cur-num somme) (++ cur-num))
+      (push cur-num out -1)
+      (++ cur-num)
+      (++ k)
+    )
+    out))
+
+Proviamo:
+
+(stohr 10)
+;-> (1 2 4 7 10 13 16 19 22 25)
+(time (stohr 200))
+;-> 120
+(time (stohr 300))
+;-> 420.87
+
+Questa seconda funzione è un pò più veloce, ma possiamo utilizzare una formula.
+A parte i primi due termini della sequenza (1 e 2), tutti gli altri termini hanno una differenza pari a 3 tra un numero e il suo successivo.
+Con il metodo alle differenze finit possiamo trovare che:
+
+  a(n) =  (3*n - 5)
+
+(define (stohr-formula N)
+  (let (out '(1 2))
+  (extend out (map (fn(x) (- (* 3 x) 5)) (sequence 3 N)))))
+
+Proviamo:
+(stohr-formula 10)
+;-> (1 2 4 7 10 13 16 19 22 25)
+
+(stohr-formula 70)
+;-> (1 2 4 7 10 13 16 19 22 25 28 31 34 37 40 43 46 49 52 55 58 61 64 67 
+;->  70 73 76 79 82 85 88 91 94 97 100 103 106 109 112 115 118 121 124 127
+;->  130 133 136 139 142 145 148 151 154 157 160 163 166 169 172 175 178 181
+;->  184 187 190 193 196 199 202 205)
+
+(time (stohr-formula 1e3))
+;-> 0
+(time (stohr-formula 1e6))
+;-> 124.963
+
 ============================================================================
 

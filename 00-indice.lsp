@@ -2499,6 +2499,7 @@ NOTE LIBERE 24
   Sequenze annidate
   Numeri scacchistici
   Il gioco della Morra
+  Sequenza di Stohr
 
 PROBLEMI SUI DADI
 =================
