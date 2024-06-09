@@ -2500,6 +2500,7 @@ NOTE LIBERE 24
   Numeri scacchistici
   Il gioco della Morra
   Sequenza di Stohr
+  Rappresentrare un numero intero N come prodotto di M numeri interi
 
 PROBLEMI SUI DADI
 =================

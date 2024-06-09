@@ -5123,5 +5123,126 @@ Proviamo:
 (time (stohr-formula 1e6))
 ;-> 124.963
 
+
+-----------------------------------------------------------------
+Rappresentare un numero intero N come prodotto di M numeri interi
+-----------------------------------------------------------------
+
+Dati due interi N e M elencare in quali modi N può essere espresso come prodotto di M interi.
+Ogni termine dei prodotti deve essere maggiore di 1.
+
+Funzione che genera tutte le combinazioni di M numeri che, moltiplicati insieme, danno N:
+
+Algoritmo:
+
+Funzione principale 'prodotti':
+   - Prende due parametri: N (il numero da esprimere come prodotto) e M (il numero di fattori).
+   - Chiama una funzione ausiliaria 'prodotti-aux' con i parametri N, M e 'start' inizializzato a 1.
+
+Funzione ausiliaria 'prodotti-aux':
+   - Questa funzione viene chiamata ricorsivamente per generare tutte le combinazioni.
+   - Quando 'm' è 0, controllia se 'n' è 1.
+     Se 'n' è 1, restituisce una lista che contiene una lista vuota ''(())', che rappresenta una combinazione valida (nessun numero moltiplicato per dare 1).
+     Se 'n' non è 1, restituisce una lista vuota ''(())' per indicare che non ci sono combinazioni valide.
+   - Altrimenti, itera su tutti i numeri da 'start' a n. Per ogni numero i:
+     - Controlla se i è un divisore di n.
+     - Chiama ricorsivamente 'prodotti-aux' con n diviso per i, m decrementato di 1, e 'start' impostato a 2 (per trovare tutte le combinazioni).
+     - Unisce 'i' con i risultati delle chiamate ricorsive per formare le combinazioni complete.
+
+(define (prodotti N M)
+  ; il termine 2 serve per evitare 1 nei prodotti
+  (prodotti-aux N M 2))
+
+Funzione ausiliaria:
+
+(define (prodotti-aux n m start)
+  (cond
+    ((= m 0)
+      (if (= n 1) '(()) '()))
+    (true
+      (let (result '())
+        (for (i start n)
+          (when (and (>= (/ n i) 1) (= (mod n i) 0) (> i 1))
+            (let ((partial (prodotti-aux (/ n i) (- m 1) 2)))
+              (dolist (s partial) (push (cons i s) result)))))
+        result))))
+
+Proviamo:
+
+(prodotti 12 3)
+;-> ((3 2 2) (2 2 3) (2 3 2))
+(prodotti 30 2)
+;-> ((15 2) (10 3) (6 5) (5 6) (3 10) (2 15))
+(prodotti 30 3)
+;-> ((5 2 3) (5 3 2) (3 2 5) (3 5 2) (2 3 5) (2 5 3))
+(prodotti 15 4)
+;-> ()
+
+La funzione genera tutti i prodotti (anche le permutazioni).
+Se vogliamo solo i prodotti univoci allora possiamo ordinare i prodotti e poi usare la funzione "unique":
+
+(define (prodotti-unici N M) (unique (map sort (prodotti N M))))
+
+Proviamo:
+
+(prodotti-unici 12 3)
+;-> (2 2 3)
+(prodotti-unici 30 2)
+;-> ((2 15) (3 10) (5 6))
+(prodotti-unici 30 3)
+;-> ((2 3 5))
+(prodotti-unici 15 4)
+;-> ()
+
+(prodotti 2310 4)
+;-> ((77 2 5 3) (77 2 3 5) (77 3 5 2) (77 3 2 5) (77 5 3 2) (77 5 2 3) (55 2 7 3)
+;-> ...
+;-> (2 33 5 7) (2 35 11 3) (2 35 3 11) (2 55 7 3) (2 55 3 7) (2 77 5 3) (2 77 3 5))
+(length (prodotti 2310 4))
+;-> 240
+(prodotti-unici 2310 4)
+;-> ((2 3 5 77) (2 3 7 55) (2 3 11 35) (2 5 7 33) (3 5 7 22) 
+;->  (2 5 11 21) (2 7 11 15) (3 5 11 14) (3 7 10 11) (5 6 7 11))
+(length (prodotti-unici 2310 4))
+;-> 10
+
+(time (prodotti 2310 4) 100)
+;-> 243.376
+(time (prodotti-unici 2310 4) 100)
+;-> 253.352
+
+Adesso un pò di stress-test:
+
+(setq num (* 1 2 3 4 5 6 7))
+;-> 5040
+(length (prodotti num 7))
+;-> 3675
+100 ripetizioni della funzione:
+(time (prodotti num 7) 100)
+;-> 6062.786
+(time (prodotti-unici num 7) 100)
+;-> 6361.016
+
+(setq num (* 1 2 3 4 5 6 7 8))
+;-> 40320
+(length (prodotti num 8))
+;-> 145384
+Solo 1 ripetizione della funzione:
+(time (prodotti num 8))
+;-> 3456.783
+(time (prodotti-unici num 8))
+;-> 4875.954
+
+(setq num (* 1 2 3 4 5 6 7 8 9))
+;-> 362880
+;(length (prodotti num 9))
+(time (setq p9 (prodotti num 9)))
+;-> 165951.457
+(length p9)
+;-> 4261086
+Quanto incide la creazione di prodotti unici:
+(time (setq p9u (unique (map sort p9))))
+;-> 15365.934
+
 ============================================================================
 
