@@ -5244,5 +5244,33 @@ Quanto incide la creazione di prodotti unici:
 (time (setq p9u (unique (map sort p9))))
 ;-> 15365.934
 
+
+----------------------------------
+Da stringa a binario (e viceversa)
+----------------------------------
+
+Per convertire una stringa in binario occorre per ogni carattere:
+1) trovare il codice ASCII
+2) convertire questo codice in binario
+
+(setq s "Hello newLISP!")
+
+Funzione che converte una stringa in binario:
+
+(define (string-binary str)
+  (map (fn(x) (bits (char x))) (explode str)))
+
+(string-binary s)
+;-> ("1001000" "1100101" "1101100" "1101100" "1101111" "100000" "1101110"
+;->  "1100101" "1110111" "1001100" "1001001" "1010011" "1010000" "100001")
+
+Funzione che converte un binario in una stringa:
+
+(define (binary-string lst)
+  (join (map (fn(x) (char (int x 0 2))) lst)))
+
+(binary-string (string-binary s))
+;-> "Hello newLISP!"
+
 ============================================================================
 

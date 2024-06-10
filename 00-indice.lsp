@@ -2501,6 +2501,7 @@ NOTE LIBERE 24
   Il gioco della Morra
   Sequenza di Stohr
   Rappresentrare un numero intero N come prodotto di M numeri interi
+  Da stringa a binario (e viceversa)
 
 PROBLEMI SUI DADI
 =================
