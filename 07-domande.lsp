@@ -6777,7 +6777,7 @@ Numero mancante (Wolfram)
 Abbiamo una lista di tutti i numeri compresi tra 1,2,…, n tranne uno.
 Trovare il numero mancante.
 
-La somma di tuttti i numeri da 1 a n vale:
+La somma di tutti i numeri da 1 a n vale:
 
 Sum[1..n](n) = n*(n + 1)/2
 

@@ -2502,6 +2502,8 @@ NOTE LIBERE 24
   Sequenza di Stohr
   Rappresentrare un numero intero N come prodotto di M numeri interi
   Da stringa a binario (e viceversa)
+  Compito di selezione di Wason
+  Linee temporali sovrapposte (timeline)
 
 PROBLEMI SUI DADI
 =================

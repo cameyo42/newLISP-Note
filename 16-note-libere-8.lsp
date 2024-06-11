@@ -5856,6 +5856,52 @@ Ordinamento per x/y crescente (x = numeratore e y = denominatore):
 lst
 ;-> ((1 3) (2 5) (2 4) (4 4) (1 1) (6 5) (3 2) (8 5) (6 3) (6 1))
 
+(setq cs '(("John Backus"  1924 2007)
+           ("John Atanasoff" 1903 1995)
+           ("Alan Turing" 1912 1954)
+           ("John von Neumann" 1903 1957)
+           ("Alonzo Church" 1903 1995)
+           ("Norbert Wiener" 1894 1964)
+           ("Edsger Dijkstra" 1930 2002)
+           ("Kenneth Iverson" 1920 2004)
+           ("Test 1" 1903 1996)
+           ("Test 2" 1903 1904)))
+
+Ordinamento per anno di nascita crescente:
+
+(define (comp x y) (<= (x 1) (y 1)))
+(sort cs comp)
+;-> (("Norbert Wiener" 1894 1964) 
+;->  ("John Atanasoff" 1903 1995) 
+;->  ("John von Neumann" 1903 1957)
+;->  ("Alonzo Church" 1903 1995)
+;->  ("Test 1" 1903 1996)
+;->  ("Test 2" 1903 1904)
+;->  ("Alan Turing" 1912 1954)
+;->  ("Kenneth Iverson" 1920 2004)
+;->  ("John Backus" 1924 2007)
+;->  ("Edsger Dijkstra" 1930 2002))
+
+
+Ordinamento per anno di nascita crescente e anno di morte decrescente:
+
+(define (comp x y)
+  (if (= (x 1) (y 1))
+      (<= (x 2) (y 2))
+      (<= (x 1) (y 1))))
+
+(sort cs comp)
+;-> (("Norbert Wiener" 1894 1964) 
+;->  ("Test 2" 1903 1904)
+;->  ("John von Neumann" 1903 1957)
+;->  ("John Atanasoff" 1903 1995)
+;->  ("Alonzo Church" 1903 1995)
+;->  ("Test 1" 1903 1996)
+;->  ("Alan Turing" 1912 1954)
+;->  ("Kenneth Iverson" 1920 2004)
+;->  ("John Backus" 1924 2007)
+;->  ("Edsger Dijkstra" 1930 2002))
+
 
 -----------------
 Algoritmo K-Means

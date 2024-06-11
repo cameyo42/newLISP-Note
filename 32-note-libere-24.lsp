@@ -5272,5 +5272,236 @@ Funzione che converte un binario in una stringa:
 (binary-string (string-binary s))
 ;-> "Hello newLISP!"
 
+
+-----------------------------
+Compito di selezione di Wason
+-----------------------------
+
+Si tratta di un test che mira a verificare la nostra capacità di cognizione condizionale, cioè a riflettere sulla correlazione "se... allora".
+Ai partecipanti vengono mostrate quattro carte:
+
+la prima mostra una A,
+la seconda una K,
+le terza un 4
+la quarta un 7.
+
+Il compito consiste nel verificare che le carte rispettino la seguente regola:
+
+"Se la carta mostra una consonante su una faccia, allora sulla faccia opposta c'è un numero dispari".
+
+Inoltre tale verifica deve avvenire sollevando il minor numero di carte.
+
+Vediamo la soluzione.
+La maggior parte dei partecipanti al test decide di girare le carte K e 7.
+Ma è sbagliato: la soluzione corretta sarebbe girare le carte K e 4, poiché solo una consonante sul rovescio di un numero pari può dimostrare se la regola postulata è valida (nello specifico, confutandola).
+Il fatto che sia presente una consonante sul retro di 7 è irrilevante per verificare la verità della regola (essa infatti non recita: "solo" se c'è una consonante sul retro, allora può esserci un numero dispari sul fronte).
+Pochissimi non commettono questo errore, perché siamo tutti vittime della nostra tendenza al pregiudizio di conferma (bias di conferma) e in genere non siamo particolarmente propensi a riflettere su proposizioni condizionali astratte (che non hanno alcuna rilevanza immediata nel mondo reale) che ci circonda. 
+
+Se il contenuto del test viene modificato inserendo un riferimento alla violazione di regole sociali (cioè, se al posto di consonanti e numeri vengono introdotte norme e azioni umane), allora difficilmente sbagliamo.
+Supponiamo che il compito consista ora nel verificare la seguente regola:
+"Se una persona beve alcolici, allora deve avere più di 18 anni"
+e le carte disponibili siano:
+
+1) beve alcolici, 
+2) non beve alcolici,
+3) ha più di 18 anni,
+4) ha meno di 18 anni.
+
+In questo caso, tutti (o quasi) scoprono naturalmente le carte corrette (1 e 4).
+
+Anche se questo test è strutturalmente analogo alla variante astratta precedente, perché la cognizione condizionale ci viene improvvisamente così facile se sostituiamo numeri e lettere con contenuti sociali?
+
+La psicologia evoluzionista ipotizza che siamo programmati con una facoltà intuitiva che ci permette di riconoscere con precisione e rapidità la violazione delle regole.
+
+
+--------------------------------------
+Linee temporali sovrapposte (timeline)
+--------------------------------------
+
+Le visualizzazioni che sovrappongono le linee della durata delle vite di vari personaggi storici sono comunemente chiamate e o "linee temporali sovrapposte" (in inglese "lifelines" o "timelines").
+Questi grafici mostrano il periodo di vita di ogni personaggio lungo una scala temporale, permettendo di visualizzare le sovrapposizioni e le relazioni temporali tra diverse vite.
+
+Per esempio:
+
+Chess Players:
+  Jose Raul Capablanca (19 November 1888 – 8 March 1942)
+  Alexander Alekhine (31 ottobre 1892 – 24 marzo 1946)
+  Aaron Nimzowitsch (7 novembre 1886 – 16 marzo 1935)
+
+(setq personaggi '(("Capablanca" 1888 1942)
+                   ("Alekhine" 1892 1946)
+                   ("Nimzowitsch" 1886 1935)))
+
+(define (timeline personaggi)
+    (dolist (p personaggi)
+        (let ((nome (p 0))
+              (inizio (p 1))
+              (fine (p 2)))
+            (println (format "%s: %s%s"
+                             nome
+                             (dup " " (- inizio 1800))
+                             (dup "-" (- fine inizio)))))))
+
+(timeline personaggi)
+;-> Capablanca:
+;->                   ------------------------------------------------------
+;-> Alekhine:
+;->                     ------------------------------------------------------
+;-> Nimzowitsch:
+;->              -------------------------------------------------
+
+Scriviamo una funzione un genera una timeline migliore.
+
+Funzione che normalizza un numero all'interno dell'intervallo (start, end) nell'intervallo (a,b):
+
+(define (normalizza num start end a b)
+  (let (k (div (sub b a) (sub end start)))
+    (add a (mul (sub num start) k))))
+
+(normalize 1816 1815 1852 0 200)
+;-> 5.405405405405405
+(normalize 1852 1815 1852 0 200)
+;-> 200
+
+Funzione che visualizza la timelines di elementi di una lista:
+elemento = ("nome" anno-nascita anno-morte)
+
+(define (life-line lst line-space)
+  (local (start end max-len lst-norm)
+    (setq start 9999)
+    (setq end -9999)
+    (setq max-len 0)
+    ; Trova i valori minimi e massimi delle date
+    ; e la lunghezza massima del nome
+    (dolist (el lst)
+      (setq max-len (max (length (el 0)) max-len))
+      (setq start (min (el 1) start))
+      (setq end (max (el 2) end))
+    )
+    ; lunghezza intervallo della linea degli anni
+    (setq range (or line-space (- end start)))
+    ; Normalizza i valori delle date
+    ; nell'intervallo (1, range)
+    (setq lst-norm '())
+    (dolist (el lst)
+      (push (list (el 0)
+             (normalizza (el 1) start end 1 range)
+             (normalizza (el 2) start end 1 range)) lst-norm -1)
+    )
+    ; Stampa le timeline di ogni personaggio
+    (dolist (el lst-norm)
+      (println (string (dup " " max-len)
+                (dup " " (el 1))
+                (lst $idx 1)
+                (dup " " (- (el 2) (el 1) (length (lst $idx 1))))
+                (lst $idx 2)))
+      (println (string (el 0)
+                (dup " " (- max-len (length (el 0))))
+                (dup " " (el 1))
+                (dup "-" (- (el 2) (el 1)))))
+    ) '>))
+
+Proviamo:
+
+(setq chess '(("Capablanca" 1888 1942)
+              ("Alekhine" 1892 1946)
+              ("Nimzowitsch" 1886 1935)))
+
+(life-line chess)
+;->              1888                                                  1942
+;-> Capablanca   ------------------------------------------------------
+;->                  1892                                                  1946
+;-> Alekhine         ------------------------------------------------------
+;->             1886                                            1935
+;-> Nimzowitsch ------------------------------------------------
+
+Computer Scientists:
+John Backus (3 December 1924 – 17 March 2007)
+John Atanasoff (4 October 1903 – 15 June 1995)
+Alan Turing (23 June 1912 – 7 June 1954)
+John von Neumann (28 December 1903 – 8 February 1957)
+Alonzo Church (14 June 1903 – 11 August 1995)
+Norbert Wiener (26 November 1894 – 18 March 1964)
+Edsger Dijkstra (11 May 1930 – 6 August 2002)
+Kenneth Iverson (17 December 1920 – 19 October 2004)
+
+(setq cs '(("John Backus"  1924 2007)
+           ("John Atanasoff" 1903 1995)
+           ("Alan Turing" 1912 1954)
+           ("John von Neumann" 1903 1957)
+           ("Alonzo Church" 1903 1995)
+           ("Norbert Wiener" 1894 1964)
+           ("Edsger Dijkstra" 1930 2002)
+           ("Kenneth Iverson" 1920 2004)))
+
+(life-line cs 50)
+;->                               1924                                2007
+;-> John Backus                   ------------------------------------
+;->                     1903                                    1995
+;-> John Atanasoff      ----------------------------------------
+;->                         1912               1954
+;-> Alan Turing             -------------------
+;->                     1903                    1957
+;-> John von Neumann    ------------------------
+;->                     1903                                    1995
+;-> Alonzo Church       ----------------------------------------
+;->                  1894                          1964
+;-> Norbert Wiener   ------------------------------
+;->                                 1930                           2002
+;-> Edsger Dijkstra                 -------------------------------
+;->                             1920                                2004
+;-> Kenneth Iverson             ------------------------------------
+
+Se vogliamo ordinare le linee in base alle date di nascita e di morte:
+
+Ordinamento per anno di nascita crescente:
+
+(define (comp x y) (<= (x 1) (y 1)))
+
+(sort cs comp)
+;-> (("Norbert Wiener" 1894 1964) 
+;->  ("John Atanasoff" 1903 1995) 
+;->  ("John von Neumann" 1903 1957)
+;->  ("Alonzo Church" 1903 1995)
+;->  ("Alan Turing" 1912 1954)
+;->  ("Kenneth Iverson" 1920 2004)
+;->  ("John Backus" 1924 2007)
+;->  ("Edsger Dijkstra" 1930 2002))
+
+Ordinamento per anno di nascita crescente e anno di morte decrescente:
+
+(define (comp x y)
+  (if (= (x 1) (y 1))
+      (<= (x 2) (y 2))
+      (<= (x 1) (y 1))))
+
+(sort cs comp)
+;-> (("Norbert Wiener" 1894 1964) 
+;->  ("John von Neumann" 1903 1957) 
+;->  ("John Atanasoff" 1903 1995)
+;->  ("Alonzo Church" 1903 1995)
+;->  ("Alan Turing" 1912 1954)
+;->  ("Kenneth Iverson" 1920 2004)
+;->  ("John Backus" 1924 2007)
+;->  ("Edsger Dijkstra" 1930 2002))
+
+(life-line (sort cs comp) 50)
+;->                  1894                          1964
+;-> Norbert Wiener   ------------------------------
+;->                     1903                    1957
+;-> John von Neumann    ------------------------
+;->                     1903                                    1995
+;-> John Atanasoff      ----------------------------------------
+;->                     1903                                    1995
+;-> Alonzo Church       ----------------------------------------
+;->                         1912               1954
+;-> Alan Turing             -------------------
+;->                             1920                                2004
+;-> Kenneth Iverson             ------------------------------------
+;->                               1924                                2007
+;-> John Backus                   ------------------------------------
+;->                                 1930                           2002
+;-> Edsger Dijkstra                 -------------------------------
+
 ============================================================================
 
