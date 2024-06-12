@@ -5350,7 +5350,7 @@ Chess Players:
 ;-> Nimzowitsch:
 ;->              -------------------------------------------------
 
-Scriviamo una funzione un genera una timeline migliore.
+Scriviamo una funzione che genera una timeline migliore.
 
 Funzione che normalizza un numero all'interno dell'intervallo (start, end) nell'intervallo (a,b):
 
@@ -5502,6 +5502,87 @@ Ordinamento per anno di nascita crescente e anno di morte decrescente:
 ;-> John Backus                   ------------------------------------
 ;->                                 1930                           2002
 ;-> Edsger Dijkstra                 -------------------------------
+
+
+-----------------------
+Fusione di due stringhe
+-----------------------
+
+Definiamo fusione di due stringhe la sovrapposizione di una stringa su un'altra stringa.
+Per esempio:
+
+  str1 = "new"
+  str2 = "oldLISP"
+  Fusione = "newLISP"
+
+In altre parole la prima stringa sostituisce i caratteri della seconda stringa che hanno lo stesso indice.
+La stringa risultante ha la stessa lunghezza della seconda stringa.
+Per esempio:
+
+  str1 = "pippo"
+  str2 = "xyz"
+  Fusione = "pip"
+
+Funzione che effettua la fusione di due stringhe:
+
+(define (fusione str1 str2)
+  (let ((len1 (length str1)) (len2 (length str2)))
+    (cond 
+      ((= len1 len2) str1)
+      ((> len1 len2) (slice str1 0 len2))
+      ((< len1 len2)
+        (string str1 (slice str2 len1))))))
+
+Proviamo:
+
+(fusione "pippo" "torta")
+;-> "pippo"
+
+(fusione "pippo" "xyz")
+;-> "pip"
+
+(fusione "new" "oldLISP")
+;-> "newLISP"
+
+(fusione "John" "     Von Neumann")
+;-> "John Von Neumann"
+
+
+------------
+Potenze di i
+------------
+
+Scrivere la funzione più breve possibile per calcolare i^n.
+dove, 'i' è la parte immaginaria di un numero complesso
+      'n' è un numero intero maggiore di 0
+
+Risulta che:
+
+  i^1 = i
+  i^2= −1
+  i^3 = -i
+  i^4 = 1
+... e questo si ripete.
+
+Usiamo l'indicizzazione implicita di una lista con indice (% n 4).
+
+(map (fn(n) (% n 4)) (sequence 1 12))
+;-> (1 2 3 0 1 2 3 0 1 2 3 0)
+
+42 caratteri:
+(define(f n)(string('(1 i -1 -i)(% n 4))))
+(map f (sequence 1 12))
+;-> ("i" "-1" "-i" "1" "i" "-1" "-i" "1" "i" "-1" "-i" "1")
+
+42 caratteri:
+(define(f n)('("1" "i" "-1" "-i")(% n 4)))
+(map f (sequence 1 12))
+;-> ("i" "-1" "-i" "1" "i" "-1" "-i" "1" "i" "-1" "-i" "1")
+
+34 caratteri:
+(define(f n)('(1 i -1 -i)(% n 4)))
+(map f (sequence 1 12))
+;-> (i -1 -i 1 i -1 -i 1 i -1 -i 1)
 
 ============================================================================
 

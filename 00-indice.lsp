@@ -2504,6 +2504,8 @@ NOTE LIBERE 24
   Da stringa a binario (e viceversa)
   Compito di selezione di Wason
   Linee temporali sovrapposte (timeline)
+  Fusione di due stringhe
+  Potenze di i
 
 PROBLEMI SUI DADI
 =================
