@@ -5584,5 +5584,363 @@ Usiamo l'indicizzazione implicita di una lista con indice (% n 4).
 (map f (sequence 1 12))
 ;-> (i -1 -i 1 i -1 -i 1 i -1 -i 1)
 
+
+-------------
+Points, Lines
+-------------
+
+Abbiamo un file di testo in cui ogni riga contiene uno dei seguenti comandi:
+
+1) width w
+   dove w è la larghezza dell'immagine
+
+2) height h
+   dove h è l'altezza dell'immagine
+
+3) ; comment
+   una linea che inizia con ";" è un commento
+
+4) point x y
+   disegna un punto nell'immagine a x,y
+
+5) line x1 y1 x2 y2
+   disegna una linea nell'immagine da x1,y1 a x2,y2
+
+I comandi di larghezza e altezza (1 e 2) compaiono solo una volta rispettivamente alla prima e alla seconda riga del file.
+Gli altri comandi (3, 4 e 5) possono essere ripetuti e in qualunque ordine (basta che ce ne sia uno solo per linea).
+
+Vediamo un file di esempio:
+
+file: graph.txt
+--------------------
+width 20
+height 20
+; comment
+; some points
+point 1 1
+point 10 3
+point 7 2
+; some lines
+line 1 1 1 5
+line 12 12 7 12
+line 15 15 19 19
+eof
+--------------------
+
+Usando una matrice come canvas dell'immagine, creiamo una funzione che legge un file del genere, interpreta i comandi e stampa l'immagine finale (cioè la matrice).
+
+Nota: rispetto ad un piano cartesiano, nella matrice l'indice di riga rappresenta la y e l'indice di colonna rappresenta la x.
+Inoltre l'asse y deve essere invertito (in una matrice (0,0) si trova in alto a sinistra, mentre nel piano cartesiano (0,0) si trova in basso a sinistra).
+
+(define (file-list file-str)
+"Create a list with all the lines of a text file"
+  (let (lst '())
+    (setq file-str (open file-str "read"))
+    (while (read-line file-str)
+      (push (current-line) lst -1))
+    (close file-str)
+    lst))
+
+Funzione che stampa la matrice (canvas):
+
+(define (print-canvas matrix)
+  (local (row col)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (if (zero? (matrix i j))
+            (print ".")
+            (print (matrix i j)))
+      )
+      (println)) '>))
+
+Funzione che calcola i punti di una linea da x1,y1 a x2,y2:
+Vedi "Algoritmo di Bresenham" in "Note libere 4".
+
+(define (bresenham x0 y0 x1 y1)
+  (local (dx dy err x y sx sy out)
+    (setq out '())
+    (setq dx (abs (- x1 x0)))
+    (setq dy (abs (- y1 y0)))
+    (set 'x x0 'y y0)
+    (if (> x0 x1)
+        (setq sx -1)
+        (setq sx 1)
+    )
+    (if (> y0 y1)
+        (setq sy -1)
+        (setq sy 1)
+    )
+    (cond ((> dx dy)
+            (setq err (div dx 2))
+            (while (!= x x1)
+              (push (list x y) out -1)
+              (setq err (sub err dy))
+              (if (< err 0)
+                  (set 'y (add y sy) 'err (add err dx))
+              )
+              (setq x (add x sx))
+            ))
+          (true
+            (setq err (div dy 2))
+            (while (!= y y1)
+              (push (list x y) out -1)
+              (setq err (sub err dx))
+              (if (< err 0)
+                  (set 'x (add x sx) 'err (add err dy))
+              )
+              (setq y (add y sy))
+            ))
+    )
+    (push (list x y) out -1)
+    out))
+
+(bresenham 1 1 10 6)
+;-> ((1 1) (2 2) (3 2) (4 3) (5 3) (6 4) (7 4) (8 5) (9 5) (10 6))
+
+Funzione che legge un file e stampa il canvas (matrice) dell'immagine:
+
+(define (create-graph file)
+  (local (command width height matri)
+    ; reading file and put lines (commands) on a list
+    (setq commands (file-list file))
+    ;(println commands)
+    ; read width (must be the first line of file)
+    (setq width (int ((parse (commands 0 1)) 1) 0 10))
+    ; read height (must be the second line of file)
+    (setq height (int ((parse (commands 1 1)) 1) 0 10))
+    (println width { } height)
+    ; create canvas (matrix)
+    (setq matrix (array height width '(0)))
+    ; executing commands
+    (dolist (cmd commands)
+      (setq cmd (trim cmd))
+      (cond
+        ; this is a comment
+        ((= (cmd 0) ";") nil)
+        ; point command
+        ((= (slice cmd 0 4) "poin")
+          (setq x (int ((parse cmd) 1) 0 10))
+          (setq y (int ((parse cmd) 2) 0 10))
+          (println x { } y)
+          ; draw point on canvas (matrix)
+          ; x --> column, y --> row
+          (setf (matrix y x) 1)
+        )
+        ; line command
+        ((= (slice cmd 0 4) "line")
+          (setq x1 (int ((parse cmd) 1) 0 10))
+          (setq y1 (int ((parse cmd) 2) 0 10))
+          (setq x2 (int ((parse cmd) 3) 0 10))
+          (setq y2 (int ((parse cmd) 4) 0 10))
+          (println x1 { } y1 { }  x2 { } y2)
+          ; create points of line with bresenham algorithm
+          (setq points (bresenham x1 y1 x2 y2))
+          ;(println points)
+          ; draw points on canvas (matrix)
+          ; x --> column, y --> row
+          (dolist (p points) (setf (matrix (p 1) (p 0)) 1)))
+      )
+    )
+    ; y axis must be inverted
+    (reverse matrix)
+  )
+)
+
+Proviamo:
+
+(print-canvas (create-graph "graph.txt"))
+;-> 20 20
+;-> 1 1
+;-> 10 3
+;-> 7 2
+;-> 1 1 1 5
+;-> 12 12 7 12
+;-> 15 15 19 19
+;-> ...................1
+;-> ..................1.
+;-> .................1..
+;-> ................1...
+;-> ...............1....
+;-> ....................
+;-> ....................
+;-> .......111111.......
+;-> ....................
+;-> ....................
+;-> ....................
+;-> ....................
+;-> ....................
+;-> ....................
+;-> .1..................
+;-> .1..................
+;-> .1........1.........
+;-> .1.....1............
+;-> .1..................
+;-> ....................
+
+Nel 1985 per un lavoro d'esame universitario scrissi un programma in C che leggeva un file di testo con un formato simile, ma con coordinate in 3D, e visualizzava la scena tridimensionale finale in wireframe in un PC 8088.
+L'unica primitiva grafica utilizzabile era una funzione in assembler che accendeva/spegneva un pixel dello schermo.
+
+
+---------------------------------------------
+Eliminare parte di una lista o di una stringa
+---------------------------------------------
+
+Come eliminare una parte contigua di una lista o di una stringa?
+
+Vediamo prima la definizione (in stile manuale newLISP):
+
+syntax: (remove lst int-index [int-length])
+
+"remove" deletes a sublist/substring from a list/string.
+The sublist/substring deleted starts at index 'int-index' and has a length of 'int-length'. 
+If the parameter 'int-length' is omitted, the function deletes all of the elements from 'int-index' to the end of the list/string.
+
+(define (remove lst int-index int-length)
+"Deletes a sublist/substring from a list/string"
+  (let (int-length (or int-length (- (length lst) int-index)))
+    ; pop the same index for int-length times
+    (for (i 1 int-length) (pop lst int-index))
+  lst))
+
+Proviamo:
+
+(setq a '(8 0 6 5 1))
+(setq b "80651")
+
+(remove a 1 2)
+;-> (8 5 1)
+(remove b 1 2)
+;-> "851"
+(remove a 1)
+;-> (8)
+(remove b 1)
+;-> "8"
+(remove a 0)
+;-> ()
+(remove b 0)
+;-> ""
+
+Vediamo la velocità:
+
+(silent (setq t (rand 100 10000)))
+(time (remove t 10 9000) 1000)
+;-> 354.36
+
+Funzione che genera una lista con tutte le sottoliste/sottostringhe che rimangono dopo aver applicato tutte le possibili rimozioni di elementi contigui alla lista/stringa data:
+
+(define (remove-all-contiguous obj)
+"Generate all rests of a list or string removing all contiguous parts"
+  (let ( (out '()) (len (length obj)) )
+    (for (i 0 (- len 1))
+      (for (j 1 (- len i))
+        (push (remove obj i j) out -1)
+      )
+    )
+    out))
+
+Proviamo:
+
+(remove-all-contiguous "80651")
+;-> ("0651" "651" "51" "1" "" "8651" "851" "81" "8" 
+;->  "8051" "801" "80" "8061" "806" "8065")
+
+(remove-all-contiguous '(8 0 6 5 1))
+;-> ((0 6 5 1) (6 5 1) (5 1) (1) () (8 6 5 1) (8 5 1) (8 1) (8)
+;->  (8 0 5 1) (8 0 1) (8 0) (8 0 6 1) (8 0 6) (8 0 6 5))
+
+Nota: la funzione "remove" è il contrario della funzione "slice", infatti mentre "slice" restituisce la sottolista/sottostringa individuata dagli indici, "remove" restituisce la lista/stringa che rimane una volta eliminata la sottolista/sottostringa individuata dagli indici.
+
+
+---------------------
+Primi indistruttibili
+---------------------
+
+Un numero primo è indistruttibile se rimane primo togliendo qualunque sequenza di cifre contigue dal numero stesso.
+
+Vediamo un paio di esempi:
+
+Dal numero primo 317 otteniamo (tra parentesi le cifre contigue da eliminare):
+
+  (3)17 (31)7  3(1)7 3(17) 31(7)
+     17     7  37    3     31
+  
+Tutti i numeri 17, 7, 37, 3 e 31 sono primi, quindi 317 è un numero primo indistruttibile.
+
+Dal numero primo 349 otteniamo:
+
+  (3)49 (34)9  3(4)9 3(49) 34(9)
+     49     9  39    3     34 
+
+Poichè non tutti i numeri 49, 9, 39, 3, 34 sono primi, allora 349 non è un numero primo indistruttibile.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (remove lst int-index int-length)
+"Deletes a sublist/substring from a list/string"
+  (let (int-length (or int-length (- (length lst) int-index)))
+    ; pop the same index for int-length times
+    (for (i 1 int-length) (pop lst int-index))
+  lst))
+
+Funzione che genera una lista con tutte le sottoliste/sottostringhe che rimangono dopo aver applicato tutte le possibili rimozioni di elementi contigui alla lista/stringa data:
+
+(define (remove-all-contiguous obj)
+"Generate all rests of a list or string removing all contiguous parts"
+  (let ( (out '()) (len (length obj)) )
+    (for (i 0 (- len 1))
+      (for (j 1 (- len i))
+        (push (remove obj i j) out -1)
+      )
+    )
+    out))
+
+(remove-all-contiguous "5737")
+;-> ("737" "37" "7" "" "537" "57" "5" "577" "57" "573")
+
+Funzione che verifica se un numero è un primo indistruttibile:
+
+(define (indistruttibile? num)
+  (cond ((prime? num)
+          (if (< num 10) true ; primo con una sola cifra
+          ;else 
+              ; primo con più di una cifra
+              (let ((nums '())
+                    (parts (remove-all-contiguous (string num))))
+                (dolist (el parts) (if (!= el "") (push (int el 0 10) nums)))
+                ; tutte le parti sono numeri primi?
+                (for-all prime? nums))))
+        ; numero non primo
+        (true nil)))
+
+Proviamo:
+
+(indistruttibile? 317)
+;-> true
+
+(indistruttibile? 319)
+;-> nil
+
+(filter indistruttibile? (sequence 1 1e4))
+;-> (2 3 5 7 23 37 53 73 317 3137)
+
+(filter indistruttibile? (sequence 1 1e6))
+;-> (2 3 5 7 23 37 53 73 317 3137)
+
+(time (println (filter indistruttibile? (sequence 1 1e7))))
+;-> (2 3 5 7 23 37 53 73 317 3137)
+;-> 47633.117
+
+Fino a 100 milioni:
+(time (println (filter indistruttibile? (sequence 1 1e8))))
+;-> (2 3 5 7 23 37 53 73 317 3137)
+;-> 762920.691
+
+Il numero 3137 è l'ultimo numero della sequenza?
+
 ============================================================================
 

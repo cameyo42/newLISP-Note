@@ -2506,6 +2506,9 @@ NOTE LIBERE 24
   Linee temporali sovrapposte (timeline)
   Fusione di due stringhe
   Potenze di i
+  Points, Lines
+  Eliminare parte di una lista o di una stringa
+  Primi indistruttibili
 
 PROBLEMI SUI DADI
 =================
