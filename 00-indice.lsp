@@ -2509,6 +2509,7 @@ NOTE LIBERE 24
   Points, Lines
   Eliminare parte di una lista o di una stringa
   Primi indistruttibili
+  Espressioni aritmetiche vere o false?
 
 PROBLEMI SUI DADI
 =================

@@ -5942,5 +5942,136 @@ Fino a 100 milioni:
 
 Il numero 3137 è l'ultimo numero della sequenza?
 
+
+-------------------------------------
+Espressioni aritmetiche vere o false?
+-------------------------------------
+
+Determinare se le seguenti espressioni sono vere o false.
+
+  1)  44 + 21 = 105
+  2)  34 - 12 = 20
+  3)  44 - 21 = 23
+  4)  12 * 12 = 221
+  5)  12 - 4 = 1
+  6)  40 + 7 = 51
+  7)  8 * 7 = 62
+
+A prima vista sembra che solo l'espressione 3) sia vera e tutte le altre siano false.
+Questo perchè siamo abituati a ragionare in base 10.
+Forse le espressioni potrebbero essere vere in una base minore di 10.
+
+Scriviamo una funzione che verifica la validità di espressioni del tipo:
+
+  a op b = c
+
+  dove 'a','b' e 'c' sono numeri interi e 'op' può valere +,-,*,/.
+
+(define (b1-b2 num base1 base2)
+"Convert an integer from base1 to base2 (2 <= base <= 10)"
+  (if (zero? num) num
+      (+ (% num base2) (* base1 (b1-b2 (/ num base2) base1 base2)))))
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+Funzione che verifica la validità di un'espressione nelle basi da 2 a 10:
+
+(define (valuta expr)
+  (local (out items op a b c x y z)
+    (setq out '())
+    ; parse expr
+    (setq items (parse expr))
+    ; termine 'op' come stringa
+    (setq op (items 1))
+    ; termini a,b,c come numeri
+    (setq a (int (items 0) 0 10))
+    (setq b (int (items 2) 0 10))
+    (setq c (int (items 4) 0 10))
+    ; calcola la base minima da cui iniziare la verifica
+    ; (cifra massima dei termini)
+    (setq bmin (apply max (append (int-list a) (int-list b) (int-list c))))
+    ; Ciclo per la verifica dell'espressione per le basi da bmin a 10
+    (for (base bmin 10 1)
+      (setq x (b1-b2 a base 10))
+      (setq y (b1-b2 b base 10))
+      (setq z (b1-b2 c base 10))
+      ; verifica se l'espressione è vera o falsa per la base corrente
+      (when (= ((eval-string op) x y) z)
+          (println expr "  -->  (Base " base")")
+          (push base out -1)))
+    ; valore restituito
+    out))
+
+Proviamo:
+
+(valuta "44 + 21 = 105")
+;-> 44 + 21 = 105  -->  (Base 6)
+;-> (6)
+
+(valuta "34 - 12 = 20")
+;-> ()
+
+(valuta "44 - 21 = 23")
+;-> 44 - 21 = 23  -->  (Base 4)
+;-> 44 - 21 = 23  -->  (Base 5)
+;-> 44 - 21 = 23  -->  (Base 6)
+;-> 44 - 21 = 23  -->  (Base 7)
+;-> 44 - 21 = 23  -->  (Base 8)
+;-> 44 - 21 = 23  -->  (Base 9)
+;-> 44 - 21 = 23  -->  (Base 10)
+;-> (4 5 6 7 8 9 10)
+
+(valuta "12 * 12 = 221")
+;-> 12 * 12 = 221  -->  (Base 3)
+;-> (3)
+
+(valuta "12 - 4 = 1")
+;-> ()
+
+(valuta "40 + 7 = 51")
+;-> ()
+
+(valuta "8 * 7 = 62")
+;-> 8 * 7 = 62  -->  (Base 9)
+;-> (9)
+
+Vediamo una funzione che genera espressioni valide in una base data:
+
+(define (create-expr a b base)
+  (setq x (b1-b2 a base 10))
+  (setq y (b1-b2 b base 10))
+  (println "Base = " base)
+  (println a " + " b " = " (b1-b2 (+ x y) 10 base))
+  (println a " - " b " = " (b1-b2 (- x y) 10 base))
+  (println a " * " b " = " (b1-b2 (* x y) 10 base))
+  (println a " / " b " = " (b1-b2 (/ x y) 10 base)))
+
+Proviamo:
+
+(create-expr 74 22 8)
+;-> Base = 8
+;-> 74 + 22 = 116
+;-> 74 - 22 = 52
+;-> 74 * 22 = 2070
+;-> 74 / 22 = 3
+(valuta "74 * 22 = 2070")
+;-> 74 * 22 = 2070  -->  (Base 8)
+;-> (8)
+
+(create 123 456 7)
+;-> Base = 7
+;-> 123 + 456 = 612
+;-> 123 - 456 = -333
+;-> 123 * 456 = 63414
+;-> 123 / 456 = 0
+(valuta "123 + 456 = 612")
+;-> 123 + 456 = 612  -->  (Base 7)
+;-> (7)
+
 ============================================================================
 
