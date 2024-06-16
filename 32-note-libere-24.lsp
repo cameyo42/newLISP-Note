@@ -6073,5 +6073,165 @@ Proviamo:
 ;-> 123 + 456 = 612  -->  (Base 7)
 ;-> (7)
 
+
+-------------------------------------------------
+Sensibilità di una funzione rispetto ai parametri
+-------------------------------------------------
+
+Per analizzare la sensibilità di una funzione algebrica rispetto ai suoi parametri, si possono usare diversi metodi.
+Questi includono la derivata parziale rispetto ai parametri, il metodo Monte Carlo e l'analisi della varianza.
+
+Metodo delle Derivate Parziali
+------------------------------
+Si tratta di uno dei metodi più comuni e diretti.
+Supponiamo di avere una funzione algebrica f(x, a, b, c) con variabili indipendenti x e parametri a, b, c.
+I passi da seguire sono i seguenti:
+
+1. Calcolo delle derivate parziali rispetto ai parametri:
+   Le derivate parziali della funzione rispetto ai parametri ci indicano come la funzione cambia al variare di ciascun parametro.
+
+   df/da, df/db, df/db
+
+2. Valutazione delle derivate:
+   Valutare le derivate parziali in punti specifici per determinare la sensibilità locale.
+   Si scelgono solitamente valori dei parametri e delle variabili di input di interesse.
+
+3. Analisi delle derivate:
+   Confrontare i valori delle derivate per determinare quali parametri hanno un'influenza maggiore sulla funzione.
+
+Vediamo un esempio con la funzione f(x, a, b, c) = a*x^2 + b*x + c.
+
+Definizione della funzione:
+
+(define (f x a b c)
+  (add (mul a (pow x 2)) (add (mul b x) c)))
+
+Funzioni per il calcolo numerico delle derivate parziali:
+
+(define (partial-derivative-a x a b c)
+  (letn ( (h 1e-5)
+          (f1 (f x (add a h) b c))
+          (f2 (f x (sub a h) b c)) )
+  (div (sub f1 f2) (mul 2 h))))
+
+(define (partial-derivative-b x a b c)
+  (letn ( (h 1e-5)
+          (f1 (f x a (add b h) c))
+          (f2 (f x a (sub b h) c)) )
+  (div (sub f1 f2) (mul 2 h))))
+
+(define (partial-derivative-c x a b c)
+  (letn ( (h 1e-5)
+          (f1 (f x a b (add c h)))
+          (f2 (f x a b (sub c h))) )
+    (div (sub f1 f2) (mul 2 h))))
+
+Calcoliamo le derivate parziali per x = 2, a = 1, b = 3, c = 5:
+
+(setq x 2)
+(setq a 1)
+(setq b 3)
+(setq c 5)
+
+(println "Sensibilità di f al parametro a: " (partial-derivative-a x a b c))
+;-> Sensibilità di f al parametro a: 4.000000000026205
+
+(println "Sensibilità di f al parametro b: " (partial-derivative-b x a b c))
+;-> Sensibilità di f al parametro b: 1.999999999924284
+
+(println "Sensibilità di f al parametro c: " (partial-derivative-c x a b c))
+;-> Sensibilità di f al parametro c: 0.9999999999621422
+
+Quindi il parametro 'a' è quello che influenza di più la funzione.
+
+Proviamo con altri valori:
+
+(setq x 100)
+(setq a 10)
+(setq b -10)
+(setq c -5)
+
+(println "Sensibilità di f al parametro a: " (partial-derivative-a x a b c))
+;-> Sensibilità di f al parametro a: 9999.999999126885
+
+(println "Sensibilità di f al parametro b: " (partial-derivative-b x a b c))
+;-> 100.0000003841706
+
+(println "Sensibilità di f al parametro c: " (partial-derivative-c x a b c))
+;-> 9999.999999126885
+
+(println "Sensibilità di f al parametro b: " (partial-derivative-b x a b c))
+;-> Sensibilità di f al parametro c: 1.000000338535756
+
+Poichè la derivata parziale rispetto ad 'a' è maggiore rispetto a quelle rispetto a 'b' e 'c', la funzione è più sensibile ai cambiamenti del parametro 'a'.
+
+Questo metodo delle derivate parziali è utile per analizzare la sensibilità locale della funzione rispetto ai parametri.
+Per un'analisi più globale, potremmo considerare metodi statistici come il campionamento di Monte Carlo.
+
+Metodo di Monte Carlo
+---------------------
+Il metodo di Monte Carlo è un approccio statistico utilizzato per stimare la sensibilità di una funzione algebrica rispetto ai suoi parametri.
+Consiste nel campionare i parametri da una distribuzione e valutare come varia la funzione.
+
+Supponiamo di avere la stessa funzione f(x, a, b, c) = a*x^2 + b*x + c.
+Utilizziamo il metodo di Monte Carlo per analizzare la sensibilità rispetto ai parametri a, b e c.
+
+(define (f x a b c)
+  (add (mul a (pow x 2)) (add (mul b x) c)))
+
+(define (random-sample min-val max-val)
+  (add min-val (mul (random) (sub max-val min-val))))
+
+Algoritmo:
+1) Generare 'num-samples' campioni casuali per ogni parametro a, b, c all'interno degli intervalli specificati.
+2) Calcolare il valore della funzione per i parametri originali e i campioni generati.
+3) Calcolare la differenza assoluta tra il valore della funzione con i campioni e il valore della funzione con i parametri originali.
+4) Memorizzare queste differenze in liste.
+5) Calcolare la media delle differenze per ogni parametro per stimare la sensibilità.
+
+(define (montecarlo-sensitivity f x a b c num-samples range-a range-b range-c)
+  (local (results-a results-b results-c a-sample b-sample c-sample
+          f0 fa fb fc)
+    (setq results-a '())
+    (setq results-b '())
+    (setq results-c '())
+    (dotimes (i num-samples)
+      (setq a-sample (random-sample (range-a 0) (range-a 1)))
+      (setq b-sample (random-sample (range-b 0) (range-b 1)))
+      (setq c-sample (random-sample (range-c 0) (range-c 1)))
+      (setq f0 (f x a b c))
+      (setq fa (f x a-sample b c))
+      (setq fb (f x a b-sample c))
+      (setq fc (f x a b c-sample))
+      (push (abs (sub fa f0)) results-a)
+      (push (abs (sub fb f0)) results-b)
+      (push (abs (sub fc f0)) results-c)
+    )
+    (println "Sensibilità rispetto a a: " (mean results-a))
+    (println "Sensibilità rispetto a b: " (mean results-b))
+    (println "Sensibilità rispetto a c: " (mean results-c)) '>))
+
+(define (mean lst)
+  (div (apply add lst) (length lst)))
+
+Esempio di utilizzo con x = 2, a = 1, b = 3, c = 5, 1000 campioni
+
+(setq x 2)
+(setq a 1)
+(setq b 3)
+(setq c 5)
+(setq num-samples 1000)
+(setq range-a '(0.5 1.5))
+(setq range-b '(2.5 3.5))
+(setq range-c '(4.5 5.5))
+
+(montecarlo-sensitivity f x a b c num-samples range-a range-b range-c):
+;-> Sensibilità rispetto a a: 0.9731997436445328
+;-> Sensibilità rispetto a b: 0.4965421918393565
+;-> Sensibilità rispetto a c: 0.253571398052922
+
+Questi valori rappresentano la sensibilità media della funzione rispetto ai cambiamenti nei parametri a, b e c.
+Quindi la nostra funzione è più sensibile ai cambiamenti del parametro 'a'.
+
 ============================================================================
 

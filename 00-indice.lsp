@@ -2510,6 +2510,7 @@ NOTE LIBERE 24
   Eliminare parte di una lista o di una stringa
   Primi indistruttibili
   Espressioni aritmetiche vere o false?
+  Sensibilità di una funzione rispetto ai parametri
 
 PROBLEMI SUI DADI
 =================
