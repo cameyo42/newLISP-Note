@@ -2511,6 +2511,7 @@ NOTE LIBERE 24
   Primi indistruttibili
   Espressioni aritmetiche vere o false?
   Sensibilità di una funzione rispetto ai parametri
+  Velocità di digitazione
 
 PROBLEMI SUI DADI
 =================

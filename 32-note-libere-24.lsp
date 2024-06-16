@@ -6233,5 +6233,148 @@ Esempio di utilizzo con x = 2, a = 1, b = 3, c = 5, 1000 campioni
 Questi valori rappresentano la sensibilità media della funzione rispetto ai cambiamenti nei parametri a, b e c.
 Quindi la nostra funzione è più sensibile ai cambiamenti del parametro 'a'.
 
+
+-----------------------
+Velocità di digitazione
+-----------------------
+
+Scrivere una funzione che misura il tempo di risposta dell'utente chiedendogli di inserire il carattere visualizzato sullo schermo nel più breve tempo possibile.
+La funzione prende come parametro il numero di prove da effettuare.
+La funzione deve restituire il numero di prove corrette, il numero di prove sbagliate e la velocità di risposta media nei due casi.
+Il tempo deve essere misurato in millisecondi.
+
+Esempio di output:
+  ---------------------
+  Test 1 di 10:
+  Computer: z
+  Utente: z
+  Corretto: 1045 msec.
+  ---------------------
+  Test 2 di 10:
+  Computer: l
+  Utente: k
+  Errato: 1335 msec.
+  ---------------------
+  ...
+  ---------------------
+  Test 10 di 10:
+  Computer: p
+  Utente: p
+  Corretto: 662 msec.
+  ---------------------
+  Risultati:
+  Tasti corretti = 8
+  Tempo medio = 1122 millisec
+  Tasti errati = 2
+  Tempo medio = 2007 millisec
+
+(define (rand-range min-val max-val)
+"Generate a random integer in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+
+Funzione che prova la velocità di digitazione dell'utente:
+
+(define (fast-test prove)
+  (local (time-ok time-no ch start elapsed pressed)
+    (setq time-ok '())
+    (setq time-no '())
+    (println "---------------------")
+    (for (p 1 prove)
+      (println "Test " p " di " prove ":")
+      (setq ch (char (rand-range 97 122)))
+      ;(setq ch (char (rand-range 65 90))))
+      (println "Computer: " ch)
+      ; start time
+      (setq start (time-of-day))
+      ; wait for user keypress...
+      (while (zero? (setq code (read-key true))))
+      ; calculate elapsed time (time of user response)
+      (setq elapsed (sub (time-of-day) start))
+      ; char keypressed 
+      (setq pressed (char code))
+      (println "Utente: " pressed)
+      ; check user response
+      (cond ((= ch pressed)
+              (push elapsed time-ok -1)
+              (println "Corretto: " (format "%.0f" elapsed) " msec."))
+            (true
+              (push elapsed time-no -1)
+              (println "Errato: " (format "%.0f" elapsed) " msec."))
+      )
+      (println "---------------------")
+    )
+    ; print results
+    (println "Risultati:")
+    (println "Tasti corretti = " (length time-ok))
+    ;(println "Tempi: " time-ok)
+    (println "Tempo medio: " 
+        (int (add 0.5 (div (apply add time-ok) (length time-ok)))) " msec")
+    (println "Tasti errati = " (length time-no))
+    ;(println "Tempi: " time-no)
+    (println "Tempo medio: " 
+        (int (add 0.5 (div (apply add time-no) (length time-no)))) " msec")
+    '>))
+
+Proviamo:
+
+(fast-test 10)
+;-> ---------------------
+;-> Test 1 di 10:
+;-> Computer: c
+;-> Utente: c
+;-> Corretto: 941 msec.
+;-> ---------------------
+;-> Test 2 di 10:
+;-> Computer: r
+;-> Utente: r
+;-> Corretto: 991 msec.
+;-> ---------------------
+;-> Test 3 di 10:
+;-> Computer: b
+;-> Utente: b
+;-> Corretto: 1127 msec.
+;-> ---------------------
+;-> Test 4 di 10:
+;-> Computer: a
+;-> Utente: a
+;-> Corretto: 862 msec.
+;-> ---------------------
+;-> Test 5 di 10:
+;-> Computer: x
+;-> Utente: x
+;-> Corretto: 1038 msec.
+;-> ---------------------
+;-> Test 6 di 10:
+;-> Computer: h
+;-> Utente: h
+;-> Corretto: 1175 msec.
+;-> ---------------------
+;-> Test 7 di 10:
+;-> Computer: h
+;-> Utente: g
+;-> Errato: 887 msec.
+;-> ---------------------
+;-> Test 8 di 10:
+;-> Computer: p
+;-> Utente: p
+;-> Corretto: 999 msec.
+;-> ---------------------
+;-> Test 9 di 10:
+;-> Computer: r
+;-> Utente: r
+;-> Corretto: 1726 msec.
+;-> ---------------------
+;-> Test 10 di 10:
+;-> Computer: v
+;-> Utente: v
+;-> Corretto: 1031 msec.
+;-> ---------------------
+;-> Risultati:
+;-> Tasti corretti = 9
+;-> Tempo medio: 1099 msec
+;-> Tasti errati = 1
+;-> Tempo medio: 887 msec
+
 ============================================================================
 
