@@ -2512,6 +2512,7 @@ NOTE LIBERE 24
   Espressioni aritmetiche vere o false?
   Sensibilità di una funzione rispetto ai parametri
   Velocità di digitazione
+  Più o meno quanto?
 
 PROBLEMI SUI DADI
 =================

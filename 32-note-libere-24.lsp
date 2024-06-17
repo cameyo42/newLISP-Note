@@ -6376,5 +6376,141 @@ Proviamo:
 ;-> Tasti errati = 1
 ;-> Tempo medio: 887 msec
 
+
+------------------
+Più o meno quanto?
+------------------
+
+"Più o meno quanto? L'arte di fare stime sul mondo" di Lawrence Weinstein e John A. Adam è un libro che insegna a fare valutazioni quantitative sui temi più disparati, anche quando le informazioni disponibili sono poche, con quattro calcoli che si possono fare con carta e penna.
+L'obiettivo non è quello di risolvere i vari problemi esattamente, ma trovare una soluzione soddisfacente entro un fattore dieci dalla soluzione esatta (che in genere è quanto basta per prendere una decisione).
+
+Vediamo un semplice problema per avere un'idea di cosa stiamo parlando.
+
+Problema
+--------
+Mettendo uno sopra l'altro tutti i biglietti della Lotteria Italia, quanto sarà alta la pila risultante?
+E quanto pesa?
+
+Nota:
+Grattacielo (100 m)
+Piccola montagna (1000 m)
+Everest (10000 m)
+Spessore atmosfera (10^5 m)
+Lunghezza dell'Italia (10^6 m)
+Diametro terrestre (10^7)
+Distanza Terra-Luna (10^8)
+
+Stima dei valori delle variabili coinvolte nel problema:
+
+Quanti biglietti?
+In Italia ci sono circa 60 milioni di persone. Supponendo che una persona ogni 10 conpra un biglietto, otteniamo 6 milioni di biglietti venduti.
+Nota: I biglietti della Lotteria Italia venduti nel 2023 sono circa 6.7 milioni.
+
+Peso e spessore di un biglietto?
+Il peso e lo spessore di un biglietto della lotteria possono variare a seconda del tipo e del materiale del biglietto stesso, ma possiamo dare alcune stime generali:
+Peso: Un biglietto della lotteria tipico pesa solitamente tra 1 e 5 grammi (prendiamo 3 grammi).
+Spessore: Il spessore di un biglietto della lotteria è generalmente compreso tra 0.1 e 0.3 millimetri (prendiamo 0.2 millimetri).
+
+Adesso possiamo calcolare altezza e peso della pila di biglietti:
+
+Altezza = Numero-biglietti * Spessore-biglietto =
+        = 6e6 * 2e-4 = 1200 metri
+
+Peso = Numero-biglietti * Peso-biglietto =
+     = 6e6 * 3 = 18000000 grammi = 18000 Kg = 180 Quintali = 18 Tonnellate
+
+In questo caso per calcolare i valori minimi e massimi di Altezza e Peso della pila è sufficiente sostituire i valori minimi e massimi dei Numero-biglietti, Spessore-biglietto e Peso-biglietto.
+Quando la formula si fa più complicata, invece di usare un approccio matematico per trovare i minimi e i massimi, possiamo utilizzare un approccio casuale (simile al Metodo di Monte Carlo).
+
+Algoritmo
+Generare N volte valori casuali per tutti i parametri della funzione (negli intervalli definiti per ogni parametro)
+Per ogni generazione di valori calcolare il valore della funzione per quei valori e
+aggiornare i valori mini e massimi della funzione.
+
+Per maggiori informazioni vedere i commenti della funzione.
+
+Funzione che genera un numero casuale tra due valori:
+
+(define (random-value min-val max-val)
+  (add min-val (mul (random) (sub max-val min-val))))
+
+(random-value 0.1 0.2)
+;-> 0.1001251258888516
+(random-value 2 2)
+;-> 2
+
+Funzione Altezza:
+
+(define (A) (mul a b))
+dove 'a' è il numero di biglietti
+     'b' è lo spessore di un biglietto
+
+Funzione Peso:
+
+(define (P) (mul a b))
+dove 'a' è il numero di biglietti
+     'b' è il peso di un biglietto
+
+Per la definizione della funzione da calcolare dobbiamo usare i simboli a,b,c,...,z.
+Questo perchè dobbiamo creare automaticamente le variabili all'interno della funzione newLISP.
+
+Intervalli dei parametri:
+
+Numero-biglietti: (4e6, 8e6)
+Spessore-biglietto: (0.1, 0.3)
+Peso-biglietto: (1, 5)
+
+Funzione che calcola il valore minimo e massimo di una funzione con parametri a,b,c,... utilizzando valori casuali scelti nell'intervallo di variazione di ogni parametro:
+
+(define (min-max func iterazioni ranges)
+  (local (val-min val-max)
+    ; numero di parametri
+    (setq num-par (length ranges))
+    ; valore minimo iniziale
+    (setq min-val 1e99)
+    ; valore massimo iniziale
+    (setq max-val -1e99)
+    (for (k 1 iterazioni)
+      ; lista dei valori correnti dei parametri
+      (setq cur-values '())
+      ; creazione dei valori casuali per i parametri a,b,c,d,e,...,z
+      (for (i 0 (- num-par 1))
+        ; crea 'num-par' variabili: a,b,c...
+        ; e le inserisce nella lista 'cur-values'
+        (push (set (sym (char (+ i 97)))
+                   (random-value (ranges i 0) (ranges i 1))) cur-values -1)
+      )
+      ; calcolo del valore della funzione con i parametri correnti
+      (setq cur-value (func))
+      ;(print a { } b { -> } cur-value) (read-line)
+      ; controllo valore massimo
+      (when (> cur-value max-val)
+        (setq max-val cur-value)
+        (setq massimo (list max-val cur-values)))
+      ; controllo valore minimo
+      (when (< cur-value min-val)
+        (setq min-val cur-value)
+        (setq minimo (list min-val cur-values)))
+    )
+    (println minimo)
+    (println massimo)
+  '>))
+
+Proviamo:
+
+Numero-biglietti: (4e6, 8e6)
+Spessore-biglietto: (0.1, 0.3)
+Peso-biglietto: (1, 5)
+
+(min-max A 1e6 '((4e6 8e6) (1 5)))
+;-> (4014048.945808469 (4004272.59132664 1.00244148075808))   ; grammi
+;-> (39995483.32020584 (7999877.925962096 4.999511703848384)) ; grammi
+
+(min-max P 1e6 '((4e6 8e6) (0.1 0.3)))
+;-> (400756.9037412169 (4000244.148075808 0.100183111056856)) ; millimetri
+;-> (2398242.455738911 (7997070.223090304 0.2998901333658864)); millimetri
+
+Nota: attenzione alle unità di misura.
+
 ============================================================================
 
