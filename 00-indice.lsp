@@ -2513,6 +2513,8 @@ NOTE LIBERE 24
   Sensibilità di una funzione rispetto ai parametri
   Velocità di digitazione
   Più o meno quanto?
+  Numero casuale con cifre predefinite
+  mex (minimum excluded value)
 
 PROBLEMI SUI DADI
 =================

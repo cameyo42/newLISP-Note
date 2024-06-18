@@ -6512,5 +6512,279 @@ Peso-biglietto: (1, 5)
 
 Nota: attenzione alle unità di misura.
 
+
+------------------------------------
+Numero casuale con cifre predefinite
+------------------------------------
+
+Scrivere una funzione che genera un numero intero casuale compreso in un intervallo chiuso e con cifre predefinite.
+
+Per esempio:
+Intervallo: (1 200)
+Cifre: 1 2 3
+Numeri possibili: 1 2 3 11 12 13 21 22 23 31 32 33 111 112 113 121 122 123 131 132 133 211 212 213
+ 221 222 223 231 232 233 311 312 313 321 322 323 331 332 333
+Numeri nell'intervallo: 1 2 3 11 21 31 12 22 32 13 23 33 111 112 113 121 122 123 131 132 133
+Numero casuale: uno qualunque dei numeri nell'intervallo
+
+Per calcolare tutti i numeri che possono essere generati con una lista di cifre possiamo usare la funzione per il calcolo delle permutazioni con ripetizione:
+
+(define (perm-rep k lst)
+"Generates all permutations of k elements with repetition from a list of items"
+  (if (zero? k) '(())
+      (flat (map (lambda (p) (map (lambda (e) (cons e p)) lst))
+                         (perm-rep (- k 1) lst)) 1)))
+
+(perm-rep 1 '(1 2 3))
+;-> ((1) (2) (3))
+(perm-rep 2 '(1 2 3))
+;-> ((1 1) (2 1) (3 1) (1 2) (2 2) (3 2) (1 3) (2 3) (3 3))
+(perm-rep 3 '(1 2 3))
+;-> ((1 1 1) (2 1 1) (3 1 1) (1 2 1) (2 2 1) (3 2 1) (1 3 1) (2 3 1) 
+;->  (3 3 1) (1 1 2) (2 1 2) (3 1 2) (1 2 2) (2 2 2) (3 2 2) (1 3 2)
+;->  (2 3 2) (3 3 2) (1 1 3) (2 1 3) (3 1 3) (1 2 3) (2 2 3) (3 2 3)
+;->  (1 3 3) (2 3 3) (3 3 3))
+
+Adesso possiamo selezionare a caso una delle liste della permutazione per creare il numero casuale.
+Comunque non siamo sicuri che questo numero sia compreso nell'intervallo predefinito.
+
+Allora, prima di selezionare una lista, attraversiamo la lista delle permutazioni e filtriamo solo i numeri compresi nell'intervallo.
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione che genera un numero casuale in un intervallo con cifre predefinite:
+
+(define (rnd-digits min-val max-val digits)
+  (local (len perm nums nums-range)
+    (setq len (length digits))
+    ; crea i numeri possibili (permutazioni)
+    (setq perm '())
+    (for (i 1 len) (extend perm (perm-rep i digits)))
+    ; converte le permutazioni in numeri
+    (setq nums (map list-int perm))
+    ; filtra solo i numeri nell'intervallo
+    (setq nums-range (filter (fn(x) (and (>= x min-val) (<= x max-val))) nums))
+    ; seleziona, se possibile, un numero casuale dai numeri possibili
+    (if (= nums-range '())
+        ; nessun numero soddisfa le condizioni
+        nil
+        ;else
+        (nums-range (rand (length nums-range))))))
+
+Proviamo:
+
+(rnd-digits 1 200 '(1 2 3))
+;-> 112
+(rnd-digits 1 200 '(1 2 3))
+;-> 132
+(rnd-digits 1 100 '(1 2 3))
+;-> 11
+(rnd-digits 400 500 '(1 2 3))
+;-> nil
+(rnd-digits 1 1000 '(1 2 3 4 5 6))
+;-> 324
+
+Verifichiamo che questo metodo genera numeri veramente casuali:
+
+(count '(1 2 3 11 21 31 12 22 32 13 23 33 111 112 113 121 122 123 131 132 133)
+        (collect (rnd-digits 1 200 '(1 2 3)) 1e6))
+;-> (47816 47318 47511 47555 47398 47662 47627 47962 47542 47772 47417 
+;->  47728 47542 47777 47584 48005 47516 47401 47653 47575 47639)
+
+Comunque il metodo è molto lento al crescere del numero delle cifre:
+
+(time (println (rnd-digits 1 90000000 '(1 2 3 4 5 6))))
+;-> 144132
+;-> 267.557
+
+(time (println (rnd-digits 1 90000000 '(1 2 3 4 5 6 7))))
+;-> 6477531
+;-> 3592.844
+
+(time (println (rnd-digits 1 90000000 '(1 2 3 4 5 6 7 8))))
+;-> 57127468
+;-> 35980.383 ; quasi 36 secondi...
+
+Vediamo un altro metodo che genera casualmente le cifre per formare il numero.
+
+(define (rand-range min-val max-val)
+"Generate a random integer in a closed range"
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+
+(define (rnd-cifre min-val max-val digits)
+  (local (len min-digits max-digits num-digits num cifra)
+    (setq len (length digits))
+    ; numero minimo di cifre del numero casuale
+    (setq min-digits (length min-val))
+    ; numero massimo di cifre del numero casuale
+    (setq max-digits (length max-val))
+    ; numero casuale di cifre 
+    (setq num-digits (rand-range min-digits max-digits))
+    (setq stop nil)
+    (until stop
+      ; crea il numero casuale selezionando casualmente 'num-digits' cifre
+      ; dalla lista delle cifre 'digits'
+      (setq num 0)
+      (for (i 1 num-digits)
+        (setq cifra (digits (rand len)))
+        (setq num (+ cifra (* num 10)))
+      )
+      ; verifica se il numero ricade nell'intervallo
+      (if (and (>= num min-val) (<= num max-val)) (setq stop true))
+    )
+    num))
+
+Proviamo:
+
+(rnd-cifre 1 200 '(1 2 3))
+;-> 21
+
+(rnd-cifre 1 200 '(1 2 3))
+;-> 121
+
+(rnd-cifre 1 100 '(1 2 3))
+;->332
+
+(rnd-cifre 400 500 '(1 2 3))
+...non termina mai...
+
+(rnd-cifre 1 1000 '(1 2 3 4 5 6))
+;-> 324
+
+(time (println (rnd-cifre 1 90000000 '(1 2 3 4 5 6 7 8))))
+;-> 7348481
+;-> 0
+
+Questa funzione è velocissima, ma ha due problemi.
+Primo, non è in grado di riconoscere quando non esiste nessun numero nell'intervallo (in questo caso la funzione non termina mai).
+Secondo, la funzione produce risultati errati. Infatti alcuni numeri compaiono più spesso di altri:
+
+(count '(1 2 3 11 21 31 12 22 32 13 23 33 111 112 113 121 122 123 131 132 133)
+        (collect (rnd-cifre 1 200 '(1 2 3)) 1e6))
+;-> (111518 111161 111218 37105 37145 37117 37184 36827 36896 36766 37054 36965 36871
+;->  36702 37032 36911 37079 37055 37225 37109 37060)
+
+In questo esempio i numeri 1, 2 e 3 compaiono più volte degli altri perchè quando viene scelto un numero lungo una sola cifra (che ha la stessa probabilità di un numero di due o tre cifre), allora abbiamo solo tre scelte (1, 2 o 3). I numeri con due e tre cifre hanno la stessa probabilità perchè ci sono nove numeri con due cifre e nove numeri con tre cifre da cui scegliere.
+
+Proviamo ad generare i numeri validi usando un metodo ricorsivo.
+
+Funzione che genera i numeri validi:
+
+(define (create-numbers current)
+  (if (<= current max-val)
+      (begin
+        ; check if current number is within range
+        (if (and (>= current min-val) (<= current max-val))
+            (push current valid-numbers))
+        ; creates numbers recursively
+        (dolist (d digits)
+          (create-numbers (+ (* current 10) d))))))
+
+Funzione che genera un numero casuale valido:
+
+(define (random-integer min-val max-val digits)
+  (let (valid-numbers'())
+    ; creates valid numbers
+    (dolist (d digits) (create-numbers d))
+    ;(print valid-numbers)
+    ; random selection of element of valid-numbers
+    (valid-numbers (rand (length valid-numbers)))))
+
+Proviamo:
+
+(random-integer 1 200 '(1 2 3))
+;-> 131
+
+(random-integer 1 200 '(1 2 3))
+;-> 32
+
+(random-integer 1 100 '(1 2 3))
+;->1
+
+(random-integer 400 500 '(1 2 3))
+;-> ERR: invalid list index : (rand (length valid-numbers))
+;-> called from user function (random-integer 400 500 '(1 2 3))
+
+(random-integer 1 1000 '(1 2 3 4 5 6))
+;-> 644
+
+Verifichiamo che questo metodo genera numeri veramente casuali:
+
+(count '(1 2 3 11 21 31 12 22 32 13 23 33 111 112 113 121 122 123 131 132 133)
+        (collect (random-integer 1 200 '(1 2 3)) 1e6))
+;-> (47905 47688 47495 47306 47887 47425 47729 47547 47442 47717 47632 
+;->  47620 47514 47555 47445 47649 47817 47826 47220 47833 47748)
+
+Comunque anche questo metodo è molto lento al crescere del numero delle cifre:
+(time (println (random-integer 1 90000000 '(1 2 3 4 5 6 7 8))))
+;-> 4545245
+;-> 21973.893 ; quasi 22 secondi
+
+17 giugno 2024 - Quesito sul forum di newLISP:
+https://newlispfanclub.com/index.php?topic=5269.0
+
+
+----------------------------
+mex (minimum excluded value)
+----------------------------
+
+Il mex (minimum excluded value - numero minimo escluso) di una lista finita di numeri interi non negativi è il più piccolo intero non negativo 0, 1, 2, 3, 4, ... che non appare nella lista.
+In altre parole, è il valore minimo dell'insieme complementare.
+
+(define (mex lst)
+  (local (len max-value seq diff)
+    (setq len (length lst))
+    (cond ((= lst '()) 0)
+          ((= len 1) ; lista con un solo elemento
+            ; se elemento uguale a 0, allora restituisce 1
+            ; altrimenti restituisce 0
+            (if (zero? (first lst)) 1 0))
+          (true
+            ; calcolo del valore massimo
+            (setq max-value (apply max lst))
+            ; creazione sequenza completa da 0 a valore massimo
+            (setq seq (sequence 0 max-value))
+            (println seq)
+            ; calcolo della lista differenza fra la lista data e la sequenza completa
+            ; (insieme complementare)
+            (setq diff (difference seq lst))
+            ; se differenza è vuota, allora restituisce (valore-massimo + 1)
+            ; altrimenti restituisce il primo valore della lista differenza
+            (if (= diff '())
+                (+ max-value 1)
+                (first diff)))))
+
+Proviamo:
+
+(mex '(3 1 0 1 3 3))
+;-> 2
+(mex '(1))
+;-> 0
+(mex '(0))
+;-> 1
+(mex '(5))
+;-> 0
+(mex '(2 0))
+;-> 1
+(mex '(3 1 0 1 3 3))
+;-> 2
+(mex '())
+;-> 0
+(mex '(1 2 3))
+;-> 0
+(mex '(5 4 1 5 4 8 2 1 5 4 0 7 7))
+;-> 3
+(mex '(3 2 1 0))
+;-> 4
+(mex '(0 0 1 1 2 2 3))
+;-> 4
+(mex '(1 0 7 6 3 11 15 1 9 2 3 1 5 2 3 4 6 8 1 18))
+;-> 10
+(mex '(0 1 2 3 4 5 6 7 8 9))
+;-> 10
+
 ============================================================================
 
