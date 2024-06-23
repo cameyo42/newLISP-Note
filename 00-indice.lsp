@@ -2515,6 +2515,8 @@ NOTE LIBERE 24
   Più o meno quanto?
   Numero casuale con cifre predefinite
   mex (minimum excluded value)
+  Moltiplicazione di caratteri (ASCII)
+  Primi supremi
 
 PROBLEMI SUI DADI
 =================

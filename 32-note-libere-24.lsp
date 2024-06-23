@@ -6719,6 +6719,7 @@ Verifichiamo che questo metodo genera numeri veramente casuali:
 ;->  47620 47514 47555 47445 47649 47817 47826 47220 47833 47748)
 
 Comunque anche questo metodo è molto lento al crescere del numero delle cifre:
+
 (time (println (random-integer 1 90000000 '(1 2 3 4 5 6 7 8))))
 ;-> 4545245
 ;-> 21973.893 ; quasi 22 secondi
@@ -6747,7 +6748,7 @@ In altre parole, è il valore minimo dell'insieme complementare.
             (setq max-value (apply max lst))
             ; creazione sequenza completa da 0 a valore massimo
             (setq seq (sequence 0 max-value))
-            (println seq)
+            ;(println seq)
             ; calcolo della lista differenza fra la lista data e la sequenza completa
             ; (insieme complementare)
             (setq diff (difference seq lst))
@@ -6755,7 +6756,7 @@ In altre parole, è il valore minimo dell'insieme complementare.
             ; altrimenti restituisce il primo valore della lista differenza
             (if (= diff '())
                 (+ max-value 1)
-                (first diff)))))
+                (first diff))))))
 
 Proviamo:
 
@@ -6785,6 +6786,193 @@ Proviamo:
 ;-> 10
 (mex '(0 1 2 3 4 5 6 7 8 9))
 ;-> 10
+
+
+------------------------------------
+Moltiplicazione di caratteri (ASCII)
+------------------------------------
+
+codice ASCII minore: 32 --> " "
+codice ASCII maggiore: 126 --> "~"
+
+(define (mult ch1 ch2)
+  ; moltiplica i codici ASCII dei caratteri
+  (setq m (* (char ch1) (char ch2)))
+  ; calcola il modulo 127 della moltiplicazione
+  (setq m1 (% (* (char ch1) (char ch2)) 127))
+  ; aggiunge 32 (solo caratteri stampabili 32-126)
+  (if (< m1 32) (++ m1 32))
+  ; converte il risultato in carattere
+  (char m1))
+
+Proviamo:
+
+(mult "a" "Z")
+;-> "^"
+
+(mult "a" "A")
+;-> "R"
+
+Vediamo la distribuzione dei valori della moltiplicazione:
+
+(define (rand-range min-val max-val)
+"Generate a random integer in a closed range"
+  (if (> min-val max-val) (swap min-val max-val))
+  (+ min-val (rand (+ (- max-val min-val) 1))))
+
+100000 moltiplicazioni con caratteri casuali:
+
+(setq test '())
+(silent (for (i 1 100000) (push (mult (char (rand-range 32 126)) (char (rand-range 32 126))) test)))
+
+Calcolo delle frequenze dei caratteri risultanti:
+
+(setq caratteri '())
+(for (i 32 126) (push (char i) caratteri -1))
+;-> (" " "!" "\"" "#" "$" "%" "&" "'" "(" ")" "*" "+" "," "-" "." "/"
+;->  "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" ":" ";" "<" "=" ">" "?" 
+;->  "@" "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O"
+;->  "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" "[" "\\" "]" "^" "_"
+;->  "`" "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o"
+;->  "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" "{" "|" "}" "~")
+
+(setq freq (count caratteri test))
+;-> (838 1489 1544 1633 1546 1540 1620 1573 1601 1655 1621 1574 1662 1612
+;->  1610 1642 1664 1656 1684 1603 1624 1643 1667 1529 1672 1619 1568
+;->  1588 1586 1548 1609 1497 773 816 766 784 772 810 780 783 846 745
+;->  728 811 768 774 807 750 785 873 745 850 862 814 738 783 787 771 859
+;->  716 777 713 808 761 774 772 755 809 777 702 760 751 779 806 792 743
+;->  805 752 777 793 818 855 744 862 786 750 742 829 882 771 731 805 749
+;->  809 848)
+
+Vediamo se le moltiplicazioni hanno creato caratteri non-ASCII:
+
+(apply + freq)
+;-> 100000
+(difference caratteri test)
+;-> ()
+(difference test caratteri)
+;-> ()
+
+
+-------------
+Primi supremi
+-------------
+
+Un numero N è un "primo supremo" se soddisfa le seguenti proprietà:
+
+1) il numero è primo
+2) la lunghezza del numero è un numero primo
+3) la somma delle cifre del numero è un numero primo
+4) il prodotto delle cifre del numero è un numero primo
+
+Per esempio:
+N = 113
+1) 113 è un numero primo
+2) la lunghezza vale 3 che è un numero primo
+3) la somma delle cifre vale 1 + 1 + 3 = 5 che è un numero primo
+4) il prodotto delle cifre vale 1 * 1 * 3 = 3 che è un numero primo
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Funzione che verifica se un numero è un primo supremo:
+
+(define (supreme? num)
+  (and (prime? num)
+       (prime? (length num))
+       (prime? (apply + (int-list num)))
+       (prime? (apply * (int-list num)))))
+
+Proviamo:
+
+(supreme? 113)
+;-> true
+
+(supreme? 139)
+;-> nil
+
+(filter supreme? (sequence 1 1000))
+;-> (113 131 151 311)
+
+(filter supreme? (sequence 1 1e6))
+;-> (113 131 151 311 11113 11117 11131 11171 11311)
+
+Vediamo la velocità della funzione:
+
+(time (filter supreme? (sequence 1 1e6)))
+;-> 1007.337
+
+Invertiamo le prime due condizioni nell'espressione 'and' per vedere se conviene verificare prima se la lunghezza del numero è primo:
+
+(define (supreme1? num)
+  (and (prime? (length num))
+       (prime? num)
+       (prime? (apply + (int-list num)))
+       (prime? (apply * (int-list num)))))
+
+(filter supreme1? (sequence 1 1000))
+;-> (113 131 151 311)
+
+(filter supreme1? (sequence 1 1e6))
+;-> (113 131 151 311 11113 11117 11131 11171 11311)
+
+(time (filter supreme1? (sequence 1 1e6)))
+;-> 395.969
+
+(time (println (filter supreme? (sequence 1 1e7))))
+;-> (113 131 151 311 11113 11117 11131 11171 11311
+;->  1111151 1111711 1117111 1171111)
+;-> 19856.507
+
+(time (println (filter supreme1? (sequence 1 1e7))))
+;-> (113 131 151 311 11113 11117 11131 11171 11311
+;->  1111151 1111711 1117111 1171111)
+;-> 21071.058
+
+Modifichiamo la funzione "primes-to" (vedi yo.lsp) per calcolare i primi supremi.
+
+Funzione che genera tutti i primi supremi minori o uguali a un dato numero:
+
+(define (supremes-to num)
+  (if (< num 10) '()
+      ;else
+      (let ((lst '()) (arr (array (+ num 1))))
+            (for (x 3 num 2)
+              (when (not (arr x))
+                ; verifica se x è un primo supremo
+                (if (and (prime? (length x))
+                         (prime? (apply + (int-list x)))
+                         (prime? (apply * (int-list x))))
+                    (push x lst -1)
+                )
+                (for (y (* x x) num (* 2 x) (> y num))
+                  (setf (arr y) true)))) lst)))
+
+Proviamo:
+
+(supremes-to 1e6)
+;-> (113 131 151 311 11113 11117 11131 11171 11311)
+
+Vediamo la velocità:
+
+(time (println (supremes-to 1e6)))
+;-> (113 131 151 311 11113 11117 11131 11171 11311)
+;-> 178.477
+
+(time (println (supremes-to 1e7)))
+;-> (113 131 151 311 11113 11117 11131 11171 11311
+;->  1111151 1111711 1117111 1171111)
+;-> 2912.01
 
 ============================================================================
 
