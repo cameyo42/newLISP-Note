@@ -6974,5 +6974,160 @@ Vediamo la velocità:
 ;->  1111151 1111711 1117111 1171111)
 ;-> 2912.01
 
+
+--------------------------------
+Esiste il 1 gennaio dell'anno 0?
+--------------------------------
+
+Nell'attuale calendario gregoriano, che è quello più utilizzato nel mondo, non esiste un anno 0.
+La numerazione degli anni inizia con l'anno 1 d.C. (dopo Cristo), preceduto immediatamente dall'anno 1 a.C. (avanti Cristo).
+Questo sistema di numerazione fu sviluppato nel VI secolo dal monaco Dionigi il Piccolo (quando il concetto di anno 0 non era ancora conosciuto).
+La sequenza degli anni è la seguente:
+
+  ... (2 a.C.) (1 a.C.) (1 d.C.) (2 d.C.) ...
+
+Questo significa che nel calendario gregoriano non esiste un "1 gennaio dell'anno 0".
+
+Nella computazione moderna si utilizza un sistema chiamato "anno astronomico" in cui esiste un anno 0.
+La sequenza degli anni è la seguente:
+
+  ... (2 a.C.) (1 a.C.) (0) (1 d.C.) (2 d.C.) ...
+  ...  -2       -1       0   1        2       ...
+
+Nota: l'anno astronomico viene usato in contesti scientifici e storici per agevolare i calcoli e l'analisi dei dati.
+
+
+-----------------------
+Date prime e palindrome
+-----------------------
+
+Determinare se una data è un numero primo e/o un numero palindromo.
+Le date sono nel formato: Y[YYY]M[M]D[D]
+
+Per esempio:
+3 dicembre 2024 --> 2024 12 3
+21 gennaio 133  --> 133 1 21
+1 gennaio 1     --> 1 1 1
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione che verifica se una data è un numero primo:
+
+(define (prime-data? data) (prime? (int (join (map string data)) 0 10)))
+
+Proviamo:
+
+(prime-data? '(2014 10 2))
+;-> nil
+(prime-data? '(2014 5 1))
+;-> true
+Funzione che verifica se una data è un numero palindromo:
+
+(define (palindrome-data? data)
+  (let (str (join (map string data)))
+    (= str (reverse (copy str)))))
+
+Proviamo:
+
+(palindrome-data? '(2014 10 2))
+;-> true
+(palindrome-data? '(2014 5 1))
+;-> nil
+
+Vediamo di analizzare un intervallo di date.
+
+(define (leap? year)
+"Check if a year is a leap year"
+  (or (zero? (% year 400))
+      (and (zero? (% year 4)) (not (zero? (% year 100))))))
+
+(define (data-list data1 data2)
+"Generates a list of datas (YYYY MM DD) from data1 data2"
+  (local (y1 m1 d1 y2 m2 d2 out md n1 n2 days data num-data stop)
+    ; unpack data
+    (map set '(y1 m1 d1) data1)
+    (map set '(y2 m2 d2) data2)
+    (setq out '())
+    ; lista (mese giorni)
+    (setq md '((1 31) (2 28) (3 31) (4 30) (5 31) (6 30)
+              (7 31) (8 31) (9 30) (10 31) (11 30) (12 31)))
+    ; valore numerico data1
+    (setq n1 (int (format "%d%02d%02d" y1 m1 d1)))
+    ; valore numerico data2
+    (setq n2 (int (format "%d%02d%02d" y2 m2 d2)))
+    (if (< n2 n1) (setq stop nil))
+    ; ciclo anni
+    (for (yy y1 y2 1 stop)
+      ;ciclo mesi
+      (for (mm 1 12 1 stop)
+        (setq days (lookup mm md))
+        ; mese febbraio e anno palindromo?
+        (if (and (= mm 2) (leap? yy)) (setq days 29))
+        ; ciclo giorni
+        (for (dd 1 days 1 stop)
+          ; data corrente
+          (setq data (list yy mm dd))
+          ; valore numerico data corrente
+          (setq num-data (int (format "%d%02d%02d" yy mm dd)))
+          ;controllo (data1 <= data corrente <= data2)
+          (cond ((< num-data n1) nil)
+                ((and (>= num-data n1) (<= num-data n2))
+                  (push data out -1))
+                ((> num-data n2 (setq stop true)))
+          )
+        )
+      )
+    )
+    out))
+
+Calcoliamo le date prime e/o palindrome dall'anno 1000 al 2000 (1 gennaio):
+
+(silent 
+  (setq pri (filter prime-lst? (data-list '(1000 1 1) '(2000 1 1))))
+  (setq pal (filter palindrome? (data-list '(1000 1 1) '(2000 1 1)))))
+
+(length pri)
+;-> 31482
+(length pal)
+;-> 358
+(setq pri-pal (intersect pri pal))
+;-> ((1014 10 1) (1016 10 1) (1019 10 1) (1111 1 11) (1111 11 1) (1115 1 11)
+;->  (1115 11 1) (1117 1 11) (1118 1 11) (1120 2 11) (1123 2 11) (1128 2 11)
+;->  (1130 3 11) (1133 3 11) (1144 4 11) (1150 5 11) (1153 5 11) (1155 5 11)
+;->  (1158 5 11) (1163 6 11) (1164 6 11) (1172 7 11) (1178 7 11) (1186 8 11)
+;->  (1188 8 11) (1190 9 11) (1196 9 11) (1212 12 1) (1213 12 1) (1215 1 21)
+;->  (1215 12 1) (1216 1 21) (1216 12 1) (1218 12 1) (1219 1 21) (1219 12 1)
+;->  (1220 2 21) (1227 2 21) (1235 3 21) (1245 4 21) (1253 5 21) (1254 5 21)
+;->  (1264 6 21) (1267 6 21) (1272 7 21) (1275 7 21) (1276 7 21) (1281 8 21)
+;->  (1289 8 21) (1310 1 31) (1314 1 31) (1316 1 31) (1319 1 31) (1332 3 31)
+;->  (1351 5 31) (1352 5 31) (1355 5 31) (1357 5 31) (1371 7 31) (1382 8 31)
+;->  (1384 8 31))
+(length pri-pal)
+;-> 61
+
+Calcoliamo le date prime e/o palindrome dall'anno 2000 al 2100 (1 gennaio):
+
+(silent 
+  (setq pri (filter prime-lst? (data-list '(2000 1 1) '(2100 1 1))))
+  (setq pal (filter palindrome? (data-list '(2000 1 1) '(2100 1 1)))))
+
+(length pri)
+;-> 3093
+(length pal)
+;-> 10
+(setq pri-pal (intersect pri pal))
+;-> ()
+pal
+;-> ((2010 10 2) (2011 10 2) (2012 10 2) (2013 10 2) (2014 10 2) 
+;->  (2015 10 2) (2016 10 2) (2017 10 2) (2018 10 2) (2019 10 2))
+
 ============================================================================
 

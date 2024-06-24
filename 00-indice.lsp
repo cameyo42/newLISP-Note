@@ -2517,6 +2517,8 @@ NOTE LIBERE 24
   mex (minimum excluded value)
   Moltiplicazione di caratteri (ASCII)
   Primi supremi
+  Esiste il 1 gennaio dell'anno 0?
+  Date prime e palindrome
 
 PROBLEMI SUI DADI
 =================
