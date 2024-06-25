@@ -2519,6 +2519,7 @@ NOTE LIBERE 24
   Primi supremi
   Esiste il 1 gennaio dell'anno 0?
   Date prime e palindrome
+  Torri sulla scacchiera
 
 PROBLEMI SUI DADI
 =================

@@ -7129,5 +7129,90 @@ pal
 ;-> ((2010 10 2) (2011 10 2) (2012 10 2) (2013 10 2) (2014 10 2) 
 ;->  (2015 10 2) (2016 10 2) (2017 10 2) (2018 10 2) (2019 10 2))
 
+
+----------------------
+Torri sulla scacchiera
+----------------------
+
+(define (binom num k)
+  (cond ((> k num) 0)
+        ((zero? k) 1)
+        (true
+          (let (r 1L)
+            (for (d 1 k)
+              (setq r (/ (* r num) d))
+              (-- num)
+            )
+          r))))
+
+(define (C n k) (binom n k))
+
+(C 4 2)
+;-> 6L
+(C 9 3)
+;-> 84L
+(C 16 4)
+;-> 1820L
+(C 25 5)
+;-> 53130L
+(C 36 6)
+;-> 1947792L
+(C 49 7)
+;-> 85900584L
+(C 64 8)
+;-> 4426165368L
+
+(define (comb k lst (r '()))
+"Generates all combinations of k elements without repetition from a list of items"
+  (if (= (length r) k)
+    (list r)
+    (let (rlst '())
+      (dolist (x lst)
+        (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
+      rlst)))
+
+(setq N 5)
+(setq N 3)
+(setq N 4)
+
+(setq board '())
+(for (i 0 (- N 1))
+  (for (j 0 (- N 1))
+    (push (list i j) board -1)))
+
+(setq positions (comb N board))
+(length positions)
+;-> 1820
+
+(positions 100)
+;-> ((0 0) (0 2) (0 3) (3 1))
+
+(define (domina? pos)
+  (let (seq (sequence 0 (- N 1)))
+    (or (= '() (difference seq (map first pos)))
+        (= '() (difference seq (map last  pos))))))
+
+(domina? (positions 100))
+;-> true
+
+;(setq out '())
+;(dolist (p positions) (if (domina? p) (push p out -1)))
+;(length out)
+
+(setq out (filter domina? positions))
+(length out)
+
+(define (print-position pos)
+  (for (i 0 (- N 1))
+    (for (j 0 (- N 1))
+      (if (ref (list i j) pos)
+          (print "1 ")
+          (print ". ")
+      )
+    )
+    (println)) '>)
+
+(print-position (out 1))
+
 ============================================================================
 

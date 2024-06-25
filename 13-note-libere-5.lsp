@@ -6409,7 +6409,7 @@ Combinazioni semplici - C(n,k)
 ------------------------------
 Dati n elementi distinti e un numero intero positivo k<=n, si chiamano combinazioni C(n,k) di questi n elementi, a k a k (o di classe k), tutti gruppi che si possono formare con gli elementi dati, in modo che:
 - ciascun gruppo contenga k elementi
-- due guppi qualunque differiscano per almeno un elemento.
+- due gruppi qualunque differiscano per almeno un elemento.
 
 Nota: in una combinazione l'ordine degli elementi non è importante.
 
