@@ -2520,6 +2520,7 @@ NOTE LIBERE 24
   Esiste il 1 gennaio dell'anno 0?
   Date prime e palindrome
   Torri sulla scacchiera
+  Numeri di Ulam
 
 PROBLEMI SUI DADI
 =================

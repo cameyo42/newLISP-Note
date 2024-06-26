@@ -7134,6 +7134,15 @@ pal
 Torri sulla scacchiera
 ----------------------
 
+In una scacchiera NxN determinare in quanti modi N torri dominano tutte le caselle della scacchiera.
+Per dominare tutte le caselle della scacchiera le N torri devono essere posizionate in modo che:
+in tutte le righe ci sia almeno una torre oppure in tutte le colonne ci sia almeno una torre.
+
+Cominciamo calcolando in quanti modi possiamo posizionare N torri in una scachiera NxN.
+Si tratta delle combinazioni di k elementi senza ripetizione scelte da una lista di elementi.
+I k elementi sono le N torri e la lista di elementi sono le caselle della scacchiera.
+Il numero delle combinazioni è conosciuto anche come coefficiente binomiale:
+
 (define (binom num k)
   (cond ((> k num) 0)
         ((zero? k) 1)
@@ -7147,6 +7156,8 @@ Torri sulla scacchiera
 
 (define (C n k) (binom n k))
 
+Calcoliamo il numero di combinazioni per N che va da 2 a 8:
+
 (C 4 2)
 ;-> 6L
 (C 9 3)
@@ -7156,11 +7167,11 @@ Torri sulla scacchiera
 (C 25 5)
 ;-> 53130L
 (C 36 6)
-;-> 1947792L
+;-> 1947792L ; 1 milione 947 mila 792
 (C 49 7)
-;-> 85900584L
+;-> 85900584L ; 85 milioni 900 mila 584
 (C 64 8)
-;-> 4426165368L
+;-> 4426165368L ; 4 miliardi 426 milioni 165 mila 368
 
 (define (comb k lst (r '()))
 "Generates all combinations of k elements without repetition from a list of items"
@@ -7171,36 +7182,45 @@ Torri sulla scacchiera
         (extend rlst (comb k ((+ 1 $idx) lst) (append r (list x)))))
       rlst)))
 
-(setq N 5)
-(setq N 3)
+Vediamo i passaggi per risolvere questo problema.
+
+Proviamo con una scacchiera 4x4:
+
 (setq N 4)
+
+Creazione delle caselle della scacchiera:
 
 (setq board '())
 (for (i 0 (- N 1))
   (for (j 0 (- N 1))
     (push (list i j) board -1)))
+;-> ((0 0) (0 1) (0 2) (0 3) (1 0) (1 1) (1 2) (1 3)
+;->  (2 0) (2 1) (2 2) (2 3) (3 0) (3 1) (3 2) (3 3))
 
-(setq positions (comb N board))
+Creazione di tutte le posizioni possibili:
+
+(silent (setq positions (comb N board)))
 (length positions)
 ;-> 1820
+
+Come è fatta una posizione:
 
 (positions 100)
 ;-> ((0 0) (0 2) (0 3) (3 1))
 
+Funzione che verifica se una posizione domina tutte le caselle:
+
 (define (domina? pos)
   (let (seq (sequence 0 (- N 1)))
+        ; in tutte le righe esiste una torre?
     (or (= '() (difference seq (map first pos)))
+        ; in tutte le colonne esiste una torre?
         (= '() (difference seq (map last  pos))))))
 
 (domina? (positions 100))
 ;-> true
 
-;(setq out '())
-;(dolist (p positions) (if (domina? p) (push p out -1)))
-;(length out)
-
-(setq out (filter domina? positions))
-(length out)
+Funzione che stampa una posizione:
 
 (define (print-position pos)
   (for (i 0 (- N 1))
@@ -7212,7 +7232,165 @@ Torri sulla scacchiera
     )
     (println)) '>)
 
-(print-position (out 1))
+(print-position (positions 100))
+;-> 1 . 1 1
+;-> . . . .
+;-> . . . .
+;-> . 1 . .
+
+Calcolo delle posizioni dominanti:
+
+;(setq out '())
+;(dolist (p positions) (if (domina? p) (push p out -1)))
+;(length out)
+(setq dominanti (filter domina? positions))
+(length dominanti)
+;-> 488
+
+Vediamo le prime 10 posizioni dominanti:
+
+(for (i 0 9) (print-position (dominanti i)) (println))
+;-> 1 1 1 1   1 1 1 .   1 1 1 .   1 1 1 .   1 1 . 1
+;-> . . . .   . . . 1   . . . .   . . . .   . . 1 .
+;-> . . . .   . . . .   . . . 1   . . . .   . . . .
+;-> . . . .   . . . .   . . . .   . . . 1   . . . .
+
+;-> 1 1 . 1   1 1 . 1   1 1 . .   1 1 . .   1 1 . .
+;-> . . . .   . . . .   . . 1 1   . . 1 .   . . 1 .
+;-> . . 1 .   . . . .   . . . .   . . . 1   . . . .
+;-> . . . .   . . 1 .   . . . .   . . . .   . . . 1
+
+Adesso scriviamo la funzione che calcola le posizioni dominanti data la dimensione N della scacchiera.
+
+(define (find-dominanti N)
+  (local (board positions dominanti)
+    ; creazione delle caselle della scacchiera
+    (setq board '())
+    (for (i 0 (- N 1))
+      (for (j 0 (- N 1))
+        (push (list i j) board -1)))
+    ; creazione di tutte le posizioni possibili
+    (setq positions (comb N board))
+    ; calcolo delle posizioni dominanti
+    (filter domina? positions)))
+
+Proviamo:
+
+N = 4
+(length (find-dominanti 4))
+;-> 488
+
+N = 5
+(time (println (length (find-dominanti 5))))
+;-> 6130
+;-> 340.917
+
+N = 6
+(time (println (length (find-dominanti 6))))
+;-> 92592
+;-> 16537.171
+
+N = 7
+(time (println (length (find-dominanti 7))))
+Troppo tempo per calcolarlo...
+
+N = 8
+(time (println (length (find-dominanti 7))))
+Troppo tempo per calcolarlo...
+
+Comunque per N=8 è stato calcolato che esistono 33514312 posizioni dominanti. 
+
+
+--------------
+Numeri di Ulam
+--------------
+
+La sequenza dei numeri di Ulam ha le seguenti caratteristiche:
+- u(1) = 1
+- u(2) = 2
+- Per n > 2, u(n) è il più piccolo intero maggiore di u(n-1) che è la somma di due distinti termini esattamente in un modo.
+
+Sequenza OEIS: A002858
+Ulam numbers: a(1) = 1, a(2) = 2, for n>2: a(n) = least number > a(n-1) which is a unique sum of two distinct earlier terms.
+  1, 2, 3, 4, 6, 8, 11, 13, 16, 18, 26, 28, 36, 38, 47, 48, 53, 57, 62, 69,
+  72, 77, 82, 87, 97, 99, 102, 106, 114, 126, 131, 138, 145, 148, 155, 175,
+  177, 180, 182, 189, 197, 206, 209, 219, 221, 236, 238, 241, 243, 253, 258,
+  260, 273, 282, 309, 316, 319, 324, 339, ...
+
+Funzione che genera la lista di tutte le somme delle coppie di una lista data:
+
+(define (pair-sums lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+          (push (+ (lst i) (lst j)) out -1)))))
+
+Algoritmo:
+
+(setq ulam '(1 2))
+
+(setq sums (pair-sums ulam))
+;-> (3)
+(setq num-to-add 3)
+(push num-to-add ulam -1)
+;-> (1 2 3)
+
+(setq sums (pair-sums ulam))
+;-> (3 4 5)
+(setq num-to-add 4)
+(push num-to-add ulam -1)
+;-> (1 2 3 4)
+
+(setq sums (pair-sums ulam))
+;-> (3 4 5 5 6 7)
+(setq num-to-add 6)
+(push num-to-add ulam -1)
+;-> (1 2 3 4 6)
+
+Funzione che trova il numero di Ulam da aggiungere:
+
+(define (find-num-to-add lst somme)
+  (let ( (num nil) (trovato nil) )
+    (dolist (s somme trovato)
+           ; se il numero non si trova già nella sequenza e
+           ; ha una sola occorrenza nella lista delle somme
+           ; allora abbiamo trovato il numero da aggiungere
+           ; alla sequenza corrente
+      (if (and (= (ref s lst) nil)
+               (= (length (ref-all s somme)) 1))
+          (set 'num s 'trovato true)))
+    num))
+
+(find-num-to-add '(1 2 3 4) '(3 4 5 5 6 7))
+;-> 6
+(find-num-to-add '(1 2 3 4) '(3 4 4))
+;-> nil
+
+Funzione che calcola i numeri di Ulam fino ad un dato limite:
+
+(define (ulam limite)
+  (local (out num-to-add)
+    (setq out '(1 2))
+    (setq conta 2)
+    (while (< conta limite)
+      (setq sums (sort (pair-sums out)))
+      (setq num-to-add (find-num-to-add out sums))
+      ; Segnala che non c'è nessun numero da aggiungere (errore)
+      (if (= num-to-add nil) (println "nil: " sums))
+      (push num-to-add out -1)
+      (++ conta)
+    )
+    out))
+
+Proviamo:
+
+(ulam 100)
+;-> (1 2 3 4 6 8 11 13 16 18 26 28 36 38 47 48 53 57 62 69 72 77 82 87
+;->  97 99 102 106 114 126 131 138 145 148 155 175 177 180 182 189 197
+;->  206 209 219 221 236 238 241 243 253 258 260 273 282 309 316 319 324
+;->  339 341 356 358 363 370 382 390 400 402 409 412 414 429 431 434 441
+;->  451 456 483 485 497 502 522 524 544 546 566 568 585 602 605 607 612
+;->  624 627 646 668 673 685 688 690)
 
 ============================================================================
 
