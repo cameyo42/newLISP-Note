@@ -2521,6 +2521,9 @@ NOTE LIBERE 24
   Date prime e palindrome
   Torri sulla scacchiera
   Numeri di Ulam
+  Congettura di Erdos-Straus
+  Trova il numero
+  Massima sequenza ripetuta di ogni elemento
 
 PROBLEMI SUI DADI
 =================

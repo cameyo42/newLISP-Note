@@ -2372,6 +2372,54 @@ C(n, k+1) = C(n,k) * (n-k) / (k+1)
 Quindi iniziamo con C(n, 0) = 1 e poi calcoliamo il resto della riga usando questa identità, cioè moltiplichiamo ogni volta l'elemento precedente per (n-k)/(k+1).
 Ricordiamo che il coefficiente binomiale rappresenta il numero di scelte di k elementi tra quelli di un insieme di n elementi (numero di combinazioni semplici).
 
+L'utente PvE ha pubblicato un programma per stampare il triangolo di Pascal.
+https://web.archive.org/web/20070913115127/http://www.turtle.dds.nl/newlisp/pascal.lsp
+
+La funzione seguente è basata sul codice di PvE.
+
+# Calculate faculty of number using recursion
+(define (fac n) (if (> n 1) (mul n (fac (- n 1))) n))
+
+# Pascal's triangle
+(define (pascal lines)
+  (local (reslen tabspace quotient result)
+    # Define some constants
+    (setq reslen (sqrt lines))
+    (setq tabspace (* 2 reslen))
+    # Main routine
+    (for (row 0 lines)
+      # Goto starting print position
+      (dotimes (x (- lines row)) (print (dup " " reslen)))
+      # Calculate values and print
+      (for (position 0 row)
+        (setq quotient (mul (fac position) (fac (- row position)) ) )
+        (if (= quotient 0)
+          (setq result 1)
+          (setq result (div (fac row) quotient) )
+        )
+        (print result (dup " " (- tabspace (length (string result)))  ))
+      )
+      # Next line
+      (print "\n")
+    ) '>))
+
+Proviamo:
+
+(pascal 12)
+;->                                     1
+;->                                  1     1
+;->                               1     2     1
+;->                            1     3     3     1
+;->                         1     4     6     4     1
+;->                      1     5     10    10    5     1
+;->                   1     6     15    20    15    6     1
+;->                1     7     21    35    35    21    7     1
+;->             1     8     28    56    70    56    28    8     1
+;->          1     9     36    84    126   126   84    36    9     1
+;->       1     10    45    120   210   252   210   120   45    10    1
+;->    1     11    55    165   330   462   462   330   165   55    11    1
+;-> 1     12    66    220   495   792   924   792   495   220   66    12    1
+
 
 ------------
 CODICE MORSE

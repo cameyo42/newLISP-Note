@@ -6720,12 +6720,42 @@ Verifichiamo che questo metodo genera numeri veramente casuali:
 
 Comunque anche questo metodo è molto lento al crescere del numero delle cifre:
 
+(time (println (random-integer 1 90000000 '(1 2 3 4 5 6 7))))
+;-> 77747763
+;-> 6812.929
+
 (time (println (random-integer 1 90000000 '(1 2 3 4 5 6 7 8))))
 ;-> 4545245
 ;-> 21973.893 ; quasi 22 secondi
 
 17 giugno 2024 - Quesito sul forum di newLISP:
 https://newlispfanclub.com/index.php?topic=5269.0
+
+Soluzione proposta da rrq: (Ralph Ronnquist)
+
+(define (randint RANGE DIGITS)
+  (letn ((digits (fn (X) (map int (unique (explode (string X))))))
+         (wrong (fn (X) (difference (digits X) DIGITS)))
+         (S (clean wrong (apply sequence RANGE))))
+    (S (rand (length S)))))
+
+Proviamo:
+
+(randint '(1 200) '(1 2 3))
+;-> 33
+
+(count '(1 2 3 11 21 31 12 22 32 13 23 33 111 112 113 121 122 123 131 132 133)
+        (collect (randint '(1 200) '(1 2 3)) 1e5))
+;-> (463 453 471 481 459 459 488 450 484 476 471 484 495 513
+;->  467 467 471 490 474 507 477)
+
+(time (println (randint '(1 1000000) '(1 2 3 4 5 6 7 8))))
+;-> 314761
+;-> 2875.328
+
+(time (println (random-integer 1 1000000 '(1 2 3 4 5 6 7 8))))
+;-> 176317
+;-> 343.668
 
 
 ----------------------------
@@ -7391,6 +7421,156 @@ Proviamo:
 ;->  339 341 356 358 363 370 382 390 400 402 409 412 414 429 431 434 441
 ;->  451 456 483 485 497 502 522 524 544 546 566 568 585 602 605 607 612
 ;->  624 627 646 668 673 685 688 690)
+
+
+--------------------------
+Congettura di Erdos-Straus
+--------------------------
+
+La congettura di Erdos-Straus afferma che per ogni intero N>=2, il numero razionale 4/N si può scrivere come somma di tre frazioni unitarie, ossia esistono tre interi positivi x, y e z tali che:
+
+  4/N = 1/x + 1/y + 1/z
+
+In altre parole, la somma di queste frazioni unitarie è una rappresentazione come frazione egiziana del numero 4/N. 
+
+Ad esempio, per N = 100, esiste una soluzione con x = 60, y = 75 e z = 100
+
+(div 4 100)
+;-> 0.04
+(add (div 60) (div 75) (div 100))
+;-> 004
+
+Nota: moltiplicando entrambi i membri dell'equazione per n*x*y*z si trova la l'equazione diofantea equivalente:
+  
+  4*x*y*z = n*(x*y + x*z + y*z)
+
+Soluzione brute-force (lenta ed inefficace per N grandi):
+
+(define (solve N limit)
+  (for (x 1 limit)
+    (for (y (+ x 1) limit)
+      (for (z (+ y 1) limit)
+        (if (= (* 4 x y z) (* N (+ (* y z) (* x z) (* x y))))
+            (println x { } y { } z))))))
+
+Proviamo:
+
+(solve 100 100)
+;-> 50 100 100
+;-> 60 75 100
+
+(time (solve 100 1000))
+;-> 27 525 945
+;-> 27 540 900
+;-> 27 650 702
+;-> 28 315 900
+;-> 28 350 700
+;-> 28 364 650
+;-> ...
+;-> 50 70 175
+;-> 50 75 150
+;-> 55 66 150
+;-> 60 75 100
+;-> 33037.206 ; 33 secondi
+
+
+---------------
+Trova il numero
+---------------
+
+Trovare un numero N che ha le seguenti proprietà:
+
+1) N diviso per 2 o 3 o 4 o 5 o 6 o 7 o 8 o 9 o 10 produce resto 1,
+2) N diviso per 11 produce resto 0
+
+Formuliamo il problema in termini matematici:
+
+1) N ≡ 1 (mod k), con k=(2, 3, 4, 5, 6, 7, 8, 9, 10)
+2) N ≡ 0 (mod 11)
+
+Il primo punto implica che N - 1 deve essere divisibile per tutti i numeri da 2 a 10.
+La condizione diventa quindi che N - 1 deve essere un multiplo del minimo comune multiplo (mcm) di questi numeri.
+Il secondo punto ci dice che N deve essere un multiplo di 11.
+
+Algoritmo
+a) Calcolare l'mcm dei numeri da 2 a 10.
+b) Trovare il primo multiplo di 11 che soddisfa la condizione:
+   N ≡ 1 (mod mcm(2,3,4,5,6,7,8,9,10)).
+
+(define (lcm_ a b) (/ (* a b) (gcd a b)))
+(define-macro (lcm)
+"Calculates the lcm of two or more number"
+  (apply lcm_ (map eval (args)) 2))
+
+Funzione che trova il primo oppure tutti i numeri con le proprietà 1) e 2) fino ad un dato limite:
+
+(define (find-N limite all)
+  (setq N 0)
+  (setq lcm-val (apply lcm (sequence 2 10)))
+  (setq stop nil)
+  (for (i 1 limite 1 stop)
+    (setq cur-val (* i 11))
+    (when (= (% cur-val lcm-val) 1)
+      (setq N cur-val)
+      (if (not all) 
+        (setq stop true)
+        (println N)
+      )
+    )
+  )
+  N)
+
+Proviamo:
+
+(find-N 10000)
+;-> 25201
+
+(find-N 10000 true)
+;-> 25201
+;-> 52921
+;-> 80641
+;-> 108361
+
+
+------------------------------------------
+Massima sequenza ripetuta di ogni elemento
+------------------------------------------
+
+Supponiamo di avere una lista e di voler trovare la massima sequenza ripetuta di ogni elemento.
+Per esempio:
+
+lista = (a a c c c b b a a b b b b a a a a a ac c c)
+output = a=6, c=3, b=4 --> ((a 6) (c 3) (b 4))
+
+Funzione che trova la massima sequenza consecutiva di un elemento in una lista:
+
+(define (find-max-seq lst item)
+  (let ( (max-seq 0) (cur-seq 0) )
+    (dolist (x lst)
+      (if (= x item)
+          (setq cur-seq (+ cur-seq 1))
+          ;else
+          (begin
+            (if (> cur-seq max-seq) (setq max-seq cur-seq))
+            (setq cur-seq 0))))
+    ; Controlla l'ultima sequenza
+    (if (> cur-seq max-seq)
+        (setq max-seq cur-seq))
+    max-seq))
+
+Funzione che trova la massima sequenza per ogni elemento unico nella lista:
+
+(define (find-max-sequences lst)
+  (let ( (uniq (unique lst)) (result '()) )
+    (dolist (el uniq)
+      (push (list el (find-max-seq lst el)) result -1))))
+
+Proviamo:
+
+(setq lst '(a a c c c b b a a b b b b a a a a a a c c c))
+
+(find-max-sequences lst)
+;-> ((a 6) (c 3) (b 4))
 
 ============================================================================
 
