@@ -2213,6 +2213,8 @@ output = 4 6 10
 (ordina 10 6 4)
 ;-> 4 6 10
 
+Vedi anche "Massimo di tre numeri" su "Note libere 24".
+
 
 ----------------
 Conteggio strano

@@ -7572,5 +7572,212 @@ Proviamo:
 (find-max-sequences lst)
 ;-> ((a 6) (c 3) (b 4))
 
+
+---------------------
+Massimo di tre numeri
+---------------------
+
+Dati tre numeri interi a, b, c, determinare il valore massimo senza utilizzare le espressioni condizionali (if, cond, ecc.).
+
+Possiamo utilizzare lo "short-circuit evaluation" delle funzioni booleane.
+
+(define (max3 a b c)
+  (and (> b a) (setq a b)) ; if (a > b) then a = b;
+  (and (> c a) (setq a c)) ; if (a > c) then a = c;
+  a)
+
+Proviamo:
+
+(max3 1 2 3)
+;-> 3
+(max3 6 5 4)
+;-> 6
+(max3 7 9 8)
+;-> 9
+(max3 1 1 2)
+;-> 2
+(max3 1 2 1)
+;-> 2
+(max3 2 1 1)
+;-> 2
+(max3 1 1 1)
+;-> 1
+
+Vedi anche "Ordinare tre numeri" su "Note libere 1".
+
+
+----------------------------------------
+Moltiplicazione (errata) di due frazioni
+----------------------------------------
+
+La moltiplicazione tra le frazioni 1/4 e 8/5 vale:
+
+ 1     8     8      2
+--- * --- = ---- = --- = 0.4
+ 4     5     20     5
+
+Comunque possiamo anche scrivere:
+
+   1     8     18     2
+  --- * --- = ---- = --- = 0.4
+   4     5     45     5 
+
+Chiaramente questo ultimo metodo è errato dal punto di vista aritmetico, ma il risultato (per le frazioni 1/4 e 5/8) è esatto.
+Quante moltiplicazioni tra due frazioni generano un risultato corretto considerando tutte le frazioni con denominatore e numeratore ad una sola cifra (con numeratore diverso da denominatore)?
+
+Generazione di tutte le frazioni con num e den ad una sola cifra e (num != den):
+
+(setq frac '())
+(for (num 1 9)
+  (for (den 1 9)
+    (if (!= num den) (push (list num den) frac -1))))
+
+(length frac)
+;-> 72
+
+Funzione che genera tutte le coppie di una lista:
+
+(define (pair-list lst)
+  (let (out '())
+    (for (i 0 (- (length lst) 2))
+      (for (j (+ i 1) (- (length lst) 1))
+          (push (list (lst i) (lst j)) out -1)))))
+
+(length (setq coppie (pair-list frac)))
+;-> 2556
+
+(find '((1 4) (8 5)) coppie)
+;-> 198
+
+Verifichiamo quali moltiplicazioni tra frazioni portano ad un risultato corretto con il metodo sbagliato:
+
+(dolist (c coppie)
+  (setq num1 (c 0 0))  (setq den1 (c 0 1))
+  (setq num2 (c 1 0))  (setq den2 (c 1 1))
+  (setq val1 (div (+ (* num1 10) num2) (+ (* den1 10) den2)))
+  (setq val2 (div (* num1 num2) (* den1 den2)))
+  (if (= val1 val2) (println c { } val1 { } val2))
+)
+;-> ((1 2) (5 4)) 0.625 0.625
+;-> ((1 4) (8 5)) 0.4 0.4
+;-> ((1 6) (4 3)) 0.2222222222222222 0.2222222222222222
+;-> ((1 6) (6 4)) 0.25 0.25
+;-> ((1 9) (9 5)) 0.2 0.2
+;-> ((2 1) (4 5)) 1.6 1.6
+;-> ((2 6) (6 5)) 0.4 0.4
+;-> ((4 1) (5 8)) 2.5 2.5
+;-> ((4 9) (9 8)) 0.5 0.5
+
+Funzione che valuta se la moltiplicazione tra due frazioni date portano ad un risultato corretto con il metodo sbagliato:
+
+(define (valuta coppia)
+  (local (num1 den1 num2 den2 val1 val2)
+    (setq num1 (coppia 0 0))  (setq den1 (coppia 0 1))
+    (setq num2 (coppia 1 0))  (setq den2 (coppia 1 1))
+    ;(println num1 { } den1 { } num2 { } den2)
+    (setq val1 (div (+ (* num1 10) num2) (+ (* den1 10) den2)))
+    (setq val2 (div (* num1 num2) (* den1 den2)))
+    (if (= val1 val2) val1 nil)))
+
+Proviamo:
+
+(valuta '((1 4) (8 5)))
+;-> 0.4
+
+(valuta '((1 6) (4 3)))
+;-> 0.2222222222222222
+
+
+---------------
+Nomi dei colori
+---------------
+
+Dati i valori Red, Green, Blue di un colore (da 0 a 255) restituire il nome del colore.
+
+Per esempio:
+Input: (255 0 0)
+Output: Red
+
+Per il nome dei colori utilizziamo i risultati del "Color Survey" di xkcd, in cui Randall Munroe ha posto a migliaia di persone la stessa identica domanda (il sondaggio contiene solo dati sui colori completamente saturi):
+
+https://blog.xkcd.com/2010/05/03/color-survey-results/
+
+La risposta finale fu il grafico "satfaces_map.png" che si trova nella cartella "data".
+Il grafico è stato poi convertito in un file di testo "sarfaces.txt" (anche questo file si trova nella cartella "data").
+
+Il file "satfaces.txt" contiene per ogni riga le coordinate RGB e il nome del colore:
+ [0, 0, 0] black
+ [0, 1, 0] black
+ [0, 2, 0] black
+ ...
+
+Nota: nel file non sono riportate tutte le triplette RGB (16777216).
+
+(define (file-list file-str)
+"Create a list with all the lines of a text file"
+  (let (lst '())
+    (setq file-str (open file-str "read"))
+    (while (read-line file-str)
+      (push (current-line) lst -1))
+    (close file-str)
+    lst))
+
+Funzione che calcola la distanza tra due colori RGB:
+
+(define (dist-color col1 col2)
+  (local (r1 g1 b1 r2 g2 b2 r g b rmean)
+    (map set '(r1 g1 b1) col1)
+    (map set '(r2 g2 b2) col2)
+    (setq rmean (div (add r1 r2) 2))
+    (setq r (sub r1 r2))
+    (setq g (sub g1 g2))
+    (setq b (sub b1 b2))
+    (sqrt (add (>> (int (mul (add 512 rmean) r r)) 8)
+               (mul 4 g g)
+               (>> (int (mul (add 767 rmean) b b)) 8)))))
+
+(dist-color '(10 30 150) '(250 30 50))
+;-> 423.6614214204546
+(dist-color '(10 30 150) '(250 30 60))
+;-> 415.7294793492519
+ 
+Funzione che trova il nome del colore dato il colore RGB:
+
+(define (color-name col)
+  (local (lines cur-col found)
+    ; legge il file in una lista di linee
+    (setq lines (file-list "satfaces.txt"))
+    (setq dist-min 999999)
+    (setq found nil)
+    (dolist (l lines found)
+      ; crea il colore corrente 
+      (setq cur-col (map int (find-all {\d+} l)))
+      ;(print cur-col) (read-line)
+      (cond ((= col cur-col) ; colore trovato
+              (setq found true)
+              (setq out l))
+            (true ; colore non trovato
+              ; calcolo distanza dei colori
+              (setq dist (dist-color col cur-col))
+              ; aggiorna distanza minima?
+              (when (< dist dist-min)
+                (setq dist-min dist)
+                ; colore più vicino al colore dato
+                (setq out l)
+              )))
+    )
+    (println out)) '>)
+
+Proviamo:
+
+(color-name '(0 0 0))
+;-> [0, 0, 0] black
+
+(color-name '(2 3 5))
+;-> [0, 3, 5] black
+
+(color-name '(122 33 55))
+;-> [122, 0, 55] maroon
+
 ============================================================================
 

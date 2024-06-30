@@ -2908,7 +2908,7 @@ ecc.
     (setq stop nil)
     (for (i 2 (length s) 1 stop)
       ;(println (slice s 0 i))
-      (if (!= (% (int (slice s 0 i)) i) 0)
+      (if (!= (% (int (slice s 0 i) 0 10) i) 0)
           (setq stop true)
       )
     )

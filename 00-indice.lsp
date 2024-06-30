@@ -2524,6 +2524,9 @@ NOTE LIBERE 24
   Congettura di Erdos-Straus
   Trova il numero
   Massima sequenza ripetuta di ogni elemento
+  Massimo di tre numeri
+  Moltiplicazione (errata) di due frazioni
+  Nomi dei colori
 
 PROBLEMI SUI DADI
 =================
