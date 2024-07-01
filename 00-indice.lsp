@@ -2527,6 +2527,11 @@ NOTE LIBERE 24
   Massimo di tre numeri
   Moltiplicazione (errata) di due frazioni
   Nomi dei colori
+  Estrazione di numeri da una stringa
+  Funzione che può essere eseguita solo una volta
+
+NOTE LIBERE 25
+==============
 
 PROBLEMI SUI DADI
 =================

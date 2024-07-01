@@ -16,7 +16,6 @@ Trigrammi
      ===   ===          ===   ===           =========           =========
   艮 gèn  Monte 山    巽 xùn  Vento 風    離 lí   Fuoco 火    兌 duì  Lago  泽
 
-
 ---------------------------------
 Numeri sommati alle proprie cifre
 ---------------------------------
@@ -7778,6 +7777,96 @@ Proviamo:
 
 (color-name '(122 33 55))
 ;-> [122, 0, 55] maroon
+
+
+-----------------------------------
+Estrazione di numeri da una stringa
+-----------------------------------
+
+Per estrarre i numeri interi contenuti in una stringa possiamo usare la seguente espressione:
+
+(setq str1 "a20b-10c")
+(map (fn(x) (int x 0 10)) (find-all {-?\d+} str1))
+;-> (20 -10)
+
+L'espressione regolare {-?\d+} cattura una o più cifre adiacenti con eventuale segno "-" all'inizio (in forma di stringhe).
+La funzione (fn(x) (int x 0 10)) trasforma le stringhe numeriche in interi.
+
+Per estrarre i numeri decimali contenuti in una stringa possiamo usare la seguente espressione:
+
+(setq str2 "pi vale -3.1415, e vale 2.7182, k vale -3, x vale .1, y vale -0.1")
+(map float (find-all {-?.?\d+(\.\d+)?} str2))
+;-> (-3.1415 2.7182 -3 0.1 -0.1)
+
+L'espressione regolare {-?.?\d+(\.\d+)?} cattura una o più cifre adiacenti con eventuale segno "-" all'inizio ed eventuale "." trattato come cifra (in forma di stringhe).
+La funzione float trasforma le stringhe numeriche in numeri decimali (floating point).
+
+Scriviamo una funzione per queste due operazioni:
+
+(define (extract-numbers str decimal)
+  (if decimal 
+      ; estrae numeri decimali
+      (map float (find-all {-?.?\d+(\.\d+)?} str))
+      ;else
+      ; estrae numeri interi
+      (map (fn(x) (int x 0 10)) (find-all {-?\d+} str))))
+
+Proviamo:
+
+(extract-numbers str1)
+;-> (20 -10)
+(extract-numbers str1 true)
+;-> (20 -10)
+(extract-numbers str2)
+;-> (-3 1415 2 7182 -3 1 0 1)
+(extract-numbers str2 true)
+;-> (-3.1415 2.7182 -3 0.1 -0.1)
+
+
+-----------------------------------------------
+Funzione che può essere eseguita solo una volta
+-----------------------------------------------
+
+Scrivere una funzione che può essere eseguita solo una volta.
+Ogni esecuzione successiva alla prima deve generare un errore.
+Scriviamo una funzione semplice:
+
+(define (only-one) (println "Only one run.") '>)
+
+(only-one)
+;-> Only one run.
+
+Vediamo come è fatta la funzione come lista:
+
+only-one
+;-> (lambda () (println "Only one run.") '>)
+
+(nth 0 only-one)
+;-> '()
+(nth 1 only-one)
+;-> (println "Only one run.")
+(nth 2 only-one)
+;-> '>
+
+Per creare la funzione finale possiamo sostituire l'espressione (println "Only one run.") con un'espressione che genera un errore (error):
+
+(define (only-one)
+  (println "Only one run.")
+  (setf (nth 1 only-one) '(error)) '>)
+
+Proviamo:
+
+(only-one)
+;-> Only one run.
+
+(only-one)
+;-> ERR: invalid function : (error)
+;-> called from user function (only-one)
+
+Vediamo come /è fatta la nuova funzione "only-one":
+
+only-one
+;-> (lambda () (error) (setf (nth 1 only-one) '(error)) '>)
 
 ============================================================================
 
