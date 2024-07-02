@@ -4720,6 +4720,8 @@ Facciamo alcune prove:
 (length (parallel (sequence 1 10)))
 ;-> 1013
 
+Vedi anche "Coppie di resistenze in serie e in parallelo" su "Note libere 25".
+
 
 -------------------------------------------
 Punti casuali sulla superficie di una sfera

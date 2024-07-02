@@ -2532,6 +2532,7 @@ NOTE LIBERE 24
 
 NOTE LIBERE 25
 ==============
+  Coppie di resistenze in serie e in parallelo
 
 PROBLEMI SUI DADI
 =================
@@ -2576,7 +2577,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (285 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (286 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
