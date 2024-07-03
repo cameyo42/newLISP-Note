@@ -2533,6 +2533,9 @@ NOTE LIBERE 24
 NOTE LIBERE 25
 ==============
   Coppie di resistenze in serie e in parallelo
+  La somma di tutti i numeri interi positivi vale -1/12
+  Scambiare a coppie gli elementi di una lista
+  Determinare se gli elementi di una lista sono tutti diversi o tutti uguali
 
 PROBLEMI SUI DADI
 =================

@@ -7786,6 +7786,7 @@ Estrazione di numeri da una stringa
 Per estrarre i numeri interi contenuti in una stringa possiamo usare la seguente espressione:
 
 (setq str1 "a20b-10c")
+
 (map (fn(x) (int x 0 10)) (find-all {-?\d+} str1))
 ;-> (20 -10)
 
@@ -7795,6 +7796,7 @@ La funzione (fn(x) (int x 0 10)) trasforma le stringhe numeriche in interi.
 Per estrarre i numeri decimali contenuti in una stringa possiamo usare la seguente espressione:
 
 (setq str2 "pi vale -3.1415, e vale 2.7182, k vale -3, x vale .1, y vale -0.1")
+
 (map float (find-all {-?.?\d+(\.\d+)?} str2))
 ;-> (-3.1415 2.7182 -3 0.1 -0.1)
 
@@ -7863,7 +7865,7 @@ Proviamo:
 ;-> ERR: invalid function : (error)
 ;-> called from user function (only-one)
 
-Vediamo come /è fatta la nuova funzione "only-one":
+Vediamo come è fatta la nuova funzione "only-one":
 
 only-one
 ;-> (lambda () (error) (setf (nth 1 only-one) '(error)) '>)
