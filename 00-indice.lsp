@@ -2536,6 +2536,9 @@ NOTE LIBERE 25
   La somma di tutti i numeri interi positivi vale -1/12
   Scambiare a coppie gli elementi di una lista
   Determinare se gli elementi di una lista sono tutti diversi o tutti uguali
+  Random Sort
+  Quadrati e rettangoli in una griglia di punti
+  Base64 encoder-decoder (Funzioni "base64-enc" e "base64-dec")
 
 PROBLEMI SUI DADI
 =================

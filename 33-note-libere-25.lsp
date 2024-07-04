@@ -343,5 +343,331 @@ Proviamo:
 (uguali? '())
 ;-> true
 
+
+-----------
+Random Sort
+-----------
+
+Uno dei metodi più imprevedibili (e lunghi) per ordinare una lista di elementi.
+
+Funzione che verifica se una lista è ordinata in modo crescente:
+
+(define (sorted? lst) (apply <= lst))
+
+Proviamo:
+
+(sorted? '(3 5 2 1))
+;-> nil
+(sorted? '(1 2 3 5))
+;-> true
+(sorted? '(1 1 1))
+;-> true
+
+Funzione che ordina una lista usando "randomize":
+
+(define (rand-sort lst)
+  (let (counter 0)
+    (seed (time-of-day) true)
+    (until (sorted? lst) (setq lst (randomize lst)) (++ counter))
+    (println counter)
+    lst))
+
+Proviamo:
+
+(rand-sort '(1 2 3 4))
+;-> 0
+;-> (1 2 3 4)
+(rand-sort '(6 1 4 2 3 7 5))
+;-> 5834
+;-> (1 2 3 4 5 6 7)
+(rand-sort '(8 9 6 1 4 7 2 3 5))
+;-> 125803
+;-> (1 2 3 4 5 6 7 8 9)
+(rand-sort '(5 1 4 2 3 7 6))
+;-> 3446
+;-> (1 2 3 4 5 6 7)
+(rand-sort '(8 9 6 1 4 7 2 5 3))
+;-> 208761
+;-> (1 2 3 4 5 6 7 8 9)
+
+Vediamo i tempi di esecuzione:
+
+(time (println (rand-sort (randomize (sequence 1 10)))))
+;-> 2862463
+;-> (1 2 3 4 5 6 7 8 9 10)
+;-> 1532.68
+
+(time (println (rand-sort (randomize (sequence 1 15)))))
+...fermato dopo 5 minuti...
+
+Nota: i generatori casuali di tipo PRNG hanno un ciclo, quindi non è garantito che vengano considerate tutte le permutazioni (quindi la funzione "rand-sort" potrebbe non terminare mai).
+
+Proviamo con un metodo simile che scambia due elementi casuali per ogni ciclo:
+
+(define (rand-sort2 lst)
+  (let ( (counter 0) (len (length lst)) )
+    (seed (time-of-day) true)
+    (until (sorted? lst) 
+      (setq idx1 (rand len))
+      (setq idx2 (rand len))
+      (swap (lst idx1) (lst idx2))
+      (++ counter)
+    )
+    (println counter)
+    lst))
+
+Proviamo:
+
+(rand-sort2 '(1 2 3 4))
+;-> 0
+;-> (1 2 3 4)
+
+(rand-sort2 '(6 1 4 2 3 7 5))
+;-> 1344
+;-> (1 2 3 4 5 6 7)
+
+(rand-sort2 '(8 9 6 1 4 7 2 3 5))
+;-> 692399
+;-> (1 2 3 4 5 6 7 8 9)
+
+(rand-sort2 '(5 1 4 2 3 7 6))
+;-> 1493
+;-> (1 2 3 4 5 6 7)
+
+(rand-sort2 '(8 9 6 1 4 7 2 5 3))
+;-> 1810753
+;-> (1 2 3 4 5 6 7 8 9)
+
+Vediamo i tempi di esecuzione:
+
+(time (println (rand-sort2 (randomize (sequence 1 10)))))
+;-> 2119907
+;-> (1 2 3 4 5 6 7 8 9 10)
+;-> 789.583
+
+(time (println (rand-sort2 (randomize (sequence 1 15)))))
+...fermato dopo 5 minuti...
+
+
+---------------------------------------------
+Quadrati e rettangoli in una griglia di punti
+---------------------------------------------
+
+Quanti quadrati e rettangoli ci sono in una griglia di punti N*M (lattice)?
+
+1) Quadrati
+Per contare il numero di quadrati in una griglia N*M:
+a) Un quadrato può essere di dimensione k * k dove k varia da 1 al minimo tra N e M.
+b) Per ciascuna dimensione k, il numero di posizioni in cui un quadrato di dimensione k * k può essere posizionato è (N - k + 1) * (M - k + 1).
+Nota: se i quadrati 1x1 non contano, allora k varia da 2 al minimo tra N e M.
+
+Quindi, il numero totale di quadrati è la somma dei quadrati possibili per ciascuna dimensione k:
+
+  Numero di quadrati = Sum[k=1..min(N, M)] (N - k + 1) * (M - k + 1)
+
+2) Rettangoli
+Per contare il numero di rettangoli in una griglia N * M:
+a) Un rettangolo può essere di dimensione a * b dove a varia da 1 a N e b varia da 1 a M.
+b) Il numero di posizioni in cui un rettangolo di dimensione a * b può essere posizionato è (N - a + 1) * (M - b + 1).
+Nota: se i rettangoli 1x1 non contano, allora a e b partono da 2.
+
+Il numero totale di rettangoli è quindi dato dalla somma dei rettangoli possibili per tutte le combinazioni di a e b:
+
+  Numero di rettangoli = Sum[a=1..N]Sum[b=1..M] (N - a + 1)*(M - b + 1)
+
+(define (quadrati N M)
+  (let ((totale 0))
+    (dotimes (k (min N M))
+      (++ totale (* (- N k) (- M k))))
+    totale))
+
+(define (quadrati N M all)
+  (let ((totale 0))
+    (dotimes (k (min N M))
+      (++ totale (* (- N k) (- M k))))
+    ; remove 1x1?
+    (if all totale (- totale (* M N)))))
+
+
+(define (quadrati2 N M all)
+  (let ((totale 0))
+    (for (k (if all 0 1) (min N M))
+      (++ totale (* (- N k) (- M k))))
+    totale))
+
+(quadrati 8 8 true)
+(quadrati2 8 8 true)
+(+ 140 (* 8 8))
+(quadrati2 8 8)
+(quadrati 3 3)
+(quadrati2 3 3)
+(quadrati2 3 3 true)
+
+(define (rettangoli N M all)
+  (let ((totale 0))
+    (dotimes (a N)
+      (dotimes (b M)
+        (++ totale (* (- N a) (- M b)))))
+    ; remove 1x1?
+    (if all totale (- totale (* N M)))))
+
+(define (quadrati-rettangoli N M) (list (quadrati N M) (rettangoli N M)))
+
+(quadrati-rettangoli 3 3)
+
+(quadrati-rettangoli 8 8)
+;-> (204 1296)
+
+(quadrati-rettangoli 20 20)
+;-> (2870 44100)
+
+
+-------------------------------------------------------------
+Base64 encoder-decoder (Funzioni "base64-enc" e "base64-dec")
+-------------------------------------------------------------
+
+newLISP primitive functions:
+
+base64-enc        encodes a string into BASE64 format
+base64-dec        decodes a string from BASE64 format
+
+***********************
+>>>funzione BASE64-ENC
+***********************
+syntax: (base64-enc str [bool-flag])
+The string in str is encoded into BASE64 format.
+This format encodes groups of 3 * 8 = 24 input bits into 4 * 8 = 32 output bits, where each 8-bit output group represents 6 bits from the input string.
+The 6 bits are encoded into 64 possibilities from the letters A–Z and a–z, the numbers 0–9, and the characters + (plus sign) and / (slash).
+The = (equals sign) is used as a filler in unused 3- to 4-byte translations.
+This function is helpful for converting binary content into printable characters.
+
+Without the optional bool-flag parameter the empty string "" is encoded into "====".
+If bool-flag evaluates to true, the empty string "" is translated into "".
+Both translations result in "" when using base64-dec.
+
+The encoded string is returned.
+
+BASE64 encoding is used with many Internet protocols to encode binary data for inclusion in text-based messages (e.g., XML-RPC).
+
+(base64-enc "Hello World")
+;-> "SGVsbG8gV29ybGQ="
+
+(base64-enc "")
+;-> "===="
+
+(base64-enc "" true)
+;-> ""
+
+Note that base64-enc does not insert carriage-return/line-feed pairs in longer BASE64 sequences but instead returns a pure BASE64-encoded string.
+
+For decoding, use the base64-dec function.
+newLISP's BASE64 handling is derived from routines found in the Unix curl utility and conforms to the RFC 4648 standard.
+
+***********************
+>>>funzione BASE64-DEC
+***********************
+syntax: (base64-dec str)
+The BASE64 string in str is decoded.
+Note that str is not verified to be a valid BASE64 string.
+The decoded string is returned.
+
+(base64-dec "SGVsbG8gV29ybGQ=")
+;-> "Hello World"
+
+For encoding, use the base64-enc function.
+newLISP's BASE64 handling is derived from routines found in the Unix curl utility and conforms to the RFC 4648 standard.
+
+Functions written with newLISP:
+
+Function based (100%) on routines written by Peter (March 1, 2004 - PvE)
+(obsolete since newLisp 8.4.0)
+
+Base64 encoder
+--------------
+(define (b64-enc dat)
+  (local (BASE64 enc byte2 byte2 byte3 byte4 base1 base2 base3 base4)
+    # Setup base64 encode string
+    (set 'BASE64 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/")
+    # Initialize result variable to string
+    (set 'enc "")
+    # Mainloop
+    (while (> (length dat) 0)
+      # Find ASCII values
+      (case (length dat)
+        (1  (begin
+          (set 'byte1 (char dat))
+          (set 'byte2 0)
+          (set 'byte3 0)))
+        (2	(begin
+          (set 'byte1 (char dat))
+          (set 'byte2 (char dat 1))
+          (set 'byte3 0)))
+        (true (begin
+          (set 'byte1 (char dat))
+          (set 'byte2 (char dat 1))
+          (set 'byte3 (char dat 2))
+          )))
+      # Now create BASE64 values
+      (set 'base1 (/ byte1 4))
+      (set 'base2 (+ (* (& byte1 3) 16) (/ (& byte2 240) 16)))
+      (set 'base3 (+ (* (& byte2 15) 4) (/ (& byte3 192) 64)))
+      (set 'base4 (& byte3 63))
+      # Find BASE64 characters
+      (case (length dat)
+        (1	(begin
+          (set 'enc (append enc (nth base1 BASE64)))
+          (set 'enc (append enc (nth base2 BASE64)))
+          (set 'enc (append enc "=="))
+          (set 'dat "")))
+        (2	(begin
+          (set 'enc (append enc (nth base1 BASE64)))
+          (set 'enc (append enc (nth base2 BASE64)))
+          (set 'enc (append enc (nth base3 BASE64)))
+          (set 'enc (append enc "="))
+          (set 'dat "")))
+        (true (begin
+          (set 'enc (append enc (nth base1 BASE64)))
+          (set 'enc (append enc (nth base2 BASE64)))
+          (set 'enc (append enc (nth base3 BASE64)))
+          (set 'enc (append enc (nth base4 BASE64)))
+          # Decrease 'dat' with 3 characters
+          (set 'dat (slice dat 3)))))
+    )
+    (string enc))
+
+(b64-enc "Hello World")
+;-> "SGVsbG8gV29ybGQ="
+
+Base64 decoder
+--------------
+(define (b64-dec dat)
+  (local (BASE64 res byte1 byte2 byte3 byte4)
+    # Setup base64 encode string
+    (set 'BASE64 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/")
+    # Initialize result variable to string
+    (set 'res "")
+    # Mainloop
+    (while (> (length dat) 0)
+      # Find the indexnumber in the BASE64 definition
+      (set 'byte1 (find (nth 0 dat) BASE64))
+      (if (= byte1 nil)(set 'byte1 0))
+      (set 'byte2 (find (nth 1 dat) BASE64))
+      (if (= byte2 nil)(set 'byte2 0))
+      (set 'byte3 (find (nth 2 dat) BASE64))
+      (if (= byte3 nil)(set 'byte3 0))
+      (set 'byte4 (find (nth 3 dat) BASE64))
+      (if (= byte4 nil)(set 'byte4 0))
+      # Recalculate to ASCII value
+      (set 'res (append res (char (+ (* (& byte1 63) 4) (/ (& byte2 48) 16)))))
+      (set 'res (append res (char (+ (* (& byte2 15) 16) (/ (& byte3 60) 4)))))
+      (set 'res (append res (char (+ (* (& byte3 3) 64) byte4))))
+      # Decrease string with 4
+      (set 'dat (slice dat 4)))
+    # Resulting string
+    (string res)))
+
+(b64-dec "SGVsbG8gV29ybGQ=")
+;-> "Hello World"
+
 ============================================================================
 

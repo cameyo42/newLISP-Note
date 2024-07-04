@@ -7028,7 +7028,7 @@ num-quad = 1^2 + 2^2 + 3^2 + 4^2 + 5^2 + 6^2 + 7^2 + 8^2 =
 
 Generalizzando per una scacchiera nxn otteniamo che il numero di quadrati è dato dalla somma dei primi n quadrati:
 
-num-quad = Sum[1..n] (i^2) = (2*n^3 + 3*n^2 + n)/6
+num-quad = Sum[i=1..n] (i^2) = (2*n^3 + 3*n^2 + n)/6
 
 (define (square x) (* x x))
 
