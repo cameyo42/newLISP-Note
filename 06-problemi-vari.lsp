@@ -7576,10 +7576,6 @@ Con la moltiplicazione:
 (power-of-mul? -1 -1)
 ;-> true
 
-(pow -1 2)
-(pow -1 2)
-
-
 Un altro metodo è quello di utilizzare i logaritmi. L'idea è di calcolare il logaritmo di y in base x. Se risulta essere un numero intero, allora il numero y è una potenza perfetta, altrimenti non lo è.
 Ricordiamo che matematicamente risulta:
 
@@ -7683,7 +7679,7 @@ L'obiettivo della soluzione generale è trovare un metodo che renda massima prob
 
 La politica ottimale per il problema è una regola di arresto. Con questa, l'intervistatore rifiuta le prime (r - 1) (considerando che la candidata M abbia il miglior punteggio tra queste (r - 1) candidate), quindi seleziona, tra le candidate successive, la prima candidata che ha un punteggio migliore della candidata M. Si può dimostrare che la strategia ottimale sta in questa classe di strategie. Con un taglio arbitrario r, la probabilità che sia selezionato il miglior richiedente vale:
 
-P(r) = (r - 1)/n * sum[i=1...i=n] 1/(i-1)
+  P(r) = (r - 1)/n * sum[i=1...i=n] 1/(i-1)
 
 Definiamo una funzione per calcolare questo valore:
 
@@ -7747,7 +7743,7 @@ Calcoliamo il punteggio massimo dal primo fino al taglio:
 (apply max (slice cand 0 taglio))
 ;-> 98
 
-Quindi nelle rimanenti candidate (dal taglio alla fine della lista) troviamo la candidata con punteggio 99, che è la miglioer ed è quella che verrà selezionata.
+Quindi nelle rimanenti candidate (dal taglio alla fine della lista) troviamo la candidata con punteggio 99, che è la migliore ed è quella che verrà selezionata.
 
 Adesso scriviamo una funzione che calcola la percentuale di successo (cioè quante volte selezioniamo la migliore candidata) con due parametri, il numero delle candidate n e il numero dei colloqui (cioè quante volte ripetiamo il test).
 
@@ -8071,7 +8067,7 @@ Questo è un miglioramento enorme. Provamo a modificare la funzione per testare 
 (time (prova4 1000))
 ;-> 30.968
 
-I tempi di "prova3" e "prova4" sono quasi uguali (poichè il calcolo del numero primo pur eliminando molti numeri, ma richiede tempo).
+I tempi di "prova3" e "prova4" sono quasi uguali (poichè il calcolo del numero primo, pur eliminando molti numeri, richiede tempo).
 
 Scriviamo la funzione finale che ritorna una lista con tutti i numeri che hanno 3 divisori:
 
@@ -8120,7 +8116,8 @@ Nel 1742, il matematico prussiano Christian Goldbach scrisse una lettera a Leonh
 
   "Ogni numero intero maggiore di 2 può essere scritto come la somma di tre numeri primi."
 
-Considerava 1 un numero primo, una convenzione successivamente abbandonata. Quindi oggi, la congettura originale di Goldbach sarebbe stata scritta:
+Considerava 1 un numero primo, una convenzione successivamente abbandonata. 
+Quindi oggi, la congettura originale di Goldbach sarebbe stata scritta:
 
   "Ogni numero intero maggiore di 5 può essere scritto come la somma di tre numeri primi."
 
@@ -8297,7 +8294,7 @@ Dati due numeri interi a e b esistono solo due numeri interi q e r che soddisfan
 q prende il nome di “quoziente” della divisione di a per b
 r prende il nome di “resto” della divisione di a per b
 
-Ddefinizione: equazioni diofantee di primo grado
+Definizione: equazioni diofantee di primo grado
 ------------------------------------------------
 Si dice equazione diofantea (di 1° grado) ogni equazione della forma:
 

@@ -669,5 +669,152 @@ Base64 decoder
 (b64-dec "SGVsbG8gV29ybGQ=")
 ;-> "Hello World"
 
+
+------------------------------
+Puzzle esagonale di Aristotele
+------------------------------
+
+Il puzzle dei numeri di Aristotele consiste nel popolare ciascuna delle 19 celle di una griglia esagonale con un numero intero unico compreso tra 1 e 19 in modo tale che il totale lungo ciascun asse sia 38.
+
+Puzzle esagonale di Aristotele
+
+    a b c
+   d e f g
+  h i j k l
+   m n o p
+    q r s
+
+Matematicamente il problema consiste nel trovare la soluzione al seguente sistema di 19 incognite:
+
+          (a + b + c) == 38 
+      (d + e + f + g) == 38 
+  (h + i + j + k + l) == 38 
+      (m + n + o + p) == 38 
+          (q + r + s) == 38 
+          (a + d + h) == 38 
+      (b + e + i + m) == 38 
+  (c + f + j + n + q) == 38 
+      (g + k + o + r) == 38 
+          (l + p + s) == 38 
+          (c + g + l) == 38 
+      (b + f + k + p) == 38 
+  (a + e + j + o + s) == 38 
+      (d + i + n + r) == 38 
+          (h + m + q) == 38
+
+Non possiamo generare tutte le permutazioni perchè sono troppe (19! = 121645100408832000).
+
+Proviamo con un approccio casuale.
+Generiamo casualmente una associazione di valori tra l'insieme (a..s) e l'insieme (1..19), poi verifichiamo se è una soluzione.
+
+(define (aristotele-rnd iter)
+  (local (numbers solution)
+    (seed (time-of-day))
+    (setq numbers (sequence 1 19))
+    (setq solution '(a b c d e f g h i j k l m n o p q r s))
+    (for (i 1 iter)
+      ; genera i numeri casuali da 1 a 19
+      (setq numbers (randomize numbers))
+      ; assegna i valori casuali alle variabili a, b, c, ... s
+      (map set solution numbers)
+      ; verifica se i valori correnti sono una soluzione
+      (when (and (= (+ a b c) 38)
+                (= (+ d e f g) 38)
+                (= (+ h i j k l) 38)
+                (= (+ m n o p) 38)
+                (= (+ q r s) 38)
+                (= (+ a d h) 38)
+                (= (+ b e i m) 38)
+                (= (+ c f j n q) 38)
+                (= (+ g k o r) 38)
+                (= (+ l p s) 38)
+                (= (+ c g l) 38)
+                (= (+ b f k p) 38)
+                (= (+ a e j o s) 38)
+                (= (+ d i n r) 38)
+                (= (+ h m q) 38))
+        (println numbers)))))
+
+Proviamo:
+
+(time (aristotele-rnd 1e7))
+;-> 15521.615
+
+(time (aristotele-rnd 1e8))
+
+Nessuna soluzione casuale...
+
+Proviamo ad implementare un approccio di backtracking per cercare la soluzione passo dopo passo.
+Questo approccio è più efficiente rispetto alla generazione di tutte le permutazioni, poiché costruisce la soluzione progressivamente e verifica i vincoli lungo il percorso.
+
+Funzione che controlla se la configurazione corrente in 'solution' soddisfa i vincoli delle equazioni. 
+La verifica tiene conto di possibili valori 'nil' presenti durante la costruzione della soluzione.
+
+(define (valid? solution)
+  (let ((a (solution 0)) (b (solution 1)) (c (solution 2))
+        (d (solution 3)) (e (solution 4)) (f (solution 5)) (g (solution 6))
+        (h (solution 7)) (i (solution 8)) (j (solution 9)) (k (solution 10))
+        (l (solution 11)) (m (solution 12)) (n (solution 13)) (o (solution 14))
+        (p (solution 15)) (q (solution 16)) (r (solution 17)) (s (solution 18)))
+    (and
+      (or (nil? a) (nil? b) (nil? c) (= (+ a b c) 38))
+      (or (nil? d) (nil? e) (nil? f) (nil? g) (= (+ d e f g) 38))
+      (or (nil? h) (nil? i) (nil? j) (nil? k) (nil? l) (= (+ h i j k l) 38))
+      (or (nil? m) (nil? n) (nil? o) (nil? p) (= (+ m n o p) 38))
+      (or (nil? q) (nil? r) (nil? s) (= (+ q r s) 38))
+      (or (nil? a) (nil? d) (nil? h) (= (+ a d h) 38))
+      (or (nil? b) (nil? e) (nil? i) (nil? m) (= (+ b e i m) 38))
+      (or (nil? c) (nil? f) (nil? j) (nil? n) (nil? q) (= (+ c f j n q) 38))
+      (or (nil? g) (nil? k) (nil? o) (nil? r) (= (+ g k o r) 38))
+      (or (nil? l) (nil? p) (nil? s) (= (+ l p s) 38))
+      (or (nil? c) (nil? g) (nil? l) (= (+ c g l) 38))
+      (or (nil? b) (nil? f) (nil? k) (nil? p) (= (+ b f k p) 38))
+      (or (nil? a) (nil? e) (nil? j) (nil? o) (nil? s) (= (+ a e j o s) 38))
+      (or (nil? d) (nil? i) (nil? n) (nil? r) (= (+ d i n r) 38))
+      (or (nil? h) (nil? m) (nil? q) (= (+ h m q) 38)))))
+
+Funzione che implementa il backtracking.
+A ogni passo, prova a inserire un numero non ancora usato in 'solution' e verifica se la configurazione parziale è valida. 
+Se sì, continua con il prossimo indice. 
+Se no, rimuove il numero e prova il successivo.
+
+(define (search-idx idx)
+  (if (= idx 19)
+      (when (valid? solution) (println solution))
+      (dolist (num nums)
+        (unless (member num solution)
+          (setf (nth idx solution) num)
+          (when (valid? solution)
+            (search-idx (+ idx 1)))
+          (setf (nth idx solution) nil)))))
+
+Funzione che cerca le soluzioni del problema di Aristotele:
+
+(define (aristotele-back rnd)
+  (let ( (nums (reverse (sequence 1 19)))   ; numbers from 1 to 19
+         ;(nums (sequence 1 19)))  ; numbers from 19 to 1
+         (solution (dup nil 19)) ) ; list of solution's elements
+        ; start with a random sequence of numbers
+        (when rnd
+          (seed (time-of-day))
+          (setq nums (randomize nums)))
+    (search-idx 0)))
+
+Proviamo:
+
+(aristotele-back)
+;-> (3 17 18 19 7 1 11 16 2 5 6 9 12 4 8 14 10 13 15)
+;-> (3 19 16 17 7 2 12 18 1 5 4 10 11 6 8 13 9 14 15)
+;-> (9 11 18 14 6 1 17 15 8 5 7 3 13 4 2 19 10 12 16)
+;-> (9 14 15 11 6 8 13 18 1 5 4 10 17 7 2 12 3 19 16)
+... fermato dopo 5 minuti.
+
+Abbiamo trovato 4 soluzioni.
+
+Altre 2 soluzioni partendo con: (nums (reverse (sequence 1 19)))
+
+(18 17 3 11 1 7 19 9 6 5 2 16 14 8 4 12 15 13 10)
+(18 11 9 17 1 6 14 3 7 5 8 15 19 2 4 13 16 12 10)
+
 ============================================================================
 
