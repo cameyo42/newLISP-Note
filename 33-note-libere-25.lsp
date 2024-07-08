@@ -229,12 +229,12 @@ Ora, consideriamo la serie divergente:
 
   S = 1 + 2 + 3 + 4 + ...
 
-Per ottenere questo risultato, possiamo usare una rappresentazione formale collegata alla funzione zeta di Riemann. 
+Per ottenere questo risultato, possiamo usare una rappresentazione formale collegata alla funzione zeta di Riemann.
 Si parte dalla relazione:
 
   S = Sum[n=1..inf](n)
 
-Ramanujan ha usato tecniche formali e proprietà delle serie per associare a questa somma divergente un valore finito. 
+Ramanujan ha usato tecniche formali e proprietà delle serie per associare a questa somma divergente un valore finito.
 La funzione zeta di Riemann fornisce una connessione analitica:
 
   Z(-1) = Sum[n=1..inf](n^(-(-1)) = Sum[n=1..inf](n) = -1/12
@@ -279,7 +279,7 @@ Proviamo:
 ;-> (2 1 4 3 5)
 
 Prima versione (explode e map):
-Usiamo "explode" per dividere la lista in coppie di elementi, poi usiamo "map" per scambiare gli elementi di ogni coppia. 
+Usiamo "explode" per dividere la lista in coppie di elementi, poi usiamo "map" per scambiare gli elementi di ogni coppia.
 Se la lista ha un numero dispari di elementi, l'ultimo elemento viene gestito separatamente e aggiunto alla fine della lista risultante.
 
 (define (exchange-couples lst)
@@ -407,7 +407,7 @@ Proviamo con un metodo simile che scambia due elementi casuali per ogni ciclo:
 (define (rand-sort2 lst)
   (let ( (counter 0) (len (length lst)) )
     (seed (time-of-day) true)
-    (until (sorted? lst) 
+    (until (sorted? lst)
       (setq idx1 (rand len))
       (setq idx2 (rand len))
       (swap (lst idx1) (lst idx2))
@@ -598,7 +598,7 @@ Base64 encoder
           (set 'byte1 (char dat))
           (set 'byte2 0)
           (set 'byte3 0)))
-        (2	(begin
+        (2  (begin
           (set 'byte1 (char dat))
           (set 'byte2 (char dat 1))
           (set 'byte3 0)))
@@ -614,12 +614,12 @@ Base64 encoder
       (set 'base4 (& byte3 63))
       # Find BASE64 characters
       (case (length dat)
-        (1	(begin
+        (1  (begin
           (set 'enc (append enc (nth base1 BASE64)))
           (set 'enc (append enc (nth base2 BASE64)))
           (set 'enc (append enc "=="))
           (set 'dat "")))
-        (2	(begin
+        (2  (begin
           (set 'enc (append enc (nth base1 BASE64)))
           (set 'enc (append enc (nth base2 BASE64)))
           (set 'enc (append enc (nth base3 BASE64)))
@@ -686,20 +686,20 @@ Puzzle esagonale di Aristotele
 
 Matematicamente il problema consiste nel trovare la soluzione al seguente sistema di 19 incognite:
 
-          (a + b + c) == 38 
-      (d + e + f + g) == 38 
-  (h + i + j + k + l) == 38 
-      (m + n + o + p) == 38 
-          (q + r + s) == 38 
-          (a + d + h) == 38 
-      (b + e + i + m) == 38 
-  (c + f + j + n + q) == 38 
-      (g + k + o + r) == 38 
-          (l + p + s) == 38 
-          (c + g + l) == 38 
-      (b + f + k + p) == 38 
-  (a + e + j + o + s) == 38 
-      (d + i + n + r) == 38 
+          (a + b + c) == 38
+      (d + e + f + g) == 38
+  (h + i + j + k + l) == 38
+      (m + n + o + p) == 38
+          (q + r + s) == 38
+          (a + d + h) == 38
+      (b + e + i + m) == 38
+  (c + f + j + n + q) == 38
+      (g + k + o + r) == 38
+          (l + p + s) == 38
+          (c + g + l) == 38
+      (b + f + k + p) == 38
+  (a + e + j + o + s) == 38
+      (d + i + n + r) == 38
           (h + m + q) == 38
 
 Non possiamo generare tutte le permutazioni perchè sono troppe (19! = 121645100408832000).
@@ -747,7 +747,7 @@ Nessuna soluzione casuale...
 Proviamo ad implementare un approccio di backtracking per cercare la soluzione passo dopo passo.
 Questo approccio è più efficiente rispetto alla generazione di tutte le permutazioni, poiché costruisce la soluzione progressivamente e verifica i vincoli lungo il percorso.
 
-Funzione che controlla se la configurazione corrente in 'solution' soddisfa i vincoli delle equazioni. 
+Funzione che controlla se la configurazione corrente in 'solution' soddisfa i vincoli delle equazioni.
 La verifica tiene conto di possibili valori 'nil' presenti durante la costruzione della soluzione.
 
 (define (valid? solution)
@@ -774,8 +774,8 @@ La verifica tiene conto di possibili valori 'nil' presenti durante la costruzion
       (or (nil? h) (nil? m) (nil? q) (= (+ h m q) 38)))))
 
 Funzione che implementa il backtracking.
-A ogni passo, prova a inserire un numero non ancora usato in 'solution' e verifica se la configurazione parziale è valida. 
-Se sì, continua con il prossimo indice. 
+A ogni passo, prova a inserire un numero non ancora usato in 'solution' e verifica se la configurazione parziale è valida.
+Se sì, continua con il prossimo indice.
 Se no, rimuove il numero e prova il successivo.
 
 (define (search-idx idx)
@@ -791,8 +791,8 @@ Se no, rimuove il numero e prova il successivo.
 Funzione che cerca le soluzioni del problema di Aristotele:
 
 (define (aristotele-back rnd)
-  (let ( (nums (reverse (sequence 1 19)))   ; numbers from 1 to 19
-         ;(nums (sequence 1 19)))  ; numbers from 19 to 1
+  (let ( (nums (sequence 1 19))   ; numbers from 1 to 19
+         ;(nums (sequence 19 1)))  ; numbers from 19 to 1
          (solution (dup nil 19)) ) ; list of solution's elements
         ; start with a random sequence of numbers
         (when rnd
@@ -811,10 +811,286 @@ Proviamo:
 
 Abbiamo trovato 4 soluzioni.
 
-Altre 2 soluzioni partendo con: (nums (reverse (sequence 1 19)))
+(aristotele-back true)
+;-> (15 14 9 13 8 6 11 10 4 5 1 18 12 2 7 17 16 19 3)
+;-> (15 13 10 14 8 4 12 9 6 5 2 16 11 1 7 19 18 17 3)
+... fermato dopo 5 minuti.
 
-(18 17 3 11 1 7 19 9 6 5 2 16 14 8 4 12 15 13 10)
-(18 11 9 17 1 6 14 3 7 5 8 15 19 2 4 13 16 12 10)
+Abbiamo trovato altre 2 soluzioni.
+
+Altre 2 soluzioni partendo con: (nums (sequence 19 1))
+
+;-> (18 17 3 11 1 7 19 9 6 5 2 16 14 8 4 12 15 13 10)
+;-> (18 11 9 17 1 6 14 3 7 5 8 15 19 2 4 13 16 12 10)
+... fermato dopo 5 minuti.
+
+Lista di tutte le soluzioni:
+
+  3 17 18 19 7 1 11 16 2 5 6 9 12 4 8 14 10 13 15
+  3 19 16 17 7 2 12 18 1 5 4 10 11 6 8 13 9 14 15
+  9 11 18 14 6 1 17 15 8 5 7 3 13 4 2 19 10 12 16
+  9 14 15 11 6 8 13 18 1 5 4 10 17 7 2 12 3 19 16
+  10 12 16 13 4 2 19 15 8 5 7 3 14 6 1 17 9 11 18
+  10 13 15 12 4 8 14 16 2 5 6 9 19 7 1 11 3 17 18
+  15 13 10 14 8 4 12 9 6 5 2 16 11 1 7 19 18 17 3
+  15 14 9 13 8 6 11 10 4 5 1 18 12 2 7 17 16 19 3
+  16 12 10 19 2 4 13 3 7 5 8 15 17 1 6 14 18 11 9
+  16 19 3 12 2 7 17 10 4 5 1 18 13 8 6 11 15 14 9
+  18 11 9 17 1 6 14 3 7 5 8 15 19 2 4 13 16 12 10
+  18 17 3 11 1 7 19 9 6 5 2 16 14 8 4 12 15 13 10
+
+
+--------------
+Numeri pratici
+--------------
+
+Un numero n si dice pratico quando tutti i numeri interi positivi m < n si possono scrivere in almeno una maniera come somma di divisori distinti di n.
+
+Sequenza OEIS: A005153
+Practical numbers: positive integers m such that every k <= sigma(m) is a sum of distinct divisors of m. Also called panarithmic numbers.
+  1, 2, 4, 6, 8, 12, 16, 18, 20, 24, 28, 30, 32, 36, 40, 42, 48, 54, 56,
+  60, 64, 66, 72, 78, 80, 84, 88, 90, 96, 100, 104, 108, 112, 120, 126, 128,
+  132, 140, 144, 150, 156, 160, 162, 168, 176, 180, 192, 196, 198, 200, 204,
+  208, 210, 216, 220, 224, 228, 234, 240, 252, ...
+
+Il problema centrale è scrivere una funzione che verifica se un dato numero N può essere espresso come somma di alcuni o tutti i numeri contenuti in una data lista:
+
+Creiamo una lista dp di lunghezza N+1 e la inizializziamo con nil.
+(Questa lista conterrà true in posizione 'i' se possiamo ottenere la somma 'i' usando i numeri della lista, altrimenti conterrà nil.)
+
+Creiamo una lista used-numbers di lunghezza N+1 inizializzata con nil.
+(Questa lista terrà traccia dei numeri utilizzati per ottenere ogni somma parziale.)
+
+Impostiamo dp[0] a true perché la somma 0 può sempre essere ottenuta con la somma di zero numeri.
+
+Aggiornamento della lista dp:
+per ogni numero nella lista, aggiorniamo la lista dp per riflettere le nuove somme che possono essere ottenute includendo quel numero.
+
+(Per determinare quali numeri della lista sommano a N, tracciamo le somme parziali durante l'aggiornamento della tabella dp e mantenere una lista 'used-numbers' che tiene traccia dei numeri utilizzati per ottenere ciascuna somma.)
+
+Il ciclo for decrementa la variabile i da N fino a 0.
+La condizione and (>= i num) (dp (- i num)) verifica che possiamo ottenere la somma i includendo num.
+Se la condizione è vera, impostiamo dp[i] a true e aggiorniamo used-numbers[i] con num e la lista di numeri che hanno portato alla somma i - num.
+
+Al termine restituiamo dp[N] e used-numbers:
+  dp[N] può essere true oppure nil.
+  used-numbers: può contenere la lista dei numeri che sommano a N oppure nil.
+
+Funzione che verifica se un dato numero N può essere espresso come somma di alcuni o tutti i numeri contenuti in una data lista:
+
+(define (sum-N-from-list? numbers N)
+  (let ((dp (dup nil (+ N 1)))
+        (used-numbers (dup nil (+ N 1))))
+    (setf (dp 0) true)
+    (dolist (num numbers)
+      (for (i N 0 -1)
+        (if (and (>= i num) (dp (- i num)))
+          (begin
+            (setf (dp i) true)
+            (if (not (used-numbers i))
+              (if (used-numbers (- i num))
+                (setf (used-numbers i) (append (used-numbers (- i num)) (list num)))
+                (setf (used-numbers i) (list num))))))))
+    (list (dp N) (used-numbers N))))
+
+Proviamo:
+
+(setq lst '(3 34 4 12 5 2))
+
+(sum-N-from-list? lst 9)
+;-> (true (4 5))
+
+(sum-N-from-list? lst 35)
+;-> (nil nil)
+
+(sum-N-from-list? numbers 3)
+;-> (true (3))
+
+(sum-N-from-list? numbers 0)
+;-> (true nil)
+
+(sum-N-from-list? '(1 1 1 1 1 1) 6)
+;-> (true (1 1 1 1 1 1))
+
+(sum-N-from-list? '(1 1 1 1 1 1) 5)
+;-> (true (1 1 1 1 1))
+
+(sum-N-from-list? '(1 2 3 4 6) 12)
+;-> (true (1 2 3 6))
+
+Comunque, in questo caso, a noi interessa solo se N può essere rappresentato come somma e non la lista dei numeri della somma, quindi restituiamo solo dp[N].
+
+(define (sum-N-from-list? numbers N)
+  (let ((dp (dup nil (+ N 1)))
+        (used-numbers (dup nil (+ N 1))))
+    (setf (dp 0) true)
+    (dolist (num numbers)
+      (for (i N 0 -1)
+        (if (and (>= i num) (dp (- i num)))
+          (begin
+            (setf (dp i) true)
+            (if (not (used-numbers i))
+              (if (used-numbers (- i num))
+                (setf (used-numbers i) (append (used-numbers (- i num)) (list num)))
+                (setf (used-numbers i) (list num))))))))
+    (dp N)))
+
+Poi ci serve la funzione che calcola i divisori di un numero:
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(divisors 32)
+;-> (1 2 4 8 16 32)
+
+Funzione che verifica se un dato numero è pratico:
+(setq N 5)
+
+(define (pratico? N)
+  (let (divisori (divisors N))
+    (for-all (fn(x) (sum-N-from-list? divisori x)) (sequence 1 (- N 1)))))
+
+Proviamo:
+
+(pratico? 5)
+;-> nil
+
+(pratico? 12)
+;-> true
+
+Calcoliamo i numeri pratici fino a 252:
+
+(filter pratico? (sequence 1 252))
+;-> (1 2 4 6 8 12 16 18 20 24 28 30 32 36 40 42 48 54 56
+;->  60 64 66 72 78 80 84 88 90 96 100 104 108 112 120 126 128
+;->  132 140 144 150 156 160 162 168 176 180 192 196 198 200 204
+;->  208 210 216 220 224 228 234 240 252)
+
+La funzione è molto lenta:
+
+(time (println (filter pratico? (sequence 1 1e3))))
+;-> (1 2 4 6 8 12 16 18 20 24 28 30 32 36 40 42 48 54 56 60 64 66 72 78
+;->  80 84 88 90 96 100 104 108 112 120 126 128 132 140 144 150 156 160
+;->  162 168 176 180 192 196 198 200 204 208 210 216 220 224 228 234 240
+;->  252 256 260 264 270 272 276 280 288 294 300 304 306 308 312 320 324
+;->  330 336 340 342 348 352 360 364 368 378 380 384 390 392 396 400 408
+;->  414 416 420 432 440 448 450 456 460 462 464 468 476 480 486 496 500
+;->  504 510 512 520 522 528 532 540 544 546 552 558 560 570 576 580 588
+;->  594 600 608 612 616 620 624 630 640 644 648 660 666 672 680 684 690
+;->  696 700 702 704 714 720 726 728 736 740 744 750 756 760 768 780 784
+;->  792 798 800 810 812 816 820 828 832 840 858 860 864 868 870 880 882
+;->  888 896 900 912 918 920 924 928 930 936 952 960 966 968 972 980 984
+;->  990 992 1000)
+;-> 474867.061 ; quasi 8 minuti
+
+Dal punto di vista matematico si può dimostrare che, data la scomposizione di N in fattori primi p(i) di molteplicità a(i), il numero N è pratico se risulta:
+
+  a) p(1) = 2
+                                   p(j)^(a(j)+1) - 1
+  b) p(i) < 1 + Prod[j=1..(i-1)](---------------------), per i = 2,..,k
+                                       p(j) - 1
+
+dove p(i) e a(i) sono i fattori primi e le relative molteplicità della scomposizione di N:
+
+  N = p(1)^a(1) * p(1)^a(1) * ... * p(k)^a(k)
+
+(define (pratic? N)
+  (if (= N 1) ; 1 è un numero pratico
+    true
+    ;else
+    (local (fatt len stop p a prod)
+    ; scomposizione di N in fattori primi con relativa moltplicità
+    (setq fatt (factor-group N))
+    ; inserisce '(1 1) per comodità
+    (push '(1 1) fatt)
+    ; calcolo del numero dei fattori
+    (setq len (length fatt))
+    (cond
+      ((= len 2) ; se ci sono solo due fattori, allora verifica se p(1) = 2
+        (if (= (fatt 1 0) 2) true nil))
+      (true
+        (if (!= (fatt 1 0) 2) ; se p(1) è diverso da 2, allora N non è pratico
+            nil
+            ;else ; se p(1) = 2, allora verifica gli altri fattori
+            (begin
+              (setq stop nil)
+              (for (i 2 (- len 1) 1 stop)
+                (setq p (fatt i 0))
+                (setq a (fatt i 1))
+                (setq prod 1)
+                (for (j 1 (- i 1))
+                  (setq prod (mul prod
+                             (div (sub (pow (fatt j 0) (+ (fatt j 1) 1)) 1)
+                                  (sub (fatt j 0) 1))))
+                  ;(println i { } j { } prod)
+                )
+                ;(println p { } (+ 1 prod))
+                ; condizione da verificare per essere un numero pratico
+                (when (> p (+ 1 prod)) (setq stop true))
+              )
+              (not stop))))))))
+
+Proviamo:
+
+(pratic? 5)
+;-> nil
+
+(pratico? 12)
+;-> true
+
+Calcoliamo i numeri pratici fino a 252:
+
+(filter pratic? (sequence 1 252))
+;-> (1 2 4 6 8 12 16 18 20 24 28 30 32 36 40 42 48 54 56
+;->  60 64 66 72 78 80 84 88 90 96 100 104 108 112 120 126 128
+;->  132 140 144 150 156 160 162 168 176 180 192 196 198 200 204
+;->  208 210 216 220 224 228 234 240 252)
+
+Vediamo se le due funzioni producono risultati identici:
+
+(= (filter pratic? (sequence 1 252)) (filter pratico? (sequence 1 252)))
+;-> true
+
+Vediamo la velocità della funzione "pratic?":
+
+(time (println (filter pratic? (sequence 1 1e3))))
+;-> (1 2 4 6 8 12 16 18 20 24 28 30 32 36 40 42 48 54 56 60 64 66 72 78
+;->  80 84 88 90 96 100 104 108 112 120 126 128 132 140 144 150 156 160
+;->  162 168 176 180 192 196 198 200 204 208 210 216 220 224 228 234 240
+;->  252 256 260 264 270 272 276 280 288 294 300 304 306 308 312 320 324
+;->  330 336 340 342 348 352 360 364 368 378 380 384 390 392 396 400 408
+;->  414 416 420 432 440 448 450 456 460 462 464 468 476 480 486 496 500
+;->  504 510 512 520 522 528 532 540 544 546 552 558 560 570 576 580 588
+;->  594 600 608 612 616 620 624 630 640 644 648 660 666 672 680 684 690
+;->  696 700 702 704 714 720 726 728 736 740 744 750 756 760 768 780 784
+;->  792 798 800 810 812 816 820 828 832 840 858 860 864 868 870 880 882
+;->  888 896 900 912 918 920 924 928 930 936 952 960 966 968 972 980 984
+;->  990 992 1000)
+;-> 0
 
 ============================================================================
 

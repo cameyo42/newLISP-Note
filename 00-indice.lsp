@@ -2540,6 +2540,7 @@ NOTE LIBERE 25
   Quadrati e rettangoli in una griglia di punti
   Base64 encoder-decoder (Funzioni "base64-enc" e "base64-dec")
   Puzzle esagonale di Aristotele
+  Numeri pratici
 
 PROBLEMI SUI DADI
 =================
