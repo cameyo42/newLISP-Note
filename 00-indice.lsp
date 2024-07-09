@@ -2541,6 +2541,7 @@ NOTE LIBERE 25
   Base64 encoder-decoder (Funzioni "base64-enc" e "base64-dec")
   Puzzle esagonale di Aristotele
   Numeri pratici
+  Il Gioco 2048
 
 PROBLEMI SUI DADI
 =================

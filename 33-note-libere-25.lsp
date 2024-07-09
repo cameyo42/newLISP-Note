@@ -1092,5 +1092,316 @@ Vediamo la velocità della funzione "pratic?":
 ;->  990 992 1000)
 ;-> 0
 
+
+============================================================
+-------------
+Il Gioco 2048
+-------------
+
+A 2048 si gioca su una semplice griglia di formato 4×4 in cui scorrono caselle di colori diversi, con numeri diversi (tutti i numeri sono potenze di 2), senza intralci quando un giocatore le muove.
+All'inizio delgioco nella griglia ci sono solo due caselle con il numero 2, tutte le altre caselle valgono 0.
+Il gioco usa alcuni tasti della tastiera per spostare tutte le caselle a sinistra o a destra oppure in alto o in basso. 
+Se due caselle contenenti lo stesso numero si scontrano mentre si muovono, si fondono in un'unica casella che avrà come numero la somma delle due tessere.
+Ad ogni turno, una nuova tessera con il valore di 2 o 4 apparirà in modo casuale in una casella vuota dela griglia.
+Il punteggio del giocatore inizia da zero e viene incrementato ogni volta che due tessere si combinano, con il valore della nuova casella.
+La partita è vinta quando, continuando a combinare le tessere, si riesce a crearne una con il numero 2048.
+Il gioco può anche continuare oltre, fino a un limite massimo teorico di 131072.
+La partita è persa se il giocatore non può più modificare la griglia (perché non ci sono più spazi vuoti o non ci sono numeri adiacenti con lo stesso valore).
+
+Funzione che stampa la griglia di gioco:
+
+(define (print-grid matrix)
+  (local (row col)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format "%4d " (matrix i j)))
+      )
+      (println)) '>))
+
+(setq grid '((2 2048 16 0) (0 512 4 0) (2 0 16 64) (64 4 0 8)))
+(print-grid grid)
+;->    2 2048   16    0
+;->    0  512    4    0
+;->    2    0   16   64
+;->   64    4    0    8
+
+Funzione che inizia un nuovo gioco:
+
+(define (new-game)
+  (setq N 4)
+  ; griglia di gioco (matrice)
+  (setq grid (array-list (array N N '(0))))
+  ; lista delle coordinate della griglia
+  (setq pts '())
+  (for (i 0 (- N 1))
+    (for (j 0 (- N 1))
+      (push (list i j) pts -1)))
+  ; inserisce il valore 2 in due caselle della griglia scelte a caso
+  (setq pts (randomize pts))
+  (setf (grid (pts 0)) 2)
+  (setf (grid (pts 1)) 2)
+  ; griglia precedente
+  (setq old grid)
+  ; numero mosse
+  (setq mosse 0)
+  (input))
+
+Tasti freccia:      W
+                  A S D
+
+"W" or "w" Up    (87/119)
+"A" or "a" Left  (65/97)
+"S" or "s" Down  (85/115)
+"D" or "d" Right (68/100)
+
+Funzione che permette l'input dell'utente e controlla il l'andamento del gioco:
+(Premere "0" per uscire dal gioco)
+
+(define (input)
+  (println "Mosse: " mosse)
+  (print-grid grid)
+  (setq key (read-key))
+  ;(println key { } (char key))
+  (case key
+    (87 (up))    (119 (up))
+    (65 (left))  (97  (left))
+    (85 (down))  (115 (down))
+    (68 (right)) (100 (right))
+    (48 (exit)) ; "0" --> esce dal gioco
+    (true (begin (println "Tasto errato.") (setq error true)))
+  )
+        ; vinto?
+  (cond ((ref 2048 grid) (println "Hai vinto."))
+        ; premuto un tasto errato
+        ((= error true) (setq error nil) (input))
+        ; perso?
+        ;((= grid old) (println "Hai perso."))
+        (true ; il gioco continua con il prossimo turno
+          ; Inserisce una nuova casella (2 o 4) nella griglia
+          ; lista delle coordinate vuote
+          (setq pts '())
+          (for (i 0 (- N 1))
+            (for (j 0 (- N 1))
+              (if (zero? (grid i j)) (push (list i j) pts -1))))
+          ; inserisce il valore 2 0 4 in una casella vuota (casuale)
+          (when (> (length pts) 0)
+            (setq pts (randomize pts))
+            (if (zero? (rand 2))
+                (setf (grid (pts 0)) 2)
+                (setf (grid (pts 0)) 4)))
+          ; input utente
+          (input))))
+
+Funzioni per spostare tutti i numeri di una riga diversi da zero a destra e a sinistra (al posto dei numeri spostati viene inserito 0):
+
+(define (shift-right row)
+  (let ((non-zero (filter (fn (x) (!= x 0)) row))
+        (zeroes (filter (fn (x) (= x 0)) row)))
+    (extend zeroes non-zero)))
+
+(define (shift-left row)
+  (let ((non-zero (filter (fn (x) (!= x 0)) row))
+        (zeroes (filter (fn (x) (= x 0)) row)))
+    (extend non-zero zeroes)))
+
+Funzioni per spostare tutti i numeri di una griglia (matrice) diversi da zero a destra, a sinistra, in alto e in basso (al posto dei numeri spostati viene inserito 0):
+
+(define (matrix-right matrix) (map shift-right matrix))
+
+(define (matrix-left matrix) (map shift-left matrix))
+
+(define (matrix-down matrix)
+  (let (trans (transpose matrix))
+    (transpose (map shift-right trans))))
+
+(define (matrix-up matrix)
+  (let (trans (transpose matrix))
+    (transpose (map shift-left trans))))
+
+Nota: per "matrix-up" e "matrix-down" utilizziamo la matrice trasposta per poter utilizzare le stesse funzioni di "matrix-right" e "matrix-left".
+
+(setq grid '((4 16 2 2) (0 2 4 0) (0 0 4 4) (4 0 0 8)))
+;-> ((4 16 2 2) (0 2 4 0) (0 0 4 4) (4 0 0 8))
+(print-grid grid)
+;->    4   16    2    2
+;->    0    2    4    0
+;->    0    0    4    4
+;->    4    0    0    8
+(print-grid (matrix-left grid))
+;->    4   16    2    2
+;->    2    4    0    0
+;->    4    4    0    0
+;->    4    8    0    0
+(print-grid (matrix-right grid))
+;->    4   16    2    2
+;->    0    0    2    4
+;->    0    0    4    4
+;->    0    0    4    8
+(print-grid (matrix-up grid))
+;->    4   16    2    2
+;->    4    2    4    4
+;->    0    0    4    8
+;->    0    0    0    0
+(print-grid (matrix-down grid))
+;->    0    0    0    0
+;->    0    0    2    2
+;->    4   16    4    4
+;->    4    2    4    8
+
+Funzioni per unire i numeri di una riga:
+
+(define (merge-numbers row)
+  (let ( (result '()) (idx 0) (len (length row)) )
+    (while (< idx len)
+      (if (and (< idx (- len 1)) (= (row idx) (row (+ idx 1))))
+          (begin
+            (push (* 2 (row idx)) result -1)
+            (++ idx 2))  ; Salta un elemento aggiuntivo
+          (begin
+            (push (row idx) result -1)
+            (++ idx 1))))
+    ; aggiunge gli 0 necessari per completare la riga
+    (extend result (dup 0 (- len (length result))))))
+
+(merge-numbers '(2 2 4 4))
+;-> (4 8 0 0)
+(merge-numbers '(2 4 2 4))
+;-> (2 4 2 4)
+(merge-numbers '(2 2 2 2))
+;-> (4 4 0 0)
+(merge-numbers '(0 0 4 4))
+;-> (0 8 0 0)
+(merge-numbers '(0 4 4 0))
+;-> (0 8 0 0)
+(merge-numbers '(4 4 4 0))
+;-> (8 4 0 0)
+(merge-numbers '(0 4 4 4))
+;-> (0 8 4 0)
+
+Funzione per unire i numeri in una griglia (matrice):
+
+(define (matrix-merge matrix) (map merge-numbers matrix))
+
+Funzioni per le quattro mosse del gioco: right, left, up, down
+
+(define (right)
+  (println "right")
+  (setq old grid)
+  (++ mosse)
+  ; sposta i numeri a destra
+  (setq grid (matrix-right grid))
+  ; unisce i numeri
+  (setq grid (matrix-merge grid))
+  ; sposta i numeri a destra
+  (setq grid (matrix-right grid)))
+
+(setq grid '((4 16 2 2) (0 4 4 0) (0 0 4 4) (8 0 0 8)))
+
+(print-grid grid)
+;->    4   16    2    2
+;->    0    4    4    0
+;->    0    0    4    4
+;->    8    0    0    8
+(right)
+(print-grid grid)
+;->    0    4   16    4
+;->    0    0    0    8
+;->    0    0    0    8
+;->    0    0    0   16
+
+(define (left)
+  (println "left")
+  (setq old grid)
+  (++ mosse)
+  (setq grid (matrix-left grid))
+  (setq grid (matrix-merge grid))
+  (setq grid (matrix-left grid)))
+
+(left)
+(print-grid grid)
+;->    4   16    4    0
+;->    8    0    0    0
+;->    8    0    0    0
+;->   16    0    0    0
+
+(define (up)
+  (println "up")
+  (setq old grid)
+  (++ mosse)
+  (setq grid (matrix-up grid))
+  (setq grid (transpose (matrix-merge (transpose grid))))
+  (setq grid (matrix-up grid)))
+
+(up)
+(print-grid grid)
+;->    4   16    4    0
+;->   16    0    0    0
+;->   16    0    0    0
+;->    0    0    0    0
+
+(define (down)
+  (println "down")
+  (setq old grid)
+  (++ mosse)
+  (setq grid (matrix-down grid))
+  (setq grid (transpose (matrix-merge (transpose grid))))
+  (setq grid (matrix-down grid)))
+
+(down)
+(print-grid grid)
+;->    0    0    0    0
+;->    0    0    0    0
+;->    4    0    0    0
+;->   32   16    4    0
+
+Nota: per "up" e "down" utilizziamo la matrice trasposta per poter utilizzare le stesse funzioni di "right" e "left".
+
+Facciamo una partita:
+
+(new-game)
+;-> Mosse: 0
+;->    0    0    0    0
+;->    0    0    0    0
+;->    2    2    0    0
+;->    0    0    0    0
+
+;-> left
+;-> Mosse: 1
+;->    0    0    2    0
+;->    0    0    0    0
+;->    4    0    0    0
+;->    0    0    0    0
+
+;-> up
+;-> Mosse: 2
+;->    4    2    2    0
+;->    0    0    0    0
+;->    0    0    0    0
+;->    0    0    0    0
+
+;-> right
+;-> Mosse: 3
+;->    0    0    4    4
+;->    0    0    0    0
+;->    0    0    0    0
+;->    0    0    2    0
+
+;-> down
+;-> Mosse: 4
+;->    0    0    0    0
+;->    0    0    0    0
+;->    4    0    4    0
+;->    0    0    2    4
+
+;-> left
+;-> Mosse: 5
+;->    0    0    0    0
+;->    0    0    2    0
+;->    0    0    0    8
+;->    0    0    2    4
+;-> ...
+
 ============================================================================
 
