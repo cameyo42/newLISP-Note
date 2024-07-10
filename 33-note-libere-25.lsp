@@ -1142,10 +1142,14 @@ Funzione che inizia un nuovo gioco:
   (setq pts (randomize pts))
   (setf (grid (pts 0)) 2)
   (setf (grid (pts 1)) 2)
+  ;(setf (grid 0 0) 1024)
+  ;(setf (grid 1 0) 1024)
   ; griglia precedente
   (setq old grid)
   ; numero mosse
   (setq mosse 0)
+  ; punteggio
+  (setq punti 0)
   (input))
 
 Tasti freccia:      W
@@ -1161,6 +1165,7 @@ Funzione che permette l'input dell'utente e controlla il l'andamento del gioco:
 
 (define (input)
   (println "Mosse: " mosse)
+  (println "Punti: " punti)
   (print-grid grid)
   (setq key (read-key))
   ;(println key { } (char key))
@@ -1258,6 +1263,7 @@ Funzioni per unire i numeri di una riga:
       (if (and (< idx (- len 1)) (= (row idx) (row (+ idx 1))))
           (begin
             (push (* 2 (row idx)) result -1)
+            (++ punti (* 2 (row idx)))
             (++ idx 2))  ; Salta un elemento aggiuntivo
           (begin
             (push (row idx) result -1)
@@ -1362,46 +1368,462 @@ Facciamo una partita:
 
 (new-game)
 ;-> Mosse: 0
+;-> Punti: 0
+;->    2    0    0    0
 ;->    0    0    0    0
-;->    0    0    0    0
-;->    2    2    0    0
-;->    0    0    0    0
-
-;-> left
-;-> Mosse: 1
-;->    0    0    2    0
-;->    0    0    0    0
-;->    4    0    0    0
-;->    0    0    0    0
-
-;-> up
-;-> Mosse: 2
-;->    4    2    2    0
-;->    0    0    0    0
-;->    0    0    0    0
+;->    0    2    0    0
 ;->    0    0    0    0
 
 ;-> right
-;-> Mosse: 3
-;->    0    0    4    4
+;-> Mosse: 1
+;-> Punti: 0
+;->    4    0    0    2
 ;->    0    0    0    0
+;->    0    0    0    2
 ;->    0    0    0    0
-;->    0    0    2    0
 
 ;-> down
-;-> Mosse: 4
+;-> Mosse: 2
+;-> Punti: 4
 ;->    0    0    0    0
 ;->    0    0    0    0
-;->    4    0    4    0
-;->    0    0    2    4
+;->    4    0    0    0
+;->    4    0    0    4
 
-;-> left
-;-> Mosse: 5
+;-> up
+;-> Mosse: 3
+;-> Punti: 12
+;->    8    0    0    4
+;->    0    0    0    0
 ;->    0    0    0    0
 ;->    0    0    2    0
-;->    0    0    0    8
-;->    0    0    2    4
+
+;-> left
+;-> Mosse: 4
+;-> Punti: 12
+;->    8    4    0    0
+;->    0    4    0    0
+;->    0    0    0    0
+;->    2    0    0    0
+
+;-> down
+;-> Mosse: 5
+;-> Punti: 20
+;->    0    0    0    0
+;->    0    0    0    0
+;->    8    0    0    4
+;->    2    8    0    0
 ;-> ...
+
+Mettiamo tutto insieme:
+
+(define (print-grid matrix)
+  (local (row col)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (print (format "%4d " (matrix i j)))
+      )
+      (println)) '>))
+;
+(define (new-game)
+  (setq N 4)
+  ; griglia di gioco (matrice)
+  (setq grid (array-list (array N N '(0))))
+  ; lista delle coordinate della griglia
+  (setq pts '())
+  (for (i 0 (- N 1))
+    (for (j 0 (- N 1))
+      (push (list i j) pts -1)))
+  ; inserisce il valore 2 in due caselle della griglia scelte a caso
+  (setq pts (randomize pts))
+  (setf (grid (pts 0)) 2)
+  (setf (grid (pts 1)) 2)
+  ;(setf (grid 0 0) 1024)
+  ;(setf (grid 1 0) 1024)
+  ; griglia precedente
+  (setq old grid)
+  ; numero mosse
+  (setq mosse 0)
+  ; punteggio
+  (setq punti 0)
+  (input))
+;
+(define (input)
+  (println "Mosse: " mosse)
+  (println "Punti: " punti)
+  (print-grid grid)
+  (setq key (read-key))
+  ;(println key { } (char key))
+  (case key
+    (87 (up))    (119 (up))
+    (65 (left))  (97  (left))
+    (85 (down))  (115 (down))
+    (68 (right)) (100 (right))
+    (48 (exit)) ; "0" --> esce dal gioco
+    (true (begin (println "Tasto errato.") (setq error true)))
+  )
+        ; vinto?
+  (cond ((ref 2048 grid) (println "Hai vinto."))
+        ; premuto un tasto errato
+        ((= error true) (setq error nil) (input))
+        ; perso?
+        ;((= grid old) (println "Hai perso."))
+        (true ; il gioco continua con il prossimo turno
+          ; Inserisce una nuova casella (2 o 4) nella griglia
+          ; lista delle coordinate vuote
+          (setq pts '())
+          (for (i 0 (- N 1))
+            (for (j 0 (- N 1))
+              (if (zero? (grid i j)) (push (list i j) pts -1))))
+          ; inserisce il valore 2 0 4 in una casella vuota (casuale)
+          (when (> (length pts) 0)
+            (setq pts (randomize pts))
+            (if (zero? (rand 2))
+                (setf (grid (pts 0)) 2)
+                (setf (grid (pts 0)) 4)))
+          ; input utente
+          (input))))
+;
+(define (shift-right row)
+  (let ((non-zero (filter (fn (x) (!= x 0)) row))
+        (zeroes (filter (fn (x) (= x 0)) row)))
+    (extend zeroes non-zero)))
+;
+(define (shift-left row)
+  (let ((non-zero (filter (fn (x) (!= x 0)) row))
+        (zeroes (filter (fn (x) (= x 0)) row)))
+    (extend non-zero zeroes)))
+;
+(define (matrix-right matrix) (map shift-right matrix))
+;
+(define (matrix-left matrix) (map shift-left matrix))
+;
+(define (matrix-down matrix)
+  (let (trans (transpose matrix))
+    (transpose (map shift-right trans))))
+;
+(define (matrix-up matrix)
+  (let (trans (transpose matrix))
+    (transpose (map shift-left trans))))
+;
+(define (merge-numbers row)
+  (let ( (result '()) (idx 0) (len (length row)) )
+    (while (< idx len)
+      (if (and (< idx (- len 1)) (= (row idx) (row (+ idx 1))))
+          (begin
+            (push (* 2 (row idx)) result -1)
+            (++ punti (* 2 (row idx)))
+            (++ idx 2))  ; Salta un elemento aggiuntivo
+          (begin
+            (push (row idx) result -1)
+            (++ idx 1))))
+    ; aggiunge gli 0 necessari per completare la riga
+    (extend result (dup 0 (- len (length result))))))
+;
+(define (matrix-merge matrix) (map merge-numbers matrix))
+;
+(define (right)
+  (println "right")
+  (setq old grid)
+  (++ mosse)
+  ; sposta i numeri a destra
+  (setq grid (matrix-right grid))
+  ; unisce i numeri
+  (setq grid (matrix-merge grid))
+  ; sposta i numeri a destra
+  (setq grid (matrix-right grid)))
+;
+(define (left)
+  (println "left")
+  (setq old grid)
+  (++ mosse)
+  (setq grid (matrix-left grid))
+  (setq grid (matrix-merge grid))
+  (setq grid (matrix-left grid)))
+;
+(define (up)
+  (println "up")
+  (setq old grid)
+  (++ mosse)
+  (setq grid (matrix-up grid))
+  (setq grid (transpose (matrix-merge (transpose grid))))
+  (setq grid (matrix-up grid)))
+;
+(define (down)
+  (println "down")
+  (setq old grid)
+  (++ mosse)
+  (setq grid (matrix-down grid))
+  (setq grid (transpose (matrix-merge (transpose grid))))
+  (setq grid (matrix-down grid)))
+
+
+;---------------------------------
+; Minimalistic 2048 (4x4)
+; Use "W" "A" "S" "D" key to move
+; (load "g2048.lsp")
+;---------------------------------
+(define (print-grid)
+  (for (i 0 3)
+    (for (j 0 3)
+      (print (format "%4d " (grid i j))))
+    (println)) '>)
+;
+(define (find-zeros)
+  (let (pts '())
+    (for (i 0 3)
+      (for (j 0 3)
+        (if (zero? (grid i j)) (push (list i j) pts -1)))) pts))
+;
+(define (new-game)
+  (setq grid (array-list (array 4 4 '(0))))
+  (setq zeros (randomize (find-zeros)))
+  (setf (grid (zeros 0)) 2)
+  (setf (grid (zeros 1)) 2)
+  (input))
+;
+(define (input)
+  (print-grid)
+  (case (setq key (read-key))
+    (87 (up))    (119 (up))
+    (65 (left))  (97  (left))
+    (85 (down))  (115 (down))
+    (68 (right)) (100 (right))
+    (48 (exit)) ; "0" --> quit the game
+    (true (begin (println "Wrong key.") (setq key-error true)))
+  )
+  (cond ((ref 2048 grid) (println "Bravo! You win.") (print-grid))
+        ((= key-error true) (setq key-error nil) (input))
+        (true
+          (setq zeros (randomize (find-zeros)))
+          (when zeros ; put 2 or 4 in a free cell
+            (if (zero? (rand 2))
+                (setf (grid (zeros 0)) 2)
+                (setf (grid (zeros 0)) 4)))
+          (input))))
+;
+(define (shift-right row)
+  (let ((non-zero (filter (fn (x) (!= x 0)) row))
+        (zeroes (filter (fn (x) (= x 0)) row)))
+    (extend zeroes non-zero)))
+;
+(define (shift-left row)
+  (let ((non-zero (filter (fn (x) (!= x 0)) row))
+        (zeroes (filter (fn (x) (= x 0)) row)))
+    (extend non-zero zeroes)))
+;
+(define (matrix-left matrix) (map shift-left matrix))
+;
+(define (matrix-right matrix) (map shift-right matrix))
+;
+(define (matrix-down matrix)
+  (let (trans (transpose matrix))
+    (transpose (map shift-right trans))))
+;
+(define (matrix-up matrix)
+  (let (trans (transpose matrix))
+    (transpose (map shift-left trans))))
+;
+(define (merge-numbers row)
+  (let ( (result '()) (idx 0) (len (length row)) )
+    (while (< idx len)
+      (if (and (< idx (- len 1)) (= (row idx) (row (+ idx 1))))
+          (begin
+            (push (* 2 (row idx)) result -1)
+            (++ idx 2))
+          (begin
+            (push (row idx) result -1)
+            (++ idx 1))))
+    (extend result (dup 0 (- len (length result))))))
+;
+(define (matrix-merge matrix) (map merge-numbers matrix))
+;
+(define (right)
+  (println "right")
+  (setq grid (matrix-right grid))  ; move the numbers to right
+  (setq grid (matrix-merge grid))  ; merge the numbers
+  (setq grid (matrix-right grid))) ; move the numbers to right
+;
+(define (left)
+  (println "left")
+  (setq grid (matrix-left grid))
+  (setq grid (matrix-merge grid))
+  (setq grid (matrix-left grid)))
+;
+(define (up)
+  (println "up")
+  (setq grid (matrix-up grid))
+  (setq grid (transpose (matrix-merge (transpose grid))))
+  (setq grid (matrix-up grid)))
+;
+(define (down)
+  (println "down")
+  (setq grid (matrix-down grid))
+  (setq grid (transpose (matrix-merge (transpose grid))))
+  (setq grid (matrix-down grid)))
+;
+(new-game)
+
+--------------------------------------------------------
+Funzione che restituisce risultati sempre diversi (UUID)
+--------------------------------------------------------
+
+Scrivere una funzione con le seguenti caratteristiche:
+
+1) ogni volta che viene lanciata produce risultati differenti
+2) su computer diversi produce risultati diversi
+3) non è possibile utilizzare le funzioni random (rand, random, amb, ecc.)
+
+La funzione è molto semplice perchè è una primitiva di newLISP: "uuid".
+
+*****************
+>>>funzione UUID
+*****************
+sintassi: (uuid [str-node])
+
+Costruisce e restituisce un UUID (Universally Unique IDentifier).
+Senza una specifica del nodo in str-node, viene restituito un numero di byte generato casualmente UUID di tipo 4.
+Quando il parametro opzionale str-node costruisce e restituisce un UUID (IDentifier univoco universale).
+Senza una specifica del nodo in str-node, viene restituito un numero di byte generato casualmente dall'UUID di tipo 4.
+Quando viene utilizzato il parametro facoltativo str-node, viene restituito un UUID di tipo 1.
+La stringa in str-node specifica un MAC (Media Access Code) valido da un adattatore di rete installato sul nodo o un ID nodo casuale.
+Quando viene specificato un ID nodo casuale, il bit meno significativo del primo byte del nodo deve essere impostato su 1 per evitare conflitti con gli identificatori MAC reali.
+Gli UUID di tipo 1 con ID nodo vengono generati da un timestamp e altri dati.
+Vedere RFC 4122 per dettagli sulla generazione dell'UUID.
+
+;; type 4 UUID for any system
+
+(uuid)
+;-> "493AAD61-266F-48A9-B99A-33941BEE3607"
+
+;; type 1 UUID preferred for distributed systems
+
+;; configure node ID for ether 00:14:51:0a:e0:bc
+(set 'id (pack "cccccc" 0x00 0x14 0x51 0x0a 0xe0 0xbc))
+
+(uuid  id)
+;-> "0749161C-2EC2-11DB-BBB2-0014510AE0BC"
+
+Ogni invocazione della funzione uuid produrrà un nuovo UUID univoco.
+Gli UUID vengono generati senza un archivio stabile condiviso a livello di sistema (vedere RFC 4122).
+Se il sistema che genera gli UUID è distribuito su più nodi, è necessario utilizzare la generazione di tipo 1 con un ID nodo diverso su ciascun nodo.
+Per più processi sullo stesso nodo sono garantiti UUID validi anche se richiesti contemporaneamente.
+Questo perché l'ID del processo di generazione newLISP fa parte del seed per il generatore di numeri casuali.
+Quando gli ID di tipo 4 vengono utilizzati su un sistema distribuito, due UUID identici sono ancora altamente improbabili e impossibili per gli ID di tipo 1 se vengono utilizzati indirizzi MAC reali.
+
+Quindi la nostra funzione è semplicemente:
+
+(define (what?) (uuid))
+
+Proviamo:
+
+(what?)
+;-> "60214143-18A3-42FB-9A76-90129C42CB41"
+(what?)
+;-> "251A2199-2C47-42E5-942F-C74E99377112"
+(what?)
+;-> "6B17694A-67A2-4B5A-8AAB-0D173D7DA762"
+(what?)
+;-> "321D0DD4-2926-458C-84EB-96366B6A4204"
+(what?)
+;-> "0E5718A8-22D4-4FF3-9DF3-4A24EA226C72"
+
+
+-------------------------------------
+Sequenze di numeri senza alcune cifre
+-------------------------------------
+
+Dati due numeri interi non negativi 'a' e 'b' con a < b e una lista di cifre diverse, scrivere una funzione che può generare tutti i numeri tra 'a' e 'b' che non contengono le cifre della lista oppure tutti i numeri tra 'a' e 'b' che contengono solo le cifre della lista (una o più).
+
+Esempio:
+a = 10
+b = 30
+cifre = (0 1 3)
+Output (non contengono le cifre) = (22 24 25 26 27 28 29)
+Output (contengono le cifre) = (10 11 13 30 31 33)
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+Funzione che genera tutti i numeri tra 'a' e 'b' che non contengono le cifre della lista data:
+
+(define (counter-without a b digits)
+  (local (seq lst lst-nums)
+    (setq seq (sequence a b))
+    (setq lst (map int-list seq))
+    ; filtra elementi di lst
+    ; per ogni elemento di lst (es. (2 0))
+    ; controlla se tutte le cifre non compaiono nella lista digits
+    (setq lst-nums (filter (fn(x)
+                              (for-all (fn(y) (nil? (ref y digits))) x)) lst))
+    ; converte le liste in numeri
+    (map list-int lst-nums)))
+
+(counter-without 10 40 '(0 1 3))
+;-> (22 24 25 26 27 28 29)
+
+Funzione che genera tutti i numeri tra 'a' e 'b' che contengono solo le cifre della lista data:
+
+(define (counter-with a b digits)
+  (local (seq lst lst-nums)
+    (setq seq (sequence a b))
+    (setq lst (map int-list seq))
+    ; filtra elementi di lst
+    ; per ogni elemento di lst (es. (2 0))
+    ; controlla se tutte le cifre compaiono nella lista digits
+    (setq lst-nums (filter (fn(x)
+                              (for-all (fn(y) (true? (ref y digits))) x)) lst))
+    ; converte le liste in numeri
+    (map list-int lst-nums)))
+
+(counter-with 10 40 '(0 1 3))
+;-> (10 11 13 30 31 33)
+
+Possiamo scrivere una funzione unica:
+
+(define (counter a b digits with-digits)
+  (local (seq lst lst-nums)
+    (setq seq (sequence a b))
+    (setq lst (map int-list seq))
+    (if with-digits
+      (setq lst-nums (filter (fn(x)
+                              (for-all (fn(y) (true? (ref y digits))) x)) lst))
+      ;else
+      (setq lst-nums (filter (fn(x)
+                              (for-all (fn(y) (nil? (ref y digits))) x)) lst))
+    )
+    ; converte le liste in numeri
+    (map list-int lst-nums)))
+
+Proviamo:
+
+(counter 10 40 '(0 1 3) true)
+;-> (10 11 13 30 31 33)
+
+(counter 10 40 '(0 1 3))
+;-> (22 24 25 26 27 28 29)
+
+(counter 1 1000 '(1 2 3 4 5 6 8 0))
+;-> (7 9 77 79 97 99 777 779 797 799 977 979 997 999)
+
+(counter 1 1000 '(1 2 3 4 5 6 8 0) true)
+;-> (1 2 3 4 5 6 8 10 11 12 13 14 15 16 18 20 21 22 23 24 25 26 28 30
+;->  31 32 33 34 35 36 38 40 41 42 43 44 45 46 48 50 51 52 53 54 55 56
+;->  ...
+;->  834 835 836 838 840 841 842 843 844 845 846 848 850 851 852 853 854
+;->  855 856 858 860 861 862 863 864 865 866 868 880 881 882 883 884 885
+;->  886 888 1000)
 
 ============================================================================
 

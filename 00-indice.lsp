@@ -2542,6 +2542,8 @@ NOTE LIBERE 25
   Puzzle esagonale di Aristotele
   Numeri pratici
   Il Gioco 2048
+  Funzione che restituisce risultati sempre diversi (UUID)
+  Sequenze di numeri senza alcune cifre
 
 PROBLEMI SUI DADI
 =================
