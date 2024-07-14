@@ -7190,7 +7190,7 @@ dove (b13) indica base 13
 (n42 6 9)
 ;-> "42"
 
-In C possiamo utilizzare il preprocessore dei #define:
+In C possiamo utilizzare il preprocessore con #define:
 
 #include <stdio.h>
 #define sei  1+5
@@ -7205,6 +7205,31 @@ int main()
 ;-> 6 x 9 = 42
 
 Nota: sei*nove ==> (1 + 5 * 8 + 1)
+
+La versione originale (Usenet 1993):
+
+#define SIX 1+5
+#define NINE 8+1
+
+main ()
+{
+printf ("6 * 9 is %d\n", SIX * NINE);
+}
+
+Versione moderna (MrLister 2014):
+
+#include <stdio.h>
+
+#define six  1+5
+#define nine 8+1
+
+int main()
+{
+    printf("what do you get when you multiply six by nine?\n");
+    printf("%i x %i = %i\n", six, nine, six*nine);
+}
+
+This program contains 42 different ASCII characters.
 
 
 ------------------------

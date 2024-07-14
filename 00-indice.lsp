@@ -2544,6 +2544,8 @@ NOTE LIBERE 25
   Il Gioco 2048
   Funzione che restituisce risultati sempre diversi (UUID)
   Sequenze di numeri senza alcune cifre
+  Complessità di Kolmogorov
+  Numeri weird (strani)
 
 PROBLEMI SUI DADI
 =================

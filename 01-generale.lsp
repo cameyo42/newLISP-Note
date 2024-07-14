@@ -6891,9 +6891,11 @@ nuevatec.com
 80
 → "80"
 
-Il secondo esempio mostra l'uso di opzioni extra, mentre il terzo esempio mostra l'analisi più complessa di due sottoespressioni che sono state contrassegnate da parentesi nel modello di ricerca. Nell'ultimo esempio, l'espressione e le sottoespressioni vengono recuperate utilizzando le variabili di sistema da $0 a $2 o la loro espressione equivalente ($0) a ($2).
+Il secondo esempio mostra l'uso di opzioni extra, mentre il terzo esempio mostra l'analisi più complessa di due sottoespressioni che sono state contrassegnate da parentesi nel modello di ricerca.
+Nell'ultimo esempio, l'espressione e le sottoespressioni vengono recuperate utilizzando le variabili di sistema da $0 a $2 o la loro espressione equivalente ($0) a ($2).
 
-Quando i caratteri "" (virgolette) vengono utilizzate per delimitare le stringhe che includono caratteri di backslash \, il carattere backslash deve essere raddoppiato nel modello di espressione regolare "\\". In alternativa, è possibile utilizzare i caratteri {} (parentesi graffe) o [testo] e [/ testo] (tag di testo) per delimitare le stringhe di testo. In questi casi, non sono richieste backslash aggiuntivi.
+Quando i caratteri "" (virgolette) vengono utilizzate per delimitare le stringhe che includono caratteri di backslash \, il carattere backslash deve essere raddoppiato nel modello di espressione regolare "\\".
+In alternativa, è possibile utilizzare i caratteri {} (parentesi graffe) o [testo] e [/ testo] (tag di testo) per delimitare le stringhe di testo. In questi casi, non sono richieste backslash aggiuntivi.
 
 I caratteri protetti con un backslash (escaped) in newLISP (ad esempio, il carattere quote \" o \n)" non devono essere raddoppiati in un modello di espressione regolare, che a sua volta è delimitato da virgolette.
 
@@ -6976,7 +6978,8 @@ Metacarattere   Significato
   ()            contengono una sottostringa
   []            contengono una 'classe' di caratteri
 
-Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escap backslash " \ ". Ad esempio, se volessimo ricercare il carattere punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
+Per utilizzare i metacaratteri come "valori letterali" devono essere preceduti dal carattere di escape backslash " \ ".
+Ad esempio, se volessimo ricercare il carattere punto interrogativo "?" all'interno di una stringa, dovremmo scrivere: \?
 
 Esaminiamo meglio i singoli metacaratteri.
 
@@ -7007,7 +7010,7 @@ i caratteri contenuti nella classe devono essere presenti zero o una volta;
 i caratteri contenuti nella classe devono essere presenti zero o più volte;
 
 [a-z0-9?]{3}
-i caratteri contenuti nella classe devonoo essere presenti esattamente tre volte;
+i caratteri contenuti nella classe devono essere presenti esattamente tre volte;
 
 [a-z0-9?]{1,3}
 i caratteri contenuti nella classe devono essere presenti da una a tre volte;

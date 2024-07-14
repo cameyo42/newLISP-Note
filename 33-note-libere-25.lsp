@@ -1825,5 +1825,143 @@ Proviamo:
 ;->  855 856 858 860 861 862 863 864 865 866 868 880 881 882 883 884 885
 ;->  886 888 1000)
 
+
+-------------------------
+Complessità di Kolmogorov
+-------------------------
+
+La complessità di Kolmogorov di un oggetto che può essere rappresentato come una sequenza di bit (es. un testo), è la lunghezza del più breve programma informatico (in un dato linguaggio di programmazione) che produce l'oggetto come output.
+In altre parole, è la quantità di informazione contenuta in una data oggetto x espressa come la lunghezza del più breve programma che stampa x e si arresta.
+
+Vediamo praticamente di cosa si tratta.
+Supponiamo di avere la stringa "11111111111111111111" cioè "1" ripetuto 20 volte.
+In newLISP penso che il più breve programma che stampi la stringa sia l'espressione:
+
+(dup "1" 20)
+;-> "11111111111111111111"
+
+L'espressione (dup "1" 20) è lunga 12 caratteri, quindi la complessità di Kolmogorov della stringa "11111111111111111111" vale 12 (unità di informazione) utilizzando il linguaggio newLISP.
+
+Nota: anche usando "print" il concetto rimane lo stesso, cambia solo la quantità di informazione dell'oggetto.
+
+Adesso supponiamo di avere le prime 50 cifre decimali di Pi Greco:
+
+  14159265358979323846264338327950288419716939937510
+
+non c'è modo di stampare questa stringa dall'aspetto casuale se non specificandola cifra per cifra.
+
+(print "14159265358979323846264338327950288419716939937510")
+;-> 14159265358979323846264338327950288419716939937510
+
+oppure:
+
+"14159265358979323846264338327950288419716939937510"
+;-> "14159265358979323846264338327950288419716939937510"
+
+oppure:
+
+14159265358979323846264338327950288419716939937510
+;-> 14159265358979323846264338327950288419716939937510L
+
+L'espressione (print "14159265358979323846264338327950288419716939937510") è lunga 61 caratteri (quantità di informazione), mentre l'oggetto è lungo 50 caratteri.
+
+Quindi, per un dato linguaggio, gli oggetti informatici rappresentabili possono essere di tre tipi:
+
+1) oggetti la cui quantità di informazione (complessità di Kolmogorov) è maggiore della loro rappresentazione.
+2) oggetti la cui quantità di informazione (complessità di Kolmogorov) è uguale alla loro rappresentazione.
+3) oggetti la cui quantità di informazione (complessità di Kolmogorov) è minore alla loro rappresentazione.
+
+
+---------------------
+Numeri weird (strani)
+---------------------
+
+Un numero weird (strano) è un numero la cui somma dei divisori propri è maggiore del numero stesso e nessun sottoinsieme di divisori propri somma a quel numero.
+
+Sequenza OEIS: A006037
+Weird numbers: abundant (A005101) but not pseudoperfect (A005835).
+  70, 836, 4030, 5830, 7192, 7912, 9272, 10430, 10570, 10792, 10990, 11410,
+  11690, 12110, 12530, 12670, 13370, 13510, 13790, 13930, 14770, 15610,
+  15890, 16030, 16310, 16730, 16870, 17272, 17570, 17990, 18410, 18830,
+  18970, 19390, 19670, ...
+
+Funzione che verifica se un dato numero N può essere espresso come somma di alcuni o tutti i numeri contenuti in una data lista:
+
+(define (sum-N-from-list? numbers N)
+  (let ((dp (dup nil (+ N 1)))
+        (used-numbers (dup nil (+ N 1))))
+    (setf (dp 0) true)
+    (dolist (num numbers)
+      (for (i N 0 -1)
+        (if (and (>= i num) (dp (- i num)))
+          (begin
+            (setf (dp i) true)
+            (if (not (used-numbers i))
+              (if (used-numbers (- i num))
+                (setf (used-numbers i) (append (used-numbers (- i num)) (list num)))
+                (setf (used-numbers i) (list num))))))))
+    (dp N)))
+
+Poi ci serve la funzione che calcola i divisori di un numero:
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(divisors 32)
+;-> (1 2 4 8 16 32)
+(divisors 13)
+;-> (1 13)
+
+Funzione che verifica se un dato numero è weird:
+
+(define (weird? N)
+  (let (divisori (divisors N))
+    (cond ((< (length divisori) 3) nil) ; 1 e numeri primi
+          (true
+            (pop divisori -1) ; solo divisori propri
+            (and (> (apply + divisori) N)
+                    (not (sum-N-from-list? divisori N)))))))
+
+Proviamo:
+
+(weird? 70)
+;-> true
+
+(weird? 21)
+;-> nil
+
+(filter weird? (sequence 1 1000))
+;-> (70 836)
+
+La funzione è molto lenta:
+
+(time (println (filter weird? (sequence 1 1e4))))
+;-> (70 836 4030 5830 7192 7912 9272)
+;-> 9540315.664999999   ; 2h 39m 316ms
+
 ============================================================================
 
