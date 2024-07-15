@@ -2435,7 +2435,7 @@ NOTE LIBERE 23
   Percentuale degli elementi di una lista
   Il gioco dell'eliminazione
   Creazione automatica di espressioni con CAR e CDR
-  Programma che aumenta di dimensione
+  Funzione che aumenta di dimensione
   La funzione "nest"
   Uscita anticipata da funzioni, cicli e blocchi
   Somma massima di una sottolista (Maximum Subarray Sum Problem)
@@ -2590,7 +2590,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (286 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (287 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

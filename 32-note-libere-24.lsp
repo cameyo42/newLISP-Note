@@ -3764,7 +3764,8 @@ Sequenza = (N-4 2 1) + [(N-7) volte 0] + (1 0 0 0)
 Dimostrazione di xnor:
 https://codegolf.stackexchange.com/questions/50151/magic-sequences-of-length-n
 
-Funzione che calcola la sequenza magica per un numero n:
+Funzione che calcola la sequenza magica per un numero N:
+
 (define (magic-sequence N)
   (cond ((= N 4) '(1 2 1 0))
         ((= N 5) '(2 1 2 0 0))

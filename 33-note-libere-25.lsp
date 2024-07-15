@@ -903,10 +903,10 @@ Proviamo:
 (sum-N-from-list? lst 35)
 ;-> (nil nil)
 
-(sum-N-from-list? numbers 3)
+(sum-N-from-list? lst 3)
 ;-> (true (3))
 
-(sum-N-from-list? numbers 0)
+(sum-N-from-list? lst 0)
 ;-> (true nil)
 
 (sum-N-from-list? '(1 1 1 1 1 1) 6)
@@ -934,6 +934,8 @@ Comunque, in questo caso, a noi interessa solo se N può essere rappresentato co
                 (setf (used-numbers i) (append (used-numbers (- i num)) (list num)))
                 (setf (used-numbers i) (list num))))))))
     (dp N)))
+
+Nota: vedi "Numeri weird (strani)" su "Note libere 25" per una funzione "sum-N-from-list?" molto più veloce che usa i vettori.
 
 Poi ci serve la funzione che calcola i divisori di un numero:
 
@@ -1100,7 +1102,7 @@ Il Gioco 2048
 
 A 2048 si gioca su una semplice griglia di formato 4×4 in cui scorrono caselle di colori diversi, con numeri diversi (tutti i numeri sono potenze di 2), senza intralci quando un giocatore le muove.
 All'inizio delgioco nella griglia ci sono solo due caselle con il numero 2, tutte le altre caselle valgono 0.
-Il gioco usa alcuni tasti della tastiera per spostare tutte le caselle a sinistra o a destra oppure in alto o in basso. 
+Il gioco usa alcuni tasti della tastiera per spostare tutte le caselle a sinistra o a destra oppure in alto o in basso.
 Se due caselle contenenti lo stesso numero si scontrano mentre si muovono, si fondono in un'unica casella che avrà come numero la somma delle due tessere.
 Ad ogni turno, una nuova tessera con il valore di 2 o 4 apparirà in modo casuale in una casella vuota dela griglia.
 Il punteggio del giocatore inizia da zero e viene incrementato ogni volta che due tessere si combinano, con il valore della nuova casella.
@@ -1877,6 +1879,14 @@ Numeri weird (strani)
 ---------------------
 
 Un numero weird (strano) è un numero la cui somma dei divisori propri è maggiore del numero stesso e nessun sottoinsieme di divisori propri somma a quel numero.
+Esempi:
+N = 70
+divisori propri = (1 2 5 7 10 14 35)
+Poichè la somma dei divisori (74) è maggiore di 70 e nessuna somma dei divisori porta a 70, allora il numero 70 è weird.
+
+N = 18
+divisori propri = (1 2 3 6 9)
+In questo caso, la somma dei divisori (21) è maggiore di 18, ma 9 + 6 + 3 = 18, quindi il numero 18 non è weird.
 
 Sequenza OEIS: A006037
 Weird numbers: abundant (A005101) but not pseudoperfect (A005835).
@@ -1954,14 +1964,75 @@ Proviamo:
 (weird? 21)
 ;-> nil
 
-(filter weird? (sequence 1 1000))
+(time (println (filter weird? (sequence 1 1000))))
 ;-> (70 836)
+;-> 1828.362
 
 La funzione è molto lenta:
+
+(time (println (filter weird? (sequence 1 2000))))
+;-> (70 836)
+;-> 29471.311
 
 (time (println (filter weird? (sequence 1 1e4))))
 ;-> (70 836 4030 5830 7192 7912 9272)
 ;-> 9540315.664999999   ; 2h 39m 316ms
+
+Usiamo i vettori al posto delle liste nella funzione "sum-N-from-list?":
+
+(define (sum-N-from-list? numbers N)
+  (let ( (dp (array (+ N 1) (dup nil (+ N 1))))
+         (used-numbers (array (+ N 1) (dup nil (+ N 1)))) )
+    (setf (dp 0) true)
+    (dolist (num numbers)
+      (for (i N 0 -1)
+        (if (and (>= i num) (dp (- i num)))
+          (begin
+            (setf (dp i) true)
+            (if (not (used-numbers i))
+              (if (used-numbers (- i num))
+                (setf (used-numbers i) (append (used-numbers (- i num)) (list num)))
+                (setf (used-numbers i) (list num))))))))
+    (dp N)))
+
+Proviamo:
+
+(time (println (filter weird? (sequence 1 1000))))
+;-> (70 836)
+;-> 235.345
+
+(time (println (filter weird? (sequence 1 2000))))
+;-> (70 836)
+;-> 1015.412
+
+(time (println (filter weird? (sequence 1 1e4))))
+;-> (70 836 4030 5830 7192 7912 9272)
+;-> 33133.63
+
+In quest'ultimo caso la funzione è 300 volte più veloce (circa).
+Ma non andiamo tanto lontano...
+
+(time (println (filter weird? (sequence 1 1e5))))
+;-> (70 836 4030 5830 7192 7912 9272 10430 10570 10792 10990 11410 11690
+;->  12110 12530 12670 13370 13510 13790 13930 14770 15610 15890 16030 
+;->  16310 16730 16870 17272 17570 17990 18410 18830 18970 19390 19670 
+;->  19810 20510 21490 21770 21910 22190 23170 23590 24290 24430 24710 
+;->  25130 25690 26110 26530 26810 27230 27790 28070 28630 29330 29470
+;->  30170 30310 30730 31010 31430 31990 32270 32410 32690 33530 34090
+;->  34370 34930 35210 35630 36470 36610 37870 38290 38990 39410 39830
+;->  39970 40390 41090 41510 41930 42070 42490 42910 43190 43330 44170
+;->  44870 45010 45290 45356 45710 46130 46270 47110 47390 47810 48370
+;->  49070 49630 50330 50890 51310 51730 52010 52570 52990 53270 53830
+;->  54110 55090 55790 56630 56770 57470 57610 57890 58030 58730 59710
+;->  59990 60130 60410 61390 61670 61810 62090 63490 63770 64330 65030
+;->  65590 65870 66290 66710 67690 67970 68390 68810 69370 69790 70630
+;->  70910 71330 71470 72170 72310 72730 73430 73570 73616 74270 74410
+;->  74830 76090 76370 76510 76790 77210 77630 78190 78610 79030 80570
+;->  80710 81410 81970 82670 83090 83312 83510 84070 84910 85190 85610
+;->  86030 86170 86590 87430 88130 89390 89530 89810 90230 90370 90790
+;->  91070 91210 91388 91490 92330 92470 92890 95270 95690 96110 96670
+;->  97930 98630 99610 99890)
+;-> 8827901.413000001   ; 2h 27m 7s 901ms
 
 ============================================================================
 

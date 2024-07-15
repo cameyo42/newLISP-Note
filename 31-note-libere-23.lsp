@@ -5357,9 +5357,9 @@ Proviamo:
 ;-> 1
 
 
------------------------------------
-Programma che aumenta di dimensione
------------------------------------
+----------------------------------
+Funzione che aumenta di dimensione
+----------------------------------
 
 Scrivere una funzione che ogni volta che viene chiamata aumenta di tanti caratteri quanti sono quelli del parametro passato.
 

@@ -3265,7 +3265,7 @@ Problema 26
 
 Periodo dei numeri reciproci
 
-Una frazione unitaria contiene 1 nel numeratore. La rappresentazione decimale delle frazioni unitarie con i denominatori da 2 a 10 è data:
+Una frazione unitaria contiene 1 al numeratore. La rappresentazione decimale delle frazioni unitarie con i denominatori da 2 a 10 è data:
 
 1/2 =  0.5
 1/3 =  0.(3)
@@ -3279,7 +3279,7 @@ Una frazione unitaria contiene 1 nel numeratore. La rappresentazione decimale de
 
 Dove 0.1 (6) significa 0.166666 ... e ha un ciclo ricorrente di 1 cifra. Si può vedere che 1/7 ha un ciclo ricorrente di 6 cifre.
 
-Trova il valore di d <1000 per cui 1 / d contiene il ciclo ricorrente più lungo nella sua parte della frazione decimale.
+Trova il valore di d < 1000 per cui 1/d contiene il ciclo ricorrente più lungo nella sua parte della frazione decimale.
 ============================================================================
 
 Calcoliamo i resti della divisione, quando troviamo lo stesso resto per la seconda volta, allora abbiamo trovato un ciclo (se il rsto è diverso da zero.
