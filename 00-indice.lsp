@@ -2546,6 +2546,10 @@ NOTE LIBERE 25
   Sequenze di numeri senza alcune cifre
   Complessità di Kolmogorov
   Numeri weird (strani)
+  42: the answer to life the universe and everything
+  Funzione che ingrassa
+  Perimetro massimo e minimo di un rettangolo con area predefinita
+  Periodo e antiperiodo della divisione di due interi M/N
 
 PROBLEMI SUI DADI
 =================

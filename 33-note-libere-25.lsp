@@ -2034,5 +2034,208 @@ Ma non andiamo tanto lontano...
 ;->  97930 98630 99610 99890)
 ;-> 8827901.413000001   ; 2h 27m 7s 901ms
 
+
+--------------------------------------------------
+42: the answer to life the universe and everything
+--------------------------------------------------
+
+Nel libro "Guida galattica per gli autostoppisti" di Douglas Adams, il computer Deep Thought (Pensiero Profondo) ha calcolato la risposta alla Domanda Fondamentale sulla Vita, l'Universo e Tutto Quanto ("answer to life the universe and everything") impiegando un periodo di 7.5 milioni di anni...
+La risposta è 42.
+
+Nota: 6(13) * 9(13) = 42(13) (base 13)
+
+Scrivere una funzione che richiede circa 7.5 secondi per generare il numero 42.
+Regole:
+1) non è possibile codificare il numero 42 direttamente nel codice, cioè deve essere calcolato nel modo più inventivo possibile
+2) non è possibile usare la funzione "sleep", cioè non è possibile "sospendere" la funzione per un determinato periodo di tempo.
+
+N.B. Il numero 42 deve essere calcolato in qualche modo (numeri casuali, qualunque cosa tu preferisca), non solo codificato nel tuo script.
+
+(define (quarantadue)
+  (letn ( (start (time-of-day))
+          (end (+ start 7500)) )
+        (until (< end (time-of-day))
+          (if (!= val 42)
+              (setq val (apply amb (sequence 0 100)))))
+        (if (= val 42) val nil)))
+
+(time (println (quarantadue)))
+;-> 42
+;-> 7500.211
+
+
+---------------------
+Funzione che ingrassa
+---------------------
+
+Scrivere una funzione che quando viene eseguita aumenta sempre di dimensione e stampa la funzione aumentata.
+
+Sfruttiamo una particolarità della funzione "extend" che modifica il valore "in-place".
+Se "extend" viene usata senza un simbolo iniziale, allora modifica la funzione con il valore dell'espressione.
+
+(define (fat)
+  (extend "" (string (rand 10)))
+  (println fat) '>)
+
+Proviamo:
+
+(fat)
+;-> (lambda () (extend "2" (string (rand 10))) (println fat) '>)
+
+(fat)
+;-> (lambda () (extend "21" (string (rand 10))) (println fat) '>)
+
+(fat)
+;-> (lambda () (extend "216" (string (rand 10))) (println fat) '>)
+
+(fat)
+;-> (lambda () (extend "2161" (string (rand 10))) (println fat) '>)
+
+(fat)
+;-> (lambda () (extend "21616" (string (rand 10))) (println fat) '>)
+
+(fat)
+;-> (lambda () (extend "216164" (string (rand 10))) (println fat) '>)
+
+(fat)
+;-> (lambda () (extend "2161647" (string (rand 10))) (println fat) '>)
+
+
+----------------------------------------------------------------
+Perimetro massimo e minimo di un rettangolo con area predefinita
+----------------------------------------------------------------
+
+Dato un numero intero che rappresenta l'area di un rettangolo, trovare i valori di base e altezza che minimizzano/massimizzano il perimetro del rettangolo.
+
+(define (perim-min-max area)
+  (local (pmin pmax xmin ymin xmax ymax y p)
+    (setq pmin 1e99) (setq pmax 0)
+    (setq xmin 1e99) (setq ymin 1e99)
+    (setq xmax 0) (setq ymax 0)
+    (for (x 1 area)
+      (when (zero? (% area x)) ; trovato un y possibile?
+        (setq y (/ area x))
+        (setq p (* 2 (+ x y)))
+        (if (< p pmin) (set 'pmin p 'xmin x 'ymin y))
+        (if (> p pmax) (set 'pmax p 'xmax x 'ymax y))
+        ;(println x { } y { } p { } pmin { } pmax)
+      )
+    )
+    (list (list xmin ymin (* 2 (+ xmin ymin)))
+          (list xmax ymax (* 2 (+ xmax ymax))))))
+
+Proviamo:
+
+(perim-min-max 49)
+;-> ((7 7 28) (1 49 100))
+
+(perim-min-max 83)
+;-> ((1 83 168) (1 83 168))
+
+(perim-min-max 84)
+;-> ((7 12 38) (1 84 170))
+
+(perim-min-max 25)
+;-> ((5 5 20) (1 25 52))
+
+(time (println (perim-min-max 987654321)))
+;-> ((2601 379721 764644) (1 987654321 1975308644))
+;-> 50041.141
+
+----------------------------------------------------------------
+Periodo e antiperiodo della divisione decimale di due interi M/N
+----------------------------------------------------------------
+
+Dati due numeri interi M e N, determinare il periodo e l'antiperiodo della divisione decimale M/N.
+
+Esempi:
+
+  M = 13, N = 12
+  (div 13 12)
+  ;-> 1.083333333333333
+  periodo = 3
+  antiperiodo = 08
+
+  M = 1, N = 7
+  (div 1 7)
+  0.1428571428571429
+  periodo = 142857
+  periodo = nil
+
+Algoritmo:
+   1. Inizializzare liste vuote per 'resti`, 'cifre' e 'indici`.
+   2. Calcolare il resto iniziale della divisione M/N).
+   3. Usare un ciclo 'while' per continuare a calcolare i resti e i valori decimali finché non si trova un resto ripetuto.
+   4. Aggiungere l'ultima cifra decimale (che segue il periodo).
+   5. Aggiungere l'ultimo resto.
+   6. Usare 'ref-all' per trovare gli indici delle cifre periodiche (dai 'resti').
+   7. Convertire le cifre raccolte in una stringa 'decimali`.
+   8. Calcolare il periodo estraendo la parte ripetuta dalla stringa 'decimali`.
+   9. Calcolare l'antiperiodo estraendo la parte non ripetuta dalla stringa 'decimali`.
+  10. Comporre la stringa finale che rappresenta la frazione decimale con il periodo tra parentesi.
+
+Funzione che calcola il periodo e l'antiperiodo della frazione decimale M/N:
+
+(define (periodo-decimale M N)
+  (let ( (resti '())
+         (cifre '())
+         (indici '())
+         (resto (mod M N))
+         (decimali "")
+         (periodo "")
+         (antiperiodo "") )
+    ; ciclo fino a che i resti sono diversi
+    (while (not (member resto resti))
+      (push resto resti -1)
+      (push (floor (/ (* resto 10) N)) cifre -1)
+      (setq resto (mod (* resto 10) N)))
+    ; cifra seguente il periodo
+    (push (floor (/ (* resto 10) N)) cifre -1)
+    ; ultimo resto (uguale ad un resto precedente)
+    (push resto resti -1)
+    ; trova gli indici del periodo (dalla lista dei resti)
+    (setq idx (ref-all (resti -1) resti))
+    ; crea la stringa con tutti i decimali
+    (setq decimali (join (map string cifre)))
+    ; calcola il periodo
+    (setq periodo (slice decimali (idx 0 0) (- (idx 1 0) (idx 0 0))))
+    ; calcola l'antiperiodo
+    (setq antiperiodo (slice decimali 0 (idx 0 0)))
+    ; crea la stringa di output
+    (string (/ M N) "." antiperiodo "(" periodo ")")))
+
+Proviamo:
+
+(periodo-decimale 13 12)
+;-> "1.08(3)"
+
+(periodo-decimale 1 7)
+;-> "0.(142857)"
+
+(periodo-decimale 4 4)
+;-> "1.(0)"
+
+(periodo-decimale 1 4)
+;-> "0.25(0)"
+
+(periodo-decimale 8 4)
+;-> "2.(0)"
+
+(periodo-decimale 1 983)
+;-> "0.(00101729399796541200406917599186164801627670396744659206510681586978
+;-> 636826042726347914547304170905391658189216683621566632756866734486266531
+;-> 027466937945066124109867751780264496439471007121057985757884028484231943
+;-> 031536113936927772126144455747711088504577822990844354018311291963377416
+;-> 073245167853509664292980671414038657171922685656154628687690742624618514
+;-> 750762970498474059003051881993896236012207527975584944048830111902339776
+;-> 195320447609359104781281790437436419125127161749745676500508646998982706
+;-> 002034587995930824008138351983723296032553407934893184130213631739572736
+;-> 520854526958290946083418107833163784333672431332655137334689725330620549
+;-> 338758901322482197355035605289928789420142421159715157680569684638860630
+;-> 722278738555442522889114954221770091556459816887080366225839267548321464
+;-> 903357070193285859613428280773143438453713123092573753814852492370295015
+;-> 259409969481180061037639877924720244150559511698880976602238046795523906
+;-> 40895218718209562563580874872838250254323499491353)"
+
 ============================================================================
 
