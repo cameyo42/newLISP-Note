@@ -2550,6 +2550,8 @@ NOTE LIBERE 25
   Funzione che ingrassa
   Perimetro massimo e minimo di un rettangolo con area predefinita
   Periodo e antiperiodo della divisione di due interi M/N
+  Stringhe con tutte le vocali
+  Ordinamento alternato di una lista
 
 PROBLEMI SUI DADI
 =================

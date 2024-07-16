@@ -2142,6 +2142,94 @@ Proviamo:
 ;-> ((2601 379721 764644) (1 987654321 1975308644))
 ;-> 50041.141
 
+Questo problema è in relazione con le seguenti due sequenze:
+
+Sequenza OEIS: A033676
+Largest divisor of n <= sqrt(n)
+  1, 1, 1, 2, 1, 2, 1, 2, 3, 2, 1, 3, 1, 2, 3, 4, 1, 3, 1, 4, 3, 2, 1, 4,
+  5, 2, 3, 4, 1, 5, 1, 4, 3, 2, 5, 6, 1, 2, 3, 5, 1, 6, 1, 4, 5, 2, 1, 6,
+  7, 5, 3, 4, 1, 6, 5, 7, 3, 2, 1, 6, 1, 2, 7, 8, 5, 6, 1, 4, 3, 7, 1, 8,
+  1, 2, 5, 4, 7, 6, 1, 8, 9, 2, 1, 7, 5, 2, 3, ...
+
+Sequenza OEIS: A033677
+Smallest divisor of n >= sqrt(n)
+  1, 2, 3, 2, 5, 3, 7, 4, 3, 5, 11, 4, 13, 7, 5, 4, 17, 6, 19, 5, 7, 11, 23,
+  6, 5, 13, 9, 7, 29, 6, 31, 8, 11, 17, 7, 6, 37, 19, 13, 8, 41, 7, 43, 11,
+  9, 23, 47, 8, 7, 10, 17, 13, 53, 9, 11, 8, 19, 29, 59, 10, 61, 31, 9, 8,
+  13, 11, 67, 17, 23, 10, 71, 9, 73, 37, 15, 19, 11, 13, 79, 10, ...
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))
+         ))))
+
+(define (A033676 num)
+  (if (= num 1) 1
+  ;else
+    (local (divisori soglia stop)
+      (setq divisori (divisors num))
+      ;(pop divisori -1)
+      (setq soglia (sqrt num))
+      (setq stop nil)
+      ; per trovare il più grande divisore di num <= a sqrt(num)
+      ; partiamo con il divisore più grande
+      (dolist (d (reverse divisori) stop)
+        (when (<= d soglia)
+          (setq out d) (setq stop true)))
+    out)))
+
+Proviamo:
+
+(map A033676 (sequence 1 50))
+;-> (1 1 1 2 1 2 1 2 3 2 1 3 1 2 3 4 1 3 1 4 3 2 1 4
+;->  5 2 3 4 1 5 1 4 3 2 5 6 1 2 3 5 1 6 1 4 5 2 1 6
+;->  7 5)
+
+(define (A033677 num)
+  (if (= num 1) 1
+  ;else
+    (local (divisori soglia stop)
+      (setq divisori (divisors num))
+      ;(pop divisori -1)
+      (setq soglia (sqrt num))
+      (setq stop nil)
+      ; per trovare il più piccolo divisore di num >= a sqrt(num)
+      ; partiamo con il divisore più piccolo
+      (dolist (d divisori stop)
+        (when (>= d soglia)
+          (setq out d) (setq stop true)))
+    out)))
+
+Proviamo:
+
+(map A033677 (sequence 1 50))
+;-> (1 2 3 2 5 3 7 4 3 5 11 4 13 7 5 4 17 6 19 5 7 11 23
+;->  6 5 13 9 7 29 6 31 8 11 17 7 6 37 19 13 8 41 7 43 11
+;->  9 23 47 8 7 10)
+
+
 ----------------------------------------------------------------
 Periodo e antiperiodo della divisione decimale di due interi M/N
 ----------------------------------------------------------------
@@ -2236,6 +2324,120 @@ Proviamo:
 ;-> 903357070193285859613428280773143438453713123092573753814852492370295015
 ;-> 259409969481180061037639877924720244150559511698880976602238046795523906
 ;-> 40895218718209562563580874872838250254323499491353)"
+
+Per convertire un numero decimale in una frazione vedi "Frazione generatrice" su "Problemi vari".
+
+
+----------------------------
+Stringhe con tutte le vocali
+----------------------------
+
+Data una stringa determinare se contiene tutte le vocali (a e i o u) almeno una volta.
+
+(define (vowel? str)
+  (not (ref 0 (count '("a" "e" "i" "o" "u") (explode str)))))
+
+(vowel? "aiuole")
+;-> true
+(vowel? "ambarabaciccicocco")
+;-> nil
+
+Funzione che trova le parole con tutte le vocali in un file che contiene una parola per riga:
+
+(define (find-vowel-words filename)
+  (local (out file-str)
+    (setq out '())
+    (setq file-str (open filename "read"))
+    (while (read-line file-str)
+      (if (vowel? (current-line)) (push (current-line) out -1)))
+    (close file-str)
+    out))
+
+Proviamo con un file di parole inglesi:
+
+(find-vowel-words "unixdict.txt")
+;-> ("adventitious" "aeronautic" "ambidextrous" "argillaceous" "argumentation"
+;->  "auctioneer" "audiotape" "augmentation" "aureomycin" "authoritative" 
+;->  "autocollimate" "automobile" "automotive" "autosuggestible" "beaujolais"
+;->  "bimolecular" "boardinghouse" "cauliflower" "coeducation" "colatitude" 
+;->  "communicable" "communicate" "consanguine" "consanguineous" 
+;-> ...
+;->  "questionnaire" "refutation" "reputation" "revolutionary" "sacrilegious"
+;->  "sanguineous" "sequestration" "sequoia" "simultaneous" "stupefaction"
+;->  "sulfonamide" "tambourine" "telecommunicate" "tenacious" "tetrafluoride"
+;->  "tetrafluouride" "unidimensional" "unidirectional" "veracious"
+;->  "vexatious")
+
+(length (find-vowel-words "unixdict.txt"))
+;-> 122
+
+Proviamo con un file di parole italiane:
+
+(find-vowel-words "60000_parole_italiane.txt")
+;-> ("abitueremo" "abituero" "abiureremo" "abiurero" "abluzione" "accentuino"
+;->  "accumulazione" "acquedotti" "acquietano" "acquietato" "acquietavo"
+;->  "acquietero" "acquietino" "acquieto" "acquistero" "adeguiamo" "adeguino"
+;->  "adulazione" "adulterino" "adulterio" "affettuosi" "aggiungendo"
+;->  "aggiungero'" "aggiustero" "aiuole" "aiutassero" "aiuteranno" 
+;->  ...
+;->  "universitario" "univocamente" "urbanesimo" "ustionare" "ustionasse"
+;->  "ustionaste" "ustionate" "ustionera" "ustionerai" "ustioniate"
+;->  "valutazione" "visualizzazione" "vituperano" "vituperato" "vituperavo"
+;->  "vuoterai" "vuotiate" "zuffolerai") 
+
+(length (find-vowel-words "60000_parole_italiane.txt"))
+;-> 319
+
+
+----------------------------------
+Ordinamento alternato di una lista
+----------------------------------
+
+Data una lista di numeri interi tutti diversi creare una lista ordinata in modo alternato, cioè il primo numero è minore del secondo, il secondo è maggiore del terzo, il terzo è minore del quarto e cosi via.
+
+Per esempio:
+lista = (3 5 2 4 1 8)
+output = (5 3 4 2 8 1) (uno dei diversi possibili output)
+
+Algoritmo
+Per ogni elemento della lista:
+inserire l'elemento corrente alla fine o alla penultima posizione della lista ordinata in base a un confronto con l'ultimo elemento della lista ordinata corrente.
+
+Esempio:
+  lista =  1 4 9 2 7 5 3 8 6
+  Posizionare 1 alla fine: lista corrente (1)
+  (4 > 1)? vero  quindi posizionare 4 alla fine: lista corrente (1 4)
+  (9 < 4)? falso quindi posizionare 9 alla penultima posizione: (1 9 4)
+  (2 > 4)? falso quindi posizionare 2 al penultimo: (1 9 2 4)
+  (7 < 4)? falso quindi posizionare 7 al penultimo: (1 9 2 7 4)
+  (5 > 4)? vero  quindi posizionare 5 alla fine: (1 9 2 7 4 5)
+  (3 < 5)? vero  quindi posizionare 3 alla fine: (1 9 2 7 4 5 3)
+  (8 > 3)? vero  quindi posizionare 8 alla fine: (1 9 2 7 4 5 3 8)
+  (6 < 8)? vero  quindi posizionare 6 alla fine: (1 9 2 7 4 5 3 8 6)
+
+Da notare che i test di disuguaglianza si alternano e che si inserisce alla fine se l'uguaglianza è vera, o alla penultima posizione se è falsa.
+
+(define (alterna lst)
+  (setq out (list (lst 0)))
+  (for (i 1 (- (length lst) 1))
+    (when (odd? i)
+      (if (> (lst i) (out -1))
+          (push (lst i) out -1)
+          (push (lst i) out -2)))
+    (when (even? i)
+      (if (< (lst i) (out -1))
+          (push (lst i) out -1)
+          (push (lst i) out -2)))
+  )
+  out)
+
+Proviamo:
+
+(alterna '(1 4 9 2 7 5 3 8 6))
+;-> (1 9 2 7 4 5 3 8 6)
+
+(alterna (sequence 1 25))
+;-> (1 3 2 5 4 7 6 9 8 11 10 13 12 15 14 17 16 19 18 21 20 23 22 25 24)
 
 ============================================================================
 
