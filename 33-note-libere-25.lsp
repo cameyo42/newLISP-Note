@@ -2439,5 +2439,166 @@ Proviamo:
 (alterna (sequence 1 25))
 ;-> (1 3 2 5 4 7 6 9 8 11 10 13 12 15 14 17 16 19 18 21 20 23 22 25 24)
 
+
+---------------------------------------------
+Verificare se due liste sono ruotate tra loro
+---------------------------------------------
+
+Date due liste scrivere una funzione che verifica se una lista è uguale ad una rotazione dell'altra.
+
+Esempi:
+  L1 = (1 2 3 4 5)
+  L2 = (4 5 1 2 3)
+  L1 è una rotazione di L2 (e L2 è una rotazione di L1)
+
+  L1 = (1 2 3 4)
+  L2 = (1 2 3)
+  L1 non è una rotazione di L2 (e viceversa)
+
+  L1 = (1 2 3 4)
+  L2 = (5 1 2 3)
+  L1 non è una rotazione di L2 (e viceversa)
+
+Affinchè due liste possano essere la rotazione una dell'altra occorre che le seguenti condizioni siano vere:
+1) la lunghezza delle due liste deve essere uguale
+2) gli elementi delle due liste devono avere gli stessi valori
+Poi bisogna controllare se una rotazione della prima lista di x posti (con x che va da 0 alla lunghezza della lista) è uguale alla seconda lista.
+
+Funzione che verifica se due liste sono shiftate/ruotate tra loro:
+
+(define (shifted? lst1 lst2)
+  (let ((len1 (length lst1))
+        (len2 (length lst2)))
+    (cond ((!= len1 len2) nil) ; lunghezze diverse?
+          ;((!= (difference lst1 lst2) '()) nil) ; elementi con valori diversi?
+          (true ; controllo di tutte le rotazioni 
+            (setq shiftate nil)
+            (for (i 0 (- len1 1) 1 shiftate)
+              (if (= (rotate (copy lst1) i) lst2) (setq shiftate true))
+            )
+            shiftate))))
+
+Proviamo:
+
+(setq lista1 '(1 2 3 4 5))
+(setq lista2 '(4 5 1 2 3))
+(shifted? lista1 lista2)
+;-> true
+
+(shifted? '(1 2 3 4) '(1 2 3))
+;-> nil
+(shifted? '(1 2 3 4) '(5 1 2 3))
+;-> nil
+
+
+----------------------------------
+Parole collegate in modo circolare
+----------------------------------
+
+Data una lista di N parole (stringhe) con N<=10, ordinarle, se possibile, in modo che:
+
+1) la prima lettera della prima parola è uguale all'ultima lettera dell'ultima parola
+2) l'ultima lettera della prima parola è uguale alla prima lettera della seconda parola
+3) l'ultima lettera della seconda parola è uguale alla prima lettera della terza parola
+4) e cosi via.
+
+Esempio:
+  parole = abaco orsi indiana
+  ordinamento = IndianA AbacO OrsI
+
+Notare che le rotazioni di un ordinamento sono equivalenti:
+1) indiana abaco orsi
+2) abaco orsi indiana
+3) orsi indiana abaco
+e non devono essere considerate come soluzioni diverse.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Funzione che verifica se due liste sono shiftate/ruotate tra loro:
+
+(define (shifted? lst1 lst2)
+  (let ((len1 (length lst1))
+        (len2 (length lst2)))
+    (cond ((!= len1 len2) nil)
+          ;((!= (difference lst1 lst2) '()) nil)
+          (true
+            (setq shiftate nil)
+            (for (i 0 (- len1 1) 1 shiftate)
+              (if (= (rotate (copy lst1) i) lst2) (setq shiftate true))
+            )
+            shiftate))))
+
+(setq lista1 '(1 2 3 4 5))
+(setq lista2 '(4 5 1 2 3))
+(shifted? lista1 lista2)
+;-> true
+
+Funzione che genera l'ordinamento circolare di una lista di parole:
+
+(define (circolare lst)
+  (local (permute sol wrong)
+    (setq permute (perm lst))
+    (setq sol '())
+    (dolist (p permute)
+      (setq wrong nil)
+      ; (prima lettera prima parola = ultima lettera ultima parola) ?
+      (if (!= ((p 0) 0) ((p -1) -1)) (setq wrong true))
+      ; ciclo sulla permutazione corrente
+      (for (i 1 (- (length lst) 1) 1 wrong)
+        ; (prima lettera parola corrente = ultima lettera parola precedente) ?
+        (if (!= ((p i) 0) ((p (- i 1)) -1)) (setq wrong true)))
+      ; permutazione corrente valida ?
+      (when (not wrong)
+        ; verifica se la permutazione corrente esiste già nella soluzione
+        ; notare che: ("ao" "oi" "ia") è uguale a ("ia" "ao" "oi")
+        (if (not (exists (fn(x) (shifted? p x)) sol)) (push p sol -1)))
+    sol)))
+
+Proviamo:
+
+(setq parole '("abaco" "indiana" "orsi"))
+(circolare parole)
+;-> (("indiana" "abaco" "orsi") 
+
+(set 'parole '("abaco" "orso" "oca" "albero" "oboe" "elle" "edera" "astratta"))
+(circolare parole)
+;-> (("abaco" "orso" "oca" "albero" "oboe" "elle" "edera" "astratta")
+;->  ("abaco" "oca" "albero" "orso" "oboe" "elle" "edera" "astratta")
+;->  ("albero" "oca" "abaco" "orso" "oboe" "elle" "edera" "astratta")
+;->  ("albero" "orso" "oca" "abaco" "oboe" "elle" "edera" "astratta")
+;->  ("albero" "orso" "oboe" "elle" "edera" "abaco" "oca" "astratta")
+;->  ("albero" "oboe" "elle" "edera" "abaco" "orso" "oca" "astratta")
+;->  ("abaco" "oboe" "elle" "edera" "albero" "orso" "oca" "astratta")
+;->  ("abaco" "orso" "oboe" "elle" "edera" "albero" "oca" "astratta"))
+
+(setq parole '("abaco" "orso" "oca" "albero"))
+(circolare parole)
+;-> ()
+
 ============================================================================
 

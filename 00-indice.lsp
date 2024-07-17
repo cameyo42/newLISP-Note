@@ -2552,6 +2552,8 @@ NOTE LIBERE 25
   Periodo e antiperiodo della divisione di due interi M/N
   Stringhe con tutte le vocali
   Ordinamento alternato di una lista
+  Verificare se due liste sono ruotate tra loro
+  Parole collegate in modo circolare
 
 PROBLEMI SUI DADI
 =================
@@ -2596,7 +2598,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (287 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (288 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
