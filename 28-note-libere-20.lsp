@@ -4,16 +4,16 @@
 
 ================
 
-         444         222222   
-        4444       222222222  
-       44444      222     222 
-      444444      222     222 
-     444 444      222     222 
-    444  444            2222  
-   444   444          2222    
-  444    444        2222      
-  4444444444444    222        
-  4444444444444   222         
+         444         222222
+        4444       222222222
+       44444      222     222
+      444444      222     222
+     444 444      222     222
+    444  444            2222
+   444   444          2222
+  444    444        2222
+  4444444444444    222
+  4444444444444   222
          444      222      222
          444      222222222222
          444      222222222222
@@ -429,7 +429,7 @@ Solve the 3x3 system:
 (setq b '(0 0 -24))
 
 Function "sislin-g" is "yo.lsp" library:
-(sislin-g a b) 
+(sislin-g a b)
 ;-> (-0.09379310344827588 0.07724137931034483 -0.1360919540229885)
 
 Calculate branch resistor current values:
@@ -447,13 +447,13 @@ Calculate branch resistor current values:
 Calculate voltage drops:
 
   VR1 = IR1*R1 = (0.042299)*(150) = 6.3448 Volt
-  
+
   VR2 = IR2*R5 = (0.093793)*(50) = 4.6897 Volt
-  
+
   VR3 = IR3*R5 = (0.016552)*(100) = 1.6552 Volt
-  
+
   VR4 = IR4*R5 = (0.058851)*(300) = 17.6553 Volt
-  
+
   VR5 = IR5*R5 = (0.077241)*(250) = 19.3103 Volt
 
 
@@ -5883,7 +5883,7 @@ Funzione che genera il giorno successivo alla data corrente:
         (setf (days-month 2) 29))
     ; incrementa il giorno
     (++ day)
-    ; Se il giorno supera il numero di giorni del mese, 
+    ; Se il giorno supera il numero di giorni del mese,
     ; reimpostare il giorno a 1 e incrementare il mese di 1.
     (if (> day (days-month month))
       (begin
@@ -5925,7 +5925,7 @@ Funzione che genera il giorno precedente alla data corrente:
     (if (= day 0)
       (begin
         (-- month)
-        ; se il mese diventa 0, 
+        ; se il mese diventa 0,
         ; impostare il mese a 12 (Dicembre) e diminuire l'anno di 1
         (if (= month 0)
           (begin
@@ -6294,7 +6294,7 @@ Per ogni elemento della lista, cerchiamo il primo elemento uguale e, se lo trovi
 
 (define (max-sum lst)
   (local (MIN-INT sum-max sum-lst len arr found)
-    (setq MIN-INT -9223372036854775808)    
+    (setq MIN-INT -9223372036854775808)
     ; lunghezza della lista
     (setq len (length lst))
     (cond ((< len 2) '(nil ()))
@@ -6321,7 +6321,7 @@ Per ogni elemento della lista, cerchiamo il primo elemento uguale e, se lo trovi
                     ;(println cur-lst { } cur-sum)
                     ; controlla somma corrente con somma massima
                     ; e aggiorna i valori di conseguenza
-                    (if (> cur-sum sum-max) 
+                    (if (> cur-sum sum-max)
                         (set 'sum-max cur-sum 'sum-lst cur-lst)))
                 )
               )
@@ -6586,7 +6586,7 @@ Per "scimmiottare" una data stringa S, possiamo eseguire i seguenti passaggi:
 
 1) Partire da una stringa vuota T.
 2) Scegliere in modo casuale (uniforme) un carattere ASCII stampabile e aggiungerlo alla stringa T.
-3) Se S è una sottostringa di T, allora T è la stringa "scimmiottata". 
+3) Se S è una sottostringa di T, allora T è la stringa "scimmiottata".
    Altrimenti, ripetere il passo 2 finché T non diventa una sottostringa di S.
 
 Poichè non possiamo continuare all'infinito dobbiamo stabilire alcune regole:
@@ -6661,7 +6661,7 @@ In questo modo la stringa 't' rimane sempre della stessa lunghezza di 'str' e po
     (setq k 0)
     (for (i 1 max-len 1 trovato)
       (cond ((find str t) (setq trovato true))
-            (true 
+            (true
               (++ k)
               (pop t)
               (push (alfabeto (rand len)) t -1)
@@ -6829,13 +6829,13 @@ Smallest b>1 such that n contains no zeros in its base b representation.
     base))
 
 (map nozeri (sequence 1 50))
-;-> (2 3 2 3 3 4 2 3 4 4 4 5 3 3 2 3 3 5 5 6 4 3 3 5 3 3 
+;-> (2 3 2 3 3 4 2 3 4 4 4 5 3 3 2 3 3 5 5 6 4 3 3 5 3 3
 ;->  4 6 4 4 2 5 5 5 6 5 4 4 4 3 3 4 3 3 4 4 4 5 3 3)
 
 
---------------------------------------------------------------
-Funzioni per la gestione di un mazzo di carte Carte Napoletane
---------------------------------------------------------------
+----------------------------------------------------------------
+Funzioni per la gestione di un mazzo di carte (Carte Napoletane)
+----------------------------------------------------------------
 
 Le carte da gioco italiane consistono in un mazzo da 40 carte di 4 diversi semi, ma c'è una grande varietà grafica nel disegno delle carte, che dipende soprattutto dall'area geografica.
 Le carte da gioco appaiono in Italia nella seconda metà del XIV secolo.
@@ -6845,9 +6845,9 @@ I valori sono 10: Asso (1), 2, 3, 4, 5, 6, 7, Fante (8), Cavallo (9), e Re (10).
 In questo caso useremo la seguente rappresentazione grafica per le carte:
 
   Spade   Denari   Bastoni   Coppe
-    |       +-+      | |     \   / 
-  --+--     | |      | |      | |  
-    |       +-+      | |      +-+  
+    |       +-+      | |     \   /
+  --+--     | |      | |      | |
+    |       +-+      | |      +-+
 
 Asso di Spade    5 di Denari   Fante di Bastoni  Re di Coppe
   +-------+       +-------+       +-------+       +-------+
@@ -6978,7 +6978,7 @@ Funzione che mischia un mazzo (40 carte):
     (randomize mazzo)))
 
 (setq mazzo (shuffle))
-;-> (("3" "B") ("C" "C") ("R" "B") ("C" "D") ("5" "C") ("A" "D") 
+;-> (("3" "B") ("C" "C") ("R" "B") ("C" "D") ("5" "C") ("A" "D")
 ;->  ("4" "C") ("7" "D") ("6" "D") ("4" "B") ("5" "B") ("C" "B")
 ;->  ...
 ;->  ("3" "S") ("R" "D") ("6" "S") ("F" "D") ("6" "B") ("7" "S"))
@@ -7009,7 +7009,7 @@ Funzione che crea una mano prendendo le prime di 'num' carte (prese dal mazzo mi
 Funzione che prende la prima carta dal mazzo mischiato:
 
 (define (get-carta)
-  (if (> (length mazzo) 0) 
+  (if (> (length mazzo) 0)
       (pop mazzo)
       ;else
       '()))
@@ -7025,6 +7025,19 @@ Funzione che prende la prima carta dal mazzo mischiato:
 
 (length mazzo)
 ;-> 36
+
+Funzione "shuffle" per un mazzo di carte francesi:
+
+(define (shuffle)
+  (local (mazzo valori cuori quadri fiori picche)
+    (setq mazzo '())
+    (setq valori '("A" "2" "3" "4" "5" "6" "7" "8" "9" "10" "J" "Q" "K"))
+    (setq cuori (map (fn(x y) (list x y)) valori (dup "c" 13 true)))
+    (setq quadri (map (fn(x y) (list x y)) valori (dup "q" 13 true)))
+    (setq fiori (map (fn(x y) (list x y)) valori (dup "f" 13 true)))
+    (setq picche (map (fn(x y) (list x y)) valori (dup "p" 13 true)))
+    (extend mazzo cuori quadri fiori picche)
+    (randomize mazzo)))
 
 
 -------------------------------
@@ -7125,8 +7138,8 @@ Esponenti massimi e minimi dei primi
 
 Dato un intero N >= 2, scrivere una funzione che restituisce l'esponente più grande e l'esponente più piccolo nella sua scomposizione in fattori primi.
 
-Per esempio, 
-N = 200 = 2*2*2*5*5 = 2^3*5^2 
+Per esempio,
+N = 200 = 2*2*2*5*5 = 2^3*5^2
 Esponente massimo = 3
 Esponente minimo = 2
 
@@ -7210,13 +7223,13 @@ Adesso vogliamo dividere la sequenza in due modi differenti:
 (1)(23)(456)(78910)(1112131415)(161718192021)(22232425262728) ...
 -------------------------------------------------------------
  1  2    3     4        5            6              7         ...
- 
+
 Scrivere una funzione per ognuno dei due tipi di divisione.
 La funzione prende come parametro la lunghezza della sequenza iniziale (ovvero l'ultimo numero della sequenza).
 Per esempio:
 
 lista tipo 1 con N=13
-(divide1 13) -> (1 23 456 7891 01112) 
+(divide1 13) -> (1 23 456 7891 01112)
 Le cifre del 13 non compaiono perchè non sono sufficienti a creare il successivo elemento (131415).
 
 lista tipo 2 con N=11 elementi:
@@ -7240,7 +7253,7 @@ Algoritmo:
 (setq seq (sequence 1 13))
 ;-> (1 2 3 4 5 6 7 8 9 10 11 12 13)
 (setq lst (explode (join (map string seq))))
-;-> ("1" "2" "3" "4" "5" "6" "7" "8" "9" "1" "0" "1" "1" "1" "2" "1" "3")  
+;-> ("1" "2" "3" "4" "5" "6" "7" "8" "9" "1" "0" "1" "1" "1" "2" "1" "3")
 (setq len-lst (length lst))
 ;-> 17
 ; la somma dei numeri da 1 a k vale: somma = (k*(k-1))/2
@@ -7250,7 +7263,7 @@ Algoritmo:
 ; In questo caso è last-num:
 (setq last-num (- (int (div (add 1 (sqrt (add 1 (mul 8 len-lst)))) 2)) 1))
 ;-> 5
-; Spezziamo la lista di cifre con la sequenza 1..last-num 
+; Spezziamo la lista di cifre con la sequenza 1..last-num
 ; e uniamo le cifre di ogni elemento della lista
 (map join (list-break lst (sequence 1 last-num)))
 ;-> ("1" "23" "456" "7891" "01112")
@@ -7292,7 +7305,7 @@ Algoritmo:
 ; In questo caso è last-num:
 (setq last-num (- (int (div (add 1 (sqrt (add 1 (mul 8 11)))) 2)) 1))
 ;-> 4
-; Spezziamo la lista di cifre con la sequenza 1..last-num 
+; Spezziamo la lista di cifre con la sequenza 1..last-num
 ; e uniamo i numeri di ogni elemento della lista
 (map join (list-break lst (sequence 1 last-num)))
 ;-> ("1" "23" "456" "78910")
@@ -7332,8 +7345,8 @@ Per esempio, con num1 = 1 e num2 = 12 abbiamo:
 
   sequenza = (1 2 3 4 5 6 7 8 9 10 11 12)
   concatenazione = 123456789101112
-  differenze tra coppie consecutive = ((2 - 1) (3 - 2) (4 - 3) (5 - 4) (6 - 5) 
-  (7 - 6) (8 - 7) (9 - 8) (1 - 9) (0 - 1) (1 - 0) (1 - 1) (1 - 1) (2 - 1)) = 
+  differenze tra coppie consecutive = ((2 - 1) (3 - 2) (4 - 3) (5 - 4) (6 - 5)
+  (7 - 6) (8 - 7) (9 - 8) (1 - 9) (0 - 1) (1 - 0) (1 - 1) (1 - 1) (2 - 1)) =
   = (1 1 1 1 1 1 1 -8 -1 1 0 0 1)
   Somma = 1 + 1 + 1 + 1 + 1 + 1 + 1 + -8 + -1 + 1 + 0 + 0 + 1 = 1
 
@@ -7434,10 +7447,10 @@ I numeri 3 e 19 creano due cicli:
 (define (ciclo-aux num)
   (let (f (factor num))
     (cond ((ref num out) nil)
-          ((= (length f) 1) 
+          ((= (length f) 1)
             (push num out -1)
             (ciclo-aux (- (* 2 num) 1)))
-          (true 
+          (true
             (push num out -1)
             (ciclo-aux (- num (last f)))))))
 
@@ -7652,7 +7665,7 @@ The n-th n-gonal number: a(n) = n*(n^2 - 3*n + 4)/2
 
 (map n-gonal (sequence 0 40))
 ;-> (0 1 2 6 16 35 66 112 176 261 370 506 672 871 1106 1380 1696 2057 2466
-;->  2926 3440 4011 4642 5336 6096 6925 7826 8802 9856 10991 12210 13516 
+;->  2926 3440 4011 4642 5336 6096 6925 7826 8802 9856 10991 12210 13516
 ;->  14912 16401 17986 19670 21456 23347 25346 27456 29680)
 
 
@@ -7773,8 +7786,8 @@ Una potenza prima si riferisce specificamente al caso in cui sia p che n sono pr
 
 Sequenza OEIS A053810 :
 Prime powers of prime numbers
-  4, 8, 9, 25, 27, 32, 49, 121, 125, 128, 169, 243, 289, 343, 361, 529, 
-  841, 961, 1331, 1369, 1681, 1849, 2048, 2187, 2197, 2209, 2809, 3125, 
+  4, 8, 9, 25, 27, 32, 49, 121, 125, 128, 169, 243, 289, 343, 361, 529,
+  841, 961, 1331, 1369, 1681, 1849, 2048, 2187, 2197, 2209, 2809, 3125,
   3481, 3721, 4489, 4913, 5041, 5329, 6241, 6859, 6889, 7921, 8192, 9409,
   10201, 10609, 11449, 11881, 12167, ...
 
@@ -7796,13 +7809,13 @@ Funzione che verifica se un numero è potenza prima di un numero primo:
 
 (filter ppp? (sequence 1 10000))
 ;-> (4 8 9 25 27 32 49 121 125 128 169 243 289 343 361 529 841 961 1331 1369
-;->  1681 1849 2048 2187 2197 2209 2809 3125 3481 3721 4489 4913 5041 5329 
+;->  1681 1849 2048 2187 2197 2209 2809 3125 3481 3721 4489 4913 5041 5329
 ;->  6241 6859 6889 7921 8192 9409)
 
 
 ------------------------
 Lista continua di interi
------------------------- 
+------------------------
 
 Data una lista contenente numeri interi, scrivere una funzione che inserisce i numeri interi necessari per renderla continua.
 
@@ -7813,7 +7826,7 @@ Per esempio,
 
   lista = (10 10)
   lista continua = (10 10)
-  
+
   lista = (-1 3 5)
   lista continua = (-1 0 1 2 3 4 5)
 
@@ -7831,7 +7844,7 @@ Funzione che rende continua una lista di interi:
           (for (i 0 (- (length lst) 2))
             (cond ((= (lst i) (lst (+ i 1))) ; primo = secondo
                     ; aggiunge solo primo numero
-                    (push (lst i) out -1)) 
+                    (push (lst i) out -1))
                   ((> (lst i) (lst (+ i 1))) ; primo maggiore di secondo
                     ; aggiunge sequenza decrescente (tranne ultimo numero)
                     (extend out (sequence (lst i) (+ (lst (+ i 1)) 1))))
@@ -7875,7 +7888,7 @@ Proviamo:
 Radice fattoriale prima di un numero
 ------------------------------------
 
-La radice fattoriale prima di un numero è il numero che emerge quando si prendono i fattori primi di un numero, li si sommano e si ripete il processo sul numero risultante, continuando finché non si ottiene un numero primo (che ha se stesso come suo unico fattore primo, ed è quindi la propria radice fattoriale prima). 
+La radice fattoriale prima di un numero è il numero che emerge quando si prendono i fattori primi di un numero, li si sommano e si ripete il processo sul numero risultante, continuando finché non si ottiene un numero primo (che ha se stesso come suo unico fattore primo, ed è quindi la propria radice fattoriale prima).
 
 Per esempio con il numero 24:
   24 = 2*2*2*3 --> 2 + 2 + 2 + 3 = 9
@@ -7910,7 +7923,7 @@ Proviamo:
 ;-> 5
 
 (map radice-fattoriale (sequence 1 50))
-;-> (0 2 3 4 5 5 7 5 5 7 11 7 13 5 5 5 17 5 19 5 7 13 23 5 7 5 5 11 
+;-> (0 2 3 4 5 5 7 5 5 7 11 7 13 5 5 5 17 5 19 5 7 13 23 5 7 5 5 11
 ;->  29 7 31 7 5 19 7 7 37 7 5 11 41 7 43 5 11 7 47 11 5 7)
 
 
@@ -7971,7 +7984,7 @@ Distribuzione di frequenza del lancio di dadi
 ---------------------------------------------
 
 Dati due numeri interi positivi F e D, restituire la distribuzione di frequenza del lancio di D dadi con F facce.
-Una distribuzione di frequenza elenca la frequenza di ogni possibile somma se ogni possibile sequenza di lanci di dadi si verifica una volta. 
+Una distribuzione di frequenza elenca la frequenza di ogni possibile somma se ogni possibile sequenza di lanci di dadi si verifica una volta.
 Pertanto, le frequenze sono numeri interi la cui somma è uguale a F^D.
 
 Vedi anche "Frequenze dei numeri con N dadi" su "Note libere 15".
@@ -7994,7 +8007,7 @@ Vedi anche "Frequenze dei numeri con N dadi" su "Note libere 15".
             (push (list el1 el2) out -1))))))
 
 (setq a (cartesian-product '((1 2 3 4 5 6) (1 2 3 4 5 6) (1 2 3 4 5 6))))
-;-> ((1 1 1) (1 1 2) (1 1 3) (1 1 4) (1 1 5) (1 1 6) (1 2 1) (1 2 2) (1 2 3) 
+;-> ((1 1 1) (1 1 2) (1 1 3) (1 1 4) (1 1 5) (1 1 6) (1 2 1) (1 2 2) (1 2 3)
 ;->  (1 2 4) (1 2 5) (1 2 6) (1 3 1) (1 3 2) (1 3 3) (1 3 4) (1 3 5) (1 3 6)
 ;->  (1 4 1) (1 4 2) ...
 ;->  ...

@@ -278,7 +278,7 @@ Proviamo:
 (scambia-coppie '(1 2 3 4 5))
 ;-> (2 1 4 3 5)
 
-Prima versione (explode e map):
+Seconda versione (explode e map):
 Usiamo "explode" per dividere la lista in coppie di elementi, poi usiamo "map" per scambiare gli elementi di ogni coppia.
 Se la lista ha un numero dispari di elementi, l'ultimo elemento viene gestito separatamente e aggiunto alla fine della lista risultante.
 
@@ -313,7 +313,7 @@ Determinare se gli elementi di una lista sono tutti diversi o tutti uguali
 
 Data una lista determinare se gli elementi sono tutti diversi o tutti uguali (o nessuna delle due).
 
-Una lista ha elementi diversi se è uguale alla lista dei suoi unici elementi.
+Una lista ha elementi tutti diversi se è uguale alla lista dei suoi elementi unici.
 
 (define (diversi? lst) (= lst (unique lst)))
 
@@ -2388,6 +2388,8 @@ Proviamo con un file di parole italiane:
 (length (find-vowel-words "60000_parole_italiane.txt"))
 ;-> 319
 
+I file "unixdict.txt" e "60000_parole_italiane.txt" si trovano nella cartella "data".
+
 
 ----------------------------------
 Ordinamento alternato di una lista
@@ -2585,7 +2587,7 @@ Proviamo:
 (circolare parole)
 ;-> (("indiana" "abaco" "orsi") 
 
-(set 'parole '("abaco" "orso" "oca" "albero" "oboe" "elle" "edera" "astratta"))
+(setq parole '("abaco" "orso" "oca" "albero" "oboe" "elle" "edera" "astratta"))
 (circolare parole)
 ;-> (("abaco" "orso" "oca" "albero" "oboe" "elle" "edera" "astratta")
 ;->  ("abaco" "oca" "albero" "orso" "oboe" "elle" "edera" "astratta")
@@ -2599,6 +2601,255 @@ Proviamo:
 (setq parole '("abaco" "orso" "oca" "albero"))
 (circolare parole)
 ;-> ()
+
+
+--------------------------------------------------------
+Ordinare una lista in base alla frequenza degli elementi
+--------------------------------------------------------
+
+Scrivere una funzione che prende una lista e restituisce una lista di elementi distinti, ordinati in ordine decrescente per frequenza.
+
+(setq lst '("Luca" "Ivo" "Paola" "Lara" "Lara" "Ivo" "Ivo" "Lara" "Ivo" "Luca"))
+
+(setq unici (unique lst))
+;-> ("Luca" "Ivo" "Paola" "Lara")
+(count unici lst)
+;-> (2 4 1 3)
+(setq conta (map list (count unici lst) unici))
+;-> ((2 "John") (4 "Doe") (1 "Dick") (3 "Harry"))
+(sort conta >)
+;-> ((4 "Doe") (3 "Harry") (2 "John") (1 "Dick"))
+
+(define (sort-freq lst)
+  (let (unici (unique lst))
+    (sort (map list (count unici lst) unici) >)))
+
+(sort-freq lst)
+;-> ((4 "Ivo") (3 "Lara") (2 "Luca") (1 "Paola"))
+
+
+--------------
+Mini blackjack
+--------------
+
+Il blackjack è uno dei giochi di casinò più famosi e diffusi al mondo.
+Il gioco ha origine nella Francia del XVII secolo, con il nome di Vingt-et-un (ossia "ventuno").
+Negli Stati Uniti (1931) il gioco del ventuno venne denominato "black jack" (fante nero) con l'introduzione di una variante: qualora il giocatore facesse 21 con un asso e un jack di picche, veniva pagato con un bonus di dieci volte la posta. Anche se attualmente il bonus è stato abolito, il nome comunque è rimasto.
+Per il gioco del blackjack vengono usati da 2 a 6 mazzi di carte francesi, per un totale da 104 a 312 carte.
+Nel gioco l'asso può valere 11, o 1, le figure valgono 10, mentre le altre carte da gioco valgono il loro valore nominale.
+I semi non hanno alcuna influenza, o valore.
+La somma dei punti avviene per semplice calcolo aritmetico.
+
+Carte francesi (Come Quando Fuori Piove):
+Cuori  - Hearts
+Quadri - Diamonds
+Fiori  - Clover
+Picche - Pikes
+
+Regole del mini blackjack:
+1) due giocatori
+2) 6 mazzi di carte (meno 18 carte casuali)
+3) non ci sono puntate
+4) non esiste lo split
+5) ogni partita finisce in parità o con la vittoria di un giocatore
+6) Il giocatore può usare il tasto 'Enter' per avere una nuova carta e il tasto 's' (stop) per terminare la mano corrente.
+
+Nota: perchè togliamo 18 carte?
+(length ' (1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 5 5))
+;-> 18
+(+ 1 1 1 1 2 2 2 2 3 3 3)
+;-> 21
+(+ 3 3 4 4 4 5)
+;-> 23
+
+Funzione per la generazione di un mazzo di carte francesi mischiato:
+
+(define (shuffle)
+  (local (mazzo valori cuori quadri fiori picche)
+    (setq mazzo '())
+    (setq valori '("A" "2" "3" "4" "5" "6" "7" "8" "9" "10" "J" "Q" "K"))
+    (setq cuori (map (fn(x y) (list x y)) valori (dup "c" 13 true)))
+    (setq quadri (map (fn(x y) (list x y)) valori (dup "q" 13 true)))
+    (setq fiori (map (fn(x y) (list x y)) valori (dup "f" 13 true)))
+    (setq picche (map (fn(x y) (list x y)) valori (dup "p" 13 true)))
+    (extend mazzo cuori quadri fiori picche)
+    (randomize mazzo)))
+
+(shuffle)
+;-> (("A" "c") ("4" "f") ("Q" "c") ("4" "p") ("7" "f") ("2" "f") ("10" "q")
+;->  ("9" "p") ("6" "p") ("3" "p") ("5" "q") ("8" "p") ("2" "p") ("8" "f")
+;->  ("K" "q") ("3" "q") ("7" "q") ("2" "c") ("J" "q") ("Q" "q") ("K" "p")
+;->  ("9" "f") ("2" "q") ("6" "q") ("4" "q") ("10" "f") ("A" "p") ("10" "c")
+;->  ("4" "c") ("3" "f") ("A" "q") ("9" "c") ("6" "c") ("A" "f") ("7" "c")
+;->  ("7" "p") ("10" "p") ("J" "p") ("9" "q") ("J" "c") ("Q" "p") ("J" "f")
+;->  ("8" "q") ("5" "f") ("5" "c") ("K" "f") ("6" "f") ("3" "c") ("5" "p")
+;->  ("Q" "f") ("8" "c") ("K" "c"))
+ 
+Comunque a noi serve un mazzo semplificato (cioè 6 mazzi):
+
+(define (mazzo)
+ (randomize
+  (flat (dup '(A 2 3 4 5 6 7 8 9 10 10 10 10) 24))))
+
+(length (mazzo))
+;-> 312
+
+Funzione che trova il valore maggiore tra due interi che è anche minore/uguale a un numero dato:
+
+(define (max-than a b N)
+  (cond
+    ((and (> a N) (> b N)) -1)
+    ((and (<= a N) (<= b N)) (max a b))
+    ((<= a N) a)
+    ((<= b N) b)
+    (true -1)))
+
+(max-than 21 20 21)
+;-> 21
+(max-than 22 20 21)
+;-> 20
+(max-than 20 22 21)
+;-> 20
+
+Per calcolare il punteggio di una mano dobbiamo considerare i due casi quando A vale 11 oppure A vale 1 e prendere il punteggio più alto che non supera 21.
+
+Funzione che calcola il punteggio di una mano:
+
+(define (points lst)
+  (local (p p1 p2)
+    (cond ((ref 'A lst) ; there are A in lst
+            (replace 'A lst 1) ; replace all the A's with 1
+            (setq p1 (apply + lst))
+            (setf (lst (ref 1 lst)) 11) ; replace the first 1 with 11
+            (setq p2 (apply + lst))
+            (setq p (max-than p1 p2 21)))
+          (true ; no A in lst
+            (setq p (apply + lst))
+            (if (> p 21 (setq p -1)))))
+    p))
+
+(points '(A 2 3 4))
+;-> 20
+(points '(A 2))
+;-> 13
+(points '(A A 2))
+;-> 14
+(points '(A A A A))
+;-> 14
+(points '(A A A A 5 5))
+;-> 14
+
+Funzione che permette di giocare a mini-blackjack:
+
+(define (blackjack)
+(catch
+  (local (carte mano-c mano-p stop key p c)
+    ;(seed 1)
+    (setq carte (mazzo))
+    ; Si gioca fino a che rimangono 18 carte...
+    (while (> (length carte) 18)
+      ; prima carta al croupier
+      (setq mano-c '())
+      (push (pop carte) mano-c -1)
+      ; PLAYER
+      ; prima carta al giocatore
+      (setq mano-p '())
+      (push (pop carte) mano-p -1)
+      (setq stop nil)
+      (until stop
+        (println "Your hand: " mano-p)
+        (setq key (read-key))
+              ; pressed "s" or "S"
+        (cond ((or (= key 115) (= key 83)) (setq stop true))
+              ; pressed 'ESC' to quit the game
+              ((= key 27) (throw 'Game-Over))
+              (true ; pressed Enter (or other key not "s" or "S" or 'ESC')
+                (push (pop carte) mano-p -1)))
+      )
+      ; calculate points of current hand
+      (setq p (points mano-p))
+      (println "Your hand: " mano-p { } p)
+      ; CROUPIER
+      (setq c 0)
+      ; check if player go over 21
+      (cond ((= p -1) (println "You lose."))
+            (true
+              ; Croupier get new card until points
+              ; are equal or greater than points of player
+              (while (and (< c p) (!= c -1))
+                (push (pop carte) mano-c -1)
+                (setq c (points mano-c))
+                ;(print mano-c { } c) (read-line)
+              )
+              (println "My hand: " mano-c { } c)
+              ; check the result of the game
+              (cond ((and (> c p) (<= c 21)) (println "You lose."))
+                    ((= c p) (println "Game draw."))
+                    ((< c p) (println "You win.")))))))))
+
+Proviamo:
+
+(blackjack)
+;-> Your hand: (8)
+;-> Your hand: (8 10)
+;-> Your hand: (8 10) 18
+;-> My hand: (A 6 3) 20
+;-> You lose.
+;-> Your hand: (10)
+;-> Your hand: (10 8)
+;-> Your hand: (10 8) 18
+;-> My hand: (10 10) 20
+;-> You lose.
+;-> Your hand: (10)
+;-> Your hand: (10 10)
+;-> Your hand: (10 10) 20
+;-> My hand: (2 5 10 A 7) -1
+;-> You win.
+;-> Your hand: (8)
+;-> Your hand: (8 3)
+;-> Your hand: (8 3 3)
+;-> Your hand: (8 3 3 10)
+;-> Your hand: (8 3 3 10) -1
+;-> You lose.
+;-> Your hand: (5)
+;-> Your hand: (5 10)
+;-> Your hand: (5 10) 15
+;-> My hand: (8 A) 19
+;-> You lose.
+;-> Your hand: (10)
+;-> Your hand: (10 8)
+;-> Your hand: (10 8) 18
+;-> My hand: (4 4 6 10) -1
+;-> You win.
+;-> Your hand: (3)
+;-> Game-Over
+
+(blackjack)
+;-> Your hand: (10)
+;-> Your hand: (10 10)
+;-> Your hand: (10 10) 20
+;-> My hand: (3 10 4 2 2) 21
+;-> You lose.
+;-> Your hand: (8)
+;-> Your hand: (8 10)
+;-> Your hand: (8 10) 18
+;-> My hand: (7 2 10) 19
+;-> You lose.
+;-> Your hand: (2)
+;-> Your hand: (2 4)
+;-> Your hand: (2 4 6)
+;-> Your hand: (2 4 6 6)
+;-> Your hand: (2 4 6 6) 18
+;-> My hand: (A 10) 21
+;-> You lose.
+;-> Your hand: (4)
+;-> Your hand: (4 10)
+;-> Your hand: (4 10 2)
+;-> Your hand: (4 10 2) 16
+;-> My hand: (8 3 A 10) -1
+;-> You win.
+;-> Your hand: (10)
+;-> Game-Over
 
 ============================================================================
 

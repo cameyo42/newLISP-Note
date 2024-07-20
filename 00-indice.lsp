@@ -2554,6 +2554,8 @@ NOTE LIBERE 25
   Ordinamento alternato di una lista
   Verificare se due liste sono ruotate tra loro
   Parole collegate in modo circolare
+  Ordinare una lista in base alla frequenza degli elementi
+  Mini blackjack
 
 PROBLEMI SUI DADI
 =================
