@@ -2014,9 +2014,9 @@ Ma non andiamo tanto lontano...
 
 (time (println (filter weird? (sequence 1 1e5))))
 ;-> (70 836 4030 5830 7192 7912 9272 10430 10570 10792 10990 11410 11690
-;->  12110 12530 12670 13370 13510 13790 13930 14770 15610 15890 16030 
-;->  16310 16730 16870 17272 17570 17990 18410 18830 18970 19390 19670 
-;->  19810 20510 21490 21770 21910 22190 23170 23590 24290 24430 24710 
+;->  12110 12530 12670 13370 13510 13790 13930 14770 15610 15890 16030
+;->  16310 16730 16870 17272 17570 17990 18410 18830 18970 19390 19670
+;->  19810 20510 21490 21770 21910 22190 23170 23590 24290 24430 24710
 ;->  25130 25690 26110 26530 26810 27230 27790 28070 28630 29330 29470
 ;->  30170 30310 30730 31010 31430 31990 32270 32410 32690 33530 34090
 ;->  34370 34930 35210 35630 36470 36610 37870 38290 38990 39410 39830
@@ -2357,10 +2357,10 @@ Proviamo con un file di parole inglesi:
 
 (find-vowel-words "unixdict.txt")
 ;-> ("adventitious" "aeronautic" "ambidextrous" "argillaceous" "argumentation"
-;->  "auctioneer" "audiotape" "augmentation" "aureomycin" "authoritative" 
+;->  "auctioneer" "audiotape" "augmentation" "aureomycin" "authoritative"
 ;->  "autocollimate" "automobile" "automotive" "autosuggestible" "beaujolais"
-;->  "bimolecular" "boardinghouse" "cauliflower" "coeducation" "colatitude" 
-;->  "communicable" "communicate" "consanguine" "consanguineous" 
+;->  "bimolecular" "boardinghouse" "cauliflower" "coeducation" "colatitude"
+;->  "communicable" "communicate" "consanguine" "consanguineous"
 ;-> ...
 ;->  "questionnaire" "refutation" "reputation" "revolutionary" "sacrilegious"
 ;->  "sanguineous" "sequestration" "sequoia" "simultaneous" "stupefaction"
@@ -2378,12 +2378,12 @@ Proviamo con un file di parole italiane:
 ;->  "accumulazione" "acquedotti" "acquietano" "acquietato" "acquietavo"
 ;->  "acquietero" "acquietino" "acquieto" "acquistero" "adeguiamo" "adeguino"
 ;->  "adulazione" "adulterino" "adulterio" "affettuosi" "aggiungendo"
-;->  "aggiungero'" "aggiustero" "aiuole" "aiutassero" "aiuteranno" 
+;->  "aggiungero'" "aggiustero" "aiuole" "aiutassero" "aiuteranno"
 ;->  ...
 ;->  "universitario" "univocamente" "urbanesimo" "ustionare" "ustionasse"
 ;->  "ustionaste" "ustionate" "ustionera" "ustionerai" "ustioniate"
 ;->  "valutazione" "visualizzazione" "vituperano" "vituperato" "vituperavo"
-;->  "vuoterai" "vuotiate" "zuffolerai") 
+;->  "vuoterai" "vuotiate" "zuffolerai")
 
 (length (find-vowel-words "60000_parole_italiane.txt"))
 ;-> 319
@@ -2473,7 +2473,7 @@ Funzione che verifica se due liste sono shiftate/ruotate tra loro:
         (len2 (length lst2)))
     (cond ((!= len1 len2) nil) ; lunghezze diverse?
           ;((!= (difference lst1 lst2) '()) nil) ; elementi con valori diversi?
-          (true ; controllo di tutte le rotazioni 
+          (true ; controllo di tutte le rotazioni
             (setq shiftate nil)
             (for (i 0 (- len1 1) 1 shiftate)
               (if (= (rotate (copy lst1) i) lst2) (setq shiftate true))
@@ -2585,7 +2585,7 @@ Proviamo:
 
 (setq parole '("abaco" "indiana" "orsi"))
 (circolare parole)
-;-> (("indiana" "abaco" "orsi") 
+;-> (("indiana" "abaco" "orsi")
 
 (setq parole '("abaco" "orso" "oca" "albero" "oboe" "elle" "edera" "astratta"))
 (circolare parole)
@@ -2684,7 +2684,7 @@ Funzione per la generazione di un mazzo di carte francesi mischiato:
 ;->  ("7" "p") ("10" "p") ("J" "p") ("9" "q") ("J" "c") ("Q" "p") ("J" "f")
 ;->  ("8" "q") ("5" "f") ("5" "c") ("K" "f") ("6" "f") ("3" "c") ("5" "p")
 ;->  ("Q" "f") ("8" "c") ("K" "c"))
- 
+
 Comunque a noi serve un mazzo semplificato (cioè 6 mazzi):
 
 (define (mazzo)
@@ -2850,6 +2850,150 @@ Proviamo:
 ;-> You win.
 ;-> Your hand: (10)
 ;-> Game-Over
+
+
+----------------------------------
+Numeri pari e dispari in una lista
+----------------------------------
+
+Data una lista (anche annidata) di numeri interi, scrivere una funzione che restituisce:
+  1) -1 se i numeri pari sono in numero maggiore dei numeri dispari
+  2) 0 se i numeri pari sono in numero uguale ai numeri dispari
+  3) +1 se i numeri pari sono in numero minore dei numeri dispari
+
+(define (even-odd lst)
+  (letn ( (fl (flat lst))
+          (diff (- (length (filter even? fl)) (length (filter odd? fl)))) )
+    (cond ((zero? diff) 0) ((> diff 0) -1) ((< diff 0) 1))))
+
+Proviamo:
+
+(even-odd '((1 2 (3)) (4 (5 (6))) ((7 8) 9)))
+;-> 1
+(even-odd '(5 2 5 2 5 2 2 2))
+;-> -1
+(even-odd '(3 3 3 2 2 2))
+;-> 0
+
+Riduzione della lunghezza della funzione:
+
+cambiare: (cond ((zero? diff) 0) ((> diff 0) 1) ((< diff 0) -1))))
+con:      (if (zero? diff) 0 (> diff 0) 1 (< diff 0) -1)))
+
+Numero caratteri: 115
+
+(define (f l)
+(letn((l(flat l))(d(-(length(filter even? l))(length(filter odd? l)))))
+(if(= d 0)0(> d 0)-1(< d 0)1)))
+
+Proviamo:
+
+(f '((1 2 (3)) (4 (5 (6))) ((7 8) 9)))
+;-> 1
+(f '(5 2 5 2 5 2 2 2))
+;-> -1
+(f '(3 3 3 2 2 2))
+;-> 0
+
+Per calcolare la lunghezza senza mettere la funzione in una sola riga togliere due caratteri per ogni riga (\r\n) alla lunghezza della funzione selezionata.
+
+
+------------------
+I gatti di Matilde
+------------------
+
+Matilde ha meno di 10 gatti e tutti hanno la coda bianca o nera.
+Se chiedete a Matilde quanti gatti ha, lei risponde così:
+"Prendendo a caso due dei miei gatti, la probabilità che entrambi hanno la coda bianca è del 50%"
+Quanti gatti ha Matilde?
+
+Poniamo:
+  B = gatti con coda bianca
+  N = gatti con coda nera
+  T = tutti i gatti
+
+Per avere il 50% di probabilità (cioè 1/2) nelle due scelte, deve risultare:
+
+   B    (B-1)
+  --- * ----- = 1/2
+   T    (T-1)
+
+Infatti alla prima scelta abbiamo probabilità B/T di avere una coda bianca e alla seconda scelta abbiamo probabilità (B-1)/(T-1) di avere una coda bianca (perchè dobbiamo togliere la coda bianca della prima scelta).
+Poichè le due scelte devono verificarsi entrambe, allora la loro probabilità deve essere moltiplicata.
+Quindi dobbiamo risolvere la seguente equazione:
+
+ 2*B*(B-1) = (T*(T-1))
+
+Poichè T è minore di 10 (e quindi anche B), possiamo risolvere l'equazione provando tutti i numeri interi da 1 a 10.
+
+(define (matilde gatti)
+  (for (t 2 gatti)
+    (for (b 1 gatti)
+      (if (= (* 2 b (- b 1)) (* t (- t 1)))
+          (println "Gatti = " t " - Bianca = " b " - Nera = " (- t b))))))
+
+(matilde 9)
+;-> Gatti = 4 - Bianca = 3 - Nera = 1
+
+Vediamo quanti gatti con la coda bianca avrebbe potuto avere Matilde senza sapere il numero massimo dei gatti.
+Proviamo con meno di 10000 gatti:
+
+(time (matilde 9999))
+;-> Gatti = 4 - Bianca = 3 - Nera = 1
+;-> Gatti = 21 - Bianca = 15 - Nera = 6
+;-> Gatti = 120 - Bianca = 85 - Nera = 35
+;-> Gatti = 697 - Bianca = 493 - Nera = 204
+;-> Gatti = 4060 - Bianca = 2871 - Nera = 1189
+;-> 12407.286
+
+
+----------------------------------------
+Creazione di un algoritmo di ordinamento
+----------------------------------------
+
+Data una lista di numeri interi positivi, creare un metodo di ordinamento diverso da quelli conosciuti.
+Nota: l'algoritmo non deve essere efficiente, basta che sia in gradoo di ordinare correttamente una lista.
+
+Algoritmo
+Copiare la lista data in una lista temporanea
+Ciclo affinchè non abbiamo tutti zeri nella lista temporanea
+  Diminuire di 1 tutti i valori della lista temporanea
+  Ciclo sulla lista temporanea
+    Se elemento corrente uguale a zero, allora
+      Inserire nella soluzione il valore della lista data con indice corrente.
+      Porre a -1 il valore della lista temporanea con indice corrente.
+Restituire la soluzione.
+
+(define (my-sort lst op)
+  (local (out tmp)
+    (setq out '())
+    ; copia la lista data
+    (setq tmp lst)
+    ; ciclo affinchè non ci sono tutti 0 in 'tmp'
+    (until (for-all (fn(x) (< x 0)) tmp)
+      ; diminuisce di 1 gli elementi della lista 'tmp'
+      (setq tmp (map (fn(x) (- x 1)) tmp))
+      ; ciclo sulla lista 'tmp' per trovare gli elementi con valore 0
+      (dolist (el tmp)
+        ; se elemento correte = 0, allora
+        ; aggiorna la soluzione e pone a -1 l'elemento corrente di 'tmp'
+        (when (zero? el) (push (lst $idx) out -1) (setq (tmp $idx) -1)))
+    )
+    ; controllo ordinamento crescente o decrescente
+    (if (= op '>) (reverse out) out)))
+
+Proviamo:
+
+(my-sort '(1 4 3 6 2 9 2))
+;-> (1 2 2 3 4 6 9)
+(my-sort '(1 4 3 6 2 9 2) '>)
+;-> (9 6 4 3 2 2 1)
+
+(my-sort (sequence 10 1))
+;-> (1 2 3 4 5 6 7 8 9 10)
+
+(my-sort (sequence 1 10) '>)
+;-> (10 9 8 7 6 5 4 3 2 1)
 
 ============================================================================
 

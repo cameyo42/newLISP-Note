@@ -2556,6 +2556,9 @@ NOTE LIBERE 25
   Parole collegate in modo circolare
   Ordinare una lista in base alla frequenza degli elementi
   Mini blackjack
+  Numeri pari e dispari in una lista
+  I gatti di Matilde
+  Creazione di un algoritmo di ordinamento
 
 PROBLEMI SUI DADI
 =================
