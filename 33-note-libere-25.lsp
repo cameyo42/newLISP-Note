@@ -2995,5 +2995,183 @@ Proviamo:
 (my-sort (sequence 1 10) '>)
 ;-> (10 9 8 7 6 5 4 3 2 1)
 
+
+------------------------------------
+Circonferenza passante per tre punti
+------------------------------------
+
+Dati tre punti sul piano 2D determinare l'equazione della circonferenza che passa per i punti dati.
+
+L'equazione di una circonferenza di raggio R e centro in (Xc, Yc) vale:
+
+  (x - Xc)^2 + (y - Yc)^2 = R^2
+
+Poichè i tre punti passano per la circonferenza, allora risulta:
+
+  (x1 - Xc)^2 + (y1 - Yc)^2 = R^2
+  (x2 - Xc)^2 + (y2 - Yc)^2 = R^2
+  (x3 - Xc)^2 + (y3 - Yc)^2 = R^2
+
+Questo è un sistema che possiamo risolvere per le incognite Xc, Yc e R.
+Comunque per risolvere il problema usiamo una soluzione che non coinvolge le divisioni.
+https://math.stackexchange.com/questions/213658/get-the-equation-of-a-circle-when-given-3-points
+
+Calcoliamo i seguenti parametri:
+
+A = x1(y2 - y3) - y1(x2 - x3) + x2y3 - x3y2
+B = (x1^2 + y1^2)(y3 - y2) + (x2^2 + y2^2)(y1 - y3) + (x3^2 + y3^2)(y2 - y1)
+C = (x1^2 + y1^2)(x2 - x3) + (x2^2 + y2^2)(x3 - x1) + (x3^2 + y3^2)(x1 - x2)
+D = (x1^2 + y1^2)(x3y2 - x2y3) + (x2^2 + y2^2)(x1y3 - x3y1) + (x3^2 + y3^2)(x2y1 - x1y2)
+
+Adesso il centro della circonferenza è dato da:
+
+  Xc= -B/2A,  Yc= -C/2A
+
+mentre il raggio della circonferenza è dato da:
+
+             B^2 + C^2 - 4AD
+  R = sqrt(-------------------)
+                  4A^2
+
+Quindi l'equazione della circonferenza vale:
+
+  (x - Xc)^2 + (y - Yc)^2 = R^2
+
+Vediamo un esempio:
+Circonferenza con centro in (0,0) e raggio 2.
+p1 = (0,2) p2 = (-2,0) p3 = (2,0)
+
+(setq x1 0)  (setq y1 2)
+(setq x2 -2) (setq y2 0)
+(setq x3 2)  (setq y3 0)
+
+(setq q1 (add (mul x1 x1) (mul y1 y1)))
+;-> 4
+(setq q2 (add (mul x2 x2) (mul y2 y2)))
+;-> 4
+(setq q3 (add (mul x3 x3) (mul y3 y3)))
+;-> 4
+
+(setq A (add (mul x1 (sub y2 y3)) (- (mul y1 (sub x2 x3))) (mul x2 y3) (- (mul x3 y2))))
+;-> 8
+(setq B (add (mul q1 (sub y3 y2)) (mul q2 (sub y1 y3)) (mul q3 (sub y2 y1))))
+;-> 0
+(setq C (add (mul q1 (sub x2 x3)) (mul q2 (sub x3 x1)) (mul q3 (sub x1 x2))))
+;-> 0
+(setq D (add (mul q1 (sub (mul x3 y2) (mul x2 y3)))
+             (mul q2 (sub (mul x1 y3) (mul x3 y1)))
+             (mul q3 (sub (mul x2 y1) (mul x1 y2)))))
+;-> -32
+
+(setq xc (sub (div B (mul 2 A))))
+;-> 0
+(setq yc (sub (div C (mul 2 A))))
+;-> 0
+(setq r (sqrt (div (add (mul B B) (mul C C) (sub (mul 4 A D))) (mul 4 A A))))
+;-> 2
+
+
+Casi particolari:
+a) punti collineari
+Se i tre punti sono collineari, allora non esiste alcuna circonferanza passante per i tre punti.
+Nella soluzione proposta, quando i punti sono collineari il parametro A vale 0.
+b) punti coincidenti
+Se due o tre punti sono coincidenti, allora esistono infinite circonferenze che passano per i tre punti.
+Per due punti passano infinite circonferenze perché dati due punti possiamo scegliere qualsiasi terzo punto non collineare con i primi due e determinare una circonferenza che passa per tutti e tre i punti.
+Pertanto, non esiste un numero limitato di circonferenze che possono passare attraverso due punti specificati.
+Per un punto possono passare infinite circonferenze perché un punto singolo non determina alcuna limitazione sulla posizione del centro o la lunghezza del raggio della circonferenza.
+Si può scegliere un centro qualsiasi nel piano e un raggio qualsiasi, e si otterrà sempre una circonferenza che passa per quel punto specifico.
+Anche in questo caso quando ci sono punti coincidenti il parametro A vale 0.
+
+Scriviamo la funzione finale:
+
+(define (circle3points x1 y1 x2 y2 x3 y3)
+  (local (q1 q2 q3 A B C D xc yc r)
+    ; calcolo dei parametri
+    (setq q1 (add (mul x1 x1) (mul y1 y1)))
+    (setq q2 (add (mul x2 x2) (mul y2 y2)))
+    (setq q3 (add (mul x3 x3) (mul y3 y3)))
+    (setq A (add (mul x1 (sub y2 y3))
+                (- (mul y1 (sub x2 x3)))
+                (mul x2 y3)
+                (- (mul x3 y2))))
+    ;(println A)
+    (setq B (add (mul q1 (sub y3 y2))
+                (mul q2 (sub y1 y3))
+                (mul q3 (sub y2 y1))))
+    (setq C (add (mul q1 (sub x2 x3))
+                (mul q2 (sub x3 x1))
+                (mul q3 (sub x1 x2))))
+    (setq D (add (mul q1 (sub (mul x3 y2) (mul x2 y3)))
+                (mul q2 (sub (mul x1 y3) (mul x3 y1)))
+                (mul q3 (sub (mul x2 y1) (mul x1 y2)))))
+    ;
+    (cond
+      ; punti coincidenti (infinite circonferenze)
+      ; (da verificare PRIMA dei punti collineari)
+      ((or (and (= x1 x2) (= y1 y2))
+           (and (= x1 x3) (= y1 y3))
+           (and (= x2 x3) (= y2 y3))) 'INF)
+      ; punti collineari (nessuna circonferenza)
+      ((zero? A) nil)
+      ; caso standard
+      (true
+        (setq xc (sub (div B (mul 2 A))))
+        (setq yc (sub (div C (mul 2 A))))
+        (setq r (sqrt (div (add (mul B B) (mul C C) (sub (mul 4 A D)))
+                          (mul 4 A A))))
+        (list xc yc r)))))
+
+Proviamo:
+
+Cerchio normale:
+(setq x1 0)  (setq y1 2)
+(setq x2 -2) (setq y2 0)
+(setq x3 2)  (setq y3 0)
+(circle3points x1 y1 x2 y2 x3 y3)
+;-> (0 0 -2)
+
+Cerchio con punti collineari (p1, p2 e p3)
+(setq x1 -2) (setq y1 0)
+(setq x2 1)  (setq y2 0)
+(setq x3 0)  (setq y3 0)
+(circle3points x1 y1 x2 y2 x3 y3)
+;-> nil
+
+Cerchio con due punti coincidenti (p1 = p2)
+(setq x1 1) (setq y1 1)
+(setq x2 1) (setq y2 1)
+(setq x3 6) (setq y3 1)
+(circle3points x1 y1 x2 y2 x3 y3)
+;-> INF
+
+Cerchio con tre punti coincidenti (p1 = p2 = p3)
+(setq x1 2) (setq y1 2)
+(setq x2 2) (setq y2 2)
+(setq x3 2) (setq y3 2)
+(circle3points x1 y1 x2 y2 x3 y3)
+;-> INF
+
+Cerchio con punti collineari (p1, p2 e p3):
+(setq x1 1) (setq y1 1)
+(setq x2 1) (setq y2 2)
+(setq x3 1) (setq y3 3)
+(circle3points x1 y1 x2 y2 x3 y3)
+;-> nil
+
+Cerchio normale:
+(setq x1 3) (setq y1 0)
+(setq x2 3) (setq y2 -6)
+(setq x3 0) (setq y3 -3)
+(circle3points x1 y1 x2 y2 x3 y3)
+;-> (3 -3 3)
+
+Cerchio normale:
+(setq x1 4) (setq y1 0)
+(setq x2 4) (setq y2 4)
+(setq x3 2) (setq y3 2)
+(circle3points x1 y1 x2 y2 x3 y3)
+;-> (4 2 2)
+
 ============================================================================
 

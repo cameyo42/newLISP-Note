@@ -2559,6 +2559,7 @@ NOTE LIBERE 25
   Numeri pari e dispari in una lista
   I gatti di Matilde
   Creazione di un algoritmo di ordinamento
+  Circonferenza passante per tre punti
 
 PROBLEMI SUI DADI
 =================
