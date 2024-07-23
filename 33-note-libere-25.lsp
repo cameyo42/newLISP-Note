@@ -3018,10 +3018,12 @@ https://math.stackexchange.com/questions/213658/get-the-equation-of-a-circle-whe
 
 Calcoliamo i seguenti parametri:
 
-A = x1(y2 - y3) - y1(x2 - x3) + x2y3 - x3y2
-B = (x1^2 + y1^2)(y3 - y2) + (x2^2 + y2^2)(y1 - y3) + (x3^2 + y3^2)(y2 - y1)
-C = (x1^2 + y1^2)(x2 - x3) + (x2^2 + y2^2)(x3 - x1) + (x3^2 + y3^2)(x1 - x2)
-D = (x1^2 + y1^2)(x3y2 - x2y3) + (x2^2 + y2^2)(x1y3 - x3y1) + (x3^2 + y3^2)(x2y1 - x1y2)
+  A = x1(y2 - y3) - y1(x2 - x3) + x2y3 - x3y2
+  B = (x1^2 + y1^2)(y3 - y2) + (x2^2 + y2^2)(y1 - y3) + (x3^2 + y3^2)(y2 - y1)
+  C = (x1^2 + y1^2)(x2 - x3) + (x2^2 + y2^2)(x3 - x1) + (x3^2 + y3^2)(x1 - x2)
+  D = (x1^2 + y1^2)(x3y2 - x2y3) +
+      (x2^2 + y2^2)(x1y3 - x3y1) +
+      (x3^2 + y3^2)(x2y1 - x1y2)
 
 Adesso il centro della circonferenza è dato da:
 
@@ -3069,7 +3071,6 @@ p1 = (0,2) p2 = (-2,0) p3 = (2,0)
 ;-> 0
 (setq r (sqrt (div (add (mul B B) (mul C C) (sub (mul 4 A D))) (mul 4 A A))))
 ;-> 2
-
 
 Casi particolari:
 a) punti collineari
@@ -3172,6 +3173,520 @@ Cerchio normale:
 (setq x3 2) (setq y3 2)
 (circle3points x1 y1 x2 y2 x3 y3)
 ;-> (4 2 2)
+
+
+-----------------------------------------
+Numero, doppio, triplo con tutte le cifre
+-----------------------------------------
+
+Trovare tutti i numeri fino ad un dato limite che hanno la seguente proprietà:
+l'unione del numero, del suo doppio e del suo triplo contengono tutte le cifre da 0 a 9 (in qualunque ordine e anche ripetute).
+
+(define (find-num limite)
+  (for (i 1 limite)
+    (setq n (explode (extend (string i (* 2 i) (* 3 i)))))
+    ; cifre ripetute solo una volta
+    ;(when (= (difference '("1" "2" "3" "4" "5" "6" "7" "8" "9" "0") n) '())
+    ; cifre ripetute una o più volte
+    (when (for-all (fn(x) (>= x 1)) (count '("1" "2" "3" "4" "5" "6" "7" "8" "9" "0") n))
+        (println (string i {-} (* 2 i) {-} (* 3 i))))))
+
+Proviamo:
+
+(find-num 1e4)
+;-> 1692-3384-5076
+;-> 1809-3618-5427
+;-> 1902-3804-5706
+;-> 1908-3816-5724
+;-> ...
+;-> 9568-19136-28704
+;-> 9678-19356-29034
+;-> 9768-19536-29304
+;-> 9780-19560-29340
+
+
+----------------------------------------------------
+Combattimento tra due creature fantastiche (ChatGPT)
+----------------------------------------------------
+
+Interazione tra l'autore e ChatGPT in merito alla progettazione di un combattimento tra due creature fantastiche (22 luglio 2024).
+
+-----
+User:
+-----
+Supponiamo di avere due creature, un elfo e un goblin che combattono tra loro in un gioco. Quali potrebbero essere i parametri di ogni giocatore? (es. forza, armatura, abilità, ecc.)
+
+Per creare un sistema di combattimento tra un elfo e un goblin in un gioco, potresti considerare i seguenti parametri per ogni giocatore:
+
+1. **Forza (STR)**: Determina il danno fisico che il personaggio può infliggere.
+2. **Agilità (AGI)**: Influenza la velocità di attacco, la capacità di schivare e la precisione.
+3. **Intelligenza (INT)**: Riguarda l'uso delle abilità magiche e la resistenza magica.
+4. **Costituzione (CON)**: Indica la salute e la resistenza fisica, ossia quanti danni può subire prima di cadere.
+5. **Armatura (ARM)**: Riduce il danno fisico subito.
+6. **Resistenza Magica (MR)**: Riduce il danno magico subito.
+7. **Abilità (SKL)**: Include abilità speciali uniche per ogni personaggio, come incantesimi per l'elfo o attacchi furtivi per il goblin.
+8. **Punti Salute (HP)**: La quantità di salute totale del personaggio.
+9. **Mana (MP)**: La quantità di energia magica disponibile per l'uso di abilità magiche.
+10. **Velocità (SPD)**: Determina l'ordine di attacco e la possibilità di effettuare attacchi multipli in un turno.
+
+Esempio di definizione dei parametri per un elfo e un goblin in newLISP:
+
+(define elfo
+  '((STR 15)
+    (AGI 20)
+    (INT 18)
+    (CON 12)
+    (ARM 10)
+    (MR  15)
+    (SKL '(arco-freccia incantesimo-cura))
+    (HP  100)
+    (MP  50)
+    (SPD 25)))
+
+(define goblin
+  '((STR 18)
+    (AGI 15)
+    (INT 10)
+    (CON 14)
+    (ARM 12)
+    (MR  8)
+    (SKL '(attacco-furtivo veleno))
+    (HP  120)
+    (MP  20)
+    (SPD 20)))
+
+In questo esempio, abbiamo definito gli attributi principali per un elfo e un goblin, considerando i loro punti di forza e debolezza unici. L'elfo è più agile e magico, mentre il goblin è più forte e resistente. Puoi aggiungere ulteriori dettagli e logiche di combattimento in base alle necessità del tuo gioco.
+
+-----
+User:
+-----
+Senza scrivere codice quale potrebbe essere una equazione che tiene conto di tutti i parametri (e i loro valori minimo e massimo)?
+
+--------
+ChatGPT:
+--------
+Per creare un'equazione che tenga conto di tutti i parametri e dei loro valori minimo e massimo, possiamo immaginare una funzione che calcola il "potere di combattimento" (PC) di un personaggio.
+Questa funzione potrebbe essere una combinazione ponderata dei vari parametri.
+Un'idea potrebbe essere quella di normalizzare ciascun parametro in un intervallo compreso tra 0 e 1 e poi sommare i contributi ponderati di ciascun parametro.
+
+Supponiamo che ciascun parametro possa assumere un valore minimo e massimo:
+
+- Forza (STR): 0-100
+- Agilità (AGI): 0-100
+- Intelligenza (INT): 0-100
+- Costituzione (CON): 0-100
+- Armatura (ARM): 0-100
+- Resistenza Magica (MR): 0-100
+- Abilità (SKL): 0-100 (valutazione complessiva delle abilità speciali)
+- Punti Salute (HP): 0-1000
+- Mana (MP): 0-1000
+- Velocità (SPD): 0-100
+
+L'equazione del "potere di combattimento" (PC) potrebbe essere:
+
+PC = w_{STR}*STR/100 + w_{AGI}*AGI/100 + w_{INT}*INT/100 + w_{CON}*CON/100 +
+     w_{ARM}*ARM/100 + w_{MR}*MR/100 + w_{SKL}*SKL/100 + w_{HP}*HP/1000 +
+     w_{MP}*MP/1000 + w_{SPD}*SPD/100
+
+Dove w_{STR}, w_{AGI}, w_{INT}, w_{CON}, w_{ARM}, w_{MR}, w_{SKL}, w_{HP}, w_{MP}, w_{SPD} sono i pesi associati a ciascun parametro, che riflettono l'importanza relativa di ogni parametro nel calcolo del potere di combattimento.
+I pesi possono essere scelti in base al design del gioco e all'equilibrio desiderato tra i vari parametri.
+
+Esempio di pesi:
+
+- Forza (STR): 0.15
+- Agilità (AGI): 0.15
+- Intelligenza (INT): 0.1
+- Costituzione (CON): 0.1
+- Armatura (ARM): 0.1
+- Resistenza Magica (MR): 0.1
+- Abilità (SKL): 0.1
+- Punti Salute (HP): 0.1
+- Mana (MP): 0.05
+- Velocità (SPD): 0.15
+
+Con questi pesi, l'equazione diventerebbe:
+
+PC = 0.15*STR/100 + 0.15*AGI/100 + 0.1*INT/100 + 0.1*CON/100 +
+     0.1*ARM/100 + 0.1*MR/100 + 0.1*SKL/100 + 0.1*HP/1000 +
+     0.05*MP/1000 + 0.15*SPD/100
+
+Questa equazione normalizza i valori di ciascun parametro e li combina usando pesi specifici per calcolare un singolo valore rappresentativo della forza complessiva del personaggio.
+
+-----
+User:
+-----
+In uno scontro non possiamo considerare solo la forza complessiva, sarebbe troppo scontato far vincere sempre il piu forte.
+
+--------
+ChatGPT:
+--------
+Hai ragione, uno scontro dovrebbe tenere conto di vari fattori dinamici e non solo della forza complessiva.
+Si può pensare a un sistema che include variabili casuali e modificatori di situazioni specifiche per rendere il combattimento più realistico e interessante.
+Di seguito, propongo un approccio per modellare un scontro tra due personaggi tenendo conto di più variabili:
+
+1. **Probabilità di Colpire (Pc)**: Influenzata da agilità e velocità.
+2. **Danno Inferto (Di)**: Dipende dalla forza e dalle abilità, ridotto dall'armatura e resistenza magica dell'avversario.
+3. **Schivata (Sc)**: Dipende dall'agilità.
+4. **Critico (Cr)**: Probabilità di colpo critico influenzata da agilità e intelligenza.
+5. **Riduzione Danno (Rd)**: Influenzata dall'armatura e dalla resistenza magica.
+6. **Abilità Speciali (As)**: Utilizzo delle abilità uniche di ciascun personaggio.
+
+Ecco come potrebbero essere modellate queste variabili:
+
+### 1. Probabilità di Colpire (Pc)
+ Pc_{elfo} = AGI_{elfo} + SPD_{elfo} + fattore_casuale
+ Pc_{goblin} = AGI_{goblin} + SPD_{goblin} + fattore_casuale
+
+### 2. Danno Inferto (Di)
+ Di_{elfo} = STR_{elfo} + danno_abilità - ARM_{goblin}
+ Di_{goblin} = STR_{goblin} + danno_abilità - ARM_{elfo}
+
+### 3. Schivata (Sc)
+ Sc_{elfo} = AGI_{elfo} + fattore_casuale
+ Sc_{goblin} = AGI_{goblin} + fattore_casuale
+
+### 4. Critico (Cr)
+ Cr_{elfo} = (AGI_{elfo} + INT_{elfo})*fattore_casuale
+ Cr_{goblin} = (AGI_{goblin} + INT_{goblin})*fattore_casuale
+
+### 5. Riduzione Danno (Rd)
+ Rd_{elfo} = ARM_{elfo} + MR_{elfo}
+ Rd_{goblin} = ARM_{goblin} + MR_{goblin}
+
+### 6. Abilità Speciali (As)
+L'uso delle abilità può essere modellato in base a un sistema di punti abilità o di mana:
+ As_{elfo} = abilità_usata
+ As_{goblin} = abilità_usata
+
+### Equazione di Scontro
+
+La risoluzione di uno scontro potrebbe essere una sequenza iterativa in cui ciascun personaggio attacca e difende. Ecco un esempio di come potrebbe essere strutturato:
+
+1. **Elfo attacca:**
+    - Calcolo della probabilità di colpire (Pc_{elfo})
+    - Se (Pc_{elfo} > Sc_{goblin}), l'attacco colpisce.
+    - Calcolo del danno inferto (Di_{elfo})
+    - Se (Cr_{elfo} > threshold), danno critico.
+    - Danno effettivo ({Danno Effettivo}_{elfo} = Di_{elfo} - Rd_{goblin})
+
+2. **Goblin attacca:**
+    - Calcolo della probabilità di colpire (Pc_{goblin})
+    - Se (Pc_{goblin} > Sc_{elfo}), l'attacco colpisce.
+    - Calcolo del danno inferto (Di_{goblin})
+    - Se (Cr_{goblin} > threshold), danno critico.
+    - Danno effettivo ({Danno Effettivo}_{goblin} = Di_{goblin} - Rd_{elfo})
+
+3. **Aggiornamento dei Punti Salute:**
+    - HP_{goblin} = HP_{goblin} - {Danno Effettivo}_{elfo}
+    - HP_{elfo} = HP_{elfo} - {Danno Effettivo}_{goblin}
+
+4. **Ripetizione fino alla fine del combattimento:**
+    - Il combattimento continua finché uno dei due personaggi ha (HP <= 0).
+
+Questo modello combina vari parametri, fattori casuali e abilità speciali per simulare un combattimento più realistico e meno prevedibile, dove non sempre il personaggio con i valori numerici più alti vince automaticamente.
+
+-----
+User:
+-----
+
+Potresti scrivere un programma che effettua uno scontro?
+
+--------
+ChatGPT:
+--------
+
+Certo! Possiamo scrivere un semplice programma in newLISP che simula uno scontro tra un elfo e un goblin utilizzando i parametri che abbiamo discusso. Questo programma includerà elementi casuali per rendere il combattimento meno prevedibile.
+
+Ecco un esempio di come potrebbe essere strutturato:
+
+Nota: il seguente programma è stato creato dopo diverse prove e correzioni che non sono riportate (chatGPT commette ancora diversi errori nell'utilizzo di newLISP). Comunque la logica del programma è tutta opera di chatGPT.
+
+(define (random-factor) 
+  (add 0.9 (mul 0.2 (random))))
+;
+(define (calculate-hit-probability agi spd)
+  (mul (add agi spd) (random-factor)))
+;
+(define (calculate-damage str skill-damage arm)
+  (max 0 (sub (add str skill-damage) arm)))
+;
+(define (calculate-damage-reduction arm mr)
+  (add arm mr))
+;
+(define (use-skill skills mp)
+  (if (and (> (length skills) 0) (> mp 0))
+    (first skills)
+    0))
+;
+(define (update-health hp damage)
+  (max 0 (sub hp damage)))
+;
+(define elfo
+  (list (list 'STR 15)
+        (list 'AGI 20)
+        (list 'INT 18)
+        (list 'CON 12)
+        (list 'ARM 10)
+        (list 'MR 15)
+        (list 'SKL (list 10 5)) ; Danni abilità
+        (list 'HP 100)
+        (list 'MP 50)
+        (list 'SPD 25)))
+;
+(define goblin
+  (list (list 'STR 18)
+        (list 'AGI 15)
+        (list 'INT 10)
+        (list 'CON 14)
+        (list 'ARM 12)
+        (list 'MR 8)
+        (list 'SKL (list 12 8)) ; Danni abilità
+        (list 'HP 120)
+        (list 'MP 20)
+        (list 'SPD 20)))
+;
+(define (get-value character key)
+  (letn (val (assoc key character))
+    (if val
+      (last val)
+      0)))
+
+(define (fight elfo goblin)
+  (letn ((rounds 1)
+         (elfo-hp (get-value elfo 'HP))
+         (goblin-hp (get-value goblin 'HP))
+         (elfo-mp (get-value elfo 'MP))
+         (goblin-mp (get-value goblin 'MP)))
+    (while (and (> elfo-hp 0) (> goblin-hp 0))
+      (letn ((elfo-hit-probability (calculate-hit-probability (get-value elfo 'AGI) (get-value elfo 'SPD)))
+             (goblin-hit-probability (calculate-hit-probability (get-value goblin 'AGI) (get-value goblin 'SPD)))
+             (elfo-damage (calculate-damage (get-value elfo 'STR) (use-skill (get-value elfo 'SKL) elfo-mp) (get-value goblin 'ARM)))
+             (goblin-damage (calculate-damage (get-value goblin 'STR) (use-skill (get-value goblin 'SKL) goblin-mp) (get-value elfo 'ARM)))
+             (elfo-damage-reduction (calculate-damage-reduction (get-value goblin 'ARM) (get-value goblin 'MR)))
+             (goblin-damage-reduction (calculate-damage-reduction (get-value elfo 'ARM) (get-value elfo 'MR))))
+        (if (< (random) elfo-hit-probability)
+          (setq goblin-hp (update-health goblin-hp (add elfo-damage elfo-damage-reduction))))
+        (if (< (random) goblin-hit-probability)
+          (setq elfo-hp (update-health elfo-hp (add goblin-damage goblin-damage-reduction))))
+        (println "Round " rounds ": Elfo HP " elfo-hp ", Goblin HP " goblin-hp)
+        (setq rounds (add rounds 1))
+        (read-line)))
+    (if (<= elfo-hp 0)
+      (println "Il goblin ha vinto!")
+      (println "L'elfo ha vinto!"))))
+
+(fight elfo goblin)
+;-> Round 1: Elfo HP 55, Goblin HP 87
+;-> Round 2: Elfo HP 10, Goblin HP 54
+;-> Round 3: Elfo HP 0, Goblin HP 21
+;-> Il goblin ha vinto!
+
+
+----------------------------
+Numero minimo con N divisori
+----------------------------
+
+Calcolare la seguente sequenza:
+
+a(n) = Numero più piccolo con esattamente n divisori
+
+Sequenza OEIS: A005179
+Smallest number with exactly n divisors.
+  1, 2, 4, 6, 16, 12, 64, 24, 36, 48, 1024, 60, 4096, 192, 144, 120, 65536,
+  180, 262144, 240, 576, 3072, 4194304, 360, 1296, 12288, 900, 960, 268435456,
+  720, 1073741824, 840, 9216, 196608, 5184, 1260, 68719476736, 786432, 36864,
+  1680, 1099511627776, 2880, ...
+
+(define (factor-group num)
+"Factorize an integer number"
+  (if (= num 1) '((1 1))
+    (letn ( (fattori (factor num))
+            (unici (unique fattori)) )
+      (transpose (list unici (count unici fattori))))))
+
+(define (divisors-count num)
+"Count the divisors of an integer number"
+  (if (= num 1)
+      1
+      (let (lst (factor-group num))
+        (apply * (map (fn(x) (+ 1 (last x))) lst)))))
+
+(define (divisors num)
+"Generate all the divisors of an integer number"
+  (local (f out)
+    (cond ((= num 1) '(1))
+          (true
+           (setq f (factor-group num))
+           (setq out '())
+           (divisors-aux 0 1)
+           (sort out)))))
+; auxiliary function
+(define (divisors-aux cur-index cur-divisor)
+  (cond ((= cur-index (length f))
+         (push cur-divisor out -1)
+        )
+        (true
+         (for (i 0 (f cur-index 1))
+           (divisors-aux (+ cur-index 1) cur-divisor)
+           (setq cur-divisor (* cur-divisor (f cur-index 0)))))))
+
+Il problema è che non sappiamo quale è il numero massimo di divisori di tutti i numeri da 1 a N.
+Vediamo per alcuni casi quale è il numero massimo di divisori:
+
+(apply max (map divisors-count (sequence 1 100)))
+;-> 12
+(apply max (map divisors-count (sequence 1 1e3)))
+;-> 64
+(apply max (map divisors-count (sequence 1 1e6)))
+;-> 240
+(time (println (apply max (map divisors-count (sequence 1 1e7)))))
+;-> 448
+;-> 35550.178
+
+Poi dobbiamo controllare che esistano tutti i divisori da 1 fino al numero massimo.
+
+Algoritmo
+Calcoliamo il numero di tutti i divisori dei numeri da 1 fino ad un milione.
+Creiamo una lista ordinata in modo crescente con elementi del tipo:
+  (numero-divisori numero)
+esempio: ((1 1) (2 2) (2 3) (2 5) (2 7) (3 4) (3 9) (4 6) (4 8) (4 10))
+Ciclo k da 1 al limite dato
+  Cerchiamo sulla lista l'elemento (k ?), (k=numero-divisori ?=numero)
+  se esiste inseriamo il valore trovato in ? nella soluzione
+  se non esiste inseriamo nil nella soluzione
+
+(define (seq limite)
+  (local (out all)
+    (setq out '(0))
+    (setq all (sort (map (fn(x) (list (divisors-count x) x)) (sequence 1 1e6))))
+    ;(setq all (map (fn(x) (list x (divisors-count x))) (sequence 1 1e6)))
+    (for (k 1 limite)
+      (cond ((find (list k '?) all match)
+              (push ($0 1) out -1))
+            (true (push nil out -1))))
+    out))
+
+Proviamo:
+
+(time (println (setq d (seq 100))))
+;-> (0 1 2 4 6 16 12 64 24 36 48 1024 60 4096 192 144 120 65536 180 262144
+;->  240 576 3072 nil 360 1296 12288 900 960 nil 720 nil 840 9216 196608 
+;->  5184 1260 nil 786432 36864 1680 nil 2880 nil 15360 3600 nil nil 2520
+;->  46656 6480 589824 61440 nil 6300 82944 6720 nil nil nil 5040 nil nil
+;->  14400 7560 331776 46080 nil 983040 nil 25920 nil 10080 nil nil 32400
+;->  nil 746496 184320 nil 15120 44100 nil nil 20160 nil nil nil 107520 nil
+;->  25200 nil nil nil nil nil 27720 nil 233280 230400 45360)
+;-> 17970.287 ; 18 secondi
+
+Quali sono i numeri di cui non abbiamo trovato il valore del numero di divisori nella lista dei divisori?
+
+(ref-all nil d)
+;-> ((23) (29) (31) (37) (41) (43) (46) (47) (53) (57) (58) (59) (61) (62)
+;->  (67) (69) (71) (73) (74) (76) (79) (82) (83) (85) (86) (87) (89) (91)
+;->  (92) (93) (94) (95) (97))
+
+Questo vuol dire che non esiste alcun numero tra 1 e 1 milione che ha, per esempio, 23 divisori.
+Il numero più piccolo che ha 23 divisori è 4194304.
+Il numero più piccolo che ha 29 divisori è 268435456.
+Il numero più piccolo che ha 31 divisori è 1073741824.
+
+Il metodo di calcolare il numero di divisori per ogni numero è lento:
+
+(define (t n) (for (i 1 n) (divisors-count n)))
+
+(time (t 100))
+;-> 0
+(time (t 1e4))
+;-> 31.24
+(time (t 1e5))
+;-> 234.311
+(time (t 1e6))
+;-> 2437.72
+(time (t 1e7))
+;-> 26467.224
+
+Possiamo migliorare l'efficienza del calcolo di tutti i divisori utilizzando un approccio simile al crivello di Eratostene.
+Invece di calcolare i divisori di ogni numero singolarmente, possiamo iterare sui numeri e aggiornare i contatori dei divisori per i loro multipli. Questo riduce il numero di operazioni necessarie.
+Per fare questo utilizziamo due cicli for.
+Il primo ciclo itera attraverso ogni numero i da 1 a N. 
+Il secondo ciclo itera attraverso ogni multiplo j di i e incrementa il contatore dei divisori corrispondente nel vettore soluzione (out).
+Il vettore ha dimensione (N + 1) per iniziare l'indicizzazione da 1.
+Usiamo un vettore perchè è più veloce di una lista, ma la funzione restituisce una lista.
+
+(define (divisors-up-to-N N)
+  ; Inizializza un vettore di contatori dei divisori a 0
+  (let (out (array (+ N 1) '(0)))
+    (for (i 1 N)
+      (for (j i N i)
+        (++ (out j))))
+    ; Restituisce una lista senza il primo elemento
+    (rest (array-list out))))
+
+Proviamo:
+
+(divisors-up-to-N 10)
+;-> (1 2 2 3 2 4 2 4 3 4)
+
+Vediamo se le due funzioni producono gli stessi risultati:
+
+(= (map divisors-count (sequence 1 1e5)) (divisors-up-to-N 1e5))
+;-> true
+
+Vediamo la velocità delle due funzioni:
+
+(time (map divisors-count (sequence 1 1e5)))
+;-> 218.689
+(time (divisors-up-to-N 1e5))
+;-> 62.476
+(time (map divisors-count (sequence 1 1e6)))
+;-> 2640.756
+(time (divisors-up-to-N 1e6))
+;-> 1968.92
+(time (divisors-up-to-N 1e7))
+;-> 22049.074
+(time (divisors-up-to-N 1e8))
+;-> 273979.481
+
+Proviamo ad usare questa nuova funzione "divisors-up-to-N":
+
+(define (seq2 limite upto)
+  (local (out all)
+    (setq out '(0))
+    (setq all (sort (map list (divisors-up-to-N upto) (sequence 1 upto))))
+    (for (k 1 limite)
+      (cond ((find (list k '?) all match)
+              (push ($0 1) out -1))
+            (true (push nil out -1))))
+    out))
+
+(time (println (setq d2 (seq2 100 1e6))))
+;-> (0 1 2 4 6 16 12 64 24 36 48 1024 60 4096 192 144 120 65536 180 262144
+;->  240 576 3072 nil 360 1296 12288 900 960 nil 720 nil 840 9216 196608 
+;->  5184 1260 nil 786432 36864 1680 nil 2880 nil 15360 3600 nil nil 2520
+;->  46656 6480 589824 61440 nil 6300 82944 6720 nil nil nil 5040 nil nil
+;->  14400 7560 331776 46080 nil 983040 nil 25920 nil 10080 nil nil 32400
+;->  nil 746496 184320 nil 15120 44100 nil nil 20160 nil nil nil 107520 nil
+;->  25200 nil nil nil nil nil 27720 nil 233280 230400 45360)
+;-> 16048.442 ; 16 secondi
+
+Non abbiamo migliorato molto la velocità perchè l'espressione che impiega più tempo è "find".
+
+(ref-all nil d2)
+;-> ((23) (29) (31) (37) (41) (43) (46) (47) (53) (57) (58) (59) (61) (62)
+;->  (67) (69) (71) (73) (74) (76) (79) (82) (83) (85) (86) (87) (89) (91)
+;->  (92) (93) (94) (95) (97))
+
+Facciamo l'ultimo calcolo:
+
+(time (println (setq d2 (seq2 100 1e8))))
+;-> (0 1 2 4 6 16 12 64 24 36 48 1024 60 4096 192 144 120 65536 180 262144
+;->  240 576 3072 4194304 360 1296 12288 900 960 nil 720 nil 840 9216 196608
+;->  5184 1260 nil 786432 36864 1680 nil 2880 nil 15360 3600 12582912 nil 2520
+;->  46656 6480 589824 61440 nil 6300 82944 6720 2359296 nil nil 5040 nil nil
+;->  14400 7560 331776 46080 nil 983040 37748736 25920 nil 10080 nil nil 32400
+;->  3932160 746496 184320 nil 15120 44100 nil nil 20160 5308416 nil nil 107520
+;->  nil 25200 2985984 62914560 nil nil 21233664 27720 nil 233280 230400 45360)
+;-> 1832762.63  ; 30m 32s 762ms
 
 ============================================================================
 

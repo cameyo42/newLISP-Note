@@ -10,7 +10,7 @@ Poichè newLISP permette sia lo stile funzionale che quello imperativo, le funzi
 Angle convention:
 
                              +y
-                        
+
                              |    /
                              |   /
                              |  /   + Theta
@@ -20,7 +20,7 @@ Angle convention:
                              |  \   - Theta
                              |   \
                              |    \
-                          
+
                             -y
 
 -------------
@@ -68,7 +68,7 @@ Altro metodo che mostra i valori Decimale, Ottale, Esadecimale e il carattere:
 
 (define (ascii-info)
 ; ascii chart output from #32 - #126
-  (println "Dec Oct Hex Chr") 
+  (println "Dec Oct Hex Chr")
   (map (fn(x) (println (format "%-3d %-3o %-3x %s" x x x (char x))))
       (sequence 32 126))
   '-------------)
@@ -2135,7 +2135,7 @@ Possiamo terminare le espressioni che usano "silent" in questo modo:
 
 silent sopprime solo il prompt ">" della REPL.
 Anche se il prompt è soppresso, newLISP è pronto per accettare nuovi comandi.
-Premendo "Invio" su una riga vuota viene stampato di nuovo il prompt. 
+Premendo "Invio" su una riga vuota viene stampato di nuovo il prompt.
 (print ">") alla fine di un'espressione silent ripristina il normale prompt.
 Possiamo anche inserirlo nel file init.lsp:
 
@@ -4499,8 +4499,8 @@ Da notare che i risultati sono diversi nel caso di liste annidate:
 Se abbiamo delle liste con elementi di tipo stringa, potremmo volere un altro risultato invece di:
 
 (cp '("1" "2" "3") '("4" "5" "6"))
-;-> (("1" "4") ("1" "5") ("1" "6") 
-;->  ("2" "4") ("2" "5") ("2" "6") 
+;-> (("1" "4") ("1" "5") ("1" "6")
+;->  ("2" "4") ("2" "5") ("2" "6")
 ;->  ("3" "4") ("3" "5") ("3" "6"))
 
 Cioè, vogliamo che il risultato sia: ("14" "15" "16" "24" ...).
@@ -5779,10 +5779,9 @@ I segni della funzione seguono lo schema +, +, -, -, +, +, -, -,...
 Quindi partendo dal primo valore della sequenza possiamo calcolare quella successiva e cosi via.
 
 (define (part-num num)
-  (local (n p-vec segno penta continua i j val)
+  (local (n p-vec segno penta i j val)
     (setq p-vec (array (+ num 1) '(0)))
     (setf (p-vec 0) 1)
-    (setq continua true)
     (setq n 1)
     (while (<= n num)
       (setq i 0)
@@ -5807,6 +5806,19 @@ Quindi partendo dal primo valore della sequenza possiamo calcolare quella succes
 ;->  627 792 1002 1255 1575 1958 2436 3010 3718 4565 5604 6842
 ;->  8349 10143 12310 14883 17977 21637 26015 31185 37338 44583
 ;->  53174 63261 75175 89134 105558 124754 147273 173525 204226)
+
+Sequenza OEIS: A000041
+a(n) is the number of partitions of n (the partition numbers).
+  1, 1, 2, 3, 5, 7, 11, 15, 22, 30, 42, 56, 77, 101, 135, 176, 231, 297, 385,
+  490, 627, 792, 1002, 1255, 1575, 1958, 2436, 3010, 3718, 4565, 5604, 6842,
+  8349, 10143, 12310, 14883, 17977, 21637, 26015, 31185, 37338, 44583, 53174,
+  63261, 75175, 89134, 105558, 124754, 147273, 173525, ...
+
+(time (println (part-num 100)))
+;-> (1 1 2 3 5 7 11 15 22 30 42 56 77 101 135 176 231 297 385
+;-> ...
+;-> 104651419 118114304 133230930 150198136 169229875 190569292)
+;-> 10.068
 
 Nel 1918 il matematico indiano Ramanujan propose la seguente formula per calcolare il numero di partizioni di un numero n:
 
@@ -5841,7 +5853,7 @@ Valori calcolati con la formula di Ramanujan:
 
 Errore relativo:
 
-(setq err-rel (map (fn(x y) 
+(setq err-rel (map (fn(x y)
   (format "%.4f" (div (abs (sub x y)) x) )) valori misure))
 ;-> ("0.0000" "0.0000" "0.0000" "0.3333" "0.2000" "0.1429" "0.0909" "0.2000"
 ;->  "0.1364" "0.1667" "0.1429" "0.1429" "0.1169" "0.1386" "0.1185" "0.1250"
@@ -5929,7 +5941,7 @@ Versione equivalente (più lenta):
 (define (extended-euclid a b)
   (local (x0 y0 x y d)
   (cond ((zero? b) (list a 1 0))
-        (true 
+        (true
           (map set '(d x0 y0) (extended-euclid b (% a b)))
           (map set '(x y) (list y0 (- x0 (* (/ a b) y0))))
           (list d x y)))))
@@ -7918,13 +7930,13 @@ Proviamo la funzione:
               (1 0 1)))
 
 (flood-fill image 0 0 2)
-;-> ((2 2 2) 
-;->  (2 2 0) 
+;-> ((2 2 2)
+;->  (2 2 0)
 ;->  (2 0 1))
 
 (flood-fill image 2 2 2)
-;-> ((1 1 1) 
-;->  (1 1 0) 
+;-> ((1 1 1)
+;->  (1 1 0)
 ;->  (1 0 2))
 
 (setq image '(
@@ -7948,7 +7960,7 @@ Proviamo la funzione:
       (0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 1 0 0 1 0 1 0 1 1)))
 
 (flood-fill image 0 0 8)
-;-> ((8 8 1 0 1 1 1 1 0 0 0 1 1 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1) 
+;-> ((8 8 1 0 1 1 1 1 0 0 0 1 1 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1)
 ;->  (1 8 1 1 1 8 1 1 1 1 1 0 1 1 1 1 0 1 0 1 0 1 8 8 1 1 1 1 1 1)
 ;->  (8 8 1 0 1 8 8 1 1 1 1 1 1 1 0 1 1 0 1 1 1 8 1 8 1 8 1 0 1 0)
 ;->  (1 8 1 1 0 1 8 1 8 1 8 1 8 1 1 1 1 1 1 1 1 8 1 8 8 8 1 1 1 1)
@@ -8161,7 +8173,7 @@ Adesso possiamo scrivere la funzione che disegna i punti sul terminale. QUesta f
             (setf (matrix zero-y zero-x) "O")
             (setf (matrix zero-y zero-x) "∙")
         )
-    )    
+    )
     ; stampa valori reali min e max
     (println (format "x: %-12.3f %-12.3f" x-min x-max))
     (println (format "y: %-12.3f %-12.3f" y-min y-max))
@@ -8360,7 +8372,7 @@ Funzione che genera i punti della superellisse:
 ;->                           ■
 ;->                           ■
 
-Disegniamo un'altra funzione: 
+Disegniamo un'altra funzione:
 
       (x*x)
 y = --------- - 2
@@ -8398,7 +8410,7 @@ y = --------- - 2
 (plot (func-points gg -4 -0.5 0.01) 40 20)
 ;-> x: -4.000       -0.500
 ;-> y: -1.900       0.667
-;-> 
+;->
 ;->  ■■
 ;->   ■■
 ;->     ■■
@@ -8468,7 +8480,7 @@ Sottosequenza crescente più lunga
 
 Dato una lista non ordinata di interi, trovare la lunghezza della sottosequenza crescente più lunga (anche non contigua).
 
-Sia max[i] la lunghezza della sottosequenza crescente più lunga finora. 
+Sia max[i] la lunghezza della sottosequenza crescente più lunga finora.
 Se un elemento prima di i è minore di lst[i], allora max[i] = max(max[i], max[j]+1).
 
 La sequente funzione calcola la lunghezza della sottosequenza crescente più lunga:
@@ -8514,10 +8526,10 @@ Se vogliamo ottenere i valori della sottosequenza possiamo seguire l'algoritmo p
       )
     )
     ; After searching, lo is 1 greater than the
-    ; length of the longest prefix of X[i]    
+    ; length of the longest prefix of X[i]
     (setq newL lo)
-    ; The predecessor of X[i] is the last index of 
-    ; the subsequence of length newL-1    
+    ; The predecessor of X[i] is the last index of
+    ; the subsequence of length newL-1
     (setf (P i) (M (- newL 1)))
     (setf (M newL) i)
     (if (> newL L)
@@ -8808,7 +8820,7 @@ Nota: non passiamo le liste "lst" e "base" alla funzione "dis?" perchè perderem
     out))
 
 (sort (dism '(A B C D)))
-;-> ((B A D C) (B C D A) (B D A C) 
+;-> ((B A D C) (B C D A) (B D A C)
 ;->  (C A D B) (C D A B) (C D B A)
 ;->  (D A B C) (D C A B) (D C B A))
 

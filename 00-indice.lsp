@@ -2560,6 +2560,9 @@ NOTE LIBERE 25
   I gatti di Matilde
   Creazione di un algoritmo di ordinamento
   Circonferenza passante per tre punti
+  Numero, doppio, triplo con tutte le cifre
+  Combattimento tra due creature fantastiche (ChatGPT)
+  Numero minimo con N divisori
 
 PROBLEMI SUI DADI
 =================
