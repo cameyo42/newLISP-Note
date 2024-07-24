@@ -3688,5 +3688,360 @@ Facciamo l'ultimo calcolo:
 ;->  nil 25200 2985984 62914560 nil nil 21233664 27720 nil 233280 230400 45360)
 ;-> 1832762.63  ; 30m 32s 762ms
 
+
+---------------------------------
+Esercizi di aritmetica elementare
+---------------------------------
+
+Scriviamo un programma che genera espressioni aritmetiche da risolvere.
+Il programma deve proporre un predeterminato numero di espressioni aritmetiche elementari del seguente tipo:
+
+  valore1 operatore valore2 = (risultato)
+
+dove 'valore1' e 'valore2' sono numeri da 0 a 10, 
+mentre 'operatore' può valere +, -, * oppure /.
+I valori e l'operatore devono essere casuali per ogni espressione.
+I valori devono essere inferiori ad un valore massimo predefinito.
+Il risultato non deve essere mostrato all'utente.
+Per ogni espressione l'utente deve inserire la risposta e il programma verificherà la sua correttezza e il tempo impiegato per rispondere.
+Al termine di tutte le espressioni deve essere mostrato un riepilogo dei risultati e il tempo impiegato per rispondere a tutte le operazioni.
+
+Esempio:
+  Esercizi di aritmetica (3)
+  
+  1)  1 * 5 = 5
+      1 * 5 = 5
+  Corretto. (1975 msec)
+  
+  2)  7 + 10 = 23
+      7 + 10 = 17
+  Errato. (1603 msec)
+  
+  3)  3 * 1 = 3
+      3 * 1 = 3
+  Corretto. (1269 msec)
+  
+  Domande totali: 3
+  Risposte corrette: 2
+  Risposte errate: 1
+  Tempo impiegato: 4.847 secondi.
+
+Per adesso non utilizziamo l'operatore di divisione "/".
+
+(define (select_operator) ('(+ - *) (rand 3)))
+
+Per adesso il valore massimo vale 10.
+
+(define (select_number) (rand 11))
+
+Funzione che genera espressioni aritmetiche da risolvere:
+(versione senza divisione e valore massimo = 10)
+
+(define (esercizi num)
+  (local (si no totale start val1 val2 op result res ans-time elapsed)
+    (setq si 0)
+    (setq no 0)
+    (setq totale num)
+    (println "Esercizi di aritmetica (" totale ")\n")
+    (setq start (time-of-day))
+    (for (i 1 totale)
+      (setq val1 (select_number))
+      (setq val2 (select_number))
+      (setq op (select_operator))
+      (setq result (eval-string (string "(" op " " val1 " " val2 ")")))
+      (setq go (time-of-day))
+      (print (string i ")  " val1 " " op " " val2 " = "))
+      (read-line)
+      (setq res (int (current-line) 0 10))
+      (setq ans-time (int (- (time-of-day) go)))
+      (println (string "    " val1 " " op " " val2 " = " result))
+      (cond ((= res result) 
+             (++ si)
+             (println "Corretto. (" ans-time " msec)"))
+            ((!= res result)
+             (++ no)
+             (println "Errato. (" ans-time " msec)")))
+      ;(println (string "(" op " " val1 " " val2 ") = " result)))))
+      (println)
+    )
+    (setq elapsed (div (- (time-of-day) start) 1000))
+    (println "Domande totali: " totale)
+    (println "Risposte corrette: " si)
+    (println "Risposte errate: " no)
+    (println "Tempo impiegato: " elapsed " secondi.") '>))
+
+Proviamo:
+
+(esercizi 3)
+;-> Esercizi di aritmetica (3)
+;-> 
+;-> 1)  3 + 1 = 4
+;->     3 + 1 = 4
+;-> Corretto. (1814 msec)
+;-> 
+;-> 2)  9 * 9 = 81
+;->     9 * 9 = 81
+;-> Corretto. (2016 msec)
+;-> 
+;-> 3)  1 + 3 = 5
+;->     1 + 3 = 4
+;-> Errato. (1754 msec)
+;-> 
+;-> Domande totali: 3
+;-> Risposte corrette: 2
+;-> Risposte errate: 1
+;-> Tempo impiegato: 5.584 secondi.
+
+Per aggiungere anche l'operatore di divisione "/" dobbiamo inserire alcuni controlli.
+In particolare quando l'operatore vale "/", allora val2 deve essere sempre diverso da 0 (perchè non è possibile dividere per 0).
+
+(define (select_operator) ('(+ - * /) (rand 4)))
+
+Inoltre modifichiamo il programma in modo da predefinire anche il valore massimo dei numeri da utilizzare nelle espressioni.
+
+(define (select_number max-number) (rand (+ max-number 1)))
+
+Funzione che genera espressioni aritmetiche da risolvere:
+
+(define (esercizi totale max-value)
+  (local (si no start val1 val2 op result res ans-time elapsed)
+    (setq si 0)
+    (setq no 0)
+    (println "Esercizi di aritmetica (" totale ")\n")
+    (setq start (time-of-day))
+    (for (i 1 totale)
+      (setq val1 (select_number max-value))
+      (setq val2 (select_number max-value))
+      (setq op (select_operator))
+      (setq result (eval-string (string "(" op " " val1 " " val2 ")")))
+      (setq go (time-of-day))
+      (print (string i ")  " val1 " " op " " val2 " = "))
+      (read-line)
+      (setq res (int (current-line) 0 10))
+      (setq ans-time (int (- (time-of-day) go)))
+      (println (string "    " val1 " " op " " val2 " = " result))
+      (cond ((= res result) 
+             (++ si)
+             (println "Corretto. (" ans-time " msec)"))
+            ((!= res result)
+             (++ no)
+             (println "Errato. (" ans-time " msec)")))
+      ;(println (string "(" op " " val1 " " val2 ") = " result)))))
+    )
+    (setq elapsed (div (- (time-of-day) start) 1000))
+    (println)
+    (println "Domande totali: " totale)
+    (println "Risposte corrette: " si)
+    (println "Risposte errate: " no)
+    (println "Tempo impiegato: " elapsed " secondi.") '>))
+
+Proviamo:
+
+(esercizi 5 20)
+;-> Esercizi di aritmetica (5)
+;-> 
+;-> 1)  12 * 13 = 156
+;->     12 * 13 = 156
+;-> Corretto. (7625 msec)
+;-> 2)  16 * 3 = 48
+;->     16 * 3 = 48
+;-> Corretto. (3140 msec)
+;-> 3)  18 - 19 = -1
+;->     18 - 19 = -1
+;-> Corretto. (13623 msec)
+;-> 4)  15 + 0 = 15
+;->     15 + 0 = 15
+;-> Corretto. (2704 msec)
+;-> 5)  20 / 6 = 3
+;->     20 / 6 = 3
+;-> Corretto. (3439 msec)
+;-> 
+;-> Domande totali: 5
+;-> Risposte corrette: 5
+;-> Risposte errate: 0
+;-> Tempo impiegato: 30.563 secondi.
+
+Per finire un programma solo per la tavola pitagorica (cioè genera espressioni per imparare le tabelline).
+
+(define (tabelline totale)
+  (local (si no start val1 val2 op result res ans-time elapsed)
+    (setq si 0)
+    (setq no 0)
+    (println "Esercizi sulla tavola pitagorica (" totale ")")
+    (setq start (time-of-day))
+    (for (i 1 totale)
+      (setq val1 (+ 1 (rand 12)))
+      (setq val2 (+ 1 (rand 12)))
+      (setq result (* val1 val2))
+      (setq go (time-of-day))
+      (print (string i ")  " val1 " * " val2 " = "))
+      (read-line)
+      (setq res (int (current-line) 0 10))
+      (setq ans-time (int (- (time-of-day) go)))
+      (println (string "    " val1 " * " val2 " = " result))
+      (cond ((= res result) 
+             (++ si)
+             (println "Corretto. (" ans-time " msec)"))
+            ((!= res result)
+             (++ no)
+             (println "Errato. (" ans-time " msec)")))
+    )
+    (println)
+    (setq elapsed (div (- (time-of-day) start) 1000))
+    (println "Domande totali: " totale)
+    (println "Risposte corrette: " si)
+    (println "Risposte errate: " no)
+    (println "Tempo impiegato: " elapsed " secondi.") '>))
+
+Proviamo:
+
+(tabelline 10)
+;-> Esercizi sulla tavola pitagoricadi aritmetica (10)
+;-> 1)  4 * 6 = 24
+;->     4 * 6 = 24
+;-> Corretto. (1876 msec)
+;-> 2)  7 * 2 = 14
+;->     7 * 2 = 14
+;-> Corretto. (1397 msec)
+;-> 3)  4 * 9 = 36
+;->     4 * 9 = 36
+;-> Corretto. (2265 msec)
+;-> 4)  4 * 10 = 40
+;->     4 * 10 = 40
+;-> Corretto. (1617 msec)
+;-> 5)  12 * 11 = 132
+;->     12 * 11 = 132
+;-> Corretto. (15724 msec)
+;-> 6)  9 * 4 = 36
+;->     9 * 4 = 36
+;-> Corretto. (2413 msec)
+;-> 7)  12 * 2 = 24
+;->     12 * 2 = 24
+;-> Corretto. (1457 msec)
+;-> 8)  1 * 10 = 10
+;->     1 * 10 = 10
+;-> Corretto. (1875 msec)
+;-> 9)  7 * 8 = 56
+;->     7 * 8 = 56
+;-> Corretto. (1501 msec)
+;-> 10)  12 * 1 = 12
+;->     12 * 1 = 12
+;-> Corretto. (1281 msec)
+;-> 
+;-> Domande totali: 10
+;-> Risposte corrette: 10
+;-> Risposte errate: 0
+;-> Tempo impiegato: 31.438 secondi.
+
+
+------------------------------------
+Mucche, galline e animali fantastici
+------------------------------------
+
+Il tradizionale problema delle mucche e delle galline è il seguente:
+
+  Un contadino alleva mucche e galline nella sua fattoria.
+  Gli animali hanno in totale 24 teste e 68 zampe.
+  Quante mucche e quante galline ha il contadino?
+
+Si tratta di un problema per introdurre i giovani studenti al concetto di sistema di equazioni.
+Ponendo G = numero galline e M = numero mucche otteniamo il sistema:
+
+1.   G + M = 24
+2.   2*G + 4*M = 68
+
+Vediamo la soluzione:
+
+dalla 1.
+  M = 24 - G
+sostituiamo nella 2.
+  2*G + 4*(24 - G) = 68
+  2*G + 96 - 4*G = 68
+  G = (96 - 68)/2 = 14
+quindi:
+  M = 24 - G = 10
+
+Il contadino ha 10 mucche e 14 galline.
+
+Un contadino extra-terrestre possiede animali diversi da mucche e galline.
+Infatti egli alleva due tipi di animali A e B in cui:
+
+ TesteA, è il numero di teste dell'animale A
+ TesteA, è il numero di zampe dell'animale A
+ ZampeB, è il numero di teste dell'animale B
+ ZampeB, è il numero di zampe dell'animale B
+ T, è il numero totale delle teste degli animali
+ Z, è il numero totale delle zampe degli animali
+
+Il sistema di equazioni diventa:
+
+1)  A*TesteA + B*TesteB = T
+2)  A*ZampeA + B*ZampeB = Z
+
+Calcoliamo la soluzione:
+
+  A = (T - B*TB)/TA
+
+  ZA*T - Z*B*TB
+  ------------- + B*ZB = Z
+       TA
+
+  ZA*T - ZA*B*TB + B*ZB*TA
+  ------------------------ = Z
+             TA
+
+  ZA*T - ZA*B*TB + B*ZB*TA = Z*TA
+
+  B*(ZB*TA - ZA*TB) = TA*Z - ZA*T
+
+        TA*Z - ZA*T
+  B = ---------------
+       ZB*TA - ZA*TB
+
+       (T - B*TB)
+  A = ------------
+           TA
+
+Sistema di equazioni:
+
+ A*ta + B*tb = t
+ A*za + B*zb = z
+
+Soluzione:
+
+ A = (tb*z - t*zb)/(tb*za - ta*zb)
+ B = (ta*z - t*za)/(ta*zb - tb*za)
+     con (tb*za != ta*zb)
+
+Nota: per essere valida la soluzione deve avere solo numeri interi (non esistono 2.25 animali vivi)
+
+(define (animals ta tb za zb t z)
+    ; tb*za = ta*zb --> nessuna soluzione
+    (if ((zero? (* tb za) (* ta zb))
+        nil
+        ;else
+        ; calcolo soluzione
+        (local (A B)
+          (setq A (div (sub (mul tb z) (mul t zb))
+                      (sub (mul tb za) (mul ta zb))))
+          (setq B (div (sub (mul ta z) (mul t za))
+                      (sub (mul ta zb) (mul tb za))))
+          ; stampa soluzione
+          (println A { } B)
+          ; verifica soluzioni con numeri interi
+          (if (and (= A (int A)) (= B (int B))) (list A B) nil)))))
+
+Proviamo:
+
+(animals 1 1 2 4 24 68)
+;-> (14 10)
+
+(animals 4 2 8 16 210 672)
+;-> (42 21)
+
+(animals 4 3 4 5 100 200)
+;-> -12.5 50
+;-> nil
+
 ============================================================================
 

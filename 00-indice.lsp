@@ -2563,6 +2563,8 @@ NOTE LIBERE 25
   Numero, doppio, triplo con tutte le cifre
   Combattimento tra due creature fantastiche (ChatGPT)
   Numero minimo con N divisori
+  Esercizi di aritmetica elementare
+  Mucche, galline e animali fantastici
 
 PROBLEMI SUI DADI
 =================
