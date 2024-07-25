@@ -3401,7 +3401,7 @@ Ecco un esempio di come potrebbe essere strutturato:
 
 Nota: il seguente programma è stato creato dopo diverse prove e correzioni che non sono riportate (chatGPT commette ancora diversi errori nell'utilizzo di newLISP). Comunque la logica del programma è tutta opera di chatGPT.
 
-(define (random-factor) 
+(define (random-factor)
   (add 0.9 (mul 0.2 (random))))
 ;
 (define (calculate-hit-probability agi spd)
@@ -3570,7 +3570,7 @@ Proviamo:
 
 (time (println (setq d (seq 100))))
 ;-> (0 1 2 4 6 16 12 64 24 36 48 1024 60 4096 192 144 120 65536 180 262144
-;->  240 576 3072 nil 360 1296 12288 900 960 nil 720 nil 840 9216 196608 
+;->  240 576 3072 nil 360 1296 12288 900 960 nil 720 nil 840 9216 196608
 ;->  5184 1260 nil 786432 36864 1680 nil 2880 nil 15360 3600 nil nil 2520
 ;->  46656 6480 589824 61440 nil 6300 82944 6720 nil nil nil 5040 nil nil
 ;->  14400 7560 331776 46080 nil 983040 nil 25920 nil 10080 nil nil 32400
@@ -3608,7 +3608,7 @@ Il metodo di calcolare il numero di divisori per ogni numero è lento:
 Possiamo migliorare l'efficienza del calcolo di tutti i divisori utilizzando un approccio simile al crivello di Eratostene.
 Invece di calcolare i divisori di ogni numero singolarmente, possiamo iterare sui numeri e aggiornare i contatori dei divisori per i loro multipli. Questo riduce il numero di operazioni necessarie.
 Per fare questo utilizziamo due cicli for.
-Il primo ciclo itera attraverso ogni numero i da 1 a N. 
+Il primo ciclo itera attraverso ogni numero i da 1 a N.
 Il secondo ciclo itera attraverso ogni multiplo j di i e incrementa il contatore dei divisori corrispondente nel vettore soluzione (out).
 Il vettore ha dimensione (N + 1) per iniziare l'indicizzazione da 1.
 Usiamo un vettore perchè è più veloce di una lista, ma la funzione restituisce una lista.
@@ -3661,7 +3661,7 @@ Proviamo ad usare questa nuova funzione "divisors-up-to-N":
 
 (time (println (setq d2 (seq2 100 1e6))))
 ;-> (0 1 2 4 6 16 12 64 24 36 48 1024 60 4096 192 144 120 65536 180 262144
-;->  240 576 3072 nil 360 1296 12288 900 960 nil 720 nil 840 9216 196608 
+;->  240 576 3072 nil 360 1296 12288 900 960 nil 720 nil 840 9216 196608
 ;->  5184 1260 nil 786432 36864 1680 nil 2880 nil 15360 3600 nil nil 2520
 ;->  46656 6480 589824 61440 nil 6300 82944 6720 nil nil nil 5040 nil nil
 ;->  14400 7560 331776 46080 nil 983040 nil 25920 nil 10080 nil nil 32400
@@ -3698,7 +3698,7 @@ Il programma deve proporre un predeterminato numero di espressioni aritmetiche e
 
   valore1 operatore valore2 = (risultato)
 
-dove 'valore1' e 'valore2' sono numeri da 0 a 10, 
+dove 'valore1' e 'valore2' sono numeri da 0 a 10,
 mentre 'operatore' può valere +, -, * oppure /.
 I valori e l'operatore devono essere casuali per ogni espressione.
 I valori devono essere inferiori ad un valore massimo predefinito.
@@ -3708,19 +3708,19 @@ Al termine di tutte le espressioni deve essere mostrato un riepilogo dei risulta
 
 Esempio:
   Esercizi di aritmetica (3)
-  
+
   1)  1 * 5 = 5
       1 * 5 = 5
   Corretto. (1975 msec)
-  
+
   2)  7 + 10 = 23
       7 + 10 = 17
   Errato. (1603 msec)
-  
+
   3)  3 * 1 = 3
       3 * 1 = 3
   Corretto. (1269 msec)
-  
+
   Domande totali: 3
   Risposte corrette: 2
   Risposte errate: 1
@@ -3755,7 +3755,7 @@ Funzione che genera espressioni aritmetiche da risolvere:
       (setq res (int (current-line) 0 10))
       (setq ans-time (int (- (time-of-day) go)))
       (println (string "    " val1 " " op " " val2 " = " result))
-      (cond ((= res result) 
+      (cond ((= res result)
              (++ si)
              (println "Corretto. (" ans-time " msec)"))
             ((!= res result)
@@ -3774,19 +3774,19 @@ Proviamo:
 
 (esercizi 3)
 ;-> Esercizi di aritmetica (3)
-;-> 
+;->
 ;-> 1)  3 + 1 = 4
 ;->     3 + 1 = 4
 ;-> Corretto. (1814 msec)
-;-> 
+;->
 ;-> 2)  9 * 9 = 81
 ;->     9 * 9 = 81
 ;-> Corretto. (2016 msec)
-;-> 
+;->
 ;-> 3)  1 + 3 = 5
 ;->     1 + 3 = 4
 ;-> Errato. (1754 msec)
-;-> 
+;->
 ;-> Domande totali: 3
 ;-> Risposte corrette: 2
 ;-> Risposte errate: 1
@@ -3820,7 +3820,7 @@ Funzione che genera espressioni aritmetiche da risolvere:
       (setq res (int (current-line) 0 10))
       (setq ans-time (int (- (time-of-day) go)))
       (println (string "    " val1 " " op " " val2 " = " result))
-      (cond ((= res result) 
+      (cond ((= res result)
              (++ si)
              (println "Corretto. (" ans-time " msec)"))
             ((!= res result)
@@ -3839,7 +3839,7 @@ Proviamo:
 
 (esercizi 5 20)
 ;-> Esercizi di aritmetica (5)
-;-> 
+;->
 ;-> 1)  12 * 13 = 156
 ;->     12 * 13 = 156
 ;-> Corretto. (7625 msec)
@@ -3855,7 +3855,7 @@ Proviamo:
 ;-> 5)  20 / 6 = 3
 ;->     20 / 6 = 3
 ;-> Corretto. (3439 msec)
-;-> 
+;->
 ;-> Domande totali: 5
 ;-> Risposte corrette: 5
 ;-> Risposte errate: 0
@@ -3879,7 +3879,7 @@ Per finire un programma solo per la tavola pitagorica (cioè genera espressioni 
       (setq res (int (current-line) 0 10))
       (setq ans-time (int (- (time-of-day) go)))
       (println (string "    " val1 " * " val2 " = " result))
-      (cond ((= res result) 
+      (cond ((= res result)
              (++ si)
              (println "Corretto. (" ans-time " msec)"))
             ((!= res result)
@@ -3927,7 +3927,7 @@ Proviamo:
 ;-> 10)  12 * 1 = 12
 ;->     12 * 1 = 12
 ;-> Corretto. (1281 msec)
-;-> 
+;->
 ;-> Domande totali: 10
 ;-> Risposte corrette: 10
 ;-> Risposte errate: 0
@@ -4042,6 +4042,248 @@ Proviamo:
 (animals 4 3 4 5 100 200)
 ;-> -12.5 50
 ;-> nil
+
+
+-------
+GOTO 10
+-------
+
+"10 PRINT CHR$(205.5+RND(1)): GOTO 10" (Software Studies)
+di Nick Montfort, Patsy Baudoin, John Bell, Ian Bogost, Jeremy Douglass
+
+Questo libro prende una singola riga di codice (il programma BASIC per il Commodore 64 del titolo) e la usa come lente attraverso la quale considerare il fenomeno del "creative computing" e il modo in cui i programmi per computer appartengono alla cultura (vedi immagine di copertina "goto10-book.png" nella cartella "data".
+
+L'espressione BASIC del Commodore 64:
+
+  10 PRINT CHR$(205.5+RND(1)): GOTO 10
+
+genera un motivo grafico casuale (vedi immagine "goto10-commodore64.png" nella cartella "data") utilizzando solo i caratteri '\' e '/'.
+
+In newLISP il programma può essere simulato nel terminale:
+
+(char "\\")
+;-> 92
+(char "/")
+;-> 47
+
+(define (goto10) (while (print ('("\\" "/") (rand 2)))))
+
+(goto10)
+;-> /\\\//\\\\\\\\//\/////\/\\/\/\/\\/\\\//\\/\\///\\/\///\/\\///\\\\/\
+;-> \\//////\\\\\\/////\///\///\\\\/\\\/\\\\\/\\\/\//\/\/\\/\//\\//\\\/
+;-> //\//\\\\/\\\\/\/\\///\/\/\\/\\\\/\\\//\\\\//\\//\//\\\//\\\\///\/\
+;-> \\\\\/\//\//\//\/\/\\//\/////\\\///\\/////\\\/\////\\\\\//\\/////\/
+;-> /\/\//\///\/\\////\\/\//\///\/\//\\\\////\\\/\\//\//\\//\/\//////\/
+;-> /\\/\/\//\\///\\\/\\\\\/\\\/\\\\///\\\/\///\\//\\/\///\//\\/\\\\///
+;-> /\///////\////\\\/\//\\/\\/\///\\/\//\////\/\\\\/\//\\\\//\\\\/\\/\
+;-> /\\\///\\///\\\\/\\//\//\/\/\/\\//\//\//\\\\//\\\\/\/\\\\/\\\/\\/\/
+;-> \\/\\/\\/\\/\/\///\/\\/\\////\\\//\/\\////\\/\\\\//\/\/\\///\///\/\
+;-> /\//\//\///\//\\/\\///\////\\///\/\\/\///\\\\/\/\\\\\\///\/\/\\/\\\
+;-> ///\////\/\\/\\\/\/\///\\/\\\/\\\////\////\\/\\///////\\\////\/\/\/
+;-> \/\////////\/\\\\\\///\/\\\\//////\/\\\\\//\/\\\\\\/\/\//\/\\\/\\//
+;-> \\/\/\//\/\\\\\//\\/////\\\\/////\/\/\\\\/\//\\\\\////\//\\\\/\\///
+;-> \/\\/\//\///\/\//\\\\/////\//\\\//\/\//\////\//\\\/\/\//\\\/\/\/\\/
+;-> /\//\//\////\/\/\\\\//\\\\/\\/\//\\\\\/\\\\\\\\\\\\/\///\//////\\\/
+;-> //\/\/\//\/\\//\//\/\\////\\\/\\\/\\/\//\//\/\\\\\\/\\\\\\/\/\/\/\\
+;-> /\///\///\\\\\\///\/\\/\\/\\\\\\///\/\/\\\/\/\\///\//\//\\\////\/\\
+;-> \\//\/////\\//\//\/\//\\\\\//\\\\\\/\//////\\//\//\\/\/\/\\\//\\\//
+;-> \//\/\/\//\\//\\///\/\\\//\/\\\///\/////\\\\\/\/\//\/\/\///\//\\\\/
+;-> ...
+
+La stessa funzione compressa:
+
+(define(g)(while(print('("\\""/")(rand 2)))))
+
+(g)
+
+Versione interattiva:
+
+(define (goto10 line)
+  (while true
+    (for (i 1 line) (print ('("\\" "/") (rand 2))))
+    (read-line)))
+
+(goto10 40)
+;-> /\/\/\////\//\\\/\////\\\\\\\\//\/\\/\\/
+;-> /\\/\\/\\//\//\///\///\/\\/\////\\/\\\/\
+;-> /\//\\///\\\\\\/\\\\//\//////\\/\\\/////
+;-> /\\///\\\//\\//\\\/\//\///\\\/\/\\\\\\\/
+;-> /\//\/\/\//\////\\\/\\/\\\\\/\/\\\\/\///
+;-> \\\//\//\\\\\//\\\/\\\//\\//\//\/\\///\/
+;-> /////\//////\/\/\//\\\\/\\\\\///\\//\\/\
+;-> \/////\/\\/\\\\///\//\\//\/\//\/\\//\///
+;-> ///\//\////\/\///\/\/\\\////\////\\/\\\\
+
+Utilizzando il linguaggio Processing otteniamo un risultato molto più gradevole dal punto di vista grafico:
+
+// Programma che simula GOTO10 in Processing
+// goto10.pde
+// Change spacing and threshold to change motif
+int x = 0;
+int y = 0;
+int spacing = 10;
+float threshold = 0.5;
+void setup()
+{
+  x = 0;
+  y = 0;
+  spacing = 10;
+  size(400,400);
+  background(0);
+}
+
+void draw()
+{
+  stroke(255);
+  if (random(1) > threshold)
+    { line(x, y, x + spacing, y + spacing); }
+    else
+    { line(x, y + spacing, x + spacing, y); }
+  x = x + spacing;
+  if (x > width )
+    { x = 0; y = y + spacing; }
+}
+
+Potete vedere l'output del programma nell'immagine "goto10-pde.png" nella cartella "data".
+
+
+-----------------------------------------
+Incasellare un testo in un rettangolo MxN
+-----------------------------------------
+
+Dato un testo formato da caratteri ASCII (9, 10, 13, 32-126), inserire il testo in un rettangolo di dimensioni date MxN.
+
+Specifiche:
+a) I caratteri line-feed "\n" e return "\r" devono essere eliminati
+b) il carattere Tab "\t" deve essere sostituito con uno spazio " "
+c) se il testo è più lungo del rettangolo, allora viene troncato.
+d) se il testo è più corto del rettangolo, allora viene allungato con spazi.
+
+Nota:
+ 9 = Tab
+10 = Line-feed "\n"
+13 = Return "\r"
+32-126 = caratteri ASCII stampabili
+
+Esempio:
+testo =
+"Testo da inserire in un rettangolo"
+M = 4
+N = 10
+output:
+Testo da i
+nserire in
+ un rettan
+golo
+
+Esempio:
+testo =
+"Riga 1 del testo da inserire
+Riga 2 del testo da inserire"
+M = 4
+N = 10
+output:
+Riga 1 del t
+esto da inse
+rireRiga 2 d
+el testo da
+
+Funzione che incasella un testo in un rettangolo MxN:
+
+(define (text-rect txt M N)
+  ; remove line-feed \n from text
+  (replace "\r" txt "")
+  ; remove return \r from text
+  (replace "\n" txt "")
+  ; replace Tab with 2 spaces -> "  "
+  (replace "\t" txt "  ")
+  ;(println txt)
+  ; number of matrix elements
+  (setq len-mat (* M N))
+  ; lenght of text
+  (setq len-text (length txt))
+  ;
+  (cond
+    ; elementi matrice > lunghezza testo
+    ((> len-mat len-text)
+      ; allunga il testo con un numero di spazi pari alla differenza
+      ; tra la lunghezza della matrice e la lughezza del testo
+      (extend txt (dup " " (- len-mat len-text))))
+    ; elementi matrice < lunghezza testo
+    ((< len-mat len-text)
+      ; taglia il testo di un numero di caratteri pari alla differenza
+      ; tra la lunghezza della matrice e la lunghezza del testo
+      (chop txt (- len-mat len-text))))
+  ; crea la matrice di caratteri
+  (setq m (array M N (explode txt)))
+  ; stampa la matrice di caratteri
+  (for (r 0 (- M 1)) (for (c 0 (- N 1)) (print (m r c))) (println))
+  '>)
+
+Proviamo:
+
+(setq t1 "Questo testo è scritto in un rettangolo di 6 righe e 11 colonne")
+(length t1)
+;-> 63
+(text-rect t1 6 11)
+;-> Questo test
+;-> o è scritto
+;->  in un rett
+;-> angolo di 6
+;->  righe e 11
+;->  colonne
+
+(setq t2 "Riga 1 del testo da inserire
+Riga 2 del testo da inserire")
+(length t2)
+;-> 58
+(text-rect t2 7 8)
+;-> Riga 1 d
+;-> el testo
+;->  da inse
+;-> rireRiga
+;->  2 del t
+;-> esto da
+;-> inserire
+
+(setq t3
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+ tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+ quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+ consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+ cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat
+ non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+(length t3)
+;-> 455
+; togliamo 2 caratteri per ogni riga con /r/n
+(- 455 (* 5 2))
+;-> 445
+(* 23 20)
+;-> 460
+(text-rect t3 23 20)
+;-> Lorem ipsum dolor si
+;-> t amet, consectetur
+;-> adipiscing elit, sed
+;->  do eiusmod tempor i
+;-> ncididunt ut labore
+;-> et dolore magna aliq
+;-> ua. Ut enim ad minim
+;->  veniam, quis nostru
+;-> d exercitation ullam
+;-> co laboris nisi ut a
+;-> liquip ex ea commodo
+;->  consequat. Duis aut
+;-> e irure dolor in rep
+;-> rehenderit in volupt
+;-> ate velit esse cillu
+;-> m dolore eu fugiat n
+;-> ulla pariatur. Excep
+;-> teur sint occaecat c
+;-> upidatat non proiden
+;-> t, sunt in culpa qui
+;->  officia deserunt mo
+;-> llit anim id est lab
+;-> orum.
 
 ============================================================================
 

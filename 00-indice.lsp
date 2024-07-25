@@ -2565,6 +2565,8 @@ NOTE LIBERE 25
   Numero minimo con N divisori
   Esercizi di aritmetica elementare
   Mucche, galline e animali fantastici
+  GOTO 10
+  Incasellare un testo in un rettangolo MxN
 
 PROBLEMI SUI DADI
 =================
