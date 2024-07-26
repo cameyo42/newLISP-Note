@@ -2567,6 +2567,8 @@ NOTE LIBERE 25
   Mucche, galline e animali fantastici
   GOTO 10
   Incasellare un testo in un rettangolo MxN
+  Il semaforo stradale
+  Gestione di timer multipli
 
 PROBLEMI SUI DADI
 =================

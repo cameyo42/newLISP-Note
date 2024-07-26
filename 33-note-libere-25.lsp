@@ -4285,5 +4285,208 @@ Riga 2 del testo da inserire")
 ;-> llit anim id est lab
 ;-> orum.
 
+
+--------------------
+Il semaforo stradale
+--------------------
+
+Il semaforo è un segnale luminoso utilizzato prevalentemente nella circolazione stradale presso incroci, attraversamenti pedonali e in altre situazioni in cui sia necessario regolare flussi di traffico potenzialmente in conflitto fra loro.
+
+Esistono tre tipi di semafori:
+
+1) Semaforo a 3 tempi
+L'ordine dei colori è: verde, giallo, rosso.
+
+2) Semaforo a 4 tempi
+L'ordine dei colori è: rosso, rosso con giallo, verde, giallo.
+Il giallo si accende insieme al rosso poco prima che entrambi si spengano lasciando il posto al verde, per avvisare l'automobilista di prepararsi a partire.
+
+3) Semaforo a 5 tempi
+L'ordine dei colori è: verde, verde lampeggiante, giallo, rosso, rosso con giallo.
+Il verde lampeggia per avvisare l'automobilista dell'imminenza del giallo.
+
+Funzione di setup:
+
+(define (setup)
+  (define (cls) (print "\027[H\027[2J")) ; clear screen
+  (setq no-color "\027[0;0m") ; reset colors to default
+  (setq rosso "\027[0;91m")
+  (setq verde "\027[0;92m")
+  (setq giallo "\027[0;93m") '>)
+
+(setup)
+
+Funzione che mostra il semaforo con un dato colore (o due colori):
+
+(define (show colore1 colore2)
+  (cond ((= colore2 nil) ; un solo colore
+          (println colore1 "████")
+          (println "████"))
+        (true ; due colori
+          (println colore1 "████" colore2 "████")
+          (println colore1 "████" colore2 "████"))
+  )
+  (print no-color) '>)
+
+(show rosso)
+
+S3 Colori: verde, giallo, rosso
+
+(define (s3 tv tg tr)
+  (while (zero? (read-key true))
+    (cls) (show verde)   (sleep tv)
+    (cls) (show giallo)  (sleep tg)
+    (cls) (show rosso)   (sleep tr))
+  (print no-color) '>)
+
+(s3 3000 2000 3000)
+
+L'ordine dei colori è: rosso, rosso con giallo, verde, giallo.
+
+(define (s4 tr trg tv tg)
+  (while (zero? (read-key true))
+    (cls) (show rosso)        (sleep tr)
+    (cls) (show rosso giallo) (sleep trg)
+    (cls) (show verde)        (sleep tv)
+    (cls) (show giallo)       (sleep tg))
+  (print no-color) '>)
+
+(s4 3000 2000 3000 2000)
+
+S5 Colori: verde, verde lampeggiante, giallo, rosso, rosso con giallo.
+
+(define (s5 tv tvl tg tr trg)
+  (while (zero? (read-key true))
+    (cls) (show verde) (sleep tv)
+    (cls) 
+    ; verde lampeggiante (200 msec)
+    (for (i 1 (/ tvl 200))
+      (if (odd? i) (show verde)) (sleep 200) (cls))
+    (cls) (show giallo)       (sleep tg)
+    (cls) (show rosso)        (sleep tr)
+    (cls) (show rosso giallo) (sleep trg))
+  (print no-color) '>)
+
+(s5 3000 2000 3000 3000 2000)
+
+
+--------------------------
+Gestione di timer multipli
+--------------------------
+
+Il linguaggio newLISP non ha un profiler, quindi per determinare la velocità di blocchi di codice possiamo utilizzare la funzione "time" oppure generare dei timer ad hoc.
+
+Scriviamo alcune funzioni che permettono di:
+1) Inizializzare un timer
+2) Interrogare un timer
+3) Fermare un timer
+4) Interrogare tutti i timer
+5) Resettare tutti i timer
+
+Per memorizzare i timer usiamo una lista associativa con elementi del tipo:
+
+  (nome_timer inizio_timer(msec))
+
+La variabile 'inizio_timer' viene inizializzata dalla funzione "time-of-day" che restituisce il tempo (millisecondi) trascorso dall'inizio del giorno corrente.
+
+Usiamo una variabile globale 'timers' per memorizzare i timer.
+
+Funzione che resetta tutti i timer:
+
+(define (reset-timers) (setq timers '()))
+
+Funzione che inizializza un timer con un dato nome:
+
+(define (start-timer name) (push (list name (time-of-day)) timers))
+
+Funzione che interroga un timer con un dato nome:
+
+(define (check-timer name)
+  (if (find (list name '?) timers match)
+      ; esiste timer 'name'
+      (sub (time-of-day) ($0 1))
+      ; non esiste timer 'name'
+      -1))
+
+Funzione che interroga tutti i timer:
+
+(define (list-timers) timers)
+
+Funzione che termina un timer con un dato nome:
+
+(define (stop-timer name)
+  (if (find (list name '?) timers match)
+    ; esiste timer 'name'
+    (begin
+      (replace $0 timers)
+      (sub (time-of-day) ($0 1)))
+      ; non esiste timer 'name'
+      -1))
+
+Proviamo:
+
+(reset-timers)
+;-> ()
+(start-timer "uno")
+;-> (("uno" 54529246.369))
+(check-timer "uno")
+;-> 907.6199999973178
+(list-timers)
+;-> (("uno" 54529246.369))
+(start-timer "due")
+;-> (("due" 54531891.364) ("uno" 54529246.369))
+(check-timer "due")
+;-> 829.7360000014305
+(list-timers)
+;-> (("due" 54531891.364) ("uno" 54529246.369))
+(stop-timer "uno")
+;-> 5634.070999994874
+(stop-timer "due")
+;-> 4569.946000002325
+(list-timers)
+;-> ()
+
+Vediamo un esempio con una funzione:
+
+(vedi "Numero minimo con N divisori" su "Note libere 25")
+
+(define (divisors-up-to-N N)
+  ; Inizializza un vettore di contatori dei divisori a 0
+  (let (out (array (+ N 1) '(0)))
+    (for (i 1 N)
+      (for (j i N i)
+        (++ (out j))))
+    ; Restituisce una lista senza il primo elemento
+    (rest (array-list out))))
+
+(define (seq2 limite upto)
+  (local (out all)
+    ; Reset timers
+    (reset-timers)
+    (setq out '(0))
+    ; start timer "divisori"
+    (start-timer "divisori")
+    (setq all (sort (map list (divisors-up-to-N upto) (sequence 1 upto))))
+    ; stop timer "divisori"
+    (println "divisori time: " (stop-timer "divisori"))
+    ; start timer "for"
+    (start-timer "for")
+    (for (k 1 limite)
+      (cond ((find (list k '?) all match)
+              (push ($0 1) out -1))
+            (true (push nil out -1))))
+    ; stop timer "for"
+    (println "for time: " (stop-timer "for"))
+    out))
+
+(time (seq2 100 1e6))
+;-> divisori time: 2017.898999996483
+;-> for time: 13954.09000000358
+;-> 16050.097
+
+Nota: questo metodo non funziona se il programma viene eseguito a cavallo della mezzanotte (infatti "time-of-day" viene resettato a 0 a mezzanotte).
+
+Nota: al posto di "time-of-day" si potrebbe usare la funzione "now" (ma bisogna modificare le funzioni).
+
 ============================================================================
 
