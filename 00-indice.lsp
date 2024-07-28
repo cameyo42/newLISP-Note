@@ -2569,6 +2569,8 @@ NOTE LIBERE 25
   Incasellare un testo in un rettangolo MxN
   Il semaforo stradale
   Gestione di timer multipli
+  Lancio di tre dadi (rilanciando valori 1)
+  Sistema Braille
 
 PROBLEMI SUI DADI
 =================

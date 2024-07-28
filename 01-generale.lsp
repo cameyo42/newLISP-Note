@@ -3135,6 +3135,14 @@ Nota: un ciclo infinito è un ciclo la cui condizione di uscita non è mai soddi
 
 newLISP mette a disposizione due funzioni per verificare se un numero vale NaN o Infinito: "NaN?" e "inf?"
 
+Nota: se una variabile assume diventa infinito, allora i successivi calcoli genereranno dei risultati imprevedibili, per esempio:
+
+(setq x (div 1 0))
+;-> 1.#INF
+(setq x (+ x 2))
+;-> -9223372036854775807
+
+
 ******************
 >>> funzione NaN?
 ******************

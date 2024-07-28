@@ -4488,5 +4488,260 @@ Nota: questo metodo non funziona se il programma viene eseguito a cavallo della 
 
 Nota: al posto di "time-of-day" si potrebbe usare la funzione "now" (ma bisogna modificare le funzioni).
 
+
+-----------------------------------------
+Lancio di tre dadi (rilanciando valori 1)
+-----------------------------------------
+
+Lanciare 3 dadi, sommare i due valori più alti e aggiungerli al totale.
+Caso 1: Ogni 1 ottenuto deve essere tirato ancora una volta.
+Caso 2: Ogni 1 ottenuto deve essere tirato fino a ottenere un valore diverso.
+Calcolare il valore medio dei lanci e le probabilità di ogni risultato in entrambi i casi.
+
+Caso 1: Ogni 1 ottenuto deve essere tirato ancora una volta.
+
+(define (case1 iter)
+  (local (totale valori d1 d2 d3 rolled result probs media)
+    (setq totale 0)
+    (setq valori (array 13 '(0)))
+    (for (i 1 iter)
+      ; lancio dei tre dadi e rilancio (una volta) degli 1 ottenuti
+      (if (= (setq d1 (+ (rand 6) 1)) 1) (setq d1 (+ (rand 6) 1)))
+      (if (= (setq d2 (+ (rand 6) 1)) 1) (setq d2 (+ (rand 6) 1)))
+      (if (= (setq d3 (+ (rand 6) 1)) 1) (setq d3 (+ (rand 6) 1)))
+      ; ordinamento dei valori ottenuti
+      (sort (setq rolled (list d1 d2 d3)) >)
+      ; numero ottenuto dal lancio
+      (setq result (+ (rolled 0) (rolled 1)))
+      ; aggiornamento occorrenze numero ottenuto dal lancio
+      (++ (valori result))
+      ; aggiornamento del totale
+      (++ totale result)
+    )
+    ; calcolo delle probabilità di ogni risultato da 0 a 12
+    (setq probs (map (fn(x) (div x iter)) valori))
+    (setq media (div totale iter))
+    (list media probs)))
+
+(case1 1e6)
+;-> (9.0967501
+;-> (0 0 2.1e-005 0.000449 0.010973 0.028837 0.061076 0.101429 0.155467
+;->  0.188828 0.193315 0.160772 0.098833))
+
+Caso 2: Ogni 1 ottenuto deve essere tirato fino a ottenere un valore diverso.
+
+(define (case2 iter)
+  (local (totale valori d1 d2 d3 rolled result probs media)
+    (setq totale 0)
+    (setq valori (array 13 '(0)))
+    (for (i 1 iter)
+      ; lancio dei tre dadi fino a che sono tutti differenti da 1
+      (until (!= (setq d1 (+ (rand 6) 1)) 1))
+      (until (!= (setq d2 (+ (rand 6) 1)) 1))
+      (until (!= (setq d3 (+ (rand 6) 1)) 1))
+      ; ordinamento dei valori ottenuti
+      (sort (setq rolled (list d1 d2 d3)) >)
+      ; numero ottenuto dal lancio
+      (setq result (+ (rolled 0) (rolled 1)))
+      ; aggiornamento occorrenze numero ottenuto dal lancio
+      (++ (valori result))
+      ; aggiornamento del totale
+      (++ totale result)
+    )
+    ; calcolo delle probabilità di ogni risultato da 0 a 12
+    (setq probs (map (fn(x) (div x iter)) valori))
+    (setq media (div totale iter))
+    (list media probs)))
+
+(case2 1e6)
+;-> (9.200056999999999
+;-> (0 0 0 0 0.008024 0.023972 0.056271 0.095657 0.151846
+;->  0.192145 0.200153 0.167911 0.104021))
+
+
+---------------
+Sistema Braille
+---------------
+
+Il Braille è un sistema di lettura e scrittura tattile a rilievo per non vedenti, creato dal francese Louis Braille nella prima metà del XIX secolo.
+Consiste in simboli formati da sei punti, disposti su una matrice 3x2 in cui ogni casella è della grandezza di circa 3x2 millimetri o più. 
+I sei punti della matrice 3x2 sono numerati nel modo seguente:
+
+  Punto 1 - punto in alto a sinistra
+  Punto 2 - punto centrale a sinistra
+  Punto 3 - punto in basso a sinistra
+  Punto 4 - punto in alto a destra
+  Punto 5 - punto centrale a destra
+  Punto 6 - punto in basso a destra
+
+  Numerazione    Punti pieni    Punti vuoti
+  +-----+        +-----+        +-----+
+  | 1 4 |        | * * |        | . . |
+  | 2 5 |        | * * |        | . . |
+  | 3 6 |        | * * |        | . . |
+  +-----+        +-----+        +-----+
+
+I caratteri alfanumerici (A..Z) e (0..9) sono rappresentati con le seguenti configurazioni dei punti nella matrice:
+
+    A/1      B/2      C/3      D/4      E/5      F/6      G/7      H/8    
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  
+  | * . |  | * . |  | * * |  | * * |  | * . |  | * * |  | * * |  | * . |  
+  | . . |  | * . |  | . . |  | . * |  | . * |  | * . |  | * * |  | * * |  
+  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  
+
+    I/9    J/0       K        L        M        N        O        P      
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+ 
+  | . * |  | . * |  | * . |  | * . |  | * * |  | * * |  | * . |  | * * | 
+  | * . |  | * * |  | . . |  | * . |  | . . |  | . * |  | . * |  | * . | 
+  | . . |  | . . |  | * . |  | * . |  | * . |  | * . |  | * . |  | * . | 
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+ 
+
+     Q        R        S        T        U        V        W        X   
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
+  | * * |  | * . |  | . * |  | . * |  | * . |  | * . |  | . * |  | * * |
+  | * * |  | * * |  | * . |  | * * |  | . . |  | * . |  | * * |  | . . |
+  | * . |  | * . |  | * . |  | * . |  | * * |  | * * |  | . * |  | * * |
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
+
+     Y        Z        Segna numero    Spazio 
+  +-----+  +-----+       +-----+       +-----+
+  | * * |  | * . |       | . * |       | . . |
+  | . * |  | . * |       | . * |       | . . |
+  | * * |  | * * |       | * * |       | . . |
+  +-----+  +-----+       +-----+       +-----+
+
+Nota: Le prime 10 lettere rappresentano anche le dieci cifre, quindi per stabilire se una di queste rappresentazioni sia una lettera o un numero viene utilizzata la casella "Segna numero", che segnala che la prossima casella è un numero.
+Più precisamente, per scrivere un numero, a una o più cifre, la prima cifra deve essere preceduta dal carattere "segna numero" e l'ultima cifra sia seguita da uno spazio.
+
+(setq linea '(". ." ". *" "* ." "* *"))
+
+". ." = 0
+
+". *" = 1
+
+"* ." = 2
+
+"* *" = 3
+
+(setq caratteri
+'((2 0 0) (2 2 0) (3 0 0) (3 1 0) (2 1 0) (3 2 0) (3 3 0) (2 3 0)
+  (1 2 0) (1 3 0) (2 0 2) (2 2 2) (3 0 2) (3 1 2) (2 1 2) (3 2 2)
+  (3 3 2) (2 3 2) (1 2 2) (1 3 2) (2 0 3) (2 2 3) (1 3 1) (3 0 3)
+  (3 1 3) (2 1 3) (1 1 3) (0 0 0)))
+
+(setq cifre '((2 0 0) (2 2 0) (3 0 0) (3 1 0) (2 1 0)
+              (3 2 0) (3 3 0) (2 3 0) (1 2 0) (1 3 0)))
+
+(length caratteri)
+;-> 28
+(length (unique caratteri))
+;-> ;-> 28
+(count (unique caratteri) caratteri)
+;-> (1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1)
+
+(char "A")
+;-> 65
+
+(define (char-braille ch)
+  (local (indice terna)
+    (if (= ch " ")
+        (setq indice 27)
+        ;else
+        (setq indice (- (char (upper-case ch)) 65)))
+    (setq terna (caratteri indice))
+    ;(println indice { } terna)
+    (println "+-----+ ")
+    (dolist (el terna) (println "| " (linea el) " | "))
+    (println "+-----+ ") '>))
+
+Proviamo:
+
+(char-braille "A")
+;-> +-----+
+;-> | * . |
+;-> | . . |
+;-> | . . |
+;-> +-----+
+
+(char-braille "Z")
+;-> +-----+
+;-> | * . |
+;-> | . * |
+;-> | * * |
+;-> +-----+
+
+(char-braille " ")
+;-> +-----+
+;-> | . . |
+;-> | . . |
+;-> | . . |
+;-> +-----+
+
+(setq chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+(setq alpha (explode chars))
+(map char-braille alpha)
+
+(char "0")
+;-> 48
+(char "1")
+;-> 49
+
+(define (digit-braille ch)
+  (local (indice terna)
+    (if (= ch "0")
+        (setq indice 9)
+        ;else
+        (setq indice (- (char (upper-case ch)) 49)))
+    (setq terna (cifre indice))
+    ;(println indice { } terna)
+    (println "+-----+ ")
+    (dolist (el terna) (println "| " (linea el) " | "))
+    (println "+-----+ ") '>))
+
+Proviamo:
+
+(digit-braille "0")
+;-> +-----+
+;-> | . * |
+;-> | * * |
+;-> | . . |
+;-> +-----+
+
+(digit-braille "9")
+;-> +-----+
+;-> | . * |
+;-> | * . |
+;-> | . . |
+;-> +-----+
+
+(setq digits "0123456789")
+(setq nums (explode digits))
+(map char-braille alpha)
+
+Funzione che converte una parola in braille:
+
+(define (word-braille str)
+  (dostring (c (upper-case str)) (char-braille (char c))))
+
+(word-braille "newLISP")
+;-> +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+
+;-> | * * | | * . | | . * | | * . | | . * | | . * | | * * |
+;-> | . * | | . * | | * * | | * . | | * . | | * . | | * . |
+;-> | * . | | . . | | . * | | * . | | . . | | * . | | * . |
+;-> +-----+ +-----+ +-----+ +-----+ +-----+ +-----+ +-----+
+
+Funzione che converte un numero in braille:
+
+(define (number-braille str)
+  (dostring (c str) (digit-braille (char c))))
+
+(word-braille "1942")
+;-> +-----+ +-----+ +-----+ +-----+
+;-> | * * | | * . | | * * | | * * |
+;-> | . . | | . . | | * . | | . * |
+;-> | * . | | * * | | * . | | * . |
+;-> +-----+ +-----+ +-----+ +-----+
+
 ============================================================================
 
