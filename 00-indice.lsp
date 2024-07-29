@@ -2571,6 +2571,7 @@ NOTE LIBERE 25
   Gestione di timer multipli
   Lancio di tre dadi (rilanciando valori 1)
   Sistema Braille
+  Partizioni di una lista in ordine
 
 PROBLEMI SUI DADI
 =================

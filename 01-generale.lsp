@@ -3151,10 +3151,10 @@ sintassi: (NaN? float)
 Verifica se il risultato di un'operazione matematica in virgola mobile è un NaN (cioè se il risultato è un numero valido). Alcune operazioni in virgola mobile restituiscono uno speciale formato numerico IEEE 754 chiamato NaN per "Not a Number".
 
 ; floating point operation on NaN yield NaN
-(set 'x (sqrt -1))  → NaN
+(set 'x (sqrt -1))  → 1#.IND
 (NaN? x)            → true
-(add x 123)         → NaN
-(mul x 123)         → NaN
+(add x 123)         → -1#.IND
+(mul x 123)         → -1#.IND
 
 ; integer operations treat NaN as zero
 (+ x 123)  → 123
@@ -3173,6 +3173,15 @@ Nota: tutte le operazioni aritmetiche in virgola mobile con un NaN producono un 
 Tutti i confronti con NaN restituiscono nil, ma è vero se confrontato con se stesso. Il confronto con se stesso, tuttavia, risulterebbe non vero quando si utilizza ANSI C.
 
 Nota: le operazioni con numeri interi trattano NaN come valori 0 (zero).
+
+Nota: i numeri NaN non sono uguali neanche a se stessi, per esempio:
+
+(setq a (sqrt -1))
+-1.#IND
+(NaN? a)
+;-> true
+(= a a)
+;-> nil
 
 ******************
 >>> funzione inf?

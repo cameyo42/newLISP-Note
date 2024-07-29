@@ -4743,5 +4743,154 @@ Funzione che converte un numero in braille:
 ;-> | * . | | * * | | * . | | * . |
 ;-> +-----+ +-----+ +-----+ +-----+
 
+
+---------------------------------
+Partizioni di una lista in ordine
+---------------------------------
+
+Data una lista, dividerla in tutti i modi possibili (cioè creare tutte le partizioni della lista data rispettando l'ordine degli elementi).
+
+Per esempio:
+
+Lista = (1 2 3)
+Output = ((1 2 3)) ((1 2) (3)) ((1) (2 3)) ((1) (2) (3))
+
+Lista = (A B C D)
+Output = ((A B C D)) ((A B C) (D)) ((A B) (C D)) ((A B) (C) (D)) ((A) (B C D))
+          ((A) (B C) (D)) ((A) (B) (C D)) ((A) (B) (C) (D))
+
+Notiamo che il numero totale delle liste divise vale 2^(n-1), dove n è la lunghezza della lista data.
+Possiamo considerare l'operazione di divisione della lista come fosse fatta da un numero binario.
+Il numero binario è lungo (n - 1) e varia da 0 a (2^n - 1).
+La cifra 1 di un numero indica un taglio, la cifra 0 indica nessun taglio.
+
+Per esempio:
+
+lista (1 2 3)
+binario  00 --> nessun taglio --> (1 2 3)
+
+lista (1 2 3)
+(divides '(1 2 3) "11")
+binario  01 --> taglio tra i e i+1 (tra indice 1 e indice 2) --> (1 2) (3)
+
+lista (1 2 3)
+binario  10 --> taglio tra i e i+1 (tra indice 0 e indice 1) --> (1) (2 3)
+
+lista (1 2 3)
+binario  11 --> taglio tra i e i+1 (tra indice 0 e indice 1)
+                taglio tra i e i+1 (tra indice 1 e indice 2) --> (1) (2) (3)
+
+Algoritmo
+Ciclo da 0 a (2^n - 1)
+  Taglia lista con binario corrente
+  Inserisce risultato nella soluzione
+
+Per prima cosa dobbiamo scrivere una funzione che prende una lista e un numero binario e taglia la lista in corrispondenza degli 1 del numero binario:
+
+(define (divides lst binary)
+  (local (out tmp)
+    (setq out '())
+    (setq tmp '())
+    (for (i 0 (- (length binary) 1))
+      (cond ((= (binary i) "1") ; taglio
+              (push (lst i) tmp -1)
+              (push tmp out -1)
+              (setq tmp '()))
+            (true  ; nessun taglio
+              (push (lst i) tmp -1))
+      )
+    )
+    ; inserisce lista finale
+    (push (lst -1) tmp -1)
+    (push tmp out -1)
+    out))
+
+Proviamo:
+
+(setq lst '(1 2 3 4 5))
+(divides lst "0000")
+;-> ((1 2 3 4 5))
+
+(divides lst "0001")
+;-> ((1 2 3 4) (5))
+
+(divides lst "0101")
+;-> ((1 2) (3 4) (5))
+
+(divides lst "1111")
+;-> ((1) (2) (3) (4) (5))
+
+(divides lst "1010")
+;-> ((1) (2 3) (4 5))
+
+Adesso scriviamo la funzione finale:
+
+(define (splits lst)
+  (local (out len max-tagli taglio fmt)
+    (setq out '())
+    (setq len (length lst))
+    ; numero massimo di tagli
+    (setq max-tagli (- len 1))
+    ; formattazione con 0 davanti
+    (setq fmt (string "%0" max-tagli "s"))
+    (for (i 0 (- (pow 2 max-tagli) 1))
+      ; taglio corrente
+      (setq taglio (format fmt (bits i)))
+      ;(println taglio)
+      ; taglia la lista con taglio corrente
+      ; e la inserisce nella lista soluzione
+      (push (divides lst taglio) out -1)
+    )
+    out))
+
+Proviamo:
+
+(splits '(1 2 3))
+;-> (((1 2 3)) ((1 2) (3)) ((1) (2 3)) ((1) (2) (3)))
+
+(splits '(A B C D E))
+;-> (((A B C D E)) ((A B C D) (E)) ((A B C) (D E)) ((A B C) (D) (E))
+;->  ((A B) (C D E)) ((A B) (C D) (E)) ((A B) (C) (D E)) ((A B) (C) (D) (E))
+;->  ((A) (B C D E)) ((A) (B C D) (E)) ((A) (B C) (D E)) ((A) (B C) (D) (E))
+;->  ((A) (B) (C D E)) ((A) (B) (C D) (E)) ((A) (B) (C) (D E))
+;->  ((A) (B) (C) (D) (E)))
+
+(setq lst '((1 2) 3 (4 (5 (6))) 7 8 ((9))))
+(splits lst)
+;-> ((((1 2) 3 (4 (5 (6))) 7 8 ((9))))
+;->  (((1 2) 3 (4 (5 (6))) 7 8) (((9))))
+;->  (((1 2) 3 (4 (5 (6))) 7) (8 ((9))))
+;->  (((1 2) 3 (4 (5 (6))) 7) (8) (((9))))
+;->  (((1 2) 3 (4 (5 (6)))) (7 8 ((9))))
+;->  (((1 2) 3 (4 (5 (6)))) (7 8) (((9))))
+;->  (((1 2) 3 (4 (5 (6)))) (7) (8 ((9))))
+;->  (((1 2) 3 (4 (5 (6)))) (7) (8) (((9))))
+;->  (((1 2) 3) ((4 (5 (6))) 7 8 ((9))))
+;->  (((1 2) 3) ((4 (5 (6))) 7 8) (((9))))
+;->  (((1 2) 3) ((4 (5 (6))) 7) (8 ((9))))
+;->  (((1 2) 3) ((4 (5 (6))) 7) (8) (((9))))
+;->  (((1 2) 3) ((4 (5 (6)))) (7 8 ((9))))
+;->  (((1 2) 3) ((4 (5 (6)))) (7 8) (((9))))
+;->  (((1 2) 3) ((4 (5 (6)))) (7) (8 ((9))))
+;->  (((1 2) 3) ((4 (5 (6)))) (7) (8) (((9))))
+;->  (((1 2)) (3 (4 (5 (6))) 7 8 ((9))))
+;->  (((1 2)) (3 (4 (5 (6))) 7 8) (((9))))
+;->  (((1 2)) (3 (4 (5 (6))) 7) (8 ((9))))
+;->  (((1 2)) (3 (4 (5 (6))) 7) (8) (((9))))
+;->  (((1 2)) (3 (4 (5 (6)))) (7 8 ((9))))
+;->  (((1 2)) (3 (4 (5 (6)))) (7 8) (((9))))
+;->  (((1 2)) (3 (4 (5 (6)))) (7) (8 ((9))))
+;->  (((1 2)) (3 (4 (5 (6)))) (7) (8) (((9))))
+;->  (((1 2)) (3) ((4 (5 (6))) 7 8 ((9))))
+;->  (((1 2)) (3) ((4 (5 (6))) 7 8) (((9))))
+;->  (((1 2)) (3) ((4 (5 (6))) 7) (8 ((9))))
+;->  (((1 2)) (3) ((4 (5 (6))) 7) (8) (((9))))
+;->  (((1 2)) (3) ((4 (5 (6)))) (7 8 ((9))))
+;->  (((1 2)) (3) ((4 (5 (6)))) (7 8) (((9))))
+;->  (((1 2)) (3) ((4 (5 (6)))) (7) (8 ((9))))
+;->  (((1 2)) (3) ((4 (5 (6)))) (7) (8) (((9)))))
+
+Vedi anche "Dividere una stringa in tutti i modi possibili" su "Note libere 17".
+
 ============================================================================
 

@@ -2293,7 +2293,7 @@ Per prima cosa dobbiamo scrivere una funzione che prende una stringa e un numero
           (extend out (str i))
       )
     )
-    ; inserisce caratteri finale
+    ; inserisce caratteri finali
     (extend out (str -1))
     out))
 
@@ -2342,6 +2342,8 @@ Facciamo alcune prove:
 
 (length (split "123456"))
 ;-> 32
+
+Vedi anche "Partizioni di una lista in ordine" su "Note libere 25".
 
 
 -----------------------------------
