@@ -4861,29 +4861,7 @@ Proviamo:
 ;->  (((1 2) 3 (4 (5 (6))) 7 8) (((9))))
 ;->  (((1 2) 3 (4 (5 (6))) 7) (8 ((9))))
 ;->  (((1 2) 3 (4 (5 (6))) 7) (8) (((9))))
-;->  (((1 2) 3 (4 (5 (6)))) (7 8 ((9))))
-;->  (((1 2) 3 (4 (5 (6)))) (7 8) (((9))))
-;->  (((1 2) 3 (4 (5 (6)))) (7) (8 ((9))))
-;->  (((1 2) 3 (4 (5 (6)))) (7) (8) (((9))))
-;->  (((1 2) 3) ((4 (5 (6))) 7 8 ((9))))
-;->  (((1 2) 3) ((4 (5 (6))) 7 8) (((9))))
-;->  (((1 2) 3) ((4 (5 (6))) 7) (8 ((9))))
-;->  (((1 2) 3) ((4 (5 (6))) 7) (8) (((9))))
-;->  (((1 2) 3) ((4 (5 (6)))) (7 8 ((9))))
-;->  (((1 2) 3) ((4 (5 (6)))) (7 8) (((9))))
-;->  (((1 2) 3) ((4 (5 (6)))) (7) (8 ((9))))
-;->  (((1 2) 3) ((4 (5 (6)))) (7) (8) (((9))))
-;->  (((1 2)) (3 (4 (5 (6))) 7 8 ((9))))
-;->  (((1 2)) (3 (4 (5 (6))) 7 8) (((9))))
-;->  (((1 2)) (3 (4 (5 (6))) 7) (8 ((9))))
-;->  (((1 2)) (3 (4 (5 (6))) 7) (8) (((9))))
-;->  (((1 2)) (3 (4 (5 (6)))) (7 8 ((9))))
-;->  (((1 2)) (3 (4 (5 (6)))) (7 8) (((9))))
-;->  (((1 2)) (3 (4 (5 (6)))) (7) (8 ((9))))
-;->  (((1 2)) (3 (4 (5 (6)))) (7) (8) (((9))))
-;->  (((1 2)) (3) ((4 (5 (6))) 7 8 ((9))))
-;->  (((1 2)) (3) ((4 (5 (6))) 7 8) (((9))))
-;->  (((1 2)) (3) ((4 (5 (6))) 7) (8 ((9))))
+;->  ...
 ;->  (((1 2)) (3) ((4 (5 (6))) 7) (8) (((9))))
 ;->  (((1 2)) (3) ((4 (5 (6)))) (7 8 ((9))))
 ;->  (((1 2)) (3) ((4 (5 (6)))) (7 8) (((9))))
@@ -4891,6 +4869,330 @@ Proviamo:
 ;->  (((1 2)) (3) ((4 (5 (6)))) (7) (8) (((9)))))
 
 Vedi anche "Dividere una stringa in tutti i modi possibili" su "Note libere 17".
+
+
+------------------------
+Quanti anni ha Diofanto?
+------------------------
+
+Diofanto di Alessandria fu un grande matematico greco vissuto nel periodo tra il II e il III secolo d.C. ad Alessandria d'Egitto. 
+In un epigramma della "Antologia Palatina", attribuito a Metrodoro di Bisanzio, grammatico e aritmetico vissuto nel VI secolo d.C., si legge un testo dalla quale è possibile calcolare l'età di Diofanto.
+L'indovinello che Diofanto stesso volle venisse scritto sulla propria tomba come epitaffio, è un problema aritmetico che recita (traduzione dal greco):
+
+  "Questa tomba rinchiude Diofanto e, meraviglia!
+  dice matematicamente quanto ha vissuto.
+  Un sesto della sua vita fu l'infanzia, (1/6x)
+  aggiunse un dodicesimo perché le sue guance si coprissero della peluria dell'adolescenza. (1/12x)
+  Dopo un altro settimo della sua vita prese moglie, (1/7x)
+  e dopo cinque anni di matrimonio ebbe un figlio. (5)
+  L'infelice (figlio) morì improvvisamente quando raggiunse la metà dell'età che il padre ha vissuto. (1/2x)
+  Il genitore sopravvissuto fu in lutto per quattro anni (4)
+  e raggiunse infine il termine della propria vita." (x)
+
+Da questo testo possiamo ricavare la seguente equazione:
+
+  x/6 + x/12 + x/7 + 5 + x/2 + 4 = x
+
+Risolviamo l'equazione:
+
+  m.c.m = 84
+  14x + 7x + 12x + 420 + 42x + 336 = 84x 
+
+  75x + 756 = 84x
+
+  x = 756/(84-75) = 756/9 = 84
+
+Diofanto morì a 84 anni.
+
+Con newLISP possiamo cercare tutte le soluzioni intere all'equazione:
+
+(define (eta)
+  (for (x 1 1000)
+    (if (= x (add (div x 6) (div x 12) (div x 7) 5 (div x 2) 4))
+        (println x))) '>)
+
+(eta)
+;-> 84
+
+
+---------------------------------------
+Lista dei numeri primi sotto al milione
+---------------------------------------
+
+Scrivere una funzione/espressione che calcola tutti i primi sotto al milione.
+La funzione/espressione deve essere la più corta possibile.
+
+https://codegolf.stackexchange.com/questions/5977/list-of-primes-under-a-million
+
+Algoritmo:
+Selezionare tutti i numeri da 2 a 1000000 la cui scomposizione in fattori primi è formata da un solo numero.
+
+Funzione base:
+
+(filter (fn(x) (= (length (factor x)) 1)) (sequence 2 1e6))
+
+Funzione compressa (53 caratteri):
+
+(filter(fn(x)(=(length(factor x))1))(sequence 2 1e6))
+
+Tempo di esecuzione:
+
+(time (filter(fn(x)(=(length(factor x))1))(sequence 2 1e6)))
+;-> 807.672
+
+
+--------------------------------------
+Il metodo Java Integer.highestOneBit()
+--------------------------------------
+
+Questo metodo calcola per un dato intero N la cui rappresentazione binaria è:
+
+  0..01xxxx...xxxx
+
+il valore:
+
+  0..010000...0000
+
+Il metodo restituisce un valore intero con al massimo un singolo bit che si trova nella posizione del bit di ordine più alto (cioè più a sinistra) per il valore intero specificato.
+
+In altre parole genera un numero binario che inizia dal primo 1 incontrato a sinistra (highest bit) e poi ha
+ tutti i bit a 0.
+Se l'input binario ha tutti zeri (0000...), allora l'output è 0.
+
+Esempi:
+  input = 010
+  output = 10
+  
+  input = 10110
+  output = 10000
+  
+  input = 0000101
+  output = 100
+  
+  input = 0000
+  output = 0
+  
+  input = 01000
+  output = 1000
+
+(define (highestOneBit N)
+  (local (bin len high-one)
+    (setq bin (bits N))
+    (setq len (length bin))
+    (setq high-one (find "1" bin))
+    (if high-one 
+      (setq out (string "1" (dup "0" (- len high-one 1))))
+      (setq out 0))
+    ;(println bin { } out)
+    (int out 0 2)))
+
+Proviamo:
+
+(highestOneBit 18)
+;-> 16
+(highestOneBit 16)
+;-> 16
+(highestOneBit 15)
+;-> 8
+(highestOneBit 36)
+;-> 32
+
+Notiamo che la funzione restituisce un numero che è la prima potenza in base 2 inferiore o uguale al numero dato.
+Per esempio:
+  18 --> 2^4 = 16 (non 2^5 = 32 > 18)
+  16 --> 2^4 = 16
+  15 --> 2^3 = 8
+  36 --> 2^5 = 32
+
+
+----------------------
+Espressione invariante
+----------------------
+
+Scrivere una espressione il cui output è invariante a qualunque rotazione (a sinistra o a destra) dell'espressione stessa.
+
+Per esempio:
+
+espressione = (println "test")
+(println "test")
+;-> test
+
+rotazione a destra di 2 = ")(println "test
+")(println "
+;-> nil
+
+Gli output sono diversi.
+
+L'unica espressione che ho trovato è la seguente:
+
+""""""""""""""""""""""""""""""""
+
+Cioè una stringa costituita solo da doppi apici (in numero maggiore di 1).
+
+
+-------------------------
+Sottosequenze di stringhe
+-------------------------
+
+Date le stringhe S1 e S2, determinare se S1 è una sottosequenza di S2.
+La stringa vuota è considerata una sottosequenza di ogni stringa.
+Per esempio, "" and "anna" sono sottosequenze di "banana".
+
+Differenza tra sottostringa e sottosequenza
+Una sottostringa è compare esattamente com'è nella stringa.
+Per esempio:
+S1 = "anna", S2 = "giovanna"
+"anna" è sottostringa (e sottosequenza) di "giovanna"
+
+S1 = "anna", S2 = "banana"            __ __
+"anna" è sottosequenza di "banana" ("banana")
+
+S1 = "abc", S2 = "xaybzc"            _ _ _
+"abc" è sottosequenza di "xaybzc" ("xaybzc")
+
+S1 = "abc", S2 = "xayczb"                _   _
+"abc" non è sottosequenza di "xayczb" ("xayczb")
+Infatti anche se in S2 esistono le lettere "a", "b", "c", queste non appaiono in S2 con la stessa sequenza "_a _c_b".
+
+(define (subseq s1 s2)
+  (local (len1 len2 idx1 idx2 valid cur-char)
+    (setq len1 (length s1))
+    (setq len2 (length s2))
+    (setq idx1 0)
+    (setq idx2 0)
+    (setq valid true)
+    ; ciclo per tutta la stringa s1 (break when (idx2 > len2))
+    (while (and (< idx1 len1) valid)
+      ; carattere corrente stringa s1
+      (setq cur-char (s1 idx1))
+            ; raggiunta la fine della stringa s2 --> output = nil
+      (cond ((>= idx2 len2) (setq valid nil))
+            ; carattere corrente s1 = carattere corrente s2
+            ((= cur-char (s2 idx2))
+              ; avanziamo con entrambi gli indici
+              (++ idx1) (++ idx2))
+            ; carattere corrente s1 != carattere corrente s2
+            ((!= cur-char (s2 idx2))
+              ; avanziamo con entrambi l'indice di s2
+              (++ idx2)))
+    )
+    valid))
+
+Proviamo:
+
+(subseq "anna" "banana")
+;-> true
+(subseq "anna" "banaa")
+;-> nil
+(subseq "abc" "xaybzc")
+;-> true
+(subseq "abc" "xayczb")
+;-> nil
+(subseq "12345" "15243246651")
+;-> true
+(subseq "12345" "1524325466")
+;-> nil
+(subseq "12345" "2521432534656")
+;-> true
+
+Per risolvere il problema possiamo anche usare un espressione regolare (regex):
+Per esempio:
+
+(find "a.*n.*n.*a" "banana" 0)
+;-> 1
+
+La regex "a.*n.*n.*a" cerca:
+  1. Un carattere 'a'
+  2. Qualsiasi numero di caratteri (incluso zero)
+  3. Un carattere 'n'
+  4. Qualsiasi numero di caratteri (incluso zero)
+  5. Un altro carattere 'n'
+  6. Qualsiasi numero di caratteri (incluso zero)
+  7. Un carattere 'a'
+
+(find "a.*n.*n.*a" "banana" 0)
+;-> 0
+(find "a.*n.*n.*a" "banaa" 0)
+;-> nil
+(find "a.*b.*c" "xaybzc" 0)
+;-> 1
+(find "a.*b.*c" "xayczb" 0)
+;-> nil
+(find "1.*2.*3.*4.*5" "15243246651" 0)
+;-> 0
+(find "1.*2.*3.*4.*5" "1524325466" 0)
+;-> nil
+(find "1.*2.*3.*4.*5" "2521432534656" 0)
+;-> 3
+
+Per creare la regex usiamo la seguente espressione:
+
+(replace ".?" "anna" (string ".*" $it) 0)
+;-> ".*a.*n.*n.*a.*"
+(slice (replace ".?" "anna" (string ".*" $it) 0) 2 -2)
+;-> "a.*n.*n.*a"
+
+Scriviamo la funzione:
+
+(define (subsequence s1 s2)
+  (let (regx (slice (replace ".?" s1 (string ".*" $it) 0) 2 -2))
+    (if (find regx s2 0) true nil)))
+
+(subsequence "anna" "banana")
+;-> true
+(subsequence "anna" "banaa")
+;-> nil
+(subsequence "abc" "xaybzc")
+;-> true
+(subsequence "abc" "xayczb")
+;-> nil
+(subsequence "12345" "15243246651")
+;-> true
+(subsequence "12345" "1524325466")
+;-> nil
+(subsequence "12345" "2521432534656")
+;-> true
+
+Vediamo la velocità delle due funzioni:
+
+Output true:
+
+(time (subsequence "12345" "2521432534656") 1e5)
+;-> 347.913
+(time (subseq "12345" "2521432534656") 1e5)
+;-> 520.634
+
+(time (subsequence "1234567" "252143253465656345764576234573457") 1e5)
+;-> 548.733
+(time (subseq "1234567" "252143253465656345764576234573457") 1e5)
+;-> 851.365
+
+Output: nil
+
+(time (subsequence "12345" "2521432534666") 1e5)
+;-> 343.592
+(time (subseq "12345" "2521432534666") 1e5)
+;-> 592.757
+
+(time (subsequence "1234567" "252143253465656345864586234583458") 1e5)
+;-> 548.733
+(time (subseq "1234567" "252143253465656345864586234583458") 1e5)
+;-> 1523.709
+
+Proviamo a compilare la regex e vedere cosa accade:
+
+(setq s1 "1234567")
+(setq p1 (regex-comp (slice (replace ".?" s1 (string ".*" $it) 0) 2 -2)))
+(define (subs s2)  (if (find p1 s2 0x10000) true nil))
+(subs "252143253465656345864586234583458")
+;-> nil
+(time (subs "252143253465656345864586234583458") 1e5)
+;-> 17.09
+
+In questo caso la funzione che usa la regex è velocissima.
+Quindi se usiamo la stessa espressione regolare molte volte sarebbe opportuno compilarla.
+
+Nota: in questo caso la regex cambia con il parametro s1 e quindi non è conveniente compilarla ogni volta, anche perchè all'interno della funzione viene usata solo una volta.
 
 ============================================================================
 

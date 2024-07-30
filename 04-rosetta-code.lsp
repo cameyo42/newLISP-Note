@@ -7720,6 +7720,15 @@ IL PROBLEMA DI GIUSEPPE (JOSEPHUS PROBLEM)
 Il problema di Giuseppe (Josephus problem) o la permutazione di Giuseppe è un problema collegato ad un episodio raccontato dallo storico Flavio Giuseppe nella sua opera "Guerra giudaica" (composta tra il 93 e il 94 d.C.).
 Il problema presenta n persone disposte in circolo in attesa di una esecuzione. Scelta una persona iniziale e un senso di rotazione, si saltano k-1 persone, raggiungendo così la k-esima persona, che viene giustiziata ed eliminata dal cerchio. Poi si saltano k-1 persone e si giustizia la k-esima persona. Le esecuzioni proseguono e il cerchio si restringe sempre più, finché non rimane che una sola persona, la quale viene graziata. Dati n e k, determinare la posizione del sopravvissuto all'interno del cerchio iniziale. In altre parole il problema è scegliere il posto nel cerchio iniziale che assicura la sopravvivenza.
 
+Per k = 2 otteniamo:
+
+Sequenza OEIS: A006257
+Josephus problem: a(2*n) = 2*a(n)-1, a(2*n+1) = 2*a(n)+1.
+  0, 1, 1, 3, 1, 3, 5, 7, 1, 3, 5, 7, 9, 11, 13, 15, 1, 3, 5, 7, 9, 11, 13,
+  15, 17, 19, 21, 23, 25, 27, 29, 31, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21,
+  23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57, 59,
+  61, 63, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, ...
+
 Soluzione ricorsiva
 Il problema ha la seguente struttura ricorsiva.
 
@@ -7775,6 +7784,11 @@ Nel caso k sia sempre uguale a 2, allora possiamo utilizzare un altro metodo:
 ;-> 13
 (giuseppe 5)
 ;-> 3
+
+(map giuseppe (sequence 1 50))
+;-> (1 1 3 1 3 5 7 1 3 5 7 9 11 13 15 1 3 5 7 9 11 13
+;->  15 17 19 21 23 25 27 29 31 1 3 5 7 9 11 13 15 17 19 21
+;->  23 25 27 29 31 33 35 37)
 
 Vedi anche "Numeri Giuseppe Flavio (Setaccio di Flavio Giuseppe)" in "Note libere 19".
 

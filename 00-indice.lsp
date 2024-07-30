@@ -2572,6 +2572,11 @@ NOTE LIBERE 25
   Lancio di tre dadi (rilanciando valori 1)
   Sistema Braille
   Partizioni di una lista in ordine
+  Quanti anni ha Diofanto?
+  Lista dei numeri primi sotto al milione
+  Il metodo Java Integer.highestOneBit()
+  Espressione invariante
+  Sottosequenze di stringhe
 
 PROBLEMI SUI DADI
 =================
