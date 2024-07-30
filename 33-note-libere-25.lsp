@@ -5194,5 +5194,154 @@ Quindi se usiamo la stessa espressione regolare molte volte sarebbe opportuno co
 
 Nota: in questo caso la regex cambia con il parametro s1 e quindi non è conveniente compilarla ogni volta, anche perchè all'interno della funzione viene usata solo una volta.
 
+
+-----------------------------------------------------------
+Terence Tao e una forma debole della congettura di Goldbach
+-----------------------------------------------------------
+
+Il matematico Terence Tao ha dimostrato nel 2012 una forma debole della congettura di Goldbach:
+
+  Ogni numero dispari maggiore di 1 è la somma di (al massimo) 5 primi.
+
+Vedi l'articolo:
+"Every odd number greater than 1 is the sum of at most five primes" by Terence Tao.
+https://arxiv.org/abs/1201.6656
+
+Verifichiamola (per un numero finito di numeri).
+
+Dato un intero dispari N > 1, scrivere N come somma di un massimo di 5 numeri primi.
+
+(define (primes-range n1 n2)
+"Generates all prime numbers in the interval [n1..n2]"
+  (if (> n1 n2) (swap n1 n2))
+  (cond ((= n2 1) '())
+        ((= n2 2) '(2))
+        (true
+          (let ((lst '(2)) (arr (array (+ n2 1))))
+            ; initialize lst 
+            (if (> n1 2) (setq lst '()))
+            (for (x 3 n2 2)
+              (when (not (arr x))
+                ; push current primes (x) only if > n1
+                (if (>= x n1) (push x lst -1))
+                (for (y (* x x) n2 (* 2 x) (> y n2))
+                  (setf (arr y) true)))) lst))))
+
+(primes-range 11 103)
+;-> (11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103)
+
+(define (tao1 num)
+(catch
+  (dolist (a (primes-range 2 num))
+    (if (= a num) (throw a))
+    (dolist (b (primes-range (+ a 1) num))
+      (dolist (c (primes-range (+ b 1) num))
+        (if (= (+ a b c) num) (throw (list a b c)))
+        (dolist (d (primes-range (+ c 1) num))
+          (dolist (e (primes-range (+ d 1) num))
+            (if (= (+ a b c d e) num) (throw (list a b c d e))))))))))
+
+Proviamo:
+
+(tao1 11)
+;-> 11
+
+(tao1 101)
+;-> (3 5 7 13 73)
+
+(tao1 201)
+;-> (3 5 7 13 173)
+
+Vediamo la velocità:
+
+(time (map tao1 (sequence 3 101 2)))
+;-> 324.622
+(time (map tao1 (sequence 3 201 2)))
+;-> 6235.301
+
+(time (println (tao1 1001)))
+;-> (3 5 7 19 967)
+;-> 68657.521
+
+Giusto per curiosità, proviamo con numeri pari:
+
+(tao1 10)
+;-> (2 3 5)
+
+(tao1 100)
+;-> (2 3 5 7 83)
+
+(tao1 200)
+;-> (2 3 5 11 179)
+
+(time (println (tao1 1000)))
+;-> (2 3 5 7 983)
+;-> 0.97
+
+Proviamo a velocizzare la funzione:
+
+1) calcoliamo i numeri primi una sola volta
+2) utilizziamo un vettore (array)
+3) i cicli for utilizzano gli indici del vettore
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+          (let ((lst '(2)) (arr (array (+ num 1))))
+            (for (x 3 num 2)
+              (when (not (arr x))
+                (push x lst -1)
+                (for (y (* x x) num (* 2 x) (> y num))
+                  (setf (arr y) true)))) lst))))
+
+(define (tao2 num)
+(catch
+  (local (primi len p)
+    (setq primi (primes-to num))
+    (setq len (length primi))
+    (setq p (array len primi))
+    (for (a 0 (- len 1))
+      (if (= (p a) num) (throw (p a)))
+      (if (<= (+ a 1) (- len 1))
+      (for (b (+ a 1) (- len 1))
+        (if (<= (+ b 1) (- len 1))
+        (for (c (+ b 1) (- len 1))
+          (if (= (+ (p a) (p b) (p c)) num)
+              (throw (list (p a) (p b) (p c))))
+          (if (<= (+ c 1) (- len 1))
+          (for (d (+ c 1) (- len 1))
+            (if (<= (+ d 1) (- len 1))
+            (for (e (+ d 1) (- len 1))
+              (if (= (+ (p a) (p b) (p c) (p d) (p e)) num)
+                  (throw (list (p a) (p b) (p c) (p d) (p e))))))))))))))))
+
+Proviamo:
+
+(tao2 11)
+;-> 11
+
+(tao2 101)
+;-> (3 5 7 13 73)
+
+(tao2 201)
+;-> (3 5 7 13 173)
+
+Vediamo se le due funzioni producono gli stessi risultati:
+
+(= (map tao2 (sequence 3 201 2)) (map tao2 (sequence 3 201 2)))
+;-> true
+
+Vediamo la velocità:
+
+(time (map tao2 (sequence 3 101 2)))
+;-> 30.201
+(time (map tao2 (sequence 3 201 2)))
+;-> 543.638
+(time (println (tao2 1001)))
+;-> (3 5 7 19 967)
+;-> 4747.324
+
 ============================================================================
 

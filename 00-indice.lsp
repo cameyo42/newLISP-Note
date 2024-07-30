@@ -2577,6 +2577,7 @@ NOTE LIBERE 25
   Il metodo Java Integer.highestOneBit()
   Espressione invariante
   Sottosequenze di stringhe
+  Terence Tao e una forma debole della congettura di Goldbach
 
 PROBLEMI SUI DADI
 =================
