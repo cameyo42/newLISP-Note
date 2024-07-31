@@ -5343,5 +5343,108 @@ Vediamo la velocità:
 ;-> (3 5 7 19 967)
 ;-> 4747.324
 
+
+----------------------------------------------------------------
+Utilizzare map con una funzione che ha alcuni parametri costanti
+----------------------------------------------------------------
+
+(define (test x y z) (* (+ x y) z))
+
+(test 1 2 3)
+;-> 9
+
+Supponiamo di voler applicare ad ogni elemento w di una lista di numeri interi la seguente operazione:
+
+  (w + 2) * 3
+
+Non possiamo applicare "map" direttamente con la funzione "test", ma possiamo creare una funzione ausiliaria che richiama "test" con i parametri costanti (y=2 e z=3):
+
+(define (test-aux x) (test x 2 3))
+
+Adesso possiamo usare "map" con "test-aux":
+
+(map test-aux (sequence 1 10))
+;-> (9 12 15 18 21 24 27 30 33 36)
+
+In questo caso "test" è una funzione molto semplice e avremmo potutto scriverla direttamente in "map" con fn(x), ma in caso di funzioni lunghe conviene utilizzare una funzione ausiliaria.
+
+
+----------------------------------------
+Conteggio delle chiamate ad una funzione
+----------------------------------------
+
+Alle volte vogliamo conoscere quante volte viene eseguita una funzione durante l'esecuzione di un programma.
+Un metodo semplice è quello di utilizzare una variabile globale che viene incrementata dalla prima istruzione della funzione che vogliamo analizzare.
+
+Esempio:
+
+(define (fibo n)
+  (++ fibo-count)
+  (if (< n 2)
+      1
+      (+ (fibo (- n 1)) (fibo (- n 2)))))
+
+(setq fibo-count 0)
+(fibo 5)
+;-> 8
+fibo-count
+;-> 15
+
+(setq fibo-count 0)
+(fibo 10)
+;-> 89
+fibo-count
+;-> 177
+
+(setq fibo-count 0)
+(fibo 20)
+;-> 10946
+fibo-count
+;-> 21891
+
+
+-------------------------------------------
+Differenza minima tra i numeri di una lista
+-------------------------------------------
+
+Data una lista di numeri interi positivi, scrivere una funzione che restituisce la differenza tra i due numeri più vicini e i due numeri stessi.
+
+Esempio:
+lista: (55 99 6 29 1 123 3)
+output: 3 - 1 = 2
+
+Algoritmo
+1) Ordinare la lista (crescente)
+2) Calcolare tutte le differenze delle coppie adiacenti: (e(i+1) - e(i))
+3) Trovare il valore minimo delle differenze (diff-min)
+4) Trovare l'indice del valore minimo delle differenze (idx)
+5) Gli elementi sono lista(idx+1) e lista(idx)
+
+(define (min-diff lst)
+  (local (diff idx-min)
+    ; Ordina la lista
+    (sort lst)
+    ; Calcola le differenze delle coppie adiacenti della lista ordinata
+    (setq diff (map - (rest lst) (chop lst)))
+    ; Ricerca indice del valore minimo delle differenze
+    (setq idx-min (find (apply min diff) diff))
+    ; Restituzione del risultato
+    (list (- (lst (+ idx-min 1)) (lst idx-min))
+          (lst (+ idx-min 1)) (lst idx-min))))
+
+Proviamo:
+
+(setq a '(55 99 6 29 1 123 3))
+(min-diff a)
+;-> (2 3 1)
+
+(setq b '(-1 13 4 -3 7 -6 -12 22 -13 36))
+(min-diff b)
+;-> (1 -12 -13)
+
+(setq c '(-10 20 12 -2 -22 42 83 2))
+(min-diff c)
+;-> (4 2 -2)
+
 ============================================================================
 

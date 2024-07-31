@@ -2578,6 +2578,9 @@ NOTE LIBERE 25
   Espressione invariante
   Sottosequenze di stringhe
   Terence Tao e una forma debole della congettura di Goldbach
+  Utilizzare map con una funzione che ha alcuni parametri costanti
+  Conteggio delle chiamate ad una funzione
+  Differenza minima tra i numeri di una lista
 
 PROBLEMI SUI DADI
 =================
