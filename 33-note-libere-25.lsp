@@ -5605,5 +5605,96 @@ Nota: la stampa (println) di un oggetto restituisce l'oggetto:
 ;-> println@40AC99
 ;-> true
 
+
+---------------------
+Problema Seven-Eleven
+---------------------
+
+Il problema del Seven-Eleven consiste nel trovare 4 numeri positivi (con due cifre decimali, A.BC) tali che la loro somma e il loro prodotto sia uguale a 7.11.
+In termini matematici:
+
+  a + b + c + d = a * b * c * d = 7.11
+  con 0 < a <= b <= c <= d
+
+Risolviamo il problema provando tutte le combinazioni possibili dei numeri a,b,c,d.
+Per usare i numeri interi moltiplichiamo tutti i valori per 100.
+
+(define (abcd)
+  (local (out d)
+    (for (a 1 (/ 711 4))
+      (for (b a (/ 711 3))   ; (/ 711 4) non ottimizzato
+        (for (c b (/ 711 2)) ; (/ 711 4) non ottimizzato
+          (setq d (- 711 (+ a b c)))
+          (if (and (>= d c) (= 711000000 (* a b c d)))
+              (setq out (list a b c d))))))
+    ; divisione per 100 dei valori della soluzione
+    (map (fn(x) (div x 100)) out)))
+
+Proviamo:
+
+(abcd)
+;-> (1.2 1.25 1.5 3.16)
+(apply add (abcd))
+;-> 7.11
+(apply mul (abcd))
+;-> 7.11
+(time (abcd))
+;-> 735.81
+
+
+---------------------
+Numeri k-almost-prime
+---------------------
+
+Un k-almost-prime (k-quasi-primo) è un numero intero positivo che ha esattamente k fattori primi, contati con molteplicità.
+
+Sequenza OEIS A101695: 
+a(n) = n-th n-almost prime.
+  2, 6, 18, 40, 108, 224, 480, 1296, 2688, 5632, 11520, 25600, 53248, 124416,
+  258048, 540672, 1105920, 2228224, 4587520, 9830400, 19922944, 40894464,
+  95551488, 192937984, 396361728, 822083584, 1660944384, 3397386240,
+  6845104128, ...
+
+(define (k-almost limite)
+  (local (out conta len)
+    ; vettore soluzione
+    (setq out (array 50 '(0)))
+    ; vettore che conta le occorrenze delle lunghezze dei fattori dell'indice i
+    (setq conta (array 50 '(0)))
+    ; ciclo per tutti i numeri da 1 a limite
+    (for (k 2 limite)
+      ; numero di fattori del numero corrente
+      (setq len (length (factor k)))
+      ; aggiorna le occorrenze della lunghezza dei fattori pari a len
+      (++ (conta len))
+      ; se le occorrenze sono uguali 
+      ; alla lunghezza dei fattori del numero corrente, allora
+      ; abbiamo trovato un altro numero della sequenza
+      (if (= (conta len) len) (setf (out len) k))
+    )
+    (clean zero? (array-list out))))
+
+Proviamo:
+
+(time (println (k-almost 1e5)))
+;-> (2 6 18 40 108 224 480 1296 2688 5632 11520 25600 53248)
+;-> 43.069
+
+(time (println (k-almost 1e6)))
+;-> (2 6 18 40 108 224 480 1296 2688 5632 11520 25600 53248 124416
+;->  258048 540672)
+;-> 750.023
+
+(time (println (k-almost 1e7)))
+;-> (2 6 18 40 108 224 480 1296 2688 5632 11520 25600 53248 124416
+;->  258048 540672 1105920 2228224 4587520 9830400)
+;-> 16626.773
+
+(time (println (k-almost 1e8)))
+;-> (2 6 18 40 108 224 480 1296 2688 5632 11520 25600 53248 124416
+;->  258048 540672 1105920 2228224 4587520 9830400 19922944 40894464
+;->  95551488)
+;-> 414626.517
+
 ============================================================================
 

@@ -2583,6 +2583,8 @@ NOTE LIBERE 25
   Differenza minima tra i numeri di una lista
   Numeri palindromi in base B (2<=B<=62)
   Sequenze Jolly Jumper
+  Problema Seven-Eleven
+  Numeri k-almost-prime
 
 PROBLEMI SUI DADI
 =================
