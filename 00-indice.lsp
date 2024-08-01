@@ -2581,6 +2581,8 @@ NOTE LIBERE 25
   Utilizzare map con una funzione che ha alcuni parametri costanti
   Conteggio delle chiamate ad una funzione
   Differenza minima tra i numeri di una lista
+  Numeri palindromi in base B (2<=B<=62)
+  Sequenze Jolly Jumper
 
 PROBLEMI SUI DADI
 =================

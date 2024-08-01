@@ -4358,7 +4358,7 @@ S5 Colori: verde, verde lampeggiante, giallo, rosso, rosso con giallo.
 (define (s5 tv tvl tg tr trg)
   (while (zero? (read-key true))
     (cls) (show verde) (sleep tv)
-    (cls) 
+    (cls)
     ; verde lampeggiante (200 msec)
     (for (i 1 (/ tvl 200))
       (if (odd? i) (show verde)) (sleep 200) (cls))
@@ -4564,7 +4564,7 @@ Sistema Braille
 ---------------
 
 Il Braille è un sistema di lettura e scrittura tattile a rilievo per non vedenti, creato dal francese Louis Braille nella prima metà del XIX secolo.
-Consiste in simboli formati da sei punti, disposti su una matrice 3x2 in cui ogni casella è della grandezza di circa 3x2 millimetri o più. 
+Consiste in simboli formati da sei punti, disposti su una matrice 3x2 in cui ogni casella è della grandezza di circa 3x2 millimetri o più.
 I sei punti della matrice 3x2 sono numerati nel modo seguente:
 
   Punto 1 - punto in alto a sinistra
@@ -4583,28 +4583,28 @@ I sei punti della matrice 3x2 sono numerati nel modo seguente:
 
 I caratteri alfanumerici (A..Z) e (0..9) sono rappresentati con le seguenti configurazioni dei punti nella matrice:
 
-    A/1      B/2      C/3      D/4      E/5      F/6      G/7      H/8    
-  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  
-  | * . |  | * . |  | * * |  | * * |  | * . |  | * * |  | * * |  | * . |  
-  | . . |  | * . |  | . . |  | . * |  | . * |  | * . |  | * * |  | * * |  
-  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  
-  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  
+    A/1      B/2      C/3      D/4      E/5      F/6      G/7      H/8
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
+  | * . |  | * . |  | * * |  | * * |  | * . |  | * * |  | * * |  | * . |
+  | . . |  | * . |  | . . |  | . * |  | . * |  | * . |  | * * |  | * * |
+  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |  | . . |
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
 
-    I/9    J/0       K        L        M        N        O        P      
-  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+ 
-  | . * |  | . * |  | * . |  | * . |  | * * |  | * * |  | * . |  | * * | 
-  | * . |  | * * |  | . . |  | * . |  | . . |  | . * |  | . * |  | * . | 
-  | . . |  | . . |  | * . |  | * . |  | * . |  | * . |  | * . |  | * . | 
-  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+ 
+    I/9    J/0       K        L        M        N        O        P
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
+  | . * |  | . * |  | * . |  | * . |  | * * |  | * * |  | * . |  | * * |
+  | * . |  | * * |  | . . |  | * . |  | . . |  | . * |  | . * |  | * . |
+  | . . |  | . . |  | * . |  | * . |  | * . |  | * . |  | * . |  | * . |
+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
 
-     Q        R        S        T        U        V        W        X   
+     Q        R        S        T        U        V        W        X
   +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
   | * * |  | * . |  | . * |  | . * |  | * . |  | * . |  | . * |  | * * |
   | * * |  | * * |  | * . |  | * * |  | . . |  | * . |  | * * |  | . . |
   | * . |  | * . |  | * . |  | * . |  | * * |  | * * |  | . * |  | * * |
   +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+  +-----+
 
-     Y        Z        Segna numero    Spazio 
+     Y        Z        Segna numero    Spazio
   +-----+  +-----+       +-----+       +-----+
   | * * |  | * . |       | . * |       | . . |
   | . * |  | . * |       | . * |       | . . |
@@ -4875,7 +4875,7 @@ Vedi anche "Dividere una stringa in tutti i modi possibili" su "Note libere 17".
 Quanti anni ha Diofanto?
 ------------------------
 
-Diofanto di Alessandria fu un grande matematico greco vissuto nel periodo tra il II e il III secolo d.C. ad Alessandria d'Egitto. 
+Diofanto di Alessandria fu un grande matematico greco vissuto nel periodo tra il II e il III secolo d.C. ad Alessandria d'Egitto.
 In un epigramma della "Antologia Palatina", attribuito a Metrodoro di Bisanzio, grammatico e aritmetico vissuto nel VI secolo d.C., si legge un testo dalla quale è possibile calcolare l'età di Diofanto.
 L'indovinello che Diofanto stesso volle venisse scritto sulla propria tomba come epitaffio, è un problema aritmetico che recita (traduzione dal greco):
 
@@ -4896,7 +4896,7 @@ Da questo testo possiamo ricavare la seguente equazione:
 Risolviamo l'equazione:
 
   m.c.m = 84
-  14x + 7x + 12x + 420 + 42x + 336 = 84x 
+  14x + 7x + 12x + 420 + 42x + 336 = 84x
 
   75x + 756 = 84x
 
@@ -4962,16 +4962,16 @@ Se l'input binario ha tutti zeri (0000...), allora l'output è 0.
 Esempi:
   input = 010
   output = 10
-  
+
   input = 10110
   output = 10000
-  
+
   input = 0000101
   output = 100
-  
+
   input = 0000
   output = 0
-  
+
   input = 01000
   output = 1000
 
@@ -4980,7 +4980,7 @@ Esempi:
     (setq bin (bits N))
     (setq len (length bin))
     (setq high-one (find "1" bin))
-    (if high-one 
+    (if high-one
       (setq out (string "1" (dup "0" (- len high-one 1))))
       (setq out 0))
     ;(println bin { } out)
@@ -5218,7 +5218,7 @@ Dato un intero dispari N > 1, scrivere N come somma di un massimo di 5 numeri pr
         ((= n2 2) '(2))
         (true
           (let ((lst '(2)) (arr (array (+ n2 1))))
-            ; initialize lst 
+            ; initialize lst
             (if (> n1 2) (setq lst '()))
             (for (x 3 n2 2)
               (when (not (arr x))
@@ -5445,6 +5445,165 @@ Proviamo:
 (setq c '(-10 20 12 -2 -22 42 83 2))
 (min-diff c)
 ;-> (4 2 -2)
+
+
+--------------------------------------
+Numeri palindromi in base B (2<=B<=62)
+--------------------------------------
+
+Scrivere una funzione che genera i numeri palindromi in base B fino ad un dato numero N (decimale).
+
+(define (base10-baseN number base)
+"Convert a number from base 10 to base N (<=62)"
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result '())
+        (quotient number))
+    (while (>= quotient base)
+      (push (charset (% quotient base)) result)
+      (setq quotient (/ quotient base))
+    )
+    (push (charset quotient) result)
+    (join result)))
+
+(define (baseN-base10 number-string base)
+"Convert a number from base N (<=62) to base 10"
+  (let ((charset "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        (result 0)
+        (len (length number-string)))
+    (dolist (digit (explode number-string))
+      (setq result (+ (* result base) (find digit charset)))
+    )
+    result))
+
+Funzione che verifica se un numero (o una stringa) è palindromo:
+
+(define (palindrome? obj)
+  (let (str (string obj))
+    (= (reverse (copy str)) str)))
+
+Funzione che calcola i numeri palindromi in base B fino al numero N (decimale):
+
+(define (pali B N)
+  (let ( (out '()) (nb 0) )
+    (for (num 1 N)
+      (setq nb (base10-baseN num B))
+      (if (palindrome? nb) (push (list nb num) out -1)))
+    out))
+
+(pali 2 50)
+;-> (("1" 1) ("11" 3) ("101" 5) ("111" 7) ("1001" 9) ("1111" 15) ("10001" 17)
+;->  ("10101" 21) ("11011" 27) ("11111" 31) ("100001" 33) ("101101" 45))
+
+(pali 5 50)
+;-> (("1" 1) ("2" 2) ("3" 3) ("4" 4) ("11" 6) ("22" 12) ("33" 18) ("44" 24)
+;->  ("101" 26) ("111" 31) ("121" 36) ("131" 41) ("141" 46))
+
+I numeri in base B che hanno indice da 0 a (B - 1) sono sempre palindromi perchè sono formati da una sola cifra/simbolo.
+
+(slice (pali 60 500) 59)
+;-> (("11" 61) ("22" 122) ("33" 183) ("44" 244)
+;->  ("55" 305) ("66" 366) ("77" 427) ("88" 488))
+
+
+---------------------
+Sequenze Jolly Jumper
+---------------------
+
+Una sequenza di N numeri interi è detta Jolly Jumper se i valori assoluti della differenza tra elementi adiacenti assumono tutti i valori da 1 a N-1.
+Le sequenze di lunghezza 0 o 1 sono considerate Jolly Jumper.
+
+Per esempio:
+
+  sequenza = (5 3 2 5 9)
+  N = 5
+  differenze = abs(3 - 5) abs(2 - 3) abs(5 - 2) abs(9 - 5) =
+             = 2 1 3 4
+
+Le differenze contengono tutti i numeri da 1 a N-1 (da 1 a 4): 1 2 3 4.
+Quindi la sequenza è Jolly Jumper.
+
+(define (jj? lst)
+  ; calcolo delle differenze assolute degli elementi adiacenti
+  (let (diff (map (fn(x y) (abs (- y x))) (rest lst) (chop lst)))
+    ;(println (sort diff))
+    ; verifica della presenza dei numeri da 1 a N-1
+    (= (sort diff) (sequence 1 (- (length lst) 1)))))
+
+Proviamo:
+
+(setq a '(5 3 2 5 9))
+(jj? a)
+;-> (1 2 3 4)
+;-> true
+
+(jj? '(2 -1 0 2))
+;-> (1 2 3)
+;-> true
+
+(jj? '(19 22 24 25))
+;-> (1 2 3)
+;-> true
+
+(jj? '(19 22 24 21))
+;-> (2 3 3)
+;-> nil
+
+Scriviamo una funzione che dato un numero N genera una lista Jolly Jumper con N elementi.
+
+(define (make-jj N)
+  (local (max-rnd out seq new-val)
+  ; valore di partenza
+  (setq max-rnd (* N 10))
+  ; lista di output
+  (setq out (list (rand max-rnd)))
+  ; randomize (mischia) la sequenza 1..N
+  (setq seq (randomize (sequence 1 N)))
+  ; ciclo per ogni valore della sequenza
+  (dolist (el seq)
+    ; creazione valore corrente:
+    ; valore_corrente = valore_precedente - elemento_corrente
+    ; oppure
+    ; valore_corrente = valore_precedente + elemento_corrente
+    (if (zero? (rand 2))
+        (setq new-val (- (out $idx) el))
+        (setq new-val (+ (out $idx) el)))
+    ; inserimento valore corrente
+    (push new-val out -1)
+  )
+  out))
+
+Proviamo:
+
+(make-jj 5)
+;-> (17 12 16 19 21 20)
+(jj? '(17 12 16 19 21 20))
+;-> true
+
+(jj? (println (make-jj 8)))
+;-> (52 59 58 52 50 58 53 49 52)
+;-> true
+
+(jj? (println (make-jj 10)))
+;-> (32 31 38 42 33 23 15 18 13 11 5)
+;-> true
+
+Nota: la stampa (println) di un oggetto restituisce l'oggetto:
+
+(list? (println '(1 2 3)))
+;-> (1 2 3)
+;-> true
+(integer? (println 1))
+;-> 1
+;-> true
+(float? (println 3.1415))
+;-> 3.1415
+;-> true
+(string? (println "stringa"))
+;-> stringa
+;-> true
+(primitive? (println println))
+;-> println@40AC99
+;-> true
 
 ============================================================================
 
