@@ -4006,7 +4006,7 @@ Vediamo i tempi di esecuzione:
 
 L'ultima funzione è la più veloce perchè non effettua alcun ciclo attraverso i numeri.
 
-Possiamo anche scrivere una funzione che somma i numeri pari:
+Possiamo anche scrivere una funzione analoga che somma i numeri pari:
 
 (define (sommapari a b)
   (let (n 0)
@@ -4026,12 +4026,13 @@ Possiamo anche scrivere una funzione che somma i numeri pari:
 (sommapari 2 10)
 ;-> 30
 
-Nota: la somma dei primi n numeri dispari è sempre un quadrato. Infatti la figura seguente mostra che:
+Nota: la somma dei primi n numeri dispari è sempre un quadrato.
+Infatti la figura seguente mostra che:
 
-1 + 3 =          4   (2 quadrati x 2 quadrati)
-1 + 3 + 5 =      9   (3 quadrati x 3 quadrati)
-1 + 3 + 5 + 7 = 16   (4 quadrati x 4 quadrati)
-...
+  1 + 3 =          4   (2 quadrati x 2 quadrati)
+  1 + 3 + 5 =      9   (3 quadrati x 3 quadrati)
+  1 + 3 + 5 + 7 = 16   (4 quadrati x 4 quadrati)
+  ...
 
        +-----+-----+-----+-----+
        |  1  |  3  |  5  |  7  |
@@ -4161,7 +4162,7 @@ Questa volta "a" vale:
 
              z2 + y2 + a
   x2 = a*ln(-------------)
-                a
+                  a
 
 
 ------------------
@@ -4172,9 +4173,9 @@ In matematica si dice numero automorfo o anche intero automorfo un intero positi
 Esempi: 5^2 = 25, 76^2 = 5776, 890625^2 = 793212890625.
 
 Sequenza OEIS A003226:
-  0, 1, 5, 6, 25, 76, 376, 625, 9376, 90625, 109376, 890625, 2890625, 
+  0, 1, 5, 6, 25, 76, 376, 625, 9376, 90625, 109376, 890625, 2890625,
   7109376, 12890625, 87109376, 212890625, 787109376, 1787109376, 8212890625,
-  18212890625, 81787109376, 918212890625, 9918212890625, 40081787109376, 
+  18212890625, 81787109376, 918212890625, 9918212890625, 40081787109376,
   59918212890625, 259918212890625, 740081787109376, ...
 
 (define (automorfico? num)
@@ -4232,12 +4233,12 @@ Versione alternativa:
 Nota: la proprietà dei numeri automorfici valgono anche per le potenze superiori, cioè se un numero è automorfico anche le sue potenze di ordine superiore a 2 terminano con il numero.
 Per esempio:
 (setq num 76L)
-(println num { } (* num num) { } (* num num num) { } (* num num num num) 
+(println num { } (* num num) { } (* num num num) { } (* num num num num)
              { } (* num num num num num))
 ;-> 76L 5776L 438976L 33362176L 2535525376L
 
 (setq num 9376L)
-(println num { } (* num num) { } (* num num num) { } (* num num num num) 
+(println num { } (* num num) { } (* num num num) { } (* num num num num)
              { } (* num num num num num))
 ;-> 9376L 87909376L 824238309376L 7728058388709376L 72458275452539109376L
 

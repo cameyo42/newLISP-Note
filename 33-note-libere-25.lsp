@@ -5696,5 +5696,72 @@ Proviamo:
 ;->  95551488)
 ;-> 414626.517
 
+
+------------------------------
+Le quarte potenze di Dov Juzuk
+------------------------------
+
+Nel 1939 il matematico Dov Juzuk descrisse e dimostrò un modo per generare le quarte potenze dei numeri naturali:
+
+Prendere gli interi positivi e raggrupparli in insiemi in modo che l'm-esimo insieme contenga i successivi m
+interi positivi:
+
+  (1), (2,3), (4,5,6), (7,8,9,10), (11,12,13,14,15), ...
+
+Rimuovere tutti gli insiemi con un numero pari di elementi (cioè rimuovere ogni secondo insieme).
+
+    (1), (4,5,6), (11,12,13,14,15), ...
+
+Quindi la somma di tutti gli interi nei primi n insiemi rimanenti è uguale a n^4.
+
+Scriviamo una funzione che calcola la quarta potenza di un numero con il metodo di Juzuk.
+
+(define (juzuk1 num)
+  (local (out gruppi seq num-elem)
+    (setq out '())
+    (setq gruppi 1)
+    ; numero in sequenza
+    (setq seq 1)
+    ; ciclo per creare i gruppi
+    (while (<= gruppi (* num 2))
+      ; contatore elementi del gruppo corrente
+      (setq num-elem 1)
+      (while (<= num-elem gruppi)
+        ; inserisce solo i gruppi dispari
+        (if (odd? gruppi) (push seq out -1))
+        ; aumenta il numero in sequenza
+        (++ seq)
+        ; aumenta il numero di elementi del gruppo corrente
+        (++ num-elem)
+      )
+      (++ gruppi)
+    )
+    (apply + out)))
+
+Proviamo:
+
+(map juzuk1 (sequence 1 10))
+;-> (1 16 81 256 625 1296 2401 4096 6561 10000)
+
+Matematicamente risulta che la somma del k-esimo gruppo vale:
+
+  S(k) = 4*k^3 - 6*k^2 + 4*k - 1
+
+(define (s k) (+ (* 4 k k k) (- (* 6 k k)) (* 4 k) (- 1)))
+
+(pow 5 4)
+;-> 625
+(+ (s 1) (s 2) (s 3) (s 4) (s 5))
+;-> 625
+
+(define (juzuk2 num)
+  (let (sum 0)
+    (for (i 1 num) (++ sum (s i)))))
+
+Proviamo:
+
+(map juzuk2 (sequence 1 10))
+;-> (1 16 81 256 625 1296 2401 4096 6561 10000)
+
 ============================================================================
 

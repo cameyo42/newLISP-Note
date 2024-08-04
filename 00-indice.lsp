@@ -2585,6 +2585,7 @@ NOTE LIBERE 25
   Sequenze Jolly Jumper
   Problema Seven-Eleven
   Numeri k-almost-prime
+  Le quarte potenze di Dov Juzuk
 
 PROBLEMI SUI DADI
 =================
