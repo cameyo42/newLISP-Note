@@ -2532,6 +2532,7 @@ NOTE LIBERE 24
 
 NOTE LIBERE 25
 ==============
+  How to crash the REPL
   Coppie di resistenze in serie e in parallelo
   La somma di tutti i numeri interi positivi vale -1/12
   Scambiare a coppie gli elementi di una lista
@@ -2586,6 +2587,9 @@ NOTE LIBERE 25
   Problema Seven-Eleven
   Numeri k-almost-prime
   Le quarte potenze di Dov Juzuk
+  Print largest integer you can with the fewest characters
+  Separazione stabile numeri negativi e positivi
+  Implementazione delle funzioni floor e ceil
 
 PROBLEMI SUI DADI
 =================

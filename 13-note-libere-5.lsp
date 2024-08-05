@@ -10329,7 +10329,7 @@ Adesso possiamo scrivere una funzione che effettua il calcolo:
 
 Numeri di Lychrel
 -----------------
-Un numero di Lychrel è un numero naturale che non può formare un palindromo attraverso il processo iterativo di invertire ripetutamente le sue cifre e sommare i numeri risultanti. Questo processo è talvolta chiamato "algoritmo 196", dal numero più famoso associato al processo. In base dieci, non è stata ancora dimostrata matematicamente l'esistenza di numeri di Lychrel, ma molti, tra cui 196, sono sospettati per motivi euristici e statistici. Il nome "Lychrel" è stato coniato da Wade Van Landingham come quasi-anagramma di "Cheryl", il nome della sua ragazza.
+Un numero di Lychrel è un numero naturale che non può formare un palindromo attraverso il processo iterativo di invertire ripetutamente le sue cifre e sommare i numeri risultanti. Questo processo è talvolta chiamato "algoritmo 196" (196-algorithm), dal numero più famoso associato al processo. In base dieci, non è stata ancora dimostrata matematicamente l'esistenza di numeri di Lychrel, ma molti, tra cui 196, sono sospettati per motivi euristici e statistici. Il nome "Lychrel" è stato coniato da Wade Van Landingham come quasi-anagramma di "Cheryl", il nome della sua ragazza.
 
 Algoritmo 196: generare un numero palindromo partendo da un numero n
 --------------------------------------------------------------------

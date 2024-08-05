@@ -6,6 +6,17 @@
 
   L'irrilevanza dell'uomo è superata solo dalla sua tendenza a sopravvalutarsi.
 
+---------------------
+How to crash the REPL
+---------------------
+
+(define (crash)
+  (print "Crash after 2 seconds...")
+  (sleep 2000)
+  (setq crash nil))
+
+(crash)
+
 --------------------------------------------
 Coppie di resistenze in serie e in parallelo
 --------------------------------------------
@@ -5762,6 +5773,108 @@ Proviamo:
 
 (map juzuk2 (sequence 1 10))
 ;-> (1 16 81 256 625 1296 2401 4096 6561 10000)
+
+
+--------------------------------------------------------
+Print largest integer you can with the fewest characters
+--------------------------------------------------------
+
+https://codegolf.stackexchange.com/questions/185/print-largest-integer-you-can-with-the-fewest-characters
+
+Find a way to output a large integer with few characters.
+Solutions will be scored based on the magnitude of the number and shortness of code.
+
+Prima soluzione:
+
+(while (print 9))
+;-> 999999999999999999999999999999999999999999999999999999999999999999999999
+;-> 999999999999999999999999999999999999999999999999999999999999999999999999
+;-> 999999999999999999999999999999999999999999...
+
+Seconda soluzione (per gioco):
+
+(print (div 1 0))
+;-> 1.#INF  ; infinito è un numero molto grande...
+
+
+----------------------------------------------
+Separazione stabile numeri negativi e positivi
+----------------------------------------------
+
+Data una lista con numeri interi positivi e negativi, Scrivere una funzione per cambiare l'ordine degli elementi nella lista in modo che i numeri interi negativi siano all'inizio, i numeri interi positivi alla fine e i numeri interi con lo stesso segno non cambino ordine.
+
+(define (positive? num) (>= num 0))
+(define (negative? num) (< num 0))
+
+(define (separa lst)
+  (let (out (filter negative? lst))
+    (extend out (filter positive? lst))))
+
+Proviamo:
+
+(setq a '(1 -3 -5 -2 9 0 8 -4 9 8 4))
+(separa a)
+;-> (-3 -5 -2 -4 1 9 0 8 9 8 4)
+
+(setq b '(1 1 1 1))
+(separa b)
+;-> (1 1 1 1)
+
+
+-------------------------------------------
+Implementazione delle funzioni floor e ceil
+-------------------------------------------
+
+In newLISP le funzioni "floor" e "ceil" sono primitive.
+  floor: calcola il più grande numero intero che sia minore o uguale a x.
+  ceil: calcola il più piccolo numero intero che sia maggiore o uguale a x.
+
+Implementiamo le due funzioni senza usare le primitive.
+
+Funzione floor1:
+
+(define (floor1 x)
+  (if (>= x 0)
+      (int x)
+      (if (= x (int x))
+          (int x)
+          (- (int x) 1))))
+
+Funzione ceil1:
+
+(define (ceil1 x)
+  (if (= x (int x))
+      x
+      (if (>= x 0)
+          (+ (int x) 1)
+          (int x))))
+
+Proviamo:
+
+(floor1 -2)
+;-> -2
+(ceil1 -2)
+;-> -2
+(floor1 3)
+;-> 3
+(ceil1 3)
+;-> 3
+(floor1 -1.03)
+;-> -2
+(ceil1 -1.03)
+;-> -1
+(floor1 1.03)
+;-> 1
+(ceil1 1.03)
+;-> 2
+(floor1 -1.52)
+;-> -2
+(ceil1 -1.52)
+;-> -1
+(floor1 1.52)
+;-> 1
+(ceil1 1.52)
+;-> 2
 
 ============================================================================
 
