@@ -17,6 +17,14 @@ How to crash the REPL
 
 (crash)
 
+(define (auto-delete)
+  (println "The last run...")
+  (setq s (eval-string "(define (kill) (setq auto-delete nil))"))
+  (kill))
+
+(auto-delete)
+
+
 --------------------------------------------
 Coppie di resistenze in serie e in parallelo
 --------------------------------------------
@@ -5875,6 +5883,147 @@ Proviamo:
 ;-> 1
 (ceil1 1.52)
 ;-> 2
+
+
+--------------------------------------------
+Angolo minore tra le lancette di un orologio
+--------------------------------------------
+
+Data un'ora in ore e minuti (es. 23 ore e 11 minuti) calcolare l'angolo minore (0..180 gradi) tra le lancette di un orologio.
+
+Algoritmo:
+1. Calcolare l'angolo della lancetta delle ore rispetto alle 12.
+2. Calcolare l'angolo della lancetta dei minuti rispetto alle 12.
+3. Trovare la differenza tra questi due angoli.
+4. Assicurarsi che l'angolo trovato sia il minore (0..180 gradi).
+
+(define (angolo-minore ore minuti)
+  (local (angolo-ore angolo-min diff)
+    ; calcolo dell'angolo della lancetta delle ore
+    (setq angolo-ore (add (mul 30 (mod ore 12)) (div (mul 30 minuti) 60)))
+    ; calcolo dell'angolo della lancetta dei minuti
+    (setq angolo-min (mul 6 minuti))
+    ; calcolo della diff assoluta tra i due angoli
+    (setq diff (abs (sub angolo-ore angolo-min)))
+    ; Assicurarsi che l'angolo sia minore di 180 gradi
+    (if (> diff 180) (sub 360 diff) diff)))
+
+Proviamo:
+
+(angolo-minore 23 11)
+;-> 90.5
+(angolo-minore 15 16)
+;-> 2
+(angolo-minore 12 30)
+;-> 165
+(angolo-minore 18 30)
+;-> 15
+(angolo-minore 0 0)
+;-> 0
+(angolo-minore 12 0)
+;-> 0
+(angolo-minore 18 0)
+;-> 180
+
+Vedi anche "Angolo delle lancette di un'orologio" su "Note libere 5".
+
+Creiamo il grafico ora-angolo:
+
+(define (data)
+  (let ( (out '()) (contatore 0) )
+    (for (ore 0 23)
+      (for (minuti 0 59)
+        (++ contatore)
+        (push (list (string ore ":" minuti) contatore
+                    (angolo-minore ore minuti)) out -1)))
+    out))
+
+(length (data))
+;-> 1440
+
+(* 24 60)
+;-> 1440
+
+(define (list-csv lst file-str sepchar)
+"Creates a file csv from a list"
+  (local (outfile)
+    (if (nil? sepchar)
+        (setq sepchar ",")
+    )
+    (setq outfile (open file-str "write"))
+    (dolist (el lst)
+      (if (list? el)
+          (setq line (join (map string el) sepchar))
+          (setq line (string el))
+      )
+      (write-line outfile line)
+    )
+    (print outfile { })
+    (close outfile)))
+
+(list-csv (data) "ora-angolo.csv" ",")
+;-> 3 true
+
+Ora possiamo importare il file in Excel o GNUmeric e fare il grafico.
+
+Vedi "ora-angolo.png" nella cartella "data".
+
+
+-------
+Cubotto
+-------
+
+Un numero è un cubotto se, dati tre numeri interi positivi a, b e c, risulta:
+
+    a^3 + b^3 + c^3 = abc
+
+dove abc è la concatenazione (come stringa) dei numeri a, b e c.
+
+Esempio:
+  a = 2, b = 2, c = 13
+  abc = 2213
+  2 * 2 * 2 = 8
+  2 * 2 * 2 = 8
+  13 * 13 * 13 = 2197
+  8 + 8 + 2197 = 2213
+  Quindi il numero 2213 è un cubotto.
+
+Funzione che verifica se tre numeri interi positivi a,b,c formano un cubotto:
+
+(define (cubotto? a b c)
+  (= (+ (* a a a) (* b b b) (* c c c)) 
+     (int (string a b c) 0 10)))
+
+(cubotto? 2 2 13)
+;-> true
+
+(cubotto? 2 3 15)
+;-> nil
+
+Vediamo quanti cubotti ci sono con a,b e c che variano da 1 ad un dato limite:
+
+(define (cubotti limite)
+  (for (a 1 limite)
+    (for (b a limite)
+      (for (c b limite)
+        (if (cubotto? a b c) (println a { } b { } c { } (string a b c)))))))
+
+Proviamo:
+
+(cubotti 100)
+;-> 2 2 13 2213
+;-> 4 18 33 41833
+;-> 44 46 64 444664
+
+2213 41833 444664
+
+La funzione è molto lenta:
+
+(time (cubotti 1000))
+;-> 2 2 13 2213
+;-> 4 18 33 41833
+;-> 44 46 64 444664
+;-> 186231.162
 
 ============================================================================
 

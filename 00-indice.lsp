@@ -2590,6 +2590,8 @@ NOTE LIBERE 25
   Print largest integer you can with the fewest characters
   Separazione stabile numeri negativi e positivi
   Implementazione delle funzioni floor e ceil
+  Angolo minore tra le lancette di un orologio
+  Cubotto
 
 PROBLEMI SUI DADI
 =================

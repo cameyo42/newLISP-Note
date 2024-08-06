@@ -988,6 +988,8 @@ L'angolo deve essere in gradi e misurato in senso orario dalla posizione delle o
 (angolo 1 30)
 ;-> 135
 
+Vedi anche "Angolo minore delle lancette di un'orologio" su "Note libere 25".
+
 
 ----------
 Data e ora
