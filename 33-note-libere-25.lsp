@@ -6025,5 +6025,173 @@ La funzione è molto lenta:
 ;-> 44 46 64 444664
 ;-> 186231.162
 
+
+------------------------------
+Trovare l'elemento più recente
+------------------------------
+
+Data una lista finita, ognuno dei suoi elementi ha una prima occorrenza.
+Trovare l'elemento la cui prima occorrenza compare per ultima nella lista.
+
+Esempio:
+  lista = ("p" "r" "o" "g" "r" "a" "m" "m" "i" "n" "g")
+  l'elemento "p" compare la prima volta all'indice 0
+  l'elemento "r" compare la prima volta all'indice 1
+  l'elemento "o" compare la prima volta all'indice 2
+  l'elemento "g" compare la prima volta all'indice 3
+  l'elemento "a" compare la prima volta all'indice 5
+  l'elemento "m" compare la prima volta all'indice 6
+  l'elemento "i" compare la prima volta all'indice 8
+  l'elemento "n" compare la prima volta all'indice 9
+  Quindi l'elemento che compare la prima volta per ultimo è "n".
+
+Usiamo una lista 'item-idx' i cui elementi hanno la seguente struttura:
+  (elemento indice-prima-occorrenza)
+
+Funzione che trova l'elemento più recente:
+
+(define (newest lst)
+  (let (item-idx '())
+    (dolist (el lst)
+      ; inseriamo solo gli elementi che non esistono nella lista 'item-idx'
+      ; (quindi inseriamo solo la prima occorrenza di ogni elemento)
+      (if (not (find (list el '?) item-idx match))
+          (push (list el $idx) item-idx)))
+    ; ritorna l'ultimo coppia (elemento indice) inserita nella lista
+    ; (che è il primo della lista)
+    (item-idx 0)))
+
+Proviamo:
+
+(setq a '("p" "r" "o" "g" "r" "a" "m" "m" "i" "n" "g"))
+(newest a)
+;-> ("n" 9)
+
+(setq b '(1 2 3 4 5 4 4 4 4 4 3 2 1))
+(newest b)
+;-> (5 4)
+
+
+-----------------------------------------------------------
+Lista di tutti i razionali positivi (Albero di Calkin-Wilf)
+-----------------------------------------------------------
+
+In matematica, l'albero di Calkin–Wilf è un albero in cui i vertici corrispondono uno a uno ai numeri razionali positivi . L'albero ha come radice numero 1/1 e ogni vertice è un numero razionale espresso come frazione irriducibile a/b che ha come figli due frazioni:
+  figlio sinistro: a/(a+b)
+  figlio destro: (a+b)/b
+
+Questo albero ha le seguenti proprietà:
+1) Il numeratore e il denominatore di ogni vertice sono primi tra loro
+2) Ogni numero razionale positivo irriducibile appare in un vertice
+3) Nessun numero razionale positivo irriducibile appare in più di un vertice
+
+In altre parole, ogni numero razionale positivo appare esattamente una volta come un nodo dell'albero.
+
+                             radice
+                    .......... 1/1 ..........
+                   /                         \
+                  /                           \
+                 /                             \
+               1/2                             2/1  -->  livello 1
+               /\                              /\
+              /  \                            /  \
+             /    \                          /    \
+            /      \                        /      \
+           /        \                      /        \
+          /          \                    /          \
+         /            \                  /            \
+       1/3            3/2              2/3            3/1  -->  livello 2
+       / \            / \              / \            / \
+      /   \          /   \            /   \          /   \
+     /     \        /     \          /     \        /     \
+    /       \      /       \        /       \      /       \
+  1/4       4/3  3/5       5/2    2/5       5/3  3/4       4/1  -->  livello 3
+  / \       / \  / \       / \    / \       / \  / \       / \
+ .....     ..........     .....  .....     ..........     .....  --> livello n 
+
+Quindi per fare la lista di tutti i razionali positivi dobbiamo costruire un albero in cui:
+  a) 1/1 è la radice
+  b) ogni vertice i/j ha due figli
+     1) figlio sinistro è i/i+j
+     2) figlio destro è i+j/j
+
+Ogni nodo dell'albero è una frazione che rappresenteremo come una lista (i j) dove i e j sono numeri interi.
+Possiamo costruire l'albero in due modi:
+1) Depth-First (profondità)
+2) Breadth-First (larghezza, livello per livello)
+
+1) Costruzione dell'albero in modo Depth-First (profondità):
+
+Struttura di nodo:
+(define (make-node i j) (list i j))
+
+Funzione per calcolare il figlio sinistro:
+(define (left-child node)
+  (let ((i (node 0))
+        (j (node 1)))
+    (make-node i (+ i j))))
+
+Funzione per calcolare il figlio destro:
+(define (right-child node)
+  (let ((i (node 0))
+        (j (node 1)))
+    (make-node (+ i j) j)))
+
+Funzione per creare l'albero (Depth-First) fino a una certa profondità:
+
+(define (print-tree-depth node depth)
+  (if (>= depth 0)
+    (begin
+      (print (node 0) "/" (node 1) " ")
+      (print-tree-depth (left-child node) (- depth 1))
+      (print-tree-depth (right-child node) (- depth 1)))))
+
+Proviamo:
+
+(setq root (make-node 1 1))
+(print-tree-depth root 3)
+;-> 1/1 1/2 1/3 1/4 4/3 3/2 3/5 5/2 2/1 2/3 2/5 5/3 3/1 3/4 4/1
+
+(print-tree-depth root 4)
+;-> 1/1 1/2 1/3 1/4 1/5 5/4 4/3 4/7 7/3 3/2 3/5 3/8 8/5 5/2 5/7 7/2
+;-> 2/1 2/3 2/5 2/7 7/5 5/3 5/8 8/3 3/1 3/4 3/7 7/4 4/1 4/5 5/1
+
+2) Costruzione dell'albero in modo Breadth-First (larghezza):
+
+Per gestire i nodi siamo una coda (queue), in modo da visitare prima tutti i nodi a un dato livello prima di passare al livello successivo.
+Nella funzione vengono usate due code: una coda 'queue' per tenere traccia dei nodi da visitare e una seconda coda 'next-queue' per i nodi del livello successivo.
+
+Funzione per creare l'albero (Breadth-First) fino a una certa profondità:
+
+(define (print-tree-breadth root max-depth)
+  (let ((queue (list root))
+        (current-depth 0))
+    (while (and queue (<= current-depth max-depth))
+      (setq next-queue '())
+      (println "Livello: " current-depth)
+      (dolist (node queue)
+        (print (node 0) "/" (node 1) " ")
+        (if (< current-depth max-depth)
+          (begin
+            (push (left-child node) next-queue -1)
+            (push (right-child node) next-queue -1))))
+      (println)
+      (setq queue next-queue)
+      (++ current-depth)) '>))
+
+Proviamo:
+
+(print-tree-breadth (make-node 1 1) 4)
+;-> Livello: 0
+;-> 1/1
+;-> Livello: 1
+;-> 1/2 2/1
+;-> Livello: 2
+;-> 1/3 3/2 2/3 3/1
+;-> Livello: 3
+;-> 1/4 4/3 3/5 5/2 2/5 5/3 3/4 4/1
+;-> Livello: 4
+;-> 1/5 5/4 4/7 7/3 3/8 8/5 5/7 7/2 2/7 7/5 5/8 8/3 3/7 7/4 4/5 5/1
+
 ============================================================================
 

@@ -2592,6 +2592,8 @@ NOTE LIBERE 25
   Implementazione delle funzioni floor e ceil
   Angolo minore tra le lancette di un orologio
   Cubotto
+  Trovare l'elemento più recente
+  Lista di tutti i razionali positivi (Albero di Calkin-Wilf)
 
 PROBLEMI SUI DADI
 =================
