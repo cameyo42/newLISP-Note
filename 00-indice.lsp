@@ -2596,6 +2596,8 @@ NOTE LIBERE 25
   Lista di tutti i razionali positivi (Albero di Calkin-Wilf)
   La funzione Riffle (Mathematica)
   La funzione Gather (Mathematica)
+  Ordinamento di liste di liste (tabelle) - sortby
+  Raggruppamento di liste di liste (tabelle) - groupby
 
 PROBLEMI SUI DADI
 =================

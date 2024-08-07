@@ -6298,5 +6298,229 @@ Proviamo:
 (gather b)
 ;-> (((1 2) (1 2) (1 2)) ((3 3) (3 3)) ((3 4)) ((2 3)))
 
+
+------------------------------------------------
+Ordinamento di liste di liste (tabelle) - sortby
+------------------------------------------------
+
+Per ordinare una lista non annidata possiamo usare la funzione "sort":
+
+(setq a '(10 6 4 8 14 3 8))
+(sort a)
+;-> (3 4 6 8 8 10 14)
+
+Se la lista è annidata, allora la funzione "sort" potrebbe essere insufficiente per i nostri scopi:
+
+(setq a '((3 5 2) (7 6 4) (5 2 4) (3 5 1)))
+(sort a)
+;-> ((3 5 1) (3 5 2) (5 2 4) (7 6))
+
+Come si nota, gli elementi vengono ordinati in base ai valori di ogni sottolista, ma le sottoliste non vengono ordinate.
+
+Consideriamo solo le liste che hanno sottoliste tutte della stessa lunghezza, cioè quelle liste che rappresentano una tabella o una matrice.
+Per esempio:
+
+Tabella:
+Colore  Peso  Altezza  Tipo
+verde   180   45.3     "A"
+bianco  150   55.2     "B"
+rosso   160   40.6     "B"
+giallo  150   50.2     "B"
+nero    150   55.2     "C"
+nero    140   55.2     "D"
+
+Lista:
+(("verde"  180 45.3 "A")
+ ("bianco" 150 55.2 "B")
+ ("rosso"  160 40.6 "B")
+ ("giallo" 150 50.2 "B")
+ ("nero"   150 55.2 "C")
+ ("nero"   140 55.2 "D"))
+
+Usando "sort" otteniamo una lista in cui l'ordinamento è dato dal confronto in sequenza degli elementi di ogni sottolista partendo dal primo elemento:
+
+(sort a)
+;-> (("bianco" 150 55.2 "B")
+;->  ("giallo" 150 50.2 "B")
+;->  ("nero" 140 55.2 "C")
+;->  ("nero" 150 55.2 "D")
+;->  ("rosso" 160 40.6 "B")
+;->  ("verde" 180 45.3 "A"))
+
+Scriviamo una funzione che ordina la lista soltanto in base ad un determinato elemento della riga (cioè vogliamo ordinare la tabella soltanto in base ai valori di una data colonna):
+
+La funzione prende tre parametri:
+1) la lista da ordinare (lista di liste)
+2) l'indice della colonna da ordinare (intero)
+3) tipo di ordinamento ('> o '<) 
+
+(define (sortby lst idx-col ord)
+  ; tipo di ordinamento: default = crescente
+  (cond ((or (= ord '<) (= ord '<=)) (setq ord '<=))
+        ((or (= ord '>) (= ord '>=)) (setq ord '>=))
+        (true (setq ord '<=)))
+  ; ordinamento con funzione di comparazione anonima
+  (sort lst (fn(x y) ((eval ord) (x idx-col) (y idx-col)))))
+
+Proviamo:
+
+(setq a '(("verde"  180 45.3 "A")
+          ("bianco" 150 55.2 "B")
+          ("rosso"  160 40.6 "B")
+          ("giallo" 150 50.2 "B")
+          ("nero"   150 55.2 "C")
+          ("nero"   140 55.2 "D")))
+
+(sortby (copy a) 0)
+;-> (("bianco" 150 55.2 "B")
+;->  ("giallo" 150 50.2 "B")
+;->  ("nero" 140 55.2 "D")
+;->  ("nero" 150 55.2 "C")
+;->  ("rosso" 160 40.6 "B")
+;->  ("verde" 180 45.3 "A"))
+
+(sortby (copy a) 0 '<)
+;-> (("bianco" 150 55.2 "B")
+;->  ("giallo" 150 50.2 "B")
+;->  ("nero" 140 55.2 "D")
+;->  ("nero" 150 55.2 "C")
+;->  ("rosso" 160 40.6 "B")
+;->  ("verde" 180 45.3 "A"))
+
+(sortby (copy a) 0 '>)
+;-> (("verde" 180 45.3 "A")
+;->  ("rosso" 160 40.6 "B")
+;->  ("nero" 140 55.2 "D")
+;->  ("nero" 150 55.2 "C")
+;->  ("giallo" 150 50.2 "B")
+;->  ("bianco" 150 55.2 "B"))
+
+(sortby (copy a) 3 '>)
+;-> (("nero" 140 55.2 "D") 
+;->  ("nero" 150 55.2 "C")
+;->  ("bianco" 150 55.2 "B")
+;->  ("rosso" 160 40.6 "B")
+;->  ("giallo" 150 50.2 "B")
+;->  ("verde" 180 45.3 "A"))
+
+Nota: se vogliamo ordinare la lista come fa la funzione "sort", ma confrontando gli elementi delle sottoliste in un altro modo, basta ricreare la lista con l'ordine voluto e poi usare "sort".
+Per esempio:
+
+(setq b (map (fn(x) (select x '(3 0 2 1))) a))
+;-> (("A" "verde" 45.3 180)
+;->  ("B" "bianco" 55.2 150)
+;->  ("B" "rosso" 40.6 160)
+;->  ("B" "giallo" 50.2 150)
+;->  ("C" "nero" 55.2 150)
+;->  ("D" "nero" 55.2 140))
+
+(sort b)
+;-> (("A" "verde" 45.3 180)
+;->  ("B" "bianco" 55.2 150)
+;->  ("B" "giallo" 50.2 150)
+;->  ("B" "rosso" 40.6 160)
+;->  ("C" "nero" 55.2 150)
+;->  ("D" "nero" 55.2 140))
+
+Vedi anche "Ordinamento di liste annidate" su "Note libere 16".
+
+
+----------------------------------------------------
+Raggruppamento di liste di liste (tabelle) - groupby
+----------------------------------------------------
+
+Supponiamo di avere la seguente tabella:
+
+Colore  Peso  Altezza  Tipo
+verde   180   45.3     "A"
+bianco  150   55.2     "B"
+rosso   160   40.6     "B"
+giallo  150   50.2     "B"
+nero    150   55.2     "C"
+nero    140   55.2     "D"
+
+e di voler raggruppare i valori in base al Peso e al Tipo
+
+ (140 "D") "nero"   140 55.2 "D"
+ (150 "B") "bianco" 150 55.2 "B"
+ (150 "B") "giallo" 150 50.2 "B"
+ (150 "C") "nero"   150 55.2 "C"
+ (160 "B") "rosso"  160 40.6 "B"
+ (180 "A") "verde"  180 45.3 "A"
+
+Algoritmo
+1) creazione della lista dei valori da raggruppare
+   ((180 "A") (150 "B") ... ((140 "D")))
+2) inserimento della lista dei valori da raggruppare nella lista data
+   (riga per riga)
+   (180 "A") verde  180 45.3 "A"
+   (150 "B") bianco 150 55.2 "B"
+   (160 "B") rosso  160 40.6 "B"
+   (150 "B") giallo 150 50.2 "B"
+   (150 "C") nero   150 55.2 "C"
+   (140 "D") nero   140 55.2 "D"
+3) ordinamento della lista risultante
+   (140 "D") "nero"   140 55.2 "D"
+   (150 "B") "bianco" 150 55.2 "B"
+   (150 "B") "giallo" 150 50.2 "B"
+   (150 "C") "nero"   150 55.2 "C"
+   (160 "B") "rosso"  160 40.6 "B"
+   (180 "A") "verde"  180 45.3 "A"
+
+La funzione prende tre parametri:
+1) la lista da raggruppare (lista di liste)
+2) l'indice della colonna da cui raggruppare (intero)
+3) tipo di ordinamento ('> o '<) 
+
+(define (groupby lst idx-cols ord)
+  ; costruisce la lista dei valori da raggruppare (sottoliste)
+  (let (pre (map (fn(x) (select x idx-cols)) lst))
+    (setq ord (or ord '<))
+    ; aggiunge la lista dei valori da raggruppare alla lista data
+    ; e ordina il risultato
+    ; (println pre)
+    (sort (map (fn(x y) (push x y)) pre lst) ord)))
+
+Proviamo:
+
+(setq a '(("verde"  180 45.3 "A")
+          ("bianco" 150 55.2 "B")
+          ("rosso"  160 40.6 "B")
+          ("giallo" 150 50.2 "B")
+          ("nero"   150 55.2 "C")
+          ("nero"   140 55.2 "D")))
+
+(groupby a '(1 3))
+;-> (((140 "D") "nero" 140 55.2 "D")
+;->  ((150 "B") "bianco" 150 55.2 "B")
+;->  ((150 "B") "giallo" 150 50.2 "B")
+;->  ((150 "C") "nero" 150 55.2 "C")
+;->  ((160 "B") "rosso" 160 40.6 "B")
+;->  ((180 "A") "verde" 180 45.3 "A"))
+
+(groupby a '(3 0))
+;-> ((("A" "verde") "verde" 180 45.3 "A")
+;->  (("B" "bianco") "bianco" 150 55.2 "B")
+;->  (("B" "giallo") "giallo" 150 50.2 "B")
+;->  (("B" "rosso") "rosso" 160 40.6 "B")
+;->  (("C" "nero") "nero" 150 55.2 "C")
+;->  (("D" "nero") "nero" 140 55.2 "D"))
+
+(groupby a '(0 1))
+;-> ((("bianco" 150) "bianco" 150 55.2 "B")
+;->  (("giallo" 150) "giallo" 150 50.2 "B")
+;->  (("nero" 140) "nero" 140 55.2 "D")
+;->  (("nero" 150) "nero" 150 55.2 "C")
+;->  (("rosso" 160) "rosso" 160 40.6 "B")
+;->  (("verde" 180) "verde" 180 45.3 "A"))
+
+(groupby a '(0 1) '>)
+;-> ((("verde" 180) "verde" 180 45.3 "A")
+;->  (("rosso" 160) "rosso" 160 40.6 "B")
+;->  (("nero"  150) "nero" 150 55.2 "C")
+;->  (("nero" 140) "nero" 140 55.2 "D")
+;->  (("giallo" 150) "giallo" 150 50.2 "B")
+;->  (("bianco" 150) "bianco" 150 55.2 "B"))
+
 ============================================================================
 
