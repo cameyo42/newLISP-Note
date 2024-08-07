@@ -5799,6 +5799,15 @@ Prima soluzione:
 ;-> 999999999999999999999999999999999999999999999999999999999999999999999999
 ;-> 999999999999999999999999999999999999999999...
 
+Vediamo la velocità dei 9 che stampiamo:
+
+(setq k 1)
+(time (while (< k 50000) (print 9) (++ k)))
+;-> 625.045
+
+Quindi la cifra 9 viene stampata 50000 volte ogni 625 millisecondi.
+L'espressione (while (print 9)) è ancora più veloce.
+
 Seconda soluzione (per gioco):
 
 (print (div 1 0))
@@ -6192,6 +6201,102 @@ Proviamo:
 ;-> 1/4 4/3 3/5 5/2 2/5 5/3 3/4 4/1
 ;-> Livello: 4
 ;-> 1/5 5/4 4/7 7/3 3/8 8/5 5/7 7/2 2/7 7/5 5/8 8/3 3/7 7/4 4/5 5/1
+
+
+--------------------------------
+La funzione Riffle (Mathematica)
+--------------------------------
+
+In Wolfram Mathematica la funzione "Riffle" prende due parametri e ha il seguente comportamento:
+
+Primo parametro: lista
+Secondo parametro: lista
+Crea una lista che alterna gli elementi delle due liste
+  riffle[(x1 x2 ... xn) (a1 a2 ... an)] -->  (x1 a1 x2 a2 ... xn an)
+  riffle[(x1 x2 x3 x4) (a1 a2)] -->  (x1 a1 x2 a2 x3 x4)
+  riffle[(x1 x2) (a1 a2 a3 a4)] -->  (x1 a1 x2 a2)
+
+Primo parametro: lista
+Secondo parametro: atomo
+Crea una lista che alterna gli elementi della lista e l'atomo
+  riffle[(x1 x2 ... xn) k] --> (x1 k x2 k ... xn k)
+
+Scriviamo la funzione:
+
+(define (riffle lst obj)
+  (cond ((list? obj)
+          (flat (map list lst obj)))
+        ((atom? obj)
+          (flat (map (fn(x) (list x obj)) lst)))
+        (true nil)))
+
+Proviamo:
+
+(riffle '(1 a x) '(2 b y))
+;-> (1 2 a b x y)
+(riffle '(1 a) '(2 b y))
+;-> (1 2 a b)
+(riffle '(1 a x) '(2 b))
+;-> (1 2 a b x)
+
+(riffle '(1 2 3 4 5) '|)
+(1 | 2 | 3 | 4 | 5 |)
+;-> ((1 2) (a b) (x y))
+
+(riffle '(1) 2)
+;-> (1 2)
+
+Nel caso volessimo applicare la funzione "Riffle" a più di due liste possiamo usare la seguente funzione:
+
+(define (riffle-all) (flat (transpose (args))))
+
+(riffle-all '(1 2) '(a b) '(x y))
+;-> (1 a x 2 b y)
+
+Da notare che la prima lista comanda il numero di associazioni:
+
+(riffle-all '(1 2 3) '(a b) '(x))
+;-> (1 a x 2 b nil 3 nil nil)
+(riffle-all '(1 2) '(a b c) '(x y z))
+;-> (1 a x 2 b y)
+(riffle-all '(1 2) '(a) '(x y z))
+;-> (1 a x 2 nil y)
+
+Con una lista di liste usiamo "apply":
+
+(apply riffle-all '((1 2) (a b) (x y)))
+;-> (1 a x 2 b y)
+
+Vedi anche "Zippare N liste" su "Funzioni varie."
+
+
+--------------------------------
+La funzione Gather (Mathematica)
+--------------------------------
+
+In Wolfram Mathematica la funzione "Gather" prende una lista e raccoglie gli elementi identici in sottoliste.
+Per esempio:
+lista  = (a b a d b)
+output = ((a a) (b b) (d))
+
+Scriviamo la funzione:
+
+(define (gather lst)
+  (let ( (out '())
+         (contatore (map list (unique lst) (count (unique lst) lst))) )
+  (dolist (el contatore)
+    (push (dup (el 0) (el 1) true) out -1))
+  out))
+
+Proviamo:
+
+(setq a '(a b a d b))
+(gather a)
+;-> ((a a) (b b) (d))
+
+(setq b '((1 2) (3 3) (1 2) (3 4) (3 3) (2 3) (1 2)))
+(gather b)
+;-> (((1 2) (1 2) (1 2)) ((3 3) (3 3)) ((3 4)) ((2 3)))
 
 ============================================================================
 

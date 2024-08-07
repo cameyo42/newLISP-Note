@@ -1070,6 +1070,8 @@ Calcoliamo il tempo di esecuzione e notiamo che è più veloce della funzione in
 (time (zip '((1 a x) (2 b y))) 100000)
 ;-> 31.87 msec
 
+Vedia anche "La funzione Riffle (Mathematica)" su "Note libere 25".
+
 
 --------------------------------------------------------------
 Sostituire gli elementi di una lista con un determinato valore

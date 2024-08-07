@@ -6865,6 +6865,8 @@ La lista non è cambiata perchè "sort-nested" non ordina il primo livello.
  
 Nota: partendo dalla lista degli indici è possibile individuare anche il livello di annidamento della sottolista corrente (uguale alla lunghezza della relativa lista degli indici) e quindi possiamo ordinare la lista nel modo che vogliamo.
 
+Vedi anche "Ordinamento di liste di liste (tabelle)" su "Note libere 25".
+
 
 -------------------------------------------
 Numero successivo con cifre non decrescenti

@@ -2594,6 +2594,8 @@ NOTE LIBERE 25
   Cubotto
   Trovare l'elemento più recente
   Lista di tutti i razionali positivi (Albero di Calkin-Wilf)
+  La funzione Riffle (Mathematica)
+  La funzione Gather (Mathematica)
 
 PROBLEMI SUI DADI
 =================

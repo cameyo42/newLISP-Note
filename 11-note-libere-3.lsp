@@ -2747,6 +2747,22 @@ Esempio:
 (print-matrix b)
 (close (device))
 
+Funzione che contorna una matrice (versione alternativa):
+
+(define (pad-mat mtx pad val)
+  (local (len row)
+    ; add rows
+    (setq len (length mtx))
+    (setq row (dup val len true))
+    (for (r 1 pad) (push row mtx) (push row mtx -1))
+    ; adds colums (add rows to transposed matrix)
+    (setq mtx (transpose mtx))
+    (setq len (+ len (* pad 2)))
+    (setq row (dup val len true))
+    (for (c 1 pad) (push row mtx) (push row mtx -1))
+    (transpose mtx)))
+
+
 ----------------------------------------------------
 Stringa decimale infinita 12345678910111213141516...
 ----------------------------------------------------
@@ -3684,6 +3700,8 @@ Scriviamo la funzione finale:
 ;->  ("0.875" "7/8")
 ;->  ("0.8888888888888888" "8/9")
 ;->  ("0.9" "9/10"))
+
+Vedi anche "Lista di tutti i razionali positivi (Albero di Calkin-Wilf)" su "Note libere 25".
 
 
 -----------------
