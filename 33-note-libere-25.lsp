@@ -5893,6 +5893,8 @@ Proviamo:
 (ceil1 1.52)
 ;-> 2
 
+Vedi anche "floor, ceil e fract" su "Note libere 2".
+
 
 --------------------------------------------
 Angolo minore tra le lancette di un orologio
@@ -6521,6 +6523,266 @@ Proviamo:
 ;->  (("nero" 140) "nero" 140 55.2 "D")
 ;->  (("giallo" 150) "giallo" 150 50.2 "B")
 ;->  (("bianco" 150) "bianco" 150 55.2 "B"))
+
+
+--------------------------------------
+Elementi comuni e non comuni tra liste
+--------------------------------------
+
+Problema 1
+----------
+
+Date N liste determinare gli elementi che sono comuni a tutte le liste.
+Vengono considerati in comune gli elementi che hanno una corrispondenza 1:1 tra loro.
+
+Esempio:
+  Lista1 = (1 2 3 4 4 4 1)
+  Lista2 = (4 1 2 6 4)
+  Elementi comuni = (1 2 4 4)
+
+Esempio:
+  Lista1 = ("a" "a" "a")
+  Lista2 = ("a" "a" "a" "a")
+  Elementi comuni = ("a" "a" "a")
+
+Esempio:
+  Lista1 = ("a" "t" "t" "o" "r" "e")
+  Lista = ("o" "t" "o" "r" "i" "n" "o")
+  Elementi comuni = "t" "o" "r"
+
+Cominciamo a scrivere una funzione che determina gli elementi che sono comuni a due liste:
+
+(define (take-common lst1 lst2)
+"Take common element of two lists (take 1:1)"
+  (local (a b f out)
+    (setq out '())
+    ; copy of lst1
+    (setq a lst1)
+    ; copy of lst2
+    (setq b lst2)
+    ; loop
+    (dolist (el lst1)
+      ; if currente element of lst1 exists in lst2...
+      (if (setq f (ref el b))
+        (begin
+          ; then insert current element of lst1 in list 'out'
+          (push el out -1)
+          ; and delete current element from both lists
+          (pop a (ref el a)) (pop b f))
+      )
+    )
+    ;(println a) (println b)
+    out))
+
+Proviamo:
+
+(setq lst1 '(1 2 3 4 4 4 1))
+(setq lst2 '(4 1 2 6 4))
+(take-common lst1 lst2)
+;-> 1 2 4 4
+
+(setq lst1 '("a" "a" "a"))
+(setq lst2 '("a" "a" "a" "a"))
+(take-common lst1 lst2)
+;-> ("a" "a" "a")
+
+(setq lst1 '("a" "t" "t" "o" "r" "e"))
+(setq lst2 '("o" "t" "o" "r" "i" "n" "o"))
+(take-common lst1 lst2)
+;-> ("t" "o" "r")
+
+Con più di due liste il procedimento per calcolare gli elementi in comune è quello di calcolare gli elementi comuni tra le prime due liste, poi calcolare gli elementi comuni tra il risultato ottenuto e la terza lista, e cosi via fino alla N-esima lista (l'ordine delle liste non è importante).
+
+Per esempio con tre liste a, b e c:
+
+  elementi in comune tra a, b e c = (take-common (take-common a b) c)
+  
+Inoltre risulta:
+
+  (take-commons a b c) = (take-common (take-common a b) c)
+
+Cioè possiamo applicare "take-common" in modo sequenziale alle liste per ottenere il risultato.
+
+Adesso possiamo scrivere la funzione (in realtà una macro) che determina gli elementi che sono comuni a N liste:
+
+(define-macro (take-commons)
+  (apply take-common (map eval (args)) 2))
+
+Proviamo:
+
+(setq lst1 '(1 2 3 4 4 4 1))
+(setq lst2 '(4 1 2 6 4))
+(setq lst3 '(3 5 2 8 1))
+(take-common (take-common lst1 lst2) lst3)
+;-> (1 2)
+(take-commons lst1 lst2 lst3)
+;-> (1 2)
+(take-common (take-common lst2 lst3) lst1)
+
+(setq lst1 '("a" "a" "a"))
+(setq lst2 '("a" "a" "a" "a"))
+(setq lst3 '("m" "a" "m" "a"))
+(take-common (take-common lst1 lst2) lst3)
+;-> ("a" "a")
+(take-commons lst1 lst2 lst3)
+;-> ("a" "a")
+
+(setq lst1 '("a" "t" "t" "o" "r" "e"))
+(setq lst2 '("o" "t" "o" "r" "i" "n" "o"))
+(setq lst3 '("r" "e" "t" "t" "e"))
+(take-common (take-common lst1 lst2) lst3)
+;-> ("t" "r")
+(take-commons lst1 lst2 lst3)
+;-> ("t" "r")
+
+Con una lista di liste possiamo usare "apply":
+
+(apply take-commons (list lst1 lst2 lst3))
+;-> ("t" "r")
+
+Problema 2
+----------
+
+Date N liste determinare gli elementi che non sono in comune a tutte le liste.
+Vengono considerati non in comune gli elementi che compaiono al massimo in (N - 1) liste con una corrispondenza 1:1 tra loro.
+
+Esempio:
+  Lista1 = (1 2 3 4 4 4 1)
+  Lista2 = (4 1 2 6 4)
+  Elementi non comuni = (3 4 1 6)
+
+Esempio:
+  Lista1 = ("a" "a" "a")
+  Lista2 = ("a" "a" "a" "a")
+  Elementi non comuni = "a"
+
+Esempio:
+  Lista1 = ("a" "t" "t" "o" "r" "e")
+  Lista2 = ("o" "t" "o" "r" "i" "n" "o")
+  Elementi comuni = "t" "o" "r"
+
+Cominciamo a scrivere una funzione che determina gli elementi che non sono in comune a due liste:
+
+(define (remove-common lst1 lst2)
+"Remove common element of two lists (remove 1:1)"
+  (local (a b f)
+    ; copy of lst1
+    (setq a lst1)
+    ; copy of lst2
+    (setq b lst2)
+    ; loop
+    (dolist (el lst1)
+      ; if currente element of lst1 exists in lst2...
+      (if (setq f (find el b))
+        ; then delete current element from both lists
+        (begin (pop a (find el a)) (pop b f))
+      )
+    )
+    ;(println a) (println b)
+    ; merge lists
+    (append a b)))
+
+Proviamo:
+
+(setq lst1 '(1 2 3 4 4 4 1))
+(setq lst2 '(4 1 2 6 4))
+(remove-common lst1 lst2)
+;-> (3 4 1 6)
+
+(setq lst1 '("a" "a" "a"))
+(setq lst2 '("a" "a" "a" "a"))
+(remove-common lst1 lst2)
+;-> ("a")
+
+(setq lst1 '("a" "t" "t" "o" "r" "e"))
+(setq lst2 '("o" "t" "o" "r" "i" "n" "o"))
+(remove-common lst1 lst2)
+;-> ("a" "t" "e" "o" "i" "n" "o")
+
+Con più di due liste il procedimento per calcolare gli elementi in comune è quello di considerare tutte liste contemporaneamente.
+Non possiamo calcolare gli elementi non comuni tra le prime due liste, poi calcolare gli elementi non comuni tra il risultato ottenuto e la terza lista, e cosi via fino alla N-esima lista.
+
+Infatti con tre liste a, b e c abbiamo:
+
+  elementi non in comune tra a, b e c != (remove-common (remove-common a b) c)
+  
+In altre parole:
+
+  (remove-commons a b c) != (remove-common (remove-common a b) c)
+
+Quindi non possiamo applicare "remove-common" in modo sequenziale alle liste per ottenere il risultato.
+
+Vediamo un esempio con tutte liste uguali:
+
+(setq lst1 '(1 2 3 4))
+(setq lst2 '(1 2 3 4))
+(setq lst3 '(1 2 3 4))
+(remove-common (remove-common lst1 lst2) lst3)
+;-> (1 2 3 4) ; Risultato errato
+
+Il risultato corretto dovrebbe essere la lista vuota ().
+
+Un metodo per risolvere il problema è il seguente:
+1) calcolare la lista degli elementi in comune tra tutte le liste ('comuni')
+2) rimuovere da ogni lista data la lista 'comuni'
+3) unire tutte le liste risultanti (tranne le liste vuote '())
+
+(define (remove-commons)
+  ; calcola gli elementi in comune tra tutte le liste date
+  (let (comuni (apply take-commons (args)))
+    ; unisce le liste ed elimina le liste vuote
+    (flat (clean null? (map (curry remove-common comuni) (args))))))
+
+Proviamo:
+
+(setq lst1 '(1 2))
+(setq lst2 '(1 2))
+(setq lst3 '(1 2))
+(remove-common (remove-common lst1 lst2) lst3)
+;-> (1 2) ; errato
+(remove-commons lst1 lst2 lst3)
+;-> '()
+
+(setq lst1 '(1 2))
+(setq lst2 '(1 2 3))
+(setq lst3 '(1 2 3 4))
+(remove-common (remove-common lst1 lst2) lst3)
+;-> (1 2 4) ; errato
+(remove-commons lst1 lst2 lst3)
+;-> (3 3 4)
+
+(setq lst1 '(1 2 3 4 4 4 1))
+(setq lst2 '(4 1 2 6 4))
+(setq lst3 '(3 5 2 8 1))
+(remove-common (remove-common lst1 lst2) lst3)
+;-> (4 6 5 2 8) ; errato
+(remove-commons lst1 lst2 lst3)
+;-> (3 4 4 4 1 4 6 4 3 5 8)
+
+(setq lst1 '("a" "a" "a"))
+(setq lst2 '("a" "a" "a" "a"))
+(setq lst3 '("m" "a" "m" "a"))
+(remove-common (remove-common lst1 lst2) lst3)
+;-> ("m" "m" "a") ; errato
+(remove-commons lst1 lst2 lst3)
+;-> ("a" "a" "a" "m" "m")
+
+(setq lst1 '("a" "t" "t" "o" "r" "e"))
+(setq lst2 '("o" "t" "o" "r" "i" "n" "o"))
+(setq lst3 '("r" "e" "t" "t" "e"))
+(remove-common (remove-common lst1 lst2) lst3)
+;-> ("a" "o" "i" "n" "o" "r" "t" "e") ; errato
+(remove-commons lst1 lst2 lst3)
+;-> ("a" "t" "o" "e" "o" "o" "i" "n" "o" "e" "t" "e")
+;-> ("t" "r")
+
+Con una lista di liste possiamo usare "apply":
+
+(apply remove-commons (list lst1 lst2 lst3))
+;-> ("a" "t" "o" "e" "o" "o" "i" "n" "o" "e" "t" "e")
+
+Vedere anche "Differenza simmetrica negli insiemi (set)" su "Note libere 11".
+Vedi anche "Complemento relativo di due insiemi (set difference)" su "Note libere 16".
 
 ============================================================================
 

@@ -4422,6 +4422,9 @@ Insiemi con elementi uguali:
 (symmetric-difference s4 s3)
 ;-> ("Jim" "Serena")
 
+Vedi anche "Complemento relativo di due insiemi (set difference)" su "Note libere 16".
+Vedi anche "Elementi comuni e non comuni tra liste" su "Note libere 25".
+
 
 -------------------------------------------------
 Problema dei nomi degli Stati (State name puzzle)

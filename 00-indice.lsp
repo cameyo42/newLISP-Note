@@ -2598,6 +2598,7 @@ NOTE LIBERE 25
   La funzione Gather (Mathematica)
   Ordinamento di liste di liste (tabelle) - sortby
   Raggruppamento di liste di liste (tabelle) - groupby
+  Elementi comuni e non comuni tra liste
 
 PROBLEMI SUI DADI
 =================
@@ -2642,7 +2643,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (288 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (291 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

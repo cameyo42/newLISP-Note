@@ -5604,6 +5604,8 @@ Vediamo alcuni esempi:
 (floor 10.6)
 ;-> 10
 
+Vedi anche "Implementazione delle funzioni floor e ceil" su "Note libere 25".
+
 
 ----------------
 Multipli di nove

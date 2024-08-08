@@ -865,15 +865,15 @@ Comunque la funzione è lenta per liste con molti elementi:
 (time (remove-common a b))
 ;-> 35202.751
 
-Vedere anche "Differenza simmetrica negli insiemi (set)" in "Note libere 11".
+Vedere anche "Differenza simmetrica negli insiemi (set)" su "Note libere 11".
+Vedi anche "Elementi comuni e non comuni tra liste" su "Note libere 25".
 
 
 ----------------
 Serie di Kempner
 ----------------
 
-La serie di Kempner è una variante della serie armonica, costruita omettendo tutti i termini il cui denominatore contiene la cifra
-9 espressa in base decimale:
+La serie di Kempner è una variante della serie armonica, costruita omettendo tutti i termini il cui denominatore contiene la cifra 9 espressa in base decimale:
 
   Sum[n=1..inf](1/n) con n != 9
 
