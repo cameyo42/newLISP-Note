@@ -6026,8 +6026,6 @@ Proviamo:
 ;-> 4 18 33 41833
 ;-> 44 46 64 444664
 
-2213 41833 444664
-
 La funzione è molto lenta:
 
 (time (cubotti 1000))
@@ -6783,6 +6781,245 @@ Con una lista di liste possiamo usare "apply":
 
 Vedere anche "Differenza simmetrica negli insiemi (set)" su "Note libere 11".
 Vedi anche "Complemento relativo di due insiemi (set difference)" su "Note libere 16".
+
+
+--------------------
+A spasso con il cane
+--------------------
+
+Ecco le regole per simulare una passeggiata con il cane:
+
+L'uomo parte da 0,0 (o x,y) su un piano cartesiano e andrà casualmente di una unità in alto, a sinistra, a destra o in basso ad ogni movimento.
+
+Il cane parte dalla stessa posizione e andrà casualmente di una unità in alto, a sinistra, a destra o in basso per P passi ad ogni movimento.
+
+L'uomo si muove per primo.
+
+L'uomo non deve superare la lunghezza G del guinzaglio durante il suo movimento (distanza euclidea).
+Se lo fa, deve scegliere un'altra direzione.
+
+Il cane non può allontanarsi dall'uomo più della lunghezza del guinzaglio (distanza euclidea).
+Se, quando il cane si muove di un passo, viola il requisito di distanza del guinzaglio, allora rimane nella stessa posizione (cioè, per quel passo il cane non si muove perchè è come se 'tirasse' il guinzaglio).
+
+Distanza Uomo-Cane e lunghezza guinzaglio
+-----------------------------------------
+Esempio: se G è 6, una posizione valida sarebbe uomo(0,0) e cane(4,4) (poiché la distanza è di circa 5.65 unità), ma non uomo(0,0) e cane(5,4) (circa 6.4 unità).
+
+Numeri casuali e direzioni:
+
+     0
+     |
+ 3 -- -- 1
+     |
+     2
+
+(define (dist2 x1 y1 x2 y2)
+  (add (mul (sub x1 x2) (sub x1 x2))
+       (mul (sub y1 y2) (sub y1 y2))))
+
+Funzione che verifica che la distanz uomo-cane non sia superiore al guinzaglio:
+
+(define (check-dist) (<= (dist2 uomo-x uomo-y cane-x cane-y) (mul G G)))
+
+Funzione di setup:
+
+(define (setup xx yy guinzaglio passi)
+  ; lunghezza guinzaglio
+  (setq G guinzaglio)
+  ; passi del cane per ogni movimento
+  (setq P passi)
+  ; quadrato guinzaglio
+  (setq GG (mul G G))
+  ; posizione iniziale dell'uomo
+  (setq uomo-x xx) (setq uomo-y yy)
+  ; posizione iniziale del cane
+  (setq cane-x xx) (setq cane-y yy))
+
+Funzione che genera un movimento dell'uomo:
+
+(define (muovi-uomo)
+  (setq ok nil)
+  ; fino a che non si genera un movimento casuale possibile...
+  (until ok
+    ; coordinate temporanee uomo
+    (setq x uomo-x) (setq y uomo-y)
+    ; movimento casuale: 0 (alto), 1 (destra), 2 (basso), 3 (sinistra)
+    (setq move (rand 4))
+    (case move (0 (++ y)) (1 (++ x)) (2 (-- y)) (3 (-- x)))
+    ; movimento possibile? (distanza uomo <= lunghezza guinzaglio ?)
+    (if (<= (dist2 x y cane-x cane-y) GG) (setq ok true))
+  )
+  ; aggiorna le coordinate dell'uomo
+  (setq uomo-x x) (setq uomo-y y)
+  (list uomo-x uomo-y)
+)
+
+Funzione che genera un movimento del cane:
+
+(define (muovi-cane)
+  (setq ok nil)
+  ; coordinate temporanee cane
+  (setq x cane-x) (setq y cane-y)
+  ; generazione del movimento del cane (P passi)
+  (for (k 1 P)
+    ; per ogni passo si controlla la distanza uomo-cane col guinzaglio
+    ; se la distanza è maggiore del guinzaglio,
+    ; allora per quel passo il cane rimane fermo
+    (setq move (rand 4))
+    (cond ((= move 0) (++ y)
+            (if (> (dist2 x y uomo-x uomo-y) GG) (-- y)))
+          ((= move 1) (++ x)
+            (if (> (dist2 x y uomo-x uomo-y) GG) (-- x)))
+          ((= move 2) (-- y)
+            (if (> (dist2 x y uomo-x uomo-y) GG) (++ y)))
+          ((= move 3) (-- x)
+            (if (> (dist2 x y uomo-x uomo-y) GG) (++ x)))
+    )
+  )
+  ; aggiorna le coordinate del cane
+  (setq cane-x x) (setq cane-y y)
+  (list cane-x cane-y)
+)
+
+Proviamo:
+
+(setup 0 0 6 3)
+(muovi-uomo)
+;-> 0 1
+(check-dist)
+;-> true
+(muovi-cane)
+;-> (-1 0)
+(check-dist)
+;-> true
+
+La passeggiata sarà rappresentata da una lista con la seguente struttura:
+
+  (ux1 uy1 cx1 cy1 ux2 uy2 cx2 cy2 ... uxN uyN cxN cyN))
+
+Funzione che effettua la passeggiata con un dato numero di iterazioni:
+
+(define (walk iter)
+  (let (out '())
+    (for (i 1 iter)
+      (push (muovi-uomo) out -1)
+      ;(if (not (check-dist)) (println "Error"))
+      (push (muovi-cane) out -1)
+      ;(if (not (check-dist)) (println "Error"))
+    )
+    out))
+
+Proviamo con 10000 iterazioni (movimenti):
+
+(setup 0 0 6 3)
+(silent (setq test (walk 1e4)))
+
+(test 0)
+;-> (0 -1)
+(test 1)
+;-> (1 0)
+
+Per visualizzare i punti della lista in una immagine occorre spostare tutti i punti nel quadrante positivo del piano cartesiano (con una traslazione).
+
+(define (quadranteI points)
+  (local (max-x min-x max-y min-y trasla-x trasla-y out)
+    (setq max-x (points 0 0))
+    (setq min-x (points 0 0))
+    (setq max-y (points 0 1))
+    (setq min-y (points 0 1))
+    (dolist (el points)
+      ;(setq max-x (max (el 0) max-x))
+      (setq min-x (min (el 0) min-x))
+      ;(setq max-y (max (el 1) max-y))
+      (setq min-y (min (el 1) min-y))
+    )
+    ; calcola i valori per la traslazione dei punti
+    (setq trasla-x (add 10 (abs min-x)))
+    (setq trasla-y (add 10 (abs min-y)))
+    ;(println trasla-x { } trasla-y)
+    ; traslazione dei punti
+    ; (solo se min-x e/o min-y minori di zero)
+    (cond ((and (< min-x 0) (< min-y 0))
+           (setq points (map (fn(n) (list (add trasla-x (n 0)) (add trasla-y (n 1)))) points)))
+          ((< min-x 0)
+           (setq points (map (fn(n) (list (add trasla-x (n 0)) (n 1))) points)))
+          ((< min-y 0)
+           (setq points (map (fn(n) (list (n 0) (add trasla-y (n 1)))) points)))
+    )
+    points))
+
+Proviamo:
+
+(silent (setq test (quadranteI test)))
+
+Adesso scriviamo una funzione che esporta i punti nel formato ImageMagick:
+(vedi "Creazione di immagini con ImageMagick" su "Note libere 7").
+
+(define (list-IM lst file-str)
+  (local (outfile x-width y-height line)
+    ; rimozione punti multipli
+    (setq lst (sort (unique lst)))
+    (setq outfile (open file-str "write"))
+    (print outfile { })
+    ; calcolo dimensioni immagine
+    (setq x-width  (add 2 (int (apply max (map first lst)))))
+    (setq y-height (add 2 (int (apply max (map last  lst)))))
+    ; scrittura del file in formato ImageMagick
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (dolist (el lst)
+      (if (even? $idx)
+        ; colore uomo
+        (setq line (string (string (el 0)) ", " (string (el 1))
+              ": (0,0,0,255)")) ; colore nero con alpha=100%
+        ; else
+        ; colore cane
+        (setq line (string (string (el 0)) ", " (string (el 1))
+              ": (255,0,0,255)")) ; colore rosso con alpha=100%
+      )
+      (write-line outfile line)
+    )
+    (close outfile)))
+
+Proviamo:
+
+(list-IM test "walk-test-IM.txt")
+;-> 3 true
+
+Dove è andato a finire il file?
+
+(real-path)
+;-> "F:\\Lisp-Scheme\\newLisp"
+
+Adesso per creare l'immagine possiamo apriamo una finestra DOS (command prompt) e digitiamo:
+
+  convert walk-test-IM.txt walk-test-IM.png
+
+oppure
+
+  convert walk-test-IM.txt -background white -flatten walk-test-IM.png
+
+Nota: chiaramente bisogna aver prima installato ImageMagick.
+
+Scriviamo una funzione generale che genera la passeggiata e crea l'immagine:
+
+(define (walk-dog-image image-name x y guinzaglio passi-cane iterazioni)
+  (setup x y guinzaglio passi-cane)
+  (let (dog (walk iterazioni))
+    (setq dog (quadranteI dog))
+    (list-IM dog (string image-name ".txt"))
+    (exec (string "convert " image-name ".txt " image-name ".png"))))
+
+Proviamo con 1 milione di punti (guinzaglio 6):
+
+(time (walk-dog-image "dog-1m-6" 0 0 6 3 1e6))
+;-> 7619.742
+
+Proviamo con 1 milione di punti (guinzaglio 10):
+
+(time (walk-dog-image "dog-1m-10" 0 0 6 3 1e6))
+
+Le immagini "dog-1m-6.png" e "dog-1m-10.png" si trovano nella cartella "data".
 
 ============================================================================
 

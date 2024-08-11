@@ -2599,6 +2599,7 @@ NOTE LIBERE 25
   Ordinamento di liste di liste (tabelle) - sortby
   Raggruppamento di liste di liste (tabelle) - groupby
   Elementi comuni e non comuni tra liste
+  A spasso con il cane
 
 PROBLEMI SUI DADI
 =================
