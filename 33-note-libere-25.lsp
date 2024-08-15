@@ -5792,9 +5792,9 @@ https://codegolf.stackexchange.com/questions/185/print-largest-integer-you-can-w
 Find a way to output a large integer with few characters.
 Solutions will be scored based on the magnitude of the number and shortness of code.
 
-Prima soluzione:
+Prima soluzione (16 caratteri):
 
-(while (print 9))
+(while(print 9))
 ;-> 999999999999999999999999999999999999999999999999999999999999999999999999
 ;-> 999999999999999999999999999999999999999999999999999999999999999999999999
 ;-> 999999999999999999999999999999999999999999...
@@ -5803,15 +5803,27 @@ Vediamo la velocità dei 9 che stampiamo:
 
 (setq k 1)
 (time (while (< k 50000) (print 9) (++ k)))
-;-> 625.045
+;-> 570.808
 
-Quindi la cifra 9 viene stampata 50000 volte ogni 625 millisecondi.
-L'espressione (while (print 9)) è ancora più veloce.
+(time (for (k 1 50000) (print 9)))
+;-> 565.303
 
-Seconda soluzione (per gioco):
+Quindi la cifra 9 viene stampata 50000 volte ogni 570 millisecondi (circa).
+Se facciamo girare il programma per:
+a) 1 minuto --> numero di cifre = 5263157
+b) 5 minuti --> numero di cifre = 26315789
+c) 1 ora    --> numero di cifre = 315789473
 
-(print (div 1 0))
+Nota: l'espressione (while (print 9)) è ancora più veloce.
+
+Seconda soluzione (9 caratteri):
+
+(div 1 0))
 ;-> 1.#INF  ; infinito è un numero molto grande...
+
+Effetto matrix:
+
+(while (print (rand 2))))
 
 
 ----------------------------------------------
@@ -7020,6 +7032,169 @@ Proviamo con 1 milione di punti (guinzaglio 10):
 (time (walk-dog-image "dog-1m-10" 0 0 6 3 1e6))
 
 Le immagini "dog-1m-6.png" e "dog-1m-10.png" si trovano nella cartella "data".
+
+
+---------------------------------------------------
+Numero formato dalla concatenazione di due quadrati
+---------------------------------------------------
+
+Dato un intero positivo, determinare se è formato dalla concatenazione di due numeri quadrati.
+I numeri concatenati non possono iniziare con 0 (tranne 0).
+
+Esempi
+
+11 -> true (1 1)
+Perchè 1 e 1 sono quadrati perfetti
+
+101 -> nil
+Non può essere 1 e 01 poiché un numero non può iniziare con 0.
+
+90 -> true (9 0)
+Perchè 9 e 0 sono quadrati perfetti.
+
+15129144 --> true (15129 144)
+Perchè 15129 = 123^2 e 144 = 12^2.
+
+9 -> nil
+Perchè occorrono due quadrati.
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (list-int lst)
+"Convert a list of digits to integer"
+  (let (num 0)
+    (dolist (el lst) (setq num (+ el (* num 10))))))
+
+(define (square? n)
+"Check if an integer is a perfect square"
+  (let (v (int (sqrt n)))
+    (= n (* v v))))
+
+Come dividere in tutti i modi possibili un numero/lista in due parti contigue:
+
+(setq lst '(1 2 3 4 5 6 7))
+(setq len (length lst))
+(for (i 1 (- len 1)) (println (slice lst 0 i) { } (slice lst i)))
+;-> (1) (2 3 4 5 6 7)
+;-> (1 2) (3 4 5 6 7)
+;-> (1 2 3) (4 5 6 7)
+;-> (1 2 3 4) (5 6 7)
+;-> (1 2 3 4 5) (6 7)
+;-> (1 2 3 4 5 6) (7)
+
+Funzione che verifica se un numero è formato dalla concatenazione di due numeri quadrati perfetti:
+
+(define (concat-square num)
+  (if (< num 10) '() ; i numeri con una sola cifra non hanno due quadrati
+  ;else
+  (local (out numbers lst len num1 num2)
+    (setq out '())
+    (setq numbers '())
+    ; converte la lista in numero
+    (setq lst (int-list num))
+    (setq len (length lst))
+    ; calcola tutte le divisioni in due parti contigue della lista
+    (for (i 1 (- len 1))
+      (push (list (slice lst 0 i) (slice lst i)) numbers -1)
+    )
+    ;(println numbers)
+    ; ciclo che verifica se una coppia di parti contigue 
+    ; sono due numeri quadrati perfetti
+    (dolist (el numbers)
+      ;(println (el 0) { - } (el 1))
+      ;(println (el 0 0) { - } (el 1 0))
+      ; verifica dei numeri che iniziano con 0 e sono più lunghi di una cifra
+      ; (cioè, 0 è valido e 0x... non è valido)
+      (cond ((or (and (> (length (el 0)) 1) (zero? (el 0 0)))
+                 (and (> (length (el 1)) 1) (zero? (el 1 0)))) nil)
+            (true 
+              (setq num1 (list-int (el 0)))
+              (setq num2 (list-int (el 1)))
+              ;(println num1 { } num2)
+              (when (and (square? num1) (square? num2))
+                (push (list num1 num2) out -1)))))
+    out)))
+
+Proviamo:
+
+(concat-square 11)
+;-> ((1 1))
+
+(concat-square 101)
+;-> ()
+
+(concat-square 90)
+;-> ((9 0))
+
+(concat-square 15129144)
+;-> ((15129 144))
+
+(concat-square 9)
+;-> ()
+
+(concat-square 144100)
+;-> ((1 44100) (144 100))
+
+Quest'ultimo numero, 144100, ha due modi di concatenazione:
+  (1 44100) e (144 100).
+
+Vediamo se esiste qualche numero che ha più di due modi di concatenazioni:
+
+(define (find-max-length limit)
+  ;(local (all val lunghezze max-val)
+  (setq all '())
+  (for (i 10 limit)
+    (setq val (concat-square i))
+    (if (!= val '()) (push val all))
+    (if (zero? (% i 1e6)) (println i))
+  )
+  (setq lunghezze (map length all))
+  (setq max-val (apply max lunghezze))
+)
+
+Proviamo:
+
+(find-max-length 1e5)
+;-> 2
+
+(time (println (find-max-length 1e6)))
+;-> 2
+;-> 8641.614
+
+(time (println (find-max-length 1e7)))
+;-> 2
+;-> 108043.524
+
+Vediamo quali numeri fino a 1e7 (10 milioni) hanno due modi di concatenazione:
+
+(select all (flat (ref-all 2 lunghezze)))
+;-> (((9 734449) (97344 49))
+;->  ((9 216225) (9216 225))
+;->  ((64 32041) (643204 1))
+;->  ((4 970225) (49 70225))
+;->  ((49 56169) (495616 9))
+;->  ((4 950625) (49 50625))
+;->  ((4 846400) (484 6400))
+;-> ...
+;->  ((144 49) (1444 9))
+;->  ((1 2116) (121 16))
+;->  ((4 841) (484 1))
+;->  ((25 64) (256 4))
+;->  ((1 961) (196 1))
+;->  ((1 625) (16 25))
+;->  ((1 441) (144 1))
+;->  ((1 64) (16 4)))
+
+Ultimo tentativo fino a 1e8 (100 milioni):
+
+(time (println (find-max-length 1e8)))
+;-> 2
+;-> 1331570.683 ; 22m 11s 570ms
 
 ============================================================================
 

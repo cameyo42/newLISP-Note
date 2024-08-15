@@ -2600,6 +2600,7 @@ NOTE LIBERE 25
   Raggruppamento di liste di liste (tabelle) - groupby
   Elementi comuni e non comuni tra liste
   A spasso con il cane
+  Numero formato dalla concatenazione di due quadrati
 
 PROBLEMI SUI DADI
 =================

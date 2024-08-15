@@ -7965,7 +7965,7 @@ Facciamo alcune prove:
 
 Possiamo anche creare un numero di Luhn.
 
-Funzione che calcola la somma di luhn di una numero:
+Funzione che calcola la somma di luhn di un numero:
 
 (define (luhn-somma num)
   (local (somma secondo val)
@@ -7985,7 +7985,7 @@ Funzione che calcola la somma di luhn di una numero:
 (luhn-somma "135625538987")
 ;-> 55
 
-Funzione che crea un numero di luhn (12 cifre):
+Funzione che crea un numero di Luhn (12 cifre):
 
 (define (create-luhn)
   (local (numero somma secondo val diff)
