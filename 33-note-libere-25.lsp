@@ -7196,5 +7196,65 @@ Ultimo tentativo fino a 1e8 (100 milioni):
 ;-> 2
 ;-> 1331570.683 ; 22m 11s 570ms
 
+
+--------------------------------------
+Simulate closures with global variable
+--------------------------------------
+
+Scrivere una funzione, f, che accetta un intero e restituisce una funzione.
+La funzione restituita è identica a f.
+Tuttavia, quando la funzione restituita viene chiamata senza parametri o con nil, deve restituire la somma di tutti gli interi passati.
+Esempio:
+L'espressione (setq g (f 4)) (se f è la prima funzione) genera la funzione g (uguale ad f).
+L'espressione (setq h (g 2)) genera la funzione h (uguale a g).
+Se adesso chiamiamo la funzione h senza argomenti o con nil, deve restituire 6 perchè è la somma degli argomenti delle funzioni precedenti (4 + 2).
+
+La "chiamata di terminazione" è una chiamata senza parametri o con il parametro nil.
+
+Non esiste un limite predefinito alla catena di chiamate di funzione.
+
+In LISP una soluzione potrebbe essere la seguente:
+
+(define (f n)
+  (let ((somma n))
+    (lambda (x)
+      (if (nil? x)
+          somma
+          (f (+ somma x))))))
+
+Però newLISP non supporta le chiusure (closures) nel modo in cui lo fanno altri linguaggi.
+Di conseguenza, la variabile 'somma' deve essere definita in un contesto globale (oppure in un proprio contesto con "context") per mantenere il suo valore tra le chiamate della funzione.
+
+Vediamo una versione che utilizza una variabile globale per mantenere la somma accumulata:
+
+(define somma 0)
+
+(define (f n)
+  (setq somma n)  ; Inizializza la somma con il valore di n
+  (lambda (x)
+    (if (nil? x)
+        somma
+        (f (+ somma x)))))  ; Aggiorna la somma e richiama f
+
+Spiegazione:
+'somma' è una variabile globale che mantiene la somma accumulata.
+La funzione f accetta un numero n e lo assegna alla variabile globale 'somma'.
+La funzione restituisce una lambda che accetta un singolo argomento x.
+Se x è nil, viene restituita la somma corrente.
+Se x non è nil, la funzione aggiorna 'somma' e richiama f con il nuovo valore.
+
+Proviamo:
+
+(define g (f 4))      ; Imposta somma a 4
+(g)                   ; Chiamata di terminazione, restituisce 4
+(define h (g 2))      ; Aggiunge 2 a somma (ora somma è 6)
+(h)                   ; Chiamata di terminazione, restituisce 6
+
+(((((f 3) 4) 5) 6) 2)          ; restituisce una funzione
+((((((f 3) 4) 5) 6) 2) nil)    ; restituisce 20 (3 + 4 + 5 + 6 + 2)
+((((((f 3) 4) 5) 6) 2))        ; restituisce 20 (3 + 4 + 5 + 6 + 2)
+
+Nota: Dato che 'somma' è una variabile globale, occorre fare attenzione quando usiamo questa funzione in un sistema più ampio, poiché altre parti del programma potrebbero influenzare il valore di 'somma'. 
+
 ============================================================================
 

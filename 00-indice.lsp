@@ -2601,6 +2601,7 @@ NOTE LIBERE 25
   Elementi comuni e non comuni tra liste
   A spasso con il cane
   Numero formato dalla concatenazione di due quadrati
+  Simulate closures with global variable
 
 PROBLEMI SUI DADI
 =================
