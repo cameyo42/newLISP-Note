@@ -2602,6 +2602,7 @@ NOTE LIBERE 25
   A spasso con il cane
   Numero formato dalla concatenazione di due quadrati
   Simulate closures with global variable
+  Metodi per cercare un elemento in una lista/stringa
 
 PROBLEMI SUI DADI
 =================
@@ -2646,7 +2647,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (291 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (295 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

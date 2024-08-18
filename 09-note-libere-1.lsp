@@ -1334,7 +1334,7 @@ E poi creiamo una lista con i simboli delle funzioni:
 (setq funcs '(f1 f2))
 ;-> (f1 f2)
 
-Adesso per eseguire le funzioni nella lista delle funzioni occorre utilizzare la funzione "evel":
+Adesso per eseguire le funzioni nella lista delle funzioni occorre utilizzare la funzione "eval":
 
 ((eval(funcs 0)) 2 3)
 ;-> 5

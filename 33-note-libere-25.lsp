@@ -7256,5 +7256,85 @@ Proviamo:
 
 Nota: Dato che 'somma' è una variabile globale, occorre fare attenzione quando usiamo questa funzione in un sistema più ampio, poiché altre parti del programma potrebbero influenzare il valore di 'somma'. 
 
+
+---------------------------------------------------
+Metodi per cercare un elemento in una lista/stringa
+---------------------------------------------------
+
+newLISP ha tre funzioni per cercare la prima occorrenza di un elemento in una lista: "find", "ref" e"member".
+Per le stringhe abbiamo solo due funzioni: "find" e "member".
+
+Le funzioni "find" e "ref" ritornano l'indice della prima occorrenza dell'elemento (o nil se l'elemento non esiste).
+La funzione "member" ritorna una lista o una stringa che comincia dalla prima occorrenza trovata fino alla fine della lista/stringa (o nil se l'elemento non esiste).
+
+(define (find-test val lst) (find val lst))
+(define (ref-test val lst) (ref val lst))
+(define (member-test val lst) (member val lst))
+
+Ricerca su una lista:
+
+(setq a '(5424 9848 538 814 5246 4268 946 2587 8915 2327 1465 1250 9316 801
+          470 587 3364 9147 3986 4327 9461 8371 5342 8420 6935 3976 2591 43
+          5255 9548 3986 2410 5855 2551 6840 9452 4354 8902 71 9409 6015 7861
+          5766 1424 2223 3830 42 4179 822 6599 8550 648 8110 6620 6914 8026
+          5301 6856 1427 6895 7278 7777 310 8686 6445 7065 854 5519 9479 587
+          2749 1451 9817 6199 2922 9224 3675 6945 2186 1559 2405 5214 9022
+          1064 9026 4417 801 7820 1717 9743 7758 8703 2106 4566 37 7506 1140
+          4047 3111 9926))
+
+(setq v (a 98))
+;-> 3111
+
+(find-test v a)
+;-> 98
+(ref-test v a)
+;-> (98)
+(member-test v a)
+;-> (3111 9926)
+
+(find-test -1 a)
+;-> nil
+(ref-test -1 a)
+;-> nil
+(member-test -1 a)
+;-> nil
+
+Vediamo la velocità delle funzioni:
+
+(time (find-test v a) 1e6)
+;-> 1328.198
+(time (ref-test v a) 1e6)
+;-> 1359.902
+(time (member-test v a) 1e6)
+;-> 1078.2
+
+Ricerca su una stringa:
+
+(setq b "supercalifragilistichespiralidoso")
+(setq c "h")
+
+(find-test c b)
+;-> 20
+(ref-test c b)
+;-> ERR: list expected in function ref : "supercalifragilistichespiralidoso"
+;-> called from user function (ref-test c b)
+(member-test c b)
+;-> "hespiralidoso"
+
+(find-test "z" b)
+;-> nil
+(member-test "z" b)
+;-> nil
+
+Vediamo la velocità delle funzioni:
+
+(time (find-test c b) 1e6)
+;-> 171.776
+(time (member-test c b) 1e6)
+;-> 250.107
+
+Per le liste è più veloce "member" (ma non conosciamo l'indice dell'elemento cercato).
+Per le stringhe è più veloce "find".
+
 ============================================================================
 

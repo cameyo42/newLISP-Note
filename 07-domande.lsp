@@ -5874,7 +5874,7 @@ Data una lista che rappresenta un numero intero, scrivere una funzione che aggiu
 
 (setq lst '(1 2 3 4))
 (add1 lst)
-;-> (1 2 3 4 5)
+;-> (1 2 3 5)
 
 (setq lst '(9 8 8 9))
 (add1 lst)
@@ -7691,7 +7691,7 @@ oppure
 
 2) le isole sono solo gli 1 sono connessi nelle 8 direzioni (nord,sud,est,ovest,nord-est,nord-ovest,sud-est,sud-ovest)
 
-In altre parole il tipo 1 considera gli 1 in diagonale non connessi, mentre il tipo 2 consdidera gli 1 in diagonale connessi.
+In altre parole il tipo 1 considera gli 1 in diagonale non connessi, mentre il tipo 2 considera gli 1 in diagonale connessi.
 
 Ad esempio, la matrice sottostante contiene 5 isole di tipo 1 o 3 isole di tipo 2:
 
@@ -8199,11 +8199,11 @@ Sequenza OEIS: A000787
 Strobogrammatic numbers: the same upside down.
   0, 1, 8, 11, 69, 88, 96, 101, 111, 181, 609, 619, 689, 808, 818, 888,
   906, 916, 986, 1001, 1111, 1691, 1881, 1961, 6009, 6119, 6699, 6889,
-  6969, 8008, 8118, 8698, 8888, 8968, 9006, 9116, 9696, 9886, 9966, 
+  6969, 8008, 8118, 8698, 8888, 8968, 9006, 9116, 9696, 9886, 9966,
   10001, 10101, 10801, 11011, 11111, 11811, 16091, 16191, ...
 
 (filter strobogrammatic? (sequence 0 10000))
-;-> (0 1 8 11 69 88 96 101 111 181 609 619 689 808 818 888 
+;-> (0 1 8 11 69 88 96 101 111 181 609 619 689 808 818 888
 ;->  906 916 986 1001 1111 1691 1881 1961 6009 6119 6699 6889
 ;->  6969 8008 8118 8698 8888 8968 9006 9116 9696 9886 9966)
 
