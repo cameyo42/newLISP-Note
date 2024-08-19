@@ -1153,7 +1153,7 @@ NOTE LIBERE 8
   Primi Home
   Numeri figurati poligonali
   (* x x) è più veloce di (pow x 2)
-  Sequenza di Padovan
+  Sequenza di Padovan e numero plastico
   Fattorione (numero di krishnamurthy)
   Numeri Star
   Numeri emirp
@@ -2603,6 +2603,7 @@ NOTE LIBERE 25
   Numero formato dalla concatenazione di due quadrati
   Simulate closures with global variable
   Metodi per cercare un elemento in una lista/stringa
+  100 e 666 con 1 2 3 4 5 6 7 8 9
 
 PROBLEMI SUI DADI
 =================

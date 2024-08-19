@@ -7336,5 +7336,119 @@ Vediamo la velocità delle funzioni:
 Per le liste è più veloce "member" (ma non conosciamo l'indice dell'elemento cercato).
 Per le stringhe è più veloce "find".
 
+
+-------------------------------
+100 e 666 con 1 2 3 4 5 6 7 8 9
+-------------------------------
+
+Inserire tre operatori matematici (+ o -) tra le cifre:
+
+   1 2 3 4 5 6 7 8 9 
+
+in modo che il risultato sia 100.
+
+Inserire tre operatori matematici (+ o -) tra le cifre:
+
+   1 2 3 4 5 6 7 8 9 
+
+in modo che il risultato sia 666.
+
+Funzione che prende una lista e un numero binario e taglia la lista in corrispondenza degli 1 del numero binario:
+
+(define (divides lst binary)
+  (local (out tmp)
+    (setq out '())
+    (setq tmp '())
+    (for (i 0 (- (length binary) 1))
+      (cond ((= (binary i) "1") ; taglio
+              (push (lst i) tmp -1)
+              (push tmp out -1)
+              (setq tmp '()))
+            (true  ; nessun taglio
+              (push (lst i) tmp -1))
+      )
+    )
+    ; inserisce lista finale
+    (push (lst -1) tmp -1)
+    (push tmp out -1)
+    out))
+
+(setq lst '(1 2 3 4 5))
+
+(divides lst "0101")
+;-> ((1 2) (3 4) (5))
+
+(divides lst "1010")
+;-> ((1) (2 3) (4 5))
+
+Funzione che genera tutte le partizioni della lista in ordine:
+
+(define (splits lst)
+  (local (out len max-tagli taglio fmt)
+    (setq out '())
+    (setq len (length lst))
+    ; numero massimo di tagli
+    (setq max-tagli (- len 1))
+    ; formattazione con 0 davanti
+    (setq fmt (string "%0" max-tagli "s"))
+    (for (i 0 (- (pow 2 max-tagli) 1))
+      ; taglio corrente
+      (setq taglio (format fmt (bits i)))
+      ;(println taglio)
+      ; taglia la lista con taglio corrente
+      ; e la inserisce nella lista soluzione
+      (push (divides lst taglio) out -1)
+    )
+    out))
+
+(splits '(1 2 3 4 5))
+;-> (((1 2 3 4 5)) ((1 2 3 4) (5)) ((1 2 3) (4 5))
+;->  ((1 2 3) (4) (5)) ((1 2) (3 4 5)) ((1 2) (3 4) (5))
+;->  ((1 2) (3) (4 5)) ((1 2) (3) (4) (5)) ((1) (2 3 4 5))
+;->  ((1) (2 3 4) (5)) ((1) (2 3) (4 5)) ((1) (2 3) (4) (5))
+;->  ((1) (2) (3 4 5)) ((1) (2) (3 4) (5)) ((1) (2) (3) (4 5))
+;->  ((1) (2) (3) (4) (5)))
+
+Funzione che risolve il problema:
+
+(define (centos)
+  (local (oper all four nums val)
+    ; lista dei valori generati
+    (setq vals '())
+    ; combinazioni degli operatori
+    (setq oper '((+ + +) (+ + -) (+ - +) (+ - -)
+                (- + +) (- + -) (- - +) (- - -)))
+    ; genera tutte le partizioni ordinate della lista
+    (setq all (splits '(1 2 3 4 5 6 7 8 9)))
+    ; Filtra le partizioni: ogni partizione deve avere quattro elementi
+    (setq four '())
+    (dolist (el all) (if (= (length el) 4) (push el four -1)))
+    ; conversione delle partizioni/liste con quattro elementi in numeri
+    (setq nums '())
+    (dolist (f four) (push (map list-int f) nums))
+    ; ciclo che applica tutti le combinazioni degli operatori
+    ; ad ogni gruppo di quattro numeri
+    (dolist (num nums)
+      (dolist (op oper)
+        (setq val (num 0))
+        (setq val ((eval (op 0)) val (num 1)))
+        (setq val ((eval (op 1)) val (num 2)))
+        (setq val ((eval (op 2)) val (num 3)))
+        ; inserisce il valore corrente nella lista dei valori generati
+        (push val vals)
+        ; verifica se il risultato vale 100 o 666
+        (if (or (= val 100) (= val 666))
+          (println (num 0) { } (op 0) { } (num 1) { } (op 1) { } 
+                  (num 2) { } (op 2) { } (num 3) " = " val))
+      )
+    ))'>)
+
+Proviamo:
+
+(centos)
+;-> 123 - 45 - 67 + 89 = 100
+;-> 123 + 456 + 78 + 9 = 666
+;-> 1234 - 567 + 8 - 9 = 666
+
 ============================================================================
 

@@ -2323,9 +2323,9 @@ Numeri in virgola mobile:
 ;-> 705.045
 
 
--------------------
-Sequenza di Padovan
--------------------
+-------------------------------------
+Sequenza di Padovan e numero plastico
+-------------------------------------
 
 La sequenza di Padovan è una successione di numeri naturali definita nel modo seguente:
 
@@ -2372,16 +2372,16 @@ Versione iterativa:
 (map padovan-i (sequence 0 20))
 ;-> (1 1 1 2 2 3 4 5 7 9 12 16 21 28 37 49 65 86 114 151 200)
 
-Modificando la versione iterativa possiamo ottenere tutta la sequenza di lunghezza n:
+Modificando la versione iterativa possiamo ottenere tutta la sequenza di lunghezza n (inoltre utilizziamo i big-integer):
 
 (define (padovan-seq n)
   (local (out)
-    (cond ((= n 0) (setq out '(1)))
-          ((= n 1) (setq out '(1 1)))
-          ((= n 2) (setq out '(1 1 1)))
+    (cond ((= n 0) (setq out '(1L)))
+          ((= n 1) (setq out '(1L 1L)))
+          ((= n 2) (setq out '(1L 1L 1L)))
           (true
-           (let ((pPrev2 1) (pPrev 1) (pCurr 1) (pNext 1))
-            (setq out '(1 1 1))
+           (let ((pPrev2 1L) (pPrev 1L) (pCurr 1L) (pNext 1L))
+            (setq out '(1L 1L 1L))
             (for (i 3 n)
               (setq pNext (+ pPrev2 pPrev))
               (setq pPrev2 pPrev)
@@ -2391,8 +2391,24 @@ Modificando la versione iterativa possiamo ottenere tutta la sequenza di lunghez
     )
     out))
 
-(padovan-seq 20)
-;-> (1 1 1 2 2 3 4 5 7 9 12 16 21 28 37 49 65 86 114 151 200)
+(padovan-seq 19)
+;-> (1L 1L 1L 2L 2L 3L 4L 5L 7L 9L 12L 16L 21L 28L 37L 49L 65L 86L 114L 151L)
+
+Il numero plastico ha lo stesso legame che il numero aureo ha con la sequenza di Fibonacci: i rapporti di due numeri Padovan adiacenti danno un'approssimazione del numero plastico.
+Il valore del numero plastico è circa 1.324718.
+
+Vediamo come calcolarli:
+
+(silent
+  (setq pado (padovan-seq 1000))
+  (setq plastici (map div (rest pado) (chop pado))))
+  
+(plastici 10)
+;-> 1.333333333333333
+(plastici 100)
+;-> 1.324717957244746
+(plastici 999)
+;-> 1.324717957244746)
 
 
 ------------------------------------
