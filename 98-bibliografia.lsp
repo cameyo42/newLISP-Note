@@ -90,13 +90,15 @@
   "Duelling Idiots and Other Probability Puzzlers", Paul Nahin, 2000
   "Digital Dice Computational Solutions to Practical Probability Problems", Paul Nahin, 2008
   
-  "Godel, Escher, Bach: un'eterna ghirlanda brillante" Douglas Hofstadter, 1979
+  "Godel, Escher, Bach: un'eterna ghirlanda brillante", Douglas Hofstadter, 1979
 
   "The Math Book", Clifford A. Pickover, 2009
   
   "La Cattedrale di Turing: le origini dell'universo digitale", George Dyson, 2012
   
   "Più o meno quanto?" L'arte di fare stime sul Mondo, Lawrence Weinstein-John Adam, 2009
+  
+  "La piccola bottega della curiosità matematiche del professor Steward", Ian Stewart, 2010
   
 
   Siti web:

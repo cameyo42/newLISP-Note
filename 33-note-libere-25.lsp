@@ -7450,5 +7450,136 @@ Proviamo:
 ;-> 123 + 456 + 78 + 9 = 666
 ;-> 1234 - 567 + 8 - 9 = 666
 
+
+----------------------------------
+Altezza dell'incrocio di due rette
+----------------------------------
+
+Due pali sono posti ad una certa distanza tra loro.
+Il primo palo è alto 60 metri. Il secondo palo è alto 40 metri.
+Dalla cima del primo palo viene tirata una corda tesa fino alla base del secondo palo.
+Dalla cima del secondo palo viene tirata una corda tesa fino alla base del primo palo.
+Calcolare il valore dell'altezza in cui si incrociano le due corde (rette).
+Vedi figura "incrocio-rette.png" nella cartella "data".
+
+Per la similitudine dei triangoli abbiamo:
+
+(x + y)/a = y/c e (x + y)/b = x/c
+
+Sommiamo membro a membro:
+
+(x + y)(1/a + 1/b) = (x + y)/c
+
+Dividiamo per (x + y):
+
+1/a + 1/b = 1/c
+
+Ricaviamo c:
+
+c = a*b/(a + b) = (60*40)/100 = 24
+
+Nota: l'altezza in cui si incrociano le corde non dipende dalla distanza dei pali.
+Comunque i pali non possono essere nello stesso punto (cioè a distanza 0), perchè durante il procedimento abbiamo diviso per (x + y) che è la distanza tra i pali, quindi (x + y) non può essere 0.
+
+
+-----------------------------
+Numeri Catalani generalizzati
+-----------------------------
+
+"Catalan Numbers With Applications", Thomas Koshy, 2009
+
+Sequenza OEIS A004149:
+Generalized Catalan numbers: a(n+1) = a(n) + Sum[k=2..n-1]a(k)*a(n-1-k).
+  1, 1, 1, 1, 2, 4, 8, 16, 33, 69, 146, 312, 673, 1463, 3202, 7050, 15605,
+  34705, 77511, 173779, 390966, 882376, 1997211, 4532593, 10311720, 23512376,
+  53724350, 122995968, 282096693, 648097855, 1491322824, 3436755328, 
+  7931085771, ...
+
+Formula:
+
+  a(0) = 1
+  a(1) = 1
+  a(2) = 1
+  a(3) = 1
+  a(n+1) = a(n) + Sum[k=2..n-2](a(k)*a(n - 1 - k))
+
+Formula:
+
+  a(-1) = 1
+  a(0) = 1
+  a(1) = 1
+  a(2) = 1
+  a(n) = Sum[k=2..n-1](a(k)*a(n - 2 - k))
+
+(define (gen-cat n)
+  (cond ((= n -1) 1L)
+        ((= n 0) 1L)
+        ((= n 1) 1L)
+        ((= n 2) 1L)
+        (true
+          (let (sum 0L)
+            (for (k 2 (- n 1)) (++ sum (* (gen-cat k) (gen-cat (- n 2 k)))))
+            sum))))
+
+Proviamo:
+
+(gen-cat 10)
+;-> 146L
+
+(map gen-cat (sequence 1 22))
+;-> (1L 1L 1L 2L 4L 8L 16L 33L 69L 146L 312L 673L 1463L 3202L 7050L 15605L
+;->  34705L 77511L 173779L 390966L 882376L 1997211L)
+
+(time (println (map gen-cat (sequence 1 25))))
+;-> (1L 1L 1L 2L 4L 8L 16L 33L 69L 146L 312L 673L 1463L 3202L 7050L
+;->  15605L 34705L 77511L 173779L 390966L 882376L 1997211L 4532593L
+;->  10311720L 23512376L)
+;-> 29183.135
+
+Proviamo a rendere più veloce la funzione con la tecnica di memoization:
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize g-c
+  (lambda (num)
+    (cond ((= num -1) 1L)
+          ((= num 0) 1L)
+          ((= num 1) 1L)
+          ((= num 2) 1L)
+          (true
+            (let (sum 0L)
+              (for (k 2 (- num 1)) (++ sum (* (g-c k) (g-c (- num 2 k)))))
+              sum)))))
+
+Proviamo:
+
+(g-c 10)
+;-> 146L
+
+(map g-c (sequence 1 22))
+;-> (1L 1L 1L 2L 4L 8L 16L 33L 69L 146L 312L 673L 1463L 3202L 7050L 15605L
+;->  34705L 77511L 173779L 390966L 882376L 1997211L)
+
+(time (println (map g-c (sequence 1 25))))
+;-> (1L 1L 1L 2L 4L 8L 16L 33L 69L 146L 312L 673L 1463L 3202L 7050L
+;->  15605L 34705L 77511L 173779L 390966L 882376L 1997211L 4532593L
+;->  10311720L 23512376L)
+;-> 5
+
+(time (println (map g-c (sequence 1 100))))
+;-> (1L 1L 1L 2L 4L 8L 16L 33L 69L 146L 312L 673L 1463L 3202L 7050L 15605L
+;->  34705L 77511L 173779L 390966L 882376L 1997211L 4532593L 10311720L
+;->  23512376L 53724350L 122995968L 282096693L 648097855L 1491322824L
+;->  ...
+;-> 5060270775827048118024844336529892L 12031461083404039259627902416388236L
+;-> 28610786730897105251539680529311753L 68046644135744615371680930473092837L
+;-> 161863084699773246815906091417828900L)
+;-> 14.89
+
 ============================================================================
 

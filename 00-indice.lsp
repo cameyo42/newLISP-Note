@@ -2604,6 +2604,8 @@ NOTE LIBERE 25
   Simulate closures with global variable
   Metodi per cercare un elemento in una lista/stringa
   100 e 666 con 1 2 3 4 5 6 7 8 9
+  Altezza dell'incrocio di due rette
+  Numeri Catalani generalizzati
 
 PROBLEMI SUI DADI
 =================
