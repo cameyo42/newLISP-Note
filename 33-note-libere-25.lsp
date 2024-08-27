@@ -7539,6 +7539,7 @@ Proviamo:
 Proviamo a rendere più veloce la funzione con la tecnica di memoization:
 
 (define-macro (memoize mem-func func)
+"Memoize a function"
   (set (sym mem-func mem-func)
     (letex (f func c mem-func)
       (lambda ()
@@ -7547,10 +7548,7 @@ Proviamo a rendere più veloce la funzione con la tecnica di memoization:
 
 (memoize g-c
   (lambda (num)
-    (cond ((= num -1) 1L)
-          ((= num 0) 1L)
-          ((= num 1) 1L)
-          ((= num 2) 1L)
+    (cond ((or (= num -1) (= num 0) (= num 1) (= num 2)) 1L)
           (true
             (let (sum 0L)
               (for (k 2 (- num 1)) (++ sum (* (g-c k) (g-c (- num 2 k)))))
@@ -7580,6 +7578,206 @@ Proviamo:
 ;-> 28610786730897105251539680529311753L 68046644135744615371680930473092837L
 ;-> 161863084699773246815906091417828900L)
 ;-> 14.89
+
+
+----------------
+Insiemi infiniti
+----------------
+
+Gli insiemi infiniti si comportano in modo strano.
+Consideriamo le 26 lettere dell'alfabeto A, B, C, ... , Z.
+Queste lettere possono essere combinate insieme per formare parole, ed elenchiamo le parole ammissibili in un dizionario.
+Supponiamo di ammettere tutte le possibili sequenze di lettere indipendentemente dalla loro lunghezza
+Quindi CCCFHKY è una parola, così come FHO e ZZZ ... Z con un milione di lettere Z.
+È impossibile stampare un dizionario così, ma matematicamente è un insieme ben definito che contiene un numero infinito di parole. 
+Ora decomponiamo questo dizionario in 26 pezzi.
+Il primo pezzo contiene tutte le parole che iniziano per A, il secondo contiene tutte quelle che iniziano per B e così via fino al ventiseiesimo pezzo, che contiene tutte le parole che iniziano per Z.
+Questi pezzi non hanno parole in comune, e ogni parola compare in esattamente un pezzo. 
+Ogni pezzo, però, ha esattamente la stessa struttura del dizionario di partenza.
+Per esempio, il secondo pezzo contiene, tra le altre, le parole BCCCFHKY, BFHO e BZZZ ... Z.
+Il terzo pezzo contiene CCCCFHKY, CFHO e CZZZ ... Z.
+Adesso si può trasformare ogni pezzo nel dizionario completo cancellando la prima lettera da ogni 
+parola. 
+In altre parole: possiamo decomporre il dizionario e riassemblare i pezzi in modo da costruire 26 copie esatte del dizionario. 
+
+Nota: Quando eliminiamo la B iniziale dal secondo pezzo, per esempio, non otteniamo solo l'intero dizionario di partenza: otteniamo anche la parola "vuota" che risulta dal togliere la B 
+iniziale dalla parola B. 
+Quindi in realtà la dissezione trasforma il dizionario in 26 copie di sé, più le 26 parole extra A, B, C, ... , Z di lunghezza r. 
+Per mantenere tutto pulito e ordinato, dobbiamo assorbire le 26 parole extra nei pezzi.
+Anche se ignoriamo questo particolare, abbiamo comunque creato 26 copie del primo dizionario solo con qualche parola in più. Questo è molto sorprendente. 
+
+
+-------------
+Inverter Game
+-------------
+
+Il gioco consiste in una matrice 5x5 che ha, inizialmente, tutti i valori a 0 (caselle bianche).
+La soluzione consiste nell'invertire tutti valori delle celle da 0 a 1 (caselle nere).
+In realtà basta invertire 24 caselle (perchè 25 non è possibile).
+Ad ogni mossa si sceglie una casella (r, c) della matrice ottenendo la seguente trasformazione:
+la cella in (r, c) e le celle adiacenti in orizzontale e verticale vengono invertite (da 0 a 1 oppure da 1 a 0).
+In altre parole, data la cella (r, c) vengono invertite le celle:
+  (r,c)    --> cella corrente
+  (r+1,c)  --> cella in basso
+  (r-1,c)  --> cella in alto
+  (r,c+1)  --> cella a destra
+  (r,c-1)  --> cella a sinistra
+
+Funzione che stampa la matrice di gioco:
+
+(define (print-grid grid)
+  (local (row col)
+    (setq row (length grid))
+    (setq col (length (first grid)))
+    ; indici della griglia in verde
+    (println "  \027[0;32m"
+             (join (map (fn(x) (format "%2d" x)) (sequence 0 (- col 1))))
+             "\027[0m")
+    (for (i 0 (- row 1))
+      ;(setq fmt (string "%2d "))
+      ; indici della griglia in verde
+      (print "\027[0;32m" (format "%2d " i) "\027[0m")
+      (for (j 0 (- col 1))
+        (cond ((= (grid i j) -1) (print "\027[0;31m* \027[0m")) ; casella nera (rossa)
+              (true
+                (if (= (grid i j) 0)
+                    ; numero normale
+                    (print (grid i j) " ")
+                    ; numero sottolineato
+                    (print "\027[4m"(grid i j) "\027[0m ")))
+        )
+      )
+      (println))))
+
+Come invertire da 1 a 0 oppure da 0 a 1:
+(setq x 0)
+(setq x (- 1 x))
+
+Funzione che inverte la matrice data una cella:
+
+(define (invert-grid matrix cell)
+  (local (row col)
+    (setq row (length matrix))
+    (setq col (length (first matrix)))
+    (setq r (cell 0))
+    (setq c (cell 1))
+    ; inverte la cella corrente
+    (setf (matrix r c) (- 1 (matrix r c)))
+    ; inverte le celle adiacenti alla cella corrente
+    ;  alto
+    (setq rr (- r 1))
+    (setq cc c)
+    ;(println "alto: " rr { } cc)
+    (if (and (<= rr 4) (>= rr 0) (<= cc 4) (>= cc 0))
+        (setf (matrix rr cc) (- 1 (matrix rr cc))))
+    ;  basso
+    (setq rr (+ r 1))
+    (setq cc c)
+    ;(println "basso: " rr { } cc)
+    (if (and (<= rr 4) (>= rr 0) (<= cc 4) (>= cc 0))
+        (setf (matrix rr cc) (- 1 (matrix rr cc))))
+    ;  destra
+    (setq rr r)
+    (setq cc (+ c 1))
+    ;(println "destra: " rr { } cc)
+    (if (and (<= rr 4) (>= rr 0) (<= cc 4) (>= cc 0))
+        (setf (matrix rr cc) (- 1 (matrix rr cc))))
+    ;  sinistra
+    (setq rr r)
+    (setq cc (- c 1))
+    ;(println "sinistra: " rr { } cc)
+    (if (and (<= rr 4) (>= rr 0) (<= cc 4) (>= cc 0))
+        (setf (matrix rr cc) (- 1 (matrix rr cc))))
+    matrix))
+
+Funzione che permette una mossa all'utente:
+
+(define (user-move)
+  (local (ok r c data)
+    (setq ok nil)
+    (setq r nil)
+    (setq c nil)
+    ; Input --> x y es. 3 2
+    (until ok
+      (print "Cella: ") (read-line)
+      (setq data (parse (current-line)))
+      (setq r (int (data 0)))
+      (setq c (int (data 1)))
+      (if (and (<= r 4) (>= r 0) (<= c 4) (>= c 0)) (setq ok true))
+    )
+    (++ moves)
+    (list r c)))
+
+Funzione che inizia un nuovo gioco:
+
+(define (start-game)
+  ; numero di mosse
+  (setq moves 0)
+  ; caselle invertite
+  (setq inverted 0)
+  ; matrice di gioco
+  (setq grid (array-list (array 5 5 '(0))))
+  ; ultima mossa
+  (setq coord (list "" ""))
+  ; ciclo del gioco
+  (while (and (< inverted 24) (not quit))
+    ; stampa informazioni e matrice corrente
+    (println "Mosse: " moves)
+    (println "Invertite: " inverted)
+    ; (println "Ultima mossa: " (coord 0) { } (coord 1))
+    (print-grid grid)
+    ; input utente
+    (setq coord (user-move))
+    ; inversione delle celle della matrice
+    (setq grid (invert-grid grid coord))
+    ; calcolo delle celle invertite
+    (setq inverted (first (count '(1) (flat grid))))
+  )
+  (println "------------" moves)
+  (println "Mosse: " moves)
+  (println "Invertite: " inverted)
+  ; (println "Ultima mossa: " (coord 0) { } (coord 1))
+  (print-grid grid)  
+  (println "Bravo!!!") '>)
+
+Facciamo una partita:
+
+(start-game)
+;-> Mosse: 0         Mosse: 1         Mosse: 2          Mosse: 3
+;-> Invertite: 0     Invertite: 3     Invertite: 6      Invertite: 9
+;->    0 1 2 3 4        0 1 2 3 4        0 1 2 3 4         0 1 2 3 4
+;->  0 0 0 0 0 0      0 1 1 0 0 0      0 1 1 0 0 0       0 1 1 0 1 1
+;->  1 0 0 0 0 0      1 1 0 0 0 0      1 1 0 0 0 0       1 1 0 0 0 1
+;->  2 0 0 0 0 0      2 0 0 0 0 0      2 0 0 0 0 0       2 0 0 0 0 0
+;->  3 0 0 0 0 0      3 0 0 0 0 0      3 0 0 0 0 1       3 0 0 0 0 1
+;->  4 0 0 0 0 0      4 0 0 0 0 0      4 0 0 0 1 1       4 0 0 0 1 1
+;-> Cella: 0 0       Cella: 4 4       Cella: 0 4        Cella: 4 0
+;-> ...
+;-> Mosse: 22        Mosse: 23        Mosse: 24
+;-> Invertite: 16    Invertite: 20    Invertite: 24
+;->    0 1 2 3 4        0 1 2 3 4        0 1 2 3 4
+;->  0 1 0 0 0 1      0 1 1 1 1 1      0 1 1 1 1 1
+;->  1 1 1 0 1 1      1 1 1 1 1 1      1 1 1 1 1 1
+;->  2 1 1 0 1 1      2 1 1 0 1 1      2 1 1 0 1 1
+;->  3 1 1 0 1 1      3 1 1 0 1 1      3 1 1 1 1 1
+;->  4 1 0 0 0 1      4 1 0 0 0 1      4 1 1 1 1 1
+;-> Cella: 0 2       Cella: 4 2       Bravo!!!
+
+Soluzione in 14 mosse: 
+  (0 0) (4 4) (0 4) (4 0) (2 2) (2 0) (2 4)
+  (0 2) (4 2) (2 2) (1 1) (1 3) (3 1) (3 3)
+
+Nota: per uscire dal gioco premere Ctrl-C (sorry...)
+
+Perchè non è possibile invertire tutte le caselle?
+Nel caso di una matrice 5x5, esistono configurazioni iniziali che possono essere risolte e altre che no, ma se tutte le celle iniziano da 0, il teorema di parità ci dice che una configurazione tutta 1 non è possibile.
+Perché?
+Invarianza modulo 2: Quando facciamo una mossa, il numero totale di cambiamenti di stato (da 0 a 1 o da 1 a 0) in una regione attorno alla cella scelta è sempre dispari (1+4=5).
+Questo significa che il numero totale di celle 1 nella matrice può solo aumentare o diminuire di un numero dispari.
+Obiettivo finale: Una matrice tutta 1 contiene 25 celle a 1, un numero dispari.
+Partendo da una matrice tutta a 0 (numero di 1 = 0), non è possibile raggiungere una matrice con tutte 1 usando solo mosse che cambiano un numero dispari di celle per ogni mossa.
+Conclusione:
+Non è possibile ottenere una matrice 5x5 con tutti 1 partendo da una matrice iniziale di tutti 0 utilizzando le mosse/trasformazioni descritte.
 
 ============================================================================
 

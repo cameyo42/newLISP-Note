@@ -2606,6 +2606,9 @@ NOTE LIBERE 25
   100 e 666 con 1 2 3 4 5 6 7 8 9
   Altezza dell'incrocio di due rette
   Numeri Catalani generalizzati
+  Insiemi infiniti
+  Inverter Game
+  
 
 PROBLEMI SUI DADI
 =================
@@ -2650,7 +2653,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (295 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (297 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================
