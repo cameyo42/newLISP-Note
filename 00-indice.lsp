@@ -2608,6 +2608,8 @@ NOTE LIBERE 25
   Numeri Catalani generalizzati
   Insiemi infiniti
   Inverter Game
+  Alfabeto ripetuto
+  Iperfattoriale
   
 
 PROBLEMI SUI DADI
