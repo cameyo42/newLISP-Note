@@ -7906,5 +7906,139 @@ Proviamo:
 (length (iper-fact 100))
 ;-> 9015
 
+
+-----------------------
+Problema dei 5 filosofi
+-----------------------
+
+Il problema dei 5 filosofi fu descritto nel 1965 da Edsger Dijkstra come esempio per illustrare il problema informatico del controllo della concorrenza.
+In altre parole, si tratta di controllare/sincronizzare diversi processi che vengono eseguiti in parallelo.
+L'esempio descrive cinque filosofi che siedono ad una tavola rotonda con un piatto di spaghetti davanti e una forchetta a sinistra (o a destra)
+Ci sono dunque cinque filosofi, cinque piatti di spaghetti e cinque forchette disposti nel modo seguente:
+
+        F1
+     f     f
+  F2          F5
+    f   f    f
+     F3    F4
+
+I filosofi (F1..F5) alternano periodi in cui pensano e periodi in cui mangiano.
+Per mangiare un filosofo ha bisogno di due forchette (f), ma le forchette possono essere prese una per volta.
+Dopo aver preso due forchette, il filosofo mangia per un periodo di tempo e poi lascia le forchette e si rimette a pensare.
+Il problema consiste nel definire un algoritmo che impedisca lo stallo ("deadlock") o la morte d'inedia ("starvation").
+Il deadlock può verificarsi se ciascuno dei filosofi tiene in mano una forchetta senza mai riuscire a prendere l'altra.
+Il filosofo F1 aspetta di prendere la forchetta che ha in mano il filosofo F2, che aspetta la forchetta che ha in mano il filosofo F3, e così via in un circolo vizioso.
+La situazione di starvation può verificarsi indipendentemente dal deadlock se uno dei filosofi non riesce mai a prendere entrambe le forchette.
+
+Il processo di prendere le forchette è analogo al blocco di risorse limitate nella programmazione reale, situazione nota con il nome di "concorrenza".
+Bloccare una risorsa è una tecnica comune per garantirne l'accesso univoco da parte di un programma per un dato peridodo di tempo.
+Se la risorsa richiesta da un programma è già stata bloccata, il programma aspetta fino a quando la risorsa si sblocca.
+Se il blocco coinvolge più di una risorsa, è possibile che in alcune circostanze si verifichi un deadlock.
+
+Soluzione per il deadlock
+Una possibile soluzione è quella di numerare le forchette ed esigere che vengano prese in ordine numerico crescente.
+
+        F1
+     f2    f1
+  F2          F5
+    f3  f4   f5
+     F3    F4
+
+I filosofi sono denominati F1, F2, F3, F4 e F5, mentre le forchette alla loro sinistra sono rispettivamente f1, f2, f3, f4 e f5.
+Il primo filosofo F1 dovrà prendere la prima forchetta f1 prima di poter prendere la seconda forchetta f2.
+I filosofi F2, F3 e F4 si comporteranno in modo analogo, prendendo sempre la forchetta f(i) prima della forchetta f(i+1).
+Rispettando l'ordine numerico, ma invertendo l'ordine delle mani, il filosofo F5 prenderà prima la forchetta f1 e poi la forchetta f5.
+Si crea così un'asimmetria che serve ad evitare i deadlock.
+
+Soluzione per la starvation
+La prevenzione della starvation dipende dal metodo di mutua esclusione utilizzato.
+In genere vengono usate delle code di attesa che consentono un uguale accesso alle forchette da parte di tutti e due i filosofi adiacenti.
+
+La soluzione può anche essere generalizzata al caso in cui si voglia consentire ad un qualsiasi numero di processi di ottenere accesso esclusivo ad un qualsiasi numero di risorse.
+I processi devono attenersi alle seguenti regole:
+Tutti i processi devono richiedere accesso alle risorse in ordine crescente, prima cioè di richiedere l'accesso ad una risorsa di ordine maggiore, il processo deve aver ottenuto l'accesso alle risorse di ordine minore di cui ha bisogno.
+Prima di richiedere l'accesso a una risorsa di ordine minore, il processo deve rilasciare le risorse di ordine maggiore alle quali sta accedendo.
+Se non ha accesso a una risorsa di ordine maggiore, il processo deve rilasciare le risorse di ordine minore alle quali sta accedendo.
+
+
+--------------------------
+Il problema di Daniel Litt
+--------------------------
+
+A fine gennaio del 1924, Daniel Litt ha proposto un problema basato sulle probabilità sulla piattaforma di social media X (in precedenza nota come Twitter).
+Il problema è il seguente:
+Abbiamo un'urna contenente 100 palline.
+N di esse sono rosse e 100-N sono verdi, dove N è scelto in modo uniforme e casuale in [0, 100].
+Prendiamo una pallina a caso dall'urna:
+se è rossa la scartiamo e prendiamo un'altra pallina tra le 99 rimanenti.
+Quest'ultima pallina:
+  1) è più probabile che sia rossa,
+  2) è più probabile che sia verde 
+  3) rossa e verde hanno la stessa probabilità
+
+Le risposte su X (circa 50000) avevano le seguenti percentuali:
+  22.6% più probabile che sia rossa
+  37.1% più probabile che sia verde
+  20.9% stessa probabilità tra rossa e verde
+  19.5% non aveva idea
+
+Vediamo la soluzione proposta da George Lowther:
+Immagina che invece di iniziare con 100 palline, inizi con 101 palline di fila. 
+Prendi una pallina a caso (non la prima).  
+Poi colora di verde le palline alla sua sinistra e di rosso quelle alla sua destra. 
+Butta via quella pallina, lasciando 100 palline.
+Quindi prendi una seconda pallina a caso. 
+Quella pallina corrisponde alla prima pallina nel problema originale. 
+Il problema ti dice che hai preso una pallina rossa, quindi era a destra della pallina che hai buttato via. 
+Ora prendi una terza pallina. 
+Questa pallina è a sinistra della prima pallina, tra la prima pallina e la seconda, o a destra della seconda.
+In due delle tre possibilità, la terza pallina è rossa.
+Quindi la probabilità che la pallina sia rossa è 2/3.
+
+Vediamo una simulazione del processo:
+
+(define (daniel iter)
+  (local (count-red count-green k red green balls)
+    ; event: red-red
+    (setq count-red 0)
+    ; event: red-green
+    (setq count-green 0)
+    (setq k 0)
+    (while (<= k iter)
+      ; random number of red balls [0..100]
+      (setq red (rand 101))
+      ; number of green balls
+      (setq green (- 100 red))
+      ; create and randomize the list of balls
+      ; red is 0 and green is 1
+      (setq balls (randomize (append (dup 0 red) (dup 1 green))))
+      ; if the first ball is red...
+      (when (zero? (balls 0))
+      ;(when (= 1 (balls 0)) ; if the first ball is green...
+          ; check the second ball...
+          (if (zero? (balls 1))
+              ; update event red-red
+              (++ count-red)
+              ; update event red-green
+              (++ count-green))
+          (++ k))
+    )
+    ; calculate probabilities of red and green
+    (list (div count-red iter) (div count-green iter))))
+
+Proviamo:
+
+(daniel 1e5)
+;-> (0.66588 0.33413)
+(daniel 1e6)
+;-> (0.666977 0.333024)
+
+La simulazione si accorda alla soluzione matematica.
+
+Questo problema dimostra i limiti della nostra intuizione matematica e la natura (spesso) controintuitiva del ragionamento probabilistico.
+
+Nota: il fatto che la prima pallina sia rossa, porta con se l'informazione probabilistica che le palline rosse siano in numero maggiore.
+Stranamente il risultato di 2/3 è uguale alla soluzione del problema Monty Hall.
+
 ============================================================================
 

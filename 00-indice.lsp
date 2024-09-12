@@ -2610,7 +2610,11 @@ NOTE LIBERE 25
   Inverter Game
   Alfabeto ripetuto
   Iperfattoriale
-  
+  Problema dei 5 filosofi
+  Il problema di Daniel Litt
+
+NOTE LIBERE 26
+==============
 
 PROBLEMI SUI DADI
 =================

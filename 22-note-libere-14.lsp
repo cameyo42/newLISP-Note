@@ -7490,7 +7490,6 @@ Vediamo cosa ha scritto Lutz sulle coroutine per newLISP:
 
 Lutz:
 -----
-
 When doing a complete implementation of coroutines things are much more involved. newLISP's result stack and environment stack would have to be replicated and switched for each instance of a coroutine. For other data structures like system variables, regex patterns, caches, etc. the same thing would have to be done. Without this one can only run simple coroutines which leave resources at exactly the same state at each switch point (yield) in the coroutine.
 
 If coroutines have several switch points with different states you have to implement the duplication and switching of much more data strcutures inside newLISP.
