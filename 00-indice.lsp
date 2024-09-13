@@ -2615,6 +2615,7 @@ NOTE LIBERE 25
 
 NOTE LIBERE 26
 ==============
+  Punteggio Scrabble
 
 PROBLEMI SUI DADI
 =================
