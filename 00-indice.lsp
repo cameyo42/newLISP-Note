@@ -2616,6 +2616,9 @@ NOTE LIBERE 25
 NOTE LIBERE 26
 ==============
   Punteggio Scrabble
+  Rappresentazione di una funzione matematica con N parametri
+  Gradiente di una funzione
+  Somma ponderata delle cifre
 
 PROBLEMI SUI DADI
 =================
