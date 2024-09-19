@@ -3435,6 +3435,7 @@ Test di velocità:
 (time (map palindromo? test) 1000)
 ;-> 493.379
 
+Vedi anche "Palindromo precedente e successivo" su "Note libere 26".
 
 ---------------------
 Comparative macrology

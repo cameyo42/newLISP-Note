@@ -815,5 +815,113 @@ Regola 182:
 ;->   ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██
 ;-> ██████████████████████████████████████████████████████████████
 
+
+---------------------------------
+Palidromo precedente e successivo
+---------------------------------
+
+Dato un numero intero positivo, scrivere una funzione per determinare il numero palindromo successivo e il numero palindromo precedente al numero dato.
+
+Funzione che verifica se un numero è palindromo:
+
+(define (palindromo? num)
+  (let (str (string num)) (= str (reverse (copy str)))))
+
+Funzione che verifica se un numero è palindromo (più veloce):
+
+(define (palindromo? num)
+  (local (rev val)
+    (setq rev 0)
+    (setq val num)
+    ; crea il numero invertito
+    (until (zero? val)
+      (setq rev (+ (* rev 10) (% val 10)))
+      (setq val (/ val 10))
+    )
+    (= rev num)))
+
+(define (prev-next-pali num)
+  (local (up down found prev next)
+    ; ricerca palindromo precedente
+    (setq down num)
+    (setq found nil)
+    (until found
+      (cond ((palindromo? down)
+              (setq prev down) (setq found true))
+            (true (-- down))))
+    ; ricerca palindromo successivo
+    (setq up num)
+    (setq found nil)
+    (until found
+      (cond ((palindromo? up)
+              (setq next up) (setq found true))
+            (true (++ up))))
+    (list prev next)))
+
+Proviamo:
+
+(prev-next-pali 1234)
+;-> (1221 1331)
+
+(prev-next-pali 1112)
+;-> (1111 1221)
+
+(prev-next-pali 12334)
+;-> (12321 12421)
+
+(prev-next-pali -12334)
+;-> (-12421 -12321)
+
+(prev-next-pali 10)
+;-> (9 11)
+
+(prev-next-pali 1234567890)
+;-> (1234554321 1234664321)
+
+Vedi anche "Palindromo più vicino" su "Note libere 9".
+
+
+------------------------------------
+Funzione per l'input di una password
+------------------------------------
+
+Scriviamo una funzione che permette all'utente di inserire una password (come stringa).
+Il parametro 'pause' è il tempo di visualizzazione dell'ultimo carattere digitato.
+
+(define (input-pwd pause)
+  (local (pwd stop code ch)
+    (setq pwd "")
+    (setq stop nil)
+    (until stop
+      ; legge un carattere (codice ascii) da tastiera
+      (setq code (read-key))
+      (setq ch (char code))
+      (cond ((= code 13) ; Invio/Enter (stop input)
+             (print "\r" (dup "*" (length pwd)))
+             (setq stop true))
+            ((= code 8) ; Backspace (delete previous char)
+              ; elimina l'ultimo carattere digitato
+              (pop pwd -1)
+              ; stampa gli asterischi
+              (print "\r" (dup " " 80))
+              (print "\r" (dup "*" (length pwd))))
+            ((and (>= code 32) (<= code 126))
+              ; stampa gli asterischi e l'ultimo carattere digitato
+              (print "\r" (dup "*" (length pwd)) ch)
+              ; tempo di visualizzazione dell'ultimo carattere digitato
+              (sleep pause)
+              ; aggiorna la password
+              (extend pwd (char code))
+              ; stampa gli asterischi
+              (print "\r" (dup "*" (length pwd))))))
+    (println)
+    pwd))
+
+Proviamo:
+
+(input-pwd 200)
+;-> ******
+;-> "123445"
+
 ============================================================================
 
