@@ -2619,6 +2619,7 @@ NOTE LIBERE 26
   Rappresentazione di una funzione matematica con N parametri
   Gradiente di una funzione
   Somma ponderata delle cifre
+  Automi cellulari elementari (Wolfram)
 
 PROBLEMI SUI DADI
 =================

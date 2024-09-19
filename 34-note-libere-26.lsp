@@ -266,6 +266,7 @@ Somma ponderata delle cifre
 
 Il peso di una cifra (0..9) è dato dal numero dei suoi divisori:
 (alla cifra 0 viene dato un peso 1)
+
   Cifra Divisori
    0     1
    1     1
@@ -333,6 +334,486 @@ Proviamo:
 
 (time (spc-fast 9123456789123456789) 1e5)
 ;-> 344.054
+
+
+-------------------------------------
+Automi cellulari elementari (Wolfram)
+-------------------------------------
+
+"A New Kind of Science" by Stephen Wolfram, Wolfram Media (2002).
+Versione online: https://www.wolframscience.com/nks/
+
+Gli automi cellulari elementari sono la classe più semplice di automi cellulari unidimensionali.
+Questi automi hanno due possibili valori per ogni cella (0 o 1) e regole che dipendono solo dai valori delle celle adiacenti.
+L'evoluzione di un automa cellulare elementare può essere descritta da una tabella che specifica lo stato che una data cella avrà nella generazione successiva in base a tre valori:
+1) il valore della cella alla sua sinistra,
+2) il valore della cella stessa
+3) il valore della cella alla sua destra.
+Poiché ci sono 2x2x2 = 2^3 = 8 possibili stati binari per le tre celle vicine, ci sono un totale di 2^8 = 256 automi cellulari elementari, ognuno dei quali viene individuato con un numero decimale (o un numero binario a 8 bit).
+
+Per esempio, l'automa cellulare 30 ha la seguente codifica (Rule 30):
+
+  111 -> 0
+  110 -> 0
+  101 -> 0
+  100 -> 1
+  011 -> 1
+  010 -> 1
+  001 -> 1
+  000 -> 0
+
+Casi della cella iniziale e finale:
+Calcolare la nuova generazione per la cella iniziale e finale in un automa cellulare unidimensionale non ha un metodo unico perché le celle iniziali e finali non hanno entrambe le celle adiacenti.
+Ci sono diverse soluzioni a questo problema, a seconda di come si vuole gestire i bordi dell'automa cellulare:
+
+1) Bordi periodici (o condizioni di contorno cicliche)
+In questo approccio, l'ultima cella è considerata come vicina alla prima, e viceversa.
+In altre parole, il vicino della prima cella include l'ultima cella e il vicino dell'ultima cella include la prima cella.
+Questo rende l'automa cellulare "circolare".
+
+(define (next-generation cells rule)
+  (let ((n (length cells))
+        (new-cells '()))
+    (dotimes (i n)
+      (let ((left (nth (mod (- i 1) n) cells))  ; La cella a sinistra (con bordi ciclici)
+            (center (nth i cells))             ; La cella centrale
+            (right (nth (mod (+ i 1) n) cells))) ; La cella a destra (con bordi ciclici)
+        (let ((pattern (list left center right))) ; Crea il vicinato
+          (push (lookup-rule rule pattern) new-cells)))) ; Applica la regola
+    (reverse new-cells))) ; Restituisci la nuova generazione
+
+(define (lookup-rule rule pattern)
+  (find (list pattern '?) rule match)
+  ($0 1))
+
+;; Esempio
+(setq rule1 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+              ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 0) ((0 0 0) 1)))
+
+(setq initial-generation '(0 1 0 1 1 0 1 0))
+(next-generation initial-generation rule1)
+;-> (0 0 0 0 0 0 0 0)
+
+2) Bordi fissi
+In questo caso, le celle iniziali e finali sono trattate come se fossero fisse.
+Spesso vengono considerati come se i loro vicini fossero sempre 0.
+
+(define (next-generation-fixed cells rule)
+  (let ((n (length cells))
+        (new-cells '()))
+    (dotimes (i n)
+      (let ((left (if (= i 0) 0 (nth (- i 1) cells))) ; Vicino sinistro (0 per la prima cella)
+            (center (nth i cells))                    ; La cella centrale
+            (right (if (= i (- n 1)) 0 (nth (+ i 1) cells)))) ; Vicino destro (0 per l'ultima cella)
+        (let ((pattern (list left center right))) ; Crea il vicinato
+          (push (lookup-rule rule pattern) new-cells)))) ; Applica la regola
+    (reverse new-cells))) ; Restituisci la nuova generazione
+
+;; Esempio
+(next-generation-fixed initial-generation rule1)
+;-> (1 1 0 0 0 0 0 0)
+
+3) Bordi riflettenti
+In questa configurazione, si considera che la prima cella e l'ultima abbiano un vicino riflettente (cioè, una copia di sé stesse).
+
+(define (next-generation-reflective cells rule)
+  (let ((n (length cells))
+        (new-cells '()))
+    (dotimes (i n)
+      (let ((left (if (= i 0) (nth 0 cells) (nth (- i 1) cells))) ; Riflette se stessa a sinistra
+            (center (nth i cells))                                ; La cella centrale
+            (right (if (= i (- n 1)) (nth (- n 1) cells) (nth (+ i 1) cells)))) ; Riflette se stessa a destra
+        (let ((pattern (list left center right))) ; Crea il vicinato
+          (push (lookup-rule rule pattern) new-cells)))) ; Applica la regola
+    (reverse new-cells))) ; Restituisci la nuova generazione
+)
+
+;; Esempio:
+(next-generation-reflective initial-generation rule1)
+;-> (0 0 0 0 0 0 0 0)
+
+Nella funzione che scriveremo utilizzeremo il metodo dei bordi fissi, considerando i vicini come 0 (anzi (0 0)).
+
+Funzione che stampa la configurazione (matrice) finale:
+
+(define (print-matrix matrix ch0 ch1)
+  (local (row col)
+    (setq row (length matrix))
+    (setq col (length (matrix 0)))
+    (for (i 0 (- row 1))
+      (for (j 0 (- col 1))
+        (cond ((= (matrix i j) 0) (setq ch ch0))
+              ((= (matrix i j) 1) (setq ch ch1)))
+        (print ch)
+      )
+      (println)) '>))
+
+Funzione che simula una automa cellulare elementare con la regola 30:
+
+(define (rule30 num-lines)
+  (local (line lines tmp pat val matrix row)
+    ; prima linea
+    (setq line '(0 0 1 0 0))
+    ; lista delle linee
+    (setq lines (list line))
+    ; ciclo per il numero totale di linee da creare
+    (for (k 2 num-lines)
+      ; linea temporanea
+      (setq tmp '())
+      ; ciclo per creare la nuova linea dmatrixa linea corrente
+      (for (i 1 (- (length line) 2))
+        ; pattern della cella corrente
+        (setq pat (list (line (- i 1)) (line i) (line (+ i 1))))
+        ; regola 30
+        (cond ((= pat '(1 1 1)) (setq val 0))
+              ((= pat '(1 1 0)) (setq val 0))
+              ((= pat '(1 0 1)) (setq val 0))
+              ((= pat '(1 0 0)) (setq val 1))
+              ((= pat '(0 1 1)) (setq val 1))
+              ((= pat '(0 1 0)) (setq val 1))
+              ((= pat '(0 0 1)) (setq val 1))
+              ((= pat '(0 0 0)) (setq val 0)))
+        ; inserimento nuova cella nella linea temporanea
+        (push val tmp -1)
+      )
+      ; aggiungiamo i vicini '(0 0) matrixa linea temporanea
+      (setq line (append '(0 0) tmp '(0 0)))
+      ; inserimento della linea temporanea nella lista delle linee
+      (push line lines)
+    )
+    ; creazione della matrice di stampa
+    ; rende la lista delle linee una matrice quadrata aggiungendo
+    ; gli 0 necessari ad ogni linea.
+    (setq matrix (list (lines 0)))
+    (for (i 1 (- num-lines 1))
+      (setq row (append (dup 0 i) (lines i) (dup 0 i)))
+      (push row matrix)
+    )
+    ; restituzione della matrice
+    matrix))
+
+Proviamo:
+
+(rule30 19) "  " " ■")
+(print-matrix (rule30 19) "  " " ■")
+;->                                     ■
+;->                                   ■ ■ ■
+;->                                 ■ ■     ■
+;->                               ■ ■   ■ ■ ■ ■
+;->                             ■ ■     ■       ■
+;->                           ■ ■   ■ ■ ■ ■   ■ ■ ■
+;->                         ■ ■     ■         ■     ■
+;->                       ■ ■   ■ ■ ■ ■     ■ ■ ■ ■ ■ ■
+;->                     ■ ■     ■       ■ ■ ■           ■
+;->                   ■ ■   ■ ■ ■ ■   ■ ■     ■       ■ ■ ■
+;->                 ■ ■     ■         ■   ■ ■ ■ ■   ■ ■     ■
+;->               ■ ■   ■ ■ ■ ■     ■ ■   ■         ■   ■ ■ ■ ■
+;->             ■ ■     ■       ■ ■ ■     ■ ■     ■ ■   ■       ■
+;->           ■ ■   ■ ■ ■ ■   ■ ■     ■ ■ ■   ■ ■ ■     ■ ■   ■ ■ ■
+;->         ■ ■     ■         ■   ■ ■ ■       ■     ■ ■ ■     ■     ■
+;->       ■ ■   ■ ■ ■ ■     ■ ■   ■     ■   ■ ■ ■ ■ ■     ■ ■ ■ ■ ■ ■ ■
+;->     ■ ■     ■       ■ ■ ■     ■ ■ ■ ■   ■         ■ ■ ■             ■
+;->   ■ ■   ■ ■ ■ ■   ■ ■     ■ ■ ■         ■ ■     ■ ■     ■         ■ ■ ■
+;-> ■ ■     ■         ■   ■ ■ ■     ■     ■ ■   ■ ■ ■   ■ ■ ■ ■     ■ ■     ■
+
+(print-matrix (rule30 19) "  " "██")
+;->
+;->                                     ██
+;->                                   ██████
+;->                                 ████    ██
+;->                               ████  ████████
+;->                             ████    ██      ██
+;->                           ████  ████████  ██████
+;->                         ████    ██        ██    ██
+;->                       ████  ████████    ████████████
+;->                     ████    ██      ██████          ██
+;->                   ████  ████████  ████    ██      ██████
+;->                 ████    ██        ██  ████████  ████    ██
+;->               ████  ████████    ████  ██        ██  ████████
+;->             ████    ██      ██████    ████    ████  ██      ██
+;->           ████  ████████  ████    ██████  ██████    ████  ██████
+;->         ████    ██        ██  ██████      ██    ██████    ██    ██
+;->       ████  ████████    ████  ██    ██  ██████████    ██████████████
+;->     ████    ██      ██████    ████████  ██        ██████            ██
+;->   ████  ████████  ████    ██████        ████    ████    ██        ██████
+;-> ████    ██        ██  ██████    ██    ████  ██████  ████████    ████    ██
+
+
+(print-matrix (rule30 40) "  " "██")
+
+Vedi immagine "rule30.png" nella cartella "data".
+
+Lista delle regole:
+
+(setq rules '(
+  (r0  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 0) ((0 0 0) 0)))
+  (r1  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 0) ((0 0 0) 1)))
+  (r2  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 1) ((0 0 0) 0)))
+  (r3  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 1) ((0 0 0) 1)))
+  (r4  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 0) ((0 0 0) 0)))
+  (r5  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 0) ((0 0 0) 1)))
+  (r6  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0)))
+  (r7  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 1)))
+  (r8  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 0) ((0 0 1) 0) ((0 0 0) 0)))
+  (r9  '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 0) ((0 0 1) 0) ((0 0 0) 1)))
+  (r10 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 0) ((0 0 1) 1) ((0 0 0) 0)))
+  (r11 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 0) ((0 0 1) 1) ((0 0 0) 1)))
+  (r12 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 0) ((0 0 0) 0)))
+  (r13 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 0) ((0 0 0) 1)))
+  (r14 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0)))
+  (r15 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 0)
+        ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 1)))
+  (r16 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 0) ((0 0 0) 0)))
+  (r17 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 0) ((0 0 0) 1)))
+  (r18 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 1) ((0 0 0) 0)))
+  (r19 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+        ((0 1 1) 0) ((0 1 0) 0) ((0 0 1) 1) ((0 0 0) 1)))
+  (r20 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+        ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 0) ((0 0 0) 0)))
+  (r21 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+        ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 0) ((0 0 0) 1)))
+  (r22 '(((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+        ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0)))
+  ;; Continuare fino a r255
+))
+
+Funzione generica per un automa cellulare elementare (solo per regole che trasformano (0 0 0) -> 0):
+
+(define (lookup-rule rule pattern)
+  (find (list pattern '?) rule match)
+  ($0 1))
+
+(define (ace rule num-lines)
+  (local (line lines tmp pat val matrix row)
+    ; prima linea
+    (setq line '(0 0 1 0 0))
+    ; lista delle linee
+    (setq lines (list line))
+    ; ciclo per il numero totale di linee da creare
+    (for (k 2 num-lines)
+      ; linea temporanea
+      (setq tmp '())
+      ; ciclo per creare la nuova linea dmatrixa linea corrente
+      (for (i 1 (- (length line) 2))
+        ; pattern della cella corrente
+        (setq pat (list (line (- i 1)) (line i) (line (+ i 1))))
+        ; inserimento nuova cella nella linea temporanea
+        (push (lookup-rule rule pat) tmp -1)
+      )
+      ; aggiungiamo i vicini '(0 0) matrixa linea temporanea
+      (setq line (append '(0 0) tmp '(0 0)))
+      ; inserimento della linea temporanea nella lista delle linee
+      (push line lines)
+    )
+    ; creazione della matrice di stampa
+    ; rende la lista delle linee una matrice quadrata aggiungendo
+    ; gli 0 necessari ad ogni linea.
+    (setq matrix (list (lines 0)))
+    (for (i 1 (- num-lines 1))
+      (setq row (append (dup 0 i) (lines i) (dup 0 i)))
+      (push row matrix)
+    )
+    ; restituzione della matrice
+    matrix))
+
+Proviamo con la regola 30:
+
+(setq r30 '( ((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+             ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0) ))
+
+(print-matrix (ace r30 19) "  " " ■")
+;->                                     ■
+;->                                   ■ ■ ■
+;->                                 ■ ■     ■
+;->                               ■ ■   ■ ■ ■ ■
+;->                             ■ ■     ■       ■
+;->                           ■ ■   ■ ■ ■ ■   ■ ■ ■
+;->                         ■ ■     ■         ■     ■
+;->                       ■ ■   ■ ■ ■ ■     ■ ■ ■ ■ ■ ■
+;->                     ■ ■     ■       ■ ■ ■           ■
+;->                   ■ ■   ■ ■ ■ ■   ■ ■     ■       ■ ■ ■
+;->                 ■ ■     ■         ■   ■ ■ ■ ■   ■ ■     ■
+;->               ■ ■   ■ ■ ■ ■     ■ ■   ■         ■   ■ ■ ■ ■
+;->             ■ ■     ■       ■ ■ ■     ■ ■     ■ ■   ■       ■
+;->           ■ ■   ■ ■ ■ ■   ■ ■     ■ ■ ■   ■ ■ ■     ■ ■   ■ ■ ■
+;->         ■ ■     ■         ■   ■ ■ ■       ■     ■ ■ ■     ■     ■
+;->       ■ ■   ■ ■ ■ ■     ■ ■   ■     ■   ■ ■ ■ ■ ■     ■ ■ ■ ■ ■ ■ ■
+;->     ■ ■     ■       ■ ■ ■     ■ ■ ■ ■   ■         ■ ■ ■             ■
+;->   ■ ■   ■ ■ ■ ■   ■ ■     ■ ■ ■         ■ ■     ■ ■     ■         ■ ■ ■
+;-> ■ ■     ■         ■   ■ ■ ■     ■     ■ ■   ■ ■ ■   ■ ■ ■ ■     ■ ■     ■
+
+(print-matrix (ace r30 10) "  " "██")
+;->                   ██
+;->                 ██████
+;->               ████    ██
+;->             ████  ████████
+;->           ████    ██      ██
+;->         ████  ████████  ██████
+;->       ████    ██        ██    ██
+;->     ████  ████████    ████████████
+;->   ████    ██      ██████          ██
+;-> ████  ████████  ████    ██      ██████
+
+Proviamo con altre regole.
+
+Regola 54:
+
+(setq r54 '( ((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 1) ((1 0 0) 1)
+             ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0) ))
+
+(print-matrix (ace r54 18) "  " "██")
+;->                                   ██
+;->                                 ██████
+;->                               ██      ██
+;->                             ██████  ██████
+;->                           ██      ██      ██
+;->                         ██████  ██████  ██████
+;->                       ██      ██      ██      ██
+;->                     ██████  ██████  ██████  ██████
+;->                   ██      ██      ██      ██      ██
+;->                 ██████  ██████  ██████  ██████  ██████
+;->               ██      ██      ██      ██      ██      ██
+;->             ██████  ██████  ██████  ██████  ██████  ██████
+;->           ██      ██      ██      ██      ██      ██      ██
+;->         ██████  ██████  ██████  ██████  ██████  ██████  ██████
+;->       ██      ██      ██      ██      ██      ██      ██      ██
+;->     ██████  ██████  ██████  ██████  ██████  ██████  ██████  ██████
+;->   ██      ██      ██      ██      ██      ██      ██      ██      ██
+;-> ██████  ██████  ██████  ██████  ██████  ██████  ██████  ██████  ██████
+
+Regola 60:
+
+(setq r60 '( ((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 1) ((1 0 0) 1)
+             ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 0) ((0 0 0) 0) ))
+
+(print-matrix (ace r60 16) "  " "██")
+;->                               ██
+;->                               ████
+;->                               ██  ██
+;->                               ████████
+;->                               ██      ██
+;->                               ████    ████
+;->                               ██  ██  ██  ██
+;->                               ████████████████
+;->                               ██              ██
+;->                               ████            ████
+;->                               ██  ██          ██  ██
+;->                               ████████        ████████
+;->                               ██      ██      ██      ██
+;->                               ████    ████    ████    ████
+;->                               ██  ██  ██  ██  ██  ██  ██  ██
+;->                               ████████████████████████████████
+
+Regola 62:
+
+(setq r62 '( ((1 1 1) 0) ((1 1 0) 0) ((1 0 1) 1) ((1 0 0) 1)
+             ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0) ))
+
+(print-matrix (ace r62 16) "  " "██")
+;->                               ██
+;->                             ██████
+;->                           ████    ██
+;->                         ████  ████████
+;->                       ████  ████      ██
+;->                     ████  ████  ██  ██████
+;->                   ████  ████  ████████    ██
+;->                 ████  ████  ████      ████████
+;->               ████  ████  ████  ██  ████      ██
+;->             ████  ████  ████  ████████  ██  ██████
+;->           ████  ████  ████  ████      ████████    ██
+;->         ████  ████  ████  ████  ██  ████      ████████
+;->       ████  ████  ████  ████  ████████  ██  ████      ██
+;->     ████  ████  ████  ████  ████      ████████  ██  ██████
+;->   ████  ████  ████  ████  ████  ██  ████      ████████    ██
+;-> ████  ████  ████  ████  ████  ████████  ██  ████      ████████
+
+Regola 126:
+
+(setq r126 '( ((1 1 1) 0) ((1 1 0) 1) ((1 0 1) 1) ((1 0 0) 1)
+  ((0 1 1) 1) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0) ))
+
+(print-matrix (ace r126 16) "  " "██")
+;->                               ██
+;->                             ██████
+;->                           ████  ████
+;->                         ██████████████
+;->                       ████          ████
+;->                     ████████      ████████
+;->                   ████    ████  ████    ████
+;->                 ██████████████████████████████
+;->               ████                          ████
+;->             ████████                      ████████
+;->           ████    ████                  ████    ████
+;->         ████████████████              ████████████████
+;->       ████            ████          ████            ████
+;->     ████████        ████████      ████████        ████████
+;->   ████    ████    ████    ████  ████    ████    ████    ████
+;-> ██████████████████████████████████████████████████████████████
+
+
+Regola 150:
+
+(setq r150 '( ((1 1 1) 1) ((1 1 0) 0) ((1 0 1) 0) ((1 0 0) 1)
+              ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0) ))
+
+(print-matrix (ace r150 16) "  " "██")
+;->                               ██
+;->                             ██████
+;->                           ██  ██  ██
+;->                         ████  ██  ████
+;->                       ██      ██      ██
+;->                     ██████  ██████  ██████
+;->                   ██  ██      ██      ██  ██
+;->                 ████  ████  ██████  ████  ████
+;->               ██              ██              ██
+;->             ██████          ██████          ██████
+;->           ██  ██  ██      ██  ██  ██      ██  ██  ██
+;->         ████  ██  ████  ████  ██  ████  ████  ██  ████
+;->       ██      ██              ██              ██      ██
+;->     ██████  ██████          ██████          ██████  ██████
+;->   ██  ██      ██  ██      ██  ██  ██      ██  ██      ██  ██
+;-> ████  ████  ████  ████  ████  ██  ████  ████  ████  ████  ████
+
+Regola 182:
+
+(setq r182 '( ((1 1 1) 1) ((1 1 0) 0) ((1 0 1) 1) ((1 0 0) 1)
+              ((0 1 1) 0) ((0 1 0) 1) ((0 0 1) 1) ((0 0 0) 0) ))
+
+(print-matrix (ace r182 16) "  " "██")
+;->                               ██
+;->                             ██████
+;->                           ██  ██  ██
+;->                         ██████████████
+;->                       ██  ██████████  ██
+;->                     ██████  ██████  ██████
+;->                   ██  ██  ██  ██  ██  ██  ██
+;->                 ██████████████████████████████
+;->               ██  ██████████████████████████  ██
+;->             ██████  ██████████████████████  ██████
+;->           ██  ██  ██  ██████████████████  ██  ██  ██
+;->         ██████████████  ██████████████  ██████████████
+;->       ██  ██████████  ██  ██████████  ██  ██████████  ██
+;->     ██████  ██████  ██████  ██████  ██████  ██████  ██████
+;->   ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██  ██
+;-> ██████████████████████████████████████████████████████████████
 
 ============================================================================
 
