@@ -2622,6 +2622,7 @@ NOTE LIBERE 26
   Automi cellulari elementari (Wolfram)
   Palidromo precedente e successivo
   Funzione per l'input di una password
+  Trasformata di Burrows-Wheeler
 
 PROBLEMI SUI DADI
 =================

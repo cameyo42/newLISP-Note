@@ -923,5 +923,158 @@ Proviamo:
 ;-> ******
 ;-> "123445"
 
+
+------------------------------
+Trasformata di Burrows-Wheeler
+------------------------------
+
+La trasformata di Burrows-Wheeler (BWT) è un algoritmo di trasformazione di stringhe che viene utilizzato per la compressione dei dati, (es. algoritmo bzip2).
+Non è un algoritmo di compressione vero e proprio, ma riorganizza i dati in modo che risultino più facili da comprimere.
+
+Come funziona la trasformata di Burrows-Wheeler?
+
+Codifica
+--------
+
+1) Input: Si parte con una stringa S di lunghezza n, alla quale viene aggiunto un terminatore speciale (di solito un carattere che non appare nella stringa, come "$").
+
+   Esempio: S = "banana", con il terminatore diventa S = "banana$".
+
+2. Rotazioni cicliche: Vengono generate tutte le possibili rotazioni cicliche della stringa S'. Ogni rotazione è semplicemente una permutazione dei caratteri della stringa spostata di una posizione.
+
+   Esempio:
+   - banana$
+   - anana$b
+   - nana$ba
+   - ana$ban
+   - na$bana
+   - a$banan
+   - $banana
+
+3. Ordinamento: Le rotazioni cicliche vengono poi ordinate lessicograficamente.
+
+   Esempio:
+   - $banana
+   - a$banan
+   - ana$ban
+   - anana$b
+   - banana$
+   - na$bana
+   - nana$ba
+
+4. Estrazione dell'ultima colonna: Viene quindi estratta l'ultima colonna della matrice delle rotazioni ordinate. Questa colonna rappresenta la trasformata di Burrows-Wheeler.
+
+   BWT = "annb$aa"
+
+Questa è la stringa trasformata. L'importanza della BWT sta nel fatto che tende a raggruppare insieme i caratteri ripetuti, rendendo più efficace l'applicazione di algoritmi di compressione come la codifica di Huffman o la codifica run-length.
+
+Il carattere speciale "$" viene comunemente utilizzato come **terminatore** nella trasformata di Burrows-Wheeler e ha un significato specifico nell'ordinamento lessicografico.
+Per assicurare che il terminatore sia sempre trattato come l'ultimo carattere rispetto a qualsiasi altra lettera o simbolo della stringa, si assume che "$" sia il più piccolo carattere possibile in questo contesto.
+Quindi, rispetto ai caratteri "a", "b" o qualsiasi altro carattere alfabetico o numerico, il carattere "$" viene posizionato prima durante l'ordinamento lessicografico.
+
+In altre parole, l'ordinamento lessicografico segue questa gerarchia:
+
+  "$" < "a" < "b" ... < "z"
+
+Pertanto, "$" viene sempre posizionato prima di qualsiasi altro carattere durante la fase di ordinamento delle rotazioni cicliche nella Burrows-Wheeler Transform, garantendo che occupi la prima posizione nelle rotazioni ordinate.
+
+Nota: possiamo anche utilizzare "~" come terminatore: "a" < "b" ... < "z" < "~".
+
+Decodifica
+----------
+La trasformata è reversibile. Utilizzando la stringa trasformata e l'informazione che essa contiene, è possibile ricostruire la stringa originale.
+
+Partendo dalla seguente stringa (risultato della codifica di "banana"):
+
+  BWT = "annb$aa"
+
+Il carattere speciale "$" indica la fine della stringa originale.
+
+1) Costruzione della Prima Colonna:
+L'ordinamento lessicografico della stringa trasformata rappresenta la prima colonna delle rotazioni cicliche della stringa originale.
+- Prendiamo la stringa BWT e la ordiniamo per ottenere la Prima Colonna (la colonna delle rotazioni ordinate):
+
+  Prima Colonna = "$aaannb"
+
+2. Ricostruzione delle righe: A partire dalla BWT e dalla Prima Colonna, possiamo ricostruire progressivamente le righe della matrice delle rotazioni. Ogni colonna aggiuntiva può essere ricostruita unendo progressivamente la BWT e la Prima Colonna, poiché entrambe contengono tutte le informazioni necessarie.
+
+   - Prima iterazione: Prendiamo la BWT e la affianchiamo alla Prima Colonna.
+
+     | BWT  | Prima Colonna |
+     |------|---------------|
+     | a    | $             |
+     | n    | a             |
+     | n    | a             |
+     | b    | a             |
+     | $    | n             |
+     | a    | n             |
+     | a    | b             |
+
+     Questa è una parte della matrice che stiamo ricostruendo. La riga contenente il simbolo `"$"` è la rotazione corretta della stringa originale.
+
+   - Seconda iterazione: Ordiniamo le righe secondo la loro **prima colonna** per generare la matrice ordinata:
+
+     | Prima Colonna | Nuova Colonna (BWT) |
+     |---------------|---------------------|
+     | $             | a                   |
+     | a             | n                   |
+     | a             | n                   |
+     | a             | b                   |
+     | n             | $                   |
+     | n             | a                   |
+     | b             | a                   |
+
+   - Ripetiamo il processo: Ogni volta che aggiungiamo una nuova colonna e riordiniamo le righe secondo la Prima Colonna, ci avviciniamo sempre di più alla matrice completa delle rotazioni cicliche.
+
+3) Individuazione della stringa originale: Alla fine, avremo ricostruito completamente tutte le righe delle rotazioni cicliche. La riga che termina con il carattere speciale `"$"` corrisponde alla stringa originale.
+
+   - Risultato finale: la stringa originale è "banana".
+
+Vediamo due funzioni (molto inefficienti) per la codifica e la decodifica BWT.
+
+Funzione BWT di codifica:
+
+(define (encode str eos)
+  (setq out '())
+  (extend str eos)
+  (for (i 0 (- (length str) 1))
+    (setq str (rotate str))
+    (push str out)
+  )
+  ;(println out)
+  ;(println (sort out))
+  (join (map last (sort out)))
+)
+
+(encode "banana" "$")
+;-> "annb$aa"
+(encode "banana" "~")
+;-> "bnn~aaa"
+
+Funzione BWT di decodifica:
+
+(define (decode str eos)
+  (local (base lst)
+  (setq base (explode str))
+  (setq lst base)
+  (for (i 1 (- (length str) 1))
+    (sort lst)
+    (setq lst (map string base lst))
+  )
+  ; estra la stringa che termina con delim
+  (slice (first (filter (fn(x) (= eos (last x))) lst)) 0 -1)))
+
+Proviamo:
+
+(decode (encode "banana" "$") "$")
+;-> "banana"
+(decode (encode "banana" "~") "~")
+;-> "banana"
+
+(decode (encode "trasformata di Burrows-Wheeler" "~") "~")
+;-> "trasformata di Burrows-Wheeler"
+(decode (encode "trasformata di Burrows-Wheeler" "$") "$")
+;-> "trasformata di Burrows-Wheeler"
+
 ============================================================================
 
