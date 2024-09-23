@@ -1035,16 +1035,15 @@ Vediamo due funzioni (molto inefficienti) per la codifica e la decodifica BWT.
 Funzione BWT di codifica:
 
 (define (encode str eos)
-  (setq out '())
-  (extend str eos)
-  (for (i 0 (- (length str) 1))
-    (setq str (rotate str))
-    (push str out)
-  )
-  ;(println out)
-  ;(println (sort out))
-  (join (map last (sort out)))
-)
+  (let (out '())
+    (extend str eos)
+    (for (i 0 (- (length str) 1))
+      (setq str (rotate str))
+      (push str out)
+    )
+    ;(println out)
+    ;(println (sort out))
+    (join (map last (sort out)))))
 
 (encode "banana" "$")
 ;-> "annb$aa"
@@ -1055,14 +1054,14 @@ Funzione BWT di decodifica:
 
 (define (decode str eos)
   (local (base lst)
-  (setq base (explode str))
-  (setq lst base)
-  (for (i 1 (- (length str) 1))
-    (sort lst)
-    (setq lst (map string base lst))
-  )
-  ; estra la stringa che termina con delim
-  (slice (first (filter (fn(x) (= eos (last x))) lst)) 0 -1)))
+    (setq base (explode str))
+    (setq lst base)
+    (for (i 1 (- (length str) 1))
+      (sort lst)
+      (setq lst (map string base lst))
+    )
+    ; estra la stringa che termina con delim
+    (slice (first (filter (fn(x) (= eos (last x))) lst)) 0 -1)))
 
 Proviamo:
 
@@ -1075,6 +1074,192 @@ Proviamo:
 ;-> "trasformata di Burrows-Wheeler"
 (decode (encode "trasformata di Burrows-Wheeler" "$") "$")
 ;-> "trasformata di Burrows-Wheeler"
+
+
+-----------------------------------
+Consigli sparsi sul Problem Solving
+-----------------------------------
+
+Consiglio 1: "Scomposizione del problema"
+Proviamo a scomporre il problema in sottoproblemi.
+Come risolviamo i sottoproblemi?
+Come mettiamo insieme i sotto-risultati per formare la soluzione?
+
+Consiglio 2: "Problemi analoghi"
+Proviamo a ricordare alcuni problemi simili che abbiamo risolto.
+Molti problemi non hanno un'idea completamente nuova.
+Quindi potremmo usare la nostra esperienza di risoluzione di un problema simile per risolvere questo.
+
+Consiglio 3: "Dallo specifico al generale"
+Se non sappiamo risolvere un problema complesso, possiamo semplificarlo e cercare le soluzioni della versione semplificata.
+Proviamo a risolvere altri casi specifici e poi proviamo a generalizzarli per trovare la soluzione del problema principale.
+Cerchiamo una soluzione specifica/particolare al problema, cioè una soluzione con alcuni vincoli del problema 'rilassati'.
+
+Consiglio 4: "Intuito personale"
+Possiamo attingere al nostro intuito personale.
+Se abbiamo elaborato una precisa ipotesi in testa, proviamo a dimostrarla.
+Potrebbe funzionare bene o darci un'idea di come confutarla.
+Controlliamo l'ipotesi su una ampia serie di test, prima di effettuare l'implementazione finale.
+
+Consiglio 5: "Pensare insieme"
+Discutiamo il problema con altre persone.
+Ragionare su idee diverse aiuta nella comprensione del problema e nella ricerca di una soluzione. 
+Proviamo a cercere informazioni sul problema su Internet:
+https://www.google.com/
+https://stackexchange.com/sites
+https://www.geeksforgeeks.org/
+https://oeis.org
+Oggi possiamo anche chiedere aiuto alle varie AI presenti sul web (ChatGPT, Claude, ecc.).
+
+Consiglio 6: "Quale algoritmo?"
+Proviamo a pensare agli algoritmi o metodi conosciuti che possono essere applicati al problema in qualsiasi modo.
+Per ogni algoritmo/metodo scelto proviamo a pensare alla soluzione supponendo che il problema venga risolto usando questo metodo.
+
+Consiglio 7: "Prototipi delle idee"
+Proviamo a scrivere codice per fare un prototipo che ci permetta di verificare le nostre ipotesi di soluzione e/o analizzare gli schemi di input/output del problema.
+Stampare e studiare tutti i risultati.
+
+
+------------------------------
+Fibonacci: formule e proprietà
+------------------------------
+
+Formula di Fibonacci:
+
+  F(n) = F(n-1) + F(n-2)
+
+Versione ricorsiva:
+
+(define (fibonacci n)
+        (if (= n 0) 0
+            (< n 2) 1
+            (+  (fibonacci (- n 1)) (fibonacci (- n 2)))))
+
+(fibonacci 3)
+;-> 2
+(map fibonacci (sequence 0 20))
+;-> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)
+
+Versione memoized:
+
+(define-macro (memoize mem-func func)
+  (set (sym mem-func mem-func)
+    (letex (f func c mem-func)
+      (lambda ()
+        (or (context c (string (args)))
+        (context c (string (args)) (apply f (args))))))))
+
+(memoize fibo-mem
+    (lambda (n)
+        (if (= n 0) 0
+            (< n 2) 1
+            (+  (fibo-mem (- n 1)) (fibo-mem (- n 2))))))
+
+(fibo-mem 3)
+;-> 2
+(map fibo-mem (sequence 0 20))
+;-> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)
+
+Versione iterativa:
+
+(define (fibo-i num)
+"Calculates the Fibonacci number of an integer number"
+  (if (zero? num) 0L
+  ;else
+  (local (a b c)
+    (setq a 0L b 1L c 0L)
+    (for (i 0 (- num 1))
+      (setq c (+ a b))
+      (setq a b)
+      (setq b c)
+    )
+    a)))
+
+(fibo-i 3)
+;-> 2L
+(map fibo-i (sequence 0 20))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L 89L 144L 233L 377L 610L
+;->  987L 1597L 2584L 4181L 6765L)
+
+Fibonacci (Lutz):
+
+(define (fibo-lutz num)
+  (let ( (out '(0L 1L)) (x 1L) )
+    (extend out (series x (fn (y) (+ x (swap y x))) (- num 1)))))
+
+(map fibo-lutz (sequence 0 20))
+;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L 89L 144L 233L 377L 610L
+;->  987L 1597L 2584L 4181L 6765L))
+
+Formula di Binet:
+
+  F(n) = (phi^n - psi^n)/sqrt(5)
+         dove: phi = (1 + sqrt(5))/2, (sezione aurea - golden ratio)
+               psi = (1 - sqrt(5))/2
+
+(define (fibo n)
+  (setq sr (sqrt 5))
+  (setq phi (div (add 1 sr) 2))
+  (setq psi (div (sub 1 sr) 2))
+  (int (add 0.5 (div (sub (pow phi n) (pow psi n)) sr))))
+
+(fibo 3)
+;-> 2
+(setq ff (map fibo (sequence 0 20)))
+;-> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)
+
+Indice di un numero di Fibonacci:
+
+  n = floor(log(phi) / log(F*sqrt(5) + (1/2)))
+
+(define (n-fibo fib) (floor (div (log (add (mul fib sr) 0.5)) (log phi))))
+
+(n-fibo 6765)
+;-> 20
+
+Somma dei primi n numeri di fibonacci:
+
+  Sum[i..0 n]F(i) = F(n+2) - 1
+
+(define (sum-fib-to n) (- (fibo (+ n 2)) 1))
+
+(sum-fib-to 10)
+;-> 143
+(apply + (slice ff 1 10))
+;-> 143
+(apply + (slice ff 0 11))
+;-> 143
+
+Sezione aurea:
+
+   lim (F(n+1)/F(n) = phi = (1 + sqrt(5))/2
+  n->inf
+
+(div (add 1 (sqrt 5)) 2)
+;-> 1.618033988749895
+
+(div (fibo-i 22) (fibo-i 21))
+;-> 1.618033985017358
+(div (fibo-i 51) (fibo-i 50))
+;-> 1.618033988749895
+
+Rettangolo aureo:
+
+  L : l = l : (L - l)
+  dove L = lato maggiore,
+       l = lato minore
+
+Affiancando (alternativamente prima sotto e poi a destra) in successione tanti quadrati aventi per lato i numeri della serie di Fibonacci si ottiene un rettangolo aureo.
+Per esempio:
+
+  1 1 3 3 3 8 8 8 8 8 8 8 8
+  2 2 3 3 3 8 8 8 8 8 8 8 8
+  2 2 3 3 3 8 8 8 8 8 8 8 8
+  5 5 5 5 5 8 8 8 8 8 8 8 8
+  5 5 5 5 5 8 8 8 8 8 8 8 8
+  5 5 5 5 5 8 8 8 8 8 8 8 8
+  5 5 5 5 5 8 8 8 8 8 8 8 8
+  5 5 5 5 5 8 8 8 8 8 8 8 8
 
 ============================================================================
 

@@ -451,11 +451,11 @@ dove: phi = (1 + sqrt(5))/2 e psi = (1 - sqrt(5))/2
 
 Invertendo la formula troviamo l'indice n per il numero di fibonacci Fib(n) dato:
 
-n = floor (log[phi](F*sqrt(5) + (1/2)))
+n = floor(log(phi) / log(F*sqrt(5) + (1/2)))
 
 Inoltre utilizziamo la seguente identità (la somma dei primi n numeri di fibonacci vale (F(n+2) - 1):
 
-Sum[0 n] F(i) = F(n+2) - 1
+Sum[0..n]F(i) = F(n+2) - 1
 
 Usiamo queste formule per scrivere la funzione:
 

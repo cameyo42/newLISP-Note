@@ -2687,6 +2687,8 @@ Facciamo una prova:
 G. Polya e "How to Solve It!" (G. Polya and "How to Solve It!")
 ---------------------------------------------------------------
 
+Vedi anche "Consigli sparsi sul Problem Solving" su "Note libere 26".
+
 ***Versione Italiana***
 
 Un quadro generale per la risoluzione dei problemi è stato descritto da G. Polya in un libro intitolato "How to Solve It!" (2a edizione, Princeton University Press).

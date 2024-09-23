@@ -2623,6 +2623,8 @@ NOTE LIBERE 26
   Palidromo precedente e successivo
   Funzione per l'input di una password
   Trasformata di Burrows-Wheeler
+  Consigli sparsi sul Problem Solving
+  Fibonacci: formule e proprietà
 
 PROBLEMI SUI DADI
 =================
