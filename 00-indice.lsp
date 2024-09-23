@@ -2625,6 +2625,8 @@ NOTE LIBERE 26
   Trasformata di Burrows-Wheeler
   Consigli sparsi sul Problem Solving
   Fibonacci: formule e proprietà
+  Incontro tra treni
+  Tassi di cambio
 
 PROBLEMI SUI DADI
 =================

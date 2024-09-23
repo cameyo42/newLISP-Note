@@ -100,6 +100,8 @@
   
   "La piccola bottega della curiosità matematiche del professor Steward", Ian Stewart, 2010
   
+  "I favolosi numeri di Fibonacci", Posamentier-Lehmann, 2010
+  
 
   Siti web:
   ---------
@@ -118,11 +120,18 @@
   Enciclopedia on-line delle sequenze dei numeri interi:
   https://oeis.org
 
-  StackOverflow è una sito web in cui studenti e professionisti inviano richieste e rispondono a domande sulla programmazione:
+  StackOverflow è un sito web in cui studenti e professionisti inviano richieste e rispondono a domande sulla programmazione:
   https://stackoverflow.com
+
+  Stack Exchange, Inc. provides an online question and answer interface.
+  The Company allow users to ask and answer questions on various topics ranging from software programming and cooking to photography, and gaming.
+  https://stackexchange.com/sites
 
   Mathematics Stack Exchange è un sito di domande e risposte per persone che studiano matematica a qualsiasi livello.
   https://math.stackexchange.com/
+  
+  We believe that three things lead to success: Practice, Practice and Practice!
+  https://www.codeabbey.com/
 
   Code Golf Stack Exchange is a question and answer site for programming puzzle enthusiasts and code golfers.
   https://codegolf.stackexchange.com/

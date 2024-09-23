@@ -1261,5 +1261,254 @@ Per esempio:
   5 5 5 5 5 8 8 8 8 8 8 8 8
   5 5 5 5 5 8 8 8 8 8 8 8 8
 
+
+------------------
+Incontro tra treni
+------------------
+
+Questo è un problema di fisica per la scuola media.
+Due treni partono da stazioni diverse (A e B) e si dirigono uno verso l'altro.
+Si incontrerano ad un certo punto (X) del percorso (che è rettilineo).
+Data la distanza tra le due stazioni (S) e le velocità dei due treni (v1 e v2), determinare quanta strada percorrono i treni prima di incontrarsi (segmenti a e b).
+
+  v1                             v2
+  --->                       <-----      
+  |-----------|-------------------|
+  A     a     X         b         B
+  <------------------------------->
+                 S
+
+Dalle equazioni del moto rettilineo uniforme (spazio = velocità * tempo)::
+
+  a = v1*t1   (1)
+  b = v2*t2   (2)
+
+Inoltre risulta:
+
+  S = a + b   (3)
+
+Sommiamo (1) e (2) e poi sostituiamo in (3):
+
+  a + b = v1*t1 + v2*t2
+  S = a + b = v1*t1 + v2*t2
+
+Nel punto X si avrà t1 = t2:
+
+  S = v1*t1 + v2*t2 = v1*t + v2*t = (v1 + v2)*t
+
+Quindi i treni si incontreranno nel punto X dopo un tempo t pari a:
+
+  t = S/(v1 + v2)
+
+Con il tempo t il primo treno percorre:
+
+  a = v1*t = v1*S/(v1 + v2)
+
+Con il tempo t il secondo treno percorre:
+
+  b = v2*t = v2*S/(v1 + v2)
+
+(define (incontro distanza vel1 vel2)
+  (let (t (div distanza (add vel1 vel2)))
+    (list (mul vel1 t) (mul vel2 t))))
+
+Proviamo:
+
+(incontro 100 30 50)
+;-> (37.5 62.5)
+
+(incontro 100 10 10)
+;-> (50 50)
+
+
+---------------
+Tassi di cambio
+---------------
+
+In parole semplici, il mercato dei cambi è un luogo dove ogni persona propone di vendere/scambiare una certa valuta per un altra. Ognuno è libero di proporre un "tasso di cambio" arbitrario (che comunque sono autoregolati dalla legge della domanda e dell'offerta).
+In questo modo i tassi di cambio sono scarsamente prevedibili e sono sensibili alle condizioni politiche ed economiche che sono in continuo cambiamento.
+Normalmente, se una valuta viene cambiata con un'altra una parte di denaro viene persa perché i tassi di cambio in due direzioni (ad esempio USD -> EUR e EUR -> USD) non si compensano a vicenda.
+Per esempio:
+
+(define (usd-eur usd) (mul usd 1.1))
+(define (eur-usd eur) (mul eur 0.9))
+
+Cambiare 100 dollari in 90 euro e poi tornare indietro ci dà solo 99 dollari.
+100 $
+(eur-usd (usd-eur 100))
+;-> 99 $
+
+Cambiare 100 euro in 110 dollari e poi tornare indietro ci dà solo 99 euro.
+100 Euro
+(usd-eur (eur-usd 100))
+;-> 99 euro
+
+Sembra una frode, ma può essere considerata come una specie di commissione.
+
+Tuttavia, se i prezzi non sono coordinati, sono possibili situazioni di "arbitraggio".
+Per esempio, se abbiamo i seguenti tassi di cambio:
+
+  1 Dollaro Usa viene venduto per 130 Yen Japanese
+  1 Yen Japanese viene venduto per 0.7 Euro
+  1 Euro viene venduto per 1.1 Dollaro Usa
+
+Possiamo operare le seguenti transazioni:
+
+  Con 100 Dollari compriamo 13000 Yen.
+  Con 13000 Yen compriamo 91 Euro.
+  Com 91 Euro compriamo 100.1 Dollari.
+
+Abbiamo guadagnato 0.1 Dollari (10 cent).
+
+Nota: questo metodo è difficilmente praticabile in pratica. Infatti occorre individuare velocemente la condizione di "arbitraggio" e effettuare rapidamente tutte le operazioni di cambio (sperando che nel frattempo tutti i tassi dei cambi coinvolti rimangano costanti).
+
+Problema:
+Data una lista di tassi di cambio, determinare se esiste qualche tipo di "arbitraggio".
+
+lista = (("valuta1" "valuta2" tasso1) ... ("valutaN-1" "valutaN" tassoN-1)
+
+(setq lst '(("USD" "JPY" 130.000)
+            ("USD" "EUR" 0.90000)
+            ("JPY" "EUR" 0.00700)
+            ("JPY" "USD" 0.00720)
+            ("EUR" "USD" 1.10000)
+            ("EUR" "JPY" 140.000)))
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+Algoritmo:
+
+(setq currency (unique (flat (map (fn(x) (list (x 0) (x 1))) lst))))
+;-> ("USD" "JPY" "EUR")
+
+(setq permute (perm currency))
+;-> (("USD" "JPY" "EUR") ("JPY" "USD" "EUR")
+;->  ("EUR" "USD" "JPY") ("USD" "EUR" "JPY")
+;->  ("JPY" "EUR" "USD") ("EUR" "JPY" "USD"))
+
+(find '("EUR" "USD" ?) lst match)
+;-> 4
+$0
+;-> ("EUR" "USD" 1.1)
+($0 2)
+;-> 1.1
+(find (list "EUR" "USD" '?) lst match)
+;-> 4
+
+(setq all '())
+(dolist (perm permute)
+  ; aggiunge il primo elemento in fondo all permutazione corrente
+  (setq cur (push (perm 0) perm -1))
+  (setq len (length cur))
+  ; investimento iniziale
+  (setq change 100)
+  ; ciclo per ogni valuta della permutazione corrente
+  (for (k 0 (- len 2))
+    ; valuta 1
+    (setq c1 (cur k))
+    ; valuta 2
+    (setq c2 (cur (+ k 1)))
+    ; ricerca tasso di scambio tra valuta1 e valuta2
+    (find (list c1 c2 '?) lst match)
+    (setq rate ($0 2))
+    ; applicazione del tasso di scambio
+    (setq change (mul change rate))
+    (println c1 { } c2 { } rate { } change)
+  )
+  ; aggiunge la transazione corrente alla lista soluzione
+  (push (push change cur) all)
+)
+; ordina la lista soluzione
+(sort all)
+
+Funzione finale:
+
+(define (arbitro lst)
+  (local (currency permute all cur len change c1 c2 rate)
+    (setq currency (unique (flat (map (fn(x) (list (x 0) (x 1))) lst))))
+    (setq permute (perm currency))
+    (setq all '())
+    (dolist (p permute)
+      ; aggiunge il primo elemento in fondo all permutazione corrente
+      (setq cur (push (p 0) p -1))
+      (setq len (length cur))
+      ; investimento iniziale
+      (setq change 100)
+      ; ciclo per ogni valuta della permutazione corrente
+      (for (k 0 (- len 2))
+        ; valuta 1
+        (setq c1 (cur k))
+        ; valuta 2
+        (setq c2 (cur (+ k 1)))
+        ; ricerca tasso di scambio tra valuta1 e valuta2
+        (find (list c1 c2 '?) lst match)
+        (setq rate ($0 2))
+        ; applicazione del tasso di scambio
+        (setq change (mul change rate))
+        ;(println c1 { } c2 { } rate { } change)
+      )
+      ; aggiunge la transazione corrente alla lista soluzione
+      (push (push change cur) all)
+    )
+    ; ordina la lista soluzione
+    (sort all)))
+
+Proviamo:
+
+(arbitro lst)
+;-> ((90.72 "EUR" "JPY" "USD" "EUR") 
+;->  (90.72 "JPY" "USD" "EUR" "JPY")
+;->  (90.72 "USD" "EUR" "JPY" "USD")
+;->  (100.1 "EUR" "USD" "JPY" "EUR")
+;->  (100.1 "USD" "JPY" "EUR" "USD")
+;->  (100.1 "JPY" "EUR" "USD" "JPY"))
+
+(setq rates '(("USD" "JPY" 140.000)
+            ("USD" "EUR" 0.90000)
+            ("JPY" "EUR" 0.006549)
+            ("JPY" "USD" 0.00714)
+            ("EUR" "USD" 1.1)
+            ("EUR" "JPY" 154.000)))
+
+(arbitro rates)
+;-> ((98.96039999999999 "EUR" "JPY" "USD" "EUR")
+;->  (98.96039999999999 "JPY" "USD" "EUR" "JPY")
+;->  (98.96039999999999 "USD" "EUR" "JPY" "USD")
+;->  (100.8546 "JPY" "EUR" "USD" "JPY")
+;->  (100.8546 "EUR" "USD" "JPY" "EUR")
+;->  (100.8546 "USD" "JPY" "EUR" "USD"))
+
+(setq rates '(("USD" "EUR" 0.90000)
+              ("EUR" "USD" 1.10000)))
+
+(arbitro rates)
+;-> ((99.00000000000001 "EUR" "USD" "EUR")
+;->  (99.00000000000001 "USD" "EUR" "USD"))
+
 ============================================================================
 
