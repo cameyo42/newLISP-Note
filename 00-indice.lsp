@@ -2627,7 +2627,9 @@ NOTE LIBERE 26
   Fibonacci: formule e proprietà
   Incontro tra treni
   Tassi di cambio
-
+  Cifre speciali
+  Stampe in parallelo
+  
 PROBLEMI SUI DADI
 =================
   Problemi 1..76

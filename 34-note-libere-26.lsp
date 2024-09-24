@@ -1208,9 +1208,9 @@ Formula di Binet:
 (setq ff (map fibo (sequence 0 20)))
 ;-> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)
 
-Verifica se un numero è un numero di Fibonacci:
+Verifica se un dato numero intero è un numero di Fibonacci:
 
-Un numero n è un numero di Fibonacci se e solo se 5*n^2 + 4 oppure 5*n^2 - 4 è un quadrato perfetto.
+Un numero n è un numero di Fibonacci se e solo se (5*n^2 + 4) oppure (5*n^2 - 4) è un quadrato perfetto.
 
 (define (square? num)
 "Check if an integer is a perfect square"
@@ -1258,7 +1258,7 @@ I numeri di Fibonacci F(n) e F(n+1) sono coprimi tra loro:
 
 Sezione aurea:
 
-   lim (F(n+1)/F(n) = phi = (1 + sqrt(5))/2
+   lim F(n+1)/F(n) = phi = (1 + sqrt(5))/2
   n->inf
 
 (div (add 1 (sqrt 5)) 2)
@@ -1550,6 +1550,150 @@ Proviamo:
 ;->  (100 "JPY" "USD" "EUR" "JPY")
 ;->  (100 "USD" "EUR" "JPY" "USD")
 ;->  (100 "USD" "JPY" "EUR" "USD"))
+
+
+--------------
+Cifre speciali
+--------------
+
+Una cifra di un numero intero viene definita speciale quando risulta uno dei casi seguenti:
+1) Cifra speciale minore
+   La cifra è più piccola di ciascuna delle sue due cifre adiacenti (sx e dx)
+2) Cifra speciale maggiore
+   La cifra è più grande di ciascuna delle sue due cifre adiacenti (sx e dx)
+
+La prima e l'ultima cifra del numero intero utilizzano le cifre adiacenti considerando il numero circolare.
+
+Per calcolare il valore speciale di un numero intero poniamo:
+  cifra speciale minore = 1
+  cifra speciale maggiore = 2
+
+Esempio:
+
+  numero = 16498124
+ sx c dx   valore
+  4 1 6 --> 2
+  1 6 4 --> 2
+  6 4 9 --> 1
+  4 9 8 --> 2
+  9 8 1 --> 0
+  8 1 2 --> 0
+  2 4 1 --> 2
+  valore speciale totale = 9
+
+(define (int-list num)
+"Convert an integer to a list of digits"
+  (let (out '())
+    (while (!= num 0)
+      (push (% num 10) out)
+      (setq num (/ num 10))) out))
+
+(define (special num)
+  (local (val digits len)
+    (setq val 0)
+    (setq digits (int-list num))
+    (setq len (length digits))
+    ; calcolo valore della prima cifra
+    (cond ((and (> (digits 0) (digits 1)) (> (digits 0) (digits -1)))
+          (++ val 2))
+          ((and (< (digits 0) (digits 1)) (< (digits 0) (digits -1)))
+          (++ val)))
+    ; ciclo per le cifre dalla seconda (1) alla penultima (len - 2)
+    (for (i 1 (- len 2))
+      (cond ((and (> (digits i) (digits (- i 1))) (> (digits i) (digits (+ i 1))))
+            (++ val 2))
+            ((and (< (digits i) (digits (- i 1))) (< (digits i) (digits (+ i 1))))
+            (++ val))))
+    ; calcolo valore dell'ultima cifra
+    (cond ((and (> (digits -1) (digits -2)) (> (digits -1) (digits 0)))
+          (++ val 2))
+          ((and (< (digits -1) (digits -2)) (< (digits -1) (digits 0)))
+          (++ val)))
+    val))
+
+Proviamo:
+
+(special 16498124)
+;-> 9
+
+(special 123456789)
+;-> 3
+
+(special 213546879)
+;-> 9
+
+Con un numero da N cifre (con N > 2) il valore speciale massimo vale 3 * (N/2).
+
+(apply max (map special (sequence 100 999)))
+;-> 3
+(apply max (map special (sequence 1000 9999)))
+;-> 6
+(apply max (map special (sequence 10000 99999)))
+;-> 6
+(apply max (map special (sequence 100000 999999)))
+;-> 9
+(apply max (map special (sequence 1000000 9999999)))
+;-> 9
+(time (println (apply max (map special (sequence 10000000 99999999)))))
+
+
+-------------------
+Stampe in parallelo
+-------------------
+
+Abbiamo due stampanti, la prima produce una pagina ogni X secondi, mentre la seconda produce una pagina ogni Y secondi.
+Utilizzando le stampanti in contemporanea, quanto tempo occorre per stampare un libro di N pagine?
+
+Bisogna trasformare le capacità di lavoro rispetto all'unità di tempo (secondo):
+
+1 pagina ogni X secondi --> ogni secondo 1/X pagine
+1 pagina ogni Y secondi --> ogni secondo 1/Y pagine
+
+In totale, per ogni secondo, stampiamo 1/X + 1/Y pagine.
+
+Quindi per stampare N pagine occorrono:
+
+            N             X*Y 
+  S = ------------- = N*------- secondi
+       (1/X + 1/Y)       X + Y
+
+Se il valore di S è un numero intero, allora il risultato è corretto.
+
+Se il valore di S è un numero a virgola mobile, allora dobbiamo considerare che almeno una stampante (ma potrebbero essere entrambe) deve terminare la stampa dell'ultima pagina.
+
+In questo caso ultimo dobbiamo considerare il rapporto tra il numero di pagine N e i valori di X e Y:
+1) se X divide non divide esattamente N, allora aggiungiamo 1 al risultato
+2) se Y divide non divide esattamente N, allora aggiungiamo 1 al risultato
+3) se X e Y dividono esattamente N, allora aggiungiamo 1 al risultato
+Infine bisogna prendere la parete intera del risultato.
+
+(define (int? num) (= (int num) num))
+
+(define (tempo pagine s1 s2)
+  (setq s (div (mul pagine s1 s2) (add s1 s2)))
+  (cond ((int? s) s)
+        (true
+          (if (not (int? (div pagine s1))) (setq s (add s 1)))
+          (if (not (int? (div pagine s2))) (setq s (add s 1)))
+          (if (and (int? (div pagine s1)) (int? (div pagine s2)))
+              (setq s (add s 1)))
+          (int s))))
+
+Proviamo:
+
+(tempo 7 1 1)
+;-> 4
+
+(tempo 5 4 6)
+;-> 12
+
+(tempo 4 5 3)
+;-> 9
+
+(tempo 800 3 4)
+;-> 1372
+
+Nota: il ragionamento può essere esteso anche al caso di M stampanti.
 
 ============================================================================
 
