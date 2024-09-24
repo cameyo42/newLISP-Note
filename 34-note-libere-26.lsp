@@ -15,27 +15,27 @@ Per calcolare il valore di una parola ad ogni lettera viene assegnato un puntegg
 La seguente tabella mostra i valori e la frequenza per ogni lettera dell'alfabeto italiano:
 
   Lettera   Valore   Frequenza
-  A          1       14       
-  B          5        3       
-  C          2        6       
-  D          5        3       
-  E          1       11       
-  F          5        3       
-  G          8        2       
-  H          8        2       
-  I          1       12       
-  L          3        5       
-  M          3        5       
-  N          3        5       
-  O          1       15       
-  P          5        3       
-  Q         10        1       
-  R          2        6       
-  S          2        6       
-  T          2        6       
-  U          3        5       
-  V          5        3       
-  Z          8        2       
+  A          1       14
+  B          5        3
+  C          2        6
+  D          5        3
+  E          1       11
+  F          5        3
+  G          8        2
+  H          8        2
+  I          1       12
+  L          3        5
+  M          3        5
+  N          3        5
+  O          1       15
+  P          5        3
+  Q         10        1
+  R          2        6
+  S          2        6
+  T          2        6
+  U          3        5
+  V          5        3
+  Z          8        2
 
 Scriviamo una funzione che calcola il valore di una data parola.
 
@@ -75,7 +75,7 @@ Vediamo quali numeri in forma letterale (da 0 a 100) hanno un valore scrabble pa
     "QuarantOtto" "QuarantaNove" "Cinquanta" "CinquantUno" "CinquantaDue"
     "CinquantaTre" "CinquantaQuattro" "CinquantaCinque" "CinquantaSei"
     "CinquantaSette" "CinquantOtto" "CinquantaNove" "Sessanta"
-    "SessantUno" "SessantaDue" "SessantaTre" "SessantaQuattro" 
+    "SessantUno" "SessantaDue" "SessantaTre" "SessantaQuattro"
     "SessantaCinque" "SessantaSei" "SessantaSette" "SessantOtto"
     "SessantaNove" "Settanta" "SettantUno" "SettantaDue" "SettantaTre"
     "SettantaQuattro" "SettantaCinque" "SettantaSei" "SettantaSette"
@@ -149,7 +149,7 @@ Calcoliamo il valore della funzione in questo punto e poi in due punti adiacenti
 
 Il gradiente è un vettore le cui componenti rappresentano la tangente della pendenza in ogni direzione (in questo caso x e y):
 
-  g(x0, y0) = ((f(x0 + dt, y0) - f(x0, y0)) / dt, 
+  g(x0, y0) = ((f(x0 + dt, y0) - f(x0, y0)) / dt,
                (f(x0, y0 + dt) - f(x0, y0) / dt) =
   = ((5.21 - 5,00) / 0.1, (5.41 - 5.00) / 0,1) =
   = (2.1, 4.1)
@@ -1103,7 +1103,7 @@ Controlliamo l'ipotesi su una ampia serie di test, prima di effettuare l'impleme
 
 Consiglio 5: "Pensare insieme"
 Discutiamo il problema con altre persone.
-Ragionare su idee diverse aiuta nella comprensione del problema e nella ricerca di una soluzione. 
+Ragionare su idee diverse aiuta nella comprensione del problema e nella ricerca di una soluzione.
 Proviamo a cercere informazioni sul problema su Internet:
 https://www.google.com/
 https://stackexchange.com/sites
@@ -1201,12 +1201,32 @@ Formula di Binet:
   (setq sr (sqrt 5))
   (setq phi (div (add 1 sr) 2))
   (setq psi (div (sub 1 sr) 2))
-  (int (add 0.5 (div (sub (pow phi n) (pow psi n)) sr))))
+  (floor (add 0.5 (div (sub (pow phi n) (pow psi n)) sr))))
 
 (fibo 3)
 ;-> 2
 (setq ff (map fibo (sequence 0 20)))
 ;-> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)
+
+Verifica se un numero è un numero di Fibonacci:
+
+Un numero n è un numero di Fibonacci se e solo se 5*n^2 + 4 oppure 5*n^2 - 4 è un quadrato perfetto.
+
+(define (square? num)
+"Check if an integer is a perfect square"
+  (local (a)
+    (setq a (bigint num))
+    (while (> (* a a) num)
+      (setq a (/ (+ a (/ num a)) 2))
+    )
+    (= (* a a) num)))
+
+(define (fibo? n)
+  (let (tmp (* 5 n n))
+    (or (square? (- tmp 4)) (square? (+ tmp 4)))))
+
+(filter fibo? (sequence 1 10000))
+;-> (1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)
 
 Indice di un numero di Fibonacci:
 
@@ -1217,7 +1237,7 @@ Indice di un numero di Fibonacci:
 (n-fibo 6765)
 ;-> 20
 
-Somma dei primi n numeri di fibonacci:
+Somma dei primi n numeri di Fibonacci:
 
   Sum[i..0 n]F(i) = F(n+2) - 1
 
@@ -1229,6 +1249,12 @@ Somma dei primi n numeri di fibonacci:
 ;-> 143
 (apply + (slice ff 0 11))
 ;-> 143
+
+Fibonacci coprimi:
+
+I numeri di Fibonacci F(n) e F(n+1) sono coprimi tra loro:
+
+  gcd(F(n), F(n+1)) = 1
 
 Sezione aurea:
 
@@ -1272,7 +1298,7 @@ Si incontrerano ad un certo punto (X) del percorso (che è rettilineo).
 Data la distanza tra le due stazioni (S) e le velocità dei due treni (v1 e v2), determinare quanta strada percorrono i treni prima di incontrarsi (segmenti a e b).
 
   v1                             v2
-  --->                       <-----      
+  --->                       <-----
   |-----------|-------------------|
   A     a     X         b         B
   <------------------------------->
@@ -1481,7 +1507,7 @@ Funzione finale:
 Proviamo:
 
 (arbitro lst)
-;-> ((90.72 "EUR" "JPY" "USD" "EUR") 
+;-> ((90.72 "EUR" "JPY" "USD" "EUR")
 ;->  (90.72 "JPY" "USD" "EUR" "JPY")
 ;->  (90.72 "USD" "EUR" "JPY" "USD")
 ;->  (100.1 "EUR" "USD" "JPY" "EUR")
@@ -1489,11 +1515,11 @@ Proviamo:
 ;->  (100.1 "JPY" "EUR" "USD" "JPY"))
 
 (setq rates '(("USD" "JPY" 140.000)
-            ("USD" "EUR" 0.90000)
-            ("JPY" "EUR" 0.006549)
-            ("JPY" "USD" 0.00714)
-            ("EUR" "USD" 1.1)
-            ("EUR" "JPY" 154.000)))
+              ("USD" "EUR" 0.90000)
+              ("JPY" "EUR" 0.006549)
+              ("JPY" "USD" 0.00714)
+              ("EUR" "USD" 1.1)
+              ("EUR" "JPY" 154.000)))
 
 (arbitro rates)
 ;-> ((98.96039999999999 "EUR" "JPY" "USD" "EUR")
@@ -1509,6 +1535,21 @@ Proviamo:
 (arbitro rates)
 ;-> ((99.00000000000001 "EUR" "USD" "EUR")
 ;->  (99.00000000000001 "USD" "EUR" "USD"))
+
+(setq rates '(("USD" "JPY" 1)
+            ("USD" "EUR" 1)
+            ("JPY" "EUR" 1)
+            ("JPY" "USD" 1)
+            ("EUR" "USD" 1)
+            ("EUR" "JPY" 1)))
+
+(arbitro rates)
+;-> ((100 "EUR" "JPY" "USD" "EUR")
+;->  (100 "EUR" "USD" "JPY" "EUR")
+;->  (100 "JPY" "EUR" "USD" "JPY")
+;->  (100 "JPY" "USD" "EUR" "JPY")
+;->  (100 "USD" "EUR" "JPY" "USD")
+;->  (100 "USD" "JPY" "EUR" "USD"))
 
 ============================================================================
 

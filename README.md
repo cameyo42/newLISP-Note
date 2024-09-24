@@ -43,7 +43,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 96) Problemi sui dadi (76)
 97) Appendici (31)
 98) Bibliografia
-99) yo library (yo.zip) (297)
+99) yo library (yo.zip) (298)
 
 Documentazione Extra:  
 A) Introduction to newLISP (by Cormullion)  
