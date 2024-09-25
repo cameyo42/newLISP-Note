@@ -7048,6 +7048,11 @@ Vediamo un generatore di numeri casuali fornito da Lutz:
 ;-> 63.64669067215363
 
 Vedi anche "A Million Random Digits with 100,000 Normal Deviates" in "Note libere 20".
+Vedi anche "Generatore di numeri casuali" su "Note libere 1".
+Vedi anche "Il metodo middle-square per generare numeri casuali" su "Note libere 22".
+Vedi anche "Generatore casuale di Neumann" su "Note libere 26".
+Vedi anche "Generatore casuale di Engel" su "Note libere 26".
+Vedi anche "Generatore casuale LCG (Linear Congruential Generator)" su "Note libere 26".
 
 ---------------------
 Liste di associazione

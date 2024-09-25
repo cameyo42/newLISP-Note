@@ -1642,7 +1642,7 @@ Stampe in parallelo
 -------------------
 
 Abbiamo due stampanti, la prima produce una pagina ogni X secondi, mentre la seconda produce una pagina ogni Y secondi.
-Utilizzando le stampanti in contemporanea, quanto tempo occorre per stampare un libro di N pagine?
+Utilizzando le stampanti in contemporanea, quanto tempo occorre per stampare N pagine?
 
 Bisogna trasformare le capacità di lavoro rispetto all'unità di tempo (secondo):
 
@@ -1693,7 +1693,228 @@ Proviamo:
 (tempo 800 3 4)
 ;-> 1372
 
-Nota: il ragionamento può essere esteso anche al caso di M stampanti.
+Nota: il ragionamento può essere esteso al caso di M stampanti.
+
+
+---------------------------------
+Generatore casuale di Von Neumann
+---------------------------------
+
+Vediamo uno dei primi metodi per produrre sequenze di numeri apparentemente indipendenti (pseudocasuali) proposto da Von Neumann:
+
+1) Scegliere un valore iniziale con 4 cifre (ad esempio nell'intervallo 0000 ... 9999).
+2) Moltiplicarlo per se stesso per ottenere un valore composto da 8 cifre (aggiungere zeri iniziali se necessario).
+3) Troncare le prime due e le ultime cifre di questo valore.
+4) Il nuovo valore conterrà 4 cifre ed è il valore successivo di una sequenza.
+5) Per ottenere più valori, ripeti dal passaggio 2.
+
+(define (neumann base)
+  (let (tmp (string (* base base)))
+    (setq tmp (string (dup "0" (- 8 (length tmp))) tmp))
+    (int (slice tmp 2 4) 0 10)))
+
+Proviamo:
+
+(neumann 5761)
+;-> 1891
+(neumann 1891)
+;-> 5751
+
+Una delle caratteristiche per valutare gli algoritmi casuali è quella di misurare quanti numeri casuali possiamo generare prima di entrare un ciclo (cioè creare un numero esistente).
+
+Vediamo quali sono i cicli di tutti i numeri da 1000 a 999 del generatore di Neumann:
+
+(define (cicli-neumann)
+  (local (out cur k)
+    (setq out '())
+    (for (num 1000 9999)
+      (setq cur '())
+      (setq k num)
+      (until (ref k cur)
+        (push k cur -1)
+        (setq k (neumann k))
+      )
+      (push k cur -1)
+      (push (list (length cur) num cur) out -1)
+    )
+    (sort out)))
+
+Proviamo:
+
+(silent (setq res (cicli-neumann)))
+
+Cicli più brevi:
+(slice res 0 3)
+;-> ((2 2500 (2500 2500)) (2 3792 (3792 3792)) (2 7600 (7600 7600)))
+
+Cicli più lunghi:
+(slice res -3)
+;-> ((111 4655 (4655 6690 7561 1687 8459 5546 7581 4715 2312 3453 9232
+;->    2298 2808 8848 2871 2426 8854 3933 4684 9398 3224 3941 5314 2385
+;->    6882 3619 971 9428 8871 6946 2469 959 9196 5664 808 6528 6147 7856
+;->    7167 3658 3809 5084 8470 7409 8932 7806 9336 1608 5856 2927 5673
+;->    1829 3452 9163 9605 2560 5536 6472 8867 6236 8876 7833 3558 6593
+;->    4676 8649 8052 8347 6724 2121 4986 8601 9772 4919 1965 8612 1665
+;->    7722 6292 5892 7156 2083 3388 4785 8962 3174 742 5505 3050 3025
+;->    1506 2680 1824 3269 6863 1007 140 196 384 1474 1726 9790 8441 2504
+;->    2700 2900 4100 8100 6100 2100 4100))
+;->  (111 9251 (9251 5810 7561 1687 8459 5546 7581 4715 2312 3453 9232
+;->    2298 2808 8848 2871 2426 8854 3933 4684 9398 3224 3941 5314 2385
+;->    6882 3619 971 9428 8871 6946 2469 959 9196 5664 808 6528 6147 7856
+;->    7167 3658 3809 5084 8470 7409 8932 7806 9336 1608 5856 2927 5673
+;->    1829 3452 9163 9605 2560 5536 6472 8867 6236 8876 7833 3558 6593
+;->    4676 8649 8052 8347 6724 2121 4986 8601 9772 4919 1965 8612 1665
+;->    7722 6292 5892 7156 2083 3388 4785 8962 3174 742 5505 3050 3025
+;->    1506 2680 1824 3269 6863 1007 140 196 384 1474 1726 9790 8441 2504
+;->    2700 2900 4100 8100 6100 2100 4100))
+;->  (112 6239 (6239 9251 5810 7561 1687 8459 5546 7581 4715 2312 3453
+;->    9232 2298 2808 8848 2871 2426 8854 3933 4684 9398 3224 3941 5314
+;->    2385 6882 3619 971 9428 8871 6946 2469 959 9196 5664 808 6528 6147
+;->    7856 7167 3658 3809 5084 8470 7409 8932 7806 9336 1608 5856 2927
+;->    5673 1829 3452 9163 9605 2560 5536 6472 8867 6236 8876 7833 3558
+;->    6593 4676 8649 8052 8347 6724 2121 4986 8601 9772 4919 1965 8612
+;->    1665 7722 6292 5892 7156 2083 3388 4785 8962 3174 742 5505 3050
+;->    3025 1506 2680 1824 3269 6863 1007 140 196 384 1474 1726 9790 8441
+;->    2504 2700 2900 4100 8100 6100 2100 4100)))
+
+Vedi anche "Generatore di numeri casuali" su "Note libere 1".
+Vedi anche "Il metodo middle-square per generare numeri casuali" su "Note libere 22".
+Vedi anche "Generatore casuale di Engel" su "Note libere 26".
+Vedi anche "Generatore casuale LCG (Linear Congruential Generator)" su "Note libere 26".
+
+---------------------------
+Generatore casuale di Engel
+---------------------------
+
+Nel libro "Elementarmathematik vom algorithmischen Standpunkt" del 1977 ("Matematica elementare dal punto di vista algoritmico", 1984) di A. Engel, troviamo la descrizione di un semplice algoritmo per la generazione di numeri casuali:
+
+  X = frac((X + 3.1415926535897931)^8)
+
+Ovvero per il valore casuale corrente X troviamo il successivo aggiungendo pi greco, elevandolo all'ottava potenza e scartando la parte intera (quindi rimane solo la frazione nell'intervallo [0 .. 1)).
+(Potremmo usare un altro valore al posto di pi greco)
+
+Questa sequenza ha cicli più lunghi della sequenza di Neumann, ma queste sequenza hanno una distribuzione uniforme?
+
+(define (engel num)
+  (pow (add num 3.1415926535897931) 8)
+)
+
+(engel 0.123456789)
+
+Vedi anche "Generatore di numeri casuali" su "Note libere 1".
+Vedi anche "Il metodo middle-square per generare numeri casuali" su "Note libere 22".
+Vedi anche "Generatore casuale di Neumann" su "Note libere 26".
+Vedi anche "Generatore casuale LCG (Linear Congruential Generator)" su "Note libere 26".
+
+
+---------------------------------------------------------------------------
+Generatore casuale LCG (Linear Congruential Generator)
+---------------------------------------------------------------------------
+
+Il metodo LCG viene utilizzato da molti linguaggi di programmazione e librerie per produrre numeri casuali.
+Si basa su una semplice formula che genera il valore casuale successivo partendo da un valore casuale corrente:
+
+  Xsucc = (A * Xcorr + C) % M
+
+Poiché il risultato viene calcolato con modulo M, tutti i membri sono nell'intervallo 0 ... M - 1.
+Inoltre, poiché il numero successivo dipende solo da quello corrente, il periodo non può essere maggiore di M.
+Tuttavia, non tutte le scelte di costanti producono la sequenza con periodo completo.
+Le seguenti condizioni devono essere soddisfatte per una buona scelta:
+
+  1) C e M non hanno divisori comuni diversi da 1.
+  2) A - 1 è divisibile per tutti i fattori primi di M.
+  3) Se M è un multiplo di 4, allora anche A - 1 deve esserlo.
+
+Queste regole ci conducono all seguente scelta delle costanti:
+  - sia M = 2 ^ K con un intero K >= 2
+  - allora A = 4 * J + 1 con un intero J >= 1
+  - e C = 2 * L - 1 con un intero L >= 1 che è un numero pari.
+
+Qualsiasi altro insieme di regole può essere creato in modo simile:
+  - sia M = 3 ^ K;
+  - allora A = 3 * J + 1
+  - e C = 3 * L - 1.
+
+(define (lcg xcurr A C M) (% (+ (* A xcurr) C) M))
+
+Proviamo:
+
+  K = 16 --> M = 2^16 = 65536
+  J = 5  --> A = (4 * 5) + 1 = 21
+  L = 4  --> C = (3 * 2) - 1 = 5
+  xcurr = 6
+
+(lcg 6 5 21 65536)
+;-> 51
+(lcg 51 5 21 65536)
+;-> 276
+
+Vediamo quanto è lungo il ciclo di questo generatore:
+
+(define (ciclo-lcg xcurr A C M)
+  (local (out cur k)
+    (setq out '())
+    (setq k xcurr)
+    (until (ref k out)
+        (push k out -1)
+        (setq k (lcg k A C M))
+    )
+    (push k out -1)))
+
+(length (setq rnd (ciclo-lcg 6 5 21 65536)))
+;-> 65537 
+
+L'ultimo numero è uguale al primo:
+
+(rnd 0)
+;-> 6
+(rnd -1)
+;-> 6
+
+Partendo da un numero iniziale diverso da 6 (42):
+(length (setq rnd (ciclo-lcg 42 5 21 65536)))
+;-> 65537 
+
+L'ultimo numero è uguale al primo:
+
+(rnd 0)
+;-> 42
+(rnd -1)
+;-> 42
+
+Vedi anche "Generatore di numeri casuali" su "Note libere 1".
+Vedi anche "Il metodo middle-square per generare numeri casuali" su "Note libere 22".
+Vedi anche "Generatore casuale di Neumann" su "Note libere 26".
+Vedi anche "Generatore casuale di Engel" su "Note libere 26".
+
+--------------------------------------------------------
+Parte frazionaria (decimale) di un numero floating point
+--------------------------------------------------------
+
+Vediamo una funzione che restituisce la parte frazionaria (decimale) di un numero:
+
+(define (fractional num)
+  (letn ( (num (string num)) (idx (find "." num)) )
+    (if idx
+        (int (slice num (+ (find "." num) 1)) 0 10)
+        ;else
+        0)))
+
+Proviamo:
+
+(fractional 1.123456789)
+;-> 123456789
+(fractional 2)
+;-> 0
+(fractional 3.)
+;-> 0
+(fractional 4.1)
+;-> 1
+
+Attenzione ai numeri con troppe cifre decimali:
+
+(fractional 1.123456789123456789)
+;-> 123456789123457
 
 ============================================================================
 

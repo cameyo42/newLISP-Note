@@ -2629,6 +2629,10 @@ NOTE LIBERE 26
   Tassi di cambio
   Cifre speciali
   Stampe in parallelo
+  Generatore casuale di Von Neumann
+  Generatore casuale di Engel
+  Generatore casuale LCG (Linear Congruential Generator)
+  Parte frazionaria (decimale) di un numero floating point
   
 PROBLEMI SUI DADI
 =================
@@ -2673,7 +2677,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (298 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (299 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

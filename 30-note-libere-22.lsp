@@ -3168,6 +3168,10 @@ Proviamo:
 ;-> ((14) (15))
 ;-> (42 76 77 92 46 11 12 14 19 36 29 84 5 2 0 0)
 
+Vedi anche "Generatore di numeri casuali" su "Note libere 1".
+Vedi anche "Generatore casuale di Neumann" su "Note libere 26".
+Vedi anche "Generatore casuale di Engel" su "Note libere 26".
+Vedi anche "Generatore casuale LCG (Linear Congruential Generator)" su "Note libere 26".
 
 ---------------------------------------
 Programma autoriavviante dopo N secondi
