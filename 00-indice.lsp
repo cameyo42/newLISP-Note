@@ -2633,6 +2633,8 @@ NOTE LIBERE 26
   Generatore casuale di Engel
   Generatore casuale LCG (Linear Congruential Generator)
   Parte frazionaria (decimale) di un numero floating point
+  assoc e lookup estesi
+  Codifica BCD (Binary-Coded Decimal)
   
 PROBLEMI SUI DADI
 =================

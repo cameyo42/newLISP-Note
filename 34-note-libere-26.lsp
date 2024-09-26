@@ -1887,6 +1887,7 @@ Vedi anche "Il metodo middle-square per generare numeri casuali" su "Note libere
 Vedi anche "Generatore casuale di Neumann" su "Note libere 26".
 Vedi anche "Generatore casuale di Engel" su "Note libere 26".
 
+
 --------------------------------------------------------
 Parte frazionaria (decimale) di un numero floating point
 --------------------------------------------------------
@@ -1915,6 +1916,274 @@ Attenzione ai numeri con troppe cifre decimali:
 
 (fractional 1.123456789123456789)
 ;-> 123456789123457
+
+
+
+---------------------
+assoc e lookup estesi
+---------------------
+
+Vediamo le definizioni di "lookup" a "assoc" dal manuale di riferimento:
+
+*******************
+>>> funzione ASSOC
+*******************
+sintassi: (assoc exp-key list-alist)
+sintassi: (assoc list-exp-key list-alist)
+
+Nella prima sintassi il valore di exp-key (chiave) viene utilizzato per cercare nella lista list-alist una sottolista il cui primo elemento corrisponde al valore della chiave. Se trovato, viene restituita la sottolista. In caso contrario, il risultato sarà nil.
+
+(assoc 1 '((3 4) (1 2)))
+;-> (1 2)
+
+(set 'data '((apples 123) (bananas 123 45) (pears 7)))
+
+(assoc 'bananas data)
+;-> (bananas 123 45)
+(assoc 'oranges data)
+;-> nil
+
+Insieme a "setf" la funzione "assoc" può essere usata per modificare un'associazione.
+
+(setf (assoc 'pears data) '(pears 8))
+data
+;-> ((apples 123) (bananas 123 45) (pears 8))
+
+Nella seconda sintassi è possibile specificare più espressioni-chiave per la ricerca di liste associative annidate in più livelli:
+
+(set 'persons '(
+    (id001 (name "Anne") (address (country "USA") (city "New York")))
+    (id002 (name "Jean") (address (country "France") (city "Paris")))
+))
+
+(assoc '(id001 address) persons)
+;-> (address (country "USA") (city "New York"))
+(assoc '(id001 address city) persons)
+;-> (city "New York")
+
+La lista in list-aList può essere un contesto (context) che verrà interpretato come il suo funtore di default. In questo modo è possibile passare per riferimento liste molto grandi per un accesso più rapido e un minore utilizzo della memoria:
+
+(set 'persons:persons '(
+    (id001 (name "Anne") (address (country "USA") (city "New York")))
+    (id002 (name "Jean") (address (country "France") (city "Paris")))
+))
+
+(define (get-city db id)
+    (last (assoc (list id 'address 'city) db ))
+)
+
+(get-city persons 'id001)
+;-> "New York"
+
+Per effettuare sostituzioni nelle liste di associazioni, utilizzare "setf" insieme alla funzione "assoc". La funzione "lookup" viene utilizzata per eseguire la ricerca di associazione e l'estrazione dell'elemento in un solo passaggio.
+
+********************
+>>> funzione LOOKUP
+********************
+sintassi: (lookup exp-key list-assoc [int-index [exp-default]])
+
+Cerca, nella lista di associazione list-assoc, una sottolista, il cui elemento chiave ha lo stesso valore di exp-key e restituisce l'elemento int-index dell'associazione (o l'ultimo elemento se int-index è assente).
+
+Facoltativamente, è possibile specificare exp-default, che viene restituita se non è possibile trovare un'associazione corrispondente a exp-key. Se exp-default è assente e non è stata trovata alcuna associazione, viene restituito nil.
+
+Vedi anche l'indicizzazione delle liste e delle stringhe.
+
+La ricerca è simile a quella della funzione "assoc", ma fa un ulteriore passo estraendo un elemento specifico trovato nella lista.
+
+(set 'params '(
+    (name "John Doe")
+    (age 35)
+    (gender "M")
+    (balance 12.34)
+))
+
+(lookup 'age params)
+;-> 35
+
+; utilizzata insieme a setf per modificare una lista di associazione
+
+(setf (lookup 'age params) 42)
+;-> 42
+(lookup 'age params)
+;-> 42
+
+(set 'persons '(
+    ("John Doe" 35 "M" 12.34)
+    ("Mickey Mouse" 65 "N" 12345678)
+))
+
+(lookup "Mickey Mouse" persons 2)
+;-> "N"
+(lookup "Mickey Mouse" persons -3)
+;-> 65
+(lookup "John Doe" persons 1)
+;-> 35
+(lookup "John Doe" persons -2)
+;-> "M"
+(lookup "Jane Doe" persons 1 "N/A")
+;-> "N/A"
+-------------------------------------------------
+
+Una limitazione di "assoc" e "lookup" riguarda il fatto che la chiave "exp-key" può essere solo un atomo (non può essere una lista).
+Per esempio:
+
+Lista con exp-key solo atomi:
+
+(setq alst '((0 (0 0 0 0))
+             (1 "uno")
+             (2 (3.14))))
+
+(assoc 1 alst)
+;-> (1 "uno")   ;OK
+(lookup 1 alst) 
+;-> "uno"       ;OK
+(assoc 2 alst)
+;-> (2 (3.14))  ;OK
+(lookup 2 alst)
+;-> (3.14)      ;OK
+
+Lista con exp-key atomi e liste:
+
+(setq blst '(((0 0 0 0) 0)
+              ("uno" 1)
+             ((3.14) 2)))
+
+(assoc "uno" blst)
+;-> ("uno" 1)        ;OK
+(lookup "uno" blst)
+;-> 1                ;OK
+(assoc '(3.14) blst)
+;-> nil              ;??
+(lookup '(3.14) blst)
+;-> nil              ;??
+(assoc '(0 0 0 0) blst)
+;-> nil              ;??
+(lookup '(0 0 0 0) blst)
+;-> nil              ;??
+
+Per ovviare a questo problema possiamo utilizzare le seguenti funzioni:
+
+(define (assoc+ exp-key alst)
+  (find (list exp-key '?) alst match) $0)
+
+(define (lookup+ exp-key alst)
+  (find (list exp-key '?) alst match) ($0 1))
+
+Proviamo:
+
+(assoc+ 1 alst)
+;-> (1 "uno")   ;OK
+(lookup+ 1 alst) 
+;-> "uno"       ;OK
+(assoc+ 2 alst)
+;-> (2 (3.14))  ;OK
+(lookup+ 2 alst)
+;-> (3.14)      ;OK
+
+(assoc+ "uno" blst)
+;-> ("uno" 1)            ;OK
+(lookup+ "uno" blst)
+;-> 1                    ;OK
+(assoc+ '(3.14) blst)
+;-> (3.14 2)             ;OK
+(lookup+ '(3.14) blst)
+;-> 2                    ;OK
+(assoc+ '(0 0 0 0) blst)
+;-> ((0 0 0 0) 0)        ;OK
+(lookup+ '(0 0 0 0) blst)
+;-> 0                    ;OK
+
+(setq clst '(((0 0 0 0) (1 1))
+              (("uno") (2 2))
+             ((3.14 2.72) (3 3))))
+
+(assoc+ '(0 0 0 0) clst)
+;-> ((0 0 0 0) (1 1))
+(lookup+ '(0 0 0 0) clst)
+;-> (1 1)
+(assoc+ '("uno") clst)
+;-> (("uno") (2 2))
+(lookup+ '("uno") clst)
+;-> (2 2)
+(assoc+ '(3.14 2.72) clst)
+;-> ((3.14 2.72) (3 3))
+(lookup+ '(3.14 2.72) clst)
+;-> (3 3)
+
+
+-----------------------------------
+Codifica BCD (Binary-Coded Decimal)
+-----------------------------------
+
+Il Binary-Coded Decimal (BCD) è una classe di codifiche binarie di numeri decimali in cui ogni cifra è rappresentata da un numero fisso di bit, solitamente quattro (nibble) o otto byte.
+Unpacked BCD: un byte completo per ogni cifra (spesso incluso il segno 1100 per il + e 1101 per il -)
+Packed BCD: codifica due cifre all'interno di un singolo byte sfruttando il fatto che quattro bit sono sufficienti per rappresentare i numeri da da 0 a 9.
+
+Simple Binary-Coded Decimal (SBCD) o BCD 8421:
+
+  +----------+---------+ 
+  | Cifra    | BCD     |
+  | decimale | 8 4 2 1 |
+  +----------+---------+
+  |    0     | 0 0 0 0 |
+  |    1     | 0 0 0 1 |
+  |    2     | 0 0 1 0 |
+  |    3     | 0 0 1 1 |
+  |    4     | 0 1 0 0 |
+  |    5     | 0 1 0 1 |
+  |    6     | 0 1 1 0 |
+  |    7     | 0 1 1 1 |
+  |    8     | 1 0 0 0 |
+  |    9     | 1 0 0 1 |
+  +----------+---------+
+  |  Segno   | BCD     |
+  |    +     | 1 1 0 0 |
+  |    -     | 1 1 0 1 |
+  +----------+---------+
+
+Il vantaggio principale della codifica BCD, rispetto ai sistemi posizionali binari, è la rappresentazione più accurati delle quantità decimali.
+
+Oggi la codifica BCD non è di uso comune come in passato, tuttavia continua ad essere utilizzata nell'informatica finanziaria e industriale, dove gli errori di arrotondamento che sono insiti nei formati binari a virgola mobile non possono essere tollerati.
+
+(setq digit-bcd '((0 (0 0 0 0)) (1 (0 0 0 1)) (2 (0 0 1 0))
+                  (3 (0 0 1 1)) (4 (0 1 0 0)) (5 (0 1 0 1))
+                  (6 (0 1 1 0)) (7 (0 1 1 1)) (8 (1 0 0 0))
+                  (9 (1 0 0 1))))
+
+(setq bcd-digit '(((0 0 0 0) 0) ((0 0 0 1) 1) ((0 0 1 0) 2)
+                  ((0 0 1 1) 3) ((0 1 0 0) 4) ((0 1 0 1) 5)
+                  ((0 1 1 0) 6) ((0 1 1 1) 7) ((1 0 0 0) 8)
+                  ((1 0 0 1) 9)))
+
+(define (assoc+ exp-key alst)
+  (find (list exp-key '?) alst match) $0)
+
+(define (lookup+ exp-key alst)
+  (find (list exp-key '?) alst match) ($0 1))
+
+(lookup+ '(0 1 0 1) bcd-digit)
+;-> 5
+(lookup '(0 1 0 1) bcd-digit)
+;-> nil ;??
+(lookup+ 5 digit-bcd)
+;-> (0 1 0 1)
+(lookup 5 digit-bcd)
+;-> (0 1 0 1)
+
+Oppure:
+
+(setq digit-bcd '((0 "0000") (1 "0001") (2 "0010") (3 "0011")
+                  (4 "0100") (5 "0101") (6 "0110") (7 "0111")
+                  (8 "1000") (9 "1001")))
+
+(setq bcd-digit '(("0000" 0) ("0001" 1) ("0010" 2) ("0011" 3)
+                  ("0100" 4) ("0101" 5) ("0110" 6) ("0111" 7)
+                  ("1000" 8) ("1001" 9)))
+
+(lookup "0101" bcd-digit)
+;-> 5
+(lookup 5 digit-bcd)
+;-> "0101"
 
 ============================================================================
 
