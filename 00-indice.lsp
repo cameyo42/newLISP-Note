@@ -2635,6 +2635,8 @@ NOTE LIBERE 26
   Parte frazionaria (decimale) di un numero floating point
   assoc e lookup estesi
   Codifica BCD (Binary-Coded Decimal)
+  Il gioco Zara
+  Girl face
   
 PROBLEMI SUI DADI
 =================

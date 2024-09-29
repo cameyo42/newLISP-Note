@@ -1653,7 +1653,7 @@ In totale, per ogni secondo, stampiamo 1/X + 1/Y pagine.
 
 Quindi per stampare N pagine occorrono:
 
-            N             X*Y 
+            N             X*Y
   S = ------------- = N*------- secondi
        (1/X + 1/Y)       X + Y
 
@@ -1862,7 +1862,7 @@ Vediamo quanto è lungo il ciclo di questo generatore:
     (push k out -1)))
 
 (length (setq rnd (ciclo-lcg 6 5 21 65536)))
-;-> 65537 
+;-> 65537
 
 L'ultimo numero è uguale al primo:
 
@@ -1873,7 +1873,7 @@ L'ultimo numero è uguale al primo:
 
 Partendo da un numero iniziale diverso da 6 (42):
 (length (setq rnd (ciclo-lcg 42 5 21 65536)))
-;-> 65537 
+;-> 65537
 
 L'ultimo numero è uguale al primo:
 
@@ -2035,7 +2035,7 @@ Lista con exp-key solo atomi:
 
 (assoc 1 alst)
 ;-> (1 "uno")   ;OK
-(lookup 1 alst) 
+(lookup 1 alst)
 ;-> "uno"       ;OK
 (assoc 2 alst)
 ;-> (2 (3.14))  ;OK
@@ -2073,7 +2073,7 @@ Proviamo:
 
 (assoc+ 1 alst)
 ;-> (1 "uno")   ;OK
-(lookup+ 1 alst) 
+(lookup+ 1 alst)
 ;-> "uno"       ;OK
 (assoc+ 2 alst)
 ;-> (2 (3.14))  ;OK
@@ -2121,7 +2121,7 @@ Packed BCD: codifica due cifre all'interno di un singolo byte sfruttando il fatt
 
 Simple Binary-Coded Decimal (SBCD) o BCD 8421:
 
-  +----------+---------+ 
+  +----------+---------+
   | Cifra    | BCD     |
   | decimale | 8 4 2 1 |
   +----------+---------+
@@ -2184,6 +2184,311 @@ Oppure:
 ;-> 5
 (lookup 5 digit-bcd)
 ;-> "0101"
+
+
+-------------
+Il gioco Zara
+-------------
+
+La zara è un antico gioco d'azzardo con i dadi nato in epoca romana e molto comune nel Medioevo.
+Si gioca con tre dadi: a turno ogni giocatore dichiara un numero da 3 a 18, quindi getta i dadi.
+Se la somma dei dadi è uguale al numero dichiarato il giocatore vince.
+
+Calcoliamo le probabilità di uscita di ciascun numero da 3 a 18:
+I numeri (3..18) hanno probabilità diverse di uscita (ad esempio il numero 3 ha una sola combinazione possibile (1+1+1=3), mentre per ottenere 10 ce ne sono diverse (1+4+5=10, 2+2+6=10, ecc.).
+Quanti numeri possono uscire?
+  numero-facce^numero-dadi = 6^3 = 216
+(* 6 6 6)
+;-> 216
+
+Scriviamo una funzione che calcola le frequenze di tutti i numeri (da 0 a 18) e restituisce una lista con elementi del tipo (numero frequenza %) dove:
+  numero = numero considerato (da 0 a 18)
+  frequenza = numero di combinazioni di tre dadi che ottengono il numero
+  % = percentuale di probabilità di uscita del numero in un lancio
+
+(define (zara-freq)
+  (let (freq (dup 0 19))
+    (for (d1 1 6)
+      (for (d2 1 6)
+        (for (d3 1 6)
+          (++ (freq (+ d1 d2 d3))))))
+    (map (fn(x y z) (list x y (mul 100 (div z 216))))
+    ;(map (fn(x y z) (list x y (round (mul 100 (div z 216)) -2)))
+         (sequence 0 18) freq freq)))
+
+(zara-freq)
+;-> ((0 0 0) (1 0 0) (2 0 0)
+;->  (3 1 0.4629629629629629)
+;->  (4 3 1.388888888888889)
+;->  (5 6 2.777777777777778)
+;->  (6 10 4.62962962962963)
+;->  (7 15 6.944444444444445)
+;->  (8 21 9.722222222222223)
+;->  (9 25 11.57407407407407)
+;->  (10 27 12.5)
+;->  (11 27 12.5)
+;->  (12 25 11.57407407407407)
+;->  (13 21 9.722222222222223)
+;->  (14 15 6.944444444444445)
+;->  (15 10 4.62962962962963)
+;->  (16 6 2.777777777777778)
+;->  (17 3 1.388888888888889)
+;->  (18 1 0.4629629629629629))
+
+(setq freq (map (fn(x) (x 1)) (zara-freq)))
+;-> (0 0 0 1 3 6 10 15 21 25 27 27 25 21 15 10 6 3 1)
+
+(setq perc (map last (zara-freq)))
+;-> (0 0 0 0.4629629629629629 1.388888888888889 2.777777777777778
+;->  4.62962962962963 6.944444444444445 9.722222222222223 11.57407407407407
+;->  12.5 12.5 11.57407407407407 9.722222222222223 6.944444444444445
+;->  4.62962962962963 2.777777777777778 1.388888888888889 0.4629629629629629)
+
+Somma delle percentuali di probabilità:
+
+(apply add (map (fn(x) (x 2)) (zara-freq)))
+;-> 100
+
+Supponendo che la perdita in una partita valga 1, quale vincita deve essere associata ad ogni numero affinchè il gioco sia equo?
+In altre parole:
+se il giocatore non indovina il numero, allora perde un fiorino (1).
+se il giocatore indovina il numero deve guadagnare in relazione alla probabilità di uscita del numero.
+
+Se la probabilità che il numero predetta si verifichi è P(N), il giocatore deve vincere una quantità tale che, nel lungo periodo, il profitto atteso sia nullo.
+Allora, se perde 1 euro in tutte le altre occasioni, la vincita deve essere inversamente proporzionale alla probabilità di uscita del numero:
+
+                 1
+  vincita(N) = ------
+                P(N)
+
+  dove P(N) = 1/freq
+
+Per esempio, il numero 5 ha una frequenza di 6, una probabilità di 6/216 e una vincita pari a:
+
+vincita(6) = 1/(6/216) = 36
+
+Quindi per ogni numero abbiamo le seguenti vincite:
+
+(setq vincite (map (fn(x) (div (div x 216))) freq))
+;-> (1.#INF 1.#INF 1.#INF 216 72 36 21.6 14.4 10.28571428571429
+;->  8.640000000000001 8 8 8.640000000000001 10.28571428571429
+;->  14.4 21.6 36 72 216)
+
+Possiamo scrivere la seguente tabella:
+
+  Numero Frequenza Probabilità(%) Vincita
+    0        0        0            1.#INF
+    1        0        0            1.#INF
+    2        0        0            1.#INF
+    3        1        0.46         216
+    4        3        1.39         72
+    5        6        2.78         36
+    6       10        4.63         21.6
+    7       15        6.94         14.4
+    8       21        9.72         10.28571428571429
+    9       25        11.57        8.64
+   10       27        12.5         8
+   11       27        12.5         8
+   12       25        11.57        8.64
+   13       21        9.72         10.28571428571429
+   14       15        6.94         14.4
+   15       10        4.63         21.6
+   16        6        2.78         36
+   17        3        1.39         72
+   18        1        0.46         216
+
+Vediamo una simulazione del gioco in cui giochiamo per un certo numero di volte lo stesso numero:
+
+(setq vincite '(0 0 0 216 72 36 21.6 14.4 10.28571428571429 8.64 8
+                8 8.64 10.28571428571429 14.4 21.6 36 72 216))
+
+(define (simula partite num)
+  (local (total vincite rnd)
+    (setq total 0)
+    (setq vincite '(0 0 0 215 71 35 20.6 13.4 9.285714285714285 7.64 7
+                    7 7.64 9.285714285714285 13.4 20.6 35 71 215))
+    ;(setq vincite '(0 0 0 216 72 36 21.6 14.4 10.28571428571429 8.64 8
+    ;                8 8.64 10.28571428571429 14.4 21.6 36 72 216))
+    (for (i 1 partite)
+      (dec total)
+      (setq rnd (+ (+ 1 (rand 6)) (+ 1 (rand 6)) (+ 1 (rand 6))))
+      (if (= num rnd)
+          (setq total (add total 1.0 (vincite num))))
+      )
+  total))
+
+Proviamo:
+
+(simula 1e6 1)
+;-> -1000000
+(simula 1e6 3)
+;-> 302
+(simula 1e6 10)
+;-> 1384
+(simula 1e6 16)
+;-> -3340
+
+(apply add (map (fn(x) (simula 1e6 x)) (sequence 3 18)))
+;-> -460.0000000089058
+(apply add (map (fn(x) (simula 1e6 x)) (sequence 3 18)))
+;-> -1758.285714294122
+(apply add (map (fn(x) (simula 1e6 x)) (sequence 3 18)))
+;-> -31563.90857140935
+(apply add (map (fn(x) (simula 1e6 x)) (sequence 3 18)))
+;-> 24453.7142857219
+(apply add (map (fn(x) (simula 1e6 x)) (sequence 3 18)))
+;-> 27771
+
+Il gioco della Zara è citato da Dante nella Divina Commedia:
+
+"Quando si parte il gioco de la zara,
+colui che perde si riman dolente,
+repetendo le volte, e tristo impara;
+
+con l'altro se ne va tutta la gente;
+qual va dinanzi, e qual di dietro il prende,
+e qual dallato li si reca a mente;
+
+el non s'arresta, e questo e quello intende;
+a cui porge la man, più non fa pressa;
+e così da la calca si difende."
+
+(Purgatorio VI, 1-9)
+
+
+---------
+Girl face
+---------
+
+Pixels of a girl face (x y x y x y ...)
+
+(setq p1 '(
+ 65 0 68 0 70 0 72 0 74 0 56 1 59 1 61 1 63 1 65 1 67 1 68 1 70 1
+ 71 1 73 1 74 1 75 1 64 2 67 2 69 2 70 2 72 2 74 2 60 3 63 3 65 3
+ 67 3 69 3 71 3 72 3 73 3 75 3 76 3 57 4 62 4 66 4 68 4 70 4 72 4
+ 74 4 75 4 60 5 63 5 65 5 67 5 69 5 70 5 71 5 73 5 74 5 76 5 77 5
+ 62 6 64 6 66 6 68 6 70 6 72 6 73 6 75 6 76 6 59 7 61 7 64 7 67 7
+ 69 7 71 7 72 7 74 7 76 7 77 7 63 8 66 8 68 8 70 8 71 8 73 8 74 8
+ 75 8 77 8 60 9 62 9 64 9 66 9 68 9 70 9 72 9 74 9 76 9 77 9 78 9
+ 70 10 72 10 73 10 75 10 76 10 78 10 63 11 67 11 69 11 72 11 74 11
+ 75 11 77 11 78 11 65 12 74 12 76 12 78 12 79 12 64 13 67 13 69 13
+ 73 13 75 13 77 13 79 13 62 14 66 14 71 14 74 14 75 14 76 14 77 14
+ 78 14 65 15 69 15 73 15 75 15 77 15 79 15 81 15 59 16 62 16 64 16
+ 66 16 68 16 72 16 74 16 76 16 77 16 78 16 61 17 64 17 66 17 69 17
+ 71 17 73 17 75 17 76 17 78 17 57 18 60 18 62 18 64 18 66 18 68 18
+ 71 18 73 18 75 18 77 18 78 18 80 18 59 19 61 19 63 19 65 19 68 19
+ 70 19 71 19 73 19 75 19 77 19 58 20 60 20 62 20 64 20 66 20 68 20
+ 70 20 72 20 74 20 76 20 78 20 79 20 57 21 59 21 61 21 63 21 65 21
+ 68 21 70 21 72 21 73 21 75 21 77 21 78 21 55 22 59 22 61 22 63 22
+ 66 22 70 22 78 22 57 23 59 23 61 23 62 23 64 23 67 23 69 23 72 23
+ 74 23 77 23 78 23 79 23 55 24 58 24 63 24 79 24 57 25 60 25 63 25
+ 65 25 69 25 78 25 79 25 56 26 62 26 64 26 67 26 79 26 64 27 65 27
+ 79 27 80 27 54 28 65 28 66 28 80 28 65 29 66 29 80 29 81 29 66 30
+ 80 30 82 30 64 31 66 31 67 31 81 31 82 31 66 32 68 32 82 32 83 32
+ 65 33 67 33 83 33 84 33 63 34 66 34 67 34 68 34 84 34 66 35 84 35
+ 85 35 65 36 67 36 68 36 88 38 90 39 92 41 94 41 94 42 96 42 67 43
+ 95 43 63 44 68 44 96 44 98 44 65 45 67 45 98 45 100 45 69 46 63 47
+ 65 47 67 47 101 47 54 48 68 48 70 48 74 48 103 48 57 49 60 49 63
+ 49 65 49 67 49 105 49 61 50 66 50 69 50 71 50 106 50 107 50 56 51
+ 59 51 63 51 65 51 68 51 76 51 108 51 61 52 63 52 66 52 69 52 71 52
+ 73 52 109 52 110 52 57 53 60 53 65 53 67 53 70))
+
+(setq p2 '(
+ 53 110 53 111 53 61 54 63 54 65 54 68 54 72 54 75 54 110 54 111 54
+ 58 55 64 55 67 55 69 55 71 55 73 55 111 55 112 55 63 56 65 56 67
+ 56 70 56 74 56 112 56 62 57 66 57 69 57 71 57 73 57 77 57 112 57
+ 113 57 65 58 68 58 72 58 75 58 108 58 112 58 64 59 67 59 69 59 71
+ 59 74 59 110 59 112 59 113 59 62 60 66 60 70 60 73 60 77 60 112 60
+ 69 61 72 61 75 61 106 61 111 61 64 62 66 62 68 62 70 62 72 62 74
+ 62 77 62 103 62 105 62 108 62 110 62 111 62 75 63 102 63 110 63 70
+ 64 72 64 74 64 78 64 101 64 76 65 100 65 108 65 109 65 70 66 72 66
+ 74 66 78 66 99 66 108 66 76 67 79 67 99 67 107 67 71 68 75 68 98
+ 68 106 68 107 68 73 69 78 69 98 69 105 69 76 70 82 70 97 70 102 70
+ 104 70 70 71 79 71 96 71 103 71 72 72 75 72 102 72 103 72 77 73 80
+ 73 96 73 102 73 84 74 102 74 103 74 74 75 81 75 103 75 104 75 76
+ 76 79 76 104 76 83 77 103 77 104 77 73 78 102 78 104 78 105 78 79
+ 79 105 79 88 80 92 80 95 80 101 80 104 80 106 80 84 81 98 81 105
+ 81 107 81 108 81 103 82 107 82 109 82 86 83 90 83 95 83 101 83 108
+ 83 109 83 110 83 92 84 105 84 108 84 110 84 111 84 97 85 107 85 109
+ 85 110 85 72 86 89 86 107 86 109 86 110 86 74 87 93 87 99 87 107
+ 87 108 87 110 87 106 88 107 88 109 88 80 89 105 89 106 89 108 89
+ 109 89 105 90 107 90 109 90 104 91 106 91 107 91 108 91 109 91 103
+ 92 104 92 106 92 107 92 102 93 103 93 105 93 102 94 104 94 102 95
+ 100 96 103 96 80 97 101 97 102 97 95 98 104 98 97 99 99 99 106 99
+ 108 99 109 99 94 100 101 100 105 100 106 100 108 100 110 100 97 101
+ 103 101 105 101 107 101 108 101 110 101 111 101 107 102 109 102 110
+ 102 111 102 94 103 102 103 109 103 111 103 112 103 107 104 110 104
+ 112 104 113 104 104 105 108 105 110 105 111 105 112 105 111 106 112
+ 106 113 106 107 107 110 107 112 107 109 108 111 108 112 108 108 109
+ 110 109 111 109 102 110 105 110 107 110 109 110 104 111 107 111 101
+ 112 106 112 107 112 84 113 95 113 103 113 105 113 106 113 97 114
+ 102 114 105))
+
+(setq p3 '(
+ 114 107 114 99 115 104 115 105 115 106 115 102 116 105 116 107 116
+ 97 117 103 117 105 117 107 117 100 118 104 118 106 118 107 118 108
+ 118 103 119 106 119 108 119 102 120 104 120 105 120 107 120 108 120
+ 109 120 107 121 109 121 104 122 106 122 108 122 109 122 110 122 102
+ 123 107 123 109 123 110 123 111 123 106 124 109 124 111 124 104 125
+ 107 125 109 125 110 125 111 125 96 126 108 126 110 126 111 126 98
+ 127 106 127 109 127 111 127 112 127 102 128 108 128 110 128 111 128
+ 112 128 108 129 110 129 112 129 104 130 109 130 110 130 111 130 112
+ 130 106 131 108 131 111 131 109 132 110 132 111 132 112 132 105 133
+ 107 133 109 133 111 133 112 133 109 134 111 134 106 135 108 135 109
+ 135 110 135 111 135 105 136 108 136 48 137 60 137 100 137 103 137
+ 107 137 109 137 106 138 108 138 109 138 87 139 90 139 102 139 105
+ 139 107 139 70 140 74 140 77 140 104 140 106 140 93 141 103 141 80
+ 142 87 142 89 142 91 142 72 143 76 143 82 143 36 145 52 145 59 145
+ 64 145 54 146 61 147 58 148 56 149 54 150 39 152 44 152 48 152 53
+ 152 51 153 49 154 42 155 46 155 48 156 44 157 47 157 40 158 46 158
+ 44 159 42 160 45 160 38 161 44 161 41 162 43 162 39 164 41 164 43
+ 164 42 165 24 166 39 166 41 166 26 167 41 167 40 168 38 169 40 169
+ 35 170 40 170 37 171 39 171 30 172 38 172 34 173 36 173 38 173 32
+ 174 37 174 36 175 34 176 37 176 28 177 31 177 35 177 34 178 36 178
+ 32 179 35 179 30 180 34 180 33 181 30 182 32 182 33 183 29 184 8
+ 185 32 185 26 186 28 186 23 187 27 188 29 188 25 189 29 189 0 190
+ 28 190 2 191 23 191 26 191 28 191 27 192 4 193 23 193 25 193 27 193
+ 26 194 22 195 25 195 24 196 23 197 25 197 23 199))
+
+Unione dei pixel:
+
+(setq pixels (append p1 p2 p3))
+(length pixels)
+;-> 1634
+
+(setq pixels (explode pixels 2))
+(length pixels)
+;-> 817
+
+(pixels 0)
+;-> (65 0)
+
+Convertiamo i punti in un file immagine:
+
+Vedi "Creazione di immagini con ImageMagick" su "Note libere 7".
+
+(define (list-IM lst file-str)
+  (local (outfile x-width y-height line)
+    (setq lst (sort (unique lst)))
+    (setq outfile (open file-str "write"))
+    (print outfile { })
+    ; calcolo dimensioni immagine
+    (setq x-width (add 1 (apply max (map first lst))))
+    (setq y-height (add 1 (apply max (map last lst))))
+    ; scrittura del file in formato ImageMagick
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (dolist (el lst)
+      (setq line (string (string (el 0)) ", " (string (el 1))
+            ": (0,0,0,255)")) ; colore nero con alpha=100%
+      (write-line outfile line)
+    )
+    (close outfile)))
+
+(list-IM pixels "girl.txt") 
+(exec "convert girl.txt girl.png")
+
+Vedi immagine "girl.png" nella cartella "data".
 
 ============================================================================
 
