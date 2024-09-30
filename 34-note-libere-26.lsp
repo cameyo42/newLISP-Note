@@ -2490,5 +2490,74 @@ Vedi "Creazione di immagini con ImageMagick" su "Note libere 7".
 
 Vedi immagine "girl.png" nella cartella "data".
 
+
+--------------------
+Compito di punizione
+--------------------
+
+Il professore Bit era molto arrabbiato con i suoi alunni e per punizione assegnò loro un problema di programmazione estremamente tedioso:
+Scrivere una funzione che determina se un numero dato è pari o dispari.
+La funzione deve rispondere correttamente fino al numero 10.000.
+La funzione deve essere scritta nel modo seguente:
+
+(define (parita num)
+  (if (= num 1) (println "odd"))
+  (if (= num 2) (println "even"))
+  ; ecc.
+  (if (= num 10000) (println "even"))
+)
+
+Gli alunni erano veramente preoccupati: passare ore a scrivere 10000 righe non era una bella prospettiva.
+Fortunatamente un alunno, soprannominato "skripter", ebbe un'idea molto furba: scrivere una funzione che genera la funzione richiesta dal professore.
+
+(define (genera-funzione max-value)
+  ; definizione iniziale della funzione
+  (let (f '(lambda (num) (if (= num 1) (println "odd"))))
+    ; ciclo per ogni if
+    (for (i 2 max-value)
+      (if (even? i)
+        ; inserisce nella funzione if per i numeri pari
+        (push (list 'if (list '= 'num i) (list 'println "even")) f -1)
+        ; inserisce nella funzione if per i numeri dispari
+        (push (list 'if (list '= 'num i) (list 'println "odd")) f -1)        
+      )
+    )
+    (push ''> f -1) ; invece di restituire nil
+    f))
+
+Proviamo:
+
+(setq func (genera-funzione 5))
+;-> (lambda (num)
+;->  (if (= num 1)
+;->   (println "odd"))
+;->  (if (= num 2)
+;->   (println "even"))
+;->  (if (= num 3)
+;->   (println "odd"))
+;->  (if (= num 4)
+;->   (println "even"))
+;->  (if (= num 5)
+;->   (println "odd")) '>)
+
+(func 1)
+;-> odd
+(func 2)
+;-> even
+(func 3)
+;-> odd
+(func 4)
+;-> even
+(func 5)
+;-> odd
+
+(silent (setq func (genera-funzione 10000)))
+(func 1)
+;-> odd
+(func 5674)
+;-> even
+(func 10000)
+;-> even
+
 ============================================================================
 

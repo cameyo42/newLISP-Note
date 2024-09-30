@@ -2637,6 +2637,7 @@ NOTE LIBERE 26
   Codifica BCD (Binary-Coded Decimal)
   Il gioco Zara
   Girl face
+  Compito di punizione
   
 PROBLEMI SUI DADI
 =================
