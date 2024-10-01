@@ -7566,6 +7566,10 @@ Esempio 4:
 ;-> ((0 8) (1 7) (1 8) (2 7) (3 7) (3 8) (4 8) (5 6) (5 7) (5 8) (6 0) (6 1)
 ;->  (6 2) (6 3) (6 4) (6 6) (7 0) (7 4) (7 6) (8 0) (8 4) (8 5) (8 6))
 
+Vedi anche "Labirinti (calcolo percorsi)" su "Problemi vari".
+Vedi anche "Algoritmo Lee - Ricerca del percorso in un labirinto" su "Note libere 7".
+Vedi anche "Generazione di labirinti" su "Note libere 26"
+
 
 ------------------
 Progettare TinyURL

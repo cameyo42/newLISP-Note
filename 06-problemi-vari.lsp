@@ -6574,6 +6574,9 @@ Soluzione:
 ;-> 1 0 0 0 1 0 1 0 0
 ;-> 1 0 0 0 1 1 1 0 0
 
+Vedi anche "Labirinti (Maze)" su "Note libere 3".
+Vedi anche "Algoritmo Lee - Ricerca del percorso in un labirinto" su "Note libere 7".
+Vedi anche "Generazione di labirinti" su "Note libere 26"
 
 --------------------------
 Moltiplicazioni di fattori

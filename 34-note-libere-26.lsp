@@ -2559,5 +2559,199 @@ Proviamo:
 (func 10000)
 ;-> even
 
+
+------------------------
+Generazione di labirinti
+------------------------
+
+Definizione
+-----------
+Un labirinto è una griglia rettangolare di celle in cui ogni cella è collegata alla cella iniziale da almeno un percorso.
+In termini matematici, un labirinto è un grafo non orientato, planare e possibilmente ciclico, la cui chiusura transitiva è un grafo completamente connesso.
+
+Proprietà dei labirinti
+-----------------------
+1) Vicoli ciechi
+Un vicolo cieco è definito come una cella collegata ad un solo vicino.
+
+2) Percorso più lungo
+Rappresenta la percentuale di celle che si trovano sul percorso più lungo del labirinto.
+
+3) Tortuosità
+Tortuosità è una misura di quanto spesso un percorso cambi direzione.
+Rappresenta la percentuale di celle di un percorso che svolta verso sinistra o verso destra.
+
+4) Passaggi rettilinei:
+I passaggi rettilinei rappresentano l'opposto della tortuosità.
+Rappresenta quante celle in una griglia formano percorsi in linea retta, orizzontalmente o verticalmente.
+
+5) Intersezioni
+Le intersezioni indicano quanto spesso durante l'attraversamento del labirinto si dovrà prendere una decisione (destra e/o sinistra e/o alto e/o basso).
+
+Per generare un labirinto esistono diversi metodi che producono risultati con caratteristiche differenti:
+
+- Algoritmo Binary Tree,
+- Algoritmo Aldous-Broder,
+- Algoritmo Wilson,
+- Algoritmo Recursive Backtracking,
+- Algoritmo Kruskal,
+- Algoritmo Eller,
+- Algoritmo Growing Tree,
+- Algoritmo Hunt-and-kill,
+- Algoritmo Prim's,
+- Algoritmo Recursive Division,
+- Algoritmo Sidewinder,
+- Algoritmi con automi cellulari.
+
+In questo caso scriviamo una funzione che genera un labiritno utilizzando l'algoritmo Recursive Backtracking.
+Questo algoritmo è uno dei più semplici da implementare, sia per la sua logica che per il codice richiesto.
+
+Algoritmo Recursive Backtracking
+--------------------------------
+1) Inizializzazione: Si parte da una cella casuale nel labirinto.
+2) Esplorazione: Si cerca una cella vicina non ancora visitata, la si marca come parte del percorso, e si procede verso quella cella.
+3) Vicolo cieco: Se non ci sono celle vicine non visitate, si torna indietro (backtrack) al passo precedente e si cerca un'altra direzione.
+4) Ripetizione: Si ripete il processo fino a quando tutte le celle sono state visitate.
+
+Scelta delle celle di partenza e di arrivo
+------------------------------------------
+1. Cella di Partenza:
+Possiamo scegliere una cella casuale oppure fissare una posizione specifica.
+In questo caso scegliamo la cella in alto a sinistra (0,0).
+2. Cella di Arrivo:
+Possiamo scegliere una cella casuale, oppure la cella più lontana possibile dalla partenza o può essere fissata nell'angolo opposto alla cella di paretenza.
+Nel nostro caso scegliamo la cella in basso a destra, (larghezza-1, altezza-1).
+
+Partenza: (0, 0)
+Arrivo: (larghezza-1, altezza-1)
+
+Stampa del labirinto:
+Stampiamo il labirinto come una matrice di caratteri.
+Un muro può essere rappresentato con '*' e un passaggio con uno spazio vuoto " ".
+La cella di partenza e quella di arrivo sono rappresentate con le lettere P (Partenza) e A (Arrivo).
+
+Rappresentazione informatica del labirinto:
+matrice in cui i termini valgono 0 per i muri e 1 per i passaggi.
+
+Esempio di pseudocodice:
+funzione generaLabirinto(cella):
+    marca la cella come visitata
+    mentre ci sono celle vicine non visitate:
+        scegli una direzione casuale
+        se la cella nella direzione scelta non è stata visitata:
+            rimuovi il muro tra le celle
+            chiama ricorsivamente generaLabirinto(cella vicina)
+
+Implementazione
+---------------
+
+; Inizializza la matrice del labirinto con 0 (muri ovunque)
+(define (crea-matrice)
+  (setq matrice (array-list (array larghezza altezza '(0)))))
+
+; Funzione per controllare se una cella è valida e non è stata visitata
+(define (cella-valida? x y)
+  (and (>= x 0) (< x larghezza) (>= y 0) (< y altezza)
+       (= (matrice x y) 0)))  ; 0 significa che è un muro non visitato
+
+; Funzione per generare il labirinto con il backtracking ricorsivo
+(define (genera-labirinto x y)
+  (setf (matrice x y) 1)  ; Marca la cella come visitata (1 = passaggio)
+  (dolist (direzione (randomize '((1 0) (-1 0) (0 1) (0 -1))))  ; Mescola le direzioni
+    (let ((nx (+ x (* 2 (direzione 0)))) (ny (+ y (* 2 (direzione 1)))))
+      (when (cella-valida? nx ny)  ; Se la nuova cella è valida
+        ; Rimuove il muro tra la cella corrente e quella nuova
+        (setf (matrice (+ x (first direzione)) (+ y (direzione 1))) 1)
+        ; Continua la generazione del labirinto dalla nuova cella
+        (genera-labirinto nx ny)))))
+
+; Funzione per stampare il labirinto con S (partenza) e E (arrivo)
+(define (stampa-labirinto)
+  (println (dup "_" (+ larghezza 2)))
+  (for (y 0 (- altezza 1))
+    (print "|")
+    (for (x 0 (- larghezza 1))
+      (cond
+        ((and (= x 0) (= y 0)) (print "S"))  ; Stampa la cella di partenza
+        ((and (= x (- larghezza 1)) (= y (- altezza 1))) (print "E"))  ; Stampa la cella di arrivo
+        ((= (matrice x y) 1) (print " "))  ; Stampa i passaggi
+        (true (print "█"))))  ; Stampa i muri
+    (println "|"))  ; Vai a capo per ogni riga
+  (println (dup "^" (+ larghezza 2))) '>)
+
+Proviamo:
+
+(setq larghezza 21)
+(setq altezza 11)
+(crea-matrice)
+(genera-labirinto 0 0)
+; Stampa il labirinto generato
+(stampa-labirinto)
+;-> -----------------------
+;-> |S█         █   █     |
+;-> | █ ███████ █ █ █ ███ |
+;-> | █   █ █   █ █     █ |
+;-> | ███ █ █ ███ ███████ |
+;-> |     █   █     █     |
+;-> |██████ █████████ ███ |
+;-> |     █ █       █ █   |
+;-> | █ █ █ █ █ ███ █ █ ██|
+;-> | █ █ █ █ █   █   █ █ |
+;-> | █ ███ █████ █████ █ |
+;-> | █           █      E|
+;-> ^^^^^^^^^^^^^^^^^^^^^^^
+
+(crea-matrice)
+(genera-labirinto 0 0)
+; Stampa il labirinto generato
+(stampa-labirinto)
+;-> -----------------------
+;-> |S  █ █       █       |
+;-> |██ █ █ ███ █ ███████ |
+;-> |   █     █ █       █ |
+;-> | ███ █████ ███████ █ |
+;-> | █     █   █ █     █ |
+;-> | ███████ ███ █ █████ |
+;-> |       █   █   █     |
+;-> |██████ ███ █ ███ ███ |
+;-> |     █     █   █ █   |
+;-> | ███ █████████ ███ █ |
+;-> |   █               █E|
+;-> ^^^^^^^^^^^^^^^^^^^^^^^
+
+(setq larghezza 41)
+(setq altezza 21)
+(crea-matrice)
+(genera-labirinto 0 0)
+; Stampa il labirinto generato
+(stampa-labirinto)
+;-> ___________________________________________
+;-> |S█     █   █   █       █     █           |
+;-> | ███ █ ███ █ █ █ █████ █ █ █ █████ █████ |
+;-> |     █ █   █ █ █   █ █   █ █   █   █   █ |
+;-> |██████ █ ███ █ ███ █ █████ ███ █ ███ █ █ |
+;-> |     █ █ █   █       █     █   █   █ █   |
+;-> | █ ███ █ █ ███████████ █████ █████ █ ████|
+;-> | █   █ █     █     █   █ █   █     █ █   |
+;-> | ███ █ █████ ███ █ █ ███ █ █████ ███ ███ |
+;-> | █ █   █   █     █ █   █         █ █ █   |
+;-> | █ █████ █ ███████ ███ ███████████ █ █ █ |
+;-> | █       █   █   █ █ █   █         █   █ |
+;-> | █████ █ ███ ███ █ █ ███ █ ███████ █████ |
+;-> | █   █ █   █   █       █ █   █         █ |
+;-> | █ █ █████ ███ ███████ █ ███ █ █████████ |
+;-> | █ █ █   █   █       █ █ █ █ █   █       |
+;-> | █ █ █ █ █ █ ███████ ███ █ █ ███ █ ██████|
+;-> | █ █   █ █ █ █       █   █ █   █ █   █   |
+;-> | █ █████ ███ █ ███████ ███ █ ███ ███ ███ |
+;-> | █     █ █   █         █   █ █     █   █ |
+;-> | █████ █ █ █████████████ ███ █ ███████ █ |
+;-> |       █   █                 █          E|
+;-> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Vedi anche "Labirinti (calcolo percorsi)" su "Problemi vari".
+Vedi anche "Labirinti (Maze)" su "Note libere 3".
+Vedi anche "Algoritmo Lee - Ricerca del percorso in un labirinto" su "Note libere 7".
+
 ============================================================================
 

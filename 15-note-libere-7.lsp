@@ -6678,6 +6678,10 @@ Funzione che implementa l'algoritmo di Lee:
 (lee matrix 4 0 7 5)
 ;-> nil
 
+Vedi anche "Labirinti (calcolo percorsi)" su "Problemi vari".
+Vedi anche "Labirinti (Maze)" su "Note libere 3".
+Vedi anche "Generazione di labirinti" su "Note libere 26"
+
 
 ------------
 Fredkin gate
