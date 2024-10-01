@@ -2485,7 +2485,7 @@ Vedi "Creazione di immagini con ImageMagick" su "Note libere 7".
     )
     (close outfile)))
 
-(list-IM pixels "girl.txt") 
+(list-IM pixels "girl.txt")
 (exec "convert girl.txt girl.png")
 
 Vedi immagine "girl.png" nella cartella "data".
@@ -2519,7 +2519,7 @@ Fortunatamente un alunno, soprannominato "skripter", ebbe un'idea molto furba: s
         ; inserisce nella funzione if per i numeri pari
         (push (list 'if (list '= 'num i) (list 'println "even")) f -1)
         ; inserisce nella funzione if per i numeri dispari
-        (push (list 'if (list '= 'num i) (list 'println "odd")) f -1)        
+        (push (list 'if (list '= 'num i) (list 'println "odd")) f -1)
       )
     )
     (push ''> f -1) ; invece di restituire nil
@@ -2752,6 +2752,204 @@ Proviamo:
 Vedi anche "Labirinti (calcolo percorsi)" su "Problemi vari".
 Vedi anche "Labirinti (Maze)" su "Note libere 3".
 Vedi anche "Algoritmo Lee - Ricerca del percorso in un labirinto" su "Note libere 7".
+
+
+--------------------------------------------
+Quadrati concentrici di una matrice quadrata
+--------------------------------------------
+
+Data una matrice quadrata estrarre gli elementi partendo dal centro e proseguendo verso l'esterno in quadrati concentrici (partendo dalla cella in alto a sinistra e andando in senso orario).
+Per esempio:
+
+matrice = 1 2 3
+          4 5 6
+          7 8 9
+Quadrati concentrici:
+elemento centrale = (5)
+primo quadrato = (1 2 3 6 9 8 7 4)
+
+matrice=  1  2  3  4  5
+          6  7  8  9 10
+         11 12 13 14 15
+         16 17 18 19 20
+         21 22 23 24 25
+Quadrati concentrici:
+elemento centrale = (13)
+primo quadrato = (7 8 9 14 19 18 17 12)
+secondo quadrato = (1 2 3 4 5 10 15 20 25 24 23 22 21 16 11 6)
+
+matrice =  1  2  3  4
+           5  6  7  8
+           9 10 11 12
+          13 14 15 16
+Quadrati concentrici:
+elemento centrale = (6 7 11 10)
+primo quadrato = (1 2 3 4 8 12 16 15 14 13 9 5))
+
+(define (concentrici matrice)
+  (local (N risultato centro
+          riga-alto riga-basso-colonna-sinistra colonna-destra
+          cur-quad)
+    (setq N (length matrice))
+    (setq risultato '())
+    (setq centro (/ (length matrice) 2))
+    ; matrice con N pari
+    (when (even? N)
+      ; Aggiunge i quattro elementi centrali al risultato
+      (push (list (matrice (- centro 1) (- centro 1))
+                  (matrice (- centro 1) centro)
+                  (matrice centro centro)
+                  (matrice centro (- centro 1))) risultato)
+      ; Definisce gli indici degli angoli del quadrato di partenza
+      (setq riga-alto (- centro 1))
+      (setq riga-basso centro)
+      (setq colonna-sinistra (- centro 1))
+      (setq colonna-destra centro)
+      ; Numero di quadrati
+      (setq quadrati (- (/ N 2) 1))
+    )
+    ; matrice con N dispari
+    (when (odd? N)
+      ; Aggiunge l'elemento centrale al risultato
+      (push (list (matrice centro centro)) risultato)
+      ; Definisce gli indici degli angoli del quadrato di partenza
+      (setq riga-alto centro)
+      (setq riga-basso centro)
+      (setq colonna-sinistra centro)
+      (setq colonna-destra centro)
+      ; Numero di quadrati
+      (setq quadrati (/ N 2))
+    )
+    ; Procede con i quadrati concentrici
+    (for (q 1 quadrati)
+      (setq cur-quad '()) ; quadrato corrente
+      ; Definisce gli indici degli angoli del quadrato corrente
+      (setq riga-alto (- riga-alto 1))  ; riga alto
+      (setq riga-basso (+ riga-basso 1))  ; riga basso
+      (setq colonna-sinistra (- colonna-sinistra 1))  ; colonna sinistra
+      (setq colonna-destra (+ colonna-destra 1))  ; colonna destra
+      ; Lato superiore (da colonna-sinistra a colonna-destra)
+      (for (i colonna-sinistra colonna-destra)
+        (push (matrice riga-alto i) cur-quad -1))
+      ; Lato destro (dall'alto verso il basso)
+      (for (j (+ riga-alto 1) (- riga-basso 1))
+        (push (matrice j colonna-destra) cur-quad -1))
+      ; Lato inferiore (da colonna-destra a colonna-sinistra)
+      (for (k colonna-destra colonna-sinistra)
+        (push (matrice riga-basso k) cur-quad -1))
+      ; Lato sinistro (dal basso verso l'alto)
+      (for (l (- riga-basso 1) (+ riga-alto 1))
+        (push (matrice l colonna-sinistra) cur-quad -1))
+      (push cur-quad risultato -1)
+    )
+    risultato))
+
+Proviamo:
+
+(setq m1 '((1  2  3  4  5)
+           (6  7  8  9  10)
+           (11 12 13 14 15)
+           (16 17 18 19 20)
+           (21 22 23 24 25)))
+
+(concentrici m1)
+;-> ((13) (7 8 9 14 19 18 17 12) (1 2 3 4 5 10 15 20 25 24 23 22 21 16 11 6))
+
+(setq m2 '((1 2 3)
+           (4 5 6)
+           (7 8 9)))
+
+(concentrici m2)
+;-> ((5) (1 2 3 6 9 8 7 4))
+
+(setq m3 '(( 1  2  3  4)
+           ( 5  6  7  8)
+           ( 9 10 11 12)
+           (13 14 15 16)))
+
+(concentrici m3)
+;-> ((6 7 11 10) (1 2 3 4 8 12 16 15 14 13 9 5))
+
+(setq m4 (array-list (array 8 8 (sequence 1 64))))
+(( 1  2  3  4  5  6  7  8)
+ ( 9 10 11 12 13 14 15 16)
+ (17 18 19 20 21 22 23 24)
+ (25 26 27 28 29 30 31 32)
+ (33 34 35 36 37 38 39 40)
+ (41 42 43 44 45 46 47 48)
+ (49 50 51 52 53 54 55 56)
+ (57 58 59 60 61 62 63 64))
+
+(concentrici m4)
+;-> ((28 29 37 36)
+;->  (19 20 21 22 30 38 46 45 44 43 35 27)
+;->  (10 11 12 13 14 15 23 31 39 47 55 54 53 52 51 50 42 34 26 18)
+;->  (1 2 3 4 5 6 7 8 16 24 32 40 48 56 64 63 62 61 60 59 58 57 49 41 33 25 17 9))
+
+Il programma segue una logica strutturata per estrarre gli elementi di una matrice quadrata in quadrati concentrici, partendo dal centro verso l'esterno, tenendo conto di due scenari:
+- quando la dimensione della matrice è **dispari** (con un singolo elemento centrale).
+- quando la dimensione della matrice è **pari** (con quattro elementi centrali).
+
+### Dettagli sul funzionamento:
+
+#### 1. **Variabili iniziali**:
+  - 'N': rappresenta la lunghezza della matrice (numero di righe o colonne).
+  - 'centro': calcola il centro della matrice. Se 'N' è dispari, questo sarà l'indice esatto del centro, se 'N' è pari, si calcoleranno i quattro elementi centrali.
+  - 'risultato': è la lista che conterrà gli elementi della matrice estratti in ordine a spirale.
+
+#### 2. **Gestione del caso pari**:
+Quando 'N' è pari:
+  - Aggiunge i quattro elementi centrali alla lista 'risultato'.
+    Questi quattro elementi formano un blocco al centro della matrice, quindi sono:
+    - l'elemento in alto a sinistra del centro,
+    - l'elemento in alto a destra,
+    - l'elemento in basso a destra,
+    - l'elemento in basso a sinistra.
+  - Imposte gli indici iniziali delle righe ('riga-alto', 'riga-basso') e delle colonne ('colonna-sinistra', 'colonna-destra') corrispondenti agli angoli del blocco centrale.
+  - Definisce 'quadrati', che indica il numero di quadrati concentrici rimanenti da processare.
+
+#### 3. **Gestione del caso dispari**:
+Quando 'N' è dispari:
+  - Aggiunge l'elemento centrale singolo alla lista 'risultato'.
+  - Imposta 'riga-alto', 'riga-basso', 'colonna-sinistra' e 'colonna-destra' in modo che corrispondano alla cella centrale.
+  - Anche qui, 'quadrati' rappresenta il numero di quadrati concentrici rimanenti da processare.
+
+#### 4. **Ciclo principale per creare i quadrati concentrici**:
+Dopo aver gestito l'elemento o gli elementi centrali, il programma entra in un ciclo 'for' che crea quadrati concentrici intorno al centro.
+Ad ogni iterazione, gli indici 'riga-alto', 'riga-basso', 'colonna-sinistra' e 'colonna-destra' vengono espansi per allargare il quadrato.
+
+Per ciascun quadrato, il programma esegue quattro passaggi:
+  - **Lato superiore**: Aggiunge gli elementi dall'estrema sinistra all'estrema destra della riga superiore.
+  - **Lato destro**: Aggiunge gli elementi dall'alto verso il basso della colonna destra (tranne quelli che appartengono anche al lato superiore e inferiore).
+  - **Lato inferiore**: Aggiunge gli elementi da destra a sinistra della riga inferiore.
+  - **Lato sinistro**: Aggiunge gli elementi dal basso verso l'alto della colonna sinistra (tranne quelli che appartengono anche al lato superiore e inferiore).
+
+Gli elementi raccolti per ciascun quadrato vengono temporaneamente salvati in 'cur-quad' e poi aggiunti a 'risultato'.
+
+#### 5. **Output**:
+Alla fine, 'risultato' contiene una lista di liste, dove ciascuna lista rappresenta un livello della spirale,partendo dal centro e procedendo verso l'esterno.
+
+#### Esempio:
+Per la matrice 5x5:
+(set 'matrice '((1  2  3  4  5)
+                (6  7  8  9  10)
+                (11 12 13 14 15)
+                (16 17 18 19 20)
+                (21 22 23 24 25)))
+
+L'espressione:
+(concentrici matrice)
+
+Restituirà:
+((13)
+ (7 8 9 14 19 18 17 12)
+ (1 2 3 4 5 10 15 20 25 24 23 22 21 16 11 6))
+
+#### Spiegazione dell'output:
+I risultati vengono raggruppati per livelli di quadrati:
+1. Il primo elemento '(13)' è il centro della matrice.
+2. Il secondo gruppo di numeri rappresenta il primo quadrato intorno al centro, partendo dall'alto a sinistra e proseguendo in senso orario.
+3. L'ultimo gruppo rappresenta il quadrato esterno della matrice, sempre disposto in senso orario.
 
 ============================================================================
 

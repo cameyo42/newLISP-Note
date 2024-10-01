@@ -2639,6 +2639,7 @@ NOTE LIBERE 26
   Girl face
   Compito di punizione
   Generazione di labirinti
+  Quadrati concentrici di una matrice quadrata
   
 PROBLEMI SUI DADI
 =================
