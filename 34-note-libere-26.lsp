@@ -2951,5 +2951,145 @@ I risultati vengono raggruppati per livelli di quadrati:
 2. Il secondo gruppo di numeri rappresenta il primo quadrato intorno al centro, partendo dall'alto a sinistra e proseguendo in senso orario.
 3. L'ultimo gruppo rappresenta il quadrato esterno della matrice, sempre disposto in senso orario.
 
+
+-------------------------------
+Odds, Evens, Oddish and Evenish
+-------------------------------
+
+Un numero è Odds se le cifre dispari sono in numero maggiore delle cifre pari
+Un numero è Evens se le cifre pari sono in numero maggiore delle cifre dispari
+Un numero è Neutral se il numero di cifre pari è uguale al numero delle cifre dispari.
+
+Un numero è Oddish se la somma delle cifre è dispari
+Un numero è Evenish se la somma delle cifre è pari
+
+(define (oenoe num)
+  (let ((somma 0) (pari 0) (dispari 0) (p1 "") (p2 "") (out '()))
+    (while (!= num 0)
+      (setq cifra (% num 10))
+      (if (odd? cifra) (++ dispari) (++ pari))
+      (setq somma (+ somma cifra))
+      (setq num (/ num 10))
+    )
+    (cond ((> pari dispari) (setq p1 "Evens"))
+          ((< pari dispari) (setq p1 "Odds"))
+          ((= pari dispari) (setq p1 "Neutral")))
+    (if (even? somma) 
+        (setq p2 "Evenish")
+        (setq p2 "Oddish"))
+    (list p1 p2)))
+
+Proviamo:
+
+(oenoe 1234)
+;-> ("Neutral" "Evenish")
+
+(oenoe 11111)
+;-> ("Odds" "Oddish")
+
+(oenoe 224466)
+;-> ("Evens" "Evenish")
+
+
+-------------------------------------------------------------
+Valore atteso dei passi per andare da 0 a N con passi casuali
+-------------------------------------------------------------
+
+Abbiamo una linea di numeri interi da 0 a N.
+Poniamo una biglia nella posizione 0.
+Poi avanziamo la biglia verso N di un valore casuale compreso tra 1 e (N - posizione).
+Qual'è la formula per calcolare il valore medio dei valori casuali per raggiungere N (valore atteso)?
+
+Scriviamo una funzione che simula questo processo.
+
+(define (moves N iter)
+  (local (num-passi pos)
+    (setq num-passi 0)
+    (for (i 1 iter)
+      (setq pos 0)
+      (while (< pos N)
+        ; muove la biglia nella nuova posizione
+        (++ pos (+ 1 (rand (- N pos))))
+        (++ num-passi)))
+    (div num-passi iter)))
+
+Proviamo:
+
+(moves 2 1e7)
+;-> 1.5000352
+(moves 4 1e7)
+;-> 2.0827491
+(moves 10 1e7)
+;-> 2.9291817
+(time (println (moves 100 1e7)))
+;-> 5.1867909
+;-> 8509.987999999999
+(time (println (moves 1000 1e7)))
+;-> 7.4858765
+;-> 11879.613
+(time (println (moves 10000 1e7)))
+;-> 9.789269300000001
+;-> 15193.538
+
+Dal punto di vista matematico possiamo seguire un approccio basato su una somma armonica.
+Quando ci troviamo in una posizione x (con 0 <= x < N), il passo successivo sarà un numero casuale tra 1 e (N - x).
+Questo significa che il numero medio dei passi necessari da x a N vale:
+
+  E(x) = 1 + 1/(N - x) * sum[k=1,(N-x)]E(x + k)
+
+Tuttavia, possiamo semplificare questa ricorsione con un approccio alternativo:
+dobbiamo calcolare la somma dei reciproci delle distanze rimanenti.
+Per ogni posizione x, il numero medio di passi che mancano per raggiungere N è la somma dei reciproci delle distanze possibili, più 1 (per il primo passo):
+
+  E(0) = sum[k=1,N](1/k)
+
+Questa somma è chiamata somma armonica H(N) e può essere approssimata con la formula:
+
+  H(N) ≈ ln(N) + gamma
+
+dove gamma ≈ 0.5772156649015329 è la costante di Eulero-Mascheroni.
+
+Il valore medio dei passi necessari per raggiungere N da 0 con scelte casuali ad ogni passo è dato da:
+
+ E(0) = H(N) = sum[k=1,N](1/k)
+
+In modo approssimato:
+
+ E(0) = H(N) ≈ ln(N) + gamma
+
+Funzione esatta:
+
+(define (exact N)
+  (setq passi 0)
+  (for (k 1 N) (setq passi (add passi (div k))))
+  passi)
+
+Funzione approssimata:
+
+(define (approx N) (add (log N) 0.577))
+
+Proviamo:
+
+(setq valori '(2 4 10 100 1000 10000))
+
+(map exact valori)
+;-> (1.5 2.083333333333333 2.928968253968254 5.187377517639621
+;->  7.485470860550343 9.787606036044348)
+
+(map approx valori)
+;-> (1.270147180559945 1.963294361119891 2.879585092994046 5.182170185988092
+;->  7.484755278982137 9.787340371976184)
+
+Vediamo una tabella con i valori dei tre metodi:
+            
+      N   Simulazione    Esatto          Approssimato
+      2   1.5000352       1.5             1.2701472
+      4   2.0827491       2.0833333       1.9632944
+     10   2.9291817       2.9289683       2.8795851
+    100   5.1867909       5.1873775       5.1821702
+   1000   7.4858765       7.4854709       7.4847553
+  10000   9.7892693       9.7876060       9.7873404
+ 100000  12.0920852      12.0901461      12.0899255
+
 ============================================================================
 

@@ -2640,6 +2640,8 @@ NOTE LIBERE 26
   Compito di punizione
   Generazione di labirinti
   Quadrati concentrici di una matrice quadrata
+  Odds, Evens, Oddish and Evenish
+  Valore atteso dei passi per andare da 0 a N con passi casuali
   
 PROBLEMI SUI DADI
 =================
