@@ -61,6 +61,15 @@ Valori della notazione Big-O in funzione del numero di input:
 32     1         5          6         32      160          1024    32768   4294967296
 64     1         6          8         64      384          4096   262144   1.84x10^19
 
+  Notation   Type          10 elements    100 elements    1000 elements
+  O(1)       Constant             1               1                1
+  O(log N)   Logarithmic          3               6                9
+  O(N)       Linear              10             100             1000
+  O(N log N) nlog(n)             30             600             9000
+  O(N^2)     Quadratic          100           10000          1000000
+  O(2^N)     Exponential       1024        1.26e+29        1.07e+301
+  O(N!)      Factorial      3628800        9.3e+157       4.02e+2567
+
 Ma cosa significa esattamente che un algoritmo funziona in tempo O(f(n))?
 
 Vuol dire che ci sono due costanti C e n0 tali che l'algoritmo esegua al massimo c*f(n) operazioni per tutti gli input in cui n ≥ n0. Pertanto, la notazione O fornisce un limite superiore per il tempo di esecuzione dell'algoritmo per input sufficientemente grandi. La notazione O non viene usata per fornire una stima accurata della complessità temporale.

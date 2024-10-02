@@ -2686,7 +2686,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (299 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (300 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

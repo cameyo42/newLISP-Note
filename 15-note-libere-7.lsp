@@ -8157,11 +8157,11 @@ Nota: le coordinate dei punti devono essere non negative, altrimenti ImageMagick
 
 Nota: l'errore "...pixel not authentic..." di ImageMagick indica un errore nelle coordinate dei pixel o nella riga di intestazione.
 
-Per creare un'immagine da newLISP:
+Per creare un'immagine da newLISP (senza trasparenza, il canale Aplha 'a' non viene considerato):
 
 (exec "convert pixels.txt image.png")
 
-oppure
+oppure (con trasparenza, con il canale Alpha):
 
 (exec "convert pixels.txt -background white -flatten pixels.png")
 
@@ -8205,6 +8205,69 @@ Idee di utilizzo
 3) generative art
 4) attrattori di clifford
 5) superformula 2D/3D
+
+Vediamo una funzione generica per generare immagini RGBA a 8 bit per canale (0..255).
+
+(define (list-IM lst file-str)
+  (local (outfile x-width y-height line)
+    ; remove duplicate pixel
+    (setq lst (sort (unique lst)))
+    ; open output file
+    (setq outfile (open file-str "write"))
+    (print outfile { }) ; debug
+    ; calcolo dimensioni immagine
+    ; calculate image dimension (width and height)
+    (setq x-width (add 1 (apply max (map (fn(c) (c 0)) lst))))
+    (setq y-height (add 1 (apply max (map (fn(c) (c 1)) lst))))
+    ; write file (ImageMagick format: rgba, 8bit)
+    (write-line outfile (string "# ImageMagick pixel enumeration: "
+                (string x-width) "," (string y-height) ",256,rgba"))
+    (setq mode (length (lst 0)))
+    (cond ((= mode 2) ; only coords
+            (dolist (el lst)
+              (setq line (string (string (el 0)) ", " (string (el 1))
+                    ": (0,0,0,255)")) ; color black with alpha=100%
+              (write-line outfile line)))
+          ((= mode 5) ; coords and r g b
+            (dolist (el lst)
+              (setq line (string (string (el 0)) ", " (string (el 1)) ": ("
+                    (string (el 1)) ", " (string (el 2)) ", " (string (el 3))
+                    ", 255)")) ; color r g b with alpha=100%
+              (write-line outfile line)))
+          ((= mode 6) ; coords and r g b a
+            (dolist (el lst)
+              (setq line (string (string (el 0)) ", " (string (el 1)) ": ("
+                    (string (el 1)) ", " (string (el 2)) ", " (string (el 3))
+                    ", " (string (el 4)))) ; color r g b with alpha=100%
+              (write-line outfile line)))
+          (true (println "Error: only 2, 5 or 6 elements are allowed")))
+    (close outfile)))
+
+Proviamo:
+
+Immagine bianco e nero (senza trasparenza):
+
+(silent
+  (setq x (rand 200 1000))
+  (setq y (rand 200 1000))
+  (setq IM1 (map list x y))
+)
+(list-IM IM1 "IM1.txt")
+(exec "convert IM1.txt -background white -flatten IM1.png")
+
+Immagine RGB (senza trasparenza):
+
+(setq IM2 (map (fn(x) (append x (list (rand 255) (rand 255) (rand 255)))) IM1))
+(list-IM IM2 "IM2.txt")
+(exec "convert IM2.txt -background white -flatten IM2.png")
+
+Immagine RGBA (con trasparenza):
+
+(setq IM3 (map (fn(x) (append x (list (rand 255)))) IM2))
+(list-IM IM3 "IM3.txt")
+(exec "convert IM3.txt -background white -flatten IM3.png")
+
+I file "IM1.png", "IM2.png" e "IM3.png" si trovano nella cartella "data".
 
 
 ----------------------
