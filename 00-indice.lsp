@@ -2642,6 +2642,7 @@ NOTE LIBERE 26
   Quadrati concentrici di una matrice quadrata
   Odds, Evens, Oddish and Evenish
   Valore atteso dei passi per andare da 0 a N con passi casuali
+  Raggruppamento degli elementi di una lista con una chiave
   
 PROBLEMI SUI DADI
 =================

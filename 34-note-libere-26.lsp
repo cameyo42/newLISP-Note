@@ -3091,5 +3091,118 @@ Vediamo una tabella con i valori dei tre metodi:
   10000    9.7892693      9.7876060       9.7873404
  100000   12.0920852     12.0901461      12.0899255
 
+
+---------------------------------------------------------
+Raggruppamento degli elementi di una lista con una chiave
+---------------------------------------------------------
+
+In una miniera lavorano tre persone A, B e C.
+Tutti i giorni, al rientro dal lavoro, ogni lavoratore compila una scheda in cui riporta il nome e le quantità di oro e argento che hanno estratto.
+Dopo un pò di giorni abbiamo la seguente tabella:
+
+Nome Oro(gr) Argento(gr)
+ A    10      30
+ B     0      50
+ C    30      30
+ B    10      50
+ A    30       0
+ ...
+
+La tabella viene memorizzata come una lista in cui ogni riga rappresenta un elemento:
+
+  (("A" 10 30) ("B" 0 50) ("C" 30 30) ("B" 10 50) ("A" 30 0)))
+
+Vogliamo ottenere una lista del tipo:
+
+  ("A" (10 30) (30 0)) ("B" (0 50) (10 50)) ("C" (30 30))
+
+dove ci sono 3 elementi (le chiavi A, B e C) a cui sono associati tutti i valori corrispondenti.
+
+(setq lst '(("A" 10 30) ("B" 0 50) ("C" 30 30) ("B" 10 50) ("A" 30 0)))
+
+; Trova e ordina le chiavi
+(setq keys (sort (unique (map first lst))))
+;-> ("A" "B" "C")
+
+; Lista soluzione
+(setq out '())
+; per ogni chiave...
+(dolist (key keys)
+  ; elemento corrente
+  (setq element (list key))
+  ; ricerca della chiave negli elementi della lista
+  ; e aggiornamento dell'elemento corrente
+  ;(dolist (el lst) (if (= key (el 0)) (extend element (list (slice el 1)))))
+  (dolist (el lst) (if (= key (el 0)) (push (slice el 1) element -1)))
+  ; inserimento elemento corrente nella lista soluzione
+  (push element out -1)
+)
+;-> (("A" (10 30) (30 0)) ("B" (0 50) (10 50)) ("C" (30 30)))
+
+; Trova e ordina le chiavi
+(setq keys (sort (unique (map first lst))))
+;-> ("A" "B" "C")
+; Lista soluzione
+(setq out '())
+; per ogni chiave...
+(dolist (key keys)
+  ; elemento corrente
+  (setq element (list key))
+  ; ricerca della chiave negli elementi della lista
+  ; e aggiornamento dell'elemento corrente
+  (extend element (find-all (list key '*) lst (slice $it 1)))
+  ;(dolist (el lst) (if (= key (el 0)) (extend element (list (slice el 1)))))
+  ;(dolist (el lst) (if (= key (el 0)) (push (slice el 1) element -1)))
+  ; inserimento elemento corrente nella lista soluzione
+  (push element out -1)
+)
+;-> (("A" (10 30) (30 0)) ("B" (0 50) (10 50)) ("C" (30 30)))
+
+Mettendo tutto insieme:
+
+(define (merge-key lst flattened)
+  (local (out keys element)
+    ; Trova e ordina le chiavi
+    (setq keys (sort (unique (map first lst))))
+    ; Lista soluzione
+    (setq out '())
+    ; Per ogni chiave...
+    (dolist (key keys)
+      ; Elemento corrente
+      (setq element (list key))
+      ; Ricerca della chiave negli elementi della lista
+      ; e aggiornamento dell'elemento corrente
+      (extend element (find-all (list key '*) lst (slice $it 1)))
+      ;(dolist (el lst) (if (= key (el 0)) (extend element (list (slice el 1)))))
+      ;(dolist (el lst) (if (= key (el 0)) (push (slice el 1) element -1)))
+      ; Inserimento elemento corrente nella lista soluzione
+      (if flattened 
+        (push (flat element) out -1)
+        (push element out -1)))
+    out))
+
+Proviamo:
+
+(merge-key lst)
+;-> (("A" (10 30) (30 0)) ("B" (0 50) (10 50)) ("C" (30 30)))
+
+(merge-key lst true)
+;-> (("A" 10 30 30 0) ("B" 0 50 10 50) ("C" 30 30))
+
+Test di velocità:
+100 persone
+10000 righe
+valori da 0 a 1000
+(silent (setq test (array-list (array 10000 100 (rand 1001 (* 10000 100))))))
+(time (setq res (merge-key test)))
+;-> 312.418
+
+100 persone
+100000 righe
+valori da 0 a 1000
+(silent (setq test (array-list (array 100000 100 (rand 1001 (* 100000 100))))))
+(time (setq res (merge-key test)))
+;-> 7438.243
+
 ============================================================================
 
