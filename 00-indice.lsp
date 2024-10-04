@@ -2643,6 +2643,7 @@ NOTE LIBERE 26
   Odds, Evens, Oddish and Evenish
   Valore atteso dei passi per andare da 0 a N con passi casuali
   Raggruppamento degli elementi di una lista con una chiave
+  Cruciverba e crucinumero
   
 PROBLEMI SUI DADI
 =================

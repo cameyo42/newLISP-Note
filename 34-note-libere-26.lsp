@@ -3204,5 +3204,314 @@ valori da 0 a 1000
 (time (setq res (merge-key test)))
 ;-> 7438.243
 
+
+------------------------
+Cruciverba e crucinumero
+------------------------ 
+
+Dato un cruciverba con sole caselle bianche e nere, generare un cruciverba con i numeri delle definizioni orizzontali e verticali.
+Per esempio, partendo dal seguente cruciverba:
+
+  +------+------+------+------+------+------+------+
+  |      |      |      |      |      |      |██████|
+  |      |      |      |      |      |      |██████|
+  +------+------+------+------+------+------+------+
+  |      |██████|      |      |      |██████|      |
+  |      |██████|      |      |      |██████|      |
+  +------+------+------+------+------+------+------+
+  |      |      |██████|      |██████|      |      |
+  |      |      |██████|      |██████|      |      |
+  +------+------+------+------+------+------+------+
+  |      |      |      |██████|██████|      |      |
+  |      |      |      |██████|██████|      |      |
+  +------+------+------+------+------+------+------+
+  |██████|      |      |██████|██████|      |      |
+  |██████|      |      |██████|██████|      |      |
+  +------+------+------+------+------+------+------+
+  |      |      |██████|      |██████|      |      |
+  |      |      |██████|      |██████|      |      |
+  +------+------+------+------+------+------+------+
+  |      |██████|      |      |      |██████|      |
+  |      |██████|      |      |      |██████|      |
+  +------+------+------+------+------+------+------+
+  |      |      |      |      |      |      |██████|
+  |      |      |      |      |      |      |██████|
+  +------+------+------+------+------+------+------+
+
+Bisogna generare il seguente cruciverba:
+
+   +------+------+------+------+------+------+------+
+   |1     |      |2     |3     |4     |      |██████|
+   |      |      |      |      |      |      |██████|
+   +------+------+------+------+------+------+------+
+   |      |██████|5     |      |      |██████|6     |
+   |      |██████|      |      |      |██████|      |
+   +------+------+------+------+------+------+------+
+   |7     |8     |██████|      |██████|9     |      |
+   |      |      |██████|      |██████|      |      |
+   +------+------+------+------+------+------+------+
+   |10    |      |11    |██████|██████|12    |      |
+   |      |      |      |██████|██████|      |      |
+   +------+------+------+------+------+------+------+
+   |██████|13    |      |██████|██████|14    |      |
+   |██████|      |      |██████|██████|      |      |
+   +------+------+------+------+------+------+------+
+   |15    |      |██████|16    |██████|17    |      |
+   |      |      |██████|      |██████|      |      |
+   +------+------+------+------+------+------+------+
+   |      |██████|18    |      |19    |██████|      |
+   |      |██████|      |      |      |██████|      |
+   +------+------+------+------+------+------+------+
+   |20    |      |      |      |      |      |██████|
+   |      |      |      |      |      |      |██████|
+   +------+------+------+------+------+------+------+
+
+Definizioni Orizzontali: 1 5 7 9 10 12 13 14 15 17 18 20
+Definizioni Verticali: 1 2 3 4 6 8 9 11 15 16 18 19
+
+Rappresentiamo il cruciverba come una matrice:
+
+0 = casella vuota
+* = casella piena
+
+(setq cruci '((0 0 0 0 0 0 "*")
+              (0 "*" 0 0 0 "*" 0)
+              (0 0 "*" 0 "*" 0 0)
+              (0 0 0 "*" "*" 0 0)
+              ("*" 0 0 "*" "*" 0 0)
+              (0 0 "*" 0 "*" 0 0)
+              (0 "*" 0 0 0 "*" 0)
+              (0 0 0 0 0 0 "*")))
+
+Funzione che stampa un cruciverba:
+
+(define (print-cruci cruci)
+  (setq righe (length cruci))
+  (setq colonne (length (cruci 0)))
+  (for (r 0 (- righe 1))
+    (for (c 0 (- colonne 1))
+      (cond ((= (cruci r c) 0) (print " . "))
+            ((= (cruci r c) "*") (print " ■ "))
+            (true (print (format "%2d " (cruci r c)))))
+    )
+    (println)) '>)
+
+(print-cruci cruci)
+;-> .  .  .  .  .  .  ■
+;-> .  ■  .  .  .  ■  .
+;-> .  .  ■  .  ■  .  .
+;-> .  .  .  ■  ■  .  .
+;-> ■  .  .  ■  ■  .  .
+;-> .  .  ■  .  ■  .  .
+;-> .  ■  .  .  .  ■  .
+;-> .  .  .  .  .  .  ■
+
+Il primo passo è quello di trovare le caselle di inizio delle definizioni orizzontali e verticali.
+
+Caselle con definizione orizzontale:
+- hanno una casella libera a destra e una casella occupata a sinistra
+Attenzione alle caselle particolari della prima e ultima colonna.
+
+Caselle con definizione verticale:
+- hanno una casella libera in basso e una casella occupata in alto
+Attenzione alle caselle particolari della prima e ultima riga.
+
+Funzione che verifica se una casella è una casella di inizio di una definizione orizzontale o verticale:
+
+(define (check mx r c)
+  (setq righe (length mx))
+  (setq colonne (length (mx 0)))
+  ; orizzontali
+  (cond ((= (mx r c) "*") nil)
+        ((= c 0)
+          (if (!= (mx r (+ c 1)) "*") (push (list r c "O") marked -1)))
+        ((= c (- colonne 1)) nil)
+        (true ; (and (!= c 0) (!= c (- colonne 1)))
+          (if (and (!= (mx r (+ c 1)) "*") (= (mx r (- c 1)) "*"))
+              (push (list r c "O") marked -1)))
+  )
+  ; verticali
+  (cond ((= (mx r c) "*") nil)
+        ((= r 0)
+          (if (!= (mx (+ r 1) c) "*") (push (list r c "V") marked -1)))
+        ((= r (- righe 1)) nil)
+        (true ; (and (!= r 0) (!= r (- righe 1)))
+          (if (and (!= (mx (+ r 1) c) "*") (= (mx (- r 1) c) "*"))
+              (push (list r c "V") marked -1)))
+  )
+)
+
+Funzione che trova le caselle iniziali per le definizioni orizzontali e verticali:
+
+(define (trova-caselle cruci)
+  (setq righe (length cruci))
+  (setq colonne (length (cruci 0)))
+  (setq marked '())
+  (for (r 0 (- righe 1))
+    (for (c 0 (- colonne 1))
+      (check cruci r c)
+    )
+  )
+  marked)
+
+(setq caselle (trova-caselle cruci))
+;-> ((0 0 "O") (0 0 "V") (0 2 "V") (0 3 "V") (0 4 "V") (1 2 "O") 
+;->  (1 6 "V") (2 0 "O") (2 1 "V") (2 5 "O") (2 5 "V") (3 0 "O")
+;->  (3 2 "V") (3 5 "O") (4 1 "O") (4 5 "O") (5 0 "O") (5 0 "V")
+;->  (5 3 "V") (5 5 "O") (6 2 "O") (6 2 "V") (6 4 "V") (7 0 "O"))
+
+Adesso dobbiamo numerare le caselle delle definizioni.
+Attenzione al fatto che una casella può essere l'inizio di una definizione orizzontale e anche l'inizio di una definizione verticale (per esempio la casella (0 0)) e quindi devono avere lo stesso numero.
+
+Funzione che numera le caselle delle definizioni:
+
+(define (numera-caselle lst)
+  (setq numerate lst)
+  (setq number 0)
+  (dolist (el lst)
+    (cond ((= (el 2) "O") ; numera orizzontali
+            (++ number)
+            (push number (numerate $idx) -1))
+          ((= (el 2) "V") ; numera verticali
+            (if (find (list (el 0) (el 1) "O" '?) numerate match)
+                (begin (push ($0 3) (numerate $idx) -1))
+                (begin (++ number) (push number (numerate $idx) -1)))))
+  )
+  numerate)
+
+(setq caselle-numerate (numera-caselle caselle))
+;-> ((0 0 "O" 1) (0 0 "V" 1) (0 2 "V" 2) (0 3 "V" 3) (0 4 "V" 4) 
+;->  (1 2 "O" 5) (1 6 "V" 6) (2 0 "O" 7) (2 1 "V" 8) (2 5 "O" 9)
+;->  (2 5 "V" 9) (3 0 "O" 10) (3 2 "V" 11) (3 5 "O" 12) (4 1 "O" 13)
+;->  (4 5 "O" 14) (5 0 "O" 15) (5 0 "V" 15) (5 3 "V" 16) (5 5 "O" 17)
+;->  (6 2 "O" 18) (6 2 "V" 18) (6 4 "V" 19) (7 0 "O" 20))
+
+A questo punto dobbiamo aggiornare la matrice 'cruci' con i numeri delle definizioni:
+
+(dolist (el caselle-numerate) (setf (cruci (el 0) (el 1)) (el 3)))
+;-> 20
+
+Stampiamo il cruciverba finale:
+
+(print-cruci cruci)
+;->  1  .  2  3  4  .  ■
+;->  .  ■  5  .  .  ■  6
+;->  7  8  ■  .  ■  9  .
+;-> 10  . 11  ■  ■ 12  .
+;->  ■ 13  .  ■  ■ 14  .
+;-> 15  .  ■ 16  ■ 17  .
+;->  .  ■ 18  . 19  ■  .
+;-> 20  .  .  .  .  .  ■
+
+Creiamo la lista dei numeri delle definizioni:
+
+(setq oriz (find-all '(? ? "O" ?) caselle-numerate))
+;-> ((0 0 "O" 1) (1 2 "O" 5) (2 0 "O" 7) (2 5 "O" 9) (3 0 "O" 10)
+;->  (3 5 "O" 12) (4 1 "O" 13) (4 5 "O" 14) (5 0 "O" 15) (5 5 "O" 17)
+;->  (6 2 "O" 18) (7 0 "O" 20))
+
+(setq vert (find-all '(? ? "V" ?) caselle-numerate))
+;-> ((0 0 "V" 1) (0 2 "V" 2) (0 3 "V" 3) (0 4 "V" 4) (1 6 "V" 6)
+;->  (2 1 "V" 8) (2 5 "V" 9) (3 2 "V" 11) (5 0 "V" 15) (5 3 "V" 16)
+;->  (6 2 "V" 18) (6 4 "V" 19))
+
+(setq oriz-def (flat (map 3 oriz)))
+;-> (1 5 7 9 10 12 13 14 15 17 18 20)
+
+(setq vert-def (flat (map 3 vert)))
+;-> (1 2 3 4 6 8 9 11 15 16 18 19)
+
+Infine vediamo una funzione per creare un cruciverba (solo caselle bianche o nere) casuale:
+
+(define (crea-cruci righe colonne caselle-nere)
+  (let (k 0)
+    (setq cruci (array-list (array righe colonne '(0))))
+    (while (<= k caselle-nere)
+      (setq r (rand righe))
+      (setq c (rand colonne))
+      (unless (= (cruci r c) "*")
+        (setf (cruci r c) "*")
+        (++ k)))
+    cruci))
+
+(print-cruci (crea-cruci 10 10 20))
+;-> .  .  .  ■  .  ■  ■  .  .  .
+;->  ■  ■  .  .  .  .  ■  .  ■  .
+;->  .  .  .  .  .  .  .  .  .  .
+;->  ■  .  .  .  .  .  .  .  ■  .
+;->  .  .  ■  ■  .  .  .  .  .  .
+;->  .  ■  .  ■  ■  ■  .  .  .  .
+;->  .  .  .  .  .  .  ■  .  .  .
+;->  .  .  .  .  .  ■  .  .  ■  .
+;->  .  .  .  .  .  .  .  ■  .  .
+;->  .  .  .  .  ■  .  .  .  .  ■
+
+Nota: la creazione delle definizioni del cruciverba va fatta a mano.
+Possiamo anche creare un crucinumero (che è più semplice) partendo dal cruciverba di esempio:
+
+  +------+------+------+------+------+------+------+
+  |1     |      |2     |3     |4     |      |██████|
+  |      |      |      |      |      |      |██████|
+  +------+------+------+------+------+------+------+
+  |      |██████|5     |      |      |██████|6     |
+  |      |██████|      |      |      |██████|      |
+  +------+------+------+------+------+------+------+
+  |7     |8     |██████|      |██████|9     |      |
+  |      |      |██████|      |██████|      |      |
+  +------+------+------+------+------+------+------+
+  |10    |      |11    |██████|██████|12    |      |
+  |      |      |      |██████|██████|      |      |
+  +------+------+------+------+------+------+------+
+  |██████|13    |      |██████|██████|14    |      |
+  |██████|      |      |██████|██████|      |      |
+  +------+------+------+------+------+------+------+
+  |15    |      |██████|16    |██████|17    |      |
+  |      |      |██████|      |██████|      |      |
+  +------+------+------+------+------+------+------+
+  |      |██████|18    |      |19    |██████|      |
+  |      |██████|      |      |      |██████|      |
+  +------+------+------+------+------+------+------+
+  |20    |      |      |      |      |      |██████|
+  |      |      |      |      |      |      |██████|
+  +------+------+------+------+------+------+------+
+
+Orizzontali:
+ 1. Prime 6 cifre di pi greco
+ 5. Titolo di una serie televisiva
+ 7. Mezza verità
+ 9. Se hai fatto 30, ...
+10. Spedizione garibaldina meno 1
+12. La maggiore età
+13. Numero con 4 'buchi'
+14. Metà I Ching
+15. Apostoli
+17. Numero somma di due quadrati uguali (x^2 + x^2)
+18. Numero atomico Umbitrio
+20. Prime 6 cifre di e
+
+Verticali:
+ 1. Taxi di Ramanujan
+ 2. Squadra di calcio
+ 3. Levi's Jeans
+ 4. Paura
+ 6. Prime 6 cifre di e
+ 8. Italia mondiali di calcio
+ 9. "Chiamate Roma ..."
+11. Numero somma di due quadrati uguali (x^2 + x^2)
+15. Il 32-esimo primo
+16. Prefisso della Mauritania
+18. Ore della passione di Cristo
+19. Numero atomico dello Stronzio
+
+Soluzione:
+  141592■
+  7■100■7
+  21■1■31
+  999■■18
+  ■88■■32
+  12■2■18
+  2■123■1
+  718281■
+
 ============================================================================
 
