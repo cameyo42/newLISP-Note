@@ -861,7 +861,7 @@ NOTE LIBERE 4
   Triangoli e bastoncini
   Generazione di una lista di numeri casuali che sommano a 1
   Numeri disarium
-  Numeri promici
+  Numeri pronici
   Formula di Erone
   Tre funzioni per calcolare la potenza di un numero intero
   Numeri Armstrong (narcisistici)
@@ -2644,6 +2644,8 @@ NOTE LIBERE 26
   Valore atteso dei passi per andare da 0 a N con passi casuali
   Raggruppamento degli elementi di una lista con una chiave
   Cruciverba e crucinumero
+  Interesse composto e il numero 'e'
+  Corsa tra fattori pari e dispari
   
 PROBLEMI SUI DADI
 =================

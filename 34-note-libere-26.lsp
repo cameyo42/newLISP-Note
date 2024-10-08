@@ -1181,6 +1181,30 @@ Versione iterativa:
 ;-> (0L 1L 1L 2L 3L 5L 8L 13L 21L 34L 55L 89L 144L 233L 377L 610L
 ;->  987L 1597L 2584L 4181L 6765L)
 
+Versione Dynamic Programming (bottom up)
+
+(define (fiboDP n)
+  (cond ((zero? n) 0)
+        ((= n 1) 1)
+        (true
+          (setq dp (array (+ n 1) '(0)))
+          (setq (dp 0) 0)
+          (setq (dp 1) 1)
+          (for (i 2 n)
+            (setq val (+ (dp (- i 2)) (dp (- i 1))))
+            (setf (dp i) val)
+          )
+          (dp n))))
+
+(fiboDP 3)
+;-> 2
+(map fiboDP (sequence 0 20))
+;-> (0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597 2584 4181 6765)
+(fiboDP 10)
+;-> 55
+dp
+;-> (0 1 1 2 3 5 8 13 21 34 55)
+
 Fibonacci (Lutz):
 
 (define (fibo-lutz num)
@@ -3512,6 +3536,230 @@ Soluzione:
   12■2■18
   2■123■1
   718281■
+
+
+----------------------------------
+Interesse composto e il numero 'e'
+----------------------------------
+
+Il numero 'e' è la base dei logaritmi naturali e vale:
+
+  2.718281828459045235360287471352662497757...
+
+Il numero 'e' viene definito come:
+
+  e = lim(1 + 1/x)^x
+     x->inf
+
+(define (e1 x) (pow (add 1 (div x)) x))
+
+oppure come:
+
+  e = Sum[k=0,inf](1/k!)
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (e2 x)
+  (let (sum 0)
+    (for (k 0 x) (inc sum (div (fact-i k))))))
+
+Proviamo:
+
+(e1 5)
+;-> 2.48832
+(e2 5)
+;-> 2.716666666666666
+
+(e1 10)
+;-> 2.593742460100002
+(e2 10)
+;-> 2.718281801146385
+
+(e1 100)
+;-> 2.704813829421529
+(e2 100)
+;-> 2.718281828459046
+
+(e1 1000)
+;-> 2.71692393223552
+(e2 1000)
+;-> 2.718281828459046
+
+Nota: la funzione "e2" converge ad 'e' più rapidamente della funzione "e1".
+
+(e1 1e6)
+;-> 2.718280469156428
+
+L'interesse composto è l'interesse che si riceve su un importo principale, che è compreso dell'interesse accumulato dai periodi precedenti su un deposito o di un prestito.
+In altre parole, è l'interesse guadagnato sul denaro che era già stato guadagnato come interesse o l'"interesse sugli interessi".
+
+  V = C * (1 + I/F)^(F*T)
+
+  dove:  V = Valore futuro
+         C = Capitale iniziale
+         I = Interesse (0..1)
+         F = Frequenza di erogazione (numero di erogazioni all'anno)
+         T = Tempo (anni)
+
+Frequenza: numero di volte all'anno che i pagamenti di interessi sono erogati.
+L'interesse è spesso composto su base annuale, semestrale, trimestrale o mensile, ma può anche essere composto su base quotidiana o anche in modo continuo.
+In generale, più frequentemente l'interesse viene erogato, maggiore sarà il valore futuro del vostro denaro.
+Ma fino a quanto possiamo arrivare?
+
+Tasso di interesse: percentuale di interesse sul capitale.
+L'interesse composto ha un impatto maggiore sugli investimenti con tempi più lunghi rispetto a quelli più brevi.
+
+(define (composto capitale interesse frequenza anni)
+  (mul capitale (pow (add 1 (div interesse frequenza)) (mul frequenza anni))))
+
+Facciamo alcuni esempi:
+
+capitale = 10
+interesse = 10% = 0.1
+frequenza = semestrale = 2 (volte all'anno)
+anni = 5
+(composto 10 0.1 2 5)
+;-> 16.28894626777442
+
+capitale = 10
+interesse = 100% = 1
+frequenza = trimestrale = 4 (volte all'anno)
+anni = 5
+(composto 10 1 4 5)
+;-> 867.3617379884036
+
+Nota: per sapere quanti anni occorrono per raddoppiare il capitale con un dato interesse (%) a frequenza annuale possiamo usare una formula approssimata: Anni = 72/Interesse
+
+(define (anni interesse) (div 72 interesse))
+
+Per esempio con un capitale di 10 e un interesse del 5%:
+(anni 5)
+;-> 14.4
+
+(composto 10 0.05 1 14.4)
+;-> 20.18951594467986
+
+Possiamo notare che ponendo:
+  capitale  --> C = 1
+  interesse --> I = 1
+  anni      --> T = 1
+  frequenza --> F = x
+
+le formule per 'e' e per l'interesse composto sono le stesse:
+
+   e = lim(1 + 1/x)^x
+     x->inf
+
+   V = C * (1 + I/F)^(F*T) = 1 * (1 + 1/x)^x
+
+Verifichiamolo:
+
+(e 10)
+;-> 2.593742460100002
+(composto 1 1 10 1)
+;-> 2.593742460100002
+(e 100)
+;-> 2.704813829421529
+(composto 1 1 100 1)
+;-> 2.704813829421529
+(e 1e6)
+;-> 2.718280469156428
+(composto 1 1 1e6 1)
+;-> 2.718280469156428
+
+Questo significa che, in un anno, il nostro capitale può aumentare al massimo di 'e' volte (cioè 2.7182818284 volte) anche se la frequenza di erogazione è istantanea (cioè vale infinito).
+
+
+--------------------------------
+Corsa tra fattori pari e dispari
+--------------------------------
+
+Ogni numero può essere espresso come una moltiplicazione di numeri primi (scomposizione in fattori primi).
+Per esempio:
+Chiamiamo 'f-pari' i numeri la cui scomposizione in fattori primi ha un numero pari di fattori.
+Chiamiamo 'f-dispari' i numeri la cui scomposizione in fattori primi ha un numero dispari di fattori.
+Per convenzione il numero 1 vale pari.
+Per i primi 10 numeri abbiamo:
+
+      f-pari: 1     4   6     9 10
+        freq: 1     2   3     4  5
+
+   f-dispari:   2 3   5   7 8
+        freq:   1 2   3   4 5
+
+I numeri f-pari e f-dispari sembrano avere un numero di occorrenze simile.
+
+Supponiamo di contare le occorrenze e confrontarle per ogni numero:
+
+  +--------+--------------+-----------------+-------------------+
+  | Numero | Conta f-pari | Conta f-dispari | Confronto         |
+  +--------+--------------+-----------------+-------------------+
+  |   1    |      1       |      0          | f-pari > fdispari |
+  |   2    |      1       |      1          | f-pari = fdispari |
+  |   3    |      1       |      2          | f-pari < fdispari |
+  |   4    |      2       |      2          | f-pari = fdispari |
+  |   5    |      2       |      3          | f-pari < fdispari |
+  |   6    |      3       |      3          | f-pari = fdispari |
+  |   7    |      3       |      4          | f-pari < fdispari |
+  |   8    |      3       |      5          | f-pari < fdispari |
+  |   9    |      4       |      5          | f-pari < fdispari |
+  |  10    |      5       |      5          | f-pari = fdispari |
+  |  11    |     ...      |     ...         |       ...         |
+  +--------+--------------+-----------------+-------------------+
+
+A parte per il numero 1, risulta che 'f-pari' è sempre minore o uguale a 'f-dispari'.
+
+Nel 1919 George Polya congetturò che 'f-pari' non avrebbe mai sorpassato 'f-dispari' (a parte per all'inizio con il numero 1).
+Nel 1980 Minoru Tanaka dimostrò che 'f-pari' supera f-dispari al numero 906150257.
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (factor-pari? num) (even? (length (factor num))))
+(define (factor-dispari? num) (odd? (length (factor num))))
+
+(filter dispari? (sequence 1 10))
+;-> (2 3 5 7 8)
+(filter pari? (sequence 1 10))
+;-> (1 4 6 9 10)
+
+(define (check max-num)
+  (let ( (pp 0) (dd 0) )
+    (for (num 1 max-num)
+      (if (even? (length (factor num)))
+        (begin
+          (++ pp)
+          (if (> pp dd) (println "Pari in vantaggio a: " num " (" pp " " dd ")")))
+        ;else
+        (++ dd)))))
+
+Proviamo:
+
+(time (check 1e6))
+;-> Pari in vantaggio a: 1
+;-> 718.575
+(time (check 1e7))
+;-> Pari in vantaggio a: 1
+;-> 15845.172
+(time (check 1e8))
+;-> Pari in vantaggio a: 1
+;-> 407362.197
+(time (check 906150257))
+;-> Pari in vantaggio a: 1 (1 0)
+;-> Pari in vantaggio a: 906150257 (453075129 453075128)
+;-> 9400713.805
+(period 9400713.805 true)
+;-> 2h 36m 40s 713ms
+(+ 453075129 453075128)
+;-> 906150257
 
 ============================================================================
 

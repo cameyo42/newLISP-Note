@@ -8243,12 +8243,12 @@ Chiaramente neanche con questa funzione possiamo calcolare il valore 12157692622
 
 
 --------------
-Numeri promici
+Numeri pronici
 --------------
 
-Un numero si dice promico (pronico) se è il prodotto di due numeri interi consecutivi.
-Ad esempio, se consideriamo il numero 72, è il prodotto di due interi consecutivi 8 e 9. Pertanto, 72 è un numero promico.
-Ora, se consideriamo il numero 16, è il prodotto di 2 e 8 o 4 e 4 ma nessuno è gli interi consecutivi. Pertanto, 16 non è un numero promico.
+Un numero si dice pronico (pronico) se è il prodotto di due numeri interi consecutivi.
+Ad esempio, se consideriamo il numero 72, è il prodotto di due interi consecutivi 8 e 9. Pertanto, 72 è un numero pronico.
+Ora, se consideriamo il numero 16, è il prodotto di 2 e 8 o 4 e 4 ma nessuno è gli interi consecutivi. Pertanto, 16 non è un numero pronico.
 
 Sequenza OEIS A002378:
   0, 2, 6, 12, 20, 30, 42, 56, 72, 90, 110, 132, 156, 182, 210, 240, 272,
@@ -8257,9 +8257,9 @@ Sequenza OEIS A002378:
   1892, 1980, 2070, 2162, 2256, 2352, 2450, 2550, ...
 
 Algoritmo:
-Eseguire un ciclo da 1 a metà del numero e se il numero è il prodotto di due numeri consecutivi qualsiasi, il numero è un numero promico, altrimenti no.
+Eseguire un ciclo da 1 a metà del numero e se il numero è il prodotto di due numeri consecutivi qualsiasi, il numero è un numero pronico, altrimenti no.
 
-(define (promico? num)
+(define (pronico? num)
   (let (out nil)
     (for (i 1 (/ num 2) 1 out)
       (if (= num (* i (+ i 1)))
@@ -8267,18 +8267,18 @@ Eseguire un ciclo da 1 a metà del numero e se il numero è il prodotto di due n
     )
   out))
 
-(promico? 0)
+(pronico? 0)
 ;-> true
-(promico? 72)
+(pronico? 72)
 ;-> true
-(promico? 30)
+(pronico? 30)
 ;-> true
-(promico? 100)
+(pronico? 100)
 ;-> nil
 
-Per trovare tutti i numeri promici fino ad un certo limite la funzione è la seguente:
+Per trovare tutti i numeri pronici fino ad un certo limite la funzione è la seguente:
 
-(define (promici-to limite)
+(define (pronici-to limite)
   (let ((prom 0) (i 0) (out '()))
     (while (< prom limite)
       (push prom out -1)
@@ -8287,7 +8287,7 @@ Per trovare tutti i numeri promici fino ad un certo limite la funzione è la seg
     )
     out))
 
-(promici-to 2600)
+(pronici-to 2600)
 ;-> (0 2 6 12 20 30 42 56 72 90 110 132 156 182 210 240 272
 ;->  306 342 380 420 462 506 552 600 650 702 756 812 870 930
 ;->  992 1056 1122 1190 1260 1332 1406 1482 1560 1640 1722
