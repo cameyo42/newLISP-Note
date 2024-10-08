@@ -2646,6 +2646,7 @@ NOTE LIBERE 26
   Cruciverba e crucinumero
   Interesse composto e il numero 'e'
   Corsa tra fattori pari e dispari
+  Elemento di maggioranza
   
 PROBLEMI SUI DADI
 =================

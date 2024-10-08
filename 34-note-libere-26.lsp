@@ -3755,11 +3755,198 @@ Proviamo:
 (time (check 906150257))
 ;-> Pari in vantaggio a: 1 (1 0)
 ;-> Pari in vantaggio a: 906150257 (453075129 453075128)
-;-> 9400713.805
-(period 9400713.805 true)
-;-> 2h 36m 40s 713ms
+;-> 9400713.805 ; 2h 36m 40s 713ms
 (+ 453075129 453075128)
 ;-> 906150257
+
+
+-----------------------
+Elemento di maggioranza
+-----------------------
+
+Data una lista di N elementi determinare se esiste un elemento di maggioranza.
+Un elemento è detto di maggioranza se il numero delle sue occorrenze è maggiore di N/2.
+
+1) Soluzione O(N^2)
+-------------------
+Doppio ciclo: per ogni elemento della lista (primo ciclo), calcolare quante volte questo elemento appare nella lista (secondo ciclo).
+
+(define (major1 lst)
+  (local (len stop conta soglia res)
+    (setq len (length lst))
+    (setq soglia (/ len 2))
+    (setq stop nil)
+    ; per ogni elemento...
+    (dolist (el1 lst stop)
+      (setq conta 0)
+      ; contiamo quante volte compare
+      (dolist (el2 lst stop)
+        (if (= el1 el2) (++ conta))
+        ; se supera len/2 allora questo è l'elemento di maggioranza
+        ; e fermiamo i due cicli
+        (if (> conta soglia) (set 'res el1 'stop true))
+      )
+    )
+    res))
+
+(setq a '(1 1 2 3 1 1 1 1 2 2 1 9 8))
+(setq b '(1 1 2 2 2 2 2 1 3 4 2))
+(major1 a)
+;-> 1
+(major1 b)
+;-> 2
+
+2) Soluzione O(NlogN)
+---------------------
+Ordiniamo la lista.
+Scorriamo la lista, quando incontriamo un nuovo elemento, controlliamo se il conteggio dell'elemento precedente era maggiore della soglia di maggioranza. In tal caso abbiamo trovato l'elemento di maggioranza.
+All'uscita del ciclo controlliamo il conteggio dell'ultimo elemento della lista.
+
+(define (major2 lst)
+  (local (len stop conta soglia res)
+    (setq len (length lst))
+    (setq soglia (/ len 2))
+    (cond ((= len 1) (setq res (lst 0)))
+          (true
+            (sort lst)
+            (setq conta 1)
+            (setq stop nil)
+            (for (i 1 (- len 1) 1 stop)
+              (if (= (lst (- i 1)) (lst i))
+                  (++ conta)
+                  ;else
+                  (begin
+                    (if (> conta soglia) (set 'res (lst (- i 1)) 'stop true))
+                    (setq conta 1))
+              )
+            )
+            ; controllo dell'ultimo elemento
+            (if (> conta soglia) (setq res (lst -1)))))
+     res))
+
+(major2 a)
+;-> 1
+(major2 b)
+;-> 2
+
+3) Soluzione O(N)
+Attraversare la lista e, per ogni elemento, aggiornare il suo conteggio in una hash-map.
+Dopo aver aggiornato il conteggio, controlla se supera la soglia di maggioranza. In tal caso abbiamo trovato l'elemento di maggioranza.
+
+(define (major3 lst)
+  (new Tree 'hash)
+  (let ( (res nil) (stop nil) (soglia (/ (length lst) 2)) )
+    (dolist (el lst stop)
+      ; se il numero non esiste nella hash-map...
+      (if (= (hash el) nil)
+          ; allora inserisce il numero con conteggio 1
+          (hash el 1)
+          ; else
+          ; altrimenti aumenta il conteggio esistente
+          (hash el (+ $it 1)))
+      ; controllo superamento soglia
+      (if (> (hash el) soglia) (set 'res el 'stop true))
+    )
+    ;(println (hash))
+    ; elimina la hash-map (operazione lenta)
+    (delete 'hash)
+    res))
+
+(major3 a)
+;-> 1
+(major3 b)
+;-> 2
+
+4) Soluzione newLISP
+--------------------
+Usiamo "unique" per calcolare i valori univoci
+Usiamo "count" per contare le occorrenze dei valori univoci
+Usiamo "find" per trovare l'indice del numero di maggioranza (se esiste)
+
+(define (major4 lst)
+  (local (soglia unici conta idx)
+    ; calcola la soglia di maggioranza
+    (setq soglia (/ (length lst) 2))
+    ; lista con elementi unici di lst
+    (setq unici (unique lst))
+    ; conta gli elementi unici in lst
+    (setq conta (count unici lst))
+    ; esiste un conteggio maggiore di soglia?
+    (setq idx (find soglia conta <))
+    ; se esiste, restituisce il numero di maggioranza
+    ; altrimenti restituisce nil
+    (if idx (unici idx) nil)))
+
+(major4 a)
+;-> 1
+(major4 b)
+;-> 2
+
+Confronto di velocità
+---------------------
+"major1" funziona con liste e vettori
+"major2" funziona con liste e vettori
+"major3" funziona con liste e vettori
+"major4" funziona con liste
+
+Prova con una lista di 20001 elementi in cui esiste un elemento di maggioranza:
+
+(define (crea-lista elements max-num M)
+  (randomize (append (rand max-num elements) (dup M (+ elements 1)))))
+
+(setq tl1 (crea-lista 10000 10000 42))
+(setq tv1 (array 20001 tl1))
+
+(= (major1 tl1) (major1 tv1) (major2 tl1) (major2 tv1)
+   (major3 tl1) (major3 tv1) (major4 tl1))
+;-> true
+
+(time (major1 tl1))
+;-> 4.936
+(time (major1 tv1))
+;-> 4.986
+
+(time (major2 tl1))
+;-> 761.972
+(time (major2 tv1))
+;-> 3.99
+
+(time (major3 tl1))
+;-> 18.93
+(time (major3 tv1))
+;-> 18.923
+
+(time (major4 tl1))
+;-> 12.966
+
+Prova con una lista di 20000 elementi in cui non esiste un elemento di maggioranza:
+
+(setq tl2 (rand 10000 20000))
+(setq tv2 (array 20000 tl2))
+
+(= (major1 tl2) (major1 tv2) (major2 tl2) (major2 tv2)
+   (major3 tl2) (major3 tv2) (major4 tl2))
+;-> true
+
+(time (major1 tl2))
+;-> 33621.155
+(time (major1 tv2))
+;-> 32987.844
+
+(time (major2 tl2))
+;-> 3321.227
+(time (major2 tv2))
+;-> 6.012
+
+(time (major3 tl2))
+;-> 22.943
+(time (major3 tv2))
+;-> 21.972
+
+(time (major4 tl2))
+;-> 19.962
+
+La più veloce è "major2" con i vettori.
 
 ============================================================================
 
