@@ -2647,6 +2647,7 @@ NOTE LIBERE 26
   Interesse composto e il numero 'e'
   Corsa tra fattori pari e dispari
   Elemento di maggioranza
+  Tastiere QWERTY e DVORAK
   
 PROBLEMI SUI DADI
 =================

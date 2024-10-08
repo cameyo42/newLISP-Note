@@ -3948,5 +3948,159 @@ Prova con una lista di 20000 elementi in cui non esiste un elemento di maggioran
 
 La più veloce è "major2" con i vettori.
 
+
+------------------------
+Tastiere QWERTY e DVORAK
+------------------------
+
+Il layout delle tastiere QWERTY ANSI (US) è il seguente:
+(vedi immagine "qwerty.png" nella cartella "data")
+
+Riga1:
+upper: ~ ! @ # $ % ^ & * ( ) _ +
+lower: ` 1 2 3 4 5 6 7 8 9 0 - =
+
+Riga2:
+upper:   Q W E R T Y U I O P { } |
+lower:   q w e r t y u i o p [ ] \
+
+Riga3:
+upper:   A S D F G H J K L : "
+lower:   a s d f g h j k l ; '
+
+Riga4:
+upper:   Z X C V B N M < > ?
+lower:   z x c v b n m , . /
+
+Il layout delle tastiere DVORAK (US) è il seguente:
+(vedi immagine "dvorak.png" nella cartella "data")
+
+Riga1:
+upper:   ~ ! @ # $ % ^ & * ( ) { }
+lower:   ` 1 2 3 4 5 6 7 8 9 0 [ ]
+
+Riga2:
+upper:   " < > P Y F G C R L ? + |
+lower:   ' , . p y f g c r l / = \
+
+Riga3:
+upper:   A O E U I D H T N S _
+lower:   a o e u i d h t n s -
+
+Riga4:
+upper:   : Q J K X B M W V Z
+lower:   ; q j k x b m w v z
+
+Riga1:
+(setq a '("~" "!" "@" "#" "$" "%" "^" "&" "*" "(" ")" "_" "+"))
+(setq b '("~" "!" "@" "#" "$" "%" "^" "&" "*" "(" ")" "{" "}"))
+(setq row1up (map list a b))
+;-> (("~" "~") ("!" "!") ("@" "@") ("#" "#") ("$" "$") ("%" "%")
+;->  ("^" "^") ("&" "&") ("*" "*") ("(" "(") (")" ")") ("_" "{")
+;->  ("+" "}"))
+(setq a '("`" "1" "2" "3" "4" "5" "6" "7" "8" "9" "0" "-" "="))
+(setq b '("`" "1" "2" "3" "4" "5" "6" "7" "8" "9" "0" "[" "]"))
+(setq row1down (map list a b))
+;-> (("`" "`") ("1" "1") ("2" "2") ("3" "3") ("4" "4") ("5" "5")
+;->  ("6" "6") ("7" "7") ("8" "8") ("9" "9") ("0" "0") ("-" "[")
+;->  ("=" "]"))
+(setq r1 (append row1down row1up))
+
+Riga2:
+(setq a '("Q" "W" "E" "R" "T" "Y" "U" "I" "O" "P" "{" "}" "|"))
+(setq b '("\"" "<" ">" "P" "Y" "F" "G" "C" "R" "L" "?" "+" "|"))
+(setq row2up (map list a b))
+;-> (("Q" "\"") ("W" "<") ("E" ">") ("R" "P") ("T" "Y") ("Y" "F")
+;->  ("U" "G") ("I" "C") ("O" "R") ("P" "L") ("{" "?") ("}" "+")
+;->  ("|" "|"))
+(setq a '("q" "w" "e" "r" "t" "y" "u" "i" "o" "p" "[" "]" "\\"))
+(setq b '("'" "," "." "p" "y" "f" "g" "c" "r" "l" "/" "=" "\\"))
+(setq row2down (map list a b))
+;-> (("q" "'") ("w" ",") ("e" ".") ("r" "p") ("t" "y") ("y" "f")
+;->  ("u" "g") ("i" "c") ("o" "r") ("p" "l") ("[" "/") ("]" "=")
+;->  ("\\" "\\"))
+(setq r2 (append row2down row2up))
+
+Riga3:
+(setq a '("A" "S" "D" "F" "G" "H" "J" "K" "L" ":" "\""))
+(setq b '("A" "O" "E" "U" "I" "D" "H" "T" "N" "S" "_"))
+(setq row3up (map list a b))
+;-> (("A" "A") ("S" "O") ("D" "E") ("F" "U") ("G" "I") ("H" "D")
+;->  ("J" "H") ("K" "T") ("L" "N") (":" "S") ("\"" "_"))
+(setq a '("a" "s" "d" "f" "g" "h" "j" "k" "l" ";" "'"))
+(setq b '("a" "o" "e" "u" "i" "d" "h" "t" "n" "s" "-"))
+(setq row3down (map list a b))
+;-> (("a" "a") ("s" "o") ("d" "e") ("f" "u") ("g" "i") ("h" "d")
+;->  ("j" "h") ("k" "t") ("l" "n") (";" "s") ("'" "-"))
+(setq r3 (append row3down row3up))
+
+Riga4:
+(setq a '("Z" "X" "C" "V" "B" "N" "M" "<" ">" "?"))
+(setq b '(":" "Q" "J" "K" "X" "B" "M" "W" "V" "Z"))
+(setq row4up (map list a b))
+;-> (("Z" ":") ("X" "Q") ("C" "J") ("V" "K") ("B" "X") ("N" "B")
+;->  ("M" "M") ("<" "W") (">" "V") ("?" "Z"))
+(setq a '("z" "x" "c" "v" "b" "n" "m" "," "." "/"))
+(setq b '(";" "q" "j" "k" "x" "b" "m" "w" "v" "z"))
+(setq row4down (map list a b))
+;-> (("z" ";") ("x" "q") ("c" "j") ("v" "k") ("b" "x") ("n" "b")
+;->  ("m" "m") ("," "w") ("." "v") ("/" "z"))
+(setq r4 (append row4down row4up))
+
+Unione di tutte le righe (+ lo spazio " "):
+; lista associativa da qwerty a dvorak
+(setq q-v (append r1 r2 r3 r4 '((" " " "))))
+; lista associativa da dvorak a qwerty
+(setq v-q (map (fn(x) (list (x 1) (x 0))) q-v))
+
+Proviamo:
+(setq str "quanto divertimento... newLISP")
+(setq out "")
+(dolist (ch (explode str)) (extend out (lookup ch q-v)))
+;-> "'gabyr eck.pycm.byrvvv b.,NCOL"
+
+(setq str1 "'gabyr eck.pycm.byrvvv b.,NCOL")
+(setq out "")
+(dolist (ch (explode str1)) (extend out (lookup ch v-q)))
+;-> "quanto divertimento... newLISP"
+
+Funzione che converte da QWERTY a DVORAK:
+
+(define (qwerty-dvorak str)
+  (local (out partner)
+    (setq out "")
+    (dolist (ch (explode str))
+      (setq partner (lookup ch q-v))
+      (if partner
+        (extend out partner)
+        (extend out ch)))
+    out))
+
+(qwerty-dvorak str)
+;-> "'gabyr eck.pycm.byrvvv b.,NCOL"
+
+Funzione che converte da DVORAK a QWERTY:
+
+(define (dvorak-qwerty str)
+  (local (out partner)
+    (setq out "")
+    (dolist (ch (explode str))
+      (setq partner (lookup ch v-q))
+      (if partner
+        (extend out partner)
+        (extend out ch)))
+    out))
+
+(dvorak-qwerty str1)
+;-> "quanto divertimento... newLISP"
+
+(setq str "Prima Linea\n\tSeconda Linea")
+(dvorak-qwerty (qwerty-dvorak str)))
+;-> "Prima Linea\n\tSeconda Linea"
+
+(println (dvorak-qwerty (qwerty-dvorak str)))
+;-> Prima Linea
+;->         Seconda Linea
+
 ============================================================================
 
