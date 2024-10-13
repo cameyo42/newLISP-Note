@@ -2648,6 +2648,8 @@ NOTE LIBERE 26
   Corsa tra fattori pari e dispari
   Elemento di maggioranza
   Tastiere QWERTY e DVORAK
+  Raddoppiare l'area di un quadrato
+  Reti di lunghezza minima - Punti di Steiner
   
 PROBLEMI SUI DADI
 =================

@@ -1311,6 +1311,15 @@ Per esempio:
   5 5 5 5 5 8 8 8 8 8 8 8 8
   5 5 5 5 5 8 8 8 8 8 8 8 8
 
+Massimo Comun Divisore:
+
+Per i numeri di Fibonacci vale la seguente identità (teorema di Vorob'ev).:
+
+ GCD(F(n), F(m)) = GCD(n, m)
+ (teorema di Vorob'ev).
+
+Quindi F(n) è divisibile per F(m) se e solo se n è divisibile per m.
+
 
 ------------------
 Incontro tra treni
@@ -3715,7 +3724,7 @@ Supponiamo di contare le occorrenze e confrontarle per ogni numero:
 
 A parte per il numero 1, risulta che 'f-pari' è sempre minore o uguale a 'f-dispari'.
 
-Nel 1919 George Polya congetturò che 'f-pari' non avrebbe mai sorpassato 'f-dispari' (a parte per all'inizio con il numero 1).
+Nel 1919 George Polya congetturò che 'f-pari' non avrebbe mai sorpassato 'f-dispari' (a parte all'inizio con il numero 1).
 Nel 1980 Minoru Tanaka dimostrò che 'f-pari' supera f-dispari al numero 906150257.
 
 (define (prime? num)
@@ -4101,6 +4110,302 @@ Funzione che converte da DVORAK a QWERTY:
 (println (dvorak-qwerty (qwerty-dvorak str)))
 ;-> Prima Linea
 ;->         Seconda Linea
+
+
+---------------------------------
+Raddoppiare l'area di un quadrato
+---------------------------------
+
+Dato un quadrato ABCD costruire un quadrato di area doppia.
+
+Vediamo prima analiticamente.
+L'area del quadrato dato vale A1 = l1*l1 dove l1 è il lato del quadrato.
+Il quadrato da costruire ha area doppia pari a A2 = 2*A1 = 2*l1*l1.
+Quindi il lato del quadrato A2 vale l2 = sqrt(2*l*l) = l1*sqrt(2).
+Notiamo che l1*sqrt(2) è anche la lunghezza della diagonale d1 del quadrato A1:
+d1 = sqrt(l1^2 + l1^2) = sqrt(2*l1^2) = l1*sqrt(2).
+Quindi il quadrato di area doppia A2 può essere costruito sapendo che il suo lato è uguale alla diagonale del quadrato A1.
+La soluzione geometrica di questo problema viene attribuita al filosofo greco Socrate.
+
+Dato il quadrato ABCD:
+
+  D +-----------+
+    |           | C
+    |           |
+    |           |
+    |           |
+  A +-----------+
+                B
+
+Prolungare il lato AB in modo che AB = BE
+
+  D +-----------+
+    |           | C
+    |           |
+    |           |
+    |           |
+  A +-----------+-----------+ E
+                B
+
+Costruire il quadrato BEFC:
+
+  D +-----------+-----------+ F
+    |           | C         |
+    |           |           |
+    |           |           |
+    |           |           |
+  A +-----------+-----------+ E
+                B
+
+Costruire in modo analogo i quadrati CFGK e DCKL:
+
+                K
+  L +-----------+-----------+ G
+    |           |           |
+    |           |           |
+    |           |           |
+    |           |           |
+  D +-----------+-----------+ F
+    |           | C         |
+    |           |           |
+    |           |           |
+    |           |           |
+  A +-----------+-----------+ E
+                B
+
+Il quadrato DBFK ha area doppia del quadrato dato ABCD.
+La diagonale DB è un lato del quadrato.
+
+
+-------------------------------------------
+Reti di lunghezza minima - Punti di Steiner
+-------------------------------------------
+
+Ci sono quattro città disposte sui vertici di un quadrato ABCD.
+Il lato del quadrato vale 100 m.
+Come possiamo connettere tutti i punti (A, B, C, e D) tra loro utilizzando una rete di lunghezza minima?
+
+La rete minima non è semplicemente la somma dei segmenti che connettono i vertici del quadrato.
+È necessario introdurre il concetto di punti di Steiner, che sono punti aggiuntivi all'interno del quadrato.
+Per un quadrato, la soluzione ottimale include due punti di Steiner.
+I punti di Steiner ottimali si trovano all'interno del quadrato in modo tale che gli angoli tra i segmenti collegati a ciascun punto siano di 120 gradi. (in altre parole un punto di Steiner in una rete ottimale forma angoli di 120 gradi con ciascuno dei tre segmenti che si collegano ai vertici a cui è associato.
+I punti di Steiner si trovano lungo il segmento verticale (o orizzontale) che divide in quadrato in due rettangoli uguali.
+Per il quadrato ABCD, i due punti di Steiner formano una forma simile a una stella con i quattro vertici.
+Vedi immagine "steiner.png" nella cartella "data".
+
+Per calcolare la posizione dei punti di Steiner occorre usare un pò di geometria e di trigonometria.
+Abbiamo un triangolo isoscele ABC in cui l'angolo compreso tra i lati uguali (AB e AC) vale 120 gradi.
+L'altro lato del triangolo è il lato del quadrato.
+Consideriamo un triangolo isoscele ABC, dove i lati AB e AC sono uguali, e l'angolo in A è di 120 gradi.
+Il lato BC ha lunghezza L (che è anche il lato del nostro quadrato).
+Dobbiamo trovare l'altezza del triangolo:
+Tracciamo l'altezza h che cade perpendicolare dal vertice A alla base BC.
+Questo divide il triangolo in due triangoli rettangoli congruenti.
+Ogni triangolo rettangolo ha un angolo alla base di 30 gradi (dato che l'angolo in A è diviso in due, 120 gradi / 2 = 60 gradi, e quindi l'altro angolo del triangolo rettangolo è 90 gradi - 60 gradi = 30 gradi).
+Nel triangolo rettangolo, l'altezza h è il cateto opposto all'angolo di 30 gradi, e la metà della base BC/2 = L/2 è il cateto adiacente.
+Possiamo quindi usare la funzione tangente:
+
+  tan(30 gradi) = h/(L/2)
+
+Sappiamo che tan(30^circ) = 1/sqrt(3), quindi possiamo scrivere:
+
+  1/sqrt(3) = h/(L/2)
+
+Quindi l'altezza h vale:
+
+  h = (L/2)/(2*sqrt(3)) = L/(2*sqrt(3)) = L*sqrt(3)/6
+
+Nel nostro caso h = 100*sqrt(3)/6 = 28.86751345948129
+
+(div (mul 100 (sqrt 3)) 6)
+;-> 28.86751345948129
+
+Per trovare la lunghezza del lato AB (che è uguale a AC nel nostro triangolo isoscele), possiamo applicare il teorema del coseno, dato che conosciamo l'angolo in A = 120 gradi e il lato BC = L .
+
+Il teorema del coseno afferma che, in un triangolo qualsiasi, la relazione tra i lati e gli angoli è data da:
+
+  c^2 = a^2 + b^2 - 2ab*cos(theta)
+
+dove:
+  c è il lato opposto all'angolo theta,
+  a e b sono gli altri due lati del triangolo.
+
+Nel nostro caso:
+
+  c = L (il lato opposto all'angolo A),
+  a = AB,
+  b = AC = AB (dato che AB = AC in un triangolo isoscele),
+  theta = 120 gradi
+
+Quindi possiamo applicare il teorema del coseno:
+
+  L^2 = AB^2 + AB^2 - 2*AB*AB*cos(120 gradi)
+
+Sapendo che cos(120gradi) = -1/2, l'equazione diventa:
+
+  L^2 = 2*AB^2 - 2*AB^2*(-1/2)
+
+  L^2 = 2*AB^2 + AB^2
+
+  L^2 = 3*AB^2
+
+Risolvendo per AB:
+
+  AB = L/sqrt(3)
+
+Nel nostro esempio:
+
+  AB = AC = 100/sqrt(3)
+
+(div 100 (sqrt 3))
+;-> 57.73502691896258
+
+Quindi adesso possiamo individuare le coordinate dei due punti di steiner (supponendo di dividere il quadrato in con un segmento verticale e di porre l'origine degli assi cartesiani nel punto in basso a sinistra del quadrato):
+
+  s1 = (x1,y1)
+  s2 = (x2,y2)
+
+La coordinata X è la stessa per entrambi i punti e vale la metà del lato del quadrato:
+
+  x1 = x2 = L/2 = 50m
+
+Le coordinate y1 e y2 vengono calcolate utilizzando il valore dell'altezza del triangolo isoscele che ogni punto di Steiner forma con i vertici più vicini del quadrato e con un lato del quadrato):
+
+  y1 = h = 28.86751345948129m
+  y2 = L - h = 100 - h = 71.13248654051871m
+
+(sub 100 28.86751345948129)
+;-> 71.13248654051871
+
+Adesso siamo pronti a calcolare la lunghezza della rete minima ottenuta con i due punti di Steiner.
+La lunghezza della rete è data dalla somma:
+
+ 1) 4 volte la lunghezza del segmento che unisce una città con il più vicino punto di Steiner (es. il segmenti A-S1)
+ 2) dalla lunghezza del segmento (S1-S2) che unisce i due punti di Steiner.
+
+Sostituendo i valori numerici:
+
+Lunghezza Rete = (4 * 57.73502691896258) + (71.13248654051871 - 28.86751345948129) =
+               = 273.2050807568878m
+
+(add (mul 4 57.73502691896258) (sub 71.13248654051871 28.86751345948129))
+;-> 273.205
+
+Ma siamo proprio sicuri che questa sia la rete di lunghezza minima per un quadrato?
+
+Scriviamo alcune funzioni che ci permetteranno di analizzare il problema dal punto di vista numerico.
+
+(define (dist2d p1 p2)
+"Calculates 2D Cartesian distance of two points P1 = (x1 y1) and P2 = (x2 y2)"
+  (let ( (x1 (p1 0)) (y1 (p1 1))
+         (x2 (p2 0)) (y2 (p2 1)) )
+    (sqrt (add (mul (sub x1 x2) (sub x1 x2))
+               (mul (sub y1 y2) (sub y1 y2))))))
+
+(define (rete s1 s2)
+  (local (h d)
+    ; s1 punto con coordinata Y minore o uguale a s2
+    (if (> (s1 1) (s2 1)) (swap s1 s2))
+    ; calcolo distanza s1-s2
+    (setq h (abs (sub (s1 1) (s2 1))))
+    ; calcolo distanza di un segmento
+    (setq d (mul 4 (dist2d '(0 0) s1)))
+    ; restituisce lunghezza della rete, distanza massima e minima tra le città
+    (list (add h d) (add h (div d 2)) (div d 2))))
+
+Proviamo con i dati dell'esempio:
+
+Lunghezza del lato del quadrato:
+(setq L 100)
+
+Punti del quadrato:
+(setq p1 '(0 0))      ;A
+(setq p2 '(100 0))    ;B
+(setq p3 '(100 100))  ;C
+(setq p4 '(0 100))    ;D
+
+Primo punto di Steiner:
+(setq s1 '(50 28.86751345948129))
+
+Secondo punto di Steiner:
+(setq s2 '(50 71.13248654051871))
+
+(rete s1 s2)
+;-> (273.2050807568877 157.7350269189626 115.4700538379252)
+(sub 71.13248654051871 28.86751345948129)
+;-> 42.2649730810374 ; lunghezza del segmento S1-S2
+(sub 157.7350269189626 115.4700538379252)
+;-> 42.2649730810374 ; lunghezza del segmento S1-S2
+
+Adesso vediamo i risultati se poniamo entrambi i punti di Steiner nel centro del quadrato (50,50).
+In questo modo stiamo considerando la rete come composta dalle due diagonali del quadrato:
+
+(setq s1 '(50 50))
+(setq s2 '(50 50))
+(rete s1 s2)
+;-> (282.842712474619 141.4213562373095 141.4213562373095)
+
+Utilizzando le diagonali del quadrato otteniamo una rete più lunga (282.84m), ma le distanze tra le quattro città sono identiche (141.42).
+Utilizzando la rete con i punti ottimali di Steiner otteniamo una rete più corta (273.2m), ma le distanze tra le città sono diverse (157.74m e 115.47m).
+
+Proviamo con altri valori per i punti di Steiner:
+
+(setq s1 '(50 90))
+(setq s2 '(50 10))
+(rete s1 s2)
+;-> (283.9607805437114 181.9803902718557 101.9803902718557)
+
+(setq s1 '(50 100))
+(setq s2 '(50 0))
+(rete s1 s2)
+;-> (300 200 100)
+
+Per verificare che la soluzione sia corretta (cioè la rete trovata è effettivamente quella con la lunghezza minima) scriviamo una funzione che calcola i valori della rete variando la posizione dei due punti di Steiner lungo il segmento verticale che divide il quadrato in due parti uguali.
+
+(define (steiner L y1 step)
+  (setq x1 (div L 2))
+  (setq x2 (div L 2))
+  (setq y2 (sub L y1))
+  (while (<= y1 (div L 2))
+    (print y1 { - } (rete (list x1 y1) (list x2 y2)))
+    (read-line)
+    (setq y1 (add y1 step))
+    (setq y2 (sub L y1))
+  ))
+
+(steiner 100 0 1)
+;-> 0 - (300 200 100)
+;-> 1 - (298.0399960007998 198.0199980003999 100.0199980003999)
+;-> 2 - (296.1599360511489 196.0799680255744 100.0799680255744)
+;-> 3 - (294.3596765818911 194.1798382909456 100.1798382909456)
+;-> 4 - (292.6389792637513 192.3194896318756 100.3194896318756)
+;-> 5 - (290.9975124224178 190.4987562112089 100.4987562112089)
+;-> ...
+;-> 27 - (273.297162322806 159.648581161403 113.648581161403)
+;-> 28 - (273.2247805103104 158.6123902551552 114.6123902551552)
+;-> 29 - (273.2055362658948 157.6027681329474 115.6027681329474) ;valore minimo
+;-> 30 - (273.238075793812 156.619037896906 116.619037896906)
+;-> 31 - (273.3210572813237 155.6605286406618 117.6605286406618)
+;-> ...
+;-> 45 - (279.0724809414742 144.5362404707371 134.5362404707371)
+;-> 46 - (279.7646040234085 143.8823020117042 135.8823020117042)
+;-> 47 - (280.4886154287642 143.2443077143821 137.2443077143821)
+;-> 48 - (281.2435752186153 142.6217876093077 138.6217876093077)
+;-> 49 - (282.0285699709942 142.0142849854971 140.0142849854971)
+;-> 50 - (282.842712474619 141.4213562373095 141.4213562373095)
+
+(steiner 100 28 0.01)
+;-> ...
+;-> 28.85 - (273.2050887269486 157.7525443634742 115.4525443634744)
+;-> 28.86 - (273.2050822236511 157.7425411118254 115.4625411118257)
+;-> 28.87 - (273.2050809175203 157.73254045876 115.4725404587603) ;valore minimo
+;-> 28.88 - (273.2050848072063 157.722542403603 115.4825424036033)
+;-> 28.89 - (273.2050938913591 157.7125469456794 115.4925469456797)
+;-> ...
+
+I calcoli numerici confermano che la rete di lunghezza minima è quella che utilizza i punti di Steiner ottimali che si trovano all'interno del quadrato in modo tale che gli angoli tra i segmenti collegati a ciascun punto siano di 120 gradi.
+
+Nota: se ci sono N punti da connettere e dobbiamo trovare la rete di lunghezza minima, allora il concetto dei punti di Steiner è ancora valido, ma l'individuzione della loro posizione ottimale è un problema molto complesso.
 
 ============================================================================
 

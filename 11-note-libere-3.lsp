@@ -9441,7 +9441,7 @@ Primi troncati
 --------------
 
 Il numero 739 è primo. Se togliamo l'ultima cifra otteniamo 73, che è primo. Se togliamo l'ultima cifra otteniamo 7, che è primo.
-Determinare tutti i numeri primi fino a 1000 milioni che hanno questa proprietà.
+Determinare tutti i numeri primi fino a 100 milioni che hanno questa proprietà.
 
 Funzione per calcolare i primi:
 
