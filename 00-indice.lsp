@@ -2524,7 +2524,7 @@ NOTE LIBERE 24
   Congettura di Erdos-Straus
   Trova il numero
   Massima sequenza ripetuta di ogni elemento
-  Massimo di tre numeri
+  Massimo e minimo di tre numeri
   Moltiplicazione (errata) di due frazioni
   Nomi dei colori
   Estrazione di numeri da una stringa
@@ -2650,6 +2650,8 @@ NOTE LIBERE 26
   Tastiere QWERTY e DVORAK
   Raddoppiare l'area di un quadrato
   Reti di lunghezza minima - Punti di Steiner
+  Numero massimo tramite concatenazione binaria
+  Intervallo più piccolo che include elementi da N liste
   
 PROBLEMI SUI DADI
 =================
@@ -2694,7 +2696,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (300 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (302 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

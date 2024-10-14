@@ -1228,6 +1228,29 @@ Nel secondo caso utilizziamo due cicli con due indici "i" e "j". Il primo ciclo 
 (sol '(1 0 1 0 3 0 4 0 0))
 ;-> (1 1 3 4 0 0 0 0 0)
 
+Altri due metodi:
+
+(setq lst '(0 1 0 3 12))
+(dolist (el lst)
+  (when (zero? el)
+    (pop lst (find 0 lst))
+    (push 0 lst -1)))
+lst
+;-> (1 3 12 0 0)
+
+(setq lst '(1 0 1 0 3 0 4 0 0))
+(setq out '())
+(setq zeri 0)
+(dolist (el lst)
+  (if (zero? el) 
+    (++ zeri)
+    ;else
+    (push el out -1)
+  )
+)
+(append out (dup 0 zeri))
+;-> (1 1 3 4 0 0 0 0 0)
+
 
 ---------------------------------------
 Intersezione di segmenti (byte-by-byte)

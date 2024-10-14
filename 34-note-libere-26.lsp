@@ -3468,7 +3468,7 @@ Infine vediamo una funzione per creare un cruciverba (solo caselle bianche o ner
     cruci))
 
 (print-cruci (crea-cruci 10 10 20))
-;-> .  .  .  ■  .  ■  ■  .  .  .
+;->  .  .  .  ■  .  ■  ■  .  .  .
 ;->  ■  ■  .  .  .  .  ■  .  ■  .
 ;->  .  .  .  .  .  .  .  .  .  .
 ;->  ■  .  .  .  .  .  .  .  ■  .
@@ -4405,7 +4405,375 @@ Per verificare che la soluzione sia corretta (cioè la rete trovata è effettiva
 
 I calcoli numerici confermano che la rete di lunghezza minima è quella che utilizza i punti di Steiner ottimali che si trovano all'interno del quadrato in modo tale che gli angoli tra i segmenti collegati a ciascun punto siano di 120 gradi.
 
+Nota: Se abbiamo tre città disposte ai vertici di un triangolo in cui tutti gli angoli sono minori di 120 gradi, allora esiste un solo punto di Steiner che si trova internamente al triangolo e forma angoli di 120 gradi con tutti i vertici del triangolo.
+
 Nota: se ci sono N punti da connettere e dobbiamo trovare la rete di lunghezza minima, allora il concetto dei punti di Steiner è ancora valido, ma l'individuzione della loro posizione ottimale è un problema molto complesso.
+
+
+---------------------------------------------
+Numero massimo tramite concatenazione binaria
+---------------------------------------------
+
+Abbiamo una lista con tre numeri decimali interi.
+Qual è il massimo numero che si può creare unendo le rappresentazioni binarie dei tre numeri dati?
+
+Per esempio:
+Numeri = 1, 2, 3
+binario di 1 = 1 
+binario di 2 = 10 
+binario di 3 = 11 
+Unioni possibili:
+1 10 11 -> decimale di 11011 = 27
+1 11 10 -> decimale di 11110 = 30
+10 1 11 -> decimale di 10111 = 23
+10 11 1 -> decimale di 10111 = 23
+11 1 10 -> decimale di 11110 = 30
+11 10 1 -> decimale di 11101 = 29
+Quindi il numero massimo vale 30.
+
+(define (bin-dec str)
+"Convert a bynary string to decimal integer"
+  (int str 0 2))
+
+(define (dec-bin num)
+"Convert a decimal integer to binary string"
+  (bits num))
+
+(define (max3-bin lst)
+  (local (idx binary max-value)
+    (setq idx '((0 1 2) (0 2 1) (1 0 2) (1 2 0) (2 0 1) (2 1 0)))
+    (setq binary (map dec-bin lst))
+    (setq max-value -1)
+    ; ciclo che calcola il valore massimo tra tutte le unioni dei numeri binari
+    (dolist (el idx)
+      (setq max-value (max max-value (bin-dec (join (select binary el)))))
+    )
+    max-value))
+
+Proviamo:
+
+(max3-bin '(1 2 3))
+;-> 30
+(max3-bin '(22 21 42))
+;-> 46442
+
+Se gli elementi della lista sono più di 3 (ma meno di 11), allora possiamo usare le permutazioni.
+
+(define (perm lst)
+"Generates all permutations without repeating from a list of items"
+  (local (i indici out)
+    (setq indici (dup 0 (length lst)))
+    (setq i 0)
+    ; aggiungiamo la lista iniziale alla soluzione
+    (setq out (list lst))
+    (while (< i (length lst))
+      (if (< (indici i) i)
+          (begin
+            (if (zero? (% i 2))
+              (swap (lst 0) (lst i))
+              (swap (lst (indici i)) (lst i))
+            )
+            ;(println lst);
+            (push lst out -1)
+            (++ (indici i))
+            (setq i 0)
+          )
+          (begin
+            (setf (indici i) 0)
+            (++ i)
+          )
+       )
+    )
+    out))
+
+(define (max-bin lst)
+  (local (binary permute max-value)
+    ; converte in binario i numeri decimali della lista
+    (setq binary (map dec-bin lst))
+    ; calcola le permutazioni della lista binaria
+    (setq permute (perm binary))
+    (setq max-value -1)
+    ; ciclo che calcola il valore massimo tra tutte le unioni dei numeri binari
+    (dolist (p permute)
+      (setq max-value (max max-value (bin-dec (join p))))
+    )
+    max-value))
+
+Proviamo:
+
+(max-bin '(1 2 3))
+;-> 30
+(max-bin '(22 21 42))
+;-> 46442
+
+
+------------------------------------------------------
+Intervallo più piccolo che include elementi da N liste
+------------------------------------------------------
+
+Abbiamo N liste di interi.
+Determinare l'intervallo più piccolo che contiene almeno un numero di ognuna delle N liste.
+
+Definiamo l'intervallo [a,b] minore dell'intervallo [c, d] se risulta:
+1) (b - a) < (d - c)
+oppure
+2) se (b - a) = (d - c) e (a < c)
+
+Esempio 1:
+Liste = (4 10 15 24 26) (0 9 12 20) (5 18 22 30)
+Intervallo minimo = (20 24)
+Spiegazione:
+Lista 1: (4 10 15 24 26) 24 si trova nell'intervallo (20 24).
+Lista 2: (0 9 12 20) 20 si trova nell'intervallo (20 24).
+Lista 3: (5 18 22 30) 22 si trova nell'intervallo (20 24).
+
+Esempio 2:
+Liste = (1 2 3 4 5) (6 7 8 9 10 11 12) (13 14 15)
+Intervallo minimo =  (5 13)
+
+Esempio 3:
+Liste = (1 2 3) (1 2 3) (1 2 3)
+Intervallo minimo =  (1 1)
+
+Funzione che verifica se il primo intervallo è minore del secondo:
+
+(define (range-min r1 r2)
+  (let ( (a (r1 0)) (b (r1 1)) (c (r2 0)) (d (r2 1)) )
+    (if (> a b) (swap a b))
+    (if (> c d) (swap c d))
+    (or (< (sub b a) (sub d c))
+        (and (= (sub b a) (sub d c)) (< a c)))))
+
+(range-min '(1 10) '(22 30))
+;-> nil
+(range-min '(1 10) '(21 30))
+;-> true
+(range-min '(10 1) '(30 21))
+;-> true
+(range-min '(1 10) '(-1 8))
+;-> nil
+(range-min '(10 1) '(8 -1))
+;-> nil
+
+Poichè il problema è abbastanza complicato proviamo a semplificarlo: invece di N liste supponiamo di avere solo 2 liste.
+
+Possiamo risolvere questo problema con la 'forza bruta':
+eseguiamo due cicli innestati per creare tutte le coppie di numeri e le loro distanze.
+La coppia di numeri con distanza minima rappresenta anche l'intervallo minimo cercato.
+
+(setq lst '((0 20 9 12) (22 18 5 30)))
+
+(define (range lst)
+  (let ( (a (lst 0)) (b (lst 1)) (minimo '(0 1e99)) )
+    (dolist (el1 a)
+      (dolist (el2 b)
+        (when (range-min (list el1 el2) minimo)
+          (setq minimo (list el1 el2)))))
+    (sort minimo)))
+
+(range lst)
+;-> (18 20)
+
+Questo metodo per risolvere il caso di due liste non è applicabile direttamente al caso di N liste, perchè dovremmo scrivere una funzione con N cicli annidati per trovare le distanze tra tutte le coppie di numeri.
+Dobbiamo trovare un miglioramento al metodo 'brute force'.
+Se ordiniamo le liste possiamo utilizzare un metodo con due puntatori per trovare la distanza minima tra le coppie di numeri.
+(setq lst '((10 26 4 15 24) (0 20 9 12) (22 18 5 30)))
+(setq lst (map sort lst))
+;-> ((0 9 12 20) (5 18 22 30))
+
+(setq L1 (lst 1))
+;-> (0 9 12 20)
+(setq L2 (lst 2))
+;-> (5 18 22 30)
+
+(setq len1 (length L1))
+;-> 4
+(setq len2 (length L2))
+;-> 4
+
+Rappresentiamo i numeri delle due liste lungo la linea degli interi:
+
+L1:
+0                 9     12              20
+. . . . . . . . . . . . . . . . . . . . .
+
+L2:
+          5                         18      22             30
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+All'inizio i due puntatori p1 e p2 sono posizionati all'inizio delle liste:
+
+(setq p1 0)
+(setq p2 0)
+
+Calcoliamo la distanza tra gli elementi indicati dai puntatori:
+
+(println (L1 p1) { } (L2 p2))
+; distanza tra 0 e 5
+(setq dist (abs (- (L1 p1) (L2 p2))))
+;-> 5
+
+Adesso avanziamo il puntatore del numero più piccolo della coppia appena considerata e calcoliamo la distanza tra i numeri correnti.
+Procediamo in questo modo fino alla fine di una delle due liste (i valori della lista più lunga generano sempre distanze maggiori).
+In questo modo calcoliamo un numero molto inferiore di distanze (len1+len2) rispetto al metodo 'forza bruta' (len1*len2).
+Questo è possibile perchè le liste sono ordinate e questo ci permette di non calcolare le distanze che sono sicuramente maggiori.
+
+(if (<= (L1 p1) (L2 p2)) (++ p1) (++ p2))
+(println (L1 p1) { } (L2 p2))
+; distanza tra 9 e 5
+(setq dist (abs (- (L1 p1) (L2 p2))))
+;-> 4
+
+(if (<= (L1 p1) (L2 p2)) (++ p1) (++ p2))
+(println (L1 p1) { } (L2 p2))
+; distanza tra 9 e 18
+(setq dist (abs (- (L1 p1) (L2 p2))))
+;-> 9
+
+(if (<= (L1 p1) (L2 p2)) (++ p1) (++ p2))
+(println (L1 p1) { } (L2 p2))
+; distanza tra 12 e 18
+(setq dist (abs (- (L1 p1) (L2 p2))))
+;-> 6
+
+(if (<= (L1 p1) (L2 p2)) (++ p1) (++ p2))
+(println (L1 p1) { } (L2 p2))
+; distanza tra 20 e 18
+(setq dist (abs (- (L1 p1) (L2 p2))))
+;-> 2
+
+(if (<= (L1 p1) (L2 p2)) (++ p1) (++ p2))
+(println (L1 p1) { } (L2 p2))
+; distanza tra 20 e 22
+(setq dist (abs (- (L1 p1) (L2 p2))))
+;-> 2
+
+Questo metodo con due puntatori può essere applicato anche nel caso di N liste.
+Vediamo come si applica nel nostro esempio.
+
+(setq lst '((10 26 4 15 24) (0 20 9 12) (22 18 5 30)))
+(setq lst (map sort lst))
+
+(setq L1 (lst 0))
+;-> (4 10 15 24 26)
+(setq L2 (lst 1))
+;-> (0 9 12 20)
+(setq L3 (lst 2))
+;-> (5 18 22 30)
+
+(setq len1 (length L1))
+;-> 5
+(setq len2 (length L2))
+;-> 4
+(setq len3 (length L3))
+;-> 4
+
+L1:
+        4           10        15                24  26
+. . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+L2:
+0                 9     12              20
+. . . . . . . . . . . . . . . . . . . . .
+
+L3:
+          5                         18      22              30
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+Inizialmente i puntatori valgono 0 (inizio delle liste):
+
+(setq p1 0) (setq p2 0) (setq p3 0)
+
+Confrontiamo i valori indicati dai puntatori e determiniamo il valore minimo e massimo:
+
+(setq numeri (sort (list (L1 p1) (L2 p2) (L3 p3))))
+;-> (0 4 5)
+
+Valore minimo:
+(setq vmin (numeri 0))
+;-> 0
+
+Valore massimo:
+(setq vmax (numeri -1))
+;-> 5
+
+Quindi il primo intervallo vale: [0, 5]
+
+Adesso avanziamo il puntatore dell'elemento più piccolo dei numeri (0 4 5) che è p2:
+
+(++ p2)
+
+Adesso abbiamo i numeri (4 5 9):
+
+(setq numeri (sort (list (L1 p1) (L2 p2) (L3 p3))))
+;-> (4 5 9)
+
+Il valore massimo vale 9.
+Poichè 9 è maggiore di 5 (che è limite destro dell'intervallo corrente [0, 5]), allora sostituiamo il 5 con il 9 e otteniamo il nuovo intervallo [0, 9].
+Il valore minimo vale 4. Quindi sostituiamo lo 0 con il 4 e otteniamo il nuovo intervallo [4 9].
+
+Adesso avanziamo il puntatore dell'elemento più piccolo dei numeri (4 5 9) che è p1:
+
+(++ p1)
+
+Otteniamo i numeri (5 9 10):
+
+(setq numeri (sort (list (L1 p1) (L2 p2) (L3 p3))))
+;-> (5 9 10)
+
+Il valore massimo vale 10, quindi l'intervallo diventa [4 10].
+Il valore massimo vale 5, quindi l'intervallo diventa [5 10].
+
+Continuiamo in questo modo fino alla fine di una delle liste.
+Al termine l'intervallo finale è la soluzione al problema.
+
+Scriviamo una funzione per verificare questo metodo (valida solo per tre liste):
+
+(define (min-idx lst)
+"Return min values and its index"
+  (let (minimo (apply min lst))
+    (list minimo (first (ref minimo lst)))))
+
+(min-idx '(4 0 5))
+;-> (0 1)
+
+(define (min3-range lst)
+  (setq lst (map sort lst))
+  (setq L1 (lst 0)) (setq L2 (lst 1)) (setq L3 (lst 2))
+  (setq len1 (length L1)) (setq len2 (length L2)) (setq len3 (length L3))
+  (setq p1 0) (setq p2 0) (setq p3 0)
+  (setq range '(-1 -1))
+  ; ciclo fino alla fine di una delle tre liste
+  (while (and (< p1 len1) (< p2 len2) (< p3 len3))
+    ; prende i numeri in base ai puntatori e li ordina
+    ; per trovare il minimo e il massimo
+    (setq numeri (sort (list (L1 p1) (L2 p2) (L3 p3))))
+    ; imposta il nuovo range
+    (setf (range 1) (max (numeri -1) (range 1)))
+    (setf (range 0) (numeri 0))
+    ; cerca il puntatore del numero più piccolo
+    (setq p ((min-idx (list (L1 p1) (L2 p2) (L3 p3))) 1))
+    ; aumenta il puntatore del numero più piccolo
+    (cond ((= p 0) (++ p1)) ((= p 1) (++ p2)) ((= p 2) (++ p3)))
+    ;(println range)
+    ;(println (list (L1 p1) (L2 p2) (L3 p3)))
+    ;(println p)
+    ;(println p1 { } p2 { } p3)
+    ;(read-line)
+  )
+  range)
+
+Proviamo:
+
+(setq lst '((10 26 4 15 24) (0 20 9 12) (22 18 5 30)))
+(min3-range lst)
+;-> (20 24)
+
+(setq test '((1 2 3 4 5) (6 7 8 9 10 11 12) (13 14 15)))
+(min3-range test)
+;-> (5 13)
+
+Adesso dobbiamo scrivere una funzione che tratta N liste.
 
 ============================================================================
 

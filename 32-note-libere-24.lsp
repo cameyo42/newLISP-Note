@@ -7573,13 +7573,15 @@ Proviamo:
 ;-> ((a 6) (c 3) (b 4))
 
 
----------------------
-Massimo di tre numeri
----------------------
+------------------------------
+Massimo e minimo di tre numeri
+------------------------------
 
-Dati tre numeri interi a, b, c, determinare il valore massimo senza utilizzare le espressioni condizionali (if, cond, ecc.).
+Dati tre numeri interi a, b, c, determinare il valore massimo e il valore minimo senza utilizzare le espressioni condizionali (if, cond, ecc.).
 
 Possiamo utilizzare lo "short-circuit evaluation" delle funzioni booleane.
+
+Valore massimo:
 
 (define (max3 a b c)
   (and (> b a) (setq a b)) ; if (a > b) then a = b;
@@ -7601,6 +7603,30 @@ Proviamo:
 (max3 2 1 1)
 ;-> 2
 (max3 1 1 1)
+;-> 1
+
+Valore minimo:
+
+(define (min3 a b c)
+  (and (< b a) (setq a b)) ; if (a < b) then a = b;
+  (and (< c a) (setq a c)) ; if (a < c) then a = c;
+  a)
+
+Proviamo:
+
+(min3 1 2 3)
+;-> 1
+(min3 6 5 4)
+;-> 4
+(min3 7 9 8)
+;-> 7
+(min3 2 1 2)
+;-> 1
+(min3 1 2 2)
+;-> 1
+(min3 2 2 1)
+;-> 1
+(min3 1 1 1)
 ;-> 1
 
 Vedi anche "Ordinare tre numeri" su "Note libere 1".
