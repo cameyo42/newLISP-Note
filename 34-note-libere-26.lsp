@@ -4915,5 +4915,140 @@ Adesso vediamo quanti numeri primi non venivano riconosciuti:
 
 Vedi anche "Numeri di Carmichael" su "Rosetta Code".
 
+
+-----------
+Cyclic Sort
+-----------
+
+Il Cyclic sort è un algoritmo di ordinamento che si può applicare soltanto a liste che contengono tutti i numeri da 1 a N, dove N è la lunghezza della lista.
+È un tipo di ordinamento in cui i numeri vengono ordinati in base ai loro indici (il numero 1 all'indice 0, il numero 2 all'indice 1, ecc.)
+
+Per esempio:
+lst = (1 5 3 2 4 0) --> applicabile
+lst = (1 5 3 2 4 1) --> non applicabile
+lst = (4 3 2 1)     --> non applicabile (manca il numero 0)
+
+Algoritmo
+Scorrere la lista verificando che ogni elemento sia nella posizione corretta, altrimenti scambiare l'elemento con l'elemento che ha indice corretto.
+
+(define (cyclic-sort lst)
+  (local (idx corretto)
+    (setq idx 0)
+    (while (< idx (length lst))
+      (setq corretto (- (lst idx) 1))
+      (if (!= (lst idx) (lst corretto))
+          (swap (lst idx) (lst corretto))
+          (++ idx)))
+    lst))
+
+(cyclic-sort '(3 5 2 1 4))
+;-> (1 2 3 4 5)
+(cyclic-sort (randomize (sequence 1 25)))
+;-> (1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25)
+
+
+------------------------------
+Primo numero positivo mancante
+------------------------------
+
+Data una lista di interi, restiture il più piccolo intero positivo che non è presente nella lista.
+
+Esempio 1:
+lst = (1 2 0 3)
+Output: 4 (i numeri nell'intervallo (1 2 3) sono tutti nella lista)
+
+Esempio 2:
+lst = (5 3 4 -1 1)
+Output: 2 (1 è nella lista, ma 2 è mancante)
+
+Esempio 3:
+lst = (0 7 8 9 10 11 12 14)
+Output: 1 (1 è mancante)
+
+Il numero cercato N sitrova nell'intervallo [1..lenght(lst) + 1].
+
+Soluzione O(n*log(n)) 
+---------------------
+(Con ordinamento della lista)
+
+(define (missing lst)
+  (local (out stop)
+    ; prende solo i numeri positivi e li ordina
+    (setq lst (sort (filter (fn(x) (> x 0)) lst)))
+    (setq stop nil)
+    ; ciclo che verifica se risulta num = $idx + 1
+    (dolist (el lst stop)
+      ;(println el (+ $idx 1))
+      ; se risulta num = indice_corrente (el = $idx + 1), continua il ciclo
+      (unless (= el (+ $idx 1)) 
+        ; altrimenti individua il numero mancante e ferma il ciclo
+        (setq out (+ $idx 1))
+        ; ferma il ciclo
+        (setq stop true)
+      )
+    )
+    ; se il ciclo è stato fermato, allora out è la soluzione 
+    (if stop
+        out
+        ; altrimenti la soluzione è l'ultimo numero della lista + 1
+        (+ (lst -1) 1))))
+
+Proviamo:
+
+(missing '(1 2 0 3))
+;-> 4
+(missing '(5 3 4 -1 1))
+;-> 2
+(missing '(0 7 8 9 10 11 12 14))
+;-> 1
+
+Soluzione O(n)
+--------------
+(Senza ordinamento della lista)
+
+L'implementazione sfrutta il fatto che ci interessano solo gli interi positivi fino a n, la lunghezza della lista.
+Algoritmo
+1) Scorrere la lista e, per ogni elemento, eseguire le seguenti azioni:
+  1a) Controllare se l'elemento corrente è un intero positivo e rientra nell'intervallo [1, n].
+  1b) Assicurarsi che non sia già nella posizione corretta (il che significa che l'elemento all'indice nums[i] - 1 dovrebbe essere nums[i] stesso).
+2) Se un elemento soddisfa i criteri di cui sopra, scambiarlo con l'elemento nella sua posizione "corretta" (la posizione che avrebbe se tutti gli elementi [1, n] fossero ordinati), che è l'indice nums[i] - 1.
+3) Ripetere il processo finché l'elemento corrente non è fuori dall'intervallo o è già nella posizione corretta.
+4) Dopo il ciclo di scambio, la lista viene nuovamente scansionata dall'inizio per trovare il primo indice i in cui nums[i] non è uguale a i + 1.
+Questo indice i indica che i + 1 è il più piccolo intero positivo mancante perché tutti gli interi prima di i + 1 sono già nelle loro posizioni corrette e i + 1 è il primo che manca dalla sua posizione corretta.
+5) Se non viene trovato alcun indice i, significa che tutti gli interi da 1 a n sono presenti e nelle loro posizioni corrette, quindi il più piccolo intero positivo mancante è n + 1.
+Complessità temporale O(n)
+Complessità spaziale O(1)
+
+(define (missing2 lst)
+  (setq len (length lst))
+  ; Posizioni corrette dei numeri (simile al Cyclic sort):
+  ; lst[i] = i + 1
+  ; lst[i] - 1 = i
+  ; lst[lst[i] - 1] = lst[i]  
+  (for (i 0 (- len 1))
+    (while (and (> (lst i) 0) (<= (lst i) len) (!= (lst i) (lst (- (lst i) 1))))
+      (swap (lst i) (lst (- (lst i) 1)))
+    )
+  )
+  ; verifica dell'eventuale numero mancante
+  (setq stop nil)
+  (for (i 0 (- len 1) 1 stop)
+    (if (!= (lst i) (+ i 1)) (set 'out (+ i 1) 'stop true))
+  )
+  ; se il ciclo è stato fermato, allora out è la soluzione 
+  (if stop
+      out
+      ; altrimenti la soluzione è la lunghezza della lista + 1
+      (+ len 1)))
+
+Proviamo:
+
+(missing2 '(1 2 0 3))
+;-> 4
+(missing2 '(5 3 4 -1 1))
+;-> 2
+(missing2 '(0 7 8 9 10 11 12 14))
+;-> 1
+
 ============================================================================
 

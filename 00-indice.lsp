@@ -2653,6 +2653,8 @@ NOTE LIBERE 26
   Numero massimo tramite concatenazione binaria
   Intervallo più piccolo che include elementi da N liste
   Matematica cinese antica: i numeri primi
+  Cyclic Sort
+  Primo numero positivo mancante
   
 PROBLEMI SUI DADI
 =================
