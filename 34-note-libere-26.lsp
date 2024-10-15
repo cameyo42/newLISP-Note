@@ -4775,5 +4775,145 @@ Proviamo:
 
 Adesso dobbiamo scrivere una funzione che tratta N liste.
 
+(define (min-idx lst)
+"Return min values and its index"
+  (let (minimo (apply min lst))
+    (list minimo (first (ref minimo lst)))))
+
+(define (finish?)
+  (setq out nil)
+  (for (i 0 (- num-list 1) 1 out)
+    (if (>= (ptr i) (len-list i)) (setq out true))
+  )
+  out)
+
+(define (range-min lst)
+  (local (num-list ptr len-list range numeri ordinati p))
+    ; ordina tutte le liste
+    (setq lst (map sort lst))
+    ; numero totale di liste
+    (setq num-list (length lst))
+    ; array di puntatori per le liste
+    (setq ptr (array num-list '(0)))
+    ; lista delle lunghezze delle liste
+    (setq len-list (map length lst))
+    ; range iniziale
+    (setq range '(+1e99 -1e99))
+    ;ciclo fino al termine di una delle liste
+    (until (finish?) ; 
+      ; prende i numeri in base ai puntatori e li ordina
+      ; per trovare il minimo e il massimo
+      (setq numeri '())
+      (for (i 0 (- num-list 1))
+        (push ((lst i) (ptr i)) numeri -1)
+      )
+      (setq ordinati numeri)
+      (sort numeri)
+      ; aggiorna l'intervallo
+      (setf (range 1) (max (numeri -1) (range 1)))
+      ;(setf (range 0) (numeri 0))
+      ; cerca il puntatore del numero più piccolo
+      (setq p ((min-idx ordinati) 1))
+      ; aumenta il puntatore del numero più piccolo
+      (++ (ptr p))
+      ;(println range)
+      ;(println ordinati)
+      ;(println ptr)
+      ;(read-line)
+    )
+    range)
+
+Proviamo:
+
+(setq lst '((10 26 4 15 24) (0 20 9 12) (22 18 5 30)))
+(range-min lst)
+;-> (20 24)
+
+(setq test '((1 2 3 4 5) (6 7 8 9 10 11 12) (13 14 15)))
+(range-min test)
+;-> (5 13)
+
+(setq lst '((0 20 9 12) (22 18 5 30)))
+(range-min lst)
+;-> (20 22)
+
+
+----------------------------------------
+Matematica cinese antica: i numeri primi
+----------------------------------------
+
+Duemila anni fa i matematici cinesi credevano che un numero N fosse primo se (2^N - 2) divideva esattamente N.
+
+Formulazioni equivalenti:
+Un numero N è primo se (2^N - 2) è un multiplo di N.
+Un numero N è primo se risulta: (2^N - 2) mod N = 0
+Un numero N è primo se (2^N - 2) è congruente a 0 modulo N: (2^N - 2) ≡ 0 (mod N)
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (** num power)
+"Calculates the integer power of an integer"
+  (if (zero? power) 1L
+      (let (out 1L)
+        (dotimes (i power)
+          (setq out (* out num))))))
+
+(define (pow-i num power)
+"Calculates the integer power of an integer"
+  (local (pot out)
+    (if (zero? power)
+        (setq out 1L)
+        (begin
+          (setq pot (pow-i num (/ power 2)))
+          (if (odd? power)
+              (setq out (* num pot pot))
+              (setq out (* pot pot)))))
+    out))
+
+Vediamo quali numeri venivano erroneamente considerati primi:
+
+(define (china-error max-num)
+  (let (non-prime '())
+    (for (num 2 max-num)
+      (if (and (zero? (% (- (pow-i 2L num) 2) num)) (not (prime? num)))
+          (push num non-prime -1)))
+    non-prime))
+
+(time (println (china-error 1e3)))
+;-> (341 561 645)
+;-> 9.988
+
+(time (println (china-error 1e4)))
+;-> (341 561 645 1105 1387 1729 1905 2047 2465 2701 2821 3277
+;->  4033 4369 4371 4681 5461 6601 7957 8321 8481 8911)
+;-> 358.166
+
+(time (println (china-error 1e5)))
+;-> (341 561 645 1105 1387 1729 1905 2047 2465 2701 2821 3277 4033 4369 4371 4681 5461
+;->  6601 7957 8321 8481 8911 10261 10585 11305 12801 13741 13747 13981 14491 15709 15841
+;->  16705 18705 18721 19951 23001 23377 25761 29341 30121 30889 31417 31609 31621 33153
+;->  34945 35333 39865 41041 41665 42799 46657 49141 49981 52633 55245 57421 60701 60787
+;->  62745 63973 65077 65281 68101 72885 74665 75361 80581 83333 83665 85489 87249 88357
+;->  88561 90751 91001 93961)
+;-> 226404.84
+
+Adesso vediamo quanti numeri primi non venivano riconosciuti:
+
+(define (china-miss max-num)
+  (let (miss-prime '())
+    (for (num 2 max-num)
+      (if (and (prime? num) (not (zero? (% (- (pow-i 2L num) 2) num))))
+          (push num miss-prime -1)))
+    miss-prime))
+
+(time (println (china-miss 1e5)))
+;-> ()
+;-> 20328.833
+
+Vedi anche "Numeri di Carmichael" su "Rosetta Code".
+
 ============================================================================
 

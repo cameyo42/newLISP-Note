@@ -4795,7 +4795,7 @@ I numeri di Carmichael passano in ogni caso il test di primalità di Fermat pur 
 
 I numeri di Carmichael sono tutti dispari.
 
-Scriviamo una funxione che controlla se un dato numero è un numero di Carmichael:
+Scriviamo una funzione che controlla se un dato numero è un numero di Carmichael:
 
 (define (fattorizza x)
   (letn (fattori (factor x)
@@ -4850,6 +4850,8 @@ Scriviamo una funzione che calcola i numeri di Carmichael fino al numero n:
 
 (time (carmichael 1000000))
 ;-> 3510.422
+
+Vedi anche "Matematica cinese antica: i numeri primi" su "Note libere 26".
 
 
 ------------------------------------------

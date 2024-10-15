@@ -2652,6 +2652,7 @@ NOTE LIBERE 26
   Reti di lunghezza minima - Punti di Steiner
   Numero massimo tramite concatenazione binaria
   Intervallo più piccolo che include elementi da N liste
+  Matematica cinese antica: i numeri primi
   
 PROBLEMI SUI DADI
 =================
