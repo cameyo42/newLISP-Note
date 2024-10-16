@@ -5050,5 +5050,85 @@ Proviamo:
 (missing2 '(0 7 8 9 10 11 12 14))
 ;-> 1
 
+
+-----------------
+Teorema di Wilson
+-----------------
+
+Il teorema di Wilson afferma che:
+
+ (p - 1)! ≡ -1 (mod p), per ogni numero primo p.
+
+In altre parole, il fattoriale di (p - 1), dove p è un numero primo, è congruente a -1 modulo p.
+Questo significa che dividendo (p - 1)! per p otteniamo come resto (p - 1) (se e solo se p è un numero primo).
+
+Nota: (p - 1)! ≡ -1 (mod p) è equivalente a (p - 1)! ≡ (p - 1) (mod p)
+
+(define (fact-i num)
+"Calculates the factorial of an integer number"
+  (if (zero? num)
+      1
+      (let (out 1L)
+        (for (x 1L num)
+          (setq out (* out x))))))
+
+(define (wilson? num)
+  (= (- num 1) (% (fact-i (- num 1)) num)))
+
+Proviamo:
+
+(wilson? 3)
+;-> true
+(wilson? 11)
+;-> true
+(wilson? 12)
+;-> nil
+
+(filter wilson? (sequence 2 100))
+;-> (2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97)
+
+
+-------------------------
+Raggruppare gli anagrammi
+-------------------------
+
+Data una lista di stringhe, raggruppare le strighe che sono anagrammi tra loro.
+
+Algoritmo
+Usiamo una lista associativa.
+Sfruttiamo il fatto che due stringhe palindrome hanno lo stesso ordinamento di caratteri (perchè hanno gli stessi caratteri).
+Per ogni stringa della lista:
+1. ordinare la stringa corrente in base ai caratteri (key)
+2. cercare la stringa ordinata (key nella lista associativa)
+  2a) se esiste la key, allora aggiungere la stringa corrente al valore della chiave
+  2b) altrimenti aggiungere alla lista associativa la coppia (key (str))
+
+(define (ana-group lst)
+  (local (link key val)
+    ; lista associativa
+    (setq link '())
+    ; ciclo per ogni stringa
+    (dolist (str lst)
+      ; crea la stringa ordinata (key)
+      (setq key (join (sort (explode str))))
+      ; ricerca la chiave key nella lista associativa
+      (setq val (lookup key link))
+      ; aggiornameno della lista associativa
+      (if val
+          (setf (lookup key link) (push str val -1)) ; chiave esistente
+          (push (list key (list str)) link -1); chiave non esistente
+      )
+    )
+    link))
+
+(setq data '("aperti" "incerte" "pietra" "rapati" "patria" "recenti"
+             "rapite" "rapita" "aprite" "patrie" "pirata" "cretine"
+             "pareti"))
+
+(ana-group data)
+;-> (("aeiprt" ("aperti" "pietra" "rapite" "aprite" "patrie" "pareti"))
+;->  ("ceeinrt" ("incerte" "recenti" "cretine"))
+;->  ("aaiprt" ("rapati" "patria" "rapita" "pirata")))
+
 ============================================================================
 

@@ -2655,6 +2655,8 @@ NOTE LIBERE 26
   Matematica cinese antica: i numeri primi
   Cyclic Sort
   Primo numero positivo mancante
+  Teorema di Wilson
+  Raggruppare gli anagrammi
   
 PROBLEMI SUI DADI
 =================
