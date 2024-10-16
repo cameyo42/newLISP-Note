@@ -2657,6 +2657,8 @@ NOTE LIBERE 26
   Primo numero positivo mancante
   Teorema di Wilson
   Raggruppare gli anagrammi
+  Massimo numero di parole
+  Distanza minima tra caratteri uguali
   
 PROBLEMI SUI DADI
 =================

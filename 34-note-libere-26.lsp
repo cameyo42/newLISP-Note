@@ -5130,5 +5130,158 @@ Per ogni stringa della lista:
 ;->  ("ceeinrt" ("incerte" "recenti" "cretine"))
 ;->  ("aaiprt" ("rapati" "patria" "rapita" "pirata")))
 
+
+------------------------
+Massimo numero di parole
+------------------------
+
+Date due stringhe, determinare quante volte è possibile scrivere la seconda stringa con i caratteri della prima.
+Ogni carattere delle prima stringa può essere usato solo una volta.
+
+Esempio:
+stringa1 = "uno"
+stringa2 = "abcuunnooxyz"
+Output = 2
+
+Esempio:
+stringa1 = "rjmdafrgmkllsaoalkalwmjksakxmzbgmefmsadoajkmm"
+stringa2 = "mamma"
+Output = 2
+
+Algoritmo
+Contiamo le ripetizioni dei caratteri della prima stringa.
+Contiamo le ripetizioni dei caratteri della seconda stringa.
+Confrontando i valori delle ripetizioni dei caratteri possiamo determinare la soluzione.
+
+(define (max-parole str1 str2)
+  (local (s1 s2 unici1 unici2 lista1 lista2 stop parole ch2 rip1 rip2 ch2)
+    (setq s1 (explode str1))
+    (setq unici1 (unique s1))
+    ; lista1 (carattere numero-ripetizioni) di str1
+    (setq lista1 (map list unici1 (count unici1 s1)))
+    (setq s2 (explode str2))
+    (setq unici2 (unique s2))
+    ; lista2 (carattere numero-ripetizioni) di str2
+    (setq lista2 (map list unici2 (count unici2 s2)))
+    (setq stop nil)
+    (setq parole 1e99)
+    ; ciclo sui caratteri della lista2
+    (dolist (el lista2 stop)
+      ; carattere corrente (lista2)
+      (setq ch2 (el 0))
+      ; ripetizioni carattere corrente (lista2)
+      (setq rip2 (el 1))
+      ; ripetizioni del carattere corrente in lista1
+      (setq rip1 (lookup ch2 lista1))
+      ; confronto ripetizioni tra i due caratteri
+      (cond ((nil? rip1)
+              ; non esiste il carattere nella lista 1
+              (setq stop true))
+            (true
+              ; numero parole possibili = 
+              ; = minimo tra (rip1/rip2) e numero parole possibili corrente
+              (setq conta (/ rip1 rip2))
+              (setq parole (min parole conta)))))
+    parole))
+
+Proviamo:
+
+(max-parole "abcuunnooxyz" "uno")
+;-> 2
+
+(max-parole "rjmdafrgmkllsaoalkalwmjksakxmzbgmefmsadoajkmm" "mamma")
+;-> 2
+
+(setq test (join (randomize (explode (dup "lisp" 10)))))
+(max-parole test "lisp")
+;-> 10
+
+
+------------------------------------
+Distanza minima tra caratteri uguali
+------------------------------------
+
+Data una lista di elementi, scrivere una funzione che verifica se un dato elemento dista almeno k posizioni l'uno dall'altro.
+Due elementi distano di (almeno) K posizioni se esistono (almeno) K elementi tra loro.
+
+Esempio:
+lista = (4 1 2 4 1 6 2 4 8 2)
+elemento = 4
+k = 2
+Output = true (perchè tutti i 4 sono ad una distanza maggiore o uguale a 2)
+
+ d = 2    
+-------
+4 1 2 4 1 6 2 4 8 2
+      ---------
+        d = 3
+
+Esempio:
+lista = ("a" "c" "a" "b" "a" "a" "g")
+elemento = "a"
+k = 1
+Output = nil (perchè i caratteri "a" "a" si trovano a distanza 0 che è minore di 1)
+
+   d = 1         d = 0
+ ---------       -----
+"a" "c" "a" "b" "a" "a" "g")
+         ---------
+           d = 1
+
+Nota: per ogni elemento trovato, è sufficiente controllare se è distante almeno K posizioni dal successivo.
+
+Stile iterativo:
+
+(define (k-away? var k lst)
+  (setq idx-prev (- 1e9))
+  (setq stop nil)
+  (dolist (el lst stop)
+    (if (= el var) 
+        (if (< k (- $idx idx-prev))
+            (setq idx-prev $idx)
+            ;else
+            (setq stop true))))
+  (not stop))
+
+Proviamo: 
+
+(k-away? 4 2 '(4 1 2 4 1 6 2 4 8 2))
+;-> true
+
+(k-away? "a" 1 '("a" "c" "a" "b" "a" "a" "g"))
+;-> nil
+
+
+Stile lisp:
+
+(define (k-away1? var k lst)
+  (let (idx (flat (ref-all var lst)))
+      (if (find-all k (map - (rest idx) (chop idx)) $it >=) nil true)))
+
+Proviamo:
+
+(k-away1? 4 2 '(4 1 2 4 1 6 2 4 8 2))
+;-> true
+
+(k-away1? "a" 1 '("a" "c" "a" "b" "a" "a" "g"))
+;-> nil
+
+Test di velocità:
+
+(setq t (append (dup 0 1e4) (randomize (append (dup 0 1e4) (dup "x" 10 true)))))
+(k-away? "x" 1 t)
+;-> true
+(time (k-away? "x" 1 t) 1e3)
+;-> 1224.723
+(time (k-away? "x" 1 t) 1e4)
+;-> 12322.064
+
+(k-away1? "x" 1 t)
+;-> true
+(time (k-away1? "x" 1 t) 1e3)
+;-> 363.056
+(time (k-away1? "x" 1 t) 1e4)
+;-> 3602.391
+
 ============================================================================
 
