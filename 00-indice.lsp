@@ -2659,6 +2659,7 @@ NOTE LIBERE 26
   Raggruppare gli anagrammi
   Massimo numero di parole
   Distanza minima tra caratteri uguali
+  Citazioni e H-Index
   
 PROBLEMI SUI DADI
 =================

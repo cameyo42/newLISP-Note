@@ -5092,7 +5092,7 @@ Proviamo:
 Raggruppare gli anagrammi
 -------------------------
 
-Data una lista di stringhe, raggruppare le strighe che sono anagrammi tra loro.
+Data una lista di stringhe, raggruppare le stringhe che sono anagrammi tra loro.
 
 Algoritmo
 Usiamo una lista associativa.
@@ -5282,6 +5282,63 @@ Test di velocità:
 ;-> 363.056
 (time (k-away1? "x" 1 t) 1e4)
 ;-> 3602.391
+
+
+-------------------
+Citazioni e H-Index
+-------------------
+
+Abbiamo una lista di numeri interi che rappresentano il numero di citazioni che un ricercatore ha ricevuto per il suo i-esimo articolo.
+Per esempio la lista (5 1 1 3 6) significa che il ricercatore ha ricevuto:
+5 citazioni per l'articolo 0
+1 citazione per l'articolo 1
+1 citazione per l'articolo 2
+3 citazioni per l'articolo 3
+6 citazioni per l'articolo 4
+
+Definizione di H-index:
+L'indice H-index è definito come il valore massimo di H tale che un ricercatore abbia pubblicato almeno H articoli che sono stati citati almeno H volte.
+In altre parole, si tratta del numero massimo H tale che nella lista esistono almeno H numeri maggiori o uguali ad H.
+
+Nel nostro esempio il ricercatore ha 3 articoli con almeno 3 citazioni ciascuno e i restanti 2 con non più di 3 citazioni ciascuno, quindi il suo H-index è 3.
+
+Algoritmo
+1) Ordiniamo la lista: (1 1 3 5 6)
+2) Attraversiamo la lista
+   Confrontiamo il numero corrente (1) con la differenza tra la lunghezza della lista (5) e l'indice corrente (0):
+   numero corrente = 1
+   idx = 0
+   len - idx = 5 - 0 = 5
+   Se il numero corrente (1) è maggiore o uguale alla differenza (5 - 0 = 5), allora la differenza è il valore di hindex. 
+   Infatti questo significa che insieme al numero corrente esistono un numero corrente di numeri maggiori del numero corrente (che è la definizione di H-index).
+   In questo caso (5 > 1), quindi andiamo avanti al numero 1 della lista:
+   
+   numero corrente = 1
+   idx = 0
+   len - idx = 5 - 1 = 4
+   (1 < 4)
+   
+   numero corrente = 3
+   idx = 2
+   len - idx = 5 - 2 = 3 
+   (3 = 3) --> Questo è l'H-index cercato.
+   Adesso risulta che insieme al numero 3 esistono altri 2 numeri (5 e 6) che sono maggiori o uguali a 3.
+   Quindi esistono 3 numeri che sono maggiori o uguali a 3.
+ 
+(define (hindex lst)
+  (let ( (len (length lst)) (stop nil) (out 0))
+    (sort lst)
+    (for (i 0 (- len 1) 1 stop)
+      (if (>= (lst i) (- len i)) (set 'out (- len i) 'stop true)))
+    out))
+
+Proviamo:
+
+(hindex '(5 1 1 3 6))
+;-> 3
+
+(hindex '(1 3 1 3 4 3 1))
+;-> 3
 
 ============================================================================
 
