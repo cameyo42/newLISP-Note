@@ -8375,9 +8375,9 @@ Nota: se nella lista esistono elementi multipli, allora il risultato può essere
 ;-> (3 1 3 2 9 6 8 6 7 6)
 
 
------
-1 o 2
------
+-------------
+1 o 2 (again)
+-------------
 
 Scrivere una funzione che restituisce 2 con input 1 e restituisce 1 con input 2.
 Nota: questa è una domanda semplice per vedere in quanti modi siamo in grado di risolvere il problema.
@@ -8418,6 +8418,8 @@ Metodo 3: operatore xor (bitwise)
 ;-> 1
 (sol03 3)
 ;-> 0
+
+Vedi anche "1 o 2" su "Note libere 5".
 
 
 --------------------------

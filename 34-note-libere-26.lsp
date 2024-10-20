@@ -5340,5 +5340,105 @@ Proviamo:
 (hindex '(1 3 1 3 4 3 1))
 ;-> 3
 
+
+--------------------
+Separazione di 0 e 1
+--------------------
+
+Data una lista di 0 e 1, scrivere una funzione che sposta tuti gli 1 all'inizio della lista.
+Esempio:
+lista = (0 1 1 1 0 1 0 0)
+output = (0 0 0 0 1 1 1 1)
+
+Esistono molti modi di risolvere questo problema.
+
+
+(define (separa1 lst) (sort lst))
+
+(setq a '(0 1 1 1 0 1 0 0))
+(separa1 a)
+;-> (0 0 0 0 1 1 1 1)
+
+(define (separa2 lst)
+  (let (conta (count '(0 1) lst))
+    (append (dup 0 (conta 0)) (dup 1 (conta 1)))))
+
+(separa2 a)
+;-> (0 0 0 0 1 1 1 1)
+
+(define (separa3 lst)
+  (append (filter zero? lst) (clean zero? lst)))
+
+(separa3 a)
+;-> (0 0 0 0 1 1 1 1)
+
+Adesso supponiamo che per separare gli 1 dagli 0 possiamo soltanto scegliere due elementi adiacenti e scambiarli.
+In questo modo, qual è il numero minimo di passaggi per raggruppare tutti gli 0 a sinistra e gli 1 a destra?
+
+Algoritmo
+Attraversiamo la lista e per ogni 0 il numero di scambi necessario per portarlo al posto corretto vale:
+(indice-corrente - numeri-di-zeri-già-considerati)
+
+(define (scambi lst)
+  (local (num-scambi len zeri-processati)
+    (setq len (length lst))
+    (setq num-scambi 0)
+    (setq zeri-processati 0)
+    (for (idx 0 (- len 1))
+      (when (zero? (lst idx))
+        (++ num-scambi (- idx zeri-processati))
+        (++ zeri-processati)))
+    num-scambi))
+
+Proviamo:
+
+(scambi a)
+;-> 11
+
+(scambi '(1 0 1))
+;-> 1
+
+(scambi '(1 0 0))
+;-> 2
+
+(scambi '(0 0 1 1))
+;-> 0
+
+Verifichiamo i risultati scrivendo una funzione che ordina gli elementi scambiando le coppie adiacenti (simile al bubble-sort):
+
+(define (separa-scambi lst)
+  (local (len num-scambi scambiati)
+    (setq len (length lst))
+    (setq num-scambi 0)
+    (setq scambiati true)
+    ; ciclo fino a che ci sono scambi da fare
+    (while scambiati 
+      (setq scambiati nil)
+      (for (idx 0 (- len 2))
+        ; uno scambio avviene solo quando troviamo la sequenza 1 0
+        (when (and (zero? (lst (+ idx 1))) (= (lst idx) 1))
+          (swap (lst idx) (lst (+ idx 1)))
+          (++ num-scambi)
+          ; segnala che nel ciclo è stata scambiata almeno una coppia
+          (setq scambiati true)
+        )
+      )
+    )
+    (list num-scambi lst)))
+
+Proviamo:
+
+(separa-scambi a)
+;-> (11 (0 0 0 0 1 1 1 1)
+
+(separa-scambi '(1 0 1))
+;-> (1 (0 1 1))
+
+(separa-scambi '(1 0 0))
+;-> (2 (0 0 1))
+
+(separa-scambi '(0 0 1 1))
+;-> (0 (0 0 1 1))
+
 ============================================================================
 

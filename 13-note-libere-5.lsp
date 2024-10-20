@@ -2859,6 +2859,8 @@ Vediamo quale delle tre funzioni è la più veloce:
 (time (f12c 2) 1e7)
 ;-> 610.196
 
+Vedi anche "1 o 2 (again)" su "Note libere 10".
+
 
 -------------------------------------------------
 Generare tutte le coppie di elementi di una lista

@@ -1364,7 +1364,7 @@ NOTE LIBERE 10
   Lista dei file di una cartella
   Creazione di immagini in formato PPM
   Wave Sort
-  1 o 2
+  1 o 2 (again)
   Little Endian e Big Endian
   Conversione Binario-Gray e Gray-Binario
 
@@ -2660,6 +2660,7 @@ NOTE LIBERE 26
   Massimo numero di parole
   Distanza minima tra caratteri uguali
   Citazioni e H-Index
+  Separazione di 0 e 1
   
 PROBLEMI SUI DADI
 =================
