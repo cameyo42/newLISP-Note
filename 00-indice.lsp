@@ -2661,6 +2661,7 @@ NOTE LIBERE 26
   Distanza minima tra caratteri uguali
   Citazioni e H-Index
   Separazione di 0 e 1
+  Password check
   
 PROBLEMI SUI DADI
 =================

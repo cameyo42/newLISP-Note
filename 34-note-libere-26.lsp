@@ -5440,5 +5440,71 @@ Proviamo:
 (separa-scambi '(0 0 1 1))
 ;-> (0 (0 0 1 1))
 
+
+--------------
+Password check
+--------------
+
+Una password è considerata 'forte' se soddisfa tutte le seguenti condizioni:
+
+1) Ha almeno 8 caratteri e al massimo 20 caratteri.
+2) Contiene almeno una lettera minuscola
+3) contiene almeno una lettera maiuscola
+4) contiene almeno una cifra.
+5) e contiene almeno un dei seguenti simboli:
+   ! # $ % ^ & ( ) * + , - . : ; < = > @ [ ] ^ _ { | } ~ 
+6) deve contenere solo i caratteri elencati sopra (per esempio, lo spazio " " non è consntito).
+
+Scrivere una funzione che verifica se una password (stringa) è 'forte'.
+
+(define (check-pwd str)
+  (local (out lower upper digits simboli error len l u d s)
+    (setq out nil)
+    (setq lower "abcdefghijklmnopqrstuvwxyz")
+    (setq upper "ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    (setq digits "0123456789")
+    (setq simboli '("!" "#" "$" "%" "^" "&" "(" ")" "*" "+" "," "-" "." ":"
+                    ";" "<" "=" ">" "@" "[" "]" "^" "_" "{" "|" "}" "~"))
+    (setq error nil)
+    (setq len (length str))
+    (cond ((or (< len 8) (> len 20)) 
+          (println "Password must have at least 6 characters and at most 20 characters"))
+          (true
+            (setq l 0) (setq u 0) (setq d 0) (setq s 0)
+            (dolist (ch (explode str))
+              (cond ((find ch lower) (setq l 1))
+                    ((find ch upper) (setq u 1))
+                    ((find ch digits) (setq d 1))
+                    ((find ch simboli) (setq s 1))
+                    (true (setq error ch))))
+            (if error (println "Character '" error "' not allowed"))
+            (if (zero? l) (println "Missing lowercase character"))
+            (if (zero? u) (println "Missing uppercase character"))
+            (if (zero? d) (println "Missing digit character"))
+            (if (zero? s) (println "Missing symbol character"))
+            (if (= (+ l u d s) 4) (setq out true))))
+    out))
+
+Proviamo:
+
+(check-pwd "A1a")
+;-> Password must have at least 6 characters and at most 20 characters
+;-> nil
+
+(check-pwd "A1a234234_3242348qqqqq")
+;-> Password must have at least 6 characters and at most 20 characters
+;-> nil
+
+(check-pwd "         ")
+;-> Character ' ' not allowed
+;-> Missing lowercase character
+;-> Missing uppercase character
+;-> Missing digit character
+;-> Missing symbol character
+;-> nil
+
+(check-pwd "A1a2345_K")
+;-> true
+
 ============================================================================
 
