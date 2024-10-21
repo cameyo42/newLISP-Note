@@ -5459,6 +5459,7 @@ Mentre la distanza media tra numeri primi consecutivi cresce logaritmicamente co
 Cioè, non sappiamo se esiste una dimensione massima del gap che può essere osservata infinitamente spesso al crescere di N. Questa rimane una questione aperta nella teoria dei numeri.
 
 Vedi anche "Distanza tra coppia di primi" su "Note libere 17".
+Vedi anche "Distanza massima tra coppie di primi adiacenti" su "Note libere 26".
 
 
 ------------------------------

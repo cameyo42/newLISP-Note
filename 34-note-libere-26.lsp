@@ -5506,5 +5506,247 @@ Proviamo:
 (check-pwd "A1a2345_K")
 ;-> true
 
+
+----------------------------------------------
+Distanza massima tra coppie di primi adiacenti
+----------------------------------------------
+
+Tra due numeri primi adiacenti possiamo calcolare la distanza:
+  
+  distanza = p(i+1) - p(i)
+
+Come varia la massima distanza fra numeri primi adiacenti?
+Per esempio, consideriamo i seguenti numeri primi (2 3 5 7 11 13 17 19) e calcoliamo le distanze tra le i numeri adiacenti:
+
+  3 - 2 = 1 (valore massimo di distanza)
+  5 - 3 = 2 (valore massimo di distanza)
+  7 - 5 = 2
+ 11 - 9 = 2
+ 13 - 9 = 2
+ 17 - 13 = 4 (valore massimo di distanza)
+ 19 - 17 = 2
+
+Notiamo che le massime distanze tra i primi si verificano con il 3 (distanza 1), il 5 (distanza 2) e il 17 (distanza 4).
+Vogliamo vedere come varia la massima distanza al crescere dei numeri primi.
+
+Sequnza OEIS A005250:
+Record gaps between primes.
+  1, 2, 4, 6, 8, 14, 18, 20, 22, 34, 36, 44, 52, 72, 86, 96, 112, 114, 118,
+  132, 148, 154, 180, 210, 220, 222, 234, 248, 250, 282, 288, 292, 320, 336,
+  354, 382, 384, 394, 456, 464, 468, 474, 486, 490, 500, 514, 516, 532, 534,
+  540, 582, 588, 602, 652, ...
+
+(define (primes-to num)
+"Generates all prime numbers less than or equal to a given number"
+  (cond ((= num 1) '())
+        ((= num 2) '(2))
+        (true
+          (let ((lst '(2)) (arr (array (+ num 1))))
+            (for (x 3 num 2)
+              (when (not (arr x))
+                (push x lst -1)
+                (for (y (* x x) num (* 2 x) (> y num))
+                  (setf (arr y) true)))) lst))))
+
+(define (dist-max-primi limite)
+  (local (primi out max-dist ordine prec)
+    (setq primi (primes-to limite))
+    (setq out '())
+    (setq max-dist -1)
+    (setq ordine 1)
+    (setq prec 2)
+    (dolist (p primi)
+      (setq dist (- p prec))
+      (when (> dist max-dist)
+        (setq max-dist dist)
+        (println ordine { } p { } dist)
+        (push (list ordine p dist) out -1)
+      )
+      (setq prec p)
+      (++ ordine))
+    (println "Totale numeri primi: " (length primi))
+    (println "Ultimo numero primo: " (primi -1))
+    out))
+
+Proviamo con numeri fino a 2e8 (200 milioni):
+
+(time (setq result (dist-max-primi 2e8)))
+;-> 1 2 0
+;-> 2 3 1
+;-> 3 5 2
+;-> 5 11 4
+;-> 10 29 6
+;-> 25 97 8
+;-> 31 127 14
+;-> 100 541 18
+;-> 155 907 20
+;-> 190 1151 22
+;-> 218 1361 34
+;-> 1184 9587 36
+;-> 1832 15727 44
+;-> 2226 19661 52
+;-> 3386 31469 72
+;-> 14358 156007 86
+;-> 30803 360749 96
+;-> 31546 370373 112
+;-> 40934 492227 114
+;-> 103521 1349651 118
+;-> 104072 1357333 132
+;-> 149690 2010881 148
+;-> 325853 4652507 154
+;-> 1094422 17051887 180
+;-> 1319946 20831533 210
+;-> 2850175 47326913 220
+;-> 6957877 122164969 222
+;-> 10539433 189695893 234
+;-> 10655463 191913031 248
+;-> Totale numeri primi: 11078937
+;-> Ultimo numero primo: 199999991
+;-> 40253.924
+
+Il 10655463-esimo numero primo, che vale 191913031, dista dal precedente (che vale 191912783) 248 unità.
+
+Verifichiamo la sequenza OEIS:
+
+(flat (map 2 result))
+;-> (0 1 2 4 6 8 14 18 20 22 34 36 44 52 72 86 96 112
+;->  114 118 132 148 154 180 210 220 222 234 248)
+
+Poichè i numeri primi tendono ad essere meno frequenti col crescere delle cifre, è intuitivo che la massima distanza cresce sempre (ma molto lentamente e in maniera irregolare).
+Un risultato noto, basato sull'ipotesi di Cramer, stima che la distanza massima tra primi adiacenti potrebbe crescere come: 
+
+  Differenza (p(n+1) - p(n)) proporzionale a log^2(p(n))
+
+cioè, la massima distanza tra primi consecutivi cresce proporzionalmente al quadrato del logaritmo del numero primo.
+Questo significa ch il gap tra due numeri primi consecutivi non cresce semplicemente di log^2(p(n)) per ogni primo p(n) \), ma piuttosto la massima distanza tra due primi consecutivi fino a un certo punto tende a comportarsi come log^2(p(n)). 
+Quindi la crescita della distanza massima è approssimativamente limitata da log^2(p(n)), ma non che ogni distanza massima segua quella relazione.
+L'ipotesi di Cramer riguarda solo un limite superiore asintotico per la massima distanza possibile tra primi consecutivi. La maggior parte delle distanze è più piccola.
+
+Esempio: 
+per quanto potrebbe essere grande la distanza massima attorno a numeri primi di grandezza simile a 492227, potremmo  calcolare log^2(492227):
+
+(mul (log 492227) (log 492227))
+;-> 171.785460931684
+
+Quindi, secondo l'ipotesi di Cramer, la massima distanza tra due primi consecutivi intorno a 492227 potrebbe essere approssimativamente 171. 
+Tuttavia, la distanza effettiva tra due primi consecutivi specifici può essere molto inferiore alla massima possibile. 
+
+Vedi anche "Distanza tra coppia di primi" su "Note libere 17".
+Vedi anche "Distanze tra coppie di numeri primi adiacenti" su "Note libere 20".
+
+
+--------------------------------------------
+Conteggio dei numeri con cifre tutte diverse
+--------------------------------------------
+
+Dato un numero intero k, contare tutti i numeri con cifre univoche tra 0 e (10^k - 1) con 0 <= k <= 9.
+
+Scriviamo una funzione che conta tutti i numeri da 'a' a 'b':
+
+(define (conta-diversi a b)
+  (let (conta 0)
+    (for (numero a b)
+      (setq cifre (explode (string numero)))
+      (if (= cifre (unique cifre)) (++ conta))
+    )
+    conta))
+
+Provaviamo:
+
+(conta-diversi 0 9)
+;-> 10
+(conta-diversi 0 99)
+;-> 91
+(conta-diversi 0 999)
+;-> 739
+(conta-diversi 0 9999)
+;-> 5275
+(time (println (conta-diversi 0 9999999)))
+;-> 712891
+;-> 17937.959
+(time (println (conta-diversi 0 1e8)))
+;-> 2345851
+;-> 196387.405
+
+La funzione produce i risultati corretti, ma è lenta per valori di k > 6.
+
+Calcoliamo i numeri con cifre diverse tra gli intervalli [10^(k-1)..(10^k - 1)]:
+
+(conta-diversi 0 9)
+;-> 10
+(conta-diversi 10 99)
+;-> 81
+(conta-diversi 100 999)
+;-> 648
+(conta-diversi 1000 9999)
+;-> 4536
+(conta-diversi 10000 99999)
+;-> 27216
+
+A parte i primi 10 numeri diversi (da 0 a 9), gli altri valori seguono uno schema matematico:
+
+(div 648 8)
+;-> 81
+(* 81 8)
+;-> 648
+
+(div 4536 7)
+;-> 648
+(* 648 7)
+;-> 4536
+
+(div 27216 6)
+;-> 4536
+(* 4536 6)
+;-> 27216
+
+Per k = 1, abbiamo 10 numeri diversi
+    k = 2, abbiamo 10 + 81 numeri diversi 
+    k = 3, abbiamo 10 + 81 + (81 * 8) numeri diversi
+    k = 4, abbiamo 10 + 81 + 648 + (648 * 7) numeri diversi
+    k = 5, abbiamo 10 + 81 + 648 + 4536 + (4536 * 5) numeri diversi
+    k = 6, abbiamo 10 + 81 + 648 + 4536 + 27216 + (27216 * 4) numeri diversi
+    ...
+
+Quindi possiamo scrivere una funzione che effettua solo poche somme e moltiplicazioni per ottenere il risultato:
+
+(define (conta-diversi2 k)
+  (cond ((zero? k) 1)
+    ((= k 1) 10)
+    (true ; k > 1
+    (let ( (out 10) (contatore 9) (unici 9) )
+      (while (and (> k 1) (> contatore 0))
+        (setq unici (* unici contatore))
+        (setq out (+ out unici))
+        (-- contatore)
+        (-- k)
+        ;(println unici { } out)
+      )
+      out))))
+
+Proviamo:
+
+(conta-diversi2 3)
+;-> 739
+(conta-diversi 0 999)
+;-> 739
+
+(conta-diversi2 4)
+;-> 5275
+(conta-diversi 0 9999)
+;-> 5275
+
+(conta-diversi2 6)
+;-> 168571
+(conta-diversi 0 999999)
+;-> 168571
+
+(time (println (conta-diversi2 8)))
+;-> 2345851
+;-> 0
+(time (println (conta-diversi2 9)))
+;-> 5611771
+;-> 0
+
 ============================================================================
 

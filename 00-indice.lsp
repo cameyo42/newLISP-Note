@@ -2662,6 +2662,8 @@ NOTE LIBERE 26
   Citazioni e H-Index
   Separazione di 0 e 1
   Password check
+  Distanza massima tra coppie di primi adiacenti
+  Conteggio dei numeri con cifre tutte diverse
   
 PROBLEMI SUI DADI
 =================

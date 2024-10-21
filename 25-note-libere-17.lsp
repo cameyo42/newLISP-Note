@@ -814,6 +814,7 @@ Applichiamo la funzione per valori di N da 1 a 20:
 Per N = 7, 13 e 19 non ho trovato soluzioni.
 
 Vedi anche "Distanze tra coppie di numeri primi adiacenti" su "Note libere 20".
+Vedi anche "Distanza massima tra coppie di primi adiacenti" su "Note libere 26".
 
 
 ----------------------
