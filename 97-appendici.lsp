@@ -5779,28 +5779,23 @@ Lista delle funzioni:
 
 (define (nsieve m f, cnt)
   (set 'cnt 0)
-
         (for (i 2 m)
             (if (= (char f:isPrime i) 1)
                 (begin
                     (set 'k (+ i i))
                     (while (<= k m)
                         (cpymem "\000" (+ k (address f:isPrime)) 1)
-                        (inc 'k i))
-          (inc 'cnt))))
+                        (inc k i))
+          (inc cnt))))
          cnt)
 
 (define (main)
     (set 'n (integer (main-args 2)))
-
     (set 'm (* (pow 2 n) 10000))
     (set 'flags:isPrime (dup "\001" (+ m 1) ))
-
     (println (format "Primes up to %8d%8d" m (nsieve m flags)))
-
     (set 'm (* (pow 2 (- n 1)) 10000))
     (println (format "Primes up to %8d%8d" m (nsieve m flags)))
-
     (set 'm (* (pow 2 (- n 2)) 10000))
     (println (format "Primes up to %8d%8d" m (nsieve m flags)))
     )
@@ -6508,7 +6503,7 @@ yocto      y         10^-24     Quadrilionesimo  Septillionth
 =============
 
 Lista dei colori HTML (140)
-(ordinata per codice esadecimale)
+(ordinati per codice esadecimale)
 
 (setq color '(
   ($000000 Black)

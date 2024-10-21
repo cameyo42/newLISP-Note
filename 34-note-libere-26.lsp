@@ -5748,5 +5748,59 @@ Proviamo:
 ;-> 5611771
 ;-> 0
 
+
+-------------------------------
+Distanza tra primi in una lista
+-------------------------------
+
+Data una lista di interi positivi, determinare la massima distanza tra gli indici di due numeri primi (non necessariamente differenti).
+Per esempio:
+
+lista = (2 4 6 5 1 8 7)
+primi indici 
+ 2     0 
+ 5     3
+ 7     6
+Distanza massima = 6 - 0 = 6
+
+lista = (1 2 4 8 4 21)
+primi indici
+2      1
+Distanza massima = 1 - 1 = 0
+
+lista = (1 10 4 8)
+primi indici
+Nessun primo      
+Distanza massima = nil
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (dist-max-primi lst)
+  (let (lst (sort (index prime? lst)))
+    (if lst
+      (- (lst -1) (lst 0))
+      nil)))
+
+Proviamo:
+
+(setq a '(2 4 6 5 1 8 7))
+(setq b '(1 2 4 8 4 21))
+(setq c '(1 10 4 8))
+
+(dist-max-primi a)
+;-> 6
+(dist-max-primi b)
+;-> 0
+(dist-max-primi c)
+;-> nil
+
+(silent (setq test (rand 1e6 1e6)))
+(time (println (dist-max test)))
+;-> 999983
+;-> 937.452
+
 ============================================================================
 

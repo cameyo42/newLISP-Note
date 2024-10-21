@@ -2664,6 +2664,7 @@ NOTE LIBERE 26
   Password check
   Distanza massima tra coppie di primi adiacenti
   Conteggio dei numeri con cifre tutte diverse
+  Distanza tra primi in una lista
   
 PROBLEMI SUI DADI
 =================

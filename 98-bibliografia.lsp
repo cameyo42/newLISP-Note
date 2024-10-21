@@ -130,11 +130,12 @@
   Mathematics Stack Exchange è un sito di domande e risposte per persone che studiano matematica a qualsiasi livello.
   https://math.stackexchange.com/
   
+  Code Golf Stack Exchange is a question and answer site for programming puzzle enthusiasts and code golfers.
+  This is a site for recreational programming competitions, not general programming questions.
+  https://codegolf.stackexchange.com/
+  
   We believe that three things lead to success: Practice, Practice and Practice!
   https://www.codeabbey.com/
-
-  Code Golf Stack Exchange is a question and answer site for programming puzzle enthusiasts and code golfers.
-  https://codegolf.stackexchange.com/
 
   Enciclopedia libera:
   https://www.wikipedia.org/
