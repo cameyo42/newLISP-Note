@@ -5749,9 +5749,9 @@ Proviamo:
 ;-> 0
 
 
--------------------------------
-Distanza tra primi in una lista
--------------------------------
+--------------------------------------
+Distanza tra numeri primi in una lista
+--------------------------------------
 
 Data una lista di interi positivi, determinare la massima distanza tra gli indici di due numeri primi (non necessariamente differenti).
 Per esempio:
@@ -5900,6 +5900,50 @@ Solo il numero 26 è "SquareCube":
   (26 + 1) = 27 = 3*3*3
 
 
+------------------
+Grado di una lista
+------------------
+
+Data una lista/vettore non vuota, si definisce "grado" della lista la frequenza massima di uno dei suoi elementi.
+
+La soluzione migliore dal punto di vista della complessità temporale (O(n)) sarebbe quella che utilizza una hash-map.
+Comunque per una soluzione 'quick and dirty' possiamo scrivere:
+
+(define (grado lst)
+  (let (unici (unique lst))
+    (apply max (flat (count unici lst)))))
+
+Proviamo:
+
+(grado '(1 1 2 2 3 4 4 2))
+;-> 3
+
+(grado (append (dup 4 4) (dup 3 5) (dup 2 3)))
+;-> 5
+
+Test la velocità:
+
+(silent (setq t (rand 1e3 1e3)))
+(time (println (grado t)))
+;-> 5
+;-> 0.998
+
+(silent (setq t (rand 1e4 1e4)))
+(time (println (grado t)))
+;-> 7
+;-> 7.978
+
+(silent (setq t (rand 1e5 1e5)))
+(time (println (grado t)))
+;-> 12
+;-> 86.43
+
+(silent (setq t (rand 1e6 1e6)))
+(time (println (grado t)))
+;-> 57
+;-> 1609.667
+
+
 --------------------------
 Calcolo del tasso alcolico
 --------------------------
@@ -5907,11 +5951,8 @@ Calcolo del tasso alcolico
 Il Metodo "D"
 -------------
 Il cosiddetto "Metodo D" è stato messo a punto nel 2009 da Giancarlo Dosi, Franco Taggi e Teodora Macchia nell'ambito del progetto "Sistema Ulisse" sviluppato dall'Istituto Superiore di Sanità.
-
-Questo semplice sistema di calcolo, rappresenta uno strumento, seppure approssimato, per la valutazione della propria alcolemia in seguito all'assunzione di bevande alcoliche.
-
+Questo semplice sistema di calcolo rappresenta uno strumento, seppure approssimato, per la valutazione del grado di alcolemia.
 Il metodo si basa sul calcolo della quantità di alcol ingerita espressa in grammi che viene rapportata al proprio peso con un coefficiente di correzione che tiene conto del genere (uomo/donna) e della condizione fisica (digiuno o a stomaco pieno).
-
 Il "Metodo D" produce risultati del tutto simili a quelli delle tabelle ministeriali, con il vantaggio di poter indicare qualsiasi quantità di bevanda alcolica e qualsiasi gradazione.
 
 Rappresentando il metodo con una formula matematica abbiamo:
@@ -5926,53 +5967,103 @@ Rappresentando il metodo con una formula matematica abbiamo:
   Uomo  0.7      1.2
   Donna 0.5      0.9
 
+(define (alcol-D peso-alcol peso-persona coeff)
+  (div peso-alcol (mul peso-persona coeff)))
+
+Proviamo:
+
+(alcol-D 24 72 0.7)
+;-> 0.4761904761904762 grammi/litro
+
 Poiché le bevande alcoliche riportano sull'etichetta la gradazione espressa come percentuale del volume di alcol ("% vol") rispetto al volume complessivo della bevanda, per la nostra formula è necessario convertire tale valore in grammi.
-
 Per questo scopo si utilizza un metodo molto semplice che consente di determinare il peso dell'alcol in grammi per un litro di bevanda alcolica moltiplicando per 8 i gradi espressi in "% vol".
-Questo metodo si basa sul "peso specifico" dell'alcol che è di circa 0.8 e, anche se le densità delle bevande sono diverse da quella dell'acqua, il numero 8 è considerato un'ottima approssimazione per calcolare il peso dell'alcolo etilico, considerato che le differenze sarebbero trascurabili per il calcolo del tasso alcolemico.
+Questo metodo si basa sul "peso specifico" dell'alcol che è di circa 0.8 e, anche se le densità delle bevande sono diverse da quella dell'acqua, il valore è un'ottima approssimazione per calcolare il peso dell'alcolo etilico, considerato che le differenze sarebbero trascurabili per il calcolo del tasso alcolemico.
 Naturalmente, il valore ottenuto dovrà essere rapportato alla quantità di bevanda alcolica effettivamente ingerita.
-
 Ad esempio, per un litro di birra a 6 gradi avremo 48 grammi di alcol.
-Se si beve un boccale da mezzo litro i grammi saranno 24.
+Se si beve mezzo litro, allora i grammi saranno 24.
+
+(define (grammi-alcol litri gradi) (mul litri 8 gradi))
+
+Proviamo:
+
+(grammi-alcol 0.5 6)
+;-> 24
 
 Tempo di smaltimento dell'Alcol
 -------------------------------
-Una volta ingerito, l'alcol è assorbito in parte dalle pareti dello stomaco (il 20% circa) e in parte dall'intestino ed è "metabolizzato" dal fegato ad un ritmo pressoché costante, pari a circa 0,15 mg/ora.
-
+Una volta ingerito, l'alcol è assorbito in parte dalle pareti dello stomaco (il 20% circa) e in parte dall'intestino ed è "metabolizzato" dal fegato ad un ritmo pressoché costante, pari a circa 0.15 mg/ora.
+Per questo motivo, una volta calcolato il tasso alcolico nel sangue, è possibile stimare, sempre in via teorica e a titolo indicativo, quanto tempo si impiega per tornare sobri, o quanto tempo dovrà trascorrere per tornare sotto il limite legale per la guida.
 Erroneamente si ritiene che vi siano metodi per accelerare lo smaltimento dell'alcol, come ad esempio bere acqua o caffé, ma in realtà il tempo necessario affinché il fegato metabolizzi le molecole di alcol etilico non può essere alterato e dipende essenzialmente dalle condizioni fisiche del soggetto e dal buon funzionamento del fegato stesso.
 
-Per questo motivo, una volta calcolato il tasso alcolico nel sangue, è possibile stimare, sempre in via teorica e a titolo indicativo, quanto tempo si impiega per tornare sobri, o quanto tempo dovrà trascorrere per tornare sotto il limite legale per la guida.
-
-Ad esempio, se l'alcolemia raggiunta è pari a 1.8 mg/litro serviranno all'incirca 1.8 / 0.15 = 12 ore per tornare sobri.
+Ad esempio, se l'alcolemia raggiunta è pari a 1.8 mg/litro serviranno all'incirca 1.8/0.15 = 12 ore per tornare sobri.
 In questo caso, per tornare sotto il limite legale per la guida, dovremo calcolare il tempo necessario per smaltire 1.8 - 0.5 = 1.3 mg di alcol che sarà pari a circa 8.7 ore.
+
+(define (smaltimento tasso) (div tasso 0.15))
+
+Proviamo:
+
+(smaltimento 3)
+;-> 20
+(smaltimento 2.5)
+;-> 16.6666666667
 
 Formula di Widmark
 ------------------
 La formula di Widmark, già nota fin dalla prima metà del '900, calcola il livello di alcolemia considerando il rapporto tra peso corporeo e quantità di sangue nel corpo, senza tenere conto della condizione fisica del soggetto (stomaco vuoto o stomaco pieno):
 
-  Alcolemia = (Pa * 1,055) / (P * Fw) 
+  Alcolemia = (Pa * 1.055) / (P * Fw) 
   dove:
   Pa è il peso in grammi dell'alcol ingerito (si calcola come nel "metodo D")
   1,055 è una costante che indica il peso specifico del sangue
   P è il peso della persona espresso in Kg
   Fw è il cosiddetto "fattore di Widmark", talvolta detto anche "coefficiente di diffusione", che varia in base al genere: uomo = 0.73 e donna = 0.66
 
+(define (alcol-W genere peso-alcol peso-persona)
+  (if (= genere "uomo")
+      (setq fw 0.73)
+      ;else "donna"
+      (setq fw 0.66))
+  (div (mul peso-alcol 1.055) (mul peso-persona fw)))
+
+Proviamo:
+
+(alcol-W "uomo" 24 72)
+;-> 0.4817351598173516
+
 Successivamente, la formula di Widmark è stata migliorata introducendo ulteriori elementi legati alla costituzione corporea, tra cui il TBW (Total Body Water), ossia il quantitativo totale di acqua nel corpo.
 
 Il fattore di Widmark corretto con il TBW diventa:
 
-  Fw = TBW / (0.8 * P)
+  Fw = TBW/(0.8 * P)
 
 Per il calcolo del TBW, che cambia in base al genere, si tiene conto dell'età, dell'altezza e del peso del soggetto utilizzando le seguenti formule:
 
   Uomo: 
-  TBW = 2.447 - 0.0952 * E + 0.1074 * A + 0.3362 * P
+  TBW = 2.447 - 0.0952*E + 0.1074*A + 0.3362*P
   Donna:  
-  TBW = 0.203 - 0.07 * E + 0.1069 * A + 0.2466 * P
+  TBW = 0.203 - 0.07*E + 0.1069*A + 0.2466*P
   dove:
   E è l'età espressa in anni
   A è l'altezza espressa in centimetri
   P è il peso corporeo espresso in Kg
+
+(define (tbw genere eta peso altezza)
+  (if (= genere "uomo")
+    (add 2.447 (sub (mul 0.0952 eta)) (mul 0.1074 altezza) (mul 0.3362 peso))
+    ; else "donna"
+    (add 0.203 (sub (mul 0.07 eta)) (mul 0.1069 altezza) (mul 0.2466 peso))))
+
+(define (alcol-W2 genere peso-alcol peso-persona eta altezza)
+  (if (= genere "uomo")
+      (setq fw (div (tbw "uomo" eta peso-persona altezza) (mul 0.8 peso-persona)))
+      ;else "donna"
+      (setq fw (div (tbw "donna" eta peso-persona altezza) (mul 0.8 peso-persona))))
+  (div (mul peso-alcol 1.055) (mul peso-persona fw)))
+
+Proviamo:
+
+(alcol-W2 "uomo" 24 72 61 180)
+;-> 0.504153993956922
 
 --------------------------------
 Tabelle alcolemiche ministeriali

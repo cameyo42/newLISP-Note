@@ -2664,9 +2664,10 @@ NOTE LIBERE 26
   Password check
   Distanza massima tra coppie di primi adiacenti
   Conteggio dei numeri con cifre tutte diverse
-  Distanza tra primi in una lista
+  Distanza tra numeri primi in una lista
   Verificare se un numero intero è un cubo perfetto
   Numeri con quadrati e cubi adiacenti
+  Grado di una lista
   Calcolo del tasso alcolico
   
 PROBLEMI SUI DADI
