@@ -2665,6 +2665,8 @@ NOTE LIBERE 26
   Distanza massima tra coppie di primi adiacenti
   Conteggio dei numeri con cifre tutte diverse
   Distanza tra primi in una lista
+  Verificare se un numero intero è un cubo perfetto
+  Numeri con quadrati e cubi adiacenti
   
 PROBLEMI SUI DADI
 =================
@@ -2709,7 +2711,7 @@ BIBLIOGRAFIA/WEB
 
 YO LIBRARY
 ==========
-"yo.zip" Libreria per matematica ricreativa e problem solving (302 funzioni)
+"yo.zip" Libreria per matematica ricreativa e problem solving (303 funzioni)
 
 DOCUMENTAZIONE EXTRA
 ====================

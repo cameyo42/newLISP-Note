@@ -5802,5 +5802,102 @@ Proviamo:
 ;-> 999983
 ;-> 937.452
 
+
+-------------------------------------------------
+Verificare se un numero intero è un cubo perfetto
+-------------------------------------------------
+
+Scriviamo una funzione per verificare se un numero intero è un cubo perfetto.
+
+Prima versione
+--------------
+
+(define (cubo-perfetto? num)
+  (let (icbr (int (pow num (div 3))))
+    (= num (* icbr icbr icbr))))
+
+Proviamo:
+
+(cubo-perfetto? 8)
+;-> true
+(cubo-perfetto? 27)
+;-> true
+(cubo-perfetto? 64)
+;-> nil ; risultato errato
+(filter cubo-perfetto? (sequence 1 1000))
+;-> (1 8 27) ; risultato errato
+
+Questa funzione ha problemi che derivano dagli arrotondamenti dei numeri in virgola mobile generati dalla funzione "pow".
+
+Seconda versione
+----------------
+Algoritmo
+Calcolare il valore iniziale della radice cubica approssimata con pow e integer (cube-root).
+Verificare se il cubo di questo valore è uguale al numero dato.
+Se non è esatto, testare anche il valore successivo (cube-root + 1) e il valore precedente (cube-root - 1) per correggere eventuali errori dovuti alla divisione in virgola mobile.
+
+(define (cube? num)
+"Check if an integer is a perfect cube"
+  (let ((cube-root (int (pow num (div 3)))))
+    (if (= (* cube-root cube-root cube-root) num)
+      true
+      (if (= (* (+ cube-root 1) (+ cube-root 1) (+ cube-root 1)) num)
+        true
+        (if (= (* (- cube-root 1) (- cube-root 1) (- cube-root 1)) num)
+        true
+        nil)))))
+
+Proviamo:
+
+(cube? 8)
+;-> true
+(cube? 27)
+;-> true
+(cube? 64)
+;-> true
+(filter cube? (sequence 1 1000))
+;-> (1 8 27 64 125 216 343 512 729 1000)
+
+(= (filter cube? (sequence 1 1000000))
+   (map (fn(x) (* x x x)) (sequence 1 100)))
+;-> true
+
+
+------------------------------------
+Numeri con quadrati e cubi adiacenti
+------------------------------------
+
+Un numero intero positivo N è detto "SquareCube" se risulta:
+1) (x - 1) è un quadrato perfetto
+e
+2) (x + 1) è un cubo perfetto
+
+(define (square? num)
+"Check if an integer is a perfect square"
+  (let (isq (int (sqrt num)))
+    (= num (* isq isq))))
+
+(define (cube? num)
+"Check if an integer is a perfect cube"
+  (let ((cube-root (int (pow num (div 3)))))
+    (if (= (* cube-root cube-root cube-root) num)
+      true
+      (if (= (* (+ cube-root 1) (+ cube-root 1) (+ cube-root 1)) num)
+        true
+        (if (= (* (- cube-root 1) (- cube-root 1) (- cube-root 1)) num)
+        true
+        nil)))))
+
+(define (squarecube? num)
+  (and (square? (- num 1)) (cube? (+ num 1))))
+
+Proviamo con numeri fino ad 1 milione:
+(filter squarecube? (sequence 1 1e6))
+;-> (26)
+
+Solo il numero 26 è "SquareCube":
+  (26 - 1) = 25 = 5*5
+  (26 + 1) = 27 = 3*3*3
+
 ============================================================================
 
