@@ -5899,5 +5899,88 @@ Solo il numero 26 è "SquareCube":
   (26 - 1) = 25 = 5*5
   (26 + 1) = 27 = 3*3*3
 
+
+--------------------------
+Calcolo del tasso alcolico
+--------------------------
+
+Il Metodo "D"
+-------------
+Il cosiddetto "Metodo D" è stato messo a punto nel 2009 da Giancarlo Dosi, Franco Taggi e Teodora Macchia nell'ambito del progetto "Sistema Ulisse" sviluppato dall'Istituto Superiore di Sanità.
+
+Questo semplice sistema di calcolo, rappresenta uno strumento, seppure approssimato, per la valutazione della propria alcolemia in seguito all'assunzione di bevande alcoliche.
+
+Il metodo si basa sul calcolo della quantità di alcol ingerita espressa in grammi che viene rapportata al proprio peso con un coefficiente di correzione che tiene conto del genere (uomo/donna) e della condizione fisica (digiuno o a stomaco pieno).
+
+Il "Metodo D" produce risultati del tutto simili a quelli delle tabelle ministeriali, con il vantaggio di poter indicare qualsiasi quantità di bevanda alcolica e qualsiasi gradazione.
+
+Rappresentando il metodo con una formula matematica abbiamo:
+
+  Alcolemia = Pa / (P * C)
+  dove:
+  Pa è il peso in grammi dell'alcol ingerito
+  P è il peso della persona espresso in Kg
+  C è un coefficiente che varia in base al genere ed alla condizione fisica
+  Valori di C :
+        Digiuno  Stomaco pieno
+  Uomo  0.7      1.2
+  Donna 0.5      0.9
+
+Poiché le bevande alcoliche riportano sull'etichetta la gradazione espressa come percentuale del volume di alcol ("% vol") rispetto al volume complessivo della bevanda, per la nostra formula è necessario convertire tale valore in grammi.
+
+Per questo scopo si utilizza un metodo molto semplice che consente di determinare il peso dell'alcol in grammi per un litro di bevanda alcolica moltiplicando per 8 i gradi espressi in "% vol".
+Questo metodo si basa sul "peso specifico" dell'alcol che è di circa 0.8 e, anche se le densità delle bevande sono diverse da quella dell'acqua, il numero 8 è considerato un'ottima approssimazione per calcolare il peso dell'alcolo etilico, considerato che le differenze sarebbero trascurabili per il calcolo del tasso alcolemico.
+Naturalmente, il valore ottenuto dovrà essere rapportato alla quantità di bevanda alcolica effettivamente ingerita.
+
+Ad esempio, per un litro di birra a 6 gradi avremo 48 grammi di alcol.
+Se si beve un boccale da mezzo litro i grammi saranno 24.
+
+Tempo di smaltimento dell'Alcol
+-------------------------------
+Una volta ingerito, l'alcol è assorbito in parte dalle pareti dello stomaco (il 20% circa) e in parte dall'intestino ed è "metabolizzato" dal fegato ad un ritmo pressoché costante, pari a circa 0,15 mg/ora.
+
+Erroneamente si ritiene che vi siano metodi per accelerare lo smaltimento dell'alcol, come ad esempio bere acqua o caffé, ma in realtà il tempo necessario affinché il fegato metabolizzi le molecole di alcol etilico non può essere alterato e dipende essenzialmente dalle condizioni fisiche del soggetto e dal buon funzionamento del fegato stesso.
+
+Per questo motivo, una volta calcolato il tasso alcolico nel sangue, è possibile stimare, sempre in via teorica e a titolo indicativo, quanto tempo si impiega per tornare sobri, o quanto tempo dovrà trascorrere per tornare sotto il limite legale per la guida.
+
+Ad esempio, se l'alcolemia raggiunta è pari a 1.8 mg/litro serviranno all'incirca 1.8 / 0.15 = 12 ore per tornare sobri.
+In questo caso, per tornare sotto il limite legale per la guida, dovremo calcolare il tempo necessario per smaltire 1.8 - 0.5 = 1.3 mg di alcol che sarà pari a circa 8.7 ore.
+
+Formula di Widmark
+------------------
+La formula di Widmark, già nota fin dalla prima metà del '900, calcola il livello di alcolemia considerando il rapporto tra peso corporeo e quantità di sangue nel corpo, senza tenere conto della condizione fisica del soggetto (stomaco vuoto o stomaco pieno):
+
+  Alcolemia = (Pa * 1,055) / (P * Fw) 
+  dove:
+  Pa è il peso in grammi dell'alcol ingerito (si calcola come nel "metodo D")
+  1,055 è una costante che indica il peso specifico del sangue
+  P è il peso della persona espresso in Kg
+  Fw è il cosiddetto "fattore di Widmark", talvolta detto anche "coefficiente di diffusione", che varia in base al genere: uomo = 0.73 e donna = 0.66
+
+Successivamente, la formula di Widmark è stata migliorata introducendo ulteriori elementi legati alla costituzione corporea, tra cui il TBW (Total Body Water), ossia il quantitativo totale di acqua nel corpo.
+
+Il fattore di Widmark corretto con il TBW diventa:
+
+  Fw = TBW / (0.8 * P)
+
+Per il calcolo del TBW, che cambia in base al genere, si tiene conto dell'età, dell'altezza e del peso del soggetto utilizzando le seguenti formule:
+
+  Uomo: 
+  TBW = 2.447 - 0.0952 * E + 0.1074 * A + 0.3362 * P
+  Donna:  
+  TBW = 0.203 - 0.07 * E + 0.1069 * A + 0.2466 * P
+  dove:
+  E è l'età espressa in anni
+  A è l'altezza espressa in centimetri
+  P è il peso corporeo espresso in Kg
+
+--------------------------------
+Tabelle alcolemiche ministeriali
+--------------------------------
+Le tabelle alcolemiche ministeriali sono state pubblicate dal Ministero della Salute in seguito all'approvazione del Decreto Legge 3 agosto 2007 n. 117 convertito in legge, con modificazioni, dall’art. 1 della legge 2 ottobre 2007 n. 160, che ha inasprito il limite legale del tasso alcolemico per la guida portandolo dai precedenti 0.8 g/litro agli attuali 0.5 g/litro, come stabilito dall'Art. 6.
+Le tabelle riportano i valori per le principali bevande alcoliche secondo le cosiddette "unità alcoliche di riferimento", ossia le quantità servite nella maggior parte dei casi, come ad esempio la classica lattina di birra da 330 ml, o il bicchiere di vino da 125 ml.
+Nota: nelle tabelle ministeriali le quantità sono indicate in "cc" (centimetri cubi) mentre nella quasi totalità delle bevande che si trovano in commercio, trattandosi di liquidi, la quantità è espressa in "ml" (millilitri) o "cl" (centilitri).
+Vedi "tabella-alcolemica.png" nella cartella "data".
+
 ============================================================================
 

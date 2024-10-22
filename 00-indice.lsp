@@ -2667,6 +2667,7 @@ NOTE LIBERE 26
   Distanza tra primi in una lista
   Verificare se un numero intero è un cubo perfetto
   Numeri con quadrati e cubi adiacenti
+  Calcolo del tasso alcolico
   
 PROBLEMI SUI DADI
 =================
