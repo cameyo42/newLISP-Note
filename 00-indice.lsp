@@ -2673,6 +2673,7 @@ NOTE LIBERE 26
   Numeri primi di Eisenstein
   Numeri di Smarandache-Wellin
   Numeri poligonali centrali
+  Numeri pentagonali centrati
   
 PROBLEMI SUI DADI
 =================

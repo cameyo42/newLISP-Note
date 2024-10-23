@@ -6239,5 +6239,39 @@ La sequenza dei numeri poligonali centrati si ottiene anche aggiungendo 1 alla s
 
 Vedi anche "Torte e tagli" su "Note libere 2".
 
+
+---------------------------
+Numeri pentagonali centrati
+---------------------------
+
+Un numero pentagonale centrato è un numero che rappresenta un pentagono con un punto al centro e tutti gli altri punti attorno in livelli pentagonali successivi.
+Il numero pentagonale centrato n-esimo viene calcolato con la formula:
+
+          (5*n^2 - 5*n + 2) 
+  P(n) = -------------------
+                  2
+
+                       *
+          *          * * *
+  *     * * *      * * * * *
+         * *        * * * *
+                     * * *
+  1       6            16
+
+Sequenza OEIS A005891:
+Centered pentagonal numbers: (5n^2+5n+2)/2
+  1, 6, 16, 31, 51, 76, 106, 141, 181, 226, 276, 331, 391, 456, 526, 601,
+  681, 766, 856, 951, 1051, 1156, 1266, 1381, 1501, 1626, 1756, 1891, 2031,
+  2176, 2326, 2481, 2641, 2806, 2976, 3151, 3331, 3516, 3706, 3901, 4101,
+  4306, 4516, 4731, 4951, 5176, 5406, ...
+
+(define (npc n) (/ (- (* 5 n n) (* 5 n) (- 2)) 2))
+
+(map npc (sequence 1 50))
+;-> (1 6 16 31 51 76 106 141 181 226 276 331 391 456 526 601
+;->  681 766 856 951 1051 1156 1266 1381 1501 1626 1756 1891 2031
+;->  2176 2326 2481 2641 2806 2976 3151 3331 3516 3706 3901 4101
+;->  4306 4516 4731 4951 5176 5406 5641 5881 6126)
+
 ============================================================================
 
