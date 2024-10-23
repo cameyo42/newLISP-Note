@@ -4521,6 +4521,8 @@ La funzione in newLISP è semplice:
 (torta 12)
 ;-> 79
 
+Vedi anche "Numeri poligonali centrali" su "Note libere 26".
+
 
 --------------
 Il ciclo "for"

@@ -2669,6 +2669,10 @@ NOTE LIBERE 26
   Numeri con quadrati e cubi adiacenti
   Grado di una lista
   Calcolo del tasso alcolico
+  Numeri idonei di Eulero
+  Numeri primi di Eisenstein
+  Numeri di Smarandache-Wellin
+  Numeri poligonali centrali
   
 PROBLEMI SUI DADI
 =================
@@ -2706,6 +2710,7 @@ APPENDICI
   Codici ASCII
   ASCII Punctuation marks
   Solarized Color Scheme
+  Regole di Internet
   Considerazioni lungo il tragitto
 
 BIBLIOGRAFIA/WEB

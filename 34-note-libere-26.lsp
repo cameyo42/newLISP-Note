@@ -5906,7 +5906,7 @@ Grado di una lista
 
 Data una lista/vettore non vuota, si definisce "grado" della lista la frequenza massima di uno dei suoi elementi.
 
-La soluzione migliore dal punto di vista della complessità temporale (O(n)) sarebbe quella che utilizza una hash-map.
+La soluzione migliore dal punto di vista della complessità temporale (O(n)) sarebbe quella che utilizzare una hash-map.
 Comunque per una soluzione 'quick and dirty' possiamo scrivere:
 
 (define (grado lst)
@@ -6065,13 +6065,179 @@ Proviamo:
 (alcol-W2 "uomo" 24 72 61 180)
 ;-> 0.504153993956922
 
---------------------------------
 Tabelle alcolemiche ministeriali
 --------------------------------
 Le tabelle alcolemiche ministeriali sono state pubblicate dal Ministero della Salute in seguito all'approvazione del Decreto Legge 3 agosto 2007 n. 117 convertito in legge, con modificazioni, dall’art. 1 della legge 2 ottobre 2007 n. 160, che ha inasprito il limite legale del tasso alcolemico per la guida portandolo dai precedenti 0.8 g/litro agli attuali 0.5 g/litro, come stabilito dall'Art. 6.
 Le tabelle riportano i valori per le principali bevande alcoliche secondo le cosiddette "unità alcoliche di riferimento", ossia le quantità servite nella maggior parte dei casi, come ad esempio la classica lattina di birra da 330 ml, o il bicchiere di vino da 125 ml.
 Nota: nelle tabelle ministeriali le quantità sono indicate in "cc" (centimetri cubi) mentre nella quasi totalità delle bevande che si trovano in commercio, trattandosi di liquidi, la quantità è espressa in "ml" (millilitri) o "cl" (centilitri).
 Vedi "tabella-alcolemica.png" nella cartella "data".
+
+
+-----------------------
+Numeri idonei di Eulero
+-----------------------
+
+I numeri idonei sono stati deiniti da Eulero (Leonhard Euler) come quei numeri n tali che, per ogni k nella forma a^2 + n*b^2 (con a e b interi coprimi), k sia o un numero primo, o una potenza di un numero primo, o il doppio di un numero primo o di una sua potenza.
+
+Sequenza OEIS A000926:
+Euler's "numerus idoneus" (or "numeri idonei", or idoneal, or suitable, or convenient numbers).
+  1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 16, 18, 21, 22, 24, 25, 28, 
+  30, 33, 37, 40, 42, 45, 48, 57, 58, 60, 70, 72, 78, 85, 88, 93, 102, 105,
+  112, 120, 130, 133, 165, 168, 177, 190, 210, 232, 240, 253, 273, 280, 312,
+  330, 345, 357, 385, 408, 462, 520, 760, 840, 1320, 1365, 1848, ...
+
+There are many equivalent definitions of these numbers.
+A positive number n belongs to this sequence if and only if any of the following equivalent statements is true:
+(1) Let m > 1 be an odd number relatively prime to n which can be written in the form x^2 + n*y^2 with x, y relatively prime. If the equation m = x^2 + n*y^2 has only one solution with x, y >= 0, then m is a prime number. [Euler]
+(2) Every genus of quadratic forms of discriminant -4n consists of a single class. [Gauss]
+(3) If a*x^2 + b*x*y + c*y^2 is a reduced quadratic form of discriminant -4n, then either b=0, a=b or a = c. [Cox]
+(4) Two quadratic forms of discriminant -4n are equivalent if and only if they are properly equivalent. [Cox]
+(5) The class group C(-4n) is isomorphic to (Z/2Z)^m for some integer m. [Cox]
+(6) n is not of the form ab+ac+bc with 0 < a < b < c. (See proof in link below.)  [Rains]
+It is conjectured that the list given here is complete.
+Chowla showed that the list is finite and Weinberger showed that there is at most one further term.
+If an additional term exists it is > 100000000 [Jud McCranie]
+
+Usiamo la definizione (6) per scrivere la nostra funzione:
+Un intero positivo n è idoneo solo se non può essere scritto come ab + bc + ca per gli interi a, b e c con 0<a<b<c.
+
+(define (idoneo? num)
+  (let ((idoneo true) (stop nil))
+    ; tre cicli innestati per a, b e c
+    (for (a 1 (- num 2) 1 stop)
+      (for (b (+ a 1) (- num 1) 1 stop)
+        (for (c (+ b 1) num 1 stop)
+          (if (= num (+ (* a b) (* b c) (* c a)))
+              (set 'idoneo nil 'stop true)))))
+    idoneo))
+
+Proviamo:
+
+(time (println (filter idoneo? (sequence 1 100))))
+;-> (3 4 5 6 7 8 9 10 12 13 15 16 18 21 22 24 25 28 
+;->  30 33 37 40 42 45 48 57 58 60 70 72 78 85 88 93)
+;-> 110.078
+
+Nota: i numeri 1 e 2 sono nella sequenza OEIS come valori di default.
+
+(time (println (filter idoneo? (sequence 1 1000))))
+;-> (3 4 5 6 7 8 9 10 12 13 15 16 18 21 22 24 25 28
+;->  30 33 37 40 42 45 48 57 58 60 70 72 78 85 88 93 102 105
+;->  112 120 130 133 165 168 177 190 210 232 240 253 273 280 312
+;->  330 345 357 385 408 462 520 760 840)
+;-> 47504.682
+
+(time (println (filter idoneo? (sequence 1 2000))))
+;-> (3 4 5 6 7 8 9 10 12 13 15 16 18 21 22 24 25 28
+;->  30 33 37 40 42 45 48 57 58 60 70 72 78 85 88 93 102 105
+;->  112 120 130 133 165 168 177 190 210 232 240 253 273 280 312
+;->  330 345 357 385 408 462 520 760 840 1320 1365 1848)
+;-> 362149.87
+
+
+--------------------------
+Numeri primi di Eisenstein
+--------------------------
+I numeri primi che sono nella forma (3n -1) sono chiamati primi di Eisenstein.
+
+Sequenza OEIS A003627:
+Primes of the form 3n-1.
+  2, 5, 11, 17, 23, 29, 41, 47, 53, 59, 71, 83, 89, 101, 107, 113, 131,
+  137, 149, 167, 173, 179, 191, 197, 227, 233, 239, 251, 257, 263, 269,
+  281, 293, 311, 317, 347, 353, 359, 383, 389, 401, 419, 431, 443, 449,
+  461, 467, 479, 491, 503, 509, 521, 557, 563, 569, 587, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+Algoritmo:
+Generiamo una lista di numeri nella forma (3*n - 1), controllando se il risultato è primo e se è minore o uguale ad un dato limite.
+
+(define (eisenstein limite)
+  (let ((out '()))
+   ; n calcolato fino a che 3n - 1 è minore o uguale a limite
+    (for (n 1 (+ 1 (/ (+ limite 1) 3)))  
+      (let ((p (- (* 3 n) 1)))
+        (if (and (<= p limite) (prime? p))
+            (push p out -1))))
+    out))
+
+Proviamo:
+
+(time (println (eisenstein 1000)))
+;-> (2 5 11 17 23 29 41 47 53 59 71 83 89 101 107 113 131
+;->  137 149 167 173 179 191 197 227 233 239 251 257 263 269
+;->  281 293 311 317 347 353 359 383 389 401 419 431 443 449
+;->  461 467 479 491 503 509 521 557 563 569 587 593 599 617
+;->  641 647 653 659 677 683 701 719 743 761 773 797 809 821
+;->  827 839 857 863 881 887 911 929 941 947 953 971 977 983)
+;-> 0
+
+
+----------------------------
+Numeri di Smarandache-Wellin
+----------------------------
+
+Un numero di Smarandache-Wellin è un numero generato dalla concatenazione dei primi n numeri primi.
+
+Sequenza OEIS A019518:
+Smarandache-Wellin numbers: a(n) is the concatenation of first n primes (written in base 10).
+  2, 23, 235, 2357, 235711, 23571113, 2357111317, 235711131719, 23571113171923,
+  2357111317192329, 235711131719232931, 23571113171923293137,
+  2357111317192329313741, 235711131719232931374143,
+  23571113171923293137414347, ...
+
+(define (prime? num)
+"Check if a number is prime"
+   (if (< num 2) nil
+       (= 1 (length (factor num)))))
+
+(define (sw num-primi)
+  (let ( (out '()) (item "") )
+    (setq k 1)
+    (setq num 1)
+    (while (< k num-primi)
+      (when (prime? num)
+        (push (extend item (string num)) out -1)
+        (++ k))
+      (++ num))
+    out))
+
+Proviamo:
+
+(sw 15)
+;-> ("2" "23" "235" "2357" "235711" "23571113" "2357111317" "235711131719"
+;->  "23571113171923" "2357111317192329" "235711131719232931"
+;->  "23571113171923293137" "2357111317192329313741" "235711131719232931374143")
+
+
+--------------------------
+Numeri poligonali centrali
+--------------------------
+
+Un numero poligonale centrale designa il numero massimo di pezzi in cui può essere diviso una torta con n tagli. La formula generatrice è: n*(n + 1)/2 + 1.
+
+Sequenza OEIS A000124:
+Central polygonal numbers (the Lazy Caterer's sequence): n(n+1)/2 + 1
+or maximal number of pieces formed when slicing a pancake with n cuts.
+  1, 2, 4, 7, 11, 16, 22, 29, 37, 46, 56, 67, 79, 92, 106, 121, 137, 154,
+  172, 191, 211, 232, 254, 277, 301, 326, 352, 379, 407, 436, 466, 497, 529,
+  562, 596, 631, 667, 704, 742, 781, 821, 862, 904, 947, 991, 1036, 1082,
+  1129, 1177, 1226, 1276, 1327, 1379, ...
+
+La sequenza dei numeri poligonali centrati si ottiene anche aggiungendo 1 alla sequenza dei numeri triangolari.
+
+(define (npc k) (/ (+ (* k k) k 2)2))
+
+(map npc (sequence 0 52))
+;-> (1 2 4 7 11 16 22 29 37 46 56 67 79 92 106 121 137 154
+;->  172 191 211 232 254 277 301 326 352 379 407 436 466 497 529
+;->  562 596 631 667 704 742 781 821 862 904 947 991 1036 1082
+;->  1129 1177 1226 1276 1327 1379)
+
+Vedi anche "Torte e tagli" su "Note libere 2".
 
 ============================================================================
 

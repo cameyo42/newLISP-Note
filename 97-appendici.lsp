@@ -7173,6 +7173,84 @@ https://ethanschoonover.com/solarized/
 
 Vedi anche "solarized.png" nella cartella "data".
 
+
+====================
+ Regole di Internet
+====================
+
+"Rules of the Internet" è una raccolta di regole e aforismi generati da 4chan. A seconda di chi lo chieda, non sono da prendere sul serio o sono molto serie. La maggior parte di esse non si applica se non all'interno della comunità da cui sono nate, e l'elenco è in continua evoluzione, ma grazie alla Mutazione Memetica, alcune sono diventate famose.
+Comment
+Inoltre, quasi nessuno dei numeri è standardizzato, quindi non è raro trovare molte regole riordinate o semplicemente sostituite del tutto. Gli unici numeri standardizzati sono la Regola 34, la Regola 50 e la Regola 63, e forse anche le Regole 1 e 2 (e questo probabilmente solo a causa del Fight Club).
+
+Alcune delle regole più importanti includono:
+Regola 0: Non si scherza con i gatti.
+Regola 1: Non parlare di /b/.
+Regola 2: NON parlare di /b/.
+Regola 3: Noi siamo Anonymous.
+Regola 4: Anonymous é una legione.
+Regola 5: Anonymous non perdona.
+Regola 6: Anonymous può essere orribile, insensato ed un mostro incurante.
+Regola 7: Anonymous è ancora in grado di consegnare.
+Regola 8: Non ci sono vere regole per postare.
+Regola 9: Non ci sono regole reali nemmeno per la moderazione - goditi il tuo ban.
+Regola 10: Se ti piace qualche sito concorrente, NON FARLO.
+Regola 11: Per quanto vi piaccia discutere, ricordate che su internet nessuno discute. Al contrario, si prendono gioco della vostra intelligenza e dei vostri genitori.
+Regola 12: Qualsiasi cosa diciate può essere usata contro di voi.
+Regola 13: Tutto ciò che dite può essere e sarà trasformato in qualcos'altro.
+Regola 14: Non discutere con i troll: significa che vincono loro.
+Regola 15: Più ti impegni, più fallirai.
+Regola 16: Se il fallimento è di proporzioni epiche, potrebbe diventare un fallimento vincente.
+Regola 17: Ogni vittoria prima o poi fallisce.
+Regola 18: Tutto ciò che può essere etichettato può essere odiato.
+Regola 19: Più lo si odia, più diventa forte.
+Regola 20: Niente va preso sul serio.
+Regole 21: Un contenuto originale è originale solo per pochi secondi prima di non esserlo più.
+Regole 22: Il copypasta è fatto per rovinare fino all'ultimo bit di originalità.
+Regole 23: Il copypasta è fatto per rovinare fino all'ultimo bit di originalità.
+Regole 24: Ogni post è sempre un repost di un repost.
+Regole 25: La relazione all'argomento originale si perde ad ogni singolo post.
+Regole 26: Ogni argomento si puó trasformare in qualcosa di totalmente non correlato.
+Regole 27: Metti sempre in discussione l'orientamento sessuale di una persona senza una reale ragione per farlo.
+Regole 28: Metti sempre in discussione il genere di una persona - solo nel caso sia realmente un uomo.
+Regola 29: Su Internet gli uomini sono uomini, le donne sono anch'esse uomini e i bambini sono agenti dell'FBI sotto copertura.
+Regola 30: Le ragazze non esistono su Internet.
+Regola 31: Tette o GTFO (levati dal cazzo) - la scelta è vostra.
+Regola 32: Devi avere delle foto per dimostrare le tue affermazioni/Tutto può essere spiegato con una foto.
+Regola 33: Lurkate di più: non è mai abbastanza.
+Regola 34: se una cosa esiste, allora ne esiste anche la versione porno.
+Regola 35: Se non c'è nessun porno al momento, esso sarà creato.
+Regola 36: Non importa quanto sia malato, c'è sempre di peggio di quello che hai appena visto.
+Regola 37: Non si può dividere per zero (solo perché lo dice la calcolatrice).
+Regola 38: In questo caso non esistono limiti reali di alcun tipo, nemmeno il cielo.
+Regola 39: Il BLOCCO MAIUSCOLE È IL CONTROLLO PER LA CALMA.
+Regola 40: ANCHE CON IL CONTROLLO DELLA CALMA SI DEVE SEMPRE STERZARE.
+Regola 41: Desu non è divertente. Sul serio, ragazze. È peggio delle battute di Chuck Norris.
+Regola 42: Niente è sacro.
+Regola 43: Più una cosa è bella e pura - più è soddisfacente corromperla.
+Regola 44: Anche un solo commento positivo riguardo a cose giapponesi puó renderi un weaboo.
+Regola 45: Quando si vede un leone, bisogna salire in macchina.
+Regola 46: Ci sará sempre porno furry a riguardo.
+Regola 47: La piscina è sempre chiusa.
+Regola 48: L'unico hentai buono è quello "Yaoi", è così che funziona internet. L'unica eccezione può essere "Shotacon".
+Regola 49: Non importa cosa sia, è il feticcio di qualcuno.
+Regola 50: Un crossover, per quanto improbabile, alla fine si realizzerà nella Fan Art, nella Fan Fiction o nel materiale ufficiale, spesso attraverso una fanfiction.
+Regola 51: Se esiste, esiste una versione AI di esso. Se non c'è, ci sarà.
+Regola 61: Chuck Norris è l'eccezione, nessuna eccezione.
+Regola 62: È stato craccato e piratato. Si può trovare qualsiasi cosa se si cerca abbastanza a lungo.
+Regola 63: Per ogni personaggio maschile esiste una versione femminile di quel personaggio (e viceversa). E c'è sempre un porno di quel personaggio.
+Regola 64: Se esiste, c'è un universo alternativo di quel personaggio.
+Regola 65: Se non c'è, ci sarà.
+Regola 66: Tutto ha un fandom, tutto.
+Regola 67: Il 90% delle fanfiction è roba da incubo.
+Regola 68: Se esiste, mettetela in un abito da cameriera.
+Regola 69: Se esiste, mettetela in un vestito da coniglietta (quello sexy)
+Regola 70: Non parlare del fallimento del "100M GET".
+Regola 71: Internet è un affare fottutamente serio.
+Regola 72: Se una canzone esiste, esiste una versione Megalovania.
+Regola 75: La regola 75 è una bugia. OH CAZZ-
+Regola 77: Internet ti rende stupido.
+NESSUNA ECCEZIONE!
+
   
 ============================================================================
  Considerazioni lungo il tragitto

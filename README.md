@@ -41,7 +41,7 @@ Appunti sul linguaggio newLISP e sulla risoluzione dei problemi
 33) Note libere 25 (80)
 34) Note libere 26 (54)
 96) Problemi sui dadi (76)
-97) Appendici (31)
+97) Appendici (32)
 98) Bibliografia
 99) yo library (yo.zip) (303)
 
