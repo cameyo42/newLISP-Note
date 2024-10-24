@@ -6065,6 +6065,17 @@ Proviamo:
 (alcol-W2 "uomo" 24 72 61 180)
 ;-> 0.504153993956922
 
+Un approccio alternativo per il calcolo del TBW è dato dalle seguenti formule che utilizzano il BMI (Body Mass Index kg/m^2):
+
+            weight
+  BMI = ----------------
+         (height/100)^2
+
+TBW(uomo) = 0.724*(weight - ((((1.34*BMI) - 12.467)/100)*weight))
+TBW(donna) = 0.724*(weight - ((((1.371*BMI) - 3.467)/100)*weight))
+
+dove: 'weight' in kilogrammi, 'height' in centimetri, e 'age' in anni.
+
 Tabelle alcolemiche ministeriali
 --------------------------------
 Le tabelle alcolemiche ministeriali sono state pubblicate dal Ministero della Salute in seguito all'approvazione del Decreto Legge 3 agosto 2007 n. 117 convertito in legge, con modificazioni, dall’art. 1 della legge 2 ottobre 2007 n. 160, che ha inasprito il limite legale del tasso alcolemico per la guida portandolo dai precedenti 0.8 g/litro agli attuali 0.5 g/litro, come stabilito dall'Art. 6.
@@ -6272,6 +6283,154 @@ Centered pentagonal numbers: (5n^2+5n+2)/2
 ;->  681 766 856 951 1051 1156 1266 1381 1501 1626 1756 1891 2031
 ;->  2176 2326 2481 2641 2806 2976 3151 3331 3516 3706 3901 4101
 ;->  4306 4516 4731 4951 5176 5406 5641 5881 6126)
+
+
+--------------------------------------------
+Scomposizione di interi con prodotto massimo
+--------------------------------------------
+
+Dato un intero positivo N, scomporlo nella somma di k interi positivi, dove k >= 2, in modo che venga massimizzato il prodotto dei k interi.
+
+Esempio 1:
+Numero = 2
+Scomposizione: 1+1
+Prodotto massimo = 1*1 = 1
+
+Example 2:
+Numero = 10
+Scomposizione:  3 + 3 + 4
+Prodotto massimo: 3 * 3 * 4 = 36
+ 
+Proviamo a scomporre il numero 4:
+numero = 4
+scomposizioni possibili: 1+3, 2+2, 3+1
+Vediamo cosa accade se continuiamo a scomporre i numeri minori o uguali a 3.
+
+Scomponendo il 3 otteniamo:
+3 --> (1+2) con prodotto (1*2=2) oppure (2+1) con prodotto (2*1=2).
+Quindi se vogliamo ottenere il prodotto massimo non dobbiamo scomporre il 3.
+
+Scomponendo il 2 otteniamo:
+2 --> (1+1) con prodotto (1*1=1).
+Quindi se vogliamo ottenere il prodotto massimo non dobbiamo scomporre il 2.
+
+Scomponendo 1 otteniamo:
+Quindi se vogliamo ottenere il prodotto massimo non dobbiamo scomporre 1.
+1 --> 1 con prodotto 1.
+
+Proviamo a scomporre il numero 16 partendo dai numeri più piccoli:
+
+  2+2+2+2+2+(2+2+2)  --> 2*2*2*2*2*2*2*2 = 256
+
+Adesso sostituiamo (2+2+2) con (3+3):
+
+  2+2+(2+2+2)+(3+3)   --> 2*2*2*2*2*3*3 = 288
+
+Il prodotto aumenta perchè (3*3) > (2*2*2).
+Sostituiamo ancora (2+2+2) con (3+3):
+
+  2+2+(3+3)+(3+3)  --> 2*2*3*3*3*3 = 324
+
+Adesso abbiamo:
+
+  2+2+3+3+3+3
+
+se sostituiamo (2+2) con (4) non cambia nulla.
+
+Proviamo a cambiare (2+3) con (5):
+
+  2+2+3+3+3+3 = 5+5+3+3  --> 5*5*3*3 = 225
+
+Il prodotto diminuisce.
+
+Allora proviamo a cambiare (3+3) con (6):
+
+  2+2+3+3+3+3 = 2+2+6+6  --> 2*2*6*6 = 144
+
+Il prodotto diminuisce ancora di più.
+
+Questo porta a concludere che il prodotto massimo si ottiene quando i k numeri interi hanno tutti valore 2 e 3 (con il maggior numero di possibile di 3).
+
+Quindi la soluzione consiste nel calcolare quanti 3 e quanti 2 costituiscono la scomposizione.
+Per fare questo usiamo i valori (num / 3) e (num %3) per calcolare come è fatta la scomposizione.
+
+(define (prodotto-massimo num)
+  (local (num3 resto numbers)
+    (cond ((= num 1) '((1) 1))
+          ((= num 2) '((1 1) 1))
+          ((= num 3) '((1 2) 2))
+          (true
+            (setq num3 (/ num 3))
+            (setq resto (% num 3))
+            (cond ((= resto 0)
+                    ; scomposizione composta da tutti 3
+                    (setq numbers (dup 3 num3)))
+                  ((= resto 1)
+                    ; scomposizione composta da una coppia di 2 e
+                    ; un numero di 3 pari a: (/ num 3) - 1
+                    (setq numbers (append '(2 2) (dup 3 (- num3 1)))))
+                    ;(setq numbers (append '(4) (dup 3 (- num3 1)))))
+                  ((= resto 2)
+                    ; scomposizione composta da un 2 e
+                    ; un numero di 3 pari a: (/ num 3)
+                    (setq numbers (append '(2) (dup 3 num3))))
+            )
+            ; restituisce i numeri della scomposizione e il loro prodotto
+            (list numbers (apply * numbers))))))
+
+Proviamo:
+
+(prodotto-massimo 18)
+;-> ((3 3 3 3 3 3) 729)
+(prodotto-massimo 19)
+;-> ((2 2 3 3 3 3 3) 972)
+(prodotto-massimo 20)
+;-> ((2 3 3 3 3 3 3) 1458)
+
+(map prodotto-massimo (sequence 1 21))
+;-> (((1) 1) ((1 1) 1) ((1 2) 2) ((2 2) 4) ((2 3) 6) ((3 3) 9) ((2 2 3) 12)
+;->  ((2 3 3) 18) ((3 3 3) 27) ((2 2 3 3) 36) ((2 3 3 3) 54) ((3 3 3 3) 81)
+;->  ((2 2 3 3 3) 108) ((2 3 3 3 3) 162) ((3 3 3 3 3) 243) ((2 2 3 3 3 3) 324)
+;->  ((2 3 3 3 3 3) 486) ((3 3 3 3 3 3) 729) ((2 2 3 3 3 3 3) 972)
+;->  ((2 3 3 3 3 3 3) 1458) ((3 3 3 3 3 3 3) 2187))
+ 
+Versione alternativa (stesso metodo):
+
+(define (prodotto-massimo2 num)
+  (local (numbers prod)
+    (cond ((= num 1) '((1) 1))
+          ((= num 2) '((1 1) 1)) ;1*1
+          ((= num 3) '((1 2) 2)) ;1*2
+          (true
+            (setq numbers '())
+            (while (> num 4)
+              (-- num 3)
+              (push 3 numbers -1))
+            ; inserisce l'ultimo numero rimasto
+            (push num numbers)
+            (list numbers (apply * numbers))))))
+
+(prodotto-massimo2 18)
+;-> ((3 3 3 3 3 3) 729)
+(prodotto-massimo2 19)
+;-> ((4 3 3 3 3 3) 972)
+(prodotto-massimo2 20)
+;-> ((2 3 3 3 3 3 3) 1458)
+
+(map prodotto-massimo2 (sequence 1 21))
+;-> (((1) 1) ((1 1) 1) ((1 2) 2) ((4) 4) ((2 3) 6) ((3 3) 9) ((4 3) 12)
+;->  ((2 3 3) 18) ((3 3 3) 27) ((4 3 3) 36) ((2 3 3 3) 54) ((3 3 3 3) 81)
+;->  ((4 3 3 3) 108) ((2 3 3 3 3) 162) ((3 3 3 3 3) 243) ((4 3 3 3 3) 324)
+;->  ((2 3 3 3 3 3) 486) ((3 3 3 3 3 3) 729) ((4 3 3 3 3 3) 972)
+;->  ((2 3 3 3 3 3 3) 1458) ((3 3 3 3 3 3 3) 2187))
+
+Vediamo la velocità delle due funzioni:
+
+(setq test 123456789)
+(time (prodotto-massimo test))
+;-> 2053.066
+(time (prodotto-massimo2 test))
+;-> 4078.621
 
 ============================================================================
 

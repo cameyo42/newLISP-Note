@@ -2674,6 +2674,7 @@ NOTE LIBERE 26
   Numeri di Smarandache-Wellin
   Numeri poligonali centrali
   Numeri pentagonali centrati
+  Scomposizione di interi con prodotto massimo
   
 PROBLEMI SUI DADI
 =================
